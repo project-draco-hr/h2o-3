@@ -1,0 +1,21 @@
+{
+  Class target_=arg.getClass();
+  Field[] fields=new Field[0];
+  while (target_ != null) {
+    int flen=fields.length;
+    Field[] f2=target_.getDeclaredFields();
+    fields=Arrays.copyOf(fields,flen + f2.length);
+    System.arraycopy(f2,0,fields,flen,f2.length);
+    target_=target_.getSuperclass();
+  }
+  Field[] keep=new Field[fields.length];
+  int num=0;
+  for (  Field field : fields) {
+    field.setAccessible(true);
+    if (Modifier.isStatic(field.getModifiers()))     continue;
+    if (field.getType().isPrimitive() || field.getType() == String.class)     keep[num++]=field;
+  }
+  Field[] res=new Field[num];
+  for (int i=0; i < num; i++)   res[i]=keep[i];
+  return res;
+}

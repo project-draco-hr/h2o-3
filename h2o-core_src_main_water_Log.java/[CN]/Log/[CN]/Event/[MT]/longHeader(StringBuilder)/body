@@ -1,0 +1,13 @@
+{
+  String headers=_longHeaders;
+  if (headers == null) {
+    String host=H2O.SELF_ADDRESS != null ? H2O.SELF_ADDRESS.getHostAddress() : "";
+    headers=fixedLength(host + ":" + H2O.API_PORT+ " ",22) + fixedLength(PID + " ",6);
+    if (H2O.SELF_ADDRESS != null)     _longHeaders=headers;
+  }
+  buf.append(when.startAsString()).append(" ").append(headers);
+  if (thread == null)   thread=fixedLength(Thread.currentThread().getName() + " ",10);
+  buf.append(thread);
+  buf.append(kind.toString()).append(" ").append(sys.toString()).append(": ");
+  return buf;
+}

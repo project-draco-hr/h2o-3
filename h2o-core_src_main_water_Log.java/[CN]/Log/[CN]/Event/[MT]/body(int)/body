@@ -1,0 +1,32 @@
+{
+  StringBuilder buf=new StringBuilder(120);
+  if (messages != null)   for (  Object m : messages)   buf.append(m.toString());
+ else   if (message != null)   buf.append(message.toString());
+  if (buf.indexOf("\n") != -1) {
+    String s=buf.toString();
+    String[] lines=s.split("\n");
+    StringBuilder buf2=new StringBuilder(2 * buf.length());
+    buf2.append(lines[0]);
+    for (int i=1; i < lines.length; i++) {
+      buf2.append(NL).append("+");
+      for (int j=1; j < headroom; j++)       buf2.append(" ");
+      buf2.append(lines[i]);
+    }
+    buf=buf2;
+  }
+  if (ouch != null) {
+    buf.append(NL);
+    Writer wr=new StringWriter();
+    PrintWriter pwr=new PrintWriter(wr);
+    ouch.printStackTrace(pwr);
+    String mess=wr.toString();
+    String[] lines=mess.split("\n");
+    for (int i=0; i < lines.length; i++) {
+      buf.append("+");
+      for (int j=1; j < headroom; j++)       buf.append(" ");
+      buf.append(lines[i]);
+      if (i != lines.length - 1)       buf.append(NL);
+    }
+  }
+  return buf.toString();
+}

@@ -1,0 +1,18 @@
+{
+  Event result=null;
+  try {
+    result=new Event();
+    result.init(sys,kind,ouch,messages,message,lastGoodTimer=new Timer());
+  }
+ catch (  OutOfMemoryError e) {
+synchronized (Event.class) {
+      if (lastEvent.printMe) {
+        missed++;
+        return null;
+      }
+      result=lastEvent;
+      result.init(sys,kind,ouch,messages,null,lastGoodTimer);
+    }
+  }
+  return result;
+}

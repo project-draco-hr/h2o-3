@@ -1,0 +1,39 @@
+{
+  int count=0;
+  for (  Field field : fields) {
+    String name=field.getName();
+    Class cl=field.getType();
+    String opt=getValue(name);
+    try {
+      if (cl.isPrimitive()) {
+        if (cl == Boolean.TYPE) {
+          boolean curval=field.getBoolean(arg);
+          boolean xval=curval;
+          if (opt != null)           xval=!curval;
+          if ("1".equals(opt) || "true".equals(opt))           xval=true;
+          if ("0".equals(opt) || "false".equals(opt))           xval=false;
+          if (opt != null)           field.setBoolean(arg,xval);
+        }
+ else         if (opt == null || opt.length() == 0)         continue;
+ else         if (cl == Integer.TYPE)         field.setInt(arg,Integer.parseInt(opt));
+ else         if (cl == Float.TYPE)         field.setFloat(arg,Float.parseFloat(opt));
+ else         if (cl == Double.TYPE)         field.setDouble(arg,Double.parseDouble(opt));
+ else         if (cl == Long.TYPE)         field.setLong(arg,Long.parseLong(opt));
+ else         continue;
+        count++;
+      }
+ else       if (cl == String.class) {
+        if (opt != null) {
+          field.set(arg,opt);
+          count++;
+        }
+      }
+    }
+ catch (    Exception e) {
+      Log.err("Argument failed with ",e);
+    }
+  }
+  Arrays.sort(commandLineArgs);
+  for (int i=0; i < commandLineArgs.length; i++)   commandLineArgs[i].position=i;
+  return count;
+}

@@ -1,0 +1,26 @@
+{
+  Field[] fields=getFields(this);
+  String r="";
+  for (  Field field : fields) {
+    String name=field.getName();
+    Class cl=field.getType();
+    try {
+      if (cl.isPrimitive()) {
+        if (cl == Boolean.TYPE) {
+          boolean curval=field.getBoolean(this);
+          if (curval)           r+=" -" + name;
+        }
+ else         if (cl == Integer.TYPE)         r+=" -" + name + "="+ field.getInt(this);
+ else         if (cl == Float.TYPE)         r+=" -" + name + "="+ field.getFloat(this);
+ else         if (cl == Double.TYPE)         r+=" -" + name + "="+ field.getDouble(this);
+ else         if (cl == Long.TYPE)         r+=" -" + name + "="+ field.getLong(this);
+ else         continue;
+      }
+ else       if (cl == String.class)       if (field.get(this) != null)       r+=" -" + name + "="+ field.get(this);
+    }
+ catch (    Exception e) {
+      Log.err("Argument failed with ",e);
+    }
+  }
+  return r;
+}
