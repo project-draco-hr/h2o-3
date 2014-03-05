@@ -1,8 +1,11 @@
 {
   buf.append(when.startAsShortString()).append(" ");
-  String host=H2O.SELF_ADDRESS != null ? H2O.SELF_ADDRESS.getHostAddress() : "";
-  buf.append(fixedLength(host + ":" + H2O.API_PORT+ " ",18));
+  if (H2O.DEBUG) {
+    String host=H2O.SELF_ADDRESS != null ? H2O.SELF_ADDRESS.getHostAddress() : "";
+    buf.append(fixedLength(host + ":" + H2O.API_PORT+ " ",18));
+  }
   if (thread == null)   thread=fixedLength(Thread.currentThread().getName() + " ",8);
   buf.append(thread);
+  if (!H2O.DEBUG)   buf.append(kind.toString()).append(" ").append(sys.toString()).append(": ");
   return buf;
 }
