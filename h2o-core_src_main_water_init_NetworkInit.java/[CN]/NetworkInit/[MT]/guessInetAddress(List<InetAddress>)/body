@@ -1,0 +1,26 @@
+{
+  String m="Multiple local IPs detected:\n";
+  for (  InetAddress ip : ips)   m+="  " + ip;
+  m+="\nAttempting to determine correct address...\n";
+  Socket s=null;
+  try {
+    s=new Socket("8.8.8.8",53);
+    m+="Using " + s.getLocalAddress() + "\n";
+    return s.getLocalAddress();
+  }
+ catch (  java.net.SocketException se) {
+    return null;
+  }
+catch (  Throwable t) {
+    Log.err(t);
+    return null;
+  }
+ finally {
+    Log.warn(m);
+    if (s != null)     try {
+      s.close();
+    }
+ catch (    java.io.IOException _) {
+    }
+  }
+}

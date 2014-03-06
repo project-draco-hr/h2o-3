@@ -1,9 +1,15 @@
 {
+  Log.info("----- H2O started -----");
+  Log.info("Build git branch: " + ABV.branchName());
+  Log.info("Build git hash: " + ABV.lastCommitHash());
+  Log.info("Build git describe: " + ABV.describe());
+  Log.info("Build project version: " + ABV.projectVersion());
+  Log.info("Built by: '" + ABV.compiledBy() + "'");
+  Log.info("Built on: '" + ABV.compiledOn() + "'");
   Runtime runtime=Runtime.getRuntime();
-  double ONE_GB=1024 * 1024 * 1024;
-  System.out.println("Java availableProcessors: " + runtime.availableProcessors());
-  System.out.println("Java heap totalMemory: " + String.format("%.2f gb",runtime.totalMemory() / ONE_GB));
-  System.out.println("Java heap maxMemory: " + String.format("%.2f gb",runtime.maxMemory() / ONE_GB));
-  System.out.println("Java version: " + String.format("Java %s (from %s)",System.getProperty("java.version"),System.getProperty("java.vendor")));
-  System.out.println("OS   version: " + String.format("%s %s (%s)",System.getProperty("os.name"),System.getProperty("os.version"),System.getProperty("os.arch")));
+  Log.info("Java availableProcessors: " + runtime.availableProcessors());
+  Log.info("Java heap totalMemory: " + PrettyPrint.bytes(runtime.totalMemory()));
+  Log.info("Java heap maxMemory: " + PrettyPrint.bytes(runtime.maxMemory()));
+  Log.info("Java version: Java " + System.getProperty("java.version") + " (from "+ System.getProperty("java.vendor")+ ")");
+  Log.info("OS   version: " + System.getProperty("os.name") + " "+ System.getProperty("os.version")+ " ("+ System.getProperty("os.arch")+ ")");
 }

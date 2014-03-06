@@ -1,0 +1,45 @@
+{
+  ArrayList<NetworkInterface> networkInterfaceList=null;
+  try {
+    Enumeration<NetworkInterface> nis=NetworkInterface.getNetworkInterfaces();
+    ArrayList<NetworkInterface> tmpList=Collections.list(nis);
+    Comparator<NetworkInterface> c=new Comparator<NetworkInterface>(){
+      public int compare(      NetworkInterface lhs,      NetworkInterface rhs){
+        if ((lhs == null) && (rhs == null)) {
+          return 0;
+        }
+        if (lhs == null) {
+          return 1;
+        }
+        if (rhs == null) {
+          return -1;
+        }
+        if (lhs.getName().equals(rhs.getName())) {
+          return 0;
+        }
+        if (lhs.getName().startsWith("bond") && (rhs.getName().startsWith("bond"))) {
+          Integer li=lhs.getName().length();
+          Integer ri=rhs.getName().length();
+          if (li.compareTo(ri) != 0) {
+            return li.compareTo(ri);
+          }
+          return lhs.getName().compareTo(rhs.getName());
+        }
+        if (lhs.getName().startsWith("bond")) {
+          return -1;
+        }
+        if (rhs.getName().startsWith("bond")) {
+          return 1;
+        }
+        return 0;
+      }
+    }
+;
+    Collections.sort(tmpList,c);
+    networkInterfaceList=tmpList;
+  }
+ catch (  SocketException e) {
+    Log.err(e);
+  }
+  return networkInterfaceList;
+}

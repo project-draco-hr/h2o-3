@@ -1,0 +1,17 @@
+{
+  ArrayList<java.net.InetAddress> ips=new ArrayList<java.net.InetAddress>();
+{
+    ArrayList<NetworkInterface> networkInterfaceList=calcPrioritizedInterfaceList();
+    for (int i=0; i < networkInterfaceList.size(); i++) {
+      NetworkInterface ni=networkInterfaceList.get(i);
+      Enumeration<InetAddress> ias=ni.getInetAddresses();
+      while (ias.hasMoreElements()) {
+        InetAddress ia;
+        ia=ias.nextElement();
+        ips.add(ia);
+        Log.info("Possible IP Address: " + ni.getName() + " ("+ ni.getDisplayName()+ "), "+ ia.getHostAddress());
+      }
+    }
+  }
+  return ips;
+}

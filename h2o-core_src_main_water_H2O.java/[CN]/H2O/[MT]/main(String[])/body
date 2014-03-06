@@ -1,7 +1,21 @@
 {
-  if (IS_SYSTEM_RUNNING)   return;
-  IS_SYSTEM_RUNNING=true;
-  VERSION=getVersion();
-  START_TIME_MILLIS=System.currentTimeMillis();
+  if (!START_TIME_MILLIS.compareAndSet(0L,System.currentTimeMillis()))   return;
+  new Arguments(args).extract(ARGS);
   printAndLogVersion();
+  if (ARGS.version) {
+    exit(0);
+  }
+  if (ARGS.help) {
+    printHelp();
+    exit(0);
+  }
+  String ice=DEFAULT_ICE_ROOT();
+  if (ARGS.ice_root != null)   ice=ARGS.ice_root.replace("\\","/");
+  try {
+    ICE_ROOT=new URI(ice);
+  }
+ catch (  URISyntaxException ex) {
+    throw new RuntimeException("Invalid ice_root: " + ice + ", "+ ex.getMessage());
+  }
+  NetworkInit.findInetAddressForSelf();
 }
