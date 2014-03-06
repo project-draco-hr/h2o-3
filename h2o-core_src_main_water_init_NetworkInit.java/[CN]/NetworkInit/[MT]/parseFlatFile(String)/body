@@ -1,0 +1,12 @@
+{
+  if (fname == null)   return null;
+  File f=new File(fname);
+  if (!f.exists()) {
+    Log.warn("-flatfile specified but not found: " + fname);
+    return null;
+  }
+  HashSet<H2ONode> h2os=new HashSet<H2ONode>();
+  List<FlatFileEntry> list=parseFlatFile(f);
+  for (  FlatFileEntry entry : list)   h2os.add(H2ONode.intern(entry.inet,entry.port + 1));
+  return h2os;
+}
