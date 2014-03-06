@@ -9,8 +9,8 @@ synchronized (Event.class) {
           Event.lastEvent=new Event();
         }
         if (Event.missed > 0) {
-          if (Event.lastEvent.printMe == false) {
-            Event.lastEvent.init(Sys.WATER,Kind.WARN,null,null,"Logging framework dropped a message",Event.lastGoodTimer);
+          if (!Event.lastEvent.printMe) {
+            Event.lastEvent.init(Kind.WARN,null,null,"Logging framework dropped a message",Event.lastGoodTimer);
             Event.missed--;
           }
         }
@@ -19,7 +19,7 @@ synchronized (Event.class) {
   }
  catch (  OutOfMemoryError _) {
 synchronized (Event.class) {
-      if (Event.lastEvent.printMe == false)       Event.lastEvent=e;
+      if (!Event.lastEvent.printMe)       Event.lastEvent=e;
  else       Event.missed++;
     }
   }
