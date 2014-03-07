@@ -1,14 +1,6 @@
 {
   if (!START_TIME_MILLIS.compareAndSet(0L,System.currentTimeMillis()))   return;
   new Arguments(args).extract(ARGS);
-  printAndLogVersion();
-  if (ARGS.version) {
-    exit(0);
-  }
-  if (ARGS.help || ARGS.h) {
-    printHelp();
-    exit(0);
-  }
   String ice=DEFAULT_ICE_ROOT();
   if (ARGS.ice_root != null)   ice=ARGS.ice_root.replace("\\","/");
   try {
@@ -17,8 +9,15 @@
  catch (  URISyntaxException ex) {
     throw new RuntimeException("Invalid ice_root: " + ice + ", "+ ex.getMessage());
   }
+  printAndLogVersion();
+  if (ARGS.version) {
+    exit(0);
+  }
+  if (ARGS.help || ARGS.h) {
+    printHelp();
+    exit(0);
+  }
   NetworkInit.findInetAddressForSelf();
-  Log.wrap();
   startLocalNode();
   String logDir=Log.getLogDir();
   Log.info("Log dir: '" + (logDir == null ? "(unknown)" : Log.getLogDir()) + "'");

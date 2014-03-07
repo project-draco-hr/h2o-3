@@ -1,3 +1,13 @@
 {
-  return new H2ONode();
+  H2ONode h2o=INTERN.get(key);
+  if (h2o != null)   return h2o;
+  final int idx=UNIQUE.getAndIncrement();
+  h2o=new H2ONode(key,idx);
+  H2ONode old=INTERN.putIfAbsent(key,h2o);
+  if (old != null)   return old;
+synchronized (H2O.class) {
+    while (idx >= IDX.length)     IDX=Arrays.copyOf(IDX,IDX.length << 1);
+    IDX[idx]=h2o;
+  }
+  return h2o;
 }

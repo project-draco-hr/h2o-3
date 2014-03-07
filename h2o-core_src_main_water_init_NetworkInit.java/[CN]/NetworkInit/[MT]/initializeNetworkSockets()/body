@@ -1,5 +1,5 @@
 {
-  H2O.API_PORT=H2O.ARGS.port;
+  H2O.API_PORT=H2O.ARGS.port == 0 ? 54321 : H2O.ARGS.port;
   while (true) {
     H2O.H2O_PORT=H2O.API_PORT + 1;
     try {
@@ -40,7 +40,7 @@
     H2O.CLOUD_MULTICAST_GROUP=InetAddress.getByAddress(ip);
   }
  catch (  UnknownHostException e) {
-    throw Log.errRTExcept(e);
+    Log.throwErr(e);
   }
   H2O.CLOUD_MULTICAST_PORT=(port >>> 16);
 }
