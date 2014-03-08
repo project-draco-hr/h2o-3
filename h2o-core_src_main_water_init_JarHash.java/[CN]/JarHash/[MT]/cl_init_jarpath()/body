@@ -1,0 +1,14 @@
+{
+  try {
+    final String ownJar=JarHash.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+    if (ownJar.endsWith(".jar"))     return URLDecoder.decode(ownJar,"UTF-8");
+    if (!ownJar.endsWith(".jar/"))     return null;
+    String stem="h2o.jar";
+    File f=new File(ownJar + stem);
+    if (!f.exists())     return null;
+    return URLDecoder.decode(ownJar + stem,"UTF-8");
+  }
+ catch (  IOException _) {
+    return null;
+  }
+}

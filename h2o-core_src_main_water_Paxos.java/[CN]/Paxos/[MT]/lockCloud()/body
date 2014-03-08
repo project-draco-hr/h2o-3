@@ -1,0 +1,11 @@
+{
+  if (_cloudLocked)   return;
+synchronized (Paxos.class) {
+    while (!_commonKnowledge)     try {
+      Paxos.class.wait();
+    }
+ catch (    InterruptedException ie) {
+    }
+    _cloudLocked=true;
+  }
+}

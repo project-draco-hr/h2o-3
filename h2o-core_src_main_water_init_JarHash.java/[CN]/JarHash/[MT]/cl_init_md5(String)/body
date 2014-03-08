@@ -1,0 +1,28 @@
+{
+  byte[] ffHash=new byte[16];
+  Arrays.fill(ffHash,(byte)0xFF);
+  if (jarpath == null)   return ffHash;
+  InputStream is=null;
+  try {
+    is=new FileInputStream(jarpath);
+    MessageDigest md5=MessageDigest.getInstance("MD5");
+    byte[] buf=new byte[4096];
+    int pos;
+    while ((pos=is.read(buf)) > 0)     md5.update(buf,0,pos);
+    return md5.digest();
+  }
+ catch (  IOException e) {
+    Log.err(e);
+  }
+catch (  NoSuchAlgorithmException e) {
+    Log.err(e);
+  }
+ finally {
+    try {
+      if (is != null)       is.close();
+    }
+ catch (    IOException _) {
+    }
+  }
+  return ffHash;
+}
