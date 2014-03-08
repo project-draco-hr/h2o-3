@@ -1,0 +1,16 @@
+{
+  _arys++;
+  int len=getInt();
+  if (len == -1)   return null;
+  float[] buf=MemoryManager.malloc4f(len);
+  int sofar=0;
+  while (sofar < buf.length) {
+    FloatBuffer as=_bb.asFloatBuffer();
+    int more=Math.min(as.remaining(),len - sofar);
+    as.get(buf,sofar,more);
+    sofar+=more;
+    _bb.position(_bb.position() + as.position() * 4);
+    if (sofar < len)     getSp(Math.min(_bb.capacity() - 3,(len - sofar) * 4));
+  }
+  return buf;
+}

@@ -1,0 +1,26 @@
+{
+  final long bytes=m;
+  while (!tryReserveTaskMem(bytes)) {
+    try {
+      ForkJoinPool.managedBlock(new ManagedBlocker(){
+        @Override public boolean isReleasable(){
+          return _taskMem.get() >= bytes;
+        }
+        @Override public boolean block() throws InterruptedException {
+synchronized (_taskMemLock) {
+            try {
+              _taskMemLock.wait();
+            }
+ catch (            InterruptedException e) {
+            }
+          }
+          return isReleasable();
+        }
+      }
+);
+    }
+ catch (    InterruptedException e) {
+      Log.throwErr(e);
+    }
+  }
+}

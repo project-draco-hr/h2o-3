@@ -1,0 +1,11 @@
+{
+  byte[] buf=MemoryManager.malloc1(len);
+  int sofar=0;
+  while (sofar < len) {
+    int more=Math.min(_bb.remaining(),len - sofar);
+    _bb.get(buf,sofar,more);
+    sofar+=more;
+    if (sofar < len)     getSp(Math.min(_bb.capacity(),len - sofar));
+  }
+  return buf;
+}

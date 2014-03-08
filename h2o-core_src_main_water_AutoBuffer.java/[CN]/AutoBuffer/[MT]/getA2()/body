@@ -1,0 +1,16 @@
+{
+  _arys++;
+  int len=getInt();
+  if (len == -1)   return null;
+  short[] buf=MemoryManager.malloc2(len);
+  int sofar=0;
+  while (sofar < buf.length) {
+    ShortBuffer as=_bb.asShortBuffer();
+    int more=Math.min(as.remaining(),len - sofar);
+    as.get(buf,sofar,more);
+    sofar+=more;
+    _bb.position(_bb.position() + as.position() * 2);
+    if (sofar < len)     getSp(Math.min(_bb.capacity() - 1,(len - sofar) * 2));
+  }
+  return buf;
+}

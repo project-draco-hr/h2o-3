@@ -1,0 +1,11 @@
+{
+  long[] s=TimeLine.snapshot();
+  System.err.println("===================================<TIMELINE>==============================================");
+  for (int i=0; i < TimeLine.length(); ++i) {
+    long lo=TimeLine.l0(s,i), hi=TimeLine.l8(s,i);
+    int port=(int)((lo >> 8) & 0xFFFF);
+    String op=TimeLine.send_recv(s,i) == 0 ? "SEND" : "RECV";
+    if (!TimeLine.isEmpty(s,i) && (lo & 0xFF) == UDP.udp.exec.ordinal())     System.err.println(TimeLine.ms(s,i) + ": " + op+ " "+ (((TimeLine.ns(s,i) & 4) != 0) ? "TCP" : "UDP")+ TimeLine.inet(s,i)+ ":"+ port+ " | "+ UDP.printx16(lo,hi));
+  }
+  System.err.println("===========================================================================================");
+}

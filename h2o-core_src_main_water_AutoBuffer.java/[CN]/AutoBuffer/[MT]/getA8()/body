@@ -1,0 +1,33 @@
+{
+  _arys++;
+  int x=getInt();
+  if (x == -1)   return null;
+  int y=getInt();
+  int z=y == 0 ? 0 : getInt();
+  long[] buf=MemoryManager.malloc8(x + y + z);
+switch (get1()) {
+case 1:
+    for (int i=x; i < x + y; i++)     buf[i]=get1();
+  return buf;
+case 2:
+for (int i=x; i < x + y; i++) buf[i]=(short)get2();
+return buf;
+case 4:
+for (int i=x; i < x + y; i++) buf[i]=get4();
+return buf;
+case 8:
+break;
+default :
+H2O.fail();
+}
+int sofar=x;
+while (sofar < x + y) {
+LongBuffer as=_bb.asLongBuffer();
+int more=Math.min(as.remaining(),x + y - sofar);
+as.get(buf,sofar,more);
+sofar+=more;
+_bb.position(_bb.position() + as.position() * 8);
+if (sofar < x + y) getSp(Math.min(_bb.capacity() - 7,(x + y - sofar) * 8));
+}
+return buf;
+}

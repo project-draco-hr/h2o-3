@@ -1,0 +1,24 @@
+{
+synchronized (TimeLine.class) {
+    long now=System.currentTimeMillis();
+    if (now - TIME_LAST_SNAPSHOT < 3 * 1000)     return SNAPSHOT;
+    if (TIME_LAST_SNAPSHOT != 0) {
+      TIME_LAST_SNAPSHOT=0;
+      CLOUD=H2O.CLOUD;
+      SNAPSHOT=new long[CLOUD.size()][];
+      new AutoBuffer(H2O.SELF).putUdp(udp.timeline).close(false,false);
+    }
+    while (true) {
+      boolean done=true;
+      for (int i=0; i < CLOUD._memary.length; i++)       if (SNAPSHOT[i] == null)       done=false;
+      if (done)       break;
+      try {
+        TimeLine.class.wait();
+      }
+ catch (      InterruptedException e) {
+      }
+    }
+    TIME_LAST_SNAPSHOT=System.currentTimeMillis();
+    return SNAPSHOT;
+  }
+}

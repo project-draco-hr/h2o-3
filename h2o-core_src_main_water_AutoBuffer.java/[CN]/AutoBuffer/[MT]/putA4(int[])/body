@@ -1,0 +1,15 @@
+{
+  _arys++;
+  if (ary == null)   return putInt(-1);
+  putInt(ary.length);
+  int sofar=0;
+  while (sofar < ary.length) {
+    IntBuffer sb=_bb.asIntBuffer();
+    int len=Math.min(ary.length - sofar,sb.remaining());
+    sb.put(ary,sofar,len);
+    sofar+=len;
+    _bb.position(_bb.position() + sb.position() * 4);
+    if (sofar < ary.length)     sendPartial();
+  }
+  return this;
+}

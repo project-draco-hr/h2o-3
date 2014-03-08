@@ -1,0 +1,28 @@
+{
+  if (_h2o == null && _chan == null) {
+    byte[] ary=_bb.array();
+    int newlen=ary.length << 1;
+    int oldpos=_bb.position();
+    _bb=ByteBuffer.wrap(MemoryManager.arrayCopyOfRange(ary,0,newlen),oldpos,newlen - oldpos).order(ByteOrder.nativeOrder());
+    return _bb;
+  }
+  _size+=_bb.position();
+  if (_chan == null)   TimeLine.record_send(this,true);
+  _bb.flip();
+  try {
+    if (_chan == null)     tcpOpen();
+    long ns=System.nanoTime();
+    while (_bb.hasRemaining()) {
+      _chan.write(_bb);
+      if (RANDOM_TCP_DROP != null && _chan instanceof SocketChannel && RANDOM_TCP_DROP.nextInt(100) == 0)       throw new IOException("Random TCP Write Fail");
+    }
+    _time_io_ns+=(System.nanoTime() - ns);
+  }
+ catch (  IOException e) {
+    throw new TCPIsUnreliableException(e);
+  }
+  if (_bb.capacity() < 16 * 1024)   _bb=bbMake();
+  _firstPage=false;
+  _bb.clear();
+  return _bb;
+}

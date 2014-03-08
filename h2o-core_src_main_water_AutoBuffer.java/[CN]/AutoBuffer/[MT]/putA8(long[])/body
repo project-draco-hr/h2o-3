@@ -1,0 +1,43 @@
+{
+  _arys++;
+  if (ary == null)   return putInt(-1);
+  int x=0;
+  for (; x < ary.length; x++)   if (ary[x] != 0)   break;
+  int y=ary.length;
+  for (; y > x; y--)   if (ary[y - 1] != 0)   break;
+  int nzlen=y - x;
+  putInt(x);
+  putInt(nzlen);
+  if (nzlen > 0)   putInt(ary.length - y);
+  long min=Long.MAX_VALUE, max=Long.MIN_VALUE;
+  for (int i=x; i < y; i++) {
+    if (ary[i] < min)     min=ary[i];
+    if (ary[i] > max)     max=ary[i];
+  }
+  if (0 <= min && max < 256) {
+    put1(1);
+    for (int i=x; i < y; i++)     put1((int)ary[i]);
+    return this;
+  }
+  if (Short.MIN_VALUE <= min && max < Short.MAX_VALUE) {
+    put1(2);
+    for (int i=x; i < y; i++)     put2((short)ary[i]);
+    return this;
+  }
+  if (Integer.MIN_VALUE <= min && max < Integer.MAX_VALUE) {
+    put1(4);
+    for (int i=x; i < y; i++)     put4((int)ary[i]);
+    return this;
+  }
+  put1(8);
+  int sofar=x;
+  while (sofar < y) {
+    LongBuffer sb=_bb.asLongBuffer();
+    int len=Math.min(y - sofar,sb.remaining());
+    sb.put(ary,sofar,len);
+    sofar+=len;
+    _bb.position(_bb.position() + sb.position() * 8);
+    if (sofar < y)     sendPartial();
+  }
+  return this;
+}
