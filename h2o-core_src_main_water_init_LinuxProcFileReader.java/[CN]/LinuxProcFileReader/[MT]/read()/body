@@ -1,0 +1,17 @@
+{
+  File f=new File("/proc/stat");
+  if (!f.exists()) {
+    return;
+  }
+  String pid;
+  try {
+    pid=getProcessId();
+    readSystemProcFile();
+    readProcessProcFile(pid);
+    readProcessNumOpenFds(pid);
+    parseSystemProcFile(_systemData);
+    parseProcessProcFile(_processData);
+  }
+ catch (  Exception _) {
+  }
+}

@@ -1,0 +1,27 @@
+{
+  int drop=H2O.ARGS.random_udp_drop && RANDOM_UDP_DROP.nextInt(5) == 0 ? 2 : 0;
+  TimeLine.record_recv(ab,false,drop);
+  ab._h2o._last_heard_from=System.currentTimeMillis();
+  int ctrl=ab.getCtrl();
+  ab.getPort();
+  if (ctrl == UDP.udp.timeline.ordinal()) {
+    UDP.udp.timeline._udp.call(ab);
+    return;
+  }
+  if (ctrl == UDP.udp.rebooted.ordinal())   UDPRebooted.checkForSuicide(ctrl,ab);
+  if (drop != 0)   return;
+  H2O cloud=H2O.CLOUD;
+  boolean is_member=cloud.contains(ab._h2o);
+  if (UDP.udp.UDPS[ctrl]._paxos || is_member) {
+    H2O.submitTask(new FJPacket(ab,ctrl));
+    return;
+  }
+  _unknown_packets_per_sec++;
+  long timediff=ab._h2o._last_heard_from - _unknown_packet_time;
+  if (timediff > 1000) {
+    Log.warn("UDP packets from outside the cloud: " + _unknown_packets_per_sec + "/sec, last one from "+ ab._h2o+ " @ "+ new Date());
+    _unknown_packets_per_sec=0;
+    _unknown_packet_time=ab._h2o._last_heard_from;
+  }
+  ab.close(false,false);
+}

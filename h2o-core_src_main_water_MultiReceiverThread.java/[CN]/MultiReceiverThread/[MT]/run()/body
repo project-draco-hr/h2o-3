@@ -1,0 +1,41 @@
+{
+  if (H2O.STATIC_H2OS != null)   return;
+  Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+  MulticastSocket sock=null, errsock=null;
+  InetAddress group=null, errgroup=null;
+  boolean saw_error=false;
+  while (true) {
+    try {
+      if (errsock != null && errgroup != null) {
+        final InetAddress tmp=errgroup;
+        errgroup=null;
+        errsock.leaveGroup(tmp);
+      }
+      if (errsock != null) {
+        final MulticastSocket tmp2=errsock;
+        errsock=null;
+        tmp2.close();
+      }
+      if (saw_error)       Thread.sleep(1000);
+      saw_error=false;
+      if (group == null)       group=H2O.CLOUD_MULTICAST_GROUP;
+      if (sock == null) {
+        sock=new MulticastSocket(H2O.CLOUD_MULTICAST_PORT);
+        if (H2O.CLOUD_MULTICAST_IF != null)         sock.setNetworkInterface(H2O.CLOUD_MULTICAST_IF);
+        sock.joinGroup(group);
+      }
+      byte[] buf=new byte[AutoBuffer.MTU];
+      DatagramPacket pack=new DatagramPacket(buf,buf.length);
+      sock.receive(pack);
+      UDPReceiverThread.basic_packet_handling(new AutoBuffer(pack));
+    }
+ catch (    Exception e) {
+      Log.err("Multicast " + H2O.CLOUD_MULTICAST_GROUP + ":"+ H2O.CLOUD_MULTICAST_PORT,e);
+      saw_error=true;
+      errsock=sock;
+      sock=null;
+      errgroup=group;
+      group=null;
+    }
+  }
+}
