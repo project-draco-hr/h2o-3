@@ -1,0 +1,30 @@
+{
+switch (sig.charAt(0)) {
+case 'Z':
+    return 0;
+case 'B':
+  return 1;
+case 'C':
+return 2;
+case 'S':
+return 3;
+case 'I':
+return 4;
+case 'F':
+return 5;
+case 'J':
+return 6;
+case 'D':
+return 7;
+case 'L':
+if (sig.equals("Ljava/lang/String;")) return 8;
+String clz=sig.substring(1,sig.length() - 1).replace('/','.');
+CtClass argClass=_pool.get(clz);
+if (argClass.subtypeOf(_pool.get("water.Freezable"))) return 9;
+if (argClass.subtypeOf(_pool.get("java.lang.Enum"))) return 10;
+break;
+case '[':
+return ftype(ct,sig.substring(1)) + 20;
+}
+throw barf(ct,sig);
+}
