@@ -4,7 +4,7 @@
   boolean debug_print=false;
   boolean first=supers == null;
   if (!first)   sb.append(supers);
-  CtField ctfs[]=iced.getDeclaredFields();
+  CtField ctfs[]=iced_cc.getDeclaredFields();
   for (  CtField ctf : ctfs) {
     int mods=ctf.getModifiers();
     if (javassist.Modifier.isTransient(mods) || javassist.Modifier.isStatic(mods)) {
@@ -14,24 +14,28 @@
     if (ff != null && !ff.filter(ctf))     continue;
     if (first)     first=false;
  else     sb.append(field_sep);
-    CtClass base=ctf.getType();
+    CtClass ctft=ctf.getType();
+    CtClass base=ctft;
     while (base.isArray())     base=base.getComponentType();
-    int ftype=ftype(iced,ctf.getSignature());
+    long off=javassist.Modifier.isPrivate(mods) ? _unsafe.objectFieldOffset(iced_clazz.getDeclaredField(ctf.getName())) : -1;
+    int ftype=ftype(iced_cc,ctf.getSignature());
     if (ftype % 20 == 9) {
-      sb.append(freezables);
+      sb.append(off == -1 ? iced : iced_unsafe);
     }
  else     if (ftype % 20 == 10) {
-      sb.append(enums);
+      sb.append(off == -1 ? enums : enums_unsafe);
     }
  else {
-      sb.append(prims);
+      sb.append(off == -1 ? prims : prims_unsafe);
     }
     String z=FLDSZ1[ftype % 20];
     for (int i=0; i < ftype / 20; ++i)     z='A' + z;
     subsub(sb,"%z",z);
     subsub(sb,"%s",ctf.getName());
     subsub(sb,"%c",base.getName().replace('$','.'));
-    subsub(sb,"%C",ctf.getType().getName().replace('$','.'));
+    subsub(sb,"%C",ctft.getName().replace('$','.'));
+    subsub(sb,"%d","" + off);
+    subsub(sb,"%u",utype(ctf.getSignature()));
   }
   sb.append(trailer);
   String body=sb.toString();
