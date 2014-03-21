@@ -1,0 +1,22 @@
+{
+  if (what == null)   return null;
+  if (what.length() == 0)   return null;
+  if (what.charAt(0) == MAGIC_CHAR) {
+    int len=what.indexOf(MAGIC_CHAR,1);
+    String tail=what.substring(len + 1);
+    byte[] res=new byte[(len - 1) / 2 + tail.length()];
+    int r=0;
+    for (int i=1; i < len; i+=2) {
+      char h=what.charAt(i);
+      char l=what.charAt(i + 1);
+      h-=Character.isDigit(h) ? '0' : ('a' - 10);
+      l-=Character.isDigit(l) ? '0' : ('a' - 10);
+      res[r++]=(byte)(h << 4 | l);
+    }
+    System.arraycopy(tail.getBytes(),0,res,r,tail.length());
+    return res;
+  }
+ else {
+    return what.getBytes();
+  }
+}

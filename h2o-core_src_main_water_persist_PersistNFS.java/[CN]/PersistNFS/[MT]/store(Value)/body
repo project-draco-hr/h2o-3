@@ -1,2 +1,21 @@
 {
+  if (!v._key.home())   return;
+  if (v.isPersisted())   return;
+  try {
+    File f=getFileForKey(v._key);
+    f.mkdirs();
+    FileOutputStream s=new FileOutputStream(f);
+    try {
+      byte[] m=v.memOrLoad();
+      assert(m == null || m.length == v._max);
+      if (m != null)       new AutoBuffer(s.getChannel(),false,Value.NFS).putA1(m,m.length).close();
+      v.setdsk();
+    }
+  finally {
+      s.close();
+    }
+  }
+ catch (  IOException e) {
+    Log.err(e);
+  }
 }

@@ -1,0 +1,24 @@
+{
+  int len=_kb.length;
+  while (--len >= 0) {
+    char a=(char)_kb[len];
+    if (' ' <= a && a <= '#')     continue;
+    if ('%' <= a && a <= '~')     continue;
+    break;
+  }
+  if (len >= 0) {
+    StringBuilder sb=new StringBuilder();
+    sb.append(MAGIC_CHAR);
+    for (int i=0; i <= len; ++i) {
+      byte a=_kb[i];
+      sb.append(HEX[(a >> 4) & 0x0F]);
+      sb.append(HEX[(a >> 0) & 0x0F]);
+    }
+    sb.append(MAGIC_CHAR);
+    for (int i=len + 1; i < _kb.length; ++i)     sb.append((char)_kb[i]);
+    return sb.toString();
+  }
+ else {
+    return new String(_kb);
+  }
+}

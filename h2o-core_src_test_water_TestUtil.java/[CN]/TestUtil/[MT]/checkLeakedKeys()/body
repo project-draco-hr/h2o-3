@@ -1,0 +1,11 @@
+{
+  int leaked_keys=H2O.store_size() - _initial_keycnt;
+  if (leaked_keys > 0) {
+    for (    Key k : H2O.localKeySet()) {
+      Value value=H2O.raw_get(k);
+      System.err.println("Leaked key: " + k + " = "+ TypeMap.className(value.type()));
+    }
+  }
+  assertTrue("No keys leaked",leaked_keys <= 0);
+  _initial_keycnt=H2O.store_size();
+}

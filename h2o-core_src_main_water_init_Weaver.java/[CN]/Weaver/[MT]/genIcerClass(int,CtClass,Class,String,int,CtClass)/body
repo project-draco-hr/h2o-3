@@ -3,10 +3,10 @@
   CtClass icer_cc=_pool.makeClass(icer_name);
   icer_cc.setSuperclass(super_icer);
   make_body(icer_cc,iced_cc,iced_clazz,"protected final water.AutoBuffer write" + id + "(water.AutoBuffer ab, "+ iced_name+ " ice) {\n","  write" + super_id + "(ab,ice);\n","  ab.put%z(ice.%s);\n","  ab.put%z(_unsafe.get%u(ice,%d)); // %s\n","  ab.putEnum(ice.%s);\n","  ab.putEnum(_unsafe.get%u(ice,%d)); // %s\n","  ab.put%z(ice.%s);\n","  ab.put%z(_unsafe.get%u(ice,%d)); // %s\n","","  return ab;\n" + "}",null);
-  String wbody="public water.AutoBuffer write(water.AutoBuffer ab, water.Iced ice) {\n" + "  return write" + id + "(ab,("+ iced_name+ ")ice);\n"+ "}";
+  String wbody="water.AutoBuffer write(water.AutoBuffer ab, water.Iced ice) {\n" + "  return write" + id + "(ab,("+ iced_name+ ")ice);\n"+ "}";
   addMethod(wbody,icer_cc);
   make_body(icer_cc,iced_cc,iced_clazz,"protected final " + iced_name + " read"+ id+ "(water.AutoBuffer ab, "+ iced_name+ " ice) {\n","  read" + super_id + "(ab,ice);\n","  ice.%s = ab.get%z();\n","  _unsafe.put%u(ice,%d,ab.get%z());  //%s\n","  ice.%s = %c.raw_enum(ab.get1());\n","  _unsafe.putObject(ice,%d,%c.raw_enum(ab.get1()));  //%s\n","  ice.%s = (%C)s.get%z(%c.class);\n","  _unsafe.putObject(ice,%d,(%C)s.get%z(%c.class));  //%s\n","","  return ice;\n" + "}",null);
-  String rbody="public water.Iced read(water.AutoBuffer ab, water.Iced ice) {\n" + "  return read" + id + "(ab,("+ iced_name+ ")ice);\n"+ "}";
+  String rbody="water.Iced read(water.AutoBuffer ab, water.Iced ice) {\n" + "  return read" + id + "(ab,("+ iced_name+ ")ice);\n"+ "}";
   addMethod(rbody,icer_cc);
   return icer_cc;
 }
