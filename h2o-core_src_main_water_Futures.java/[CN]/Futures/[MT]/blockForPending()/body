@@ -1,0 +1,18 @@
+{
+  try {
+    while (true) {
+      Future f=null;
+synchronized (this) {
+        if (_pending_cnt == 0)         return;
+        f=_pending[--_pending_cnt];
+      }
+      f.get();
+    }
+  }
+ catch (  InterruptedException e) {
+    Log.throwErr(e);
+  }
+catch (  ExecutionException e) {
+    Log.throwErr(e);
+  }
+}
