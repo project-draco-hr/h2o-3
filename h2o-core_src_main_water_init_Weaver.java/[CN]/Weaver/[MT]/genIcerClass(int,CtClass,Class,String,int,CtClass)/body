@@ -8,5 +8,7 @@
   make_body(icer_cc,iced_cc,iced_clazz,"protected final " + iced_name + " read"+ id+ "(water.AutoBuffer ab, "+ iced_name+ " ice) {\n","  read" + super_id + "(ab,ice);\n","  ice.%s = ab.get%z();\n","  _unsafe.put%u(ice,%d,ab.get%z());  //%s\n","  ice.%s = %c.raw_enum(ab.get1());\n","  _unsafe.putObject(ice,%d,%c.raw_enum(ab.get1()));  //%s\n","  ice.%s = (%C)s.get%z(%c.class);\n","  _unsafe.putObject(ice,%d,(%C)s.get%z(%c.class));  //%s\n","","  return ice;\n" + "}",null);
   String rbody="water.Iced read(water.AutoBuffer ab, water.Iced ice) {\n" + "  return read" + id + "(ab,("+ iced_name+ ")ice);\n"+ "}";
   addMethod(rbody,icer_cc);
+  String cnbody="java.lang.String className() { return \"" + iced_name + "\"; }";
+  addMethod(cnbody,icer_cc);
   return icer_cc;
 }
