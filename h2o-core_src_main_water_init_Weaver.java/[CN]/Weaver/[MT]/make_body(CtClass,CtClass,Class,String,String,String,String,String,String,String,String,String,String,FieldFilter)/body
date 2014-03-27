@@ -17,7 +17,7 @@
     CtClass ctft=ctf.getType();
     CtClass base=ctft;
     while (base.isArray())     base=base.getComponentType();
-    long off=javassist.Modifier.isPrivate(mods) ? _unsafe.objectFieldOffset(iced_clazz.getDeclaredField(ctf.getName())) : -1;
+    long off=!javassist.Modifier.isPublic(mods) ? _unsafe.objectFieldOffset(iced_clazz.getDeclaredField(ctf.getName())) : -1;
     int ftype=ftype(iced_cc,ctf.getSignature());
     if (ftype % 20 == 9) {
       sb.append(off == -1 ? iced : iced_unsafe);
@@ -39,7 +39,6 @@
   }
   sb.append(trailer);
   String body=sb.toString();
-  if (debug_print)   System.err.println(icer.getName() + " " + body);
   addMethod(body,icer);
-  return debug_print;
+  return debug_print ? body : null;
 }

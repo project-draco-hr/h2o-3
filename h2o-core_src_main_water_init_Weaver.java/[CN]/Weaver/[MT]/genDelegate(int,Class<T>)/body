@@ -2,7 +2,7 @@
   Exception e2;
   try {
     T ice=(T)_unsafe.allocateInstance(clazz);
-    Class<Icer<T>> icer_clz=javassistLoadClass(id,clazz).toClass();
+    Class<Icer<T>> icer_clz=javassistLoadClass(id,clazz);
     Constructor<Icer<T>> cstr=(Constructor<Icer<T>>)icer_clz.getDeclaredConstructors()[0];
     return cstr.newInstance(ice);
   }
@@ -22,6 +22,9 @@ catch (  CannotCompileException e) {
     e2=e;
   }
 catch (  NoSuchFieldException e) {
+    e2=e;
+  }
+catch (  ClassNotFoundException e) {
     e2=e;
   }
   throw new RuntimeException(e2);

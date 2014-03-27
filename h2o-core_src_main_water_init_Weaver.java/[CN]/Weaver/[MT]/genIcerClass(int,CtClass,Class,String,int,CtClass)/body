@@ -1,24 +1,29 @@
 {
   String iced_name=iced_cc.getName();
   CtClass icer_cc=_pool.makeClass(icer_name);
-  System.out.println("class " + icer_cc.getName() + " extends "+ super_icer.getName()+ " {");
   icer_cc.setSuperclass(super_icer);
-  boolean debug_print=make_body(icer_cc,iced_cc,iced_clazz,"protected final water.AutoBuffer write" + id + "(water.AutoBuffer ab, "+ iced_name+ " ice) {\n","  write" + super_id + "(ab,ice);\n","  ab.put%z(ice.%s);\n","  ab.put%z(_unsafe.get%u(ice,%d)); // %s\n","  ab.putEnum(ice.%s);\n","  ab.putEnum(_unsafe.get%u(ice,%d)); // %s\n","  ab.put%z(ice.%s);\n","  ab.put%z(_unsafe.get%u(ice,%d)); // %s\n","","  return ab;\n" + "}",null);
+  icer_cc.setModifiers(javassist.Modifier.PUBLIC);
+  String debug=make_body(icer_cc,iced_cc,iced_clazz,"protected final water.AutoBuffer write" + id + "(water.AutoBuffer ab, "+ iced_name+ " ice) {\n","  write" + super_id + "(ab,ice);\n","  ab.put%z(ice.%s);\n","  ab.put%z((%C)_unsafe.get%u(ice,%dL)); // %s\n","  ab.putEnum(ice.%s);\n","  ab.putEnum((%C)_unsafe.get%u(ice,%dL)); // %s\n","  ab.put%z(ice.%s);\n","  ab.put%z((%C)_unsafe.get%u(ice,%dL)); // %s\n","","  return ab;\n" + "}",null);
+  if (debug != null) {
+    System.out.println("class " + icer_cc.getName() + " extends "+ super_icer.getName()+ " {");
+    System.out.println(debug);
+  }
   String wbody="water.AutoBuffer write(water.AutoBuffer ab, water.Freezable ice) {\n" + "  return write" + id + "(ab,("+ iced_name+ ")ice);\n"+ "}";
-  if (debug_print)   System.out.println(wbody);
+  if (debug != null)   System.out.println(wbody);
   addMethod(wbody,icer_cc);
-  make_body(icer_cc,iced_cc,iced_clazz,"protected final " + iced_name + " read"+ id+ "(water.AutoBuffer ab, "+ iced_name+ " ice) {\n","  read" + super_id + "(ab,ice);\n","  ice.%s = ab.get%z();\n","  _unsafe.put%u(ice,%d,ab.get%z());  //%s\n","  ice.%s = %c.raw_enum(ab.get1());\n","  _unsafe.putObject(ice,%d,%c.raw_enum(ab.get1()));  //%s\n","  ice.%s = (%C)ab.get%z(%c.class);\n","  _unsafe.putObject(ice,%d,(%C)ab.get%z(%c.class));  //%s\n","","  return ice;\n" + "}",null);
+  String rbody_impl=make_body(icer_cc,iced_cc,iced_clazz,"protected final " + iced_name + " read"+ id+ "(water.AutoBuffer ab, "+ iced_name+ " ice) {\n","  read" + super_id + "(ab,ice);\n","  ice.%s = ab.get%z();\n","  _unsafe.put%u(ice,%dL,ab.get%z());  //%s\n","  ice.%s = %c.raw_enum(ab.get1());\n","  _unsafe.putObject(ice,%dL,%c.raw_enum(ab.get1()));  //%s\n","  ice.%s = (%C)ab.get%z(%c.class);\n","  _unsafe.putObject(ice,%dL,(%C)ab.get%z(%c.class));  //%s\n","","  return ice;\n" + "}",null);
+  if (debug != null)   System.out.println(rbody_impl);
   String rbody="water.Freezable read(water.AutoBuffer ab, water.Freezable ice) {\n" + "  return read" + id + "(ab,("+ iced_name+ ")ice);\n"+ "}";
-  if (debug_print)   System.out.println(rbody);
+  if (debug != null)   System.out.println(rbody);
   addMethod(rbody,icer_cc);
   String cnbody="java.lang.String className() { return \"" + iced_name + "\"; }";
-  if (debug_print)   System.out.println(cnbody);
+  if (debug != null)   System.out.println(cnbody);
   addMethod(cnbody,icer_cc);
   String ftbody="int frozenType() { return " + id + "; }";
-  if (debug_print)   System.out.println(ftbody);
+  if (debug != null)   System.out.println(ftbody);
   addMethod(ftbody,icer_cc);
   String cstrbody="public " + icer_cc.getSimpleName() + "( "+ iced_name+ " iced) { super(iced); }";
-  if (debug_print)   System.out.println(cstrbody);
+  if (debug != null)   System.out.println(cstrbody);
   try {
     icer_cc.addConstructor(CtNewConstructor.make(cstrbody,icer_cc));
   }
@@ -26,5 +31,6 @@
     System.err.println("--- Compilation failure while compiling " + icer_cc.getName() + "\n"+ cstrbody+ "\n------");
     throw ce;
   }
+  if (debug != null)   System.out.println("}");
   return icer_cc;
 }

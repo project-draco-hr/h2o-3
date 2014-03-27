@@ -1,15 +1,19 @@
 {
   String iced_name=iced_clazz.getName();
-  if (iced_name.equals("water.Iced"))   return _icer;
-  if (iced_name.equals("water.H2O$H2OCountedCompleter"))   return _icer;
+  if (iced_name.equals("water.Iced"))   return water.Icer.class;
+  if (iced_name.equals("water.H2O$H2OCountedCompleter"))   return water.Icer.class;
   String icer_name=implClazzName(iced_name);
   CtClass icer_cc=_pool.getOrNull(icer_name);
-  if (icer_cc != null)   return icer_cc;
+  if (icer_cc != null)   return Class.forName(icer_name);
   Class super_clazz=iced_clazz.getSuperclass();
   int super_id=TypeMap.onIce(super_clazz.getName());
-  CtClass super_icer=javassistLoadClass(super_id,super_clazz);
+  Class super_icer_clazz=javassistLoadClass(super_id,super_clazz);
+  CtClass super_icer_cc=_pool.get(super_icer_clazz.getName());
   CtClass iced_cc=_pool.get(iced_name);
 synchronized (iced_clazz) {
-    return genIcerClass(id,iced_cc,iced_clazz,icer_name,super_id,super_icer);
+    icer_cc=_pool.getOrNull(icer_name);
+    if (icer_cc != null)     return Class.forName(icer_name);
+    icer_cc=genIcerClass(id,iced_cc,iced_clazz,icer_name,super_id,super_icer_cc);
+    return icer_cc.toClass();
   }
 }
