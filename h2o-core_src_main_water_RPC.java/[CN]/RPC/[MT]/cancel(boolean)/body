@@ -1,3 +1,13 @@
 {
-  throw H2O.unimpl();
+  boolean did=false;
+synchronized (this) {
+    if (!isCancelled()) {
+      did=true;
+      _target.taskRemove(_tasknum);
+      _target=null;
+      UDPTimeOutThread.PENDING.remove(this);
+    }
+    notifyAll();
+  }
+  return did;
 }

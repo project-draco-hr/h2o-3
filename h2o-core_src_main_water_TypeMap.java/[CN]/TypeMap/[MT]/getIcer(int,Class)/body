@@ -1,0 +1,12 @@
+{
+  Icer f=goForGold(id);
+  if (f != null)   return f;
+synchronized (ice_clz) {
+    f=goForGold(id);
+    if (f != null)     return f;
+    f=Weaver.genDelegate(id,ice_clz);
+synchronized (TypeMap.class) {
+      return GOLD[id]=f;
+    }
+  }
+}

@@ -1,9 +1,15 @@
 {
   Exception e2;
   try {
-    return (Iced.Icer<T>)javassistLoadClass(id,clazz).toClass().newInstance();
+    T ice=(T)_unsafe.allocateInstance(clazz);
+    Class<Icer<T>> icer_clz=javassistLoadClass(id,clazz).toClass();
+    Constructor<Icer<T>> cstr=(Constructor<Icer<T>>)icer_clz.getDeclaredConstructors()[0];
+    return cstr.newInstance(ice);
   }
- catch (  InstantiationException e) {
+ catch (  InvocationTargetException e) {
+    e2=e;
+  }
+catch (  InstantiationException e) {
     e2=e;
   }
 catch (  IllegalAccessException e) {

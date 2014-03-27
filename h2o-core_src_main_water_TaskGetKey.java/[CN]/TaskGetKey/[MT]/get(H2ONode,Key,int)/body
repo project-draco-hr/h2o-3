@@ -1,3 +1,16 @@
 {
-  throw H2O.unimpl();
+  RPC<TaskGetKey> rpc, old;
+  while (true) {
+    rpc=TGKS.get(key);
+    if (rpc != null && rpc._dt._priority >= priority)     break;
+    old=rpc;
+    rpc=new RPC(target,new TaskGetKey(key,priority),1.0f);
+    if (TGKS.putIfMatchUnlocked(key,rpc,old) == old) {
+      rpc.setTaskNum().call();
+      break;
+    }
+  }
+  Value val=rpc.get()._val;
+  TGKS.putIfMatchUnlocked(key,null,rpc);
+  return val;
 }

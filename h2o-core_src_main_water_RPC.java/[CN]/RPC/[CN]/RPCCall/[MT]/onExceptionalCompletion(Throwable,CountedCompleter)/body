@@ -1,3 +1,7 @@
 {
-  throw H2O.unimpl();
+  if (!_firstException.getAndSet(true)) {
+    _dt.setException(ex);
+    onCompletion(caller);
+  }
+  return false;
 }
