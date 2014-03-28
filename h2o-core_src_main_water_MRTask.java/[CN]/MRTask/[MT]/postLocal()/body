@@ -1,0 +1,16 @@
+{
+  reduce3(_nleft);
+  reduce3(_nrite);
+  _profile._remoteBlkDone=System.currentTimeMillis();
+  _fs.blockForPending();
+  _profile._localBlkDone=System.currentTimeMillis();
+  int nlo=subShift(H2O.SELF.index());
+  int nhi=_nhi;
+  if (_res == null)   _nhi=-1;
+ else   if (_res != this) {
+    _res._profile=_profile;
+    copyOver(_res);
+  }
+  closeLocal();
+  if (nlo == 0 && nhi == H2O.CLOUD.size())   postGlobal();
+}

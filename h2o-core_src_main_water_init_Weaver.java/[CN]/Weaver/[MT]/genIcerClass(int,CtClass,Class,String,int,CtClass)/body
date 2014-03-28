@@ -22,6 +22,10 @@
   String ftbody="int frozenType() { return " + id + "; }";
   if (debug != null)   System.out.println(ftbody);
   addMethod(ftbody,icer_cc);
+  if (iced_cc.subclassOf(_dtask)) {
+    String cpbody_impl=make_body(icer_cc,iced_cc,iced_clazz,"void copyOver(water.Freezable fdst, water.Freezable fsrc) {\n","  super.copyOver(fdst,fsrc);\n" + "  " + iced_name + " dst = ("+ iced_name+ ")fdst;\n"+ "  "+ iced_name+ " src = ("+ iced_name+ ")fsrc;\n","  dst.%s = src.%s;\n","  _unsafe.put%u(dst,%dL,_unsafe.get%u(src,%dL));  //%s\n","  dst.%s = src.%s;\n","  _unsafe.put%u(dst,%dL,_unsafe.get%u(src,%dL));  //%s\n","  dst.%s = src.%s;\n","  _unsafe.put%u(dst,%dL,_unsafe.get%u(src,%dL));  //%s\n","","}",null);
+    if (debug != null)     System.out.println(cpbody_impl);
+  }
   String cstrbody="public " + icer_cc.getSimpleName() + "( "+ iced_name+ " iced) { super(iced); }";
   if (debug != null)   System.out.println(cstrbody);
   try {
