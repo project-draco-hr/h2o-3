@@ -1,0 +1,12 @@
+{
+  Key[] keys=new Key[32];
+  for (int i=0; i < keys.length; ++i) {
+    Key k=keys[i]=Key.make("key" + i);
+    byte[] bits=new byte[4];
+    bits[0]=(byte)i;
+    Value val=new Value(k,bits);
+    DKV.put(k,val);
+  }
+  DKV.write_barrier();
+  for (  Key k : keys)   DKV.remove(k);
+}

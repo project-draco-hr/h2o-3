@@ -1,9 +1,7 @@
 {
   byte[] b=new byte[4];
-  b[0]=(byte)(ip >> 0);
-  b[1]=(byte)(ip >> 8);
-  b[2]=(byte)(ip >> 16);
-  b[3]=(byte)(ip >> 24);
+  UDP.set4(b,0,UDP.get4(bs,off));
+  int port=UDP.get2(bs,off + 4) & 0xFFFF;
   try {
     return intern(InetAddress.getByAddress(b),port);
   }
