@@ -1,11 +1,15 @@
 {
-  File file=find_test_file("build/h2o-core.jar");
-  if (file == null)   return;
-  Key h2okey=NFSFileVec.make(file);
-  ByteHisto bh=new ByteHisto();
-  bh.doAll(h2okey);
-  int sum=0;
-  for (int i=0; i < bh._x.length; i++)   sum+=bh._x[i];
-  assertEquals(file.length(),sum);
-  Lockable.delete(h2okey);
+  NFSFileVec nfs=null;
+  try {
+    File file=find_test_file("build/h2o-core.jar");
+    if (file == null)     return;
+    nfs=NFSFileVec.make(file);
+    ByteHisto bh=new ByteHisto().doAll(nfs);
+    int sum=0;
+    for (int i=0; i < bh._x.length; i++)     sum+=bh._x[i];
+    assertEquals(file.length(),sum);
+  }
+  finally {
+    throw H2O.unimpl();
+  }
 }
