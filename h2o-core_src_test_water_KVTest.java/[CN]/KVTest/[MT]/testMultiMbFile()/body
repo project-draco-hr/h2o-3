@@ -1,8 +1,9 @@
 {
-  File file=find_test_file("target/h2o.jar");
-  Key h2okey=load_test_file(file);
+  File file=find_test_file("build/h2o-core.jar");
+  if (file == null)   return;
+  Key h2okey=NFSFileVec.make(file);
   ByteHisto bh=new ByteHisto();
-  bh.invoke(h2okey);
+  bh.doAll(h2okey);
   int sum=0;
   for (int i=0; i < bh._x.length; i++)   sum+=bh._x[i];
   assertEquals(file.length(),sum);

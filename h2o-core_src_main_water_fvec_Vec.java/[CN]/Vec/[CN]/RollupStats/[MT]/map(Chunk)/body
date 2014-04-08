@@ -1,0 +1,21 @@
+{
+  _size=c.byteSize();
+  for (int i=0; i < c._len; i++) {
+    double d=c.at0(i);
+    if (Double.isNaN(d))     _naCnt++;
+ else {
+      if (d < _min)       _min=d;
+      if (d > _max)       _max=d;
+      _mean+=d;
+      _rows++;
+      if (_isInt && ((long)d) != d)       _isInt=false;
+    }
+  }
+  _mean=_mean / _rows;
+  for (int i=0; i < c._len; i++) {
+    if (!c.isNA0(i)) {
+      double d=c.at0(i);
+      _sigma+=(d - _mean) * (d - _mean);
+    }
+  }
+}

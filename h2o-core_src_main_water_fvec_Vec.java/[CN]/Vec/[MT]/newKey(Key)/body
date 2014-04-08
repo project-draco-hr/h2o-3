@@ -1,0 +1,10 @@
+{
+  byte[] kb=k._kb;
+  byte[] bits=MemoryManager.malloc1(kb.length + KEY_PREFIX_LEN);
+  bits[0]=Key.VEC;
+  bits[1]=-1;
+  UDP.set4(bits,2,0);
+  UDP.set4(bits,6,-1);
+  System.arraycopy(kb,0,bits,4 + 4 + 1+ 1,kb.length);
+  return Key.make(bits);
+}
