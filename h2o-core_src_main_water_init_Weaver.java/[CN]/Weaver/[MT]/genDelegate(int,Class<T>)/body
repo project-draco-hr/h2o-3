@@ -2,9 +2,8 @@
   Exception e2;
   try {
     T ice=(T)_unsafe.allocateInstance(clazz);
-    Class<Icer<T>> icer_clz=javassistLoadClass(id,clazz);
-    Constructor<Icer<T>> cstr=(Constructor<Icer<T>>)icer_clz.getDeclaredConstructors()[0];
-    return cstr.newInstance(ice);
+    Class icer_clz=javassistLoadClass(id,clazz);
+    return (Icer<T>)icer_clz.getDeclaredConstructors()[0].newInstance(ice);
   }
  catch (  InvocationTargetException e) {
     e2=e;

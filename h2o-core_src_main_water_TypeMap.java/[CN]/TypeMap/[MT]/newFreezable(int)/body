@@ -1,14 +1,9 @@
 {
-  Icer f=goForGold(id);
-  if (f == null) {
-    Class clz=null;
-    try {
-      clz=Class.forName(className(id));
-    }
- catch (    Exception e) {
-      Log.throwErr(e);
-    }
-    f=getIcer(id,clz);
+  try {
+    Icer f=goForGold(id);
+    return (f == null ? getIcer(id,Class.forName(className(id))) : f).newFreezable();
   }
-  return f.newFreezable();
+ catch (  ClassNotFoundException e) {
+    throw Log.throwErr(e);
+  }
 }
