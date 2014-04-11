@@ -1,7 +1,7 @@
 {
   Exception e2;
   try {
-    T ice=(T)_unsafe.allocateInstance(clazz);
+    T ice=Modifier.isAbstract(clazz.getModifiers()) ? null : (T)_unsafe.allocateInstance(clazz);
     Class icer_clz=javassistLoadClass(id,clazz);
     return (Icer<T>)icer_clz.getDeclaredConstructors()[0].newInstance(ice);
   }
