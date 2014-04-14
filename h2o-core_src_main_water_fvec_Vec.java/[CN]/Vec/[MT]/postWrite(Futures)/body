@@ -1,0 +1,13 @@
+{
+  Vec vthis=DKV.get(_key).get();
+  RollupStats rs=vthis._rollups;
+  if (rs == null || rs._naCnt != -2)   return;
+  _rollups=vthis._rollups=null;
+  fs.add(new TAtomic<Vec>(){
+    @Override protected Vec atomic(    Vec v){
+      if (v != null && v._rollups._naCnt == -2)       v._rollups=null;
+      return v;
+    }
+  }
+.fork(_key));
+}
