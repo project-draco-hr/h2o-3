@@ -1,0 +1,8 @@
+{
+  RPC<TaskGetKey> old=TGKS.get(key);
+  if (old != null)   return old;
+  RPC<TaskGetKey> rpc=new RPC(target,new TaskGetKey(key),1.0f);
+  if ((old=TGKS.putIfMatchUnlocked(key,rpc,null)) != null)   return old;
+  rpc.setTaskNum().call();
+  return rpc;
+}
