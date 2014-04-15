@@ -1,0 +1,16 @@
+{
+  Value v=DKV.get(k);
+  Assert.assertNull(v);
+  Key a1=Key.make("tatomic 1");
+  Append.append(k,a1);
+  Key[] ks=new AutoBuffer(DKV.get(k).memOrLoad()).getA(Key.class);
+  Assert.assertEquals(1,ks.length);
+  Assert.assertEquals(a1,ks[0]);
+  Key a2=Key.make("tatomic 2");
+  Append.append(k,a2);
+  ks=new AutoBuffer(DKV.get(k).memOrLoad()).getA(Key.class);
+  Assert.assertEquals(2,ks.length);
+  Assert.assertEquals(a1,ks[0]);
+  Assert.assertEquals(a2,ks[1]);
+  DKV.remove(k);
+}

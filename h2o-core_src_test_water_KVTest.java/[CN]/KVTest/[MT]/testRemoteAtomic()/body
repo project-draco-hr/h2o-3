@@ -1,0 +1,17 @@
+{
+  H2O cloud=H2O.CLOUD;
+  H2ONode target=cloud._memary[0];
+  if (target == H2O.SELF)   target=cloud._memary[1];
+  Key key=Key.make("test6_remote",(byte)1,Key.BUILT_IN_KEY,target);
+  Value v1=new Value(key,new byte[16]);
+  DKV.put(key,v1);
+  DKV.write_barrier();
+  Atomic q=new Atomic2();
+  q.invoke(key);
+  Value val3=DKV.get(key);
+  assertNotSame(v1,val3);
+  AutoBuffer ab=new AutoBuffer(val3.memOrLoad());
+  assertEquals(2,ab.get8(0));
+  assertEquals(2,ab.get8(8));
+  DKV.remove(key);
+}
