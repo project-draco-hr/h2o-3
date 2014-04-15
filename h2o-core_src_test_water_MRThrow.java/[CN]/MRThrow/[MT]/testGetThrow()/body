@@ -1,0 +1,23 @@
+{
+  File file=find_test_file("build/h2o-core.jar");
+  NFSFileVec nfs=NFSFileVec.make(file);
+  try {
+    for (int i=0; i < H2O.CLOUD._memary.length; ++i) {
+      ByteHistoThrow bh=new ByteHistoThrow(H2O.CLOUD._memary[i]);
+      try {
+        bh.dfork(nfs).get();
+        fail("should've thrown");
+      }
+ catch (      ExecutionException e) {
+        assertTrue(e.getMessage().indexOf("test") != -1);
+      }
+catch (      Throwable ex) {
+        ex.printStackTrace();
+        fail("Expected ExecutionException, got " + ex.toString());
+      }
+    }
+  }
+  finally {
+    if (nfs != null)     nfs.remove();
+  }
+}

@@ -1,0 +1,33 @@
+{
+  File file=find_test_file("build/h2o-core.jar");
+  NFSFileVec nfs=NFSFileVec.make(file);
+  try {
+    for (int i=0; i < H2O.CLOUD._memary.length; ++i) {
+      ByteHistoThrow bh=new ByteHistoThrow(H2O.CLOUD._memary[i]);
+      final boolean[] ok=new boolean[]{false};
+      try {
+        bh.setCompleter(new CountedCompleter(){
+          @Override public void compute(){
+          }
+          @Override public boolean onExceptionalCompletion(          Throwable ex,          CountedCompleter cc){
+            ok[0]=ex.getMessage().indexOf("test") != -1;
+            return true;
+          }
+        }
+);
+        bh.dfork(nfs).get();
+        assertTrue(ok[0]);
+      }
+ catch (      ExecutionException eex) {
+        assertTrue(eex.getCause().getMessage().indexOf("test") != -1);
+      }
+catch (      Throwable ex) {
+        ex.printStackTrace();
+        fail("Unexpected exception" + ex.toString());
+      }
+    }
+  }
+  finally {
+    if (nfs != null)     nfs.remove();
+  }
+}
