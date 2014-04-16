@@ -1,0 +1,31 @@
+{
+  final int lId, gId;
+  final int to=Math.min(toIdx,_len2);
+  if (sparse()) {
+    int x=Arrays.binarySearch(_id,0,_len,fromIdx);
+    if (x < 0)     x=-x - 1;
+    lId=x;
+    gId=x == _len ? _len2 : _id[x];
+  }
+ else   lId=gId=fromIdx;
+  final Value v=new Value(lId,gId);
+  final Value next=new Value(lId,gId);
+  return new Iterator<Value>(){
+    public final boolean hasNext(){
+      return next._gId < to;
+    }
+    public final Value next(){
+      if (!hasNext())       throw new NoSuchElementException();
+      v._gId=next._gId;
+      v._lId=next._lId;
+      next._lId++;
+      if (sparse())       next._gId=next._lId < _len ? _id[next._lId] : _len2;
+ else       next._gId++;
+      return v;
+    }
+    @Override public void remove(){
+      throw new UnsupportedOperationException();
+    }
+  }
+;
+}

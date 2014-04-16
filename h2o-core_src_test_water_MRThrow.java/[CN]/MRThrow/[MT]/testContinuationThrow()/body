@@ -10,7 +10,7 @@
           @Override public void compute(){
           }
           @Override public boolean onExceptionalCompletion(          Throwable ex,          CountedCompleter cc){
-            ok[0]=ex.getMessage().indexOf("test") != -1;
+            ok[0]=ex.getMessage().contains("test");
             return true;
           }
         }
@@ -19,7 +19,7 @@
         assertTrue(ok[0]);
       }
  catch (      ExecutionException eex) {
-        assertTrue(eex.getCause().getMessage().indexOf("test") != -1);
+        assertTrue(eex.getCause().getMessage().contains("test"));
       }
 catch (      Throwable ex) {
         ex.printStackTrace();
