@@ -1,6 +1,9 @@
 {
-  RollupStats rs=DKV.get(rollupStatsKey()).get(RollupStats.class);
-  if (rs.isMutating()) {
-    throw H2O.unimpl();
+  Value val=DKV.get(rollupStatsKey());
+  if (val != null) {
+    RollupStats rs=val.get(RollupStats.class);
+    if (rs.isMutating()) {
+      throw H2O.unimpl();
+    }
   }
 }
