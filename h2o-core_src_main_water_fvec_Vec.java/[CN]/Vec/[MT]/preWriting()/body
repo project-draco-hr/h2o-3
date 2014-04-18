@@ -1,3 +1,15 @@
 {
-  throw H2O.unimpl();
+  if (!writable())   throw new IllegalArgumentException("Vector not writable");
+  final Key rskey=rollupStatsKey();
+  Value val=DKV.get(rskey);
+  if (val != null) {
+    RollupStats rs=val.get(RollupStats.class);
+    if (rs.isMutating())     return;
+  }
+  new TAtomic<RollupStats>(){
+    @Override protected RollupStats atomic(    RollupStats rs){
+      return rs != null && rs.isMutating() ? null : RollupStats.makeMutating(rskey);
+    }
+  }
+.invoke(rskey);
 }
