@@ -1,0 +1,29 @@
+{
+  if (idx >= _len)   throw new IndexOutOfBoundsException();
+  final byte[] mem=_mem;
+  int sparseLen=sparseLen();
+  if (sparseLen == 0)   return 0;
+  final int off=_lastOff;
+  int lastIdx=getId(off);
+  if (idx == lastIdx)   return off;
+  if (idx > lastIdx) {
+    final int nextOff=off + _ridsz + _valsz;
+    if (nextOff < mem.length) {
+      int nextId=getId(nextOff);
+      if (idx < nextId)       return off;
+      if (idx == nextId) {
+        _lastOff=nextOff;
+        return nextOff;
+      }
+    }
+  }
+  int lo=0, hi=sparseLen;
+  while (lo + 1 != hi) {
+    int mid=(hi + lo) >>> 1;
+    if (idx < getId(getOff(mid)))     hi=mid;
+ else     lo=mid;
+  }
+  int y=getOff(lo);
+  _lastOff=y;
+  return y;
+}

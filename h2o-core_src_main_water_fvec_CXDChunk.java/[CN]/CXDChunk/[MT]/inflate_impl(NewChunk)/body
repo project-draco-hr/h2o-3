@@ -1,0 +1,13 @@
+{
+  final int len=sparseLen();
+  nc._len2=_len;
+  nc._len=sparseLen();
+  nc._ds=MemoryManager.malloc8d(nc._len);
+  nc._id=MemoryManager.malloc4(len);
+  int off=OFF;
+  for (int i=0; i < len; ++i, off+=_ridsz + _valsz) {
+    nc._id[i]=getId(off);
+    nc._ds[i]=getFValue(off);
+  }
+  return nc;
+}

@@ -1,0 +1,17 @@
+{
+  return new SparseIterator(new Value(){
+    @Override public final long asLong(){
+      double d=getFValue(_off);
+      if (Double.isNaN(d))       throw new IllegalArgumentException("at8 but value is missing");
+      return (long)d;
+    }
+    @Override public final double asDouble(){
+      return getFValue(_off);
+    }
+    @Override public final boolean isNA(){
+      double d=getFValue(_off);
+      return Double.isNaN(d);
+    }
+  }
+);
+}
