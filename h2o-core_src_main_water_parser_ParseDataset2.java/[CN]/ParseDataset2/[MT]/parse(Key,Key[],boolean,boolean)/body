@@ -1,0 +1,7 @@
+{
+  Key k=keys[0];
+  byte[] bits=ZipUtil.getFirstUnzippedBytes(getByteVec(k));
+  ParserSetup globalSetup=ParserSetup.guessSetup(bits,checkHeader);
+  if (globalSetup._ncols == 0)   throw new java.lang.IllegalArgumentException(globalSetup.toString());
+  return forkParseDataset(okey,keys,globalSetup,delete_on_done).get();
+}
