@@ -1,0 +1,24 @@
+{
+  if (_setup._pType._parallelParseSupported) {
+    StreamData din=new StreamData(is);
+    int cidx=0;
+    StreamDataOut nextChunk=dout;
+    long lastProgress=pmon.progress();
+    while (is.available() > 0) {
+      if (pmon.progress() > lastProgress) {
+        lastProgress=pmon.progress();
+        nextChunk.close();
+        if (dout != nextChunk)         dout.reduce(nextChunk);
+        nextChunk=nextChunk.nextChunk();
+      }
+      parallelParse(cidx++,din,nextChunk);
+    }
+    parallelParse(cidx++,din,nextChunk);
+    nextChunk.close();
+    if (dout != nextChunk)     dout.reduce(nextChunk);
+  }
+ else {
+    throw H2O.unimpl();
+  }
+  return dout;
+}

@@ -1,0 +1,13 @@
+{
+  File file=find_test_file("./smalldata/airlines/allyears2k_headers.zip");
+  NFSFileVec nfs=NFSFileVec.make(file);
+  Frame fr=null;
+  try {
+    fr=ParseDataset2.parse(Key.make("air.hex"),new Key[]{nfs._key});
+    new SetDoubleInt().doAll(fr);
+  }
+  finally {
+    nfs.remove();
+    if (fr != null)     fr.delete();
+  }
+}
