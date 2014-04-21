@@ -1,0 +1,11 @@
+{
+  int[] result=new int[separators.length];
+  byte[] bits=from.getBytes();
+  boolean in_quote=false;
+  for (int j=0; j < bits.length; j++) {
+    byte c=bits[j];
+    if ((c == single_quote) || (c == CHAR_DOUBLE_QUOTE))     in_quote^=true;
+    if (!in_quote || c == HIVE_SEP)     for (int i=0; i < separators.length; ++i)     if (c == separators[i])     ++result[i];
+  }
+  return result;
+}

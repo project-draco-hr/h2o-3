@@ -1,0 +1,42 @@
+{
+  ArrayList<String> tokens=new ArrayList();
+  byte[] bits=from.getBytes();
+  int offset=0;
+  int quotes=0;
+  while (offset < bits.length) {
+    while ((offset < bits.length) && (bits[offset] == CHAR_SPACE))     ++offset;
+    if (offset == bits.length)     break;
+    StringBuilder t=new StringBuilder();
+    byte c=bits[offset];
+    if ((c == CHAR_DOUBLE_QUOTE) || (c == single_quote)) {
+      quotes=c;
+      ++offset;
+    }
+    while (offset < bits.length) {
+      c=bits[offset];
+      if ((c == quotes)) {
+        ++offset;
+        if ((offset < bits.length) && (bits[offset] == c)) {
+          t.append((char)c);
+          ++offset;
+          continue;
+        }
+        quotes=0;
+      }
+ else       if ((quotes == 0) && ((c == separator) || (c == CHAR_CR) || (c == CHAR_LF))) {
+        break;
+      }
+ else {
+        t.append((char)c);
+        ++offset;
+      }
+    }
+    c=(offset == bits.length) ? CHAR_LF : bits[offset];
+    tokens.add(t.toString());
+    if ((c == CHAR_CR) || (c == CHAR_LF) || (offset == bits.length))     break;
+    if (c != separator)     return new String[0];
+    ++offset;
+  }
+  if (bits[bits.length - 1] == separator && bits[bits.length - 1] != CHAR_SPACE)   tokens.add("");
+  return tokens.toArray(new String[tokens.size()]);
+}

@@ -1,0 +1,26 @@
+{
+  int[] s1=determineSeparatorCounts(l1,single_quote);
+  int[] s2=determineSeparatorCounts(l2,single_quote);
+  int max=0;
+  for (int i=0; i < s1.length; ++i) {
+    if (s1[i] == 0)     continue;
+    if (s1[max] < s1[i])     max=i;
+    if (s1[i] == s2[i]) {
+      try {
+        String[] t1=determineTokens(l1,separators[i],single_quote);
+        String[] t2=determineTokens(l2,separators[i],single_quote);
+        if (t1.length != s1[i] + 1 || t2.length != s2[i] + 1)         continue;
+        return separators[i];
+      }
+ catch (      Exception e) {
+      }
+    }
+  }
+  if (s1[max] == 0)   max=separators.length - 1;
+  if (s1[max] != 0) {
+    String[] t1=determineTokens(l1,separators[max],single_quote);
+    String[] t2=determineTokens(l2,separators[max],single_quote);
+    if (t1.length == s1[max] + 1 && t2.length == s2[max] + 1)     return separators[max];
+  }
+  return AUTO_SEP;
+}
