@@ -1,12 +1,8 @@
 {
-  if (_setup._pType._parallelParseSupported) {
-    StreamData din=new StreamData(is);
-    int cidx=0;
-    while (is.available() > 0)     parallelParse(cidx++,din,dout);
-    parallelParse(cidx++,din,dout);
-  }
- else {
-    throw H2O.unimpl();
-  }
+  if (!_setup._pType._parallelParseSupported)   throw H2O.unimpl();
+  StreamData din=new StreamData(is);
+  int cidx=0;
+  while (is.available() > 0)   parallelParse(cidx++,din,dout);
+  parallelParse(cidx++,din,dout);
   return dout;
 }

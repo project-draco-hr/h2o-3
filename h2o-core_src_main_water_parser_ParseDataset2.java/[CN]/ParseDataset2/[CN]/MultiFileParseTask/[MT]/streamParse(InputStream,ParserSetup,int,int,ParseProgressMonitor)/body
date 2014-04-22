@@ -1,3 +1,8 @@
 {
-  throw H2O.unimpl();
+  FVecDataOut dout=new FVecDataOut(_vg,chunkStartIdx,localSetup._ncols,vecIdStart,enums());
+  Parser p=localSetup.parser();
+  if (localSetup._pType._parallelParseSupported)   p.streamParse(is,dout,pmon);
+ else   p.streamParse(is,dout);
+  dout.close(_fs);
+  return dout;
 }

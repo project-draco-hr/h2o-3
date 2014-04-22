@@ -1,6 +1,36 @@
 {
   ByteVec vec=getByteVec(key);
-  byte[] bits=vec.chunkForChunkIdx(0).getBytes();
+  byte[] zips=vec.getFirstBytes();
+  ZipUtil.Compression cpr=ZipUtil.guessCompressionMethod(zips);
+  byte[] bits=ZipUtil.unzipBytes(zips,cpr);
+  ParserSetup localSetup=_setup.guessSetup(bits);
+  if (localSetup.hasErrors())   return;
   final int chunkStartIdx=_fileChunkOffsets[ArrayUtils.find(_keys,key)];
+  try {
+    if (false)     throw new IOException();
+switch (cpr) {
+case NONE:
+      if (localSetup._pType._parallelParseSupported) {
+        throw H2O.unimpl();
+      }
+ else {
+        throw H2O.unimpl();
+      }
+case ZIP:
+{
+      ParseProgressMonitor pmon=DKV.get(_progress).get();
+      ZipInputStream zis=new ZipInputStream(vec.openStream(pmon));
+      ZipEntry ze=zis.getNextEntry();
+      if (ze != null && !ze.isDirectory())       _dout=streamParse(zis,localSetup,_vecIdStart,chunkStartIdx,pmon);
+ else       zis.close();
+      chunksAreLocal(vec,chunkStartIdx);
+      break;
+    }
+case GZIP:
   throw H2O.unimpl();
+}
+}
+ catch (IOException ioe) {
+throw new RuntimeException(ioe);
+}
 }

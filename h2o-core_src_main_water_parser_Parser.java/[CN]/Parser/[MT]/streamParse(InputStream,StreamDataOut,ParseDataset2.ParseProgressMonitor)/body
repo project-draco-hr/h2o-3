@@ -1,24 +1,13 @@
 {
-  if (_setup._pType._parallelParseSupported) {
-    StreamData din=new StreamData(is);
-    int cidx=0;
-    StreamDataOut nextChunk=dout;
-    long lastProgress=pmon.progress();
-    while (is.available() > 0) {
-      if (pmon.progress() > lastProgress) {
-        lastProgress=pmon.progress();
-        nextChunk.close();
-        if (dout != nextChunk)         dout.reduce(nextChunk);
-        nextChunk=nextChunk.nextChunk();
-      }
-      parallelParse(cidx++,din,nextChunk);
-    }
+  if (!_setup._pType._parallelParseSupported)   throw H2O.unimpl();
+  StreamData din=new StreamData(is);
+  int cidx=0;
+  StreamDataOut nextChunk=dout;
+  while (true) {
     parallelParse(cidx++,din,nextChunk);
     nextChunk.close();
     if (dout != nextChunk)     dout.reduce(nextChunk);
+    if (is.available() == 0)     return dout;
+    nextChunk=nextChunk.nextChunk();
   }
- else {
-    throw H2O.unimpl();
-  }
-  return dout;
 }
