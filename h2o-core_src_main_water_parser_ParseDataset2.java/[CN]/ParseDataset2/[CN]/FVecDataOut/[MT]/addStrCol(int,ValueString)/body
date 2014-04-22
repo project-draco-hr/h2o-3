@@ -1,0 +1,25 @@
+{
+  if (colIdx < _nvs.length) {
+    if (_ctypes[colIdx] == NCOL) {
+      addInvalidCol(colIdx);
+      return;
+    }
+    if (_ctypes[colIdx] == UCOL && ParseTime.attemptTimeParse(str) > 0)     _ctypes[colIdx]=TCOL;
+    if (_ctypes[colIdx] == TCOL) {
+      long l=ParseTime.attemptTimeParse(str);
+      if (l == Long.MIN_VALUE)       addInvalidCol(colIdx);
+ else {
+        int time_pat=ParseTime.decodePat(l);
+        l=ParseTime.decodeTime(l);
+        addNumCol(colIdx,l,0);
+        _nvs[_col]._timCnt[time_pat]++;
+      }
+    }
+ else     if (!_enums[_col=colIdx].isKilled()) {
+      int id=_enums[colIdx].addKey(str);
+      if (_ctypes[colIdx] == UCOL && id > 1)       _ctypes[colIdx]=ECOL;
+      _nvs[colIdx].addEnum(id);
+    }
+ else     _nvs[colIdx].addEnum(Integer.MAX_VALUE);
+  }
+}
