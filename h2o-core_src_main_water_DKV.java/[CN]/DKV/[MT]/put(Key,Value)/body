@@ -1,3 +1,6 @@
 {
-  return put(key,val,null);
+  Futures fs=new Futures();
+  Value old=put(key,val,fs);
+  fs.blockForPending();
+  return old;
 }

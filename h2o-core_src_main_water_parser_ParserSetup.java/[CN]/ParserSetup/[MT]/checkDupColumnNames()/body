@@ -1,15 +1,7 @@
 {
-  HashSet<String> uniqueNames=new HashSet<>();
   HashSet<String> conflictingNames=new HashSet<>();
-  if (_header) {
-    for (    String n : _columnNames) {
-      if (!uniqueNames.contains(n)) {
-        uniqueNames.add(n);
-      }
- else {
-        conflictingNames.add(n);
-      }
-    }
-  }
+  if (_columnNames == null)   return conflictingNames;
+  HashSet<String> uniqueNames=new HashSet<>();
+  for (  String n : _columnNames)   (uniqueNames.contains(n) ? conflictingNames : uniqueNames).add(n);
   return conflictingNames;
 }

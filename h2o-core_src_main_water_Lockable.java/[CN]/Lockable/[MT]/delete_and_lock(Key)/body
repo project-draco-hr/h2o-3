@@ -1,0 +1,8 @@
+{
+  Lockable old=write_lock(job_key);
+  if (old != null) {
+    Log.debug("lock-then-clear " + _key + " by job "+ job_key);
+    old.remove(new Futures()).blockForPending();
+  }
+  return (T)this;
+}
