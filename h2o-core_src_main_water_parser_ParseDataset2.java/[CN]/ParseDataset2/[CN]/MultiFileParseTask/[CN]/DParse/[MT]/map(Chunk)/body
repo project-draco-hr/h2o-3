@@ -1,3 +1,18 @@
 {
-  throw H2O.unimpl();
+  Enum[] enums=enums();
+  FVecDataIn din=new FVecDataIn(in);
+  FVecDataOut dout;
+  Parser p;
+switch (_setup._pType) {
+case CSV:
+    p=new CsvParser(_setup);
+  dout=new FVecDataOut(_vg,_startChunkIdx + in.cidx(),_setup._ncols,_vecIdStart,enums);
+break;
+default :
+throw H2O.unimpl();
+}
+p.parallelParse(in.cidx(),din,dout);
+(_dout=dout).close(_fs);
+FileMonitor fmon=new FileMonitor((ParseMonitor)DKV.get(_progress).get());
+fmon.update(in._len);
 }

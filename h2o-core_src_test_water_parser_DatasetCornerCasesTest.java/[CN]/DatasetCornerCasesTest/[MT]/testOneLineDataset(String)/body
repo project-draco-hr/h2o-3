@@ -1,0 +1,15 @@
+{
+  File file=find_test_file(filename);
+  NFSFileVec nfs=NFSFileVec.make(file);
+  Frame fr=null;
+  try {
+    fr=ParseDataset2.parse(Key.make(),nfs._key);
+    assertEquals("Number of chunks == 1",1,fr.anyVec().nChunks());
+    assertEquals("Number of rows   == 2",2,fr.numRows());
+    assertEquals("Number of cols   == 9",9,fr.numCols());
+  }
+  finally {
+    nfs.remove();
+    if (fr != null)     fr.delete();
+  }
+}

@@ -10,7 +10,11 @@
 switch (cpr) {
 case NONE:
       if (localSetup._pType._parallelParseSupported) {
-        throw H2O.unimpl();
+        DParse dp=new DParse(_vg,localSetup,_vecIdStart,chunkStartIdx,this);
+        addToPendingCount(1);
+        dp.setCompleter(this);
+        dp.asyncExec(vec);
+        for (int i=0; i < vec.nChunks(); ++i)         _chunk2Enum[chunkStartIdx + i]=vec.chunkKey(i).home_node().index();
       }
  else {
         throw H2O.unimpl();
