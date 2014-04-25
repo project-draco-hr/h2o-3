@@ -7,7 +7,6 @@
   if (localSetup.hasErrors())   return;
   final int chunkStartIdx=_fileChunkOffsets[ArrayUtils.find(_keys,key)];
   try {
-    if (false)     throw new IOException();
 switch (cpr) {
 case NONE:
       if (localSetup._pType._parallelParseSupported) {
@@ -18,7 +17,7 @@ case NONE:
       }
 case ZIP:
 {
-      ParseProgressMonitor pmon=DKV.get(_progress).get();
+      FileMonitor pmon=new FileMonitor((ParseMonitor)DKV.get(_progress).get());
       ZipInputStream zis=new ZipInputStream(vec.openStream(pmon));
       ZipEntry ze=zis.getNextEntry();
       if (ze != null && !ze.isDirectory())       _dout=streamParse(zis,localSetup,_vecIdStart,chunkStartIdx,pmon);
@@ -27,7 +26,10 @@ case ZIP:
       break;
     }
 case GZIP:
-  throw H2O.unimpl();
+  FileMonitor pmon=new FileMonitor((ParseMonitor)DKV.get(_progress).get());
+_dout=streamParse(new GZIPInputStream(vec.openStream(pmon)),localSetup,_vecIdStart,chunkStartIdx,pmon);
+chunksAreLocal(vec,chunkStartIdx);
+break;
 }
 }
  catch (IOException ioe) {

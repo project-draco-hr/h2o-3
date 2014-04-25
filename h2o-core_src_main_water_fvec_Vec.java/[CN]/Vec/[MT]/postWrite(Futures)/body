@@ -1,9 +1,8 @@
 {
+  final Key rskey=rollupStatsKey();
   Value val=DKV.get(rollupStatsKey());
   if (val != null) {
     RollupStats rs=val.get(RollupStats.class);
-    if (rs.isMutating()) {
-      throw H2O.unimpl();
-    }
+    if (rs.isMutating())     DKV.remove(rskey,fs);
   }
 }

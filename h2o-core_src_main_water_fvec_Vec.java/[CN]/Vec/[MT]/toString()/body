@@ -1,6 +1,6 @@
 {
-  RollupStats rs=rollupStats();
-  String s="[" + length() + (rs._naCnt < 0 ? ", {" : "," + rs._min + "/"+ rs._mean+ "/"+ rs._max+ ", "+ PrettyPrint.bytes(rs._size)+ ", {");
+  RollupStats rs=RollupStats.getOrNull(this);
+  String s="[" + length() + (rs == null ? ", {" : "," + rs._min + "/"+ rs._mean+ "/"+ rs._max+ ", "+ PrettyPrint.bytes(rs._size)+ ", {");
   int nc=nChunks();
   for (int i=0; i < nc; i++) {
     s+=chunkKey(i).home_node() + ":" + chunk2StartElem(i)+ ":";
