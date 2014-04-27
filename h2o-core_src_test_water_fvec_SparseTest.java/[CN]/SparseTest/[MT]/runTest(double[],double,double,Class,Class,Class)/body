@@ -1,12 +1,12 @@
 {
-  int nzeros=3;
+  Futures fs=new Futures();
   int length=4 * NewChunk.MIN_SPARSE_RATIO + 1;
   double[] vals=new double[length];
   int[] nzs=new int[]{length / 4,length / 2,(3 * length) / 4};
   vals[nzs[0]]=vs[0];
   vals[nzs[1]]=vs[1];
   vals[nzs[2]]=vs[2];
-  Chunk c0=makeChunk(vals);
+  Chunk c0=makeChunk(vals,fs);
   assertTrue(class0.isAssignableFrom(c0.getClass()));
   try {
     assertTrue(class0.isAssignableFrom(c0.getClass()));
@@ -29,12 +29,12 @@
       assertEquals(Double.isNaN(vals[nz]),v.isNA());
       assertTrue(Double.isNaN(vals[nz]) || vals[nz] == v.asDouble());
     }
-    Chunk c1=setAndClose(vals[length - 1]=v1,length - 1,c0);
+    Chunk c1=setAndClose(vals[length - 1]=v1,length - 1,c0,fs);
     assertTrue(class1.isAssignableFrom(c1.getClass()));
     assertEquals(4,c1.sparseLen());
     assertEquals(Double.isNaN(v1),c1.isNA0(length - 1));
     assertTrue(Double.isNaN(v1) || v1 == c1.at0(length - 1));
-    Chunk c2=setAndClose(vals[0]=v2,0,c1);
+    Chunk c2=setAndClose(vals[0]=v2,0,c1,fs);
     assertTrue(class2.isAssignableFrom(c2.getClass()));
     assertTrue(c2.nextNZ(-1) == 0);
     assertEquals(vals.length,c2.sparseLen());
@@ -43,6 +43,7 @@
       assertTrue(Double.isNaN(vals[i]) || vals[i] == c2.at0(i));
       assertTrue(c2.nextNZ(i) == i + 1);
     }
+    fs.blockForPending();
   }
   finally {
     c0._vec.remove();
