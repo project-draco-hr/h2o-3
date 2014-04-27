@@ -1,3 +1,4 @@
 {
-  return ForkJoinPool.getSurplusQueuedTaskCount();
+  ForkJoinWorkerThread wt=(ForkJoinWorkerThread)Thread.currentThread();
+  return wt.workQueue.queueSize() - wt.pool.idlePerActive();
 }

@@ -3,11 +3,10 @@
   ForkJoinPool p;
   int s=top, m, n;
   if ((a=array) != null) {
-    int j=(((m=a.length - 1) & s) << ASHIFT) + ABASE;
-    U.putOrderedObject(a,j,task);
+    U.putOrderedObject(a,(((m=a.length - 1) & s) << ASHIFT) + ABASE,task);
     if ((n=(top=s + 1) - base) <= 2) {
-      if ((p=pool) != null)       p.signalWork(this);
+      if ((p=pool) != null)       p.signalWork();
     }
- else     if (n >= m)     growArray();
+ else     if (n >= m)     growArray(true);
   }
 }
