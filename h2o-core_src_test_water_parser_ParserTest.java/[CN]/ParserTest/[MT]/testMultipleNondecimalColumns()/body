@@ -1,0 +1,20 @@
+{
+  String data[]={"foo| 2|one\n" + "bar| 4|two\n" + "foo| 6|three\n"+ "bar| 8|one\n"+ "bar|ten|two\n"+ "bar| 12|three\n"+ "foobar|14|one\n"};
+  double[][] expDouble=new double[][]{ard(1,2,0),ard(0,4,2),ard(1,6,1),ard(0,8,0),ard(0,NaN,2),ard(0,12,1),ard(2,14,0)};
+  for (  char separator : SEPARATORS) {
+    String[] dataset=getDataForSeparator(separator,data);
+    Key key=k(dataset);
+    Key r=Key.make();
+    ParseDataset2.parse(r,new Key[]{key});
+    Frame fr=DKV.get(r).get();
+    String[] cd=fr.vecs()[2].domain();
+    Assert.assertEquals("one",cd[0]);
+    Assert.assertEquals("three",cd[1]);
+    Assert.assertEquals("two",cd[2]);
+    cd=fr.vecs()[0].domain();
+    Assert.assertEquals("bar",cd[0]);
+    Assert.assertEquals("foo",cd[1]);
+    Assert.assertEquals("foobar",cd[2]);
+    testParsed(r,expDouble,key);
+  }
+}

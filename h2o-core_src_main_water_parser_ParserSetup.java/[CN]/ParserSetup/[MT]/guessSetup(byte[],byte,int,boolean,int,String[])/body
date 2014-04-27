@@ -21,7 +21,16 @@
   final byte single_quote=singleQuotes ? CsvParser.CHAR_SINGLE_QUOTE : -1;
   final String[][] data=new String[nlines][];
   if (nlines == 1) {
-    throw H2O.unimpl();
+    if (sep == AUTO_SEP) {
+      if (lines[0].split(",").length > 2)       sep=(byte)',';
+ else       if (lines[0].split(" ").length > 2)       sep=' ';
+ else       return new ParserSetup(false,1,new String[]{"Failed to guess separator."},ParserType.CSV,AUTO_SEP,ncols,singleQuotes,null);
+    }
+    data[0]=determineTokens(lines[0],sep,single_quote);
+    ncols=(ncols > 0) ? ncols : data[0].length;
+    if (checkHeader == 0)     labels=allStrings(data[0]) ? data[0] : null;
+ else     if (checkHeader == 1)     labels=data[0];
+ else     labels=null;
   }
  else {
     if (sep == AUTO_SEP) {
