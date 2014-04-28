@@ -7,20 +7,15 @@
       ByteHistoThrow bh=new ByteHistoThrow(H2O.CLOUD._memary[i]);
       final boolean[] ok=new boolean[]{false};
       try {
-        bh.setCompleter(new CountedCompleter(){
-          @Override public void compute(){
-          }
-          @Override public boolean onExceptionalCompletion(          Throwable ex,          CountedCompleter cc){
-            ok[0]=ex.getMessage().contains("test");
-            return true;
-          }
-        }
-);
+        System.out.println("MRThrow: " + bh.getCompleter());
         bh.dfork(nfs).getResult();
         assertTrue(ok[0]);
       }
  catch (      DException.DistributedException e) {
         assertTrue(e.getMessage().contains("test"));
+      }
+catch (      java.lang.AssertionError ae) {
+        throw ae;
       }
 catch (      Throwable ex) {
         ex.printStackTrace();
