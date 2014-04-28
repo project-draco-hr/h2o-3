@@ -4,11 +4,20 @@
   NFSFileVec nfs=NFSFileVec.make(file);
   try {
     for (int i=0; i < H2O.CLOUD._memary.length; ++i) {
-      ByteHistoThrow bh=new ByteHistoThrow(H2O.CLOUD._memary[i]);
+      final ByteHistoThrow bh=new ByteHistoThrow(H2O.CLOUD._memary[i]);
       final boolean[] ok=new boolean[]{false};
       try {
-        System.out.println("MRThrow: " + bh.getCompleter());
-        bh.dfork(nfs).getResult();
+        bh.setCompleter(new CountedCompleter(){
+          @Override public void compute(){
+            tryComplete();
+          }
+          @Override public boolean onExceptionalCompletion(          Throwable ex,          CountedCompleter cc){
+            ok[0]=ex.getMessage().contains("test");
+            return super.onExceptionalCompletion(ex,cc);
+          }
+        }
+);
+        bh.dfork(nfs).get();
         assertTrue(ok[0]);
       }
  catch (      DException.DistributedException e) {
