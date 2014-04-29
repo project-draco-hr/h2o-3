@@ -1,0 +1,12 @@
+{
+  InputStream is=new ByteArrayInputStream(bytes);
+  XlsParser p=new XlsParser(new ParserSetup(true,0,null,ParserType.XLS,ParserSetup.AUTO_SEP,-1,false,null));
+  InspectDataOut dout=new InspectDataOut();
+  try {
+    p.streamParse(is,dout);
+  }
+ catch (  IOException e) {
+    throw new RuntimeException(e);
+  }
+  return new ParserSetup(dout._ncols > 0 && dout._nlines > 0 && dout._nlines > dout._invalidLines,dout._invalidLines,dout.errors(),ParserType.XLS,ParserSetup.AUTO_SEP,dout._ncols,false,null);
+}
