@@ -1,14 +1,11 @@
 {
-  File file=find_test_file("./smalldata/junit/40k_categoricals.csv.gz");
-  NFSFileVec nfs=NFSFileVec.make(file);
   Frame fr=null;
   try {
-    fr=ParseDataset2.parse(Key.make("cat.hex"),nfs._key);
+    fr=parse_test_file("./smalldata/junit/40k_categoricals.csv.gz");
     assertEquals(fr.numRows(),40000);
     assertEquals(fr.vecs()[0].domain().length,40000);
   }
   finally {
-    nfs.remove();
     if (fr != null)     fr.delete();
   }
 }
