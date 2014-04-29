@@ -1,19 +1,17 @@
 {
   String data[]={"1| 2|one\n" + "3| 4|two\n" + "5| 6|three\n"+ "7| 8|one\n"+ "9| 10|two\n"+ "11|12|three\n"+ "13|14|one\n"+ "15|16|\"two\"\n"+ "17|18|\" four\"\n"+ "19|20| three\n"};
   double[][] expDouble=new double[][]{ard(1,2,1),ard(3,4,3),ard(5,6,2),ard(7,8,1),ard(9,10,3),ard(11,12,2),ard(13,14,1),ard(15,16,3),ard(17,18,0),ard(19,20,2)};
-  String[][] expString=new String[][]{ar(null,null,"one"),ar(null,null,"two"),ar(null,null,"three"),ar(null,null,"one"),ar(null,null,"two"),ar(null,null,"three"),ar(null,null,"one"),ar(null,null,"two"),ar(null,null," four"),ar(null,null,"three")};
-  String expDomain[]=ar("one","two","three"," four");
   for (  char separator : SEPARATORS) {
     String[] dataset=getDataForSeparator(separator,data);
     Key key=k(dataset);
     Key r=Key.make();
-    ParseDataset2.parse(r,new Key[]{key});
+    ParseDataset2.parse(r,key);
     Frame fr=DKV.get(r).get();
     String[] cd=fr.vecs()[2].domain();
     Assert.assertEquals(" four",cd[0]);
     Assert.assertEquals("one",cd[1]);
     Assert.assertEquals("three",cd[2]);
     Assert.assertEquals("two",cd[3]);
-    testParsed(r,expDouble,key);
+    testParsed(r,expDouble);
   }
 }
