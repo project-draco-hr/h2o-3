@@ -1,0 +1,17 @@
+{
+  int offset=0;
+  while (offset < entry._lim) {
+    Buf d=new Buf(entry,offset,PROPERTY_STORAGE_BLOCK_SIZE);
+    int nameSize=d.get2(SIZE_OF_NAME_POS);
+    int type=d._bbuf[TYPE_POS];
+    int startBlock=d.get4(START_BLOCK_POS);
+    int size=d.get4(SIZE_POS);
+    String name="";
+    for (int i=0; i < nameSize; i+=2)     name+=(char)d.get2(i);
+    name=name.replaceAll("\0","");
+    _props.add(new Props(name,type,startBlock,size));
+    if (name.equalsIgnoreCase("workbook") || name.equalsIgnoreCase("book"))     _wrkbook=_props.size() - 1;
+    if (name.equals("Root Entry"))     _rootentry=_props.size() - 1;
+    offset+=PROPERTY_STORAGE_BLOCK_SIZE;
+  }
+}

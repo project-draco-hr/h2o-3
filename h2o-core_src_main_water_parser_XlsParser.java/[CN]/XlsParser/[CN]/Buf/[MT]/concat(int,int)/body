@@ -1,0 +1,16 @@
+{
+  readAtLeast(off + size);
+  if (_off == _lim) {
+    _off=off;
+    _lim=off + size;
+    return;
+  }
+  if (off == _lim) {
+    _lim+=size;
+    return;
+  }
+  _bbuf=Arrays.copyOfRange(_bbuf,_off,_lim + size);
+  _lim=_lim - _off + size;
+  _off=0;
+  System.arraycopy(_buf,off,_bbuf,_lim - size,size);
+}

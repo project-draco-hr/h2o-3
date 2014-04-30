@@ -1,0 +1,11 @@
+{
+  if (lim <= _lim)   return;
+  if (lim > _buf.length) {
+    int oldlen=_buf.length, newlen=oldlen;
+    while (newlen < lim)     newlen<<=1;
+    _buf=Arrays.copyOf(_buf,newlen);
+  }
+  int x;
+  while (_lim < lim && (x=_is.read(_buf,_lim,_buf.length - _lim)) != -1)   _lim+=x;
+  if (_lim < lim)   throw new java.lang.ArrayIndexOutOfBoundsException("not an XLS file: reading at " + lim + " but file is only "+ _lim+ " bytes");
+}

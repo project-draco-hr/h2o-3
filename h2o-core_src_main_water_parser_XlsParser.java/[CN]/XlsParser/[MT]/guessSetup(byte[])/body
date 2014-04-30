@@ -1,9 +1,10 @@
 {
-  InputStream is=new ByteArrayInputStream(bytes);
   XlsParser p=new XlsParser(new ParserSetup(true,0,null,ParserType.XLS,ParserSetup.AUTO_SEP,-1,false,null));
+  p._buf=bytes;
+  p._lim=bytes.length;
   InspectDataOut dout=new InspectDataOut();
   try {
-    p.streamParse(is,dout);
+    p.streamParse(new ByteArrayInputStream(bytes),dout);
   }
  catch (  IOException e) {
     throw new RuntimeException(e);
