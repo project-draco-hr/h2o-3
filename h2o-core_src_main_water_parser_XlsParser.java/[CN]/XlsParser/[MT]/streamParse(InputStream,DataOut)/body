@@ -1,3 +1,20 @@
 {
+  byte[] header=new byte[256];
+  int hdlen=readFully(is,header);
+  if (hdlen < header.length)   throw new IOException("not an XLS file");
+  for (int i=0; i < IDENTIFIER_OLE.length; i++)   if (header[i] != IDENTIFIER_OLE[i])   throw new IOException("not an XLS file");
+  _numBigBlockDepotBlocks=UDP.get4(header,NUM_BIG_BLOCK_DEPOT_BLOCKS_POS);
+  _sbdStartBlock=UDP.get4(header,SMALL_BLOCK_DEPOT_BLOCK_POS);
+  _rootStartBlock=UDP.get4(header,ROOT_START_BLOCK_POS);
+  _extensionBlock=UDP.get4(header,EXTENSION_BLOCK_POS);
+  _numExtensionBlocks=UDP.get4(header,NUM_EXTENSION_BLOCK_POS);
+  int pos=BIG_BLOCK_DEPOT_BLOCKS_POS;
+  final int bbdBlocks=_numExtensionBlocks == 0 ? _numBigBlockDepotBlocks : (BIG_BLOCK_SIZE - BIG_BLOCK_DEPOT_BLOCKS_POS) / 4;
+  final int[] bigBlockDepotBlocks=new int[bbdBlocks];
+  for (int i=0; i < bbdBlocks; i++) {
+    bigBlockDepotBlocks[i]=UDP.get4(header,pos);
+    pos+=4;
+  }
+  System.out.println("parse xls");
   throw H2O.unimpl();
 }
