@@ -1,4 +1,5 @@
 {
+  _is=is;
   readAtLeast(IDENTIFIER_OLE.length);
   for (int i=0; i < IDENTIFIER_OLE.length; i++)   if (_buf[i] != IDENTIFIER_OLE[i])   throw new IOException("not an XLS file");
   _numBigBlockDepotBlocks=get4(NUM_BIG_BLOCK_DEPOT_BLOCKS_POS);
@@ -37,8 +38,9 @@
     }
     sbdBlock=_bigBlockChain[sbdBlock];
   }
-  Buf entry=__readData(_rootStartBlock);
-  __readPropertySets(entry);
-  System.out.println("parse xls");
-  throw H2O.unimpl();
+  __readPropertySets(__readData(_rootStartBlock));
+  Buf data=getWorkBook();
+  boolean res=parseWorkbook(data,dout);
+  if (!res)   throw new IOException("not an XLS file");
+  return dout;
 }

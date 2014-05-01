@@ -9,9 +9,10 @@
     String name="";
     for (int i=0; i < nameSize; i+=2)     name+=(char)d.get2(i);
     name=name.replaceAll("\0","");
-    _props.add(new Props(name,type,startBlock,size));
-    if (name.equalsIgnoreCase("workbook") || name.equalsIgnoreCase("book"))     _wrkbook=_props.size() - 1;
-    if (name.equals("Root Entry"))     _rootentry=_props.size() - 1;
+    Props p=new Props(name,type,startBlock,size);
+    _props.add(p);
+    if (name.equalsIgnoreCase("workbook") || name.equalsIgnoreCase("book"))     _wrkbook=p;
+    if (name.equals("Root Entry"))     _rootentry=p;
     offset+=PROPERTY_STORAGE_BLOCK_SIZE;
   }
 }

@@ -1,0 +1,14 @@
+{
+  double value;
+  if ((rknum & 0x02) != 0) {
+    value=rknum >> 2;
+  }
+ else {
+    int exp=(int)((rknum & 0x7ff00000L) >> 20);
+    long mantissa=(0x100000 | (rknum & 0x000ffffc));
+    value=mantissa / Math.pow(2,(20 - (exp - 1023)));
+    if (((rknum & 0x80000000) >> 31) != 0)     value*=-1;
+  }
+  if ((rknum & 0x01) != 0)   value/=100;
+  return value;
+}

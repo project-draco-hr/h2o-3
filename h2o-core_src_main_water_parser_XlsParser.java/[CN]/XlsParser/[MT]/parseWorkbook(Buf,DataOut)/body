@@ -1,0 +1,109 @@
+{
+  int pos=0;
+  int code=data.get2(pos);
+  int length=data.get2(pos + 2);
+  int version=data.get2(pos + 4);
+  int substreamType=data.get2(pos + 6);
+  _version=version;
+  if (version != SPREADSHEET_EXCEL_READER_BIFF8 && version != SPREADSHEET_EXCEL_READER_BIFF7)   return false;
+  if (substreamType != SPREADSHEET_EXCEL_READER_WORKBOOKGLOBALS)   return false;
+  pos+=length + 4;
+  code=data.get2(pos);
+  length=data.get2(pos + 2);
+  while (code != SPREADSHEET_EXCEL_READER_TYPE_EOF) {
+switch (code) {
+case SPREADSHEET_EXCEL_READER_TYPE_SST:
+{
+        int spos=pos + 4;
+        int limitpos=spos + length;
+        int uniqueStrings=data.get4(spos + 4);
+        spos+=8;
+        for (int i=0; i < uniqueStrings; i++) {
+          if (spos == limitpos) {
+            int conlength=data.get2(spos + 2);
+            spos+=4;
+            limitpos=spos + conlength;
+          }
+          int numChars=data.get2(spos);
+          spos+=2;
+          int optionFlags=data.get1(spos);
+          spos++;
+          boolean asciiEncoding=((optionFlags & 0x01) == 0);
+          boolean extendedString=((optionFlags & 0x04) != 0);
+          boolean richString=((optionFlags & 0x08) != 0);
+          int formattingRuns=0;
+          if (richString)           formattingRuns=data.get2((spos+=2) - 2);
+          int extendedRunLength=0;
+          if (extendedString)           extendedRunLength=data.get4((spos+=4) - 4);
+          String retstr=null;
+          int len=(asciiEncoding) ? numChars : numChars * 2;
+          if (spos + len < limitpos) {
+            retstr=data.getStr((spos+=len) - len,len);
+          }
+ else {
+            retstr=data.getStr(spos,limitpos - spos);
+            int bytesRead=limitpos - spos;
+            int charsLeft=numChars - ((asciiEncoding) ? bytesRead : (bytesRead / 2));
+            spos=limitpos;
+            while (charsLeft > 0) {
+              int opcode=data.get2(spos);
+              int conlength=data.get2(spos + 2);
+              if (opcode != 0x3c)               return false;
+              spos+=4;
+              limitpos=spos + conlength;
+              int option=data.get1(spos);
+              spos+=1;
+              throw H2O.unimpl();
+            }
+          }
+          retstr=(asciiEncoding) ? retstr : __encodeUTF16(retstr);
+          if (richString)           spos+=4 * formattingRuns;
+          if (extendedString)           spos+=extendedRunLength;
+          _sst.add(retstr);
+        }
+        break;
+      }
+case SPREADSHEET_EXCEL_READER_TYPE_FILEPASS:
+    return false;
+case SPREADSHEET_EXCEL_READER_TYPE_NAME:
+  break;
+case SPREADSHEET_EXCEL_READER_TYPE_FORMAT:
+{
+  String formatString=version == SPREADSHEET_EXCEL_READER_BIFF8 ? data.getStr(pos + 9,data.get2(pos + 6) * (data.get1(pos + 8) == 0 ? 1 : 2)) : data.getStr(pos + 7,data.get1(pos + 6) * 2);
+  int indexCode=data.get2(pos + 4);
+  while (indexCode >= _formatRecords.length)   _formatRecords=Arrays.copyOf(_formatRecords,_formatRecords.length << 1);
+  _formatRecords[indexCode]=formatString;
+  break;
+}
+case SPREADSHEET_EXCEL_READER_TYPE_FONT:
+break;
+case SPREADSHEET_EXCEL_READER_TYPE_PALETTE:
+break;
+case SPREADSHEET_EXCEL_READER_TYPE_XF:
+{
+int indexCode=data.get2(pos + 6);
+XF.Type t=null;
+if (DATEFORMATS.containsKey(indexCode)) t=XF.Type.Date;
+ else if (NUMBERFORMATS.containsKey(indexCode)) t=XF.Type.Number;
+ else if (indexCode < _formatRecords.length && _formatRecords[indexCode] != null) t=XF.Type.Other;
+_xfRecords.add(new XF(indexCode,t));
+break;
+}
+case SPREADSHEET_EXCEL_READER_TYPE_NINETEENFOUR:
+_nineteenFour=data.get1(pos + 4) == 1;
+break;
+case SPREADSHEET_EXCEL_READER_TYPE_BOUNDSHEET:
+int rec_offset=data.get4(pos + 4);
+int rec_length=data.get1(pos + 10);
+String rec_name=version == SPREADSHEET_EXCEL_READER_BIFF8 ? data.getStr(pos + 12,rec_length * (data.get1(pos + 11) == 0 ? 1 : 2)) : data.getStr(pos + 11,rec_length);
+_boundsheets.add(new Sheet(data,dout,rec_name,rec_offset));
+break;
+default :
+}
+pos+=length + 4;
+code=data.get2(pos);
+length=data.get2(pos + 2);
+}
+for (Sheet sheet : _boundsheets) sheet.parse();
+return true;
+}

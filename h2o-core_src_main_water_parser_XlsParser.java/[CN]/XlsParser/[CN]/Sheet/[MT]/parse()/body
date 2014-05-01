@@ -1,0 +1,119 @@
+{
+  int spos=_offset;
+  int code=_data.get2(spos);
+  int length=_data.get2(spos + 2);
+  int version=_data.get2(spos + 4);
+  if ((version != SPREADSHEET_EXCEL_READER_BIFF8) && (version != SPREADSHEET_EXCEL_READER_BIFF7))   return false;
+  int substreamType=_data.get2(spos + 6);
+  if (substreamType != SPREADSHEET_EXCEL_READER_WORKSHEET)   return false;
+  spos+=length + 4;
+  String recType=null;
+  while (true) {
+    code=_data.get1(spos);
+    if (code != SPREADSHEET_EXCEL_READER_TYPE_EOF) {
+      code=_data.get2(spos);
+      length=_data.get2(spos + 2);
+      recType=null;
+      spos+=4;
+    }
+switch (code) {
+case SPREADSHEET_EXCEL_READER_TYPE_DIMENSION:
+      if (_numRows == 0 && _numCols == 0) {
+        if (length == 10 || version == SPREADSHEET_EXCEL_READER_BIFF7) {
+          _numRows=_data.get2(spos + 2);
+          _numCols=_data.get2(spos + 6);
+        }
+ else {
+          _numRows=_data.get2(spos + 4);
+          _numCols=_data.get2(spos + 10);
+        }
+        _labels=new String[_numCols];
+        _ds=new double[_numCols];
+        Arrays.fill(_ds,Double.NaN);
+      }
+    break;
+case SPREADSHEET_EXCEL_READER_TYPE_MERGEDCELLS:
+  break;
+case SPREADSHEET_EXCEL_READER_TYPE_RK:
+case SPREADSHEET_EXCEL_READER_TYPE_RK2:
+{
+  int row=row(spos);
+  int col=_data.get2(spos + 2);
+  double d=_GetIEEE754(_data.get4(spos + 6));
+  if (isDate(_data,spos))   throw H2O.unimpl();
+  _ds[col]=d;
+  break;
+}
+case SPREADSHEET_EXCEL_READER_TYPE_LABELSST:
+{
+int row=row(spos);
+int col=_data.get2(spos + 2);
+int index=_data.get4(spos + 6);
+_labels[col]=_sst.get(index);
+break;
+}
+case SPREADSHEET_EXCEL_READER_TYPE_MULRK:
+{
+int row=row(spos);
+int colFirst=_data.get2(spos + 2);
+int colLast=_data.get2(spos + length - 2);
+int columns=colLast - colFirst + 1;
+int tmppos=spos + 4;
+for (int i=0; i < columns; i++) {
+double numValue=_GetIEEE754(_data.get4(tmppos + 2));
+if (isDate(_data,tmppos - 4)) throw H2O.unimpl();
+tmppos+=6;
+_ds[colFirst + i]=numValue;
+}
+break;
+}
+case SPREADSHEET_EXCEL_READER_TYPE_NUMBER:
+{
+int row=row(spos);
+int col=_data.get2(spos + 2);
+double d=_data.get8d(spos + 6);
+if (isDate(_data,spos)) throw H2O.unimpl();
+_ds[col]=d;
+break;
+}
+case SPREADSHEET_EXCEL_READER_TYPE_MULBLANK:
+{
+int row=row(spos);
+int col=_data.get2(spos + 2);
+int cols=(length / 2) - 3;
+for (int c=0; c < cols; c++) {
+if (isDate(_data,spos + (c * 2))) throw H2O.unimpl();
+_ds[col + c]=0;
+}
+break;
+}
+case SPREADSHEET_EXCEL_READER_TYPE_FORMULA:
+case SPREADSHEET_EXCEL_READER_TYPE_FORMULA2:
+throw H2O.unimpl();
+case SPREADSHEET_EXCEL_READER_TYPE_BOOLERR:
+throw H2O.unimpl();
+case SPREADSHEET_EXCEL_READER_TYPE_STRING:
+throw H2O.unimpl();
+case SPREADSHEET_EXCEL_READER_TYPE_ROW:
+break;
+case SPREADSHEET_EXCEL_READER_TYPE_DBCELL:
+break;
+case SPREADSHEET_EXCEL_READER_TYPE_LABEL:
+throw H2O.unimpl();
+case SPREADSHEET_EXCEL_READER_TYPE_EOF:
+doRow(_currow + 1);
+return true;
+case SPREADSHEET_EXCEL_READER_TYPE_HYPER:
+throw H2O.unimpl();
+case SPREADSHEET_EXCEL_READER_TYPE_DEFCOLWIDTH:
+break;
+case SPREADSHEET_EXCEL_READER_TYPE_STANDARDWIDTH:
+break;
+case SPREADSHEET_EXCEL_READER_TYPE_COLINFO:
+break;
+default :
+break;
+}
+spos+=length;
+}
+}

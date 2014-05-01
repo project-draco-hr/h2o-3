@@ -1,0 +1,26 @@
+{
+  if (_wrkbook._size < SMALL_BLOCK_THRESHOLD) {
+    Buf rootdata=__readData(_rootentry._startBlock);
+    Buf streamData=new Buf(rootdata,0,0);
+    int block=_wrkbook._startBlock;
+    while (block != -2) {
+      int pos=block * SMALL_BLOCK_SIZE;
+      streamData.concat(pos,SMALL_BLOCK_SIZE);
+      block=_smallBlockChain[block];
+    }
+    return streamData;
+  }
+ else {
+    int numBlocks=_wrkbook._size / BIG_BLOCK_SIZE;
+    if (_wrkbook._size % BIG_BLOCK_SIZE != 0)     numBlocks++;
+    Buf streamData=new Buf(_buf,0,0);
+    if (numBlocks == 0)     return streamData;
+    int block=_wrkbook._startBlock;
+    while (block != -2) {
+      int pos=(block + 1) * BIG_BLOCK_SIZE;
+      streamData.concat(pos,BIG_BLOCK_SIZE);
+      block=_bigBlockChain[block];
+    }
+    return streamData;
+  }
+}
