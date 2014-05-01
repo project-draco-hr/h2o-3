@@ -1,0 +1,11 @@
+{
+  _traces=new String[H2O.CLOUD.size()];
+  Map<Thread,StackTraceElement[]> allStackTraces=Thread.getAllStackTraces();
+  StringBuilder sb=new StringBuilder();
+  for (  Entry<Thread,StackTraceElement[]> el : allStackTraces.entrySet()) {
+    append(sb,el.getKey());
+    append(sb,el.getValue());
+    sb.append('\n');
+  }
+  _traces[H2O.SELF.index()]=sb.toString();
+}
