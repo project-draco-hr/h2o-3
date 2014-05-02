@@ -1,0 +1,51 @@
+{
+  double[][] exp=new double[101][1];
+  exp[50][0]=1;
+  StringBuilder sb=new StringBuilder();
+  for (int i=0; i < 50; i++)   sb.append("0.0\n");
+  sb.append("1.0\n");
+  for (int i=0; i < 50; i++)   sb.append("0.0\n");
+  Key k=ParserTest.makeByteVec(sb.toString());
+  ParserTest.testParsed(ParseDataset2.parse(Key.make(),k),exp,101);
+  exp=new double[101][1];
+  exp[50][0]=2;
+  sb=new StringBuilder();
+  for (int i=0; i < 50; i++)   sb.append("0\n");
+  sb.append("2\n");
+  for (int i=0; i < 50; i++)   sb.append("0\n");
+  k=ParserTest.makeByteVec(sb.toString());
+  ParserTest.testParsed(ParseDataset2.parse(Key.make(),k),exp,101);
+  for (  char sep : SEPARATORS) {
+    exp=new double[101][2];
+    exp[50][0]=2;
+    exp[50][1]=3;
+    exp[100][0]=0;
+    exp[100][1]=Double.NaN;
+    sb=new StringBuilder();
+    for (int i=0; i < 50; i++)     sb.append("0").append(sep).append("0\n");
+    sb.append("2").append(sep).append("3\n");
+    for (int i=0; i < 49; i++)     sb.append("0").append(sep).append("0\n");
+    sb.append("0");
+    k=ParserTest.makeByteVec(sb.toString());
+    ParserTest.testParsed(ParseDataset2.parse(Key.make(),k),exp,101);
+  }
+  sb=new StringBuilder();
+  exp=new double[100100][1];
+  for (int i=0; i < 100; i++) {
+    for (int j=0; j < 1000; j++)     sb.append("0\n");
+    sb.append("1\n");
+    exp[i * 1001 + 1000][0]=1;
+  }
+  k=ParserTest.makeByteVec(sb.toString());
+  ParserTest.testParsed(ParseDataset2.parse(Key.make(),k),exp,100100);
+  sb=new StringBuilder();
+  for (int i=0; i < 100; i++)   sb.append("0\n");
+  for (int i=0; i < 100; i+=2)   sb.append("-1001\n1001\n");
+  exp=new double[200][1];
+  for (int i=0; i < 100; i+=2) {
+    exp[i + 100][0]=-1001;
+    exp[i + 101][0]=1001;
+  }
+  k=ParserTest.makeByteVec(sb.toString());
+  ParserTest.testParsed(ParseDataset2.parse(Key.make(),k),exp,200);
+}
