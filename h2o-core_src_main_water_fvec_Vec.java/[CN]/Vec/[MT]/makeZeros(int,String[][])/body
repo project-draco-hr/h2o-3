@@ -1,0 +1,19 @@
+{
+  final int nchunks=nChunks();
+  Key[] keys=group().addVecs(n);
+  final Vec[] vs=new Vec[keys.length];
+  for (int i=0; i < vs.length; ++i)   vs[i]=new Vec(keys[i],_espc,domains == null ? null : domains[i]);
+  new MRTask(){
+    @Override protected void setupLocal(){
+      for (int j=0; j < vs.length; ++j) {
+        for (int i=0; i < nchunks; i++) {
+          Key k=vs[j].chunkKey(i);
+          if (k.home())           DKV.put(k,new C0LChunk(0L,chunkLen(i)),_fs);
+        }
+      }
+      for (      Vec v : vs)       if (v._key.home())       DKV.put(v._key,v,_fs);
+    }
+  }
+.doAllNodes();
+  return vs;
+}

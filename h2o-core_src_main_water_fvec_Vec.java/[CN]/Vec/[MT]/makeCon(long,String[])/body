@@ -1,19 +1,15 @@
 {
-  if (_espc == null)   throw H2O.unimpl();
   final int nchunks=nChunks();
   final Vec v0=new Vec(group().addVec(),_espc,domain);
   new MRTask(){
     @Override protected void setupLocal(){
-      long row=0;
-      Key k;
       for (int i=0; i < nchunks; i++) {
-        long nrow=chunk2StartElem(i + 1);
-        if ((k=v0.chunkKey(i)).home())         DKV.put(k,new C0LChunk(l,(int)(nrow - row)),_fs);
-        row=nrow;
+        Key k=v0.chunkKey(i);
+        if (k.home())         DKV.put(k,new C0LChunk(l,chunkLen(i)),_fs);
       }
     }
   }
-.doAll(v0._key);
+.doAllNodes();
   DKV.put(v0._key,v0);
   return v0;
 }
