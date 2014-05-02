@@ -1,0 +1,23 @@
+{
+  for (  Key k : H2O.localKeySet())   if (k.toString().startsWith(_root)) {
+    dels.add(k.toString());
+    Lockable.delete(k);
+  }
+  Futures fs=new Futures();
+  Key k=null;
+  for (int i=0; i < _files.length; ++i) {
+    if (_ok[i] < H2O.CLOUD.size()) {
+      if (fails != null)       fails.add(_files[i]);
+    }
+ else {
+      File f=new File(_files[i]);
+      k=PersistNFS.decodeFile(f);
+      if (files != null)       files.add(_files[i]);
+      if (keys != null)       keys.add(k.toString());
+      NFSFileVec nfs=NFSFileVec.make(f,fs);
+      new Frame(k,new String[]{"0"},new Vec[]{nfs}).delete_and_lock(null).unlock(null);
+    }
+  }
+  fs.blockForPending();
+  return k;
+}

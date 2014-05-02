@@ -1,0 +1,20 @@
+{
+  String[] covtype_locations=new String[]{"../datasets/UCI/UCI-large/covtype/covtype.data","../../datasets/UCI/UCI-large/covtype/covtype.data","../datasets/UCI/UCI-large/covtype/covtype.data.gz","../demo/UCI-large/covtype/covtype.data"};
+  File f=null;
+  for (  String covtype_location : covtype_locations) {
+    f=find_test_file(covtype_location);
+    if (f != null && f.exists())     break;
+  }
+  if (f == null || !f.exists()) {
+    System.out.println("Could not find covtype.data, skipping ParseProgressTest.testCovtype()");
+    return;
+  }
+  FileIntegrityChecker c=FileIntegrityChecker.check(f);
+  assertEquals(1,c.size());
+  Key k=c.syncDirectory(null,null,null,null);
+  assertEquals(true,k != null);
+  Frame fr=ParseDataset2.parse(Key.make(),k);
+  assertEquals(55,fr.numCols());
+  assertEquals(581012,fr.numRows());
+  fr.delete();
+}

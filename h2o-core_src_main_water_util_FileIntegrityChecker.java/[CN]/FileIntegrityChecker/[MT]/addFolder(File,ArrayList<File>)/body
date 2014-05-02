@@ -1,0 +1,14 @@
+{
+  if (!folder.canRead())   return;
+  if (folder.isDirectory()) {
+    for (    File f : folder.listFiles()) {
+      if (!f.canRead())       continue;
+      if (f.isHidden() && !folder.isHidden())       continue;
+      if (f.isDirectory())       addFolder(f,filesInProgress);
+ else       filesInProgress.add(f);
+    }
+  }
+ else {
+    filesInProgress.add(folder);
+  }
+}
