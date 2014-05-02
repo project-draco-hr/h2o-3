@@ -1,0 +1,13 @@
+{
+  Assert.assertEquals(len,fr.numRows());
+  Assert.assertEquals(expected[0].length,fr.numCols());
+  for (int j=0; j < fr.numCols(); ++j) {
+    Vec vec=fr.vecs()[j];
+    for (int i=0; i < expected.length; ++i) {
+      double pval=vec.at(i);
+      if (Double.isNaN(expected[i][j]))       Assert.assertTrue(i + " -- " + j,vec.isNA(i));
+ else       Assert.assertTrue(expected[i][j] + " -- " + pval,compareDoubles(expected[i][j],pval,0.0000001));
+    }
+  }
+  fr.delete();
+}
