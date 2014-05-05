@@ -1,4 +1,6 @@
 {
+  long start=System.currentTimeMillis();
+  Futures fs=new Futures();
   Key keys[]=new Key[100];
   Value vals[]=new Value[keys.length];
   for (int i=0; i < keys.length; i++) {
@@ -6,16 +8,18 @@
     Value v0=DKV.get(k);
     assertNull(v0);
     Value v1=vals[i]=new Value(k,"test2 bits for Value" + i);
-    DKV.put(k,v1);
+    DKV.put(k,v1,fs);
     assertEquals(v1._key,k);
   }
   for (int i=0; i < keys.length; i++) {
     Value v=DKV.get(keys[i]);
     assertEquals(vals[i],v);
   }
-  for (  Key key : keys)   DKV.remove(key);
+  for (  Key key : keys)   DKV.remove(key,fs);
   for (  Key key : keys) {
     Value v3=DKV.get(key);
     assertNull(v3);
   }
+  fs.blockForPending();
+  System.out.println("100Keys " + (System.currentTimeMillis() - start));
 }

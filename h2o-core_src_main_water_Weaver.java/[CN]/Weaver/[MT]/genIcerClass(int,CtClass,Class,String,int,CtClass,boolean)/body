@@ -3,14 +3,9 @@
   CtClass icer_cc=_pool.makeClass(icer_name);
   icer_cc.setSuperclass(super_icer);
   icer_cc.setModifiers(javassist.Modifier.PUBLIC);
-  boolean debug_print=true;
-  boolean has_fields=false;
+  boolean debug_print=false;
   CtField ctfs[]=iced_cc.getDeclaredFields();
-  for (  CtField ctf : ctfs) {
-    debug_print|=ctf.getName().equals("DEBUG_WEAVER");
-    int mods=ctf.getModifiers();
-    has_fields|=!javassist.Modifier.isTransient(mods) && !javassist.Modifier.isStatic(mods);
-  }
+  for (  CtField ctf : ctfs)   debug_print|=ctf.getName().equals("DEBUG_WEAVER");
   if (debug_print)   System.out.println("class " + icer_cc.getName() + " extends "+ super_icer.getName()+ " {");
   for (  CtField ctf : ctfs) {
     CtClass ctft=ctf.getType();
@@ -29,9 +24,9 @@
       icer_cc.addField(ctfr);
     }
   }
-  String debug=make_body(icer_cc,iced_cc,iced_clazz,"write",null,null,"  protected final water.AutoBuffer write" + id + "(water.AutoBuffer ab, "+ iced_name+ " ice) {\n","    write" + super_id + "(ab,ice);\n","    ab.put%z(ice.%s);\n","    ab.put%z(_unsafe.get%u(ice,%dL)); // %s\n","    ab.putEnum(ice.%s);\n","    ab.putEnum((%C)_unsafe.get%u(ice,%dL)); // %s\n","    ab.put%z(ice.%s);\n","    ab.put%z((%C)_unsafe.get%u(ice,%dL)); // %s\n","    return ab;\n" + "  }");
+  String debug=make_body(icer_cc,iced_cc,iced_clazz,"write",null,null,"  protected final water.AutoBuffer write" + id + "(water.AutoBuffer ab, "+ iced_name+ " ice) {\n","    write" + super_id + "(ab,ice);\n","    ab.put%z(ice.%s);\n","    ab.put%z((%C)_unsafe.get%u(ice,%dL)); // %s\n","    ab.putEnum(ice.%s);\n","    ab.putEnum((%C)_unsafe.get%u(ice,%dL)); // %s\n","    ab.put%z(ice.%s);\n","    ab.put%z((%C)_unsafe.get%u(ice,%dL)); // %s\n","    return ab;\n" + "  }");
   if (debug_print)   System.out.println(debug);
-  String debugJ=make_body(icer_cc,iced_cc,iced_clazz,"write",super_has_fields ? null : "    ab.put1('{').","    ab.put1(',').","  protected final water.AutoBuffer writeJSON" + id + "(water.AutoBuffer ab, "+ iced_name+ " ice) {\n","    writeJSON" + super_id + "(ab,ice);\n","putJSON%z(\"%s\",ice.%s);\n","putJSON%z(\"%s\",_unsafe.get%u(ice,%dL)); // %s\n","putEnumJSON(\"%s\",ice.%s);\n","putEnumJSON(\"%s\",(%C)_unsafe.get%u(ice,%dL)); // %s\n","putJSON%z(\"%s\",ice.%s);\n","putJSON%z(\"%s\",(%C)_unsafe.get%u(ice,%dL)); // %s\n","    return ab;\n" + "  }");
+  String debugJ=make_body(icer_cc,iced_cc,iced_clazz,"write",super_has_fields ? null : "    ab.put1('{').","    ab.put1(',').","  protected final water.AutoBuffer writeJSON" + id + "(water.AutoBuffer ab, "+ iced_name+ " ice) {\n","    writeJSON" + super_id + "(ab,ice);\n","putJSON%z(\"%s\",ice.%s);\n","putJSON%z(\"%s\",(%C)_unsafe.get%u(ice,%dL)); // %s\n","putEnumJSON(\"%s\",ice.%s);\n","putEnumJSON(\"%s\",(%C)_unsafe.get%u(ice,%dL)); // %s\n","putJSON%z(\"%s\",ice.%s);\n","putJSON%z(\"%s\",(%C)_unsafe.get%u(ice,%dL)); // %s\n","    return ab;\n" + "  }");
   if (debug_print)   System.out.println(debugJ);
   String wbody="  protected water.AutoBuffer write(water.AutoBuffer ab, water.Freezable ice) {\n" + "    return write" + id + "(ab,("+ iced_name+ ")ice);\n"+ "  }";
   if (debug_print)   System.out.println(wbody);
@@ -59,7 +54,7 @@
     String cpbody_impl=make_body(icer_cc,iced_cc,iced_clazz,"copyOver",null,null,"  protected void copyOver(water.Freezable fdst, water.Freezable fsrc) {\n","    super.copyOver(fdst,fsrc);\n" + "    " + iced_name + " dst = ("+ iced_name+ ")fdst;\n"+ "    "+ iced_name+ " src = ("+ iced_name+ ")fsrc;\n","    dst.%s = src.%s;\n","    _unsafe.put%u(dst,%dL,_unsafe.get%u(src,%dL));  //%s\n","    dst.%s = src.%s;\n","    _unsafe.put%u(dst,%dL,_unsafe.get%u(src,%dL));  //%s\n","    dst.%s = src.%s;\n","    _unsafe.put%u(dst,%dL,_unsafe.get%u(src,%dL));  //%s\n","  }");
     if (debug_print)     System.out.println(cpbody_impl);
   }
-  String cstrbody="  public " + icer_cc.getSimpleName() + "( "+ iced_name+ " iced, boolean has_fields) { super(iced,"+ (has_fields ? "true" : "has_fields")+ "); }";
+  String cstrbody="  public " + icer_cc.getSimpleName() + "( "+ iced_name+ " iced) { super(iced); }";
   if (debug_print)   System.out.println(cstrbody);
   try {
     icer_cc.addConstructor(CtNewConstructor.make(cstrbody,icer_cc));

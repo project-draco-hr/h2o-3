@@ -1,0 +1,11 @@
+{
+  String iced_name=cc.getName();
+  if (iced_name.equals("water.Iced"))   return false;
+  if (iced_name.equals("water.H2O$H2OCountedCompleter"))   return false;
+  if (hasWovenFields(cc.getSuperclass()))   return true;
+  for (  CtField ctf : cc.getDeclaredFields()) {
+    int mods=ctf.getModifiers();
+    if (!javassist.Modifier.isTransient(mods) && !javassist.Modifier.isStatic(mods))     return true;
+  }
+  return false;
+}

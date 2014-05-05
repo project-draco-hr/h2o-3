@@ -23,7 +23,7 @@
     CtClass base=ctft;
     while (base.isArray())     base=base.getComponentType();
     boolean can_access=!javassist.Modifier.isPrivate(mods);
-    if (impl.equals("read") && javassist.Modifier.isFinal(mods))     can_access=false;
+    if ((impl.equals("read") || impl.equals("copyOver")) && javassist.Modifier.isFinal(mods))     can_access=false;
     long off=_unsafe.objectFieldOffset(iced_clazz.getDeclaredField(ctf.getName()));
     int ftype=ftype(iced_cc,ctf.getSignature());
     if (ftype % 20 == 9) {
