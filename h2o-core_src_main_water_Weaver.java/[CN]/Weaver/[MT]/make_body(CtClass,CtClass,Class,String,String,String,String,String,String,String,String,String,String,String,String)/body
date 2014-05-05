@@ -1,9 +1,7 @@
 {
   StringBuilder sb=new StringBuilder();
   sb.append(header);
-  boolean debug_print=false;
-  boolean first=supers == null;
-  if (!first)   sb.append(supers);
+  sb.append(supers);
   String mimpl=impl + "_impl";
   for (  CtMethod mth : iced_cc.getDeclaredMethods())   if (mth.getName().equals(mimpl)) {
     if (javassist.Modifier.isAbstract(mth.getModifiers()) || javassist.Modifier.isVolatile(mth.getModifiers()))     sb.append(impl.equals("write") ? "  return ab;\n}" : "  return ice;\n}");
@@ -14,26 +12,28 @@
   CtField ctfs[]=iced_cc.getDeclaredFields();
   for (  CtField ctf : ctfs) {
     int mods=ctf.getModifiers();
-    if (javassist.Modifier.isTransient(mods) || javassist.Modifier.isStatic(mods)) {
-      debug_print|=ctf.getName().equals("DEBUG_WEAVER");
-      continue;
-    }
+    if (javassist.Modifier.isTransient(mods) || javassist.Modifier.isStatic(mods))     continue;
     if (mimpl == null)     continue;
-    if (first)     first=false;
- else     sb.append(field_sep);
+    if (field_sep1 != null) {
+      sb.append(field_sep1);
+      field_sep1=null;
+    }
+ else     if (field_sep2 != null)     sb.append(field_sep2);
     CtClass ctft=ctf.getType();
     CtClass base=ctft;
     while (base.isArray())     base=base.getComponentType();
-    long off=(!javassist.Modifier.isPublic(mods) || javassist.Modifier.isFinal(mods)) ? _unsafe.objectFieldOffset(iced_clazz.getDeclaredField(ctf.getName())) : -1;
+    boolean can_access=!javassist.Modifier.isPrivate(mods);
+    if (impl.equals("read") && javassist.Modifier.isFinal(mods))     can_access=false;
+    long off=_unsafe.objectFieldOffset(iced_clazz.getDeclaredField(ctf.getName()));
     int ftype=ftype(iced_cc,ctf.getSignature());
     if (ftype % 20 == 9) {
-      sb.append(off == -1 ? iced : iced_unsafe);
+      sb.append(can_access ? iced : iced_unsafe);
     }
  else     if (ftype % 20 == 10) {
-      sb.append(off == -1 ? enums : enums_unsafe);
+      sb.append(can_access ? enums : enums_unsafe);
     }
  else {
-      sb.append(off == -1 ? prims : prims_unsafe);
+      sb.append(can_access ? prims : prims_unsafe);
     }
     String z=FLDSZ1[ftype % 20];
     for (int i=0; i < ftype / 20; ++i)     z='A' + z;
@@ -47,5 +47,5 @@
   if (mimpl != null)   sb.append(trailer);
   String body=sb.toString();
   addMethod(body,icer);
-  return debug_print ? body : null;
+  return body;
 }
