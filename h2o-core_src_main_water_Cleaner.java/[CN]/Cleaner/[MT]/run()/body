@@ -31,16 +31,10 @@
       Object p=val.rawPOJO();
       if (m == null && p == null)       continue;
       if (val.isLockable())       continue;
-      if (!val.onICE()) {
-        if (m != null && p != null) {
-          val.freeMem();
-          freed+=val._max;
-        }
-        continue;
-      }
+      boolean isChunk=p instanceof Chunk;
       long touched=val._lastAccessedTime;
       if (touched > clean_to_age) {
-        if (val.isPersisted() && m != null && p != null) {
+        if (val.isPersisted() && m != null && p != null && !isChunk) {
           val.freeMem();
           freed+=val._max;
         }
@@ -66,8 +60,9 @@
         val.freePOJO();
         if (p != null)         freed+=val._max;
         p=null;
+        if (isChunk)         freed-=val._max;
       }
-      if (m != null && p != null) {
+      if (m != null && p != null && !isChunk) {
         val.freeMem();
         freed+=val._max;
       }

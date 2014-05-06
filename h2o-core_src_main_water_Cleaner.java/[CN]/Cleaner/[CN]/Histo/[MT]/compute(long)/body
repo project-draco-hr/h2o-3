@@ -14,11 +14,13 @@
     if (!(ov instanceof Value))     continue;
     Value val=(Value)ov;
     int len=0;
-    if (val.rawMem() != null)     len+=val._max;
-    if (val.rawPOJO() != null)     len+=val._max;
+    byte[] m=val.rawMem();
+    Object p=val.rawPOJO();
+    if (m != null)     len+=val._max;
+    if (p != null)     len+=val._max;
+    if (p instanceof Chunk)     len-=val._max;
     if (len == 0)     continue;
     cached+=len;
-    if (!val.onICE())     continue;
     if (val._lastAccessedTime < oldest) {
       vold=val;
       oldest=val._lastAccessedTime;

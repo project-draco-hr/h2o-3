@@ -1,32 +1,34 @@
 {
   for (; i < bytes.length; i++) {
-    byte b=bytes[i];
+    char b=(char)bytes[i], c=0;
 switch (b) {
 case '%':
-      sb.append("%%");
+      c='%';
     break;
 case '.':
-  sb.append("%d");
+  c='d';
 break;
 case '/':
-sb.append("%s");
+c='s';
 break;
 case ':':
-sb.append("%c");
-break;
-case '\\':
-sb.append("%b");
+c='c';
 break;
 case '"':
-sb.append("%q");
+c='q';
+break;
+case '>':
+c='g';
+break;
+case '\\':
+c='b';
 break;
 case '\0':
-sb.append("%z");
-break;
-default :
-sb.append((char)b);
+c='z';
 break;
 }
+if (c != 0) sb.append('%').append(c);
+ else sb.append(b);
 }
 return sb;
 }
