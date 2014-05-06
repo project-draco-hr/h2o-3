@@ -1,10 +1,11 @@
 {
   NFSFileVec nfs=NFSFileVec.make(file);
+  System.out.printf("\nProgress: 00%%");
   final long start=System.currentTimeMillis();
   NonBlockingHashMap<VStr,VStr> words=new WordCount().doAll(nfs)._words;
   final long time_wc=System.currentTimeMillis();
   VStr[] vss=new VStr[words.size()];
-  System.out.println("WC takes " + (time_wc - start) + "msec for "+ vss.length+ " words");
+  System.out.println("\nWC takes " + (time_wc - start) + "msec for "+ vss.length+ " words");
   int cnt=0;
   Object[] kvs=WordCount.WORDS.raw_array();
   for (int i=2; i < kvs.length; i+=2) {
