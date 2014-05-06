@@ -1,0 +1,11 @@
+{
+  if (_off + _len >= _cs.length) {
+    int newlen=Math.min(32767,_cs.length << 1);
+    if (_off > 0 && _len < 512)     newlen=Math.max(1024,newlen);
+    byte[] cs=new byte[newlen];
+    System.arraycopy(_cs,_off,cs,0,_len);
+    _off=0;
+    _cs=cs;
+  }
+  _cs[_off + _len++]=(byte)c;
+}

@@ -1,0 +1,22 @@
+{
+  NFSFileVec nfs=NFSFileVec.make(file);
+  final long start=System.currentTimeMillis();
+  NonBlockingHashMap<VStr,VStr> words=new WordCount().doAll(nfs)._words;
+  final long time_wc=System.currentTimeMillis();
+  VStr[] vss=new VStr[words.size()];
+  System.out.println("WC takes " + (time_wc - start) + "msec for "+ vss.length+ " words");
+  int cnt=0;
+  Object[] kvs=WordCount.WORDS.raw_array();
+  for (int i=2; i < kvs.length; i+=2) {
+    Object ok=kvs[i], ov=kvs[i + 1];
+    if (ok != null && ok instanceof VStr && ok == ov)     vss[cnt++]=(VStr)ov;
+  }
+  final long time_ary=System.currentTimeMillis();
+  System.out.println("WC toArray " + (time_ary - time_wc) + "msec for "+ cnt+ " words");
+  Arrays.sort(vss,0,cnt,null);
+  final long time_sort=System.currentTimeMillis();
+  System.out.println("WC sort " + (time_sort - time_ary) + "msec for "+ cnt+ " words");
+  System.out.println("Found " + cnt + " unique words.");
+  System.out.println(Arrays.toString(vss));
+  nfs.remove(new Futures()).blockForPending();
+}
