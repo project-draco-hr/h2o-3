@@ -1,0 +1,30 @@
+{
+  byte[] bytes=_cache.get(uri);
+  if (bytes == null) {
+    try (InputStream resource=Boot._init.getResource2(uri)){
+      if (resource != null) {
+        try {
+          bytes=ByteStreams.toByteArray(resource);
+        }
+ catch (        IOException e) {
+          Log.err(e);
+        }
+        if (bytes != null) {
+          byte[] res=_cache.putIfAbsent(uri,bytes);
+          if (res != null)           bytes=res;
+        }
+      }
+    }
+   }
+  if (bytes == null || bytes.length == 0) {
+    Properties parms=new Properties();
+    parms.setProperty(Request.ERROR,uri);
+    return _http404.serve(this,parms,Request.RequestType.www);
+  }
+  String mime=NanoHTTPD.MIME_DEFAULT_BINARY;
+  if (uri.endsWith(".css"))   mime="text/css";
+ else   if (uri.endsWith(".html"))   mime="text/html";
+  NanoHTTPD.Response res=new NanoHTTPD.Response(NanoHTTPD.HTTP_OK,mime,new ByteArrayInputStream(bytes));
+  res.addHeader("Content-Length",Long.toString(bytes.length));
+  return res;
+}
