@@ -1,17 +1,15 @@
 {
   Thread.currentThread().setPriority(Thread.MAX_PRIORITY - 1);
   uri=maybeTransformRequest(uri);
-  Request.RequestType type=Request.RequestType.requestType(uri);
+  RequestType type=RequestType.requestType(uri);
   String requestName=type.requestName(uri);
   maybeLogRequest(uri,method,parms);
   try {
     Request request=_requests.get(requestName);
-    if (request == null)     return getResource(uri);
-    request=request.create(parms);
-    return request.serve(this,parms,type);
+    return request == null ? getResource(uri) : request.serve(this,parms,type);
   }
  catch (  Exception e) {
-    parms.setProperty(Request.ERROR,e.getClass().getSimpleName() + ": " + e.getMessage());
+    parms.setProperty("error",e.getClass().getSimpleName() + ": " + e.getMessage());
     return _http500.serve(this,parms,type);
   }
 }

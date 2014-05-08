@@ -1,0 +1,14 @@
+{
+switch (type) {
+case json:
+    return server.new Response(NanoHTTPD.HTTP_OK,NanoHTTPD.MIME_JSON,new String(response._req.writeJSON(new AutoBuffer()).buf()));
+case xml:
+  return server.new Response(NanoHTTPD.HTTP_OK,NanoHTTPD.MIME_XML,new String(response._req.writeJSON(new AutoBuffer()).buf()));
+case java:
+throw H2O.unimpl();
+default :
+RString html=new RString(htmlTemplate());
+html.replace("CONTENTS",response);
+return server.new Response(NanoHTTPD.HTTP_OK,NanoHTTPD.MIME_HTML,html.toString());
+}
+}

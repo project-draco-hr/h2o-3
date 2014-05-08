@@ -1,0 +1,12 @@
+{
+  long time=System.currentTimeMillis();
+  Response response=null;
+  try {
+    response=serve();
+  }
+ catch (  IllegalArgumentException iae) {
+    response=Response.error(this,iae);
+  }
+  response._timeStart=time;
+  return serveResponse(server,parms,type,response);
+}

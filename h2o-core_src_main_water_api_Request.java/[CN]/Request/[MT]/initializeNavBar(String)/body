@@ -1,0 +1,23 @@
+{
+  StringBuilder sb=new StringBuilder();
+  for (  String s : _navbarOrdering) {
+    ArrayList<MenuItem> arl=_navbar.get(s);
+    if ((arl.size() == 1) && arl.get(0)._name.equals(s)) {
+      arl.get(0).toHTML(sb);
+    }
+ else {
+      sb.append("<li class='dropdown'>");
+      sb.append("<a href='#' class='dropdown-toggle' data-toggle='dropdown'>");
+      sb.append(s);
+      sb.append("<b class='caret'></b>");
+      sb.append("</a>");
+      sb.append("<ul class='dropdown-menu'>");
+      for (      MenuItem i : arl)       i.toHTML(sb);
+      sb.append("</ul></li>");
+    }
+  }
+  RString str=new RString(template);
+  str.replace("NAVBAR",sb.toString());
+  str.replace("CONTENTS","%CONTENTS");
+  return str.toString();
+}

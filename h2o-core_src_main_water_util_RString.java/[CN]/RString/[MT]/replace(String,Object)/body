@@ -1,0 +1,12 @@
+{
+  if (what.charAt(0) == '$')   throw new RuntimeException("$ is now control char that denotes URL encoding!");
+  for (  Placeholder p : _placeholders.get(what))   p.end.insertAndAdvance(with.toString());
+  ArrayList<Placeholder> ar=_placeholders.get("$" + what);
+  if (ar == null)   return;
+  for (  Placeholder p : ar)   try {
+    p.end.insertAndAdvance(URLEncoder.encode(with.toString(),"UTF-8"));
+  }
+ catch (  IOException e) {
+    p.end.insertAndAdvance(e.toString());
+  }
+}

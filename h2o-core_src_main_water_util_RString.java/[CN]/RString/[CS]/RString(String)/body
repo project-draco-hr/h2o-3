@@ -1,0 +1,42 @@
+{
+  _parts=new LabelledStringList();
+  _placeholders=new MMHashMap<>();
+  LabelledStringList.Label cur=_parts.begin();
+  int start=0;
+  int end=0;
+  while (true) {
+    start=from.indexOf("%",end);
+    if (start == -1) {
+      cur.insertAndAdvance(from.substring(end,from.length()));
+      break;
+    }
+    ++start;
+    if (start == from.length()) {
+      throw new ArrayIndexOutOfBoundsException();
+    }
+    if (from.charAt(start) == '%') {
+      cur.insertAndAdvance(from.substring(end,start));
+      end=start + 1;
+    }
+ else {
+      cur.insertAndAdvance(from.substring(end,start - 1));
+      end=start;
+      while ((end < from.length()) && (isIdentChar(from.charAt(end)))) {
+        ++end;
+      }
+      String pname=from.substring(start,end);
+      if ((end == from.length()) || (from.charAt(end) != '{')) {
+        _placeholders.put2(pname,new Placeholder(cur.clone(),cur.clone()));
+      }
+ else {
+        start=end + 1;
+        end=from.indexOf("}",end);
+        if (end == -1) {
+          throw new ArrayIndexOutOfBoundsException("Missing } after replacement group");
+        }
+        _placeholders.put2(pname,new Placeholder(cur.clone(),cur.clone(),from.substring(start,end)));
+        ++end;
+      }
+    }
+  }
+}
