@@ -1,12 +1,26 @@
 {
-  long time=System.currentTimeMillis();
-  Response response=null;
-  try {
-    response=serve();
+  Response res=checkArguments(parms);
+  if (res == null) {
+    long time=System.currentTimeMillis();
+    try {
+      res=serve();
+    }
+ catch (    Throwable t) {
+      res=new Response(t);
+    }
+    res._timeStart=time;
   }
- catch (  IllegalArgumentException iae) {
-    response=Response.error(this,iae);
-  }
-  response._timeStart=time;
-  return serveResponse(server,parms,type,response);
+switch (type) {
+case html:
+    RString html=new RString(htmlTemplate());
+  html.replace("CONTENTS",res.toString());
+return server.new Response(NanoHTTPD.HTTP_OK,NanoHTTPD.MIME_HTML,html.toString());
+case json:
+return server.new Response(NanoHTTPD.HTTP_OK,NanoHTTPD.MIME_JSON,new String(res.req().writeJSON(new AutoBuffer()).buf()));
+case xml:
+case java:
+throw H2O.unimpl();
+default :
+throw H2O.unimpl();
+}
 }

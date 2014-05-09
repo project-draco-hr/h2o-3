@@ -6,7 +6,7 @@
   maybeLogRequest(uri,method,parms);
   try {
     Request request=_requests.get(requestName);
-    return request == null ? getResource(uri) : request.serve(this,parms,type);
+    return request == null ? getResource(uri) : ((Request)request.clone()).serve(this,parms,type);
   }
  catch (  Exception e) {
     parms.setProperty("error",e.getClass().getSimpleName() + ": " + e.getMessage());
