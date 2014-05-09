@@ -1,0 +1,13 @@
+{
+  DocGen.HTML.section(sb,"Variable importance of input variables: " + method);
+  sb.append("<div class=\"alert\">");
+  sb.append("</div>");
+  DocGen.HTML.arrayHead(sb);
+  Integer[] sortOrder=getSortOrder();
+  if (variables != null)   DocGen.HTML.tableLine(sb,"Variable",variables,sortOrder,Math.min(max_var,variables.length),true,"vi_chkb");
+  if (varimp != null)   DocGen.HTML.tableLine(sb,method.toString(),varimp,sortOrder,Math.min(max_var,variables.length));
+  toHTMLAppendMoreTableLines(sb,sortOrder);
+  DocGen.HTML.arrayTail(sb);
+  toHTMLGraph(sb,sortOrder);
+  return sb;
+}
