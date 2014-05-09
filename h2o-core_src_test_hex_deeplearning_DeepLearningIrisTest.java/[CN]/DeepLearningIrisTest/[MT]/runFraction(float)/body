@@ -1,0 +1,213 @@
+{
+  long seed0=0xDECAF;
+  int num_runs=0;
+  for (int repeat=0; repeat < 5; ++repeat) {
+    DeepLearning.Activation[] activations={DeepLearning.Activation.Tanh,DeepLearning.Activation.Rectifier};
+    DeepLearning.Loss[] losses={DeepLearning.Loss.MeanSquare,DeepLearning.Loss.CrossEntropy};
+    DeepLearning.InitialWeightDistribution[] dists={DeepLearning.InitialWeightDistribution.Normal,DeepLearning.InitialWeightDistribution.Uniform,DeepLearning.InitialWeightDistribution.UniformAdaptive};
+    final long seed=seed0 + repeat;
+    Random rng=new Random(seed);
+    double[] initial_weight_scales={1e-4 + rng.nextDouble()};
+    double[] holdout_ratios={0.1 + rng.nextDouble() * 0.8};
+    double[] momenta={rng.nextDouble() * 0.99};
+    int[] hiddens={1,2 + rng.nextInt(50)};
+    int[] epochs={1,2 + rng.nextInt(50)};
+    double[] rates={0.01,1e-5 + rng.nextDouble() * .1};
+    for (    DeepLearning.Activation activation : activations) {
+      for (      DeepLearning.Loss loss : losses) {
+        for (        DeepLearning.InitialWeightDistribution dist : dists) {
+          for (          double scale : initial_weight_scales) {
+            for (            double holdout_ratio : holdout_ratios) {
+              for (              double momentum : momenta) {
+                for (                int hidden : hiddens) {
+                  for (                  int epoch : epochs) {
+                    for (                    double rate : rates) {
+                      for (                      boolean sparse : new boolean[]{true,false}) {
+                        for (                        boolean col_major : new boolean[]{false}) {
+                          if (col_major && !sparse)                           continue;
+                          num_runs++;
+                          if (fraction < rng.nextFloat())                           continue;
+                          Log.info("");
+                          Log.info("STARTING.");
+                          Log.info("Running with " + activation.name() + " activation function and "+ loss.name()+ " loss function.");
+                          Log.info("Initialization with " + dist.name() + " distribution and "+ scale+ " scale, holdout ratio "+ holdout_ratio);
+                          Log.info("Using " + hidden + " hidden layers and momentum: "+ momentum);
+                          Log.info("Using seed " + seed);
+                          NFSFileVec nfs=NFSFileVec.make(find_test_file(PATH));
+                          Frame frame=water.parser.ParseDataset2.parse(Key.make("iris_nn2"),nfs._key);
+                          Frame fr=null;
+                          DeepLearning p;
+                          Random rand;
+                          int trial=0;
+                          FrameTask.DataInfo dinfo;
+                          do {
+                            Log.info("Trial #" + ++trial);
+                            if (_train != null)                             _train.delete();
+                            if (_test != null)                             _test.delete();
+                            if (fr != null)                             fr.delete();
+                            rand=RandomUtils.getDeterRNG(seed);
+                            double[][] rows=new double[(int)frame.numRows()][frame.numCols()];
+                            String[] names=new String[frame.numCols()];
+                            for (int c=0; c < frame.numCols(); c++) {
+                              names[c]="ColumnName" + c;
+                              for (int r=0; r < frame.numRows(); r++)                               rows[r][c]=frame.vecs()[c].at(r);
+                            }
+                            for (int i=rows.length - 1; i >= 0; i--) {
+                              int shuffle=rand.nextInt(i + 1);
+                              double[] row=rows[shuffle];
+                              rows[shuffle]=rows[i];
+                              rows[i]=row;
+                            }
+                            int limit=(int)(frame.numRows() * holdout_ratio);
+                            _train=frame(names,subarray(rows,0,limit));
+                            _test=frame(names,subarray(rows,limit,(int)frame.numRows() - limit));
+                            p=new DeepLearning(Key.make());
+                            p.source=_train;
+                            p.response=_train.lastVec();
+                            p.ignored_cols=null;
+                            p.ignore_const_cols=true;
+                            fr=FrameTask.DataInfo.prepareFrame(p.source,p.response,p.ignored_cols,true,p.ignore_const_cols);
+                            dinfo=new FrameTask.DataInfo(fr,1,false,true);
+                          }
+ while (dinfo._adaptedFrame.lastVec().domain().length < 3);
+                          DeepLearningMLPReference ref=new DeepLearningMLPReference();
+                          ref.init(activation,RandomUtils.getDeterRNG(seed),holdout_ratio,hidden);
+                          p.best_model_key=Key.make("best_DLIris.hex");
+                          p.seed=seed;
+                          p.hidden=new int[]{hidden};
+                          p.adaptive_rate=false;
+                          p.rho=0;
+                          p.epsilon=0;
+                          p.rate=rate / (1 - momentum);
+                          p.activation=activation;
+                          p.max_w2=Float.POSITIVE_INFINITY;
+                          p.epochs=epoch;
+                          p.input_dropout_ratio=0;
+                          p.rate_annealing=0;
+                          p.l1=0;
+                          p.loss=loss;
+                          p.l2=0;
+                          p.momentum_stable=momentum;
+                          p.momentum_start=p.momentum_stable;
+                          p.momentum_ramp=0;
+                          p.initial_weight_distribution=dist;
+                          p.initial_weight_scale=scale;
+                          p.classification=true;
+                          p.diagnostics=true;
+                          p.validation=null;
+                          p.quiet_mode=true;
+                          p.fast_mode=false;
+                          p.nesterov_accelerated_gradient=false;
+                          p.train_samples_per_iteration=0;
+                          p.ignore_const_cols=false;
+                          p.shuffle_training_data=false;
+                          p.classification_stop=-1;
+                          p.force_load_balance=false;
+                          p.replicate_training_data=false;
+                          p.single_node_mode=true;
+                          p.sparse=sparse;
+                          p.col_major=col_major;
+                          DeepLearningModel mymodel=p.initModel();
+                          Neurons[] neurons=DeepLearningTask.makeNeuronsForTraining(mymodel.model_info());
+                          Neurons l=neurons[1];
+                          for (int o=0; o < l._a.size(); o++) {
+                            for (int i=0; i < l._previous._a.size(); i++) {
+                              ref._nn.ihWeights[i][o]=l._w.get(o,i);
+                            }
+                            ref._nn.hBiases[o]=l._b.get(o);
+                          }
+                          l=neurons[2];
+                          for (int o=0; o < l._a.size(); o++) {
+                            for (int i=0; i < l._previous._a.size(); i++) {
+                              ref._nn.hoWeights[i][o]=l._w.get(o,i);
+                            }
+                            ref._nn.oBiases[o]=l._b.get(o);
+                          }
+                          ref.train((int)p.epochs,rate,p.momentum_stable,loss);
+                          mymodel=p.trainModel(mymodel);
+                          final double abseps=1e-4;
+                          final double releps=1e-4;
+                          neurons=DeepLearningTask.makeNeuronsForTesting(mymodel.model_info());
+                          l=neurons[1];
+                          for (int o=0; o < l._a.size(); o++) {
+                            for (int i=0; i < l._previous._a.size(); i++) {
+                              double a=ref._nn.ihWeights[i][o];
+                              double b=l._w.get(o,i);
+                              compareVal(a,b,abseps,releps);
+                            }
+                            double ba=ref._nn.hBiases[o];
+                            double bb=l._b.get(o);
+                            compareVal(ba,bb,abseps,releps);
+                          }
+                          Log.info("Weights and biases for hidden layer: PASS");
+                          l=neurons[2];
+                          for (int o=0; o < l._a.size(); o++) {
+                            for (int i=0; i < l._previous._a.size(); i++) {
+                              double a=ref._nn.hoWeights[i][o];
+                              double b=l._w.get(o,i);
+                              compareVal(a,b,abseps,releps);
+                            }
+                            double ba=ref._nn.oBiases[o];
+                            double bb=l._b.get(o);
+                            compareVal(ba,bb,abseps,releps);
+                          }
+                          Log.info("Weights and biases for output layer: PASS");
+                          Frame fpreds=mymodel.score(_test);
+                          for (int i=0; i < _test.numRows(); ++i) {
+                            double[] xValues=new double[neurons[0]._a.size()];
+                            System.arraycopy(ref._testData[i],0,xValues,0,xValues.length);
+                            double[] ref_preds=ref._nn.ComputeOutputs(xValues);
+                            float[] preds=new float[ref_preds.length + 1];
+                            for (int j=0; j < ref_preds.length; ++j)                             preds[j + 1]=(float)ref_preds[j];
+                            preds[0]=getPrediction(preds,i);
+                            assertTrue(preds[0] == (int)fpreds.vecs()[0].at(i));
+                          }
+                          fpreds.delete();
+                          Log.info("Predicted values: PASS");
+                          final double trainErr=ref._nn.Accuracy(ref._trainData);
+                          final double testErr=ref._nn.Accuracy(ref._testData);
+                          final Frame trainPredict=mymodel.score(_train,false);
+                          final double myTrainErr=mymodel.calcError(_train,_train.lastVec(),trainPredict,trainPredict,"Final training error:",true,p.max_confusion_matrix_size,new ConfusionMatrix(),null,null);
+                          final Frame testPredict=mymodel.score(_test,false);
+                          final double myTestErr=mymodel.calcError(_test,_test.lastVec(),testPredict,testPredict,"Final testing error:",true,p.max_confusion_matrix_size,new ConfusionMatrix(),null,null);
+                          Log.info("H2O  training error : " + myTrainErr * 100 + "%, test error: " + myTestErr * 100 + "%");
+                          Log.info("REF  training error : " + trainErr * 100 + "%, test error: " + testErr * 100 + "%");
+                          compareVal(trainErr,myTrainErr,abseps,releps);
+                          compareVal(testErr,myTestErr,abseps,releps);
+                          Log.info("Scoring: PASS");
+                          if (p.best_model_key != null) {
+                            float best_err=Float.MAX_VALUE;
+                            for (                            DeepLearningModel.Errors err : mymodel.scoring_history()) {
+                              best_err=Math.min(best_err,(float)err.train_err);
+                            }
+                            Log.info("Actual best error : " + best_err * 100 + "%.");
+                            DeepLearningModel bestmodel=DKV.get(p.best_model_key).get();
+                            final Frame bestPredict=bestmodel.score(_train,false);
+                            final double bestErr=bestmodel.calcError(_train,_train.lastVec(),bestPredict,bestPredict,"Best error:",true,p.max_confusion_matrix_size,new ConfusionMatrix(),null,null);
+                            Log.info("Best_model's error : " + bestErr * 100 + "%.");
+                            compareVal(bestErr,best_err,abseps,releps);
+                            bestmodel.delete();
+                            bestPredict.delete();
+                          }
+                          mymodel.delete();
+                          _train.delete();
+                          _test.delete();
+                          frame.delete();
+                          fr.delete();
+                          p.delete();
+                          trainPredict.delete();
+                          testPredict.delete();
+                          Log.info("Parameters combination " + num_runs + ": PASS");
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

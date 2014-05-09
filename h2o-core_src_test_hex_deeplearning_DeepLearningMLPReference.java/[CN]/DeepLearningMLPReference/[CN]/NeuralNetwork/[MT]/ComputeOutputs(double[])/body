@@ -1,0 +1,22 @@
+{
+  if (xValues.length != numInput)   throw new RuntimeException("Bad xValues array length");
+  double[] hSums=new double[numHidden];
+  double[] oSums=new double[numOutput];
+  for (int i=0; i < xValues.length; ++i)   this.inputs[i]=xValues[i];
+  for (int j=0; j < numHidden; ++j)   for (int i=0; i < numInput; ++i)   hSums[j]+=this.inputs[i] * this.ihWeights[i][j];
+  for (int i=0; i < numHidden; ++i)   hSums[i]+=this.hBiases[i];
+  for (int i=0; i < numHidden; ++i)   if (activation == DeepLearning.Activation.Tanh || activation == DeepLearning.Activation.TanhWithDropout) {
+    hOutputs[i]=HyperTanFunction(hSums[i]);
+  }
+ else   if (activation == DeepLearning.Activation.Rectifier || activation == DeepLearning.Activation.RectifierWithDropout) {
+    hOutputs[i]=Rectifier(hSums[i]);
+  }
+ else   throw new RuntimeException("invalid activation.");
+  for (int j=0; j < numOutput; ++j)   for (int i=0; i < numHidden; ++i)   oSums[j]+=hOutputs[i] * hoWeights[i][j];
+  for (int i=0; i < numOutput; ++i)   oSums[i]+=oBiases[i];
+  double[] softOut=Softmax(oSums);
+  System.arraycopy(softOut,0,outputs,0,softOut.length);
+  double[] retResult=new double[numOutput];
+  System.arraycopy(this.outputs,0,retResult,0,retResult.length);
+  return retResult;
+}
