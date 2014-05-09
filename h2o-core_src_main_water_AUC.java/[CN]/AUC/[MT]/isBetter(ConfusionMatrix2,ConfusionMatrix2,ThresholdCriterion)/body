@@ -1,0 +1,23 @@
+{
+  if (criter == ThresholdCriterion.maximum_F1) {
+    return (!Double.isNaN(a.F1()) && (Double.isNaN(b.F1()) || a.F1() > b.F1()));
+  }
+ else   if (criter == ThresholdCriterion.maximum_Recall) {
+    return (!Double.isNaN(a.recall()) && (Double.isNaN(b.recall()) || a.recall() > b.recall()));
+  }
+ else   if (criter == ThresholdCriterion.maximum_Precision) {
+    return (!Double.isNaN(a.precision()) && (Double.isNaN(b.precision()) || a.precision() > b.precision()));
+  }
+ else   if (criter == ThresholdCriterion.maximum_Accuracy) {
+    return a.accuracy() > b.accuracy();
+  }
+ else   if (criter == ThresholdCriterion.minimizing_max_per_class_Error) {
+    return a.max_per_class_error() < b.max_per_class_error();
+  }
+ else   if (criter == ThresholdCriterion.maximum_Specificity) {
+    return (!Double.isNaN(a.specificity()) && (Double.isNaN(b.specificity()) || a.specificity() > b.specificity()));
+  }
+ else {
+    throw new IllegalArgumentException("Unknown threshold criterion.");
+  }
+}
