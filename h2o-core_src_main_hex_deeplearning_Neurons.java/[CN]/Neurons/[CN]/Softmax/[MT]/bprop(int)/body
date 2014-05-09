@@ -1,0 +1,19 @@
+{
+  final long processed=_minfo.get_processed_total();
+  float m=momentum(processed);
+  float r=rate(processed) * (1 - m);
+  float g;
+  final float rows=_a.size();
+  for (int row=0; row < rows; row++) {
+    final float t=(row == target ? 1f : 0f);
+    final float y=_a.get(row);
+    if (params.loss == Loss.CrossEntropy) {
+      g=t - y;
+    }
+ else {
+      assert(params.loss == Loss.MeanSquare);
+      g=(t - y) * (1f - y) * y;
+    }
+    bprop(row,g,r,m);
+  }
+}

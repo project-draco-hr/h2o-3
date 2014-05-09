@@ -1,0 +1,11 @@
+{
+  if (_output.get_params().self() != null && !Job.isRunning(_output.get_params().self()))   throw new JobCancelledException();
+  if (H2O.CLOUD.size() == 1) {
+    seed+=model_info().get_processed_global();
+  }
+ else {
+    seed=new Random().nextLong();
+  }
+  ((Neurons.Input)_neurons[0]).setInput(seed,nums,numcats,cats);
+  step(seed,_neurons,_output,_training,responses);
+}

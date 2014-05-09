@@ -1,0 +1,13 @@
+{
+  super(destKey,dinfo._adaptedFrame,priorDist);
+  this.jobKey=jobKey;
+  run_time=0;
+  start_time=System.currentTimeMillis();
+  _timeLastScoreEnter=start_time;
+  model_info=new DeepLearningModelInfo(params,dinfo);
+  get_params()._state=((DeepLearning)DKV.get(jobKey).get())._state;
+  errors=new Errors[1];
+  errors[0]=new Errors();
+  errors[0].validation=(params.validation != null);
+  assert(Arrays.equals(_key._kb,destKey._kb));
+}

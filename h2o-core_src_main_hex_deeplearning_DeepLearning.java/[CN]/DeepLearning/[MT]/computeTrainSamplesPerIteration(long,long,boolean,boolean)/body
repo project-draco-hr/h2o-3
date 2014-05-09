@@ -1,0 +1,14 @@
+{
+  long tspi=train_samples_per_iteration;
+  assert(tspi == 0 || tspi == -1 || tspi >= 1);
+  if (tspi == 0 || (!replicate_training_data && tspi == -1)) {
+    tspi=numRows;
+    if (!quiet_mode)     Log.info("Setting train_samples_per_iteration (" + train_samples_per_iteration + ") to one epoch: #rows ("+ tspi+ ").");
+  }
+ else   if (tspi == -1) {
+    tspi=H2O.CLOUD.size() * numRows;
+    if (!quiet_mode)     Log.info("Setting train_samples_per_iteration (" + train_samples_per_iteration + ") to #nodes x #rows ("+ tspi+ ").");
+  }
+  assert(tspi != 0 && tspi != -1 && tspi >= 1);
+  return tspi;
+}

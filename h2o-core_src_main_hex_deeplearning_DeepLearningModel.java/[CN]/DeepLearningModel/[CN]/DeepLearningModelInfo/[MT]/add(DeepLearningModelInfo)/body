@@ -1,0 +1,16 @@
+{
+  for (int i=0; i < dense_row_weights.length; ++i)   ArrayUtils.add(get_weights(i).raw(),other.get_weights(i).raw());
+  for (int i=0; i < biases.length; ++i)   ArrayUtils.add(biases[i].raw(),other.biases[i].raw());
+  if (has_momenta()) {
+    assert(other.has_momenta());
+    for (int i=0; i < dense_row_weights_momenta.length; ++i)     ArrayUtils.add(get_weights_momenta(i).raw(),other.get_weights_momenta(i).raw());
+    for (int i=0; i < biases_momenta.length; ++i)     ArrayUtils.add(biases_momenta[i].raw(),other.biases_momenta[i].raw());
+  }
+  if (adaDelta()) {
+    assert(other.adaDelta());
+    for (int i=0; i < dense_row_ada_dx_g.length; ++i) {
+      ArrayUtils.add(get_ada_dx_g(i).raw(),other.get_ada_dx_g(i).raw());
+    }
+  }
+  add_processed_local(other.get_processed_local());
+}
