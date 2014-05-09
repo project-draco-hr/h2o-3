@@ -1,0 +1,51 @@
+{
+  assert(numK <= preds.length - 1);
+  int[] labels=new int[numK];
+  TreeMap<Float,List<Integer>> prob_idx=new TreeMap<>(new Comparator<Float>(){
+    @Override public int compare(    Float o1,    Float o2){
+      if (o1 > o2)       return -1;
+      if (o2 > o1)       return 1;
+      return 0;
+    }
+  }
+);
+  for (int i=1; i < preds.length; ++i) {
+    final Float prob=preds[i];
+    final int label=i - 1;
+    assert(prob >= 0 && prob <= 1);
+    if (prob_idx.containsKey(prob)) {
+      prob_idx.get(prob).add(label);
+    }
+ else {
+      if (prob_idx.size() < numK || prob > prob_idx.lastKey()) {
+        List<Integer> li=new LinkedList<>();
+        li.add(label);
+        prob_idx.put(prob,li);
+      }
+      if (prob_idx.size() > numK) {
+        prob_idx.remove(prob_idx.lastKey());
+      }
+    }
+  }
+  assert(!prob_idx.isEmpty());
+  assert(prob_idx.size() <= numK);
+  int i=0;
+  while (i < numK && !prob_idx.isEmpty()) {
+    final Map.Entry p_id=prob_idx.firstEntry();
+    final Float prob=(Float)p_id.getKey();
+    final List<Integer> indices=(List<Integer>)p_id.getValue();
+    if (i + indices.size() <= numK)     for (    Integer id : indices)     labels[i++]=id;
+ else {
+      while (i < numK) {
+        assert(!indices.isEmpty());
+        long hash=0;
+        if (data != null)         for (        double d : data)         hash^=Double.doubleToRawLongBits(d + i) >> 6;
+        labels[i++]=indices.remove((int)(Math.abs(hash) % indices.size()));
+      }
+      assert(i == numK);
+    }
+    prob_idx.remove(prob);
+  }
+  assert(i == numK);
+  return labels;
+}
