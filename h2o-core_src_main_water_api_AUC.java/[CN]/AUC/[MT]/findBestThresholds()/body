@@ -1,0 +1,36 @@
+{
+  threshold_criteria=new String[ThresholdCriterion.values().length];
+  int i=0;
+  HashSet<ThresholdCriterion> hs=new HashSet<>();
+  for (  ThresholdCriterion criter : ThresholdCriterion.values()) {
+    hs.add(criter);
+    threshold_criteria[i++]=criter.toString().replace("_"," ");
+  }
+  confusion_matrix_for_criteria=new long[hs.size()][][];
+  idxCriter=new int[hs.size()];
+  threshold_for_criteria=new float[hs.size()];
+  F1_for_criteria=new float[hs.size()];
+  accuracy_for_criteria=new float[hs.size()];
+  precision_for_criteria=new float[hs.size()];
+  recall_for_criteria=new float[hs.size()];
+  specificity_for_criteria=new float[hs.size()];
+  max_per_class_error_for_criteria=new float[hs.size()];
+  for (  ThresholdCriterion criter : hs) {
+    final int id=criter.ordinal();
+    idxCriter[id]=0;
+    threshold_for_criteria[id]=thresholds[0];
+    for (i=1; i < _cms.length; ++i) {
+      if (isBetter(_cms[i],_cms[idxCriter[id]],criter)) {
+        idxCriter[id]=i;
+        threshold_for_criteria[id]=thresholds[i];
+      }
+    }
+    confusion_matrix_for_criteria[id]=_cms[idxCriter[id]]._arr;
+    F1_for_criteria[id]=(float)_cms[idxCriter[id]].F1();
+    accuracy_for_criteria[id]=(float)_cms[idxCriter[id]].accuracy();
+    precision_for_criteria[id]=(float)_cms[idxCriter[id]].precision();
+    recall_for_criteria[id]=(float)_cms[idxCriter[id]].recall();
+    specificity_for_criteria[id]=(float)_cms[idxCriter[id]].specificity();
+    max_per_class_error_for_criteria[id]=(float)_cms[idxCriter[id]].max_per_class_error();
+  }
+}

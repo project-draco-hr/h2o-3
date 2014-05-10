@@ -1,0 +1,26 @@
+{
+  sb.append("<script type=\"text/javascript\" src='/h2o/js/d3.v3.min.js'></script>");
+  sb.append("<div id=\"ROC\">");
+  sb.append("<style type=\"text/css\">");
+  sb.append(".axis path," + ".axis line {\n" + "fill: none;\n"+ "stroke: black;\n"+ "shape-rendering: crispEdges;\n"+ "}\n"+ ".axis text {\n"+ "font-family: sans-serif;\n"+ "font-size: 11px;\n"+ "}\n");
+  sb.append("</style>");
+  sb.append("<div id=\"rocCurve\" style=\"display:inline;\">");
+  sb.append("<script type=\"text/javascript\">");
+  sb.append("//Width and height\n");
+  sb.append("var w = 500;\n" + "var h = 300;\n" + "var padding = 40;\n");
+  sb.append("var dataset = [");
+  for (int c=0; c < _fprs.length; c++) {
+    assert(_tprs.length == _fprs.length);
+    if (c == 0) {
+      sb.append("[" + String.valueOf(_fprs[c]) + ",").append(String.valueOf(_tprs[c])).append("]");
+    }
+    sb.append(", [" + String.valueOf(_fprs[c]) + ",").append(String.valueOf(_tprs[c])).append("]");
+  }
+  for (int c=0; c < 200; c++) {
+    sb.append(", [" + String.valueOf(c / 200.) + ",").append(String.valueOf(c / 200.)).append("]");
+  }
+  sb.append("];\n");
+  sb.append("//Create scale functions\n" + "var xScale = d3.scale.linear()\n" + ".domain([0, d3.max(dataset, function(d) { return d[0]; })])\n"+ ".range([padding, w - padding * 2]);\n"+ "var yScale = d3.scale.linear()"+ ".domain([0, d3.max(dataset, function(d) { return d[1]; })])\n"+ ".range([h - padding, padding]);\n"+ "var rScale = d3.scale.linear()"+ ".domain([0, d3.max(dataset, function(d) { return d[1]; })])\n"+ ".range([2, 5]);\n"+ "//Define X axis\n"+ "var xAxis = d3.svg.axis()\n"+ ".scale(xScale)\n"+ ".orient(\"bottom\")\n"+ ".ticks(5);\n"+ "//Define Y axis\n"+ "var yAxis = d3.svg.axis()\n"+ ".scale(yScale)\n"+ ".orient(\"left\")\n"+ ".ticks(5);\n"+ "//Create SVG element\n"+ "var svg = d3.select(\"#rocCurve\")\n"+ ".append(\"svg\")\n"+ ".attr(\"width\", w)\n"+ ".attr(\"height\", h);\n"+ "/*"+ "//Create labels\n"+ "svg.selectAll(\"text\")"+ ".data(dataset)"+ ".enter()"+ ".append(\"text\")"+ ".text(function(d) {"+ "return d[0] + \",\" + d[1];"+ "})"+ ".attr(\"x\", function(d) {"+ "return xScale(d[0]);"+ "})"+ ".attr(\"y\", function(d) {"+ "return yScale(d[1]);"+ "})"+ ".attr(\"font-family\", \"sans-serif\")"+ ".attr(\"font-size\", \"11px\")"+ ".attr(\"fill\", \"red\");"+ "*/\n"+ "//Create X axis\n"+ "svg.append(\"g\")"+ ".attr(\"class\", \"axis\")"+ ".attr(\"transform\", \"translate(0,\" + (h - padding) + \")\")"+ ".call(xAxis);\n"+ "//X axis label\n"+ "d3.select('#rocCurve svg')"+ ".append(\"text\")"+ ".attr(\"x\",w/2)"+ ".attr(\"y\",h - 5)"+ ".attr(\"text-anchor\", \"middle\")"+ ".text(\"False Positive Rate\");\n"+ "//Create Y axis\n"+ "svg.append(\"g\")"+ ".attr(\"class\", \"axis\")"+ ".attr(\"transform\", \"translate(\" + padding + \",0)\")"+ ".call(yAxis);\n"+ "//Y axis label\n"+ "d3.select('#rocCurve svg')"+ ".append(\"text\")"+ ".attr(\"x\",150)"+ ".attr(\"y\",-5)"+ ".attr(\"transform\", \"rotate(90)\")"+ ".attr(\"text-anchor\", \"middle\")"+ ".text(\"True Positive Rate\");\n"+ "//Title\n"+ "d3.select('#rocCurve svg')"+ ".append(\"text\")"+ ".attr(\"x\",w/2)"+ ".attr(\"y\",padding - 20)"+ ".attr(\"text-anchor\", \"middle\")"+ ".text(\"ROC\");\n"+ "function update(dataset) {"+ "svg.selectAll(\"circle\").remove();"+ "//Create circles\n"+ "var data = svg.selectAll(\"circle\")"+ ".data(dataset);\n"+ "var activeIdx = idxCriter[criterion];\n"+ "data.enter()\n"+ ".append(\"circle\")\n"+ ".attr(\"cx\", function(d) {\n"+ "return xScale(d[0]);\n"+ "})\n"+ ".attr(\"cy\", function(d) {\n"+ "return yScale(d[1]);\n"+ "})\n"+ ".attr(\"fill\", function(d,i) {\n"+ "  if (document.getElementById(\"select\") != null && i == document.getElementById(\"select\").selectedIndex && i != activeIdx) {\n"+ "    return \"blue\"\n"+ "  }\n"+ "  else if (i == activeIdx) {\n"+ "    return \"green\"\n"+ "  }\n"+ "  else if (d[0] != d[1] || d[0] == 0 || d[1] == 0) {\n"+ "    return \"blue\"\n"+ "  }\n"+ "  else {\n"+ "    return \"red\"\n"+ "  }\n"+ "})\n"+ ".attr(\"r\", function(d,i) {\n"+ "  if (document.getElementById(\"select\") != null && i == document.getElementById(\"select\").selectedIndex && i != activeIdx) {\n"+ "    return 4\n"+ "  }\n"+ "  else if (i == activeIdx) {\n"+ "    return 6\n"+ "  }\n"+ "  else if (d[0] != d[1] || d[0] == 0 || d[1] == 0) {\n"+ "    return 1.5\n"+ "  }\n"+ "  else {\n"+ "    return 1\n"+ "  }\n"+ "})\n"+ ".on(\"mouseover\", function(d,i){\n"+ "   if(i < " + _fprs.length + ") {"+ "     document.getElementById(\"select\").selectedIndex = i\n"+ "     show_cm(i)\n"+ "   }\n"+ "});\n"+ "data.exit().remove();"+ "}\n"+ "update(dataset);");
+  sb.append("</script>");
+  sb.append("</div>");
+}

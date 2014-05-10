@@ -1,0 +1,15 @@
+{
+  final long processed=_minfo.get_processed_total();
+  float m=momentum(processed);
+  float r=rate(processed) * (1 - m);
+  if (_w instanceof DenseRowMatrix) {
+    final int rows=_a.size();
+    for (int row=0; row < rows; row++) {
+      float g=_e.get(row) * (1f - _a.get(row) * _a.get(row));
+      bprop(row,g,r,m);
+    }
+  }
+ else {
+    bprop_sparse(r,m);
+  }
+}

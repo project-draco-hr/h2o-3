@@ -1,0 +1,25 @@
+{
+  if (this instanceof Input) {
+    assert(_previous == null);
+    assert(!training || _dropout != null);
+  }
+ else {
+    assert(_previous != null);
+    if (_minfo.has_momenta()) {
+      assert(_wm != null);
+      assert(_bm != null);
+      assert(_ada_dx_g == null);
+    }
+    if (_minfo.adaDelta()) {
+      if (params.rho == 0)       throw new IllegalArgumentException("rho must be > 0 if epsilon is >0.");
+      if (params.epsilon == 0)       throw new IllegalArgumentException("epsilon must be > 0 if rho is >0.");
+      assert(_minfo.adaDelta());
+      assert(_bias_ada_dx_g != null);
+      assert(_wm == null);
+      assert(_bm == null);
+    }
+    if (this instanceof MaxoutDropout || this instanceof TanhDropout || this instanceof RectifierDropout) {
+      assert(!training || _dropout != null);
+    }
+  }
+}

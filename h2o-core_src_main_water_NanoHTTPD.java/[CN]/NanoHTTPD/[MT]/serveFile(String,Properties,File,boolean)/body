@@ -4,7 +4,7 @@
   if (res == null) {
     uri=uri.trim().replace(File.separatorChar,'/');
     if (uri.indexOf('?') >= 0)     uri=uri.substring(0,uri.indexOf('?'));
-    if (uri.startsWith("..") || uri.endsWith("..") || uri.indexOf("../") >= 0)     res=new Response(HTTP_FORBIDDEN,MIME_PLAINTEXT,"FORBIDDEN: Won't serve ../ for security reasons.");
+    if (uri.startsWith("..") || uri.endsWith("..") || uri.contains("../"))     res=new Response(HTTP_FORBIDDEN,MIME_PLAINTEXT,"FORBIDDEN: Won't serve ../ for security reasons.");
   }
   File f=new File(homeDir,uri);
   if (res == null && !f.exists())   res=new Response(HTTP_NOTFOUND,MIME_PLAINTEXT,"Error 404, file not found.");
@@ -91,23 +91,19 @@
           long newLen=endAt - startFrom + 1;
           if (newLen < 0)           newLen=0;
           final long dataLen=newLen;
-          FileInputStream fis=new FileInputStream(f){
+          try (FileInputStream fis=new FileInputStream(f){
             public int available() throws IOException {
               return (int)dataLen;
             }
           }
-;
-          try {
+){
             fis.skip(startFrom);
             res=new Response(HTTP_PARTIALCONTENT,mime,fis);
             res.addHeader("Content-Length","" + dataLen);
             res.addHeader("Content-Range","bytes " + startFrom + "-"+ endAt+ "/"+ fileLen);
             res.addHeader("ETag",etag);
           }
-  finally {
-            fis.close();
-          }
-        }
+         }
       }
  else {
         if (etag.equals(header.getProperty("if-none-match")))         res=new Response(HTTP_NOTMODIFIED,mime,"");

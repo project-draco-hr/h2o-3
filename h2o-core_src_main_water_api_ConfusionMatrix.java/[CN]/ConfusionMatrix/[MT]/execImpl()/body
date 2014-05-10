@@ -1,0 +1,34 @@
+{
+  init();
+  Vec va=null, vp=null, avp=null;
+  try {
+    if (classification) {
+      va=vactual.toEnum();
+      actual_domain=va.factors();
+      vp=vpredict.toEnum();
+      predicted_domain=vp.factors();
+      if (!Arrays.equals(actual_domain,predicted_domain)) {
+        domain=ArrayUtils.domainUnion(actual_domain,predicted_domain);
+        int[][] vamap=Model.getDomainMapping(domain,actual_domain,true);
+        va=TransfVec.compose((TransfVec)va,vamap,domain,false);
+        int[][] vpmap=Model.getDomainMapping(domain,predicted_domain,true);
+        vp=TransfVec.compose((TransfVec)vp,vpmap,domain,false);
+      }
+ else       domain=actual_domain;
+      if (!va.group().equals(vp.group())) {
+        avp=vp;
+        vp=va.align(vp);
+      }
+      cm=new CM(domain.length).doAll(va,vp)._cm;
+    }
+ else {
+      mse=new CM(1).doAll(vactual,vpredict).mse();
+    }
+    return;
+  }
+  finally {
+    if (va != null)     DKV.remove(va._key);
+    if (vp != null)     DKV.remove(vp._key);
+    if (avp != null)     DKV.remove(avp._key);
+  }
+}

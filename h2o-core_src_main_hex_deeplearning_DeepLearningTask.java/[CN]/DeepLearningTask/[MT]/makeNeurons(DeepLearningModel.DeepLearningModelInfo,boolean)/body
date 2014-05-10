@@ -1,0 +1,33 @@
+{
+  DataInfo dinfo=minfo.data_info();
+  final DeepLearning params=minfo.get_params();
+  final int[] h=params.hidden;
+  Neurons[] neurons=new Neurons[h.length + 2];
+  neurons[0]=new Neurons.Input(dinfo.fullN(),dinfo);
+  for (int i=0; i < h.length; i++) {
+switch (params.activation) {
+case Tanh:
+      neurons[i + 1]=new Neurons.Tanh(h[i]);
+    break;
+case TanhWithDropout:
+  neurons[i + 1]=new Neurons.TanhDropout(h[i]);
+break;
+case Rectifier:
+neurons[i + 1]=new Neurons.Rectifier(h[i]);
+break;
+case RectifierWithDropout:
+neurons[i + 1]=new Neurons.RectifierDropout(h[i]);
+break;
+case Maxout:
+neurons[i + 1]=new Neurons.Maxout(h[i]);
+break;
+case MaxoutWithDropout:
+neurons[i + 1]=new Neurons.MaxoutDropout(h[i]);
+break;
+}
+}
+if (params.classification) neurons[neurons.length - 1]=new Neurons.Softmax(minfo.units[minfo.units.length - 1]);
+ else neurons[neurons.length - 1]=new Neurons.Linear(1);
+for (int i=0; i < neurons.length; i++) neurons[i].init(neurons,i,params,minfo,training);
+return neurons;
+}

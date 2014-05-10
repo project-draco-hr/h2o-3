@@ -1,0 +1,20 @@
+{
+  _tprs=new double[_cms.length];
+  _fprs=new double[_cms.length];
+  double TPR_pre=1;
+  double FPR_pre=1;
+  AUC=0;
+  for (int t=0; t < _cms.length; ++t) {
+    double TPR=1 - _cms[t].classErr(1);
+    double FPR=_cms[t].classErr(0);
+    AUC+=trapezoid_area(FPR_pre,FPR,TPR_pre,TPR);
+    TPR_pre=TPR;
+    FPR_pre=FPR;
+    _tprs[t]=TPR;
+    _fprs[t]=FPR;
+  }
+  AUC+=trapezoid_area(FPR_pre,0,TPR_pre,0);
+  assert(AUC > -1e-5 && AUC < 1. + 1e-5);
+  AUC=Math.max(0.,Math.min(AUC,1.));
+  Gini=2 * AUC - 1;
+}

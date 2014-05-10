@@ -1,0 +1,57 @@
+{
+  if (tValues.length != numOutput)   throw new RuntimeException("target values not same length as output in UpdateWeights");
+  for (int i=0; i < oGrads.length; ++i) {
+    double derivative=(1 - outputs[i]) * outputs[i];
+    if (loss == DeepLearning.Loss.CrossEntropy) {
+      oGrads[i]=tValues[i] - outputs[i];
+    }
+ else     if (loss == DeepLearning.Loss.MeanSquare) {
+      oGrads[i]=derivative * (tValues[i] - outputs[i]);
+    }
+ else     throw new RuntimeException("invalid loss function");
+  }
+  for (int i=0; i < hGrads.length; ++i) {
+    double derivative=1;
+    if (activation == DeepLearning.Activation.Tanh || activation == DeepLearning.Activation.TanhWithDropout) {
+      derivative=(1 - hOutputs[i]) * (1 + hOutputs[i]);
+    }
+ else     if (activation == DeepLearning.Activation.Rectifier || activation == DeepLearning.Activation.RectifierWithDropout) {
+      derivative=hOutputs[i] <= 0 ? 0 : 1;
+    }
+ else     throw new RuntimeException("invalid activation.");
+    double sum=0;
+    for (int j=0; j < numOutput; ++j) {
+      double x=oGrads[j] * hoWeights[i][j];
+      sum+=x;
+    }
+    hGrads[i]=derivative * sum;
+  }
+  for (int i=0; i < ihWeights.length; ++i) {
+    for (int j=0; j < ihWeights[0].length; ++j) {
+      double delta=learnRate * hGrads[j] * inputs[i];
+      ihWeights[i][j]+=delta;
+      ihWeights[i][j]+=momentum * ihPrevWeightsDelta[i][j];
+      ihPrevWeightsDelta[i][j]=(float)delta;
+    }
+  }
+  for (int i=0; i < hBiases.length; ++i) {
+    double delta=learnRate * hGrads[i] * 1;
+    hBiases[i]+=delta;
+    hBiases[i]+=momentum * hPrevBiasesDelta[i];
+    hPrevBiasesDelta[i]=delta;
+  }
+  for (int i=0; i < hoWeights.length; ++i) {
+    for (int j=0; j < hoWeights[0].length; ++j) {
+      double delta=learnRate * oGrads[j] * hOutputs[i];
+      hoWeights[i][j]+=delta;
+      hoWeights[i][j]+=momentum * hoPrevWeightsDelta[i][j];
+      hoPrevWeightsDelta[i][j]=(float)delta;
+    }
+  }
+  for (int i=0; i < oBiases.length; ++i) {
+    double delta=learnRate * oGrads[i] * 1;
+    oBiases[i]+=delta;
+    oBiases[i]+=momentum * oPrevBiasesDelta[i];
+    oPrevBiasesDelta[i]=delta;
+  }
+}

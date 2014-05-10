@@ -1,0 +1,24 @@
+{
+  if (fr == null)   return null;
+  final float fraction=rows > 0 ? (float)rows / fr.numRows() : 1.f;
+  if (fraction >= 1.f)   return fr;
+  Frame r=new MRTask(){
+    @Override public void map(    Chunk[] cs,    NewChunk[] ncs){
+      final Random rng=getDeterRNG(seed + cs[0].cidx());
+      int count=0;
+      for (int r=0; r < cs[0]._len; r++)       if (rng.nextFloat() < fraction || (count == 0 && r == cs[0]._len - 1)) {
+        count++;
+        for (int i=0; i < ncs.length; i++) {
+          ncs[i].addNum(cs[i].at0(r));
+        }
+      }
+    }
+  }
+.doAll(fr.numCols(),fr).outputFrame(fr.names(),fr.domains());
+  if (r.numRows() == 0) {
+    Log.warn("You asked for " + rows + " rows (out of "+ fr.numRows()+ "), but you got none (seed="+ seed+ ").");
+    Log.warn("Let's try again. You've gotta ask yourself a question: \"Do I feel lucky?\"");
+    return sampleFrame(fr,rows,seed + 1);
+  }
+  return r;
+}

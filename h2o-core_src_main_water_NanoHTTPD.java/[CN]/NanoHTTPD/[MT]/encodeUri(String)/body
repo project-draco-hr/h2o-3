@@ -3,16 +3,22 @@
   StringTokenizer st=new StringTokenizer(uri,"/ ",true);
   while (st.hasMoreTokens()) {
     String tok=st.nextToken();
-    if (tok.equals("/"))     newUri+="/";
- else     if (tok.equals(" "))     newUri+="%20";
- else {
-      try {
-        newUri+=URLEncoder.encode(tok,"UTF-8");
-      }
- catch (      UnsupportedEncodingException e) {
-        throw Log.throwErr(e);
-      }
-    }
-  }
-  return newUri;
+switch (tok) {
+case "/":
+      newUri+="/";
+    break;
+case " ":
+  newUri+="%20";
+break;
+default :
+try {
+newUri+=URLEncoder.encode(tok,"UTF-8");
+}
+ catch (UnsupportedEncodingException e) {
+throw Log.throwErr(e);
+}
+break;
+}
+}
+return newUri;
 }

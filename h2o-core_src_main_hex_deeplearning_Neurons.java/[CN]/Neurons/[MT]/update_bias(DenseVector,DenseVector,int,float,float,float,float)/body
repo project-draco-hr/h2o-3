@@ -1,0 +1,32 @@
+{
+  final boolean have_momenta=_minfo.has_momenta();
+  final boolean have_ada=_minfo.adaDelta();
+  if (have_ada) {
+    final float rho=(float)params.rho;
+    final float eps=(float)params.epsilon;
+    _bias_ada_dx_g.set(2 * row + 1,_bias_ada_dx_g.get(2 * row + 1) * rho);
+    _bias_ada_dx_g.add(2 * row + 1,(1f - rho) * avg_grad2);
+    final float RMS_dx=MathUtils.approxSqrt(_bias_ada_dx_g.get(2 * row) + eps);
+    final float invRMS_g=MathUtils.approxInvSqrt(_bias_ada_dx_g.get(2 * row + 1) + eps);
+    rate=RMS_dx * invRMS_g;
+    _bias_ada_dx_g.set(2 * row,rho * _bias_ada_dx_g.get(2 * row) + (1f - rho) * rate * rate* avg_grad2);
+  }
+  if (!params.nesterov_accelerated_gradient) {
+    final float delta=rate * partial_grad;
+    _b.add(row,delta);
+    if (have_momenta) {
+      _b.add(row,momentum * _bm.get(row));
+      _bm.set(row,delta);
+    }
+  }
+ else {
+    float d=partial_grad;
+    if (have_momenta) {
+      _bm.set(row,_bm.get(row) * momentum);
+      _bm.add(row,d);
+      d=_bm.get(row);
+    }
+    _b.add(row,rate * d);
+  }
+  if (Float.isInfinite(_b.get(row)))   _minfo.set_unstable();
+}

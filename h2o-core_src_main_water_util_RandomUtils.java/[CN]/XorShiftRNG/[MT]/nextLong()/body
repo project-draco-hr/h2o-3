@@ -1,0 +1,10 @@
+{
+  long oldseed, nextseed;
+  AtomicLong seed=this._seed;
+  do {
+    oldseed=seed.get();
+    nextseed=xorShift(oldseed);
+  }
+ while (!seed.compareAndSet(oldseed,nextseed));
+  return nextseed;
+}
