@@ -1,7 +1,7 @@
 {
   try {
     while (true) {
-      Future f=null;
+      Future f;
 synchronized (this) {
         if (_pending_cnt == 0)         return;
         f=_pending[--_pending_cnt];
@@ -10,6 +10,6 @@ synchronized (this) {
     }
   }
  catch (  InterruptedException|ExecutionException e) {
-    Log.throwErr(e);
+    throw Log.throwErr(e);
   }
 }
