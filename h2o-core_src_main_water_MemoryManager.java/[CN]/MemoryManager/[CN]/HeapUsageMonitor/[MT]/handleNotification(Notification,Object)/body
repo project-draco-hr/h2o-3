@@ -3,6 +3,11 @@
   if (notifType.equals(MemoryNotificationInfo.MEMORY_COLLECTION_THRESHOLD_EXCEEDED)) {
     Cleaner.TIME_AT_LAST_GC=System.currentTimeMillis();
     Cleaner.HEAP_USED_AT_LAST_GC=_allMemBean.getHeapMemoryUsage().getUsed();
+    MEM_LOW_CRITICAL=Cleaner.HEAP_USED_AT_LAST_GC > (MEM_MAX - (MEM_MAX >> 2));
+    if (Cleaner.HEAP_USED_AT_LAST_GC > (MEM_MAX - (MEM_MAX >> 1))) {
+      setMemLow();
+    }
+ else     setMemGood();
     Cleaner.kick_store_cleaner();
   }
 }
