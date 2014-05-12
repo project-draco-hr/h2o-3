@@ -60,7 +60,23 @@
                             p.score_validation_sampling=csm;
                             p.execImpl();
                           }
-                          final DeepLearningModel mymodel=DKV.get(dest_tmp).get();
+                          Key dest=Key.make();
+{
+                            DeepLearning p=new DeepLearning(dest);
+                            final DeepLearningModel tmp_model=DKV.get(dest_tmp).get();
+                            assert(tmp_model != null);
+                            p.checkpoint=dest_tmp;
+                            p.source=frame;
+                            p.validation=valid;
+                            p.response=frame.vecs()[resp];
+                            if (i == 0 && resp == 2)                             p.classification=false;
+                            p.best_model_key=best_model_key;
+                            p.epochs=epochs;
+                            p.seed=seed;
+                            p.train_samples_per_iteration=train_samples_per_iteration;
+                            p.execImpl();
+                          }
+                          final DeepLearningModel mymodel=DKV.get(dest).get();
 {
                             StringBuilder sb=new StringBuilder();
                             mymodel.generateHTML("test",sb);
