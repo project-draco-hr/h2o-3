@@ -1,0 +1,9 @@
+{
+  hex.deeplearning.DeepLearning dl=new hex.deeplearning.DeepLearning(Key.make("DeepLearn_Model"));
+  dl.source=DKV.get(_src).get();
+  dl.classification=true;
+  dl.response=dl.source.lastVec();
+  dl.execImpl();
+  DeepLearningModel dlm=DKV.get(dl.dest()).get();
+  return new Response("Deep Learning done: " + dl._key + ", "+ dlm.error());
+}
