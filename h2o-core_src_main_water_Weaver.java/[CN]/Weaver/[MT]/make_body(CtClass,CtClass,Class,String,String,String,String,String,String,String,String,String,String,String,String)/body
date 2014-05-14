@@ -4,16 +4,16 @@
   sb.append(supers);
   String mimpl=impl + "_impl";
   for (  CtMethod mth : iced_cc.getDeclaredMethods())   if (mth.getName().equals(mimpl)) {
-    if (javassist.Modifier.isAbstract(mth.getModifiers()) || javassist.Modifier.isVolatile(mth.getModifiers()))     sb.append(impl.equals("write") ? "  return ab;\n}" : "  return ice;\n}");
- else     sb.append("  return ice.").append(mimpl).append("(ab);\n}");
+    if (javassist.Modifier.isAbstract(mth.getModifiers()) || javassist.Modifier.isVolatile(mth.getModifiers()))     sb.append(impl.startsWith("write") ? "    return ab;\n  }" : "    return ice;\n  }");
+ else     sb.append("    return ice.").append(mimpl).append("(ab);\n  }");
     mimpl=null;
     break;
   }
   CtField ctfs[]=iced_cc.getDeclaredFields();
   for (  CtField ctf : ctfs) {
+    if (mimpl == null)     break;
     int mods=ctf.getModifiers();
     if (javassist.Modifier.isTransient(mods) || javassist.Modifier.isStatic(mods))     continue;
-    if (mimpl == null)     continue;
     if (field_sep1 != null) {
       sb.append(field_sep1);
       field_sep1=null;
