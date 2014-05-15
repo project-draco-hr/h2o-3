@@ -2,6 +2,13 @@
   super.postGlobal();
   _outerMFPT._dout=_dout;
   _dout=null;
-  if (_outerMFPT._delete_on_done)   _fr.delete(_outerMFPT._job_key,0.0f);
- else   if (_fr._key != null)   _fr.unlock(_outerMFPT._job_key);
+  Iced ice=DKV.get(_srckey).get();
+  if (ice instanceof ByteVec) {
+    if (_outerMFPT._delete_on_done)     ((ByteVec)ice).remove();
+  }
+ else {
+    Frame fr=(Frame)ice;
+    if (_outerMFPT._delete_on_done)     fr.delete(_outerMFPT._job_key,0.0f);
+ else     if (fr._key != null)     fr.unlock(_outerMFPT._job_key);
+  }
 }
