@@ -58,7 +58,7 @@
                             p.balance_classes=balance_classes;
                             p.quiet_mode=true;
                             p.score_validation_sampling=csm;
-                            p.execImpl();
+                            p.exec();
                           }
                           Key dest=Key.make();
 {
@@ -74,7 +74,7 @@
                             p.epochs=epochs;
                             p.seed=seed;
                             p.train_samples_per_iteration=train_samples_per_iteration;
-                            p.execImpl();
+                            p.exec();
                           }
                           final DeepLearningModel mymodel=DKV.get(dest).get();
 {
@@ -161,6 +161,7 @@
                             bestPredict.delete();
                           }
                           mymodel.delete();
+                          DKV.remove(dest);
                           DKV.remove(dest_tmp);
                           Log.info("Parameters combination " + count + ": PASS");
                           testcount++;
