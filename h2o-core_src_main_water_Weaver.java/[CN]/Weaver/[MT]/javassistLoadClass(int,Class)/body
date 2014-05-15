@@ -15,11 +15,11 @@ synchronized (iced_clazz) {
   Class super_icer_clazz=javassistLoadClass(super_id,super_clazz);
   CtClass super_icer_cc=_pool.get(super_icer_clazz.getName());
   CtClass iced_cc=_pool.get(iced_name);
-  boolean super_has_fields=hasWovenFields(iced_cc.getSuperclass());
+  boolean super_has_jfields=hasWovenJSONFields(iced_cc.getSuperclass());
 synchronized (iced_clazz) {
     icer_cc=_pool.getOrNull(icer_name);
     if (icer_cc != null)     return Class.forName(icer_name);
-    icer_cc=genIcerClass(id,iced_cc,iced_clazz,icer_name,super_id,super_icer_cc,super_has_fields);
+    icer_cc=genIcerClass(id,iced_cc,iced_clazz,icer_name,super_id,super_icer_cc,super_has_jfields);
     icer_cc.toClass();
     return Class.forName(icer_name);
   }
