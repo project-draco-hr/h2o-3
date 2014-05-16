@@ -59,8 +59,8 @@
                               rows[i]=row;
                             }
                             int limit=(int)(frame.numRows() * holdout_ratio);
-                            _train=frame(names,subarray(rows,0,limit));
-                            _test=frame(names,subarray(rows,limit,(int)frame.numRows() - limit));
+                            _train=frame(names,water.util.ArrayUtils.subarray(rows,0,limit));
+                            _test=frame(names,water.util.ArrayUtils.subarray(rows,limit,(int)frame.numRows() - limit));
                             p=new DeepLearning(Key.make());
                             p.source=_train;
                             p.response=_train.lastVec();
@@ -159,7 +159,7 @@
                             double[] ref_preds=ref._nn.ComputeOutputs(xValues);
                             float[] preds=new float[ref_preds.length + 1];
                             for (int j=0; j < ref_preds.length; ++j)                             preds[j + 1]=(float)ref_preds[j];
-                            preds[0]=getPrediction(preds,i);
+                            preds[0]=water.util.ModelUtils.getPrediction(preds,i);
                             assertTrue(preds[0] == (int)fpreds.vecs()[0].at(i));
                           }
                           fpreds.delete();
