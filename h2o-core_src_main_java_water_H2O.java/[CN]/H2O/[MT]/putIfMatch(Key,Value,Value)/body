@@ -4,6 +4,9 @@
   Value res=STORE.putIfMatchUnlocked(key,val,old);
   if (res != old)   return res;
   if (old != null && val == null)   old.removePersist();
-  if (val != null)   Cleaner.dirty_store();
+  if (val != null) {
+    Cleaner.dirty_store();
+    Scope.track(key);
+  }
   return old;
 }
