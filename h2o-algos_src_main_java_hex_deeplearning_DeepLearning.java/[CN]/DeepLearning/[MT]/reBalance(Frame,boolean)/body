@@ -10,5 +10,7 @@
   RebalanceDataSet rb=new RebalanceDataSet(fr,newKey,chunks);
   H2O.submitTask(rb);
   rb.join();
-  return DKV.get(newKey).get();
+  Frame f=DKV.get(newKey).get();
+  _delete_me.add(f);
+  return f;
 }
