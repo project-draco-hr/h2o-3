@@ -1,17 +1,18 @@
 {
-  Key[] arrkeep=null;
-  if (keep != null)   arrkeep=(Key[])Arrays.asList(keep).toArray();
+  List<Key> keylist=new ArrayList<>();
+  if (keep != null) {
+    for (    Key k : Arrays.asList(keep)) {
+      if (k != null)       keylist.add(k);
+    }
+  }
+  Object[] arrkeep=keylist.toArray();
   Arrays.sort(arrkeep);
   Stack<HashSet<Key>> keys=_scope.get()._keys;
   if (keys.size() > 0) {
     for (    Key key : keys.pop()) {
       int found=-1;
       if (arrkeep != null)       found=Arrays.binarySearch(arrkeep,key);
-      if (found >= 0) {
-        Log.info("Not deleting key " + key);
-      }
       if (arrkeep.length == 0 || found < 0) {
-        Log.info("Deleting key " + key);
         Keyed.remove(key);
       }
     }
