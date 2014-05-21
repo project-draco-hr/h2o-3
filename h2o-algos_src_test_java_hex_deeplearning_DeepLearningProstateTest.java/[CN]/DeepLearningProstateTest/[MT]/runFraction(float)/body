@@ -82,12 +82,10 @@
                             mymodel.generateHTML("test",sb);
                           }
                           if (valid == null)                           valid=frame;
-                          double threshold=0;
                           if (mymodel.isClassifier()) {
                             Frame pred=mymodel.score(valid);
                             StringBuilder sb=new StringBuilder();
                             AUC auc=new AUC();
-                            double error=0;
                             if (mymodel.nclasses() == 2) {
                               auc.actual=valid;
                               auc.vactual=valid.vecs()[resp];
@@ -96,13 +94,11 @@
                               auc.threshold_criterion=AUC.ThresholdCriterion.maximum_F1;
                               auc.execImpl();
                               auc.toASCII(sb);
-                              threshold=auc.threshold();
-                              error=auc.err();
+                              double error=auc.err();
                               Log.info(sb);
                               Assert.assertEquals(new ConfusionMatrix2(auc.cm()).err(),error,1e-15);
                               Assert.assertEquals(mymodel.calcError(valid,valid.lastVec(),pred,pred,"training",false,0,null,auc,null),error,1e-15);
                             }
-                            double CMerrorOrig;
 {
                               sb=new StringBuilder();
                               ConfusionMatrix CM=new ConfusionMatrix();
@@ -115,7 +111,6 @@
                               sb.append("Threshold: " + "default\n");
                               CM.toASCII(sb);
                               Log.info(sb);
-                              CMerrorOrig=new ConfusionMatrix2(CM.cm).err();
                             }
                             Frame pred2=new Frame(Key.make("pred2"),pred.names(),pred.vecs());
                             pred2.delete_and_lock(null);
@@ -143,18 +138,13 @@
                             Log.info("Actual best error : " + best_err + ".");
                             Log.info("Actual best training samples : " + best_samples + ".");
                             DeepLearningModel bestmodel=DKV.get(mymodel.get_params().best_model_key).get();
-                            final Frame fr=valid;
-                            Frame bestPredict=bestmodel.score(fr);
-                            double bestErr=bestmodel.calcError(fr,fr.vecs()[resp],bestPredict,bestPredict,validation ? "validation" : "training",true,bestmodel.get_params().max_confusion_matrix_size,new ConfusionMatrix(),bestmodel.nclasses() == 2 ? new AUC() : null,null);
+                            Frame bestPredict=bestmodel.score(valid);
+                            double bestErr=bestmodel.calcError(valid,valid.vecs()[resp],bestPredict,bestPredict,validation ? "validation" : "training",true,bestmodel.get_params().max_confusion_matrix_size,new ConfusionMatrix(),bestmodel.nclasses() == 2 ? new AUC() : null,null);
                             Log.info("Validation: " + validation);
                             Log.info("Best_model's samples : " + bestmodel.model_info().get_processed_total() + ".");
                             Log.info("Best_model's error : " + bestErr + ".");
                             Assert.assertEquals(bestmodel.model_info().get_processed_total(),best_samples);
-                            if (validation && (scorevalidation != 0 || csm != DeepLearning.ClassSamplingMethod.Uniform)) {
-                            }
- else                             if (!validation && (scoretraining != 0 || balance_classes)) {
-                            }
- else {
+                            if ((!validation || (scorevalidation == 0 && csm == DeepLearning.ClassSamplingMethod.Uniform)) && (validation || (scoretraining == 0 && !balance_classes))) {
                               Assert.assertEquals(bestErr,best_err,1e-5);
                             }
                             bestmodel.delete();
