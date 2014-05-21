@@ -18,15 +18,11 @@
  catch (    IOException ignore) {
     }
   }
-  if (bytes == null || bytes.length == 0) {
-    Properties parms=new Properties();
-    parms.setProperty("error",uri);
-    return _http500.serve(this,parms,RequestType.html);
-  }
-  String mime=NanoHTTPD.MIME_DEFAULT_BINARY;
+  if (bytes == null || bytes.length == 0)   return wrap(new HTTP404V1(uri),RequestType.html);
+  String mime=MIME_DEFAULT_BINARY;
   if (uri.endsWith(".css"))   mime="text/css";
  else   if (uri.endsWith(".html"))   mime="text/html";
-  NanoHTTPD.Response res=new NanoHTTPD.Response(NanoHTTPD.HTTP_OK,mime,new ByteArrayInputStream(bytes));
+  Response res=new Response(HTTP_OK,mime,new ByteArrayInputStream(bytes));
   res.addHeader("Content-Length",Long.toString(bytes.length));
   return res;
 }
