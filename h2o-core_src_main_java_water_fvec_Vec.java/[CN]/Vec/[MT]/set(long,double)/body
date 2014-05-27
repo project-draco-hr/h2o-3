@@ -1,3 +1,9 @@
 {
-  return chunkForRow(i).set(i,d);
+  Chunk ck=chunkForRow(i);
+  double ret=ck.set(i,d);
+  Futures fs=new Futures();
+  ck.close(ck.cidx(),fs);
+  fs.blockForPending();
+  _cache=null;
+  return ret;
 }

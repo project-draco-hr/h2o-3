@@ -9,6 +9,7 @@
     nv._len=nv._len2=ls.length;
     nv.close(0,fs);
     vec=av.close(fs);
+    fs.blockForPending();
     assertEquals(nv._len2,vec.length());
     Chunk c0=vec.chunkForChunkIdx(0);
     assertTrue("Found chunk class " + c0.getClass() + " but expected C0LChunk",c0 instanceof C0LChunk);
@@ -17,22 +18,30 @@
     assertEquals(0,vec.at8(0));
     Chunk c1=vec.chunkForChunkIdx(0);
     assertTrue("Found chunk class " + c1.getClass() + " but expected C0LChunk",c1 instanceof C0LChunk);
-    c1.set(1,1);
+    vec.set(1,1);
     assertEquals(1,vec.at8(1));
-    c1.close(0,fs);
     Chunk c2=vec.chunkForChunkIdx(0);
     assertTrue("Found chunk class " + c2.getClass() + " but expected CBSChunk",c2 instanceof CBSChunk);
-    c2.set(2,2);
-    c2.close(0,fs);
+    vec.set(2,2);
     assertEquals(2,vec.at8(2));
     Chunk c3=vec.chunkForChunkIdx(0);
     assertTrue("Found chunk class " + c3.getClass() + " but expected C1NChunk",c3 instanceof C1NChunk);
-    c3.set(3,3);
-    c3.close(0,fs);
+    vec.set(3,3);
     assertEquals(3,vec.at8(3));
     Chunk c4=vec.chunkForChunkIdx(0);
     assertTrue("Found chunk class " + c4.getClass() + " but expected C1NChunk",c4 instanceof C1NChunk);
-    fs.blockForPending();
+    Vec.Writer vw=vec.open();
+    try {
+      vw.set(1,4);
+      vw.set(2,5);
+      vw.set(3,6);
+    }
+  finally {
+      vw.close();
+    }
+    assertEquals(4,vec.at8(1));
+    assertEquals(5,vec.at8(2));
+    assertEquals(6,vec.at8(3));
   }
   finally {
     if (vec != null)     vec.remove();
