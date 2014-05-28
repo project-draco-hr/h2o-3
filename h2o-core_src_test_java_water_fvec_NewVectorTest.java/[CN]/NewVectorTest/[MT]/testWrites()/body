@@ -30,16 +30,12 @@
     assertEquals(3,vec.at8(3));
     Chunk c4=vec.chunkForChunkIdx(0);
     assertTrue("Found chunk class " + c4.getClass() + " but expected C1NChunk",c4 instanceof C1NChunk);
-    Vec.Writer vw=vec.open();
-    try {
+    try (Vec.Writer vw=vec.open()){
       vw.set(1,4);
       vw.set(2,5);
       vw.set(3,6);
     }
-  finally {
-      vw.close();
-    }
-    assertEquals(4,vec.at8(1));
+     assertEquals(4,vec.at8(1));
     assertEquals(5,vec.at8(2));
     assertEquals(6,vec.at8(3));
   }
