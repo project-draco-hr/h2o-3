@@ -1,9 +1,5 @@
 {
   Chunk ck=chunkForRow(i);
-  boolean ret=ck.setNA(i);
-  Futures fs=new Futures();
-  ck.close(ck.cidx(),fs);
-  postWrite(fs);
-  fs.blockForPending();
-  return ret;
+  ck.setNA(i);
+  postWrite(ck.close(ck.cidx(),new Futures())).blockForPending();
 }
