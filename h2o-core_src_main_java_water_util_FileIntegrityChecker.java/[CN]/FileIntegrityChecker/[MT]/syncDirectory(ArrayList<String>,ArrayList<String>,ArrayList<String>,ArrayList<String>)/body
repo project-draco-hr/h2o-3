@@ -7,6 +7,13 @@
     }
  else {
       File f=new File(_files[i]);
+      try {
+        f=f.getCanonicalFile();
+        _files[i]=f.getPath();
+      }
+ catch (      IOException ignore) {
+      }
+      ;
       k=PersistNFS.decodeFile(f);
       if (files != null)       files.add(_files[i]);
       if (keys != null)       keys.add(k.toString());

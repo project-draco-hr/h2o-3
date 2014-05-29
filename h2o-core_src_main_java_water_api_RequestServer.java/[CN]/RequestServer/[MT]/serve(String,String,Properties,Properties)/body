@@ -20,9 +20,12 @@
   try {
     Class<? extends Handler> clazz=_handlers.get(requestName);
     if (clazz == null)     return getResource(uri);
-    return wrap(handle(clazz.newInstance(),version,parms,type),type);
+    return wrap(HTTP_OK,handle(clazz.newInstance(),version,method,parms,type),type);
   }
- catch (  Exception e) {
-    return wrap(new HTTP500V1(e),type);
+ catch (  IllegalArgumentException e) {
+    return wrap(HTTP_BADREQUEST,new HTTP404V1(e.getMessage(),uri),type);
+  }
+catch (  Exception e) {
+    return wrap(e.getMessage() != "unimplemented" ? HTTP_INTERNALERROR : HTTP_NOTIMPLEMENTED,new HTTP500V1(e),type);
   }
 }
