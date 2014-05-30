@@ -1,26 +1,16 @@
 {
   Thread.currentThread().setPriority(Thread.MAX_PRIORITY - 1);
-  if (uri.isEmpty() || uri.equals("/"))   uri="/Tutorials.html";
   maybeLogRequest(uri,method,parms);
-  RequestType type=RequestType.requestType(uri);
-  String uri_base=type.requestName(uri);
-  int version=parseVersion(uri_base);
+  int version=parseVersion(uri);
   int idx=version >> 16;
   version&=0xFFFF;
-  String requestName=uri_base.substring(idx);
-  String remaining="";
-  if (uri_base.charAt(idx) == '/') {
-    requestName=uri_base.substring(1);
-    int idx2=requestName.indexOf('/');
-    if (idx2 != -1) {
-      remaining=requestName.substring(idx2);
-      requestName=requestName.substring(0,idx2);
-    }
-  }
+  String uripath=uri.substring(idx);
+  RequestType type=RequestType.requestType(uripath);
+  String path=type.requestName(uripath);
   try {
-    Class<? extends Handler> clazz=_handlers.get(requestName);
-    if (clazz == null)     return getResource(uri);
-    return wrap(HTTP_OK,handle(clazz.newInstance(),version,method,parms,type),type);
+    Method meth=lookup(method,path);
+    if (meth == null)     return getResource(uri);
+    return wrap(HTTP_OK,handle(type,meth,version,parms),type);
   }
  catch (  IllegalArgumentException e) {
     return wrap(HTTP_BADREQUEST,new HTTP404V1(e.getMessage(),uri),type);
