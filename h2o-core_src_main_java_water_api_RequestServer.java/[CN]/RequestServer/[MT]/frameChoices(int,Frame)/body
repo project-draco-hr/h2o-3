@@ -1,0 +1,20 @@
+{
+  ArrayList<String> al=new ArrayList<>();
+  for (  String x : _handlers.keySet()) {
+    try {
+      Method meth=_handlers.get(x);
+      Class clz0=meth.getDeclaringClass();
+      Class<Handler> clz=(Class<Handler>)clz0;
+      Handler h=clz.newInstance();
+      String url=h.schema(version).acceptsFrame(fr);
+      if (url != null)       al.add(url);
+    }
+ catch (    InstantiationException ignore) {
+    }
+catch (    IllegalArgumentException ignore) {
+    }
+catch (    IllegalAccessException ignore) {
+    }
+  }
+  return al.toArray(new String[al.size()]);
+}
