@@ -3,10 +3,13 @@
   cloud_name=h._cloud_name;
   cloud_size=h._members.length;
   cloud_uptime_millis=h._uptime_ms;
-  cloud_healthy=h._cloud_healthy;
   consensus=h._consensus;
   locked=h._locked;
   nodes=new Node[h._members.length];
-  for (int i=0; i < h._members.length; i++)   nodes[i]=new Node(h._members[i]._heartbeat._system_load_average,h._members[i]._node_healthy);
+  cloud_healthy=true;
+  for (int i=0; i < h._members.length; i++) {
+    nodes[i]=new Node(h._members[i]);
+    cloud_healthy&=nodes[i].healthy;
+  }
   return this;
 }
