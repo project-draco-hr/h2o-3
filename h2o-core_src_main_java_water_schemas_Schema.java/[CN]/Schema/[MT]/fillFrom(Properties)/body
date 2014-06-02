@@ -7,14 +7,7 @@
       if (Modifier.isTransient(mods) || Modifier.isStatic(mods))       throw new IllegalArgumentException("Unknown argument " + key);
       API api=(API)f.getAnnotations()[0];
       if (api.validation().length() == 0 && api.values().length() == 0 && api.dependsOn().length == 0)       throw new IllegalArgumentException("Attempting to set output field " + key);
-      Class fclz=f.getType();
-      String value=parms.getProperty(key);
-      if (fclz.equals(String.class)) {
-        f.set(this,value);
-      }
- else {
-        throw new RuntimeException("Unimplemented schema fill from " + fclz.getSimpleName());
-      }
+      f.set(this,parse(parms.getProperty(key),f.getType()));
     }
  catch (    NoSuchFieldException nsfe) {
       throw new IllegalArgumentException("Unknown argument " + key);
