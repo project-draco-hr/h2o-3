@@ -6,10 +6,9 @@
   consensus=h._consensus;
   locked=h._locked;
   nodes=new Node[h._members.length];
-  cloud_healthy=true;
   for (int i=0; i < h._members.length; i++) {
     nodes[i]=new Node(h._members[i]);
-    cloud_healthy&=nodes[i].healthy;
+    if (!nodes[i].healthy)     bad_nodes++;
   }
   return this;
 }

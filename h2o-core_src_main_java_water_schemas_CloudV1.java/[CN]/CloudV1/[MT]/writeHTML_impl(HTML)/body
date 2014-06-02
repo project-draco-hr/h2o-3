@@ -1,7 +1,28 @@
 {
   ab.bodyHead();
   ab.title(cloud_name);
-  ab.putStr("Status",!consensus ? "<div class='alert alert-warn'>Adding new members</div>" : (!locked ? "<div>Accepting new members</div>" : "<div>Ready</div>"));
+  String statstr="<div>Ready</div>";
+  if (!locked)   statstr="<div>Accepting new members</div>";
+  if (!consensus)   statstr="<div class='alert alert-warn'>Adding new members</div>";
+  if (bad_nodes != 0)   statstr="<div class='alert alert-error'>" + bad_nodes + " nodes are unhealthy</div>";
+  ab.putStr("Status",statstr);
   ab.putStr("Uptime",PrettyPrint.msecs(cloud_uptime_millis,true));
+  ab.arrayHead(new String[]{"IP","ping","Load","Data (cached)"});
+  long now=System.currentTimeMillis();
+  long max_ping=0;
+  float load=0f;
+  long total_data=0, cached_data=0;
+  for (  Node node : nodes) {
+    max_ping=Math.max(max_ping,(now - node.last_ping));
+    load+=node.sys_load;
+    total_data+=node.total_value_size;
+    cached_data+=node.mem_value_size;
+  }
+  float avg_load=load / nodes.length;
+  formatRow(ab,"",ab.bold("Summary"),max_ping,avg_load,total_data,cached_data);
+  for (  Node n : nodes) {
+    formatRow(ab,n.healthy ? "" : "class=\"error\"",n.h2o.toString(),now - n.last_ping,n.sys_load,n.total_value_size,n.mem_value_size);
+  }
+  ab.arrayTail();
   return ab.bodyTail();
 }
