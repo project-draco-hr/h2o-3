@@ -1,4 +1,11 @@
 {
   stall_till_cloudsize(1);
-  H2O.finalizeRequest();
+  Runnable run=H2O.finalizeRequest();
+  if (run != null) synchronized (run) {
+    while (water.api.RequestServer.SERVER == null)     try {
+      run.wait();
+    }
+ catch (    InterruptedException ignore) {
+    }
+  }
 }
