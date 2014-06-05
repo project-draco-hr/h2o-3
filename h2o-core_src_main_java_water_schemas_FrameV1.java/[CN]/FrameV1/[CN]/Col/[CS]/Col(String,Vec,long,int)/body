@@ -1,0 +1,14 @@
+{
+  label=name;
+  missing=vec.naCnt();
+  min=vec.min();
+  max=vec.max();
+  mean=vec.mean();
+  sigma=vec.sigma();
+  type=vec.isEnum() ? "enum" : (vec.isTime() ? "time" : (vec.isInt() ? "int" : "real"));
+  domain=vec.domain();
+  len=(int)Math.min(len,vec.length() - off);
+  data=MemoryManager.malloc8d(len);
+  for (int i=0; i < len; i++)   data[i]=vec.at(off + i);
+  _vec=vec;
+}
