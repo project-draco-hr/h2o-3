@@ -1,20 +1,22 @@
 {
-  ClassLoader systemLoader=ClassLoader.getSystemClassLoader();
-  if (JARPATH != null) {
-    return systemLoader.getResourceAsStream("resources" + uri);
-  }
- else {
-    try {
-      File resources=new File("src/main/resources");
-      if (!resources.exists()) {
-        String h2oClasses=JarHash.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        resources=new File(h2oClasses + "main/resources");
-      }
+  try {
+    ClassLoader systemLoader=ClassLoader.getSystemClassLoader();
+    if (JARPATH != null) {
+      return systemLoader.getResourceAsStream("www" + uri);
+    }
+    File resources;
+    String h2oClasses=JarHash.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+    resources=new File(h2oClasses + "www");
+    if (resources.exists()) {
       return new FileInputStream(new File(resources,uri));
     }
- catch (    FileNotFoundException e) {
-      Log.err("Trying system loader because : ",e);
-      return systemLoader.getResourceAsStream("resources" + uri);
+    resources=new File("src/main/resources/www");
+    if (resources.exists()) {
+      return new FileInputStream(new File(resources,uri));
     }
   }
+ catch (  FileNotFoundException xe) {
+  }
+  Log.info("Resource not found: " + uri);
+  return null;
 }
