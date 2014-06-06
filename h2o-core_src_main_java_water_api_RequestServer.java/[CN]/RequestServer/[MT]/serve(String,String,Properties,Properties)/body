@@ -16,6 +16,6 @@
     return wrap(HTTP_BADREQUEST,new HTTP404V1(e.getMessage(),uri),type);
   }
 catch (  Exception e) {
-    return wrap(e.getMessage() != "unimplemented" ? HTTP_INTERNALERROR : HTTP_NOTIMPLEMENTED,new HTTP500V1(e),type);
+    return wrap(e.getMessage().equals("unimplemented") ? HTTP_NOTIMPLEMENTED : HTTP_INTERNALERROR,new HTTP500V1(e),type);
   }
 }
