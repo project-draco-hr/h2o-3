@@ -1,12 +1,12 @@
 {
   Thread.currentThread().setPriority(Thread.MAX_PRIORITY - 1);
-  maybeLogRequest(uri,method,parms);
   int version=parseVersion(uri);
   int idx=version >> 16;
   version&=0xFFFF;
   String uripath=uri.substring(idx);
   RequestType type=RequestType.requestType(uripath);
   String path=type.requestName(uripath);
+  maybeLogRequest(path,method,parms);
   try {
     Method meth=lookup(method,path);
     if (meth == null)     return getResource(uri);

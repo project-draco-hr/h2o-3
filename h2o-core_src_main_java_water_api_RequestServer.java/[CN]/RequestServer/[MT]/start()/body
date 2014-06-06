@@ -1,9 +1,12 @@
 {
-  new Thread(new Runnable(){
+  Runnable run=new Runnable(){
     @Override public void run(){
       while (true) {
         try {
-          SERVER=new RequestServer(water.init.NetworkInit._apiSocket);
+synchronized (this) {
+            SERVER=new RequestServer(water.init.NetworkInit._apiSocket);
+            notifyAll();
+          }
           break;
         }
  catch (        Exception ioe) {
@@ -17,5 +20,7 @@
       }
     }
   }
-,"Request Server launcher").start();
+;
+  new Thread(run,"Request Server launcher").start();
+  return run;
 }

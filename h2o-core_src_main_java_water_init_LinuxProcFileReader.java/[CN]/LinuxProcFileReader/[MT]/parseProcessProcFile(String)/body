@@ -3,7 +3,7 @@
   try {
     BufferedReader reader=new BufferedReader(new StringReader(s));
     String line=reader.readLine();
-    Pattern p=Pattern.compile("(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+).*");
+    Pattern p=Pattern.compile("(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)" + "\\s+" + "(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)"+ "\\s+"+ "(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)"+ "\\s+"+ "(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)"+ "\\s+"+ "(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)"+ ".*");
     Matcher m=p.matcher(line);
     boolean b=m.matches();
     if (!b) {
@@ -12,7 +12,8 @@
     long processUserTicks=Long.parseLong(m.group(14));
     long processSystemTicks=Long.parseLong(m.group(15));
     _processTotalTicks=processUserTicks + processSystemTicks;
+    _processRss=Long.parseLong(m.group(24));
   }
- catch (  Exception _) {
+ catch (  Exception ignore) {
   }
 }
