@@ -24,25 +24,25 @@
 );
   formatRow(ab,"","min",new ColOp(){
     String op(    Col c){
-      return formatCell(c.domain == null ? c.min : Double.NaN,c);
+      return rollUpStr(c,c.min);
     }
   }
 );
   formatRow(ab,"","max",new ColOp(){
     String op(    Col c){
-      return formatCell(c.domain == null ? c.max : Double.NaN,c);
+      return rollUpStr(c,c.max);
     }
   }
 );
   formatRow(ab,"","mean",new ColOp(){
     String op(    Col c){
-      return formatCell(c.domain == null ? c.mean : Double.NaN,c);
+      return rollUpStr(c,c.mean);
     }
   }
 );
   formatRow(ab,"","sigma",new ColOp(){
     String op(    Col c){
-      return formatCell(c.domain == null ? c.sigma : Double.NaN,c);
+      return rollUpStr(c,c.sigma);
     }
   }
 );
@@ -54,7 +54,7 @@
     final int row=i;
     formatRow(ab,"",Integer.toString(row + 1),new ColOp(){
       String op(      Col c){
-        return formatCell(c.data[row],c);
+        return formatCell(c.data == null ? 0 : c.data[row],c.lo == null ? 0 : c.lo[row],c.hi == null ? 0 : c.hi[row],c);
       }
     }
 );

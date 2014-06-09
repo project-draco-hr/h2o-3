@@ -1,16 +1,16 @@
 {
   try {
     ClassLoader systemLoader=ClassLoader.getSystemClassLoader();
+    String h2oClasses=JarHash.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+    File f;
     if (JARPATH != null) {
       return systemLoader.getResourceAsStream("www" + uri);
     }
-    File resources;
-    String h2oClasses=JarHash.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-    resources=new File(h2oClasses + "www");
-    if (resources.exists()) {
-      return new FileInputStream(new File(resources,uri));
+    f=new File(System.getProperty("user.dir") + "/h2o-client/src/main/resources/www",uri);
+    if (f.exists()) {
+      return new FileInputStream(f);
     }
-    resources=new File("src/main/resources/www");
+    File resources=new File(h2oClasses + "www");
     if (resources.exists()) {
       return new FileInputStream(new File(resources,uri));
     }
