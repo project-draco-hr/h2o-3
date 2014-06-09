@@ -1,0 +1,9 @@
+{
+  int udp_type=(int)(dataLo() & 0xff);
+  UDP.udp udpType=UDP.getUdp(udp_type);
+  String operation=isSend() ? " SEND " : " RECV ";
+  String host1=addrString();
+  String host2=recoH2O().toString();
+  String networkPart=isSend() ? (host2 + " -> " + host1) : (host1 + " -> " + host2);
+  return "Node(" + _nodeId + ": "+ ns()+ ") "+ udpType.toString()+ operation+ networkPart+ (isDropped() ? " DROPPED " : "")+ ", data = '"+ Long.toHexString(this.dataLo())+ ','+ Long.toHexString(this.dataHi())+ "'";
+}
