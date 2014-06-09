@@ -1,0 +1,15 @@
+{
+  _setup=setup;
+  _vg=vg;
+  _vecIdStart=_vg.reserveKeys(_setup._pType == ParserType.SVMLight ? 100000000 : setup._ncols);
+  _delete_on_done=delete_on_done;
+  _job_key=job_key;
+  _fileChunkOffsets=new int[fkeys.length];
+  int len=0;
+  for (int i=0; i < fkeys.length; ++i) {
+    _fileChunkOffsets[i]=len;
+    len+=getByteVec(fkeys[i]).nChunks();
+  }
+  _chunk2Enum=MemoryManager.malloc4(len);
+  Arrays.fill(_chunk2Enum,-1);
+}
