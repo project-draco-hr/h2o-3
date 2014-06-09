@@ -7,7 +7,9 @@
   }
  catch (  InvocationTargetException ite) {
     Throwable t=ite.getCause();
-    throw (t instanceof Exception) ? (Exception)t : new RuntimeException(t);
+    if (t instanceof RuntimeException)     throw (RuntimeException)t;
+    if (t instanceof Error)     throw (Error)t;
+    throw new RuntimeException(t);
   }
   _t_stop=System.currentTimeMillis();
   return s.fillFrom((H)this);
