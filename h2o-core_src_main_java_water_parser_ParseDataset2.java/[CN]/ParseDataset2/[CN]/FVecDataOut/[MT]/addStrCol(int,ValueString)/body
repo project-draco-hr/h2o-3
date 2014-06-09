@@ -5,6 +5,13 @@
       return;
     }
     if (_ctypes[colIdx] == UCOL && ParseTime.attemptTimeParse(str) > 0)     _ctypes[colIdx]=TCOL;
+    if (_ctypes[colIdx] == UCOL) {
+      int old=str.get_off();
+      ParseTime.attemptUUIDParse0(str);
+      ParseTime.attemptUUIDParse1(str);
+      if (str.get_off() != -1)       _ctypes[colIdx]=ICOL;
+      str.setOff(old);
+    }
     if (_ctypes[colIdx] == TCOL) {
       long l=ParseTime.attemptTimeParse(str);
       if (l == Long.MIN_VALUE)       addInvalidCol(colIdx);
@@ -13,6 +20,14 @@
         l=ParseTime.decodeTime(l);
         addNumCol(colIdx,l,0);
         _nvs[_col]._timCnt[time_pat]++;
+      }
+    }
+ else     if (_ctypes[colIdx] == ICOL) {
+      long lo=ParseTime.attemptUUIDParse0(str);
+      long hi=ParseTime.attemptUUIDParse1(str);
+      if (str.get_off() == -1)       addInvalidCol(colIdx);
+ else {
+        if (colIdx < _nCols)         _nvs[_col=colIdx].addUUID(lo,hi);
       }
     }
  else     if (!_enums[_col=colIdx].isKilled()) {
