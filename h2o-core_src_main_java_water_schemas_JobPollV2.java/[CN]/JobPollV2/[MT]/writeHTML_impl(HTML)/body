@@ -1,6 +1,13 @@
 {
   ab.title("Job Poll");
-  String url=link(key);
-  ab.href("Poll",url,url).putStr("status",status).put4f("progress",progress);
+  if ("DONE".equals(status)) {
+    Job job=DKV.get(key).get();
+    String url=InspectV1.link(job.dest());
+    ab.href("Inspect",url,url).putStr("status",status).put4f("progress",progress);
+  }
+ else {
+    String url=link(key);
+    ab.href("JobPoll",url,url).putStr("status",status).put4f("progress",progress);
+  }
   return ab.putStr("msec",PrettyPrint.msecs(msec,false)).putStr("exception",exception);
 }
