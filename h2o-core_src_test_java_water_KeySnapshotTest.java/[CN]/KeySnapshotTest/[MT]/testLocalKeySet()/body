@@ -1,0 +1,23 @@
+{
+  Key[] userKeys=new Key[100];
+  Key[] systemKeys=new Key[100];
+  int homeKeys=0;
+  Futures fs=new Futures();
+  try {
+    for (int i=0; i < userKeys.length; ++i) {
+      DKV.put(userKeys[i]=Key.make("key" + i),new IcedInt(i),fs,true);
+      if (userKeys[i].home())       ++homeKeys;
+      DKV.put(systemKeys[i]=Key.makeUserHidden(Key.make()),new IcedInt(i),fs,true);
+    }
+    fs.blockForPending();
+    Key[] keys=KeySnapshot.localSnapshot().keys();
+    Assert.assertEquals(homeKeys,keys.length);
+    for (    Key k : keys)     Assert.assertTrue(k.home());
+  }
+  finally {
+    for (int i=0; i < userKeys.length; ++i) {
+      DKV.remove(userKeys[i]);
+      DKV.remove(systemKeys[i]);
+    }
+  }
+}

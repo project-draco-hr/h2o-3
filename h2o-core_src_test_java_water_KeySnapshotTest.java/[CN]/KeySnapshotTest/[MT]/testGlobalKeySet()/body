@@ -1,0 +1,16 @@
+{
+  try {
+    Futures fs=new Futures();
+    for (int i=0; i < 100; ++i)     DKV.put(Key.make("key" + i),new IcedInt(i),fs,true);
+    for (int i=0; i < 100; ++i)     DKV.put(Key.makeUserHidden(Key.make()),new IcedInt(i),fs,true);
+    fs.blockForPending();
+    Key[] keys=KeySnapshot.globalSnapshot().keys();
+    assertEquals(100,keys.length);
+  }
+  finally {
+    for (int i=0; i < 100; ++i) {
+      DKV.remove(Key.make("key" + i));
+      DKV.remove(Key.makeUserHidden(Key.make()));
+    }
+  }
+}

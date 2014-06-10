@@ -1,0 +1,36 @@
+{
+  Key[] userKeys=new Key[200];
+  Key[] systemKeys=new Key[200];
+  int homeKeys=0;
+  Futures fs=new Futures();
+  try {
+    for (int i=0; i < (userKeys.length >> 1); ++i) {
+      DKV.put(userKeys[i]=Key.make("key" + i),new IcedInt(i),fs,false);
+      if (userKeys[i].home())       ++homeKeys;
+      systemKeys[i]=Key.makeUserHidden(Key.make());
+      DKV.put(systemKeys[i],new Value(systemKeys[i],new IcedInt(i)));
+    }
+    for (int i=(userKeys.length >> 1); i < userKeys.length; ++i) {
+      DKV.put(userKeys[i]=Key.make("key" + i),new IcedDouble(i),fs,false);
+      if (userKeys[i].home())       ++homeKeys;
+      systemKeys[i]=Key.makeUserHidden(Key.make());
+      DKV.put(systemKeys[i],new Value(systemKeys[i],new IcedDouble(i)));
+    }
+    fs.blockForPending();
+    KeySnapshot s=KeySnapshot.globalSnapshot();
+    Map<String,Iced> all=s.fetchAll(Iced.class,true);
+    assertTrue(all.isEmpty());
+    all=s.fetchAll(Iced.class);
+    assertEquals(userKeys.length,all.size());
+    Map<String,IcedInt> ints=s.fetchAll(IcedInt.class);
+    Map<String,IcedDouble> doubles=s.fetchAll(IcedDouble.class);
+    assertEquals(userKeys.length >> 1,ints.size());
+    assertEquals(userKeys.length >> 1,doubles.size());
+  }
+  finally {
+    for (int i=0; i < userKeys.length; ++i) {
+      if (userKeys[i] != null)       DKV.remove(userKeys[i]);
+      if (systemKeys[i] != null)       DKV.remove(systemKeys[i]);
+    }
+  }
+}
