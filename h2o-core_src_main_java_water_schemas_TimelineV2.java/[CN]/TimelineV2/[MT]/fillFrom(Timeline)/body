@@ -1,14 +1,11 @@
 {
   ArrayList<Event> outputEvents=new ArrayList<Event>();
   ArrayList<TimelineSnapshot.Event> heartbeats=new ArrayList();
-  H2O cloud=TimeLine.getCLOUD();
+  H2O cloud=TimeLine.CLOUD;
   for (  TimelineSnapshot.Event event : timeline.snapshot) {
     H2ONode h2o=cloud.members()[event._nodeId];
-    long l0=event.dataLo();
-    long h8=event.dataHi();
-    int udp_type=(int)(l0 & 0xff);
-    UDP.udp e=UDP.getUdp(udp_type);
-    if (e == UDP.udp.heartbeat) {
+    UDP.udp msgType=event.udpType();
+    if (msgType == UDP.udp.heartbeat) {
       heartbeats.add(event);
       continue;
     }
@@ -34,7 +31,24 @@
         }
       }
       heartbeats.clear();
-      outputEvents.add(new Event(Event.EventType.heartbeat));
+      outputEvents.add(new HeartBeatEvent(totalSends,totalRecvs,firstMs,lastMs));
+    }
+    long ms=event.ms();
+    long ns=event.ns();
+    if (msgType == UDP.udp.i_o) {
+      outputEvents.add(new IOEvent(ms,ns,event.recoH2O().toString(),event.ioflavor(),UDP.printx16(event.dataLo(),event.dataHi())));
+    }
+ else {
+      String from, to;
+      if (event.isSend()) {
+        from=h2o.toString();
+        to=event.packH2O() == null ? "multicast" : event.packH2O().toString();
+      }
+ else {
+        from=event.packH2O().toString();
+        to=h2o.toString();
+      }
+      outputEvents.add(new NetworkEvent(ms,ns,event.isSend(),event.isTCP() ? "TCP" : "UDP",msgType.toString(),from,to,UDP.printx16(event.dataLo(),event.dataHi())));
     }
   }
   events=outputEvents.toArray(new Event[outputEvents.size()]);
