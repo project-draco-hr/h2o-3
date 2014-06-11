@@ -10,7 +10,11 @@
   try {
     Route route=lookup(method,path);
     if (route == null)     return getResource(uri);
- else     return wrap(HTTP_OK,handle(type,route,version,parms),type);
+ else {
+      capturePathParms(parms,path,route);
+      Log.info("Path: " + path + ", route: "+ route.url_pattern.pattern()+ ", parms: "+ parms);
+      return wrap(HTTP_OK,handle(type,route,version,parms),type);
+    }
   }
  catch (  IllegalArgumentException e) {
     return wrap(HTTP_BADREQUEST,new HTTP404V1(e.getMessage(),uri),type);

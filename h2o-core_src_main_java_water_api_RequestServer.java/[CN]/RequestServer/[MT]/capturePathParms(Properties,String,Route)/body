@@ -1,0 +1,11 @@
+{
+  if (null == route.path_params)   return;
+  Matcher m=route.url_pattern.matcher(path);
+  if (!m.matches()) {
+    throw H2O.fail("Routing regex error: Pattern matched once but not again for pattern: " + route.url_pattern.pattern() + " and path: "+ path);
+  }
+  for (  String key : route.path_params) {
+    String val=m.group(key);
+    if (null != val)     parms.put(key,val);
+  }
+}

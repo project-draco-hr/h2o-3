@@ -1,0 +1,14 @@
+{
+  if (null == key)   return;
+  Value value=DKV.get(key);
+  if (null == value)   throw H2O.fail("Did not find key in DKV: " + key.toString());
+  Iced ice=value.get();
+  if (!(ice instanceof Frame))   throw H2O.fail("Expected a Frame for key: " + key.toString() + "; got a: "+ ice.getClass());
+  Vec vec=((Frame)ice).vec(column);
+  if (null == vec)   throw H2O.fail("Did not find column: " + column + " in frame: "+ key.toString());
+  Vec[] vecs={vec};
+  String[] names={column};
+  Frame f=new Frame(names,vecs);
+  frames=new Frame[1];
+  frames[0]=f;
+}
