@@ -8,9 +8,9 @@
   String path=type.requestName(uripath);
   maybeLogRequest(path,method,parms);
   try {
-    Method meth=lookup(method,path);
-    if (meth == null)     return getResource(uri);
- else     return wrap(HTTP_OK,handle(type,meth,version,parms),type);
+    Route route=lookup(method,path);
+    if (route == null)     return getResource(uri);
+ else     return wrap(HTTP_OK,handle(type,route,version,parms),type);
   }
  catch (  IllegalArgumentException e) {
     return wrap(HTTP_BADREQUEST,new HTTP404V1(e.getMessage(),uri),type);

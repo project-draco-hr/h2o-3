@@ -1,5 +1,5 @@
 {
-  String s=method + url;
-  for (  Pattern p : _handlers.keySet())   if (p.matcher(s).matches())   return _handlers.get(p);
+  if (null == http_method || null == url)   return null;
+  for (  Route r : _routes.values())   if (r.url_pattern.matcher(url).matches())   if (http_method.equals(r.http_method))   return r;
   return null;
 }
