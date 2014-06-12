@@ -6,13 +6,14 @@
   String uripath=uri.substring(idx);
   RequestType type=RequestType.requestType(uripath);
   String path=type.requestName(uripath);
-  maybeLogRequest(path,method,parms);
+  String versioned_path="/" + version + path;
+  maybeLogRequest(versioned_path,method,parms);
   try {
-    Route route=lookup(method,path);
+    Route route=lookup(method,versioned_path);
     if (route == null)     return getResource(uri);
  else {
-      capturePathParms(parms,path,route);
-      Log.info("Path: " + path + ", route: "+ route.url_pattern.pattern()+ ", parms: "+ parms);
+      capturePathParms(parms,versioned_path,route);
+      Log.info("Path: " + versioned_path + ", route: "+ route.url_pattern.pattern()+ ", parms: "+ parms);
       return wrap(HTTP_OK,handle(type,route,version,parms),type);
     }
   }
