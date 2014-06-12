@@ -6,7 +6,7 @@
   CtClass icer_cc=_pool.getOrNull(icer_name);
   if (icer_cc != null) {
 synchronized (iced_clazz) {
-      if (!icer_cc.isFrozen())       icer_cc.toClass();
+      if (!icer_cc.isFrozen())       icer_cc.toClass(Weaver.class.getClassLoader());
       return Class.forName(icer_name);
     }
   }
@@ -20,7 +20,7 @@ synchronized (iced_clazz) {
     icer_cc=_pool.getOrNull(icer_name);
     if (icer_cc != null)     return Class.forName(icer_name);
     icer_cc=genIcerClass(id,iced_cc,iced_clazz,icer_name,super_id,super_icer_cc,super_has_jfields);
-    icer_cc.toClass();
+    icer_cc.toClass(Weaver.class.getClassLoader());
     return Class.forName(icer_name);
   }
 }
