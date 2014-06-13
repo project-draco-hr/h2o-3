@@ -1,0 +1,64 @@
+{
+  String[] urls=RequestServer.frameChoices(getVersion(),_fr);
+  for (  String url : urls)   ab.href("hex",url,url);
+  String titles[]=new String[_fr._names.length + 1];
+  titles[0]="";
+  System.arraycopy(_fr._names,0,titles,1,_fr._names.length);
+  ab.arrayHead(titles);
+  boolean has_miss=false;
+  for (  Col c : columns)   if (c.missing > 0) {
+    has_miss=true;
+    break;
+  }
+  if (has_miss)   formatRow(ab,"class='warning'","missing",new ColOp(){
+    String op(    Col c){
+      return c.missing == 0 ? "" : Long.toString(c.missing);
+    }
+  }
+);
+  formatRow(ab,"","type",new ColOp(){
+    String op(    Col c){
+      return c.type;
+    }
+  }
+);
+  formatRow(ab,"","min",new ColOp(){
+    String op(    Col c){
+      return rollUpStr(c,c.min);
+    }
+  }
+);
+  formatRow(ab,"","max",new ColOp(){
+    String op(    Col c){
+      return rollUpStr(c,c.max);
+    }
+  }
+);
+  formatRow(ab,"","mean",new ColOp(){
+    String op(    Col c){
+      return rollUpStr(c,c.mean);
+    }
+  }
+);
+  formatRow(ab,"","sigma",new ColOp(){
+    String op(    Col c){
+      return rollUpStr(c,c.sigma);
+    }
+  }
+);
+  ab.p("<tr>").cell("levels");
+  for (  Col c : columns)   ab.cell(c.domain == null ? "" : Integer.toString(c.domain.length));
+  ab.p("</tr>");
+  int len=columns.length > 0 ? columns[0].data.length : 0;
+  for (int i=0; i < len; i++) {
+    final int row=i;
+    formatRow(ab,"",Integer.toString(row + 1),new ColOp(){
+      String op(      Col c){
+        return formatCell(c.data == null ? 0 : c.data[row],c.lo == null ? 0 : c.lo[row],c.hi == null ? 0 : c.hi[row],c);
+      }
+    }
+);
+  }
+  ab.arrayTail();
+  return ab.bodyTail();
+}
