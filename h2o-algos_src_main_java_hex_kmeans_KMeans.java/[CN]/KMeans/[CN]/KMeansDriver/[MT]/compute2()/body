@@ -1,0 +1,12 @@
+{
+  Frame fr=null;
+  try {
+    fr=DKV.get(_src).get();
+    fr.read_lock(_key);
+  }
+  finally {
+    if (fr != null)     fr.unlock(_key);
+  }
+  tryComplete();
+  throw H2O.unimpl();
+}
