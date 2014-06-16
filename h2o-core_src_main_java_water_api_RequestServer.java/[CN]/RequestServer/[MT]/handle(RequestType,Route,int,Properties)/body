@@ -1,0 +1,17 @@
+{
+switch (type) {
+case html:
+case java:
+case json:
+case xml:
+{
+      Class<Handler> clz=(Class<Handler>)route._handler_class;
+      Handler h=clz.newInstance();
+      return h.handle(version,route,parms);
+    }
+case query:
+case help:
+default :
+  throw H2O.unimpl();
+}
+}

@@ -1,11 +1,12 @@
 {
   ArrayList<String> al=new ArrayList<>();
-  for (  String x : _handlers.keySet()) {
+  for (  Pattern p : _routes.keySet()) {
     try {
-      Method meth=_handlers.get(x);
+      Method meth=_routes.get(p)._handler_method;
       Class clz0=meth.getDeclaringClass();
       Class<Handler> clz=(Class<Handler>)clz0;
       Handler h=clz.newInstance();
+      if (version < h.min_ver() || h.max_ver() < version)       continue;
       String url=h.schema(version).acceptsFrame(fr);
       if (url != null)       al.add(url);
     }

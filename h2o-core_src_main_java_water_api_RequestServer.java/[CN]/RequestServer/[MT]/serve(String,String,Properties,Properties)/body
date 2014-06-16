@@ -6,16 +6,21 @@
   String uripath=uri.substring(idx);
   RequestType type=RequestType.requestType(uripath);
   String path=type.requestName(uripath);
-  maybeLogRequest(path,method,parms);
+  String versioned_path="/" + version + path;
+  maybeLogRequest(versioned_path,method,parms);
   try {
-    Method meth=lookup(method,path);
-    if (meth == null)     return getResource(uri);
-    return wrap(HTTP_OK,handle(type,meth,version,parms),type);
+    Route route=lookup(method,versioned_path);
+    if (route == null)     return getResource(uri);
+ else {
+      capturePathParms(parms,versioned_path,route);
+      Log.info("Path: " + versioned_path + ", route: "+ route._url_pattern.pattern()+ ", parms: "+ parms);
+      return wrap(HTTP_OK,handle(type,route,version,parms),type);
+    }
   }
  catch (  IllegalArgumentException e) {
     return wrap(HTTP_BADREQUEST,new HTTP404V1(e.getMessage(),uri),type);
   }
 catch (  Exception e) {
-    return wrap(e.getMessage() != "unimplemented" ? HTTP_INTERNALERROR : HTTP_NOTIMPLEMENTED,new HTTP500V1(e),type);
+    return wrap("unimplemented".equals(e.getMessage()) ? HTTP_NOTIMPLEMENTED : HTTP_INTERNALERROR,new HTTP500V1(e),type);
   }
 }

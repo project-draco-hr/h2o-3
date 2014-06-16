@@ -1,5 +1,13 @@
 {
   _size=c.byteSize();
+  if (c._vec._isUUID) {
+    _min=_max=_mean=_sigma=Double.NaN;
+    for (int i=0; i < c._len; i++) {
+      if (c.isNA0(i))       _naCnt++;
+ else       _rows++;
+    }
+    return this;
+  }
   for (int i=0; i < c._len; i++) {
     double d=c.at0(i);
     if (Double.isNaN(d))     _naCnt++;

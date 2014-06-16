@@ -1,0 +1,12 @@
+{
+  KeySnapshot res=_cache;
+  final long t=System.currentTimeMillis();
+  if (res == null || (t - res.timestamp) > timeTolerance)   res=new KeySnapshot((new GlobalUKeySetTask().doAllNodes()._res));
+ else   if (t - res.timestamp > _updateInterval)   H2O.submitTask(new H2O.H2OCountedCompleter(){
+    @Override public void compute2(){
+      new GlobalUKeySetTask().doAllNodes();
+    }
+  }
+);
+  return res;
+}

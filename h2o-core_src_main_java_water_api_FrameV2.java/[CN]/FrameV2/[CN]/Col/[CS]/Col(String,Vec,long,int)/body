@@ -1,0 +1,26 @@
+{
+  label=name;
+  missing=vec.naCnt();
+  min=vec.min();
+  max=vec.max();
+  mean=vec.mean();
+  sigma=vec.sigma();
+  type=vec.isEnum() ? "enum" : vec.isUUID() ? "uuid" : (vec.isInt() ? (vec.isTime() ? "time" : "int") : "real");
+  domain=vec.domain();
+  len=(int)Math.min(len,vec.length() - off);
+  if (vec.isUUID()) {
+    lo=MemoryManager.malloc8(len);
+    hi=MemoryManager.malloc8(len);
+    for (int i=0; i < len; i++) {
+      lo[i]=vec.isNA(i) ? C16Chunk._LO_NA : vec.at16l(off + i);
+      hi[i]=vec.isNA(i) ? C16Chunk._HI_NA : vec.at16h(off + i);
+    }
+    data=null;
+  }
+ else {
+    data=MemoryManager.malloc8d(len);
+    for (int i=0; i < len; i++)     data[i]=vec.at(off + i);
+    lo=hi=null;
+  }
+  _vec=vec;
+}

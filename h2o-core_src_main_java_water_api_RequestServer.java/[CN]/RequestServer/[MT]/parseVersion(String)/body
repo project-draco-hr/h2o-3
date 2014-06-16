@@ -1,6 +1,6 @@
 {
-  if (uri.length() <= 1 || uri.charAt(0) != '/')   return (0 << 16) | LATEST_VERSION;
-  if (uri.startsWith("/latest"))   return (("/latest".length()) << 16) | LATEST_VERSION;
+  if (uri.length() <= 1 || uri.charAt(0) != '/')   return (0 << 16) | DEFAULT_VERSION;
+  if (uri.startsWith("/latest"))   return (("/latest".length()) << 16) | DEFAULT_VERSION;
   int idx=1;
   int version=0;
   char c=uri.charAt(idx);
@@ -9,6 +9,6 @@
     version=version * 10 + (c - '0');
     c=uri.charAt(++idx);
   }
-  if (idx > 10 || version > LATEST_VERSION || version < 1 || uri.charAt(idx) != '/')   return (0 << 16) | LATEST_VERSION;
+  if (idx > 10 || version < 1 || uri.charAt(idx) != '/')   return (0 << 16) | DEFAULT_VERSION;
   return (idx << 16) | version;
 }

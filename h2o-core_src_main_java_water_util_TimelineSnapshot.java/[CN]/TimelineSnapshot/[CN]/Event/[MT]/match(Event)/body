@@ -1,0 +1,27 @@
+{
+  if (send_recv() == ev.send_recv())   return false;
+  long myl0=dataLo();
+  long evl0=ev.dataLo();
+  int my_udp_type=(int)(myl0 & 0xff);
+  int ev_udp_type=(int)(evl0 & 0xff);
+  if (my_udp_type != ev_udp_type)   return false;
+  UDP.udp e=UDP.getUdp(my_udp_type);
+switch (e) {
+case rebooted:
+case timeline:
+    break;
+case ack:
+case ackack:
+case exec:
+case heartbeat:
+  if ((int)(myl0 >> 24) != (int)(evl0 >> 24))   return false;
+break;
+case i_o:
+return false;
+default :
+throw new RuntimeException("unexpected udp packet type " + e.toString());
+}
+if (_packh2o != null && _packh2o.index() != ev._nodeId) return false;
+if (ev._packh2o != null && ev._packh2o.index() != _nodeId) return false;
+return true;
+}

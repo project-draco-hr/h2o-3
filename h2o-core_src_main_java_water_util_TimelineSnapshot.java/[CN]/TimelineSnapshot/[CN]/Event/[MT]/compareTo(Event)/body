@@ -1,0 +1,21 @@
+{
+  if (ev == null)   return -1;
+  if (ev == this)   return 0;
+  if (ev.equals(this))   return 0;
+  int res=ev.send_recv() - send_recv();
+  if (res != 0)   return res;
+  if (isSend()) {
+    long myMinMs=Long.MAX_VALUE;
+    long evMinMs=Long.MAX_VALUE;
+    ArrayList<Event> myRecvs=_sends.get(this);
+    ArrayList<Event> evRecvs=_sends.get(ev);
+    for (    Event e : myRecvs)     if (e.ms() < myMinMs)     myMinMs=e.ms();
+    for (    Event e : evRecvs)     if (e.ms() < evMinMs)     evMinMs=e.ms();
+    res=(int)(myMinMs - evMinMs);
+    if (myMinMs == Long.MAX_VALUE && evMinMs != Long.MAX_VALUE)     res=-1;
+    if (myMinMs != Long.MAX_VALUE && evMinMs == Long.MAX_VALUE)     res=1;
+  }
+  if (res == 0)   res=(int)(ms() - ev.ms());
+  if (res == 0)   res=(int)(ns() - ev.ns());
+  return res;
+}
