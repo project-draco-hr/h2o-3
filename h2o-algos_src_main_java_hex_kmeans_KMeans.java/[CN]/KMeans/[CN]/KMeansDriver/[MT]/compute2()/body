@@ -1,12 +1,65 @@
 {
   Frame fr=null;
+  KMeansModel model=null;
   try {
-    fr=DKV.get(_src).get();
+    fr=DKV.get(_parms._src).get();
     fr.read_lock(_key);
+    model=new KMeansModel(dest(),fr,_parms);
+    model.delete_and_lock(_key);
+    Vec vecs[]=fr.vecs();
+    double[] means=new double[vecs.length];
+    for (int i=0; i < vecs.length; i++)     means[i]=vecs[i].mean();
+    double[] mults=null;
+    if (_parms._normalize) {
+      mults=new double[vecs.length];
+      for (int i=0; i < vecs.length; i++) {
+        double sigma=vecs[i].sigma();
+        mults[i]=normalize(sigma) ? 1.0 / sigma : 1.0;
+      }
+    }
+    Random rand=water.util.RandomUtils.getRNG(_parms._seed - 1);
+    double clusters[][];
+    if (_parms._init == Initialization.None) {
+      clusters=model._clusters=new double[_parms._K][fr.numCols()];
+      for (      double[] cluster : clusters)       randomRow(vecs,rand,cluster,means,mults);
+    }
+ else {
+      clusters=new double[1][vecs.length];
+      randomRow(vecs,rand,clusters[0],means,mults);
+      while (model._iters < 5) {
+        SumSqr sqr=new SumSqr();
+        sqr._clusters=clusters;
+        sqr._means=means;
+        sqr._mults=mults;
+        sqr.doAll(vecs);
+        Sampler sampler=new Sampler();
+        sampler._clusters=clusters;
+        sampler._sqr=sqr._sqr;
+        sampler._probability=_parms._K * 3;
+        sampler._seed=_parms._seed;
+        sampler._means=means;
+        sampler._mults=mults;
+        sampler.doAll(vecs);
+        clusters=ArrayUtils.append(clusters,sampler._sampled);
+        if (!isRunning())         return;
+        model._clusters=denormalize(clusters,means,mults);
+        model._mse=sqr._sqr / fr.numRows();
+        model._iters++;
+        update(1);
+        model.update(_key);
+      }
+      clusters=recluster(clusters,_parms._K,rand,_parms._init);
+    }
+    throw H2O.unimpl();
   }
-  finally {
+ catch (  Throwable t) {
+    t.printStackTrace();
+    cancel2(t);
+    throw t;
+  }
+ finally {
+    if (model != null)     model.unlock(_key);
     if (fr != null)     fr.unlock(_key);
+    done();
   }
-  tryComplete();
-  throw H2O.unimpl();
 }
