@@ -1,0 +1,16 @@
+{
+  ValueString str=new ValueString();
+  for (  String s : line) {
+    try {
+      Double.parseDouble(s);
+      return false;
+    }
+ catch (    NumberFormatException e) {
+    }
+    if (ParseTime.attemptTimeParse(str.setTo(s)) != Long.MIN_VALUE)     return false;
+    ParseTime.attemptUUIDParse0(str.setTo(s));
+    ParseTime.attemptUUIDParse1(str);
+    if (str.get_off() != -1)     return false;
+  }
+  return true;
+}
