@@ -1,13 +1,10 @@
 {
   try {
     if (JARPATH != null)     return ClassLoader.getSystemClassLoader().getResourceAsStream("www" + uri);
-    File f=null;
-    f=new File(System.getProperty("user.dir") + "/h2o-client/src/main/resources/www",uri);
-    if (f.exists())     return new FileInputStream(f);
-    f=new File(System.getProperty("user.dir") + "/h2o-core/src/main/resources/www",uri);
-    if (f.exists())     return new FileInputStream(f);
-    File resources=new File("src/main/resources/www");
-    if (resources.exists())     return new FileInputStream(new File(resources,uri));
+    for (    File f : RESOURCE_FILES) {
+      File f2=new File(f,uri);
+      if (f2.exists())       return new FileInputStream(f2);
+    }
   }
  catch (  FileNotFoundException ignore) {
   }
