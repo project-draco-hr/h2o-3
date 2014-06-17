@@ -14,6 +14,7 @@
     if (mimpl == null)     break;
     int mods=ctf.getModifiers();
     if (javassist.Modifier.isTransient(mods) || javassist.Modifier.isStatic(mods))     continue;
+    if (ctf.hasAnnotation(API.class))     if (((API)ctf.getAvailableAnnotations()[0]).json() == false)     continue;
     if (field_sep1 != null) {
       sb.append(field_sep1);
       field_sep1=null;
