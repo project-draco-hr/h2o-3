@@ -7,13 +7,12 @@
   RequestType type=RequestType.requestType(uripath);
   String path=type.requestName(uripath);
   String versioned_path="/" + version + path;
-  maybeLogRequest(versioned_path,method,parms);
   try {
     Route route=lookup(method,versioned_path);
     if (route == null)     return getResource(uri);
  else {
       capturePathParms(parms,versioned_path,route);
-      Log.info("Path: " + versioned_path + ", route: "+ route._url_pattern.pattern()+ ", parms: "+ parms);
+      maybeLogRequest(path,versioned_path,route._url_pattern.pattern(),parms);
       return wrap(HTTP_OK,handle(type,route,version,parms),type);
     }
   }

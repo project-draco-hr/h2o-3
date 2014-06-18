@@ -3,5 +3,5 @@
   str.setOff(i + 2);
   if (lo == 0x80000000000000L && buf[i] == '0' && buf[i + 1] == '0')   return Long.MIN_VALUE;
   lo=get2(lo,buf,i);
-  return lo == Long.MIN_VALUE ? badUUID(str) : lo;
+  return (lo == Long.MIN_VALUE || (i + 2 < buf.length && hdigit(0,buf[i + 2]) != Long.MIN_VALUE)) ? badUUID(str) : lo;
 }
