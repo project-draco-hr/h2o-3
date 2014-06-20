@@ -1,10 +1,6 @@
 {
-  if (null == key)   return;
-  Value value=DKV.get(key);
-  if (null == value)   throw new IllegalArgumentException("Did not find key: " + key.toString());
-  Iced ice=value.get();
-  if (!(ice instanceof Frame))   throw new IllegalArgumentException("Expected a Frame for key: " + key.toString() + "; got a: "+ ice.getClass());
-  Vec vec=((Frame)ice).vec(column);
+  Frame frame=getFromDKV(key);
+  Vec vec=frame.vec(column);
   if (null == vec)   throw new IllegalArgumentException("Did not find column: " + column + " in frame: "+ key.toString());
   Vec[] vecs={vec};
   String[] names={column};
