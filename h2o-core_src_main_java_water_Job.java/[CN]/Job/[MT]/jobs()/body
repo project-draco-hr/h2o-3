@@ -1,0 +1,12 @@
+{
+  Value val=DKV.get(LIST);
+  if (val == null)   return new Job[0];
+  JobList jl=val.get();
+  Job[] jobs=new Job[jl._jobs.length];
+  int j=0;
+  for (int i=0; i < jl._jobs.length; i++) {
+    val=DKV.get(jl._jobs[i]);
+    if (val != null)     jobs[j++]=val.get();
+  }
+  return j < jobs.length ? Arrays.copyOf(jobs,j) : jobs;
+}
