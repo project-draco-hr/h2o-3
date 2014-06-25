@@ -1,7 +1,7 @@
 {
   assert _isValid;
-  ParseSetupHandler ps=guessSetup(bits,_pType,_sep,_ncols,_singleQuotes,0,_columnNames);
+  ParseSetupHandler ps=guessSetup(bits,_singleQuotes,0);
   if (!ps._isValid)   return ps;
-  if (_pType != ps._pType || (_pType == ParserType.CSV && (_sep != ps._sep && _ncols != ps._ncols)))   return new ParseSetupHandler(ps,"Conflicting file layouts, expecting: " + this + " but found "+ ps+ "\n");
+  if (_pType != ps._pType || (_pType == ParserType.CSV && (_sep != ps._sep || _ncols != ps._ncols)))   return new ParseSetupHandler(ps,"Conflicting file layouts, expecting: " + this + " but found "+ ps+ "\n");
   return ps;
 }
