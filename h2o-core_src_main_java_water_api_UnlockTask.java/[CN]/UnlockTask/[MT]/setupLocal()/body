@@ -1,0 +1,23 @@
+{
+  final KeySnapshot.KeyInfo[] kinfo=KeySnapshot.localSnapshot(true)._keyInfos;
+  for (  KeySnapshot.KeyInfo k : kinfo) {
+    if (!k.isLockable())     continue;
+    final Value val=DKV.get(k._key);
+    if (val == null)     continue;
+    final Object obj=val.rawPOJO();
+    if (obj == null)     continue;
+    final Lockable<?> lockable=(Lockable<?>)(obj);
+    final Key[] lockers=((Lockable)obj)._lockers;
+    if (lockers != null) {
+      for (      Key locker : lockers) {
+        if (locker != null && locker.type() == Key.JOB) {
+          final Job job=DKV.get(locker).get();
+          if (job != null && job.isRunning())           throw new UnsupportedOperationException("Cannot unlock all keys since locking jobs are still running.");
+        }
+      }
+      lockable.unlock_all();
+      Log.info("Unlocked key '" + k._key + "' from "+ lockers.length+ " lockers.");
+    }
+  }
+  Log.info("All keys are now unlocked.");
+}
