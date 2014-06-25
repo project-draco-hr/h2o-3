@@ -1,0 +1,9 @@
+{
+  ProfileCollectorTask.NodeProfile profiles[]=new ProfileCollectorTask(depth).doAllNodes()._result;
+  nodes=new ProfileSummary[H2O.CLOUD.size()];
+  for (int i=0; i < nodes.length; i++) {
+    assert(profiles[i] != null);
+    nodes[i]=new ProfileSummary(H2O.CLOUD._memary[i].toString(),profiles[i]);
+  }
+  for (  ProfileSummary node : nodes)   Log.debug(node.name,node.profile);
+}
