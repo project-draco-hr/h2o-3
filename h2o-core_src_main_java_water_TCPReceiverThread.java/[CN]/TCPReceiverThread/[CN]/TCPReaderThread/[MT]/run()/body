@@ -20,7 +20,10 @@ default :
 throw new RuntimeException("Unknown TCP Type: " + ctrl + " "+ _ab._h2o);
 }
 }
- catch (Exception e) {
+ catch (java.nio.channels.AsynchronousCloseException ex) {
+break;
+}
+catch (Exception e) {
 Log.err("IO error on TCP port " + H2O.H2O_PORT + ": ",e);
 break;
 }
