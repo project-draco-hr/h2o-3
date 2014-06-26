@@ -1,0 +1,18 @@
+{
+  if (_naCnt == vec.length() || vec.isUUID()) {
+    _bins=new long[0];
+    return;
+  }
+  double span=_maxs[0] - _mins[0];
+  if (span == 0) {
+    _bins=new long[]{vec.length() - _naCnt};
+    return;
+  }
+  int nbins=MAX_SIZE;
+  if (_isInt && (int)span == span) {
+    nbins=(int)span + 1;
+    int lim=vec.isEnum() ? MAX_ENUM_SIZE : MAX_SIZE;
+    nbins=Math.min(lim,nbins);
+  }
+  _bins=new Histo(this,nbins).doAll(vec)._bins;
+}
