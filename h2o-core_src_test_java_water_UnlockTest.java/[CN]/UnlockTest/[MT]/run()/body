@@ -2,16 +2,15 @@
   Frame f=new TestUtil().parse_test_file("smalldata/junit/syn_2659x1049.csv.gz");
   Frame fr1=new Frame(Key.make(),f.names(),f.vecs());
   Frame fr2=new Frame(Key.make(),f.names(),f.vecs());
-  DJob dj=new DJob(Key.make());
-  fr1.delete_and_lock(dj._key);
-  fr2.delete_and_lock(dj._key);
+  fr1.delete_and_lock(null);
+  fr2.delete_and_lock(null);
   int i=0;
   try {
     fr1.delete();
     fr2.delete();
   }
  catch (  Throwable t) {
-    Log.info("Correctly caught exception: " + t.getClass());
+    Log.info("Correctly unable to delete (was locked): " + t.getClass());
     i++;
   }
  finally {
