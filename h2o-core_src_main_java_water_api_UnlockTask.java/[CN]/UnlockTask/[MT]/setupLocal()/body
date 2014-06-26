@@ -11,7 +11,8 @@
     if (lockers != null) {
       for (      Key locker : lockers) {
         if (locker != null && locker.type() == Key.JOB) {
-          final Job job=DKV.get(locker).get();
+          final Value jobv=DKV.get(locker);
+          final Job job=jobv == null ? null : (Job)jobv.get();
           if (job != null && job.isRunning())           throw new UnsupportedOperationException("Cannot unlock all keys since locking jobs are still running.");
         }
       }
