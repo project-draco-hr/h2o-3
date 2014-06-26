@@ -13,13 +13,13 @@
 );
   formatRow(ab,"","min",new ColOp(){
     String op(    Col c){
-      return rollUpStr(c,c.min);
+      return rollUpStr(c,c.mins[0]);
     }
   }
 );
   formatRow(ab,"","max",new ColOp(){
     String op(    Col c){
-      return rollUpStr(c,c.max);
+      return rollUpStr(c,c.maxs[0]);
     }
   }
 );
@@ -35,7 +35,7 @@
     }
   }
 );
-  boolean has_miss=false, has_zero=false;
+  boolean has_miss=false, has_zero=false, has_enum=false;
   for (  Col c : columns)   if (c.missing > 0) {
     has_miss=true;
     break;
@@ -56,9 +56,16 @@
     }
   }
 );
-  ab.p("<tr>").cell("levels");
-  for (  Col c : columns)   ab.cell(c.domain == null ? "" : Integer.toString(c.domain.length));
-  ab.p("</tr>");
+  for (  Col c : columns)   if (c.domain != null) {
+    has_enum=true;
+    break;
+  }
+  if (has_enum)   formatRow(ab,"class='warning'","levels",new ColOp(){
+    String op(    Col c){
+      return c.domain == null ? "" : Long.toString(c.domain.length);
+    }
+  }
+);
   int len=columns.length > 0 ? columns[0].data.length : 0;
   for (int i=0; i < len; i++) {
     final int row=i;
