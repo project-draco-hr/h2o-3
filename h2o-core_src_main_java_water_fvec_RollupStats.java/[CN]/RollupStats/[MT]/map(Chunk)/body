@@ -14,12 +14,16 @@
       if (c.at16l0(i) == 0 && c.at16h0(i) == 0)       _nzCnt++;
     }
  else {
-      if (d == 0)       _nzCnt++;
-      min(d);
-      max(d);
-      _mean+=d;
-      _rows++;
-      if (_isInt && ((long)d) != d)       _isInt=false;
+      if (d == Double.POSITIVE_INFINITY)       _pinfs++;
+ else       if (d == Double.NEGATIVE_INFINITY)       _ninfs++;
+ else {
+        if (d == 0)         _nzCnt++;
+        min(d);
+        max(d);
+        _mean+=d;
+        _rows++;
+        if (_isInt && ((long)d) != d)         _isInt=false;
+      }
     }
   }
   if (c.isSparse()) {

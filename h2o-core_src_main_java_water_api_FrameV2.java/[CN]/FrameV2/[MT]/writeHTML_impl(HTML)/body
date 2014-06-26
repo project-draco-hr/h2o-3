@@ -35,37 +35,51 @@
     }
   }
 );
-  boolean has_miss=false, has_zero=false, has_enum=false;
   for (  Col c : columns)   if (c.missing > 0) {
-    has_miss=true;
+    formatRow(ab,"class='warning'","missing",new ColOp(){
+      String op(      Col c){
+        return c.missing == 0 ? "" : Long.toString(c.missing);
+      }
+    }
+);
     break;
   }
-  if (has_miss)   formatRow(ab,"class='warning'","missing",new ColOp(){
-    String op(    Col c){
-      return c.missing == 0 ? "" : Long.toString(c.missing);
-    }
-  }
-);
   for (  Col c : columns)   if (c.zeros > 0) {
-    has_zero=true;
+    formatRow(ab,"class='warning'","zeros",new ColOp(){
+      String op(      Col c){
+        return c.zeros == 0 ? "" : Long.toString(c.zeros);
+      }
+    }
+);
     break;
   }
-  if (has_zero)   formatRow(ab,"class='warning'","zeros",new ColOp(){
-    String op(    Col c){
-      return c.zeros == 0 ? "" : Long.toString(c.zeros);
+  for (  Col c : columns)   if (c.pinfs > 0) {
+    formatRow(ab,"class='warning'","+infins",new ColOp(){
+      String op(      Col c){
+        return c.pinfs == 0 ? "" : Long.toString(c.pinfs);
+      }
     }
-  }
 );
+    break;
+  }
+  for (  Col c : columns)   if (c.ninfs > 0) {
+    formatRow(ab,"class='warning'","-infins",new ColOp(){
+      String op(      Col c){
+        return c.ninfs == 0 ? "" : Long.toString(c.ninfs);
+      }
+    }
+);
+    break;
+  }
   for (  Col c : columns)   if (c.domain != null) {
-    has_enum=true;
+    formatRow(ab,"class='warning'","levels",new ColOp(){
+      String op(      Col c){
+        return c.domain == null ? "" : Long.toString(c.domain.length);
+      }
+    }
+);
     break;
   }
-  if (has_enum)   formatRow(ab,"class='warning'","levels",new ColOp(){
-    String op(    Col c){
-      return c.domain == null ? "" : Long.toString(c.domain.length);
-    }
-  }
-);
   int len=columns.length > 0 ? columns[0].data.length : 0;
   for (int i=0; i < len; i++) {
     final int row=i;
