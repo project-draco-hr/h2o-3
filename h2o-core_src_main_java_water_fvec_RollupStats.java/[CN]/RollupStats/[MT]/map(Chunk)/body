@@ -1,25 +1,31 @@
 {
   _size=c.byteSize();
   boolean isUUID=c._vec._isUUID;
-  for (int i=0; i < c._len; i++) {
+  for (int i=c.nextNZ(-1); i < c._len; i=c.nextNZ(i)) {
     double d=c.at0(i);
     if (Double.isNaN(d)) {
       _naCnt++;
     }
  else     if (isUUID) {
-      _min=_max=_mean=_sigma=Double.NaN;
       if (c.at16l0(i) == 0 && c.at16h0(i) == 0)       _nzCnt++;
     }
  else {
       if (d == 0)       _nzCnt++;
-      if (d < _min)       _min=d;
-      if (d > _max)       _max=d;
+      minmax(d);
       _mean+=d;
       _rows++;
       if (_isInt && ((long)d) != d)       _isInt=false;
     }
   }
-  if (!Double.isNaN(_mean)) {
+  if (c.isSparse()) {
+    int zeros=c._len - c.sparseLen();
+    if (zeros > 0)     minmax(0);
+    _rows+=zeros;
+  }
+  if (isUUID) {
+    _min=_max=_mean=_sigma=Double.NaN;
+  }
+ else   if (!Double.isNaN(_mean) && _rows > 0) {
     _mean=_mean / _rows;
     for (int i=0; i < c._len; i++) {
       if (!c.isNA0(i)) {
