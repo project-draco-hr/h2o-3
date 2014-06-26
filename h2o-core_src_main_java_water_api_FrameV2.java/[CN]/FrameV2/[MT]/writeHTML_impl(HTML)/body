@@ -5,17 +5,6 @@
   titles[0]="";
   System.arraycopy(_fr._names,0,titles,1,_fr._names.length);
   ab.arrayHead(titles);
-  boolean has_miss=false;
-  for (  Col c : columns)   if (c.missing > 0) {
-    has_miss=true;
-    break;
-  }
-  if (has_miss)   formatRow(ab,"class='warning'","missing",new ColOp(){
-    String op(    Col c){
-      return c.missing == 0 ? "" : Long.toString(c.missing);
-    }
-  }
-);
   formatRow(ab,"","type",new ColOp(){
     String op(    Col c){
       return c.type;
@@ -46,6 +35,27 @@
     }
   }
 );
+  boolean has_miss=false, has_zero=false;
+  for (  Col c : columns)   if (c.missing > 0) {
+    has_miss=true;
+    break;
+  }
+  if (has_miss)   formatRow(ab,"class='warning'","missing",new ColOp(){
+    String op(    Col c){
+      return c.missing == 0 ? "" : Long.toString(c.missing);
+    }
+  }
+);
+  for (  Col c : columns)   if (c.zeros > 0) {
+    has_zero=true;
+    break;
+  }
+  if (has_zero)   formatRow(ab,"class='warning'","zeros",new ColOp(){
+    String op(    Col c){
+      return c.zeros == 0 ? "" : Long.toString(c.zeros);
+    }
+  }
+);
   ab.p("<tr>").cell("levels");
   for (  Col c : columns)   ab.cell(c.domain == null ? "" : Integer.toString(c.domain.length));
   ab.p("</tr>");
@@ -54,7 +64,7 @@
     final int row=i;
     formatRow(ab,"",Integer.toString(row + 1),new ColOp(){
       String op(      Col c){
-        return formatCell(c.data == null ? 0 : c.data[row],c.str_data == null ? null : c.str_data[row],c);
+        return formatCell(c.data == null ? 0 : c.data[row],c.str_data == null ? null : c.str_data[row],c,0);
       }
     }
 );
