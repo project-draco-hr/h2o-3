@@ -1,0 +1,29 @@
+{
+  Vec[] vecs=_fr.vecs();
+  double ds[]=new double[vecs.length];
+  for (int i=0; i < vecs.length; i++) {
+    if (vecs[i].isEnum()) {
+      int idx=ArrayUtils.find(vecs[i].domain(),_val);
+      if (idx == -1 && vecs.length == 1)       throw new IllegalArgumentException("Not one of " + Arrays.toString(vecs[i].domain()));
+      ds[i]=idx;
+    }
+ else     if (vecs[i].isUUID()) {
+      throw H2O.unimpl();
+    }
+ else     if (vecs[i].isTime()) {
+      throw H2O.unimpl();
+    }
+ else {
+      try {
+        ds[i]=_val == null ? Double.NaN : Double.parseDouble(_val);
+      }
+ catch (      NumberFormatException e) {
+        if (vecs.length == 1)         throw new IllegalArgumentException("Not a number: " + _val);
+        ds[i]=Double.longBitsToDouble(0xcafebabe);
+      }
+    }
+  }
+  Find f=new Find(_row,ds).doAll(_fr);
+  _prev=f._prev;
+  _next=f._next == Long.MAX_VALUE ? -1 : f._next;
+}

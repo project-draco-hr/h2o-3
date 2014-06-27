@@ -1,0 +1,15 @@
+{
+  Value val=DKV.get(key);
+  if (val == null)   throw new IllegalArgumentException("Key not found");
+  if (!val.isFrame())   throw new IllegalArgumentException("Not a Frame");
+  Frame fr=val.get();
+  if (column != null) {
+    Vec vec=fr.vec(column);
+    if (vec == null)     throw new IllegalArgumentException("Column " + column + " not found in frame "+ key);
+    fr=new Frame(new String[]{column},new Vec[]{vec});
+  }
+  h._fr=fr;
+  h._row=row;
+  h._val=match;
+  return this;
+}
