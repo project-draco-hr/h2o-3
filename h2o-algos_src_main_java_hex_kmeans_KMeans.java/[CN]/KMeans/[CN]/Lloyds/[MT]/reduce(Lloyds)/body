@@ -4,10 +4,14 @@
     long rb=mr._rows[clu];
     double[] ma=_cMeans[clu];
     double[] mb=mr._cMeans[clu];
-    for (int c=0; c < ma.length; c++)     ma[c]=(ma[c] * ra + mb[c] * rb) / (ra + rb);
+    for (int c=0; c < ma.length; c++)     if (ra + rb > 0)     ma[c]=(ma[c] * ra + mb[c] * rb) / (ra + rb);
   }
   ArrayUtils.add(_cats,mr._cats);
   ArrayUtils.add(_cSqr,mr._cSqr);
   ArrayUtils.add(_rows,mr._rows);
   _sqr+=mr._sqr;
+  if (_worse_err < mr._worse_err) {
+    _worse_err=mr._worse_err;
+    _worse_row=mr._worse_row;
+  }
 }

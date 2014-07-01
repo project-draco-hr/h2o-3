@@ -49,16 +49,23 @@
       }
       clusters=recluster(clusters,rand);
     }
-    for (; model._iters < _parms._max_iters; model._iters++) {
+    LOOP:     for (; model._iters < _parms._max_iters; model._iters++) {
       if (!isRunning())       return;
       Lloyds task=new Lloyds(clusters,means,mults,_ncats,_parms._K).doAll(vecs);
       max_cats(task._cMeans,task._cats);
-      double sum=0;
-      for (int clu=0; clu < _parms._K; clu++)       sum+=distance(clusters[clu],task._cMeans[clu],ncats);
-      sum/=N;
-      System.out.println("Change in cluster centers=" + sum);
-      if (sum < 1e-6)       break;
-      clusters=task._cMeans;
+      boolean badrow=false;
+      for (int clu=0; clu < _parms._K; clu++)       if (task._rows[clu] == 0) {
+        if (badrow) {
+          Log.warn("KMeans: Re-running Lloyds to re-init another cluster");
+          model._iters--;
+          continue LOOP;
+        }
+        long row=task._worse_row;
+        Log.warn("KMeans: Re-initing cluster " + clu + " to row "+ row);
+        data(clusters[clu]=task._cMeans[clu],vecs,row,means,mults);
+        task._rows[clu]=1;
+        badrow=true;
+      }
       model._clusters=denormalize(task._cMeans,ncats,means,mults);
       model._rows=task._rows;
       model._within_cluster_variances=task._cSqr;
@@ -66,9 +73,16 @@
       model._total_within_SS=task._sqr;
       model.update(_key);
       update(1);
-      System.out.print("iter: " + model._iters + ", total_within_SS="+ model._total_within_SS);
-      for (int i=0; i < _parms._K; i++)       System.out.print(", " + task._cSqr[i] + "/"+ task._rows[i]);
-      System.out.println();
+      double sum=0;
+      for (int clu=0; clu < _parms._K; clu++)       sum+=distance(clusters[clu],task._cMeans[clu],ncats);
+      sum/=N;
+      Log.info("KMeans: Change in cluster centers=" + sum);
+      if (sum < 1e-6)       break;
+      clusters=task._cMeans;
+      StringBuilder sb=new StringBuilder();
+      sb.append("KMeans: iter: ").append(model._iters).append(", total_within_SS=").append(model._total_within_SS);
+      for (int i=0; i < _parms._K; i++)       sb.append(", ").append(task._cSqr[i]).append("/").append(task._rows[i]);
+      Log.info(sb);
     }
   }
  catch (  Throwable t) {

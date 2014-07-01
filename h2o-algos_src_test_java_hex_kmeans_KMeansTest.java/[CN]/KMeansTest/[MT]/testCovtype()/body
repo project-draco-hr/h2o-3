@@ -1,0 +1,19 @@
+{
+  Frame fr=null;
+  try {
+    File f=find_test_file("../datasets/UCI/UCI-large/covtype/covtype.data");
+    if (f == null)     return;
+    NFSFileVec nfs=NFSFileVec.make(f);
+    fr=water.parser.ParseDataset2.parse(Key.make(),nfs._key);
+    KMeansModel.KMeansParameters parms=new KMeansModel.KMeansParameters();
+    parms._src=fr._key;
+    parms._K=7;
+    parms._normalize=true;
+    parms._max_iters=100;
+    parms._init=KMeans.Initialization.None;
+    for (int i=0; i < 10; i++)     doSeed(parms,System.nanoTime()).delete();
+  }
+  finally {
+    if (fr != null)     fr.remove();
+  }
+}
