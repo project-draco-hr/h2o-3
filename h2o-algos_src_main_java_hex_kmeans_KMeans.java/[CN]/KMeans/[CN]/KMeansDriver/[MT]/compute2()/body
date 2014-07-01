@@ -1,2 +1,85 @@
 {
+  Frame fr=null;
+  KMeansModel model=null;
+  try {
+    Value val=DKV.get(_parms._src);
+    if (val == null)     throw new IllegalArgumentException("Missing frame " + _parms._src);
+    fr=val.get();
+    fr.read_lock(_key);
+    Vec vecs[]=fr.vecs();
+    final int N=vecs.length;
+    int ncats=0, len=N;
+    while (ncats != len) {
+      while (vecs[ncats].isEnum())       ncats++;
+      while (len > 0 && !vecs[len - 1].isEnum())       len--;
+      if (ncats < len - 1)       fr.swap(ncats,len - 1);
+    }
+    _ncats=ncats;
+    model=new KMeansModel(dest(),fr,_parms,ncats);
+    model.delete_and_lock(_key);
+    double[] means=new double[N];
+    for (int i=0; i < N; i++)     means[i]=vecs[i].mean();
+    double[] mults=null;
+    if (_parms._normalize) {
+      mults=new double[N];
+      for (int i=0; i < N; i++) {
+        double sigma=vecs[i].sigma();
+        mults[i]=normalize(sigma) ? 1.0 / sigma : 1.0;
+      }
+    }
+    Random rand=water.util.RandomUtils.getRNG(_parms._seed - 1);
+    double clusters[][];
+    if (_parms._init == Initialization.None) {
+      clusters=model._clusters=new double[_parms._K][fr.numCols()];
+      for (      double[] cluster : clusters)       randomRow(vecs,rand,cluster,means,mults);
+    }
+ else {
+      clusters=new double[1][vecs.length];
+      randomRow(vecs,rand,clusters[0],means,mults);
+      while (model._iters < 5) {
+        SumSqr sqr=new SumSqr(clusters,means,mults,_ncats).doAll(vecs);
+        Sampler sampler=new Sampler(clusters,means,mults,_ncats,sqr._sqr,_parms._K * 3,_parms._seed).doAll(vecs);
+        clusters=ArrayUtils.append(clusters,sampler._sampled);
+        if (!isRunning())         return;
+        model._clusters=denormalize(clusters,ncats,means,mults);
+        model._total_within_SS=sqr._sqr;
+        model._iters++;
+        update(1);
+        model.update(_key);
+      }
+      clusters=recluster(clusters,rand);
+    }
+    for (; model._iters < _parms._max_iters; model._iters++) {
+      if (!isRunning())       return;
+      Lloyds task=new Lloyds(clusters,means,mults,_ncats,_parms._K).doAll(vecs);
+      max_cats(task._cMeans,task._cats);
+      double sum=0;
+      for (int clu=0; clu < _parms._K; clu++)       sum+=distance(clusters[clu],task._cMeans[clu],ncats);
+      sum/=N;
+      System.out.println("Change in cluster centers=" + sum);
+      if (sum < 1e-6)       break;
+      clusters=task._cMeans;
+      model._clusters=denormalize(task._cMeans,ncats,means,mults);
+      model._rows=task._rows;
+      model._within_cluster_variances=task._cSqr;
+      for (int i=0; i < _parms._K; i++)       model._within_cluster_variances[i]/=model._rows[i];
+      model._total_within_SS=task._sqr;
+      model.update(_key);
+      update(1);
+      System.out.print("iter: " + model._iters + ", total_within_SS="+ model._total_within_SS);
+      for (int i=0; i < _parms._K; i++)       System.out.print(", " + task._cSqr[i] + "/"+ task._rows[i]);
+      System.out.println();
+    }
+  }
+ catch (  Throwable t) {
+    t.printStackTrace();
+    cancel2(t);
+    throw t;
+  }
+ finally {
+    if (model != null)     model.unlock(_key);
+    if (fr != null)     fr.unlock(_key);
+    done();
+  }
+  tryComplete();
 }

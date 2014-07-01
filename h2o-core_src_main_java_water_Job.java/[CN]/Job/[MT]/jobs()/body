@@ -8,5 +8,10 @@
     val=DKV.get(jl._jobs[i]);
     if (val != null)     jobs[j++]=val.get();
   }
-  return j < jobs.length ? Arrays.copyOf(jobs,j) : jobs;
+  if (j == jobs.length)   return jobs;
+  jobs=Arrays.copyOf(jobs,j);
+  Key keys[]=new Key[j];
+  for (int i=0; i < j; i++)   keys[i]=jobs[i]._key;
+  DKV.DputIfMatch(LIST,val,new Value(LIST,new JobList(keys)),new Futures());
+  return jobs;
 }
