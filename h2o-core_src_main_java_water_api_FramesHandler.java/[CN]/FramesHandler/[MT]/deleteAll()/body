@@ -5,7 +5,16 @@
     }
   }
 ).keys();
+  String err=null;
   Futures fs=new Futures();
-  for (int i=0; i < frameKeys.length; i++)   DKV.remove(key,fs);
+  for (int i=0; i < frameKeys.length; i++) {
+    try {
+      getFromDKV(key).delete(null,fs);
+    }
+ catch (    IllegalArgumentException iae) {
+      err+=iae.getMessage();
+    }
+  }
   fs.blockForPending();
+  if (err != null)   throw new IllegalArgumentException(err);
 }
