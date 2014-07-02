@@ -42,7 +42,7 @@
         clusters=ArrayUtils.append(clusters,sampler._sampled);
         if (!isRunning())         return;
         model._clusters=denormalize(clusters,ncats,means,mults);
-        model._total_within_SS=sqr._sqr;
+        model._mse=sqr._sqr / fr.numRows();
         model._iters++;
         update(1);
         model.update(_key);
@@ -68,9 +68,13 @@
       }
       model._clusters=denormalize(task._cMeans,ncats,means,mults);
       model._rows=task._rows;
-      model._within_cluster_variances=task._cSqr;
-      for (int i=0; i < _parms._K; i++)       model._within_cluster_variances[i]/=model._rows[i];
-      model._total_within_SS=task._sqr;
+      model._mses=task._cSqr;
+      double ssq=0;
+      for (int i=0; i < _parms._K; i++) {
+        ssq+=model._mses[i];
+        model._mses[i]/=task._rows[i];
+      }
+      model._mse=ssq / fr.numRows();
       model.update(_key);
       update(1);
       double sum=0;
@@ -80,7 +84,7 @@
       if (sum < 1e-6)       break;
       clusters=task._cMeans;
       StringBuilder sb=new StringBuilder();
-      sb.append("KMeans: iter: ").append(model._iters).append(", total_within_SS=").append(model._total_within_SS);
+      sb.append("KMeans: iter: ").append(model._iters).append(", MSE=").append(model._mse);
       for (int i=0; i < _parms._K; i++)       sb.append(", ").append(task._cSqr[i]).append("/").append(task._rows[i]);
       Log.info(sb);
     }
