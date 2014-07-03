@@ -1,0 +1,31 @@
+{
+  Frame fr=null;
+  ExampleModel model=null;
+  try {
+    Value val=DKV.get(_parms._src);
+    if (val == null)     throw new IllegalArgumentException("Missing frame " + _parms._src);
+    fr=val.get();
+    fr.read_lock(_key);
+    model=new ExampleModel(dest(),fr,_parms);
+    model.delete_and_lock(_key);
+    for (; model._iters < _parms._max_iters; model._iters++) {
+      if (!isRunning())       return;
+      model.update(_key);
+      update(1);
+      StringBuilder sb=new StringBuilder();
+      sb.append("Example: iter: ").append(model._iters);
+      Log.info(sb);
+    }
+  }
+ catch (  Throwable t) {
+    t.printStackTrace();
+    cancel2(t);
+    throw t;
+  }
+ finally {
+    if (model != null)     model.unlock(_key);
+    if (fr != null)     fr.unlock(_key);
+    done();
+  }
+  tryComplete();
+}
