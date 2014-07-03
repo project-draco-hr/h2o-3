@@ -1,0 +1,26 @@
+{
+  File base=null;
+  String filterPrefix="";
+  if (!t._src.isEmpty()) {
+    File file=new File(t._src);
+    if (file.isDirectory()) {
+      base=file;
+    }
+ else {
+      base=file.getParentFile();
+      filterPrefix=file.getName().toLowerCase();
+    }
+  }
+  if (base == null)   base=new File(".");
+  ArrayList<String> array=new ArrayList<>();
+  File[] files=base.listFiles();
+  if (files != null) {
+    for (    File file : files) {
+      if (file.isHidden())       continue;
+      if (file.getName().toLowerCase().startsWith(filterPrefix))       array.add(file.getPath());
+      if (array.size() == t._limit)       break;
+    }
+    t._matches=array.toArray(new String[array.size()]);
+  }
+  return schema(version).fillFromImpl(t);
+}

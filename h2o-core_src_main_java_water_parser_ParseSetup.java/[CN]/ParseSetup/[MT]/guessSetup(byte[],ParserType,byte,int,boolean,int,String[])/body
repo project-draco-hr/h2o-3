@@ -1,0 +1,20 @@
+{
+switch (pType) {
+case CSV:
+    return CsvParser.CSVguessSetup(bits,sep,ncols,singleQuotes,checkHeader,columnNames);
+case SVMLight:
+  return SVMLightParser.guessSetup(bits);
+case XLS:
+return XlsParser.guessSetup(bits);
+case AUTO:
+for (ParserType pType2 : guessTypeOrder) {
+try {
+  ParseSetup ps=guessSetup(bits,pType2,sep,ncols,singleQuotes,checkHeader,columnNames);
+  if (ps != null && ps._isValid)   return ps;
+}
+ catch (Throwable ignore) {
+}
+}
+}
+return new ParseSetup(false,0,new String[]{"Cannot determine file type"},pType,sep,ncols,singleQuotes,columnNames,null,checkHeader);
+}

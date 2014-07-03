@@ -1,0 +1,12 @@
+{
+  JProfile profile=new JProfile(p._depth).execImpl();
+  int i=0;
+  p._stacktraces=new String[profile.nodes.length][];
+  p._counts=new int[profile.nodes.length][];
+  for (  JProfile.ProfileSummary s : profile.nodes) {
+    p._stacktraces[i]=s.profile.stacktraces;
+    p._counts[i]=s.profile.counts;
+    i++;
+  }
+  return (ProfilerBase)schema(version).fillFromImpl(p);
+}
