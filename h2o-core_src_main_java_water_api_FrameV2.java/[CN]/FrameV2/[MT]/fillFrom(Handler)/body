@@ -1,11 +1,13 @@
 {
-  off=0;
   rows=_fr.numRows();
-  len=(int)Math.min(100,rows);
   if (h instanceof InspectHandler) {
     off=((InspectHandler)h)._off;
     len=((InspectHandler)h)._len;
   }
+  if (off == 0)   off=1;
+  if (len == 0)   len=100;
+  off=off - 1;
+  len=(int)Math.min(len,rows);
   byteSize=_fr.byteSize();
   columns=new Col[_fr.numCols()];
   Vec[] vecs=_fr.vecs();
