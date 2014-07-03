@@ -1,0 +1,17 @@
+{
+  ExampleModel kmm=null;
+  Frame fr=null;
+  try {
+    fr=parse_test_file("smalldata/iris/iris_wheader.csv");
+    ExampleModel.ExampleParameters parms=new ExampleModel.ExampleParameters();
+    parms._src=fr._key;
+    parms._max_iters=1000;
+    Example job=new Example(parms);
+    kmm=job.get();
+    job.remove();
+  }
+  finally {
+    if (fr != null)     fr.remove();
+    if (kmm != null)     kmm.delete();
+  }
+}
