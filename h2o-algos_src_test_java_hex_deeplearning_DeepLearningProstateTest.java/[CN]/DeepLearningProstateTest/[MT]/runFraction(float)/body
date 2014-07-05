@@ -96,8 +96,8 @@
                               auc.toASCII(sb);
                               double error=auc.err();
                               Log.info(sb);
-                              Assert.assertEquals(new ConfusionMatrix2(auc.cm()).err(),error,1e-15);
-                              Assert.assertEquals(mymodel.calcError(valid,valid.lastVec(),pred,pred,"training",false,0,null,auc,null),error,1e-15);
+                              AssertJUnit.assertEquals(new ConfusionMatrix2(auc.cm()).err(),error,1e-15);
+                              AssertJUnit.assertEquals(mymodel.calcError(valid,valid.lastVec(),pred,pred,"training",false,0,null,auc,null),error,1e-15);
                             }
 {
                               sb=new StringBuilder();
@@ -143,9 +143,9 @@
                             Log.info("Validation: " + validation);
                             Log.info("Best_model's samples : " + bestmodel.model_info().get_processed_total() + ".");
                             Log.info("Best_model's error : " + bestErr + ".");
-                            Assert.assertEquals(bestmodel.model_info().get_processed_total(),best_samples);
+                            AssertJUnit.assertEquals(bestmodel.model_info().get_processed_total(),best_samples);
                             if ((!validation || (scorevalidation == 0 && csm == DeepLearning.ClassSamplingMethod.Uniform)) && (validation || (scoretraining == 0 && !balance_classes))) {
-                              Assert.assertEquals(bestErr,best_err,1e-5);
+                              AssertJUnit.assertEquals(bestErr,best_err,1e-5);
                             }
                             bestmodel.delete();
                             bestPredict.delete();
