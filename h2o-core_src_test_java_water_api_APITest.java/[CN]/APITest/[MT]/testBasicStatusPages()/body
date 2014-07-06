@@ -1,4 +1,10 @@
 {
+  if (testRan) {
+    return;
+  }
+  assertFalse(Paxos._cloudLocked);
+  stall();
+  assertFalse(Paxos._cloudLocked);
   try {
     TypeMap._check_no_locking=true;
     serve("/",null);
@@ -11,5 +17,6 @@
   }
   finally {
     TypeMap._check_no_locking=false;
+    testRan=true;
   }
 }
