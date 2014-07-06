@@ -3,12 +3,13 @@
     pre();
     for (int k=0; k < K; ++k)     nc.addNum(3.1415);
     assertEquals(nc.len(),K);
-    nc.addNA();
-    assertEquals(nc.len(),K + 1);
     post();
+    cc.setNA0(K - 1);
+    post_write();
+    assertEquals(nc.len(),K);
+    for (int k=0; k < K - 1; ++k)     AssertJUnit.assertEquals(3.1415,cc.at0(k));
+    AssertJUnit.assertTrue(cc.isNA0(K - 1));
     AssertJUnit.assertTrue(!(cc instanceof C0DChunk));
-    for (int k=0; k < K; ++k)     AssertJUnit.assertEquals(3.1415,cc.at0(k));
-    AssertJUnit.assertTrue(cc.isNA0(K));
   }
   finally {
     remove();
