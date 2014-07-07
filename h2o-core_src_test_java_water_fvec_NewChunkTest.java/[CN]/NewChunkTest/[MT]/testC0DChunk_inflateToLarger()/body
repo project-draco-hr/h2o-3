@@ -1,0 +1,17 @@
+{
+  try {
+    pre();
+    for (int k=0; k < K; ++k)     nc.addNum(3.1415);
+    assertEquals(K,nc.len());
+    post();
+    cc.set0(K - 1,9.9999);
+    post_write();
+    assertEquals(K,nc.len());
+    for (int k=0; k < K - 1; ++k)     AssertJUnit.assertEquals(3.1415,cc.at0(k));
+    AssertJUnit.assertEquals(9.9999,cc.at0(K - 1));
+    AssertJUnit.assertTrue(!(cc.chk2() instanceof C0DChunk));
+  }
+  finally {
+    remove();
+  }
+}

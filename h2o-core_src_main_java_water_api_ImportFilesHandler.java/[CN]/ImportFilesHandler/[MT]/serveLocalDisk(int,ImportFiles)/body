@@ -1,0 +1,14 @@
+{
+  File f=new File(importFiles._path);
+  if (!f.exists())   throw new IllegalArgumentException("File " + importFiles._path + " does not exist!");
+  ArrayList<String> afiles=new ArrayList();
+  ArrayList<String> akeys=new ArrayList();
+  ArrayList<String> afails=new ArrayList();
+  ArrayList<String> adels=new ArrayList();
+  FileIntegrityChecker.check(f).syncDirectory(afiles,akeys,afails,adels);
+  importFiles._files=afiles.toArray(new String[afiles.size()]);
+  importFiles._keys=akeys.toArray(new String[akeys.size()]);
+  importFiles._fails=afails.toArray(new String[afails.size()]);
+  importFiles._dels=adels.toArray(new String[adels.size()]);
+  return schema(version).fillFromImpl(importFiles);
+}

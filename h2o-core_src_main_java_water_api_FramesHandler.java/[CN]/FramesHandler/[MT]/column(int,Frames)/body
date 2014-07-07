@@ -1,0 +1,11 @@
+{
+  Frame frame=getFromDKV(f.key);
+  Vec vec=frame.vec(f.column);
+  if (null == vec)   throw new IllegalArgumentException("Did not find column: " + f.column + " in frame: "+ f.key.toString());
+  Vec[] vecs={vec};
+  String[] names={f.column};
+  Frame new_frame=new Frame(names,vecs);
+  f.frames=new Frame[1];
+  f.frames[0]=new_frame;
+  return this.schema(version).fillFromImpl(f);
+}

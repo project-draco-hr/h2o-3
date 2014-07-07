@@ -2,17 +2,14 @@
   Vec vec=null;
   try {
     AppendableVec av=new AppendableVec(Vec.newKey());
-    NewChunk nv=new NewChunk(av,0);
-    nv._ls=ls;
-    nv._id=id;
-    nv._xs=xs;
-    nv._len=nv._len2=ls.length;
+    NewChunk nv=new NewChunk(av,0,ls,xs,id,null);
+    nv.set_len(nv.set_len2(ls.length));
     Chunk bv=nv.compress();
     Futures fs=new Futures();
     vec=bv._vec=av.close(fs);
     fs.blockForPending();
     assertTrue("Found chunk class " + bv.getClass() + " but expected "+ C,C.isInstance(bv));
-    for (int i=0; i < ls.length; i++)     assertEquals(ls[i] * water.util.PrettyPrint.pow10(xs[i]),bv.at0(i),bv.at0(i) * EPSILON);
+    for (int i=0; i < ls.length; i++)     assertEquals(ls[i] * water.util.PrettyPrint.pow10(xs[i]),bv.at0(i),Math.abs(bv.at0(i)) * EPSILON);
   }
   finally {
     if (vec != null)     vec.remove();

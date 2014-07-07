@@ -1,0 +1,17 @@
+{
+  try {
+    pre();
+    for (int k=0; k < K; ++k)     nc.addNA();
+    assertEquals(K,nc.len());
+    post();
+    cc.set0(K - 1,342l);
+    post_write();
+    assertEquals(K,nc.len());
+    for (int k=0; k < K - 1; ++k)     AssertJUnit.assertTrue(cc.isNA0(k));
+    AssertJUnit.assertEquals(342,cc.at80(K - 1));
+    AssertJUnit.assertTrue(!(cc instanceof C0LChunk));
+  }
+  finally {
+    remove();
+  }
+}

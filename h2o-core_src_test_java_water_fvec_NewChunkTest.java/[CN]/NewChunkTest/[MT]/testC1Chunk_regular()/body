@@ -1,0 +1,15 @@
+{
+  try {
+    pre();
+    nc.addNA();
+    for (int k=1; k < K; ++k)     nc.addNum(k % 254);
+    assertEquals(K,nc.len());
+    post();
+    AssertJUnit.assertTrue(cc.isNA(0));
+    for (int k=1; k < K; ++k)     AssertJUnit.assertEquals(k % 254,cc.at80(k));
+    AssertJUnit.assertTrue(cc instanceof C1Chunk);
+  }
+  finally {
+    remove();
+  }
+}
