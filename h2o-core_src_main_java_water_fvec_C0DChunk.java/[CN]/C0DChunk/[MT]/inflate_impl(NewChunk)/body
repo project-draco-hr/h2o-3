@@ -1,11 +1,12 @@
 {
+  nc.set_len(nc.set_len2(0));
   if (_con == 0) {
-    nc.zero_exp_mant();
-    nc.zero_indices();
+    nc.addZeros(len());
   }
  else {
-    nc.alloc_doubles(len());
-    Arrays.fill(nc.doubles(),_con);
+    for (int i=0; i < len(); ++i)     nc.addNum(_con);
   }
+  assert(nc.len() == len());
+  assert(nc.len2() == len());
   return nc;
 }
