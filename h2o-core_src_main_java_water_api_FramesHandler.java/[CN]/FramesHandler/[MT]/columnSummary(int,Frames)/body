@@ -1,0 +1,9 @@
+{
+  Frame frame=getFromDKV(frames.key);
+  Vec vec=frame.vec(frames.column);
+  if (null == vec)   throw new IllegalArgumentException("Did not find column: " + frames.column + " in frame: "+ frames.key.toString());
+  RollupStats.computeHisto(vec);
+  frames.frames=new Frame[1];
+  frames.frames[0]=new Frame(new String[]{frames.column},new Vec[]{vec});
+  return schema(version).fillFromImpl(frames);
+}
