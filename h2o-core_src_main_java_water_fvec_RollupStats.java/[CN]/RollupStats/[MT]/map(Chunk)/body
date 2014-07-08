@@ -4,7 +4,8 @@
   Arrays.fill(_mins,Double.MAX_VALUE);
   _maxs=new double[5];
   Arrays.fill(_maxs,-Double.MAX_VALUE);
-  boolean isUUID=c._vec._isUUID;
+  boolean isUUID=c._vec.isUUID();
+  boolean isString=c._vec.isString();
   for (int i=c.nextNZ(-1); i < c.len(); i=c.nextNZ(i)) {
     if (c.isNA0(i)) {
       _naCnt++;
@@ -12,6 +13,10 @@
     }
  else     if (isUUID) {
       if (c.at16l0(i) != 0 || c.at16h0(i) != 0)       _nzCnt++;
+    }
+ else     if (isString) {
+      if (c.atStr(i) != null)       _nzCnt++;
+      _isInt=false;
     }
  else {
       double d=c.at0(i);
@@ -35,7 +40,7 @@
     }
     _rows+=zeros;
   }
-  if (isUUID) {
+  if (isUUID || isString) {
     _mean=_sigma=Double.NaN;
   }
  else   if (!Double.isNaN(_mean) && _rows > 0) {
