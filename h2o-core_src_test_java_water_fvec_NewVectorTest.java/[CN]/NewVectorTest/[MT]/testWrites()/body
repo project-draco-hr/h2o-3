@@ -14,19 +14,19 @@
     assertTrue("Found chunk class " + c0.getClass() + " but expected C0LChunk",c0 instanceof C0LChunk);
     for (int i=0; i < ls.length; i++)     assertEquals(0,c0.at0(i),c0.at0(i) * EPSILON);
     vec.set(0,0);
-    assertEquals(0,vec.at8(0));
+    assertEquals(vec.at8(0),0);
     Chunk c1=vec.chunkForChunkIdx(0);
     assertTrue("Found chunk class " + c1.getClass() + " but expected C0LChunk",c1 instanceof C0LChunk);
     vec.set(1,1);
-    assertEquals(1,vec.at8(1));
+    assertEquals(vec.at8(1),1);
     Chunk c2=vec.chunkForChunkIdx(0);
     assertTrue("Found chunk class " + c2.getClass() + " but expected CBSChunk",c2 instanceof CBSChunk);
     vec.set(2,2);
-    assertEquals(2,vec.at8(2));
+    assertEquals(vec.at8(2),2);
     Chunk c3=vec.chunkForChunkIdx(0);
     assertTrue("Found chunk class " + c3.getClass() + " but expected C1NChunk",c3 instanceof C1NChunk);
     vec.set(3,3);
-    assertEquals(3,vec.at8(3));
+    assertEquals(vec.at8(3),3);
     Chunk c4=vec.chunkForChunkIdx(0);
     assertTrue("Found chunk class " + c4.getClass() + " but expected C1NChunk",c4 instanceof C1NChunk);
     try (Vec.Writer vw=vec.open()){
@@ -34,9 +34,9 @@
       vw.set(2,5);
       vw.set(3,6);
     }
-     assertEquals(4,vec.at8(1));
-    assertEquals(5,vec.at8(2));
-    assertEquals(6,vec.at8(3));
+     assertEquals(vec.at8(1),4);
+    assertEquals(vec.at8(2),5);
+    assertEquals(vec.at8(3),6);
   }
   finally {
     if (vec != null)     vec.remove();
