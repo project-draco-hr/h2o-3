@@ -6,6 +6,7 @@
   Arrays.fill(_maxs,-Double.MAX_VALUE);
   boolean isUUID=c._vec.isUUID();
   boolean isString=c._vec.isString();
+  ValueString vstr=new ValueString();
   for (int i=c.nextNZ(-1); i < c.len(); i=c.nextNZ(i)) {
     if (c.isNA0(i)) {
       _naCnt++;
@@ -15,7 +16,7 @@
       if (c.at16l0(i) != 0 || c.at16h0(i) != 0)       _nzCnt++;
     }
  else     if (isString) {
-      if (c.atStr(i) != null)       _nzCnt++;
+      if (c.atStr(vstr,i) != null)       _nzCnt++;
       _isInt=false;
     }
  else {
