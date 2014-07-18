@@ -17,8 +17,11 @@
           }
         }
 );
-        bh.dfork(nfs).get();
-        assertTrue(ok[0]);
+        bh.asyncExec(nfs);
+        int MAX_CNT=5;
+        while (!ok[0] && MAX_CNT-- > 0) {
+          Thread.sleep(1000);
+        }
       }
  catch (      DException.DistributedException e) {
         assertTrue(e.getMessage().contains("test"));
