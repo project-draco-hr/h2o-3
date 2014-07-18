@@ -6,7 +6,7 @@
     if (val == null)     throw new IllegalArgumentException("Missing frame " + _parms._src);
     fr=val.get();
     fr.read_lock(_key);
-    model=new ExampleModel(dest(),fr,_parms);
+    model=new ExampleModel(dest(),fr,_parms,new ExampleModel.ExampleOutput());
     model.delete_and_lock(_key);
     for (; model._output._iters < _parms._max_iters; model._output._iters++) {
       if (!isRunning())       return;
