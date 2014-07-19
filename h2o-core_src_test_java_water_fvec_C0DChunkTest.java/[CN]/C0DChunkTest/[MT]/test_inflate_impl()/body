@@ -4,14 +4,22 @@
     NewChunk nc=new NewChunk(null,0);
     for (int i=0; i < K; ++i)     nc.addNum(d);
     AssertJUnit.assertEquals(K,nc.len());
+    AssertJUnit.assertEquals(K,nc.sparseLen());
     Chunk cc=nc.compress();
     AssertJUnit.assertEquals(K,cc.len());
     AssertJUnit.assertTrue(cc instanceof C0DChunk);
     for (int i=0; i < K; ++i)     AssertJUnit.assertEquals(d,cc.at0(i));
-    Chunk cc2=cc.inflate_impl(new NewChunk(null,0)).compress();
+    for (int i=0; i < K; ++i)     AssertJUnit.assertEquals(d,cc.at(i));
+    nc=cc.inflate_impl(new NewChunk(null,0));
+    AssertJUnit.assertEquals(K,nc.len());
+    AssertJUnit.assertEquals(K,nc.sparseLen());
+    for (int i=0; i < K; ++i)     AssertJUnit.assertEquals(d,nc.at0(i));
+    for (int i=0; i < K; ++i)     AssertJUnit.assertEquals(d,nc.at(i));
+    Chunk cc2=nc.compress();
     AssertJUnit.assertEquals(K,cc2.len());
     AssertJUnit.assertTrue(cc2 instanceof C0DChunk);
     for (int i=0; i < K; ++i)     AssertJUnit.assertEquals(d,cc2.at0(i));
+    for (int i=0; i < K; ++i)     AssertJUnit.assertEquals(d,cc2.at(i));
     AssertJUnit.assertTrue(Arrays.equals(cc._mem,cc2._mem));
   }
 }
