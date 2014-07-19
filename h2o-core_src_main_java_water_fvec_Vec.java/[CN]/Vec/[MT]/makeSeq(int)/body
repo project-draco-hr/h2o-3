@@ -1,9 +1,12 @@
 {
   Futures fs=new Futures();
   AppendableVec av=new AppendableVec(VectorGroup.VG_LEN1.addVec());
-  NewChunk nc=new NewChunk(av,0);
-  for (int r=0; r < len; r++)   nc.addNum(r + 1);
-  nc.close(0,fs);
+  int nchunks=Math.max(1,(len >> LOG_CHK) - 1);
+  for (int c=0; c < nchunks; c++) {
+    NewChunk nc=new NewChunk(av,c);
+    for (int r=0; r < len; r++)     nc.addNum(r + 1);
+    nc.close(c,fs);
+  }
   Vec v=av.close(fs);
   fs.blockForPending();
   return v;
