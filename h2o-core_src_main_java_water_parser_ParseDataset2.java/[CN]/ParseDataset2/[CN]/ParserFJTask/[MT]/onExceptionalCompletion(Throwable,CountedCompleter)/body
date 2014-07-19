@@ -1,5 +1,11 @@
 {
-  if (_job != null)   _job.cancel(ex.toString());
-  ex.printStackTrace();
+  Futures fs=new Futures();
+  if (_job != null) {
+    Keyed.remove(_job._dest,fs);
+    if (_job._mfpt != null)     _job._mfpt.onExceptionCleanup(fs);
+  }
+  for (  Key k : _keys)   Keyed.remove(k,fs);
+  fs.blockForPending();
+  if (_job != null)   _job.cancel2(ex);
   return true;
 }
