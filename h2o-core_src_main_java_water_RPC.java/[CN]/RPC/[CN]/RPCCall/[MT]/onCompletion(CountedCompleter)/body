@@ -3,7 +3,8 @@
   while ((dt=_dt) != null) {
     AutoBuffer ab=null;
     try {
-      ab=new AutoBuffer(_client).putTask(UDP.udp.ack,_tsknum).put1(SERVER_UDP_SEND);
+      UDP.udp udp=dt.priority() == H2O.FETCH_ACK_PRIORITY ? UDP.udp.fetchack : UDP.udp.ack;
+      ab=new AutoBuffer(_client).putTask(udp,_tsknum).put1(SERVER_UDP_SEND);
       dt.write(ab);
       _computed=true;
       boolean t=ab.hasTCP();
