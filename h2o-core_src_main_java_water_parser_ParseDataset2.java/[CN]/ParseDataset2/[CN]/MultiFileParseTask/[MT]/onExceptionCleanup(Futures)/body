@@ -1,0 +1,11 @@
+{
+  int nchunks=_chunk2Enum.length;
+  int ncols=_setup._ncols;
+  for (int i=0; i < ncols; ++i) {
+    Key vkey=_vg.vecKey(_vecIdStart + i);
+    Keyed.remove(vkey,fs);
+    for (int c=0; c < nchunks; ++c)     DKV.remove(Vec.chunkKey(vkey,c),fs);
+  }
+  cancel(true);
+  return fs;
+}

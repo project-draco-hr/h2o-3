@@ -1,7 +1,6 @@
 {
-  File file=find_test_file("h2o-core/build/h2o-core.jar");
-  assertTrue("Missing test file; do a 'make' and retest",file != null);
-  NFSFileVec nfs=NFSFileVec.make(file);
+  int sz=H2O.CLOUD.size();
+  Vec vec=Vec.makeCon(0,null,(sz + 1) * Vec.CHUNK_SZ + 1);
   try {
     for (int i=0; i < H2O.CLOUD._memary.length; ++i) {
       final ByteHistoThrow bh=new ByteHistoThrow(H2O.CLOUD._memary[i]);
@@ -17,8 +16,11 @@
           }
         }
 );
-        bh.dfork(nfs).get();
-        assertTrue(ok[0]);
+        bh.asyncExec(vec);
+        int MAX_CNT=5;
+        while (!ok[0] && MAX_CNT-- > 0) {
+          Thread.sleep(1000);
+        }
       }
  catch (      DException.DistributedException e) {
         assertTrue(e.getMessage().contains("test"));
@@ -33,6 +35,6 @@ catch (      Throwable ex) {
     }
   }
   finally {
-    if (nfs != null)     nfs.remove();
+    if (vec != null)     vec.remove();
   }
 }
