@@ -1,0 +1,12 @@
+{
+  int cnt=_refcnt.get(v)._val - 1;
+  if (cnt <= 0) {
+    Futures fs=new Futures();
+    DKV.remove(v._key,fs);
+    fs.blockForPending();
+    _refcnt.remove(v);
+  }
+ else {
+    _refcnt.put(v,new IcedInt(cnt));
+  }
+}
