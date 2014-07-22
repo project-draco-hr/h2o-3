@@ -1,0 +1,23 @@
+{
+  total_chunk_byte_size=0;
+  total_chunk_count=0;
+  for (int j=0; j < chunkTypes.length; ++j) {
+    total_chunk_byte_size+=chunk_byte_sizes[j];
+    total_chunk_count+=chunk_counts[j];
+  }
+  byte_size_per_node_min=Float.MAX_VALUE;
+  byte_size_per_node_max=Float.MIN_VALUE;
+  byte_size_per_node_mean=0;
+  for (  long aByte_size_per_node : byte_size_per_node) {
+    byte_size_per_node_min=Math.min(aByte_size_per_node,byte_size_per_node_min);
+    byte_size_per_node_max=Math.max(aByte_size_per_node,byte_size_per_node_max);
+    byte_size_per_node_mean+=aByte_size_per_node;
+  }
+  byte_size_per_node_mean/=byte_size_per_node.length;
+  byte_size_per_node_stddev=0;
+  for (  long aByte_size_per_node : byte_size_per_node) {
+    byte_size_per_node_stddev+=Math.pow(aByte_size_per_node - byte_size_per_node_mean,2);
+  }
+  byte_size_per_node_stddev/=byte_size_per_node.length;
+  byte_size_per_node_stddev=(float)Math.sqrt(byte_size_per_node_stddev);
+}
