@@ -6,15 +6,15 @@
     for (    float v : vals)     nc.addNum(v);
     nc.addNA();
     Chunk cc=nc.compress();
-    AssertJUnit.assertEquals(vals.length + 1 + l,cc.len());
-    AssertJUnit.assertTrue(cc instanceof C4FChunk);
-    for (int i=0; i < vals.length; ++i)     AssertJUnit.assertEquals(vals[i],(float)cc.at0(l + i));
-    AssertJUnit.assertTrue(cc.isNA0(vals.length + l));
+    Assert.assertEquals(vals.length + 1 + l,cc.len());
+    Assert.assertTrue(cc instanceof C4FChunk);
+    for (int i=0; i < vals.length; ++i)     Assert.assertEquals(vals[i],(float)cc.at0(l + i));
+    Assert.assertTrue(cc.isNA0(vals.length + l));
     Chunk cc2=cc.inflate_impl(new NewChunk(null,0)).compress();
-    AssertJUnit.assertEquals(vals.length + 1 + l,cc.len());
-    AssertJUnit.assertTrue(cc2 instanceof C4FChunk);
-    for (int i=0; i < vals.length; ++i)     AssertJUnit.assertEquals(vals[i],(float)cc2.at0(l + i));
-    AssertJUnit.assertTrue(cc2.isNA0(vals.length + l));
-    AssertJUnit.assertTrue(Arrays.equals(cc._mem,cc2._mem));
+    Assert.assertEquals(vals.length + 1 + l,cc.len());
+    Assert.assertTrue(cc2 instanceof C4FChunk);
+    for (int i=0; i < vals.length; ++i)     Assert.assertEquals(vals[i],(float)cc2.at0(l + i));
+    Assert.assertTrue(cc2.isNA0(vals.length + l));
+    Assert.assertTrue(Arrays.equals(cc._mem,cc2._mem));
   }
 }
