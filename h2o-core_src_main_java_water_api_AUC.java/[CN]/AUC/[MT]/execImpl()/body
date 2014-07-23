@@ -3,13 +3,12 @@
   Vec va=null, vp;
   try {
     va=vactual.toEnum();
-    actual_domain=va.factors();
     vp=vpredict;
     if (!va.group().equals(vp.group())) {
       vp=va.align(vp);
     }
     if (thresholds != null) {
-      if (_cms == null)       sort(thresholds);
+      sort(thresholds);
       if (ArrayUtils.minValue(thresholds) < 0)       throw new IllegalArgumentException("Minimum threshold cannot be negative.");
       if (ArrayUtils.maxValue(thresholds) > 1)       throw new IllegalArgumentException("Maximum threshold cannot be greater than 1.");
     }
@@ -26,16 +25,7 @@
       }
       sort(thresholds);
     }
-    if (_cms != null) {
-      if (_cms.length != thresholds.length)       throw new IllegalArgumentException("Number of thresholds differs from number of confusion matrices.");
-    }
- else {
-      AUCTask at=new AUCTask(thresholds).doAll(va,vp);
-      _cms=at.getCMs();
-    }
-    computeAUC();
-    findBestThresholds();
-    computeMetrics();
+    aucdata=new AUCData().compute(new AUCTask(thresholds,va.mean()).doAll(va,vp).getCMs(),thresholds,va.factors(),threshold_criterion);
   }
   finally {
     if (va != null)     DKV.remove(va._key);

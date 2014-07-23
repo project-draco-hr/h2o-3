@@ -2,6 +2,12 @@
   if (criter == ThresholdCriterion.maximum_F1) {
     return (!Double.isNaN(a.F1()) && (Double.isNaN(b.F1()) || a.F1() > b.F1()));
   }
+  if (criter == ThresholdCriterion.maximum_F2) {
+    return (!Double.isNaN(a.F2()) && (Double.isNaN(b.F2()) || a.F2() > b.F2()));
+  }
+  if (criter == ThresholdCriterion.maximum_F0point5) {
+    return (!Double.isNaN(a.F0point5()) && (Double.isNaN(b.F0point5()) || a.F0point5() > b.F0point5()));
+  }
  else   if (criter == ThresholdCriterion.maximum_Recall) {
     return (!Double.isNaN(a.recall()) && (Double.isNaN(b.recall()) || a.recall() > b.recall()));
   }
@@ -16,6 +22,9 @@
   }
  else   if (criter == ThresholdCriterion.maximum_Specificity) {
     return (!Double.isNaN(a.specificity()) && (Double.isNaN(b.specificity()) || a.specificity() > b.specificity()));
+  }
+ else   if (criter == ThresholdCriterion.maximum_absolute_MCC) {
+    return (!Double.isNaN(a.mcc()) && (Double.isNaN(b.mcc()) || Math.abs(a.mcc()) > Math.abs(b.mcc())));
   }
  else {
     throw new IllegalArgumentException("Unknown threshold criterion.");
