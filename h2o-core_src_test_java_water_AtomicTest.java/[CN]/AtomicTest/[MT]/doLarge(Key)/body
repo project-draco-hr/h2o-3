@@ -1,6 +1,6 @@
 {
   Value v=DKV.get(k);
-  AssertJUnit.assertNull(v);
+  Assert.assertNull(v);
   Random r=new Random(1234567890123456789L);
   int total=0;
   while (total < AutoBuffer.MTU * 8) {
@@ -10,7 +10,7 @@
     Append.append(k,nk);
     v=DKV.get(k);
     byte[] vb=v.memOrLoad();
-    AssertJUnit.assertArrayEquals(kb,Arrays.copyOfRange(vb,vb.length - kb.length,vb.length));
+    Assert.assertArrayEquals(kb,Arrays.copyOfRange(vb,vb.length - kb.length,vb.length));
     total=vb.length;
   }
   DKV.remove(k);
