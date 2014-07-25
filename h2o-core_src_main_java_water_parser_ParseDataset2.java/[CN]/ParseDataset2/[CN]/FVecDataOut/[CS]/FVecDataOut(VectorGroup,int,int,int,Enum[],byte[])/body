@@ -1,5 +1,6 @@
 {
-  _ctypes=ctypes;
+  _ctypes=ctypes == null ? MemoryManager.malloc1(ncols) : ctypes;
+  have_ctypes=(_ctypes != null);
   _vecs=new AppendableVec[ncols];
   _nvs=new NewChunk[ncols];
   _enums=enums;
@@ -7,6 +8,5 @@
   _cidx=cidx;
   _vg=vg;
   _vecIdStart=vecIdStart;
-  _ctypes=MemoryManager.malloc1(ncols);
   for (int i=0; i < ncols; ++i)   _nvs[i]=(_vecs[i]=new AppendableVec(vg.vecKey(vecIdStart + i))).chunkForChunkIdx(_cidx);
 }

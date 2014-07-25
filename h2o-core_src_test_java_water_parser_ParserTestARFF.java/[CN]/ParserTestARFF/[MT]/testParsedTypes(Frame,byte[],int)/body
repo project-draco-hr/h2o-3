@@ -1,0 +1,24 @@
+{
+  try {
+    Assert.assertEquals(len,fr.numRows());
+    Assert.assertEquals(exp_types.length,fr.numCols());
+    for (int j=0; j < fr.numCols(); ++j) {
+      Vec vec=fr.vecs()[j];
+      if (exp_types[j] == ParseDataset2.FVecDataOut.TCOL) {
+        Assert.assertTrue(vec.isTime());
+      }
+ else       if (exp_types[j] == ParseDataset2.FVecDataOut.ECOL) {
+        Assert.assertTrue(vec.isEnum());
+      }
+ else       if (exp_types[j] == ParseDataset2.FVecDataOut.SCOL) {
+        Assert.assertTrue(vec.isString());
+      }
+ else       if (exp_types[j] == ParseDataset2.FVecDataOut.NCOL) {
+        Assert.assertTrue(!vec.isEnum() && !vec.isString() && !vec.isUUID()&& !vec.isTime());
+      }
+    }
+  }
+  finally {
+    fr.delete();
+  }
+}
