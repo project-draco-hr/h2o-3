@@ -4,5 +4,31 @@
   Key k1=makeByteVec(sb1.toString());
   Key r1=Key.make("r1");
   ParseDataset2.parse(r1,k1);
-  testParsedTypes(r1,exp,len);
+  Frame fr=DKV.get(r1).get();
+  try {
+    Assert.assertEquals(len,fr.numRows());
+    Assert.assertEquals(exp.length,fr.numCols());
+    for (int j=0; j < fr.numCols(); ++j) {
+      Vec vec=fr.vecs()[j];
+      if (exp[j] == ParseDataset2.FVecDataOut.TCOL) {
+        Assert.assertTrue(vec.isTime());
+      }
+ else       if (exp[j] == ParseDataset2.FVecDataOut.ECOL) {
+        Assert.assertTrue(vec.isEnum());
+      }
+ else       if (exp[j] == ParseDataset2.FVecDataOut.SCOL) {
+        Assert.assertTrue(vec.isString());
+      }
+ else       if (exp[j] == ParseDataset2.FVecDataOut.NCOL) {
+        Assert.assertTrue(!vec.isEnum() && !vec.isString() && !vec.isUUID()&& !vec.isTime());
+      }
+ else       if (exp[j] == ParseDataset2.FVecDataOut.ICOL) {
+        Assert.assertTrue(vec.isUUID());
+      }
+ else       throw H2O.unimpl();
+    }
+  }
+  finally {
+    fr.delete();
+  }
 }

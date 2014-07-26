@@ -1,0 +1,18 @@
+{
+  StringBuilder sb1=new StringBuilder();
+  for (  String ds : dataset)   sb1.append(ds).append(sep);
+  Key k1=makeByteVec(sb1.toString());
+  Key r1=Key.make("r1");
+  ParseDataset2.parse(r1,k1);
+  Frame fr=DKV.get(r1).get();
+  try {
+    Assert.assertEquals(len,fr.numRows());
+    Assert.assertEquals(exp.length,fr.numCols());
+    for (int j=0; j < fr.numCols(); ++j) {
+      Assert.assertTrue(exp[j].equals(fr.names()[j]));
+    }
+  }
+  finally {
+    fr.delete();
+  }
+}
