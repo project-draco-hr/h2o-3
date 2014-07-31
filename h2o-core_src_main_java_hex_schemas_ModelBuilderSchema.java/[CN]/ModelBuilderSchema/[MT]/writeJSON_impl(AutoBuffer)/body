@@ -1,0 +1,18 @@
+{
+  String[] fields=parameters.fields();
+  ModelParameterSchema[] metadata=new ModelParameterSchema[fields.length];
+  String field_name=null;
+  try {
+    for (int i=0; i < fields.length; i++) {
+      field_name=fields[i];
+      Field f=parameters.getClass().getField(field_name);
+      ModelParameterSchema schema=new ModelParameterSchema(parameters,createParametersSchema(),f);
+      metadata[i]=schema;
+    }
+  }
+ catch (  NoSuchFieldException e) {
+    throw H2O.fail("Caught exception accessing field: " + field_name + " for schema object: "+ parameters+ ": "+ e.toString());
+  }
+  ab.putJSONA("parameters",metadata);
+  return ab;
+}
