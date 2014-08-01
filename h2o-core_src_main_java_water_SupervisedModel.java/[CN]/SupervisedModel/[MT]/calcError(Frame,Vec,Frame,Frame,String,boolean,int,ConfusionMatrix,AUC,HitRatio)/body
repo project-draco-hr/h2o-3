@@ -2,8 +2,8 @@
   StringBuilder sb=new StringBuilder();
   double error=Double.POSITIVE_INFINITY;
   if (auc != null) {
-    assert(isClassifier());
-    assert(nclasses() == 2);
+    assert(_output.isClassifier());
+    assert(_output.nclasses() == 2);
     auc.actual=ftest;
     auc.vactual=vactual;
     auc.predict=fpreds;
@@ -19,7 +19,7 @@
     cm.predict=fpreds;
     cm.vpredict=fpreds.vecs()[0];
     cm.execImpl();
-    if (isClassifier()) {
+    if (_output.isClassifier()) {
       if (auc != null) {
         cm.cm=new long[3][3];
         cm.cm[0][0]=auc.data().cm()[0][0];
@@ -40,7 +40,7 @@
     }
   }
   if (hr != null) {
-    assert(isClassifier());
+    assert(_output.isClassifier());
     hr.actual=ftest;
     hr.vactual=vactual;
     hr.predict=hitratio_fpreds;
