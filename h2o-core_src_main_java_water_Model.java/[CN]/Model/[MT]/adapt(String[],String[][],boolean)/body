@@ -2,19 +2,19 @@
   int maplen=names.length;
   int map[][][]=new int[maplen][][];
   for (int c=0; c < names.length; ++c) {
-    String ms[]=_domains[c];
+    String ms[]=_output._domains[c];
     String ds[]=domains[c];
     if (ms == ds) {
     }
  else     if (ms == null) {
-      throw new IllegalArgumentException("Incompatible column: '" + _names[c] + "', expected (trained on) numeric, was passed a categorical");
+      throw new IllegalArgumentException("Incompatible column: '" + _output._names[c] + "', expected (trained on) numeric, was passed a categorical");
     }
  else     if (ds == null) {
-      if (exact)       throw new IllegalArgumentException("Incompatible column: '" + _names[c] + "', expected (trained on) categorical, was passed a numeric");
+      if (exact)       throw new IllegalArgumentException("Incompatible column: '" + _output._names[c] + "', expected (trained on) categorical, was passed a numeric");
       throw H2O.unimpl();
     }
  else     if (!Arrays.deepEquals(ms,ds)) {
-      map[c]=getDomainMapping(_names[c],ms,ds,exact);
+      map[c]=getDomainMapping(_output._names[c],ms,ds,exact);
     }
   }
   return map;
