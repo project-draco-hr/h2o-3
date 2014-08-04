@@ -7,7 +7,10 @@
     Key key=(Key)ok;
     if (!key.user_allowed())     continue;
     if (homeOnly && !key.home())     continue;
-    if (!(ov instanceof Value))     continue;
+    if (!(ov instanceof Value)) {
+      ov=H2O.get(key);
+      if (ov == null)       continue;
+    }
     res.add(new KeyInfo(key,(Value)ov));
   }
   final KeyInfo[] arr=res.toArray(new KeyInfo[res.size()]);
