@@ -1,28 +1,2 @@
 {
-  DTask dt, origDt=_dt;
-  while ((dt=_dt) != null) {
-    AutoBuffer ab=null;
-    try {
-      UDP.udp udp=dt.priority() == H2O.FETCH_ACK_PRIORITY ? UDP.udp.fetchack : UDP.udp.ack;
-      ab=new AutoBuffer(_client).putTask(udp,_tsknum).put1(SERVER_UDP_SEND);
-      dt.write(ab);
-      _computed=true;
-      boolean t=ab.hasTCP();
-      dt._repliedTcp=t;
-      ab.close(t,false);
-      break;
-    }
- catch (    AutoBuffer.TCPIsUnreliableException e) {
-      Log.info("Task cancelled or network congestion: TCPACK " + e._ioe.getMessage() + ", t#"+ _tsknum+ " AB="+ ab+ ", waiting and retrying...");
-      if (ab != null)       ab.close(true,true);
-      try {
-        Thread.sleep(500);
-      }
- catch (      InterruptedException ignore) {
-      }
-    }
-  }
-  if (dt == null)   Log.info("Cancelled remote task#" + _tsknum + " "+ (origDt != null ? origDt.getClass() : "null")+ " to "+ _client+ " has been cancelled by remote");
- else   if (dt instanceof MRTask && dt.logVerbose())   Log.debug("Done  remote task#" + _tsknum + " "+ dt.getClass()+ " to "+ _client);
-  _client.record_task_answer(this);
 }

@@ -10,11 +10,11 @@ synchronized (TimeLine.class) {
   while (true) {
     AutoBuffer tab=new AutoBuffer(ab._h2o);
     try {
-      tab.putUdp(UDP.udp.timeline).putA8(a).close(true,false);
+      tab.putUdp(UDP.udp.timeline).putA8(a).close();
       return null;
     }
- catch (    AutoBuffer.TCPIsUnreliableException tue) {
-      tab.close(true,true);
+ catch (    AutoBuffer.AutoBufferException tue) {
+      tab.close();
     }
   }
 }

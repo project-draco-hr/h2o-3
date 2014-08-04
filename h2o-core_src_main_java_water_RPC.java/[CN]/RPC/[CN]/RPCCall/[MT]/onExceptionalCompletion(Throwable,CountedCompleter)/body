@@ -1,9 +1,10 @@
 {
-  _computed=true;
-  if (!_firstException.getAndSet(true)) {
-    DTask dt=_dt;
-    if (dt != null)     dt.setException(ex);
-    onCompletion(caller);
+  if (_computed)   return false;
+synchronized (this) {
+    if (_computed)     return false;
+    _computed=true;
   }
+  _dt.setException(ex);
+  sendAck();
   return false;
 }
