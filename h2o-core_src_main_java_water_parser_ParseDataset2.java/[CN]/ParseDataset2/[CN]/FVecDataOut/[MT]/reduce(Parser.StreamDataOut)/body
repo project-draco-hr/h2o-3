@@ -7,6 +7,13 @@
     _vecs=dout._vecs;
     dout._vecs=v;
   }
-  for (int i=0; i < dout._vecs.length; ++i)   _vecs[i].reduce(dout._vecs[i]);
+  for (int i=0; i < dout._vecs.length; ++i) {
+    if (_vecs[i].isString() && !dout._vecs[i].isString())     dout.enumCol2StrCol(i);
+ else     if (!_vecs[i].isString() && dout._vecs[i].isString()) {
+      enumCol2StrCol(i);
+      _ctypes[i]=SCOL;
+    }
+    _vecs[i].reduce(dout._vecs[i]);
+  }
   return this;
 }

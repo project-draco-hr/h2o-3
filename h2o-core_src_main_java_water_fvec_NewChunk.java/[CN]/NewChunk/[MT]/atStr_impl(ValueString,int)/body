@@ -1,5 +1,10 @@
 {
-  if (_is[i] != CStrChunk.NA)   return null;
+  if (sparseLen() != len()) {
+    int idx=Arrays.binarySearch(_id,0,sparseLen(),i);
+    if (idx >= 0)     i=idx;
+ else     return null;
+  }
+  if (_is[i] == CStrChunk.NA)   return null;
   int len;
   for (len=0; _ss[_is[i] + len] != 0; len++)   ;
   return vstr.set(_ss,_is[i],len);

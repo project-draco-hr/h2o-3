@@ -1,0 +1,13 @@
+{
+  int strlen=str.get_length();
+  int off=str.get_off();
+  byte b[]=str.get_buf();
+  if (_ss == null) {
+    _ss=MemoryManager.malloc1((strlen + 1) * 4);
+  }
+  while (_ss.length < (_sslen + strlen + 1)) {
+    _ss=MemoryManager.arrayCopyOf(_ss,_ss.length << 1);
+  }
+  for (int i=off; i < off + strlen; i++)   _ss[_sslen++]=b[i];
+  _ss[_sslen++]=(byte)0;
+}

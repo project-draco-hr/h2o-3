@@ -32,17 +32,18 @@
       if (colIdx < _nCols)       _nvs[_col=colIdx].addUUID(lo,hi);
     }
  else     if (_ctypes[colIdx] == SCOL) {
-      _nvs[colIdx].addStr(str.toString());
+      _nvs[_col=colIdx].addStr(str);
     }
  else {
-      int id=_enums[_col=colIdx].addKey(str);
       if (!_enums[colIdx].isMapFull()) {
+        int id=_enums[_col=colIdx].addKey(str);
         if (_ctypes[colIdx] == UCOL && id > 1)         _ctypes[colIdx]=ECOL;
         _nvs[colIdx].addEnum(id);
       }
  else {
         _ctypes[_col=colIdx]=SCOL;
-        _nvs[colIdx].addStr(str.toString());
+        enumCol2StrCol(colIdx);
+        _nvs[colIdx].addStr(str);
       }
     }
   }

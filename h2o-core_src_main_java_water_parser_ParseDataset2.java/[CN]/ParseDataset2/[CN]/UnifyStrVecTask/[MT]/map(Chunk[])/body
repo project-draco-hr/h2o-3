@@ -1,0 +1,12 @@
+{
+  for (  Chunk c : chunks) {
+    Vec v=c.vec();
+    if (v.isString() && c instanceof C4Chunk) {
+      Key k=v.chunkKey(c.cidx());
+      NewChunk nc=new NewChunk(v,c.cidx());
+      for (int j=0; j < c.len(); ++j)       if (c.isNA0(j))       nc.addNA();
+ else       nc.addStr(new ValueString(v.domain()[(int)c.at80(j)]));
+      H2O.putIfMatch(k,new Value(k,nc.new_close()),H2O.get(k));
+    }
+  }
+}
