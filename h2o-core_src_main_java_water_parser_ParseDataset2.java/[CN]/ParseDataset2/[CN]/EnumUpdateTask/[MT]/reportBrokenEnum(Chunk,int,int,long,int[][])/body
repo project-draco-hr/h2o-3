@@ -1,0 +1,13 @@
+{
+  Chunk chk2=chk.chk2();
+  StringBuilder sb=new StringBuilder("Enum renumber task, column # " + i + ": Found OOB index "+ l+ " (expected 0 - "+ emap[i].length+ ", global domain has "+ _gDomain[i].length+ " levels) pulled from "+ chk.getClass().getSimpleName()+ "\n");
+  int k=0;
+  for (; k < Math.min(5,chk.len()); ++k)   sb.append("at8[" + (k + chk.start()) + "] = "+ chk.at80(k)+ ", chk2 = "+ (chk2 != null ? chk2.at80(k) : "")+ "\n");
+  k=Math.max(k,j - 2);
+  sb.append("...\n");
+  for (; k < Math.min(chk.len(),j + 2); ++k)   sb.append("at8[" + (k + chk.start()) + "] = "+ chk.at80(k)+ ", chk2 = "+ (chk2 != null ? chk2.at80(k) : "")+ "\n");
+  sb.append("...\n");
+  k=Math.max(k,chk.len() - 5);
+  for (; k < chk.len(); ++k)   sb.append("at8[" + (k + chk.start()) + "] = "+ chk.at80(k)+ ", chk2 = "+ (chk2 != null ? chk2.at80(k) : "")+ "\n");
+  throw new RuntimeException(sb.toString());
+}
