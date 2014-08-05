@@ -1,6 +1,19 @@
 {
   ParseDataset2 job=forkParseDataset(okey,keys,globalSetup,delete_on_done);
-  Frame fr=job.get();
-  job.remove();
-  return fr;
+  try {
+    return job.get();
+  }
+ catch (  Throwable ex) {
+    Futures fs=new Futures();
+    if (job != null) {
+      Keyed.remove(job._dest,fs);
+      if (job._mfpt != null)       job._mfpt.onExceptionCleanup(fs);
+    }
+    for (    Key k : keys)     Keyed.remove(k,fs);
+    fs.blockForPending();
+    throw ex;
+  }
+ finally {
+    job.remove();
+  }
 }
