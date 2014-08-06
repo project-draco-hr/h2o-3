@@ -44,11 +44,11 @@
         model._output._clusters=denormalize(clusters,ncats,means,mults);
         model._output._mse=sqr._sqr / fr.numRows();
         model._output._iters++;
-        update(1);
         model.update(_key);
       }
       clusters=recluster(clusters,rand);
     }
+    model._output._iters=0;
     LOOP:     for (; model._output._iters < _parms._max_iters; model._output._iters++) {
       if (!isRunning())       return;
       Lloyds task=new Lloyds(clusters,means,mults,_ncats,_parms._K).doAll(vecs);
