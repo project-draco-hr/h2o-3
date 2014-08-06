@@ -1,0 +1,19 @@
+{
+  String data1="@RELATION type\n" + "\n" + "@ATTRIBUTE num numeric\n"+ "\n"+ "@DATA\n"+ "0\n"+ "1.324e-13\n"+ "-2\n";
+  String data2=data1;
+  Key k1=ParserTest.makeByteVec(data1);
+  Key k2=ParserTest.makeByteVec(data2);
+  Key[] k=new Key[]{k1,k2};
+  Frame fr=ParseDataset2.parse(Key.make(),k);
+  Assert.assertFalse(fr.anyVec().isString());
+  Assert.assertFalse(fr.anyVec().isEnum());
+  Assert.assertFalse(fr.anyVec().isInt());
+  Assert.assertFalse(fr.anyVec().isUUID());
+  Assert.assertTrue(fr.anyVec().at(0) == 0);
+  Assert.assertTrue(fr.anyVec().at(1) == 1.324e-13);
+  Assert.assertTrue(fr.anyVec().at(2) == -2);
+  Assert.assertTrue(fr.anyVec().at(3) == 0);
+  Assert.assertTrue(fr.anyVec().at(4) == 1.324e-13);
+  Assert.assertTrue(fr.anyVec().at(5) == -2);
+  fr.delete();
+}
