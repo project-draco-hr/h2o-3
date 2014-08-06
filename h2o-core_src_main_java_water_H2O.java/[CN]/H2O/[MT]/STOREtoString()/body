@@ -1,0 +1,15 @@
+{
+  int[] cnts=new int[1];
+  Object[] kvs=H2O.STORE.raw_array();
+  for (int i=2; i < kvs.length; i+=2) {
+    Object ov=kvs[i + 1];
+    if (!(ov instanceof Value))     continue;
+    Value val=(Value)ov;
+    int t=val.type();
+    while (t >= cnts.length)     cnts=Arrays.copyOf(cnts,cnts.length << 1);
+    cnts[t]++;
+  }
+  StringBuilder sb=new StringBuilder();
+  for (int t=0; t < cnts.length; t++)   if (cnts[t] != 0)   sb.append(String.format("-%30s %5d\n",TypeMap.CLAZZES[t],cnts[t]));
+  return sb.toString();
+}

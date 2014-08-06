@@ -2,7 +2,9 @@
   super.postGlobal();
   _outerMFPT._dout=_dout;
   _dout=null;
-  Iced ice=DKV.get(_srckey).get();
+  Value val=DKV.get(_srckey);
+  if (val == null)   return;
+  Iced ice=val.get();
   if (ice instanceof ByteVec) {
     if (_outerMFPT._delete_on_done)     ((ByteVec)ice).remove();
   }
