@@ -1,0 +1,36 @@
+{
+  String data="1, 0, 0\n" + "0, 1, 0\n" + "0, 0, 1\n";
+  Frame fr=null;
+  try {
+    Key k=ParserTest.makeByteVec(data);
+    fr=ParseDataset2.parse(Key.make(),k);
+    KMeansModel.KMeansParameters parms=new KMeansModel.KMeansParameters();
+    parms._src=fr._key;
+    parms._K=3;
+    parms._normalize=true;
+    parms._max_iters=100;
+    parms._init=KMeans.Initialization.None;
+    double[][] exp1=new double[][]{d(1,0,0),d(0,1,0),d(0,0,1)};
+    double[][] exp2=new double[][]{d(0,1,0),d(1,0,0),d(0,0,1)};
+    double[][] exp3=new double[][]{d(0,1,0),d(0,0,1),d(1,0,0)};
+    double[][] exp4=new double[][]{d(1,0,0),d(0,0,1),d(0,1,0)};
+    double[][] exp5=new double[][]{d(0,0,1),d(1,0,0),d(0,1,0)};
+    double[][] exp6=new double[][]{d(0,0,1),d(0,1,0),d(1,0,0)};
+    for (int i=0; i < 10; i++) {
+      KMeansModel kmm=doSeed(parms,System.nanoTime());
+      Assert.assertTrue(kmm._output._clusters.length == 3);
+      boolean gotit=false;
+      for (int j=0; j < parms._K; ++j)       gotit|=close(exp1[j],kmm._output._clusters[j]);
+      for (int j=0; j < parms._K; ++j)       gotit|=close(exp2[j],kmm._output._clusters[j]);
+      for (int j=0; j < parms._K; ++j)       gotit|=close(exp3[j],kmm._output._clusters[j]);
+      for (int j=0; j < parms._K; ++j)       gotit|=close(exp4[j],kmm._output._clusters[j]);
+      for (int j=0; j < parms._K; ++j)       gotit|=close(exp5[j],kmm._output._clusters[j]);
+      for (int j=0; j < parms._K; ++j)       gotit|=close(exp6[j],kmm._output._clusters[j]);
+      Assert.assertTrue(gotit);
+      kmm.delete();
+    }
+  }
+  finally {
+    if (fr != null)     fr.remove();
+  }
+}
