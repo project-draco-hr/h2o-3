@@ -1,9 +1,15 @@
 {
   parms._seed=seed;
-  KMeans job=new KMeans(parms);
-  job.train();
-  KMeansModel kmm=job.get();
-  job.remove();
+  KMeans job=null;
+  KMeansModel kmm=null;
+  try {
+    job=new KMeans(parms);
+    job.train();
+    kmm=job.get();
+  }
+  finally {
+    job.remove();
+  }
   for (int i=0; i < parms._K; i++)   Assert.assertTrue("Seed: " + seed,kmm._output._rows[i] != 0);
   return kmm;
 }
