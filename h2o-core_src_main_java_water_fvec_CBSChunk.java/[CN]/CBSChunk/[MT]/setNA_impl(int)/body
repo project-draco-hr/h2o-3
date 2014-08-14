@@ -1,4 +1,8 @@
 {
   if (_bpv == 1)   return false;
-  throw H2O.unimpl();
+  int vpb=8 / _bpv;
+  int bix=_OFF + idx / vpb;
+  int off=_bpv * (idx % vpb);
+  write2b(_mem[bix],_NA,off);
+  return true;
 }
