@@ -3,10 +3,16 @@
   Key rkey=ParserTest.makeByteVec(data);
   Frame fr=ParseDataset2.parse(Key.make("a.hex"),rkey);
   Env env=Exec.exec(tree);
-  System.out.println(env.toString());
-  Frame f2=((ASTFrame)env.pop())._fr;
-  for (int i=0; i < f2.anyVec().length(); ++i)   System.out.println(f2.anyVec().at(i));
+  Object result=env.pop();
+  if (result instanceof ASTFrame) {
+    Frame f2=((ASTFrame)result)._fr;
+    for (int i=0; i < f2.anyVec().length(); ++i)     System.out.println(f2.anyVec().at(i));
+    f2.delete();
+  }
+  if (result instanceof ASTNum) {
+    double d=((ASTNum)result)._d;
+    System.out.println(d);
+  }
   fr.delete();
-  f2.delete();
   DKV.remove(Key.make("a.hex"));
 }
