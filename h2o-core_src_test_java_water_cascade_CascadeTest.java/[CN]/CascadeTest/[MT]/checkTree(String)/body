@@ -1,0 +1,12 @@
+{
+  String[] data=new String[]{"Col1\n" + "-1\n","1\n","2\n","3\n","4\n","5\n","6\n","254\n"};
+  Key rkey=ParserTest.makeByteVec(data);
+  Frame fr=ParseDataset2.parse(Key.make("a.hex"),rkey);
+  Env env=Exec.exec(tree);
+  System.out.println(env.toString());
+  Frame f2=((ASTFrame)env.pop())._fr;
+  for (int i=0; i < f2.anyVec().length(); ++i)   System.out.println(f2.anyVec().at(i));
+  fr.delete();
+  f2.delete();
+  DKV.remove(Key.make("a.hex"));
+}
