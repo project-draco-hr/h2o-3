@@ -2,18 +2,14 @@
   int type=peekTypeAt(i);
   Object o=peekAt(i);
 switch (type) {
-case VEC:
-    return ((Vec)o).length() + "x1";
 case ARY:
-  return ((Frame)o).numRows() + "x" + ((Frame)o).numCols();
-case DBL:
-return Double.toString((double)o);
-case INT:
-return Integer.toString((int)o);
+    return ((ASTFrame)o)._fr.numRows() + "x" + ((ASTFrame)o)._fr.numCols();
+case NUM:
+  return Double.toString(((ASTNum)o)._d);
 case STR:
-return (String)o;
-case FLT:
-return Float.toString((float)o);
+return ((ASTString)o)._s;
+case ID:
+return ((ASTId)o)._id;
 case NULL:
 return "null";
 default :

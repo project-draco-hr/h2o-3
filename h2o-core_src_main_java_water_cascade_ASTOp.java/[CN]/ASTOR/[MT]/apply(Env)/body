@@ -1,0 +1,18 @@
+{
+  double op1=(env.isNum()) ? ((ASTNum)env.pop())._d : (env.isAry() ? ((ASTFrame)env.pop())._fr.vecs()[0].at(0) : Double.NaN);
+  if (Double.isNaN(op1)) {
+    env.pop();
+    env.push(new ASTNum(Double.NaN));
+    return;
+  }
+  double op2=!Double.isNaN(op1) && op1 != 0 ? 1 : (env.isNum()) ? ((ASTNum)env.pop())._d : (env.isAry()) ? ((ASTFrame)env.pop())._fr.vecs()[0].at(0) : Double.NaN;
+  if (Double.isNaN(op2)) {
+    env.push(new ASTNum(op2));
+    return;
+  }
+  if (op1 == 0 && op2 == 0) {
+    env.push(new ASTNum(0.0));
+    return;
+  }
+  env.push(new ASTNum(1.0));
+}

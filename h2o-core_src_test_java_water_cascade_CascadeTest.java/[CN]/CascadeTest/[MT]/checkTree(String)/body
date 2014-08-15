@@ -1,0 +1,18 @@
+{
+  String[] data=new String[]{"Col1\n" + "-1\n","1\n","2\n","3\n","4\n","5\n","6\n","254\n"};
+  Key rkey=ParserTest.makeByteVec(data);
+  Frame fr=ParseDataset2.parse(Key.make("a.hex"),rkey);
+  Env env=Exec.exec(tree);
+  Object result=env.pop();
+  if (result instanceof ASTFrame) {
+    Frame f2=((ASTFrame)result)._fr;
+    for (int i=0; i < f2.anyVec().length(); ++i)     System.out.println(f2.anyVec().at(i));
+    f2.delete();
+  }
+  if (result instanceof ASTNum) {
+    double d=((ASTNum)result)._d;
+    System.out.println(d);
+  }
+  fr.delete();
+  DKV.remove(Key.make("a.hex"));
+}

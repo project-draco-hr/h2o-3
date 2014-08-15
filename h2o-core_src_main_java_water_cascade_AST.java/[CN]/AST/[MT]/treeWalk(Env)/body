@@ -1,0 +1,29 @@
+{
+  if (this instanceof ASTOp) {
+    if (this instanceof ASTBinOp) {
+      _asts[1].treeWalk(e);
+      _asts[0].treeWalk(e);
+      ((ASTBinOp)this).apply(e);
+    }
+ else     if (this instanceof ASTUniPrefixOp) {
+    }
+ else {
+    }
+  }
+ else   if (this instanceof ASTAssign) {
+    _asts[1].treeWalk(e);
+    _asts[0].treeWalk(e);
+    this.exec(e);
+  }
+ else   if (this instanceof ASTId) {
+    e.put(((ASTId)this)._id,"","");
+    this.exec(e);
+  }
+ else   if (this instanceof ASTString || this instanceof ASTNum || this instanceof ASTKey|| this._asts[0] instanceof ASTFrame) {
+    this.exec(e);
+  }
+ else {
+    throw H2O.fail("Unknown AST node. Don't know what to do with: " + this.toString());
+  }
+  return e;
+}

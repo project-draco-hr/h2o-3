@@ -1,0 +1,20 @@
+{
+  ArrayList<Key> locked=new ArrayList<>();
+  Env env=new Env(locked);
+  env.put("TRUE","double","1");
+  env.put("T","double","1");
+  env.put("FALSE","doudble","0");
+  env.put("F","double","0");
+  env.put("NA","double",Double.toString(Double.NaN));
+  env.put("Inf","double",Double.toString(Double.POSITIVE_INFINITY));
+  try {
+    Exec ex=new Exec(str,env);
+    AST ast=ex.parse();
+    env=ast.treeWalk(env);
+  }
+ catch (  RuntimeException t) {
+    env.remove_and_unlock();
+    throw t;
+  }
+  return env;
+}
