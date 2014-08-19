@@ -2,7 +2,7 @@
   boolean toss_fr=false;
   Frame fr0=null, fr1=null;
   double d0=0, d1=0;
-  String s0="", s1="";
+  String s0=null, s1=null;
   int left_type=env.peekType();
   Object left=env.pop();
   int right_type=env.peekType();
@@ -33,13 +33,26 @@ break;
 default :
 throw H2O.fail("Got unusable type: " + right_type + " in binary operator "+ opStr());
 }
-if (fr0 == null && fr1 == null) {
+if ((fr0 == null && fr1 == null) && (s0 == null && s1 == null)) {
 env.push(new ASTNum(op(d0,d1)));
+return;
+}
+if (fr0 == null && fr1 == null) {
+if (s0 == null) {
+if (opStr().equals("==") || opStr().equals("!=")) env.push(new ASTNum(Double.valueOf(op(d0,s1))));
+ else env.push(new ASTString('\"',op(d0,s1)));
+}
+ else if (s1 == null) {
+if (opStr().equals("==") || opStr().equals("!=")) env.push(new ASTNum(Double.valueOf(op(s0,d1))));
+ else env.push(new ASTString('\"',op(s0,d1)));
+}
+ else env.push(new ASTString('\"',op(s0,s1)));
 return;
 }
 final boolean lf=fr0 != null;
 final boolean rf=fr1 != null;
 final double df0=d0, df1=d1;
+final String sf0=s0, sf1=s1;
 Frame fr;
 int ncols=0;
 if (fr0 != null) {
@@ -65,38 +78,53 @@ NewChunk n=nchks[i];
 int rlen=chks[0].len();
 Chunk c0=chks[i];
 if ((!c0.vec().isEnum() && !(lf && rf && chks[i + nchks.length].vec().isEnum())) || bin instanceof ASTEQ || bin instanceof ASTNE) {
-for (int r=0; r < rlen; r++) {
-double lv;
-double rv;
+for (int ro=0; ro < rlen; ro++) {
+double lv=0;
+double rv=0;
+String l=null;
+String r=null;
 if (lf) {
-if (chks[i].vec().isUUID() || (chks[i].isNA0(r) && !bin.opStr().equals("|"))) {
+if (chks[i].vec().isUUID() || (chks[i].isNA0(ro) && !bin.opStr().equals("|"))) {
 n.addNum(Double.NaN);
 continue;
 }
-lv=chks[i].at0(r);
+if (chks[i].vec().isEnum()) l=chks[i].vec().domain()[(int)chks[i].at0(ro)];
+ else lv=chks[i].at0(ro);
 }
- else {
+ else if (sf0 == null) {
 if (Double.isNaN(df0) && !bin.opStr().equals("|")) {
 n.addNum(Double.NaN);
 continue;
 }
 lv=df0;
+l=null;
+}
+ else {
+l=sf0;
 }
 if (rf) {
-if (chks[i + (lf ? nchks.length : 0)].vec().isUUID() || chks[i].isNA0(r) && !bin.opStr().equals("|")) {
+if (chks[i + (lf ? nchks.length : 0)].vec().isUUID() || chks[i].isNA0(ro) && !bin.opStr().equals("|")) {
 n.addNum(Double.NaN);
 continue;
 }
-rv=chks[i + (lf ? nchks.length : 0)].at0(r);
+if (chks[i].vec().isEnum()) r=chks[i].vec().domain()[(int)chks[i].at0(ro)];
+ else rv=chks[i + (lf ? nchks.length : 0)].at0(ro);
 }
- else {
+ else if (sf1 == null) {
 if (Double.isNaN(df1) && !bin.opStr().equals("|")) {
 n.addNum(Double.NaN);
 continue;
 }
 rv=df1;
+r=null;
 }
-n.addNum(bin.op(lv,rv));
+ else {
+r=sf1;
+}
+if (l == null && r == null) n.addNum(bin.op(lv,rv));
+ else if (l == null) n.addNum(Double.valueOf(bin.op(lv,r)));
+ else if (r == null) n.addNum(Double.valueOf(bin.op(l,rv)));
+ else n.addNum(Double.valueOf(bin.op(l,r)));
 }
 }
  else {

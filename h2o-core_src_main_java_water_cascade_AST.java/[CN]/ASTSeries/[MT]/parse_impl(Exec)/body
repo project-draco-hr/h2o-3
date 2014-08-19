@@ -1,0 +1,16 @@
+{
+  ArrayList<Long> l_idxs=new ArrayList<>();
+  ArrayList<ASTSpan> s_spans=new ArrayList<>();
+  String[] strs=E.parseString('}').split(";");
+  for (  String s : strs) {
+    if (s.charAt(0) == '(') {
+      s_spans.add((ASTSpan)(new Exec(s,null)).parse());
+    }
+ else     l_idxs.add(Long.valueOf(s));
+  }
+  long[] idxs=new long[l_idxs.size()];
+  ASTSpan[] spans=new ASTSpan[s_spans.size()];
+  for (int i=0; i < idxs.length; ++i)   idxs[i]=l_idxs.get(i);
+  for (int i=0; i < spans.length; ++i)   spans[i]=s_spans.get(i);
+  return new ASTSeries(idxs,spans);
+}

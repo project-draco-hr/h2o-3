@@ -1,8 +1,10 @@
 {
-  if (o == NULL)   return NULL;
+  if (o instanceof ASTNull)   return NULL;
   if (o instanceof ASTId)   return ID;
   if (o instanceof ASTFrame)   return ARY;
   if (o instanceof ASTString)   return STR;
   if (o instanceof ASTNum)   return NUM;
-  throw H2O.fail("Got a bad type on the ExecStack: Object class: " + o.getClass() + ". Not a Vec, Frame, String, Double, Float, or Int.");
+  if (o instanceof ASTSpan)   return SPAN;
+  if (o instanceof ASTSeries)   return SERIES;
+  throw H2O.fail("Got a bad type on the ExecStack: Object class: " + o.getClass() + ". Not a Frame, String, Double, Fun, Span, or Series");
 }

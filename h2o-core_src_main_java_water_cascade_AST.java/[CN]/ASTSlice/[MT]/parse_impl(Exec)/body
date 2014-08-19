@@ -1,0 +1,14 @@
+{
+  AST hex=E.parse();
+  AST rows=E.skipWS().parse();
+  if (rows instanceof ASTString)   rows=new ASTNull();
+  if (rows instanceof ASTSpan)   ((ASTSpan)rows).setSlice(true,false);
+  if (rows instanceof ASTSeries)   ((ASTSeries)rows).setSlice(true,false);
+  AST cols=E.skipWS().parse();
+  if (cols instanceof ASTString)   cols=new ASTNull();
+  if (cols instanceof ASTSpan)   ((ASTSpan)cols).setSlice(false,true);
+  if (cols instanceof ASTSeries)   ((ASTSeries)cols).setSlice(false,true);
+  ASTSlice res=(ASTSlice)clone();
+  res._asts=new AST[]{hex,rows,cols};
+  return res;
+}
