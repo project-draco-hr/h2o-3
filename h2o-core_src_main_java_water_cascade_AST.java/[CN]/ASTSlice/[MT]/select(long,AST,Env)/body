@@ -5,13 +5,13 @@
   if (env.isNum()) {
     int col=(int)((ASTNum)env.pop())._d;
     if (col < 0 && col < -len)     col=0;
-    if (col == 0)     return new long[0];
     return new long[]{col};
   }
   if (env.isSeries()) {
     ASTSeries a=env.popSeries();
     if (a.isColSelector())     return a.toArray();
     Frame ary=env.peekAry();
+    Vec v0=ary.anyVec().makeZero();
     final ASTSeries a0=a;
     Frame fr=new MRTask(){
       @Override public void map(      Chunk cs){
@@ -20,7 +20,7 @@
         }
       }
     }
-.doAll(ary.anyVec().makeZero()).getResult()._fr;
+.doAll(v0).getResult()._fr;
     return fr;
   }
   if (env.isSpan()) {

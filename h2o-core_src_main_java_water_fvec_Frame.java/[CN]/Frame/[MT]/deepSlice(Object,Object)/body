@@ -43,6 +43,7 @@
     }
     if (rows.length == 0 || rows[0] < 0) {
       if (rows.length != 0 && rows[0] < 0) {
+        Vec v0=this.anyVec().makeZero();
         Vec v=new MRTask(){
           @Override public void map(          Chunk cs){
             for (            long er : rows) {
@@ -53,7 +54,8 @@
             }
           }
         }
-.doAll(this.anyVec().makeZero()).getResult()._fr.anyVec();
+.doAll(v0).getResult()._fr.anyVec();
+        DKV.remove(v0._key);
         Frame slicedFrame=new DeepSlice(rows,c2,vecs()).doAll(c2.length,this.add("select_vec",v)).outputFrame(names(c2),domains(c2));
         DKV.remove(v._key);
         DKV.remove(this.remove(this.numCols() - 1)._key);
@@ -77,8 +79,11 @@
     }
     Vec c0=av.close(fs);
     fs.blockForPending();
-    Frame fr2=new Slice(c2,this).doAll(c2.length,new Frame(new String[]{"rownames"},new Vec[]{c0})).outputFrame(names(c2),domains(c2));
+    Frame ff=new Frame(new String[]{"rownames"},new Vec[]{c0});
+    Frame fr2=new Slice(c2,this).doAll(c2.length,ff).outputFrame(names(c2),domains(c2));
+    ff.delete();
     DKV.remove(c0._key);
+    DKV.remove(av._key);
     return fr2;
   }
   Frame frows=(Frame)orows;
@@ -96,5 +101,6 @@
   ff.delete();
   DKV.remove(vrows._key);
   frows.delete();
+  for (  Vec v : vecs)   DKV.remove(v._key);
   return sliced;
 }

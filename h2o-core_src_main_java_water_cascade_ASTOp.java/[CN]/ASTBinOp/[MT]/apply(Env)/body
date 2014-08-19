@@ -4,9 +4,9 @@
   double d0=0, d1=0;
   String s0=null, s1=null;
   int left_type=env.peekType();
-  Object left=env.pop();
-  int right_type=env.peekType();
-  Object right=env.pop();
+  Object left=env.peek();
+  int right_type=env.peekTypeAt(-1);
+  Object right=env.peekAt(-1);
 switch (left_type) {
 case Env.NUM:
     d1=((ASTNum)left)._d;
@@ -34,10 +34,14 @@ default :
 throw H2O.fail("Got unusable type: " + right_type + " in binary operator "+ opStr());
 }
 if ((fr0 == null && fr1 == null) && (s0 == null && s1 == null)) {
+env.pop();
+env.pop();
 env.push(new ASTNum(op(d0,d1)));
 return;
 }
 if (fr0 == null && fr1 == null) {
+env.pop();
+env.pop();
 if (s0 == null) {
 if (opStr().equals("==") || opStr().equals("!=")) env.push(new ASTNum(Double.valueOf(op(d0,s1))));
  else env.push(new ASTString('\"',op(d0,s1)));
@@ -71,6 +75,7 @@ ncols=fr1.numCols();
 fr=new Frame(fr1);
 }
 final ASTBinOp bin=this;
+Key tmp_key=Key.make();
 Frame fr2=new MRTask(){
 @Override public void map(Chunk chks[],NewChunk nchks[]){
 for (int i=0; i < nchks.length; i++) {
@@ -133,8 +138,10 @@ for (int r=0; r < rlen; r++) n.addNA();
 }
 }
 }
-.doAll(ncols,fr).outputFrame(Key.make(),(lf ? fr0 : fr1)._names,null);
+.doAll(ncols,fr).outputFrame(tmp_key,(lf ? fr0 : fr1)._names,null);
+if (env.isAry()) env.cleanup(env.popAry());
+ else env.pop();
+if (env.isAry()) env.cleanup(env.popAry());
+ else env.pop();
 env.push(new ASTFrame(fr2));
-if (toss_fr) env.cleanup(fr0,fr1,fr);
- else env.cleanup(fr0,fr1);
 }
