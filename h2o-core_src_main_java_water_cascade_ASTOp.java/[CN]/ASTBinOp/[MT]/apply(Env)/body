@@ -34,10 +34,14 @@ default :
 throw H2O.fail("Got unusable type: " + right_type + " in binary operator "+ opStr());
 }
 if ((fr0 == null && fr1 == null) && (s0 == null && s1 == null)) {
+env.pop();
+env.pop();
 env.push(new ASTNum(op(d0,d1)));
 return;
 }
 if (fr0 == null && fr1 == null) {
+env.pop();
+env.pop();
 if (s0 == null) {
 if (opStr().equals("==") || opStr().equals("!=")) env.push(new ASTNum(Double.valueOf(op(d0,s1))));
  else env.push(new ASTString('\"',op(d0,s1)));
