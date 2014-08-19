@@ -1,57 +1,34 @@
 {
-  long rstart=chks[0]._start;
+  long rstart=chks[0].start();
   int rlen=chks[0].len();
   int rx=0;
   int rlo=0;
   int rhi=rlen;
-  if (_rows != null && _rows[0] < 0) {
-    Chunk select_vec=chks[chks.length - 1];
+  while (true) {
+    if (_rows != null) {
+      if (rx >= _rows.length)       break;
+      long r=_rows[rx++];
+      if (r < rstart)       continue;
+      rlo=(int)(r - rstart);
+      rhi=rlo + 1;
+      while (rx < _rows.length && (_rows[rx] - rstart) == rhi && rhi < rlen) {
+        rx++;
+        rhi++;
+      }
+    }
     for (int i=0; i < _cols.length; i++) {
       Chunk oc=chks[_cols[i]];
       NewChunk nc=nchks[i];
       if (_isInt[i] == 1) {
-        for (int j=0; j < oc.len(); j++) {
-          if (select_vec.at80(j) == 1)           continue;
-          if (oc._vec.isUUID())           nc.addUUID(oc,j);
- else           if (oc.isNA0(j))           nc.addNA();
- else           nc.addNum(oc.at80(j),0);
-        }
+        for (int j=rlo; j < rhi; j++)         if (oc._vec.isUUID())         nc.addUUID(oc,j);
+ else         if (oc.isNA0(j))         nc.addNA();
+ else         nc.addNum(oc.at80(j),0);
       }
  else {
-        for (int j=0; j < oc.len(); j++) {
-          if (select_vec.at80(j) == 1)           continue;
-          nc.addNum(oc.at0(j));
-        }
+        for (int j=rlo; j < rhi; j++)         nc.addNum(oc.at0(j));
       }
     }
-  }
- else {
-    while (true) {
-      if (_rows != null) {
-        if (rx >= _rows.length)         break;
-        long r=_rows[rx++];
-        if (r < rstart)         continue;
-        rlo=(int)(r - rstart);
-        rhi=rlo + 1;
-        while (rx < _rows.length && (_rows[rx] - rstart) == rhi && rhi < rlen) {
-          rx++;
-          rhi++;
-        }
-      }
-      for (int i=0; i < _cols.length; i++) {
-        Chunk oc=chks[_cols[i]];
-        NewChunk nc=nchks[i];
-        if (_isInt[i] == 1) {
-          for (int j=rlo; j < rhi; j++)           if (oc._vec.isUUID())           nc.addUUID(oc,j);
- else           if (oc.isNA0(j))           nc.addNA();
- else           nc.addNum(oc.at80(j),0);
-        }
- else {
-          for (int j=rlo; j < rhi; j++)           nc.addNum(oc.at0(j));
-        }
-      }
-      rlo=rhi;
-      if (_rows == null)       break;
-    }
+    rlo=rhi;
+    if (_rows == null)     break;
   }
 }

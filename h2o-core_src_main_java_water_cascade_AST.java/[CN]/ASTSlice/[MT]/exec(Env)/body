@@ -18,8 +18,10 @@
     cols=select(ary.numCols(),(AST)cols,env);
     rows=select(ary.numRows(),(AST)rows,env);
     Frame fr2=ary.deepSlice(rows,cols);
+    if (cols instanceof Frame)     for (    Vec v : ((Frame)cols).vecs())     DKV.remove(v._key);
+    if (rows instanceof Frame)     for (    Vec v : ((Frame)rows).vecs())     DKV.remove(v._key);
     if (fr2 == null)     fr2=new Frame();
-    env.cleanup(ary,env.popAry(),(rows instanceof Frame) ? (Frame)rows : null);
+    env.cleanup(ary,env.popAry());
     env.push(new ASTFrame(fr2));
   }
 }
