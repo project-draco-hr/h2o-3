@@ -1,0 +1,20 @@
+{
+  int nchunk=espc.length;
+  long espc2[]=new long[nchunk + 1];
+  long x=0;
+  for (int i=0; i < nchunk; i++) {
+    espc2[i]=x;
+    x+=espc[i];
+  }
+  espc2[nchunk]=x;
+  System.out.println("GROINK!");
+  Futures fs=new Futures();
+  _vecs=new Vec[_keys.length];
+  for (int i=0; i < _keys.length; i++) {
+    Vec vec=_vecs[i]=new Vec(_keys[i],espc2,null,false,false,(byte)-1);
+    DKV.put(_keys[i],vec,fs);
+    System.out.println(vec.toString());
+  }
+  fs.blockForPending();
+  System.out.println("GROK!");
+}
