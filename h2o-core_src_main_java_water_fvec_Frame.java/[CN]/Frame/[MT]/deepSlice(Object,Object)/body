@@ -1,0 +1,100 @@
+{
+  long[] cols;
+  if (ocols == null)   cols=null;
+ else   if (ocols instanceof long[])   cols=(long[])ocols;
+ else   if (ocols instanceof Frame) {
+    Frame fr=(Frame)ocols;
+    if (fr.numCols() != 1)     throw new IllegalArgumentException("Columns Frame must have only one column (actually has " + fr.numCols() + " columns)");
+    long n=fr.anyVec().length();
+    if (n > MAX_EQ2_COLS)     throw new IllegalArgumentException("Too many requested columns (requested " + n + ", max "+ MAX_EQ2_COLS+ ")");
+    cols=new long[(int)n];
+    Vec v=fr.anyVec();
+    for (long i=0; i < v.length(); i++)     cols[(int)i]=v.at8(i);
+  }
+ else   throw new IllegalArgumentException("Columns is specified by an unsupported data type (" + ocols.getClass().getName() + ")");
+  int c2[];
+  if (cols == null) {
+    c2=new int[numCols()];
+    for (int i=0; i < c2.length; i++)     c2[i]=i;
+  }
+ else   if (cols.length == 0) {
+    c2=new int[0];
+  }
+ else   if (cols[0] >= 0) {
+    c2=new int[cols.length];
+    for (int i=0; i < cols.length; i++)     c2[i]=(int)cols[i];
+  }
+ else {
+    c2=new int[numCols() - cols.length];
+    int j=0;
+    for (int i=0; i < numCols(); i++) {
+      if (j >= cols.length || i < (-cols[j]))       c2[i - j]=i;
+ else       j++;
+    }
+  }
+  for (  int aC2 : c2)   if (aC2 >= numCols())   throw new IllegalArgumentException("Trying to select column " + (aC2 + 1) + " but only "+ numCols()+ " present.");
+  if (c2.length == 0)   throw new IllegalArgumentException("No columns selected (did you try to select column 0 instead of column 1?)");
+  if (orows == null)   return new DeepSlice(null,c2,vecs()).doAll(c2.length,this).outputFrame(names(c2),domains(c2));
+ else   if (orows instanceof long[]) {
+    final long CHK_ROWS=1000000;
+    final long[] rows=(long[])orows;
+    if (this.numRows() == 0) {
+      return this;
+    }
+    if (rows.length == 0 || rows[0] < 0) {
+      if (rows.length != 0 && rows[0] < 0) {
+        Vec v=new MRTask(){
+          @Override public void map(          Chunk cs){
+            for (            long er : rows) {
+              if (er >= 0)               continue;
+              er=Math.abs(er);
+              if (er < cs._start || er > (cs.len() + cs._start - 1))               continue;
+              cs.set0((int)(er - cs._start),1);
+            }
+          }
+        }
+.doAll(this.anyVec().makeZero()).getResult()._fr.anyVec();
+        Frame slicedFrame=new DeepSlice(rows,c2,vecs()).doAll(c2.length,this.add("select_vec",v)).outputFrame(names(c2),domains(c2));
+        DKV.remove(v._key);
+        DKV.remove(this.remove(this.numCols() - 1)._key);
+        return slicedFrame;
+      }
+ else {
+        return new DeepSlice(rows.length == 0 ? null : rows,c2,vecs()).doAll(c2.length,this).outputFrame(names(c2),domains(c2));
+      }
+    }
+    Futures fs=new Futures();
+    AppendableVec av=new AppendableVec(Vec.newKey(Key.make("rownames")));
+    int r=0;
+    int c=0;
+    while (r < rows.length) {
+      NewChunk nc=new NewChunk(av,c);
+      long end=Math.min(r + CHK_ROWS,rows.length);
+      for (; r < end; r++) {
+        nc.addNum(rows[r]);
+      }
+      nc.close(c++,fs);
+    }
+    Vec c0=av.close(fs);
+    fs.blockForPending();
+    Frame fr2=new Slice(c2,this).doAll(c2.length,new Frame(new String[]{"rownames"},new Vec[]{c0})).outputFrame(names(c2),domains(c2));
+    DKV.remove(c0._key);
+    return fr2;
+  }
+  Frame frows=(Frame)orows;
+  Vec vrows=frows.anyVec();
+  Vec[] vecs=new Vec[c2.length + 1];
+  String[] names=new String[c2.length + 1];
+  for (int i=0; i < c2.length; ++i) {
+    vecs[i]=_vecs[c2[i]];
+    names[i]=_names[c2[i]];
+  }
+  vecs[c2.length]=vrows;
+  names[c2.length]="predicate";
+  Frame ff=new Frame(names,vecs);
+  Frame sliced=new DeepSelect().doAll(c2.length,ff).outputFrame(names(c2),domains(c2));
+  ff.delete();
+  DKV.remove(vrows._key);
+  frows.delete();
+  return sliced;
+}
