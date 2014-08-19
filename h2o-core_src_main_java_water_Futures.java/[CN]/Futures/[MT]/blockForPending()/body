@@ -9,7 +9,10 @@ synchronized (this) {
       f.get();
     }
   }
- catch (  InterruptedException|ExecutionException e) {
+ catch (  ExecutionException e) {
+    throw Log.throwErr(new RuntimeException(e.getCause()));
+  }
+catch (  InterruptedException e) {
     throw Log.throwErr(e);
   }
 }
