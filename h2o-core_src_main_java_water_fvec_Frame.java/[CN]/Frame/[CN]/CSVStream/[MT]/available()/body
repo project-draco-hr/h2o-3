@@ -1,0 +1,31 @@
+{
+  if (_position == _line.length) {
+    if (_row == numRows())     return 0;
+    StringBuilder sb=new StringBuilder();
+    Vec vs[]=vecs();
+    for (int i=0; i < vs.length; i++) {
+      if (i > 0)       sb.append(',');
+      if (!vs[i].isNA(_row)) {
+        if (vs[i].isEnum())         sb.append('"').append(vs[i]._domain[(int)vs[i].at8(_row)]).append('"');
+ else         if (vs[i].isUUID())         sb.append(PrettyPrint.UUID(vs[i].at16l(_row),vs[i].at16h(_row)));
+ else         if (vs[i].isInt())         sb.append(vs[i].at8(_row));
+ else {
+          double d=vs[i].at(_row);
+          String s;
+          if (_hex_string) {
+            s=Double.toHexString(d);
+          }
+ else {
+            s=Double.toString(d);
+          }
+          sb.append(s);
+        }
+      }
+    }
+    sb.append('\n');
+    _line=sb.toString().getBytes();
+    _position=0;
+    _row++;
+  }
+  return _line.length - _position;
+}
