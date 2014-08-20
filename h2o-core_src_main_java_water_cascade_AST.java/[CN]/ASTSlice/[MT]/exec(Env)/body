@@ -1,27 +1,27 @@
 {
   int cols_type=env.peekType();
-  Object cols=env.pop();
+  Val cols=env.pop();
   int rows_type=env.peekType();
-  Object rows=env.pop();
+  Val rows=env.pop();
   if (cols_type == Env.NUM && rows_type == Env.NUM) {
-    long row=(long)((ASTNum)rows)._d;
-    int col=(int)((ASTNum)cols)._d;
+    long row=(long)((ValNum)rows)._d;
+    int col=(int)((ValNum)cols)._d;
     Frame ary=env.popAry();
     if (ary.vecs()[col].isEnum()) {
-      env.push(new ASTString('\"',ary.vecs()[col].domain()[(int)ary.vecs()[col].at(row)]));
+      env.push(new ValStr(ary.vecs()[col].domain()[(int)ary.vecs()[col].at(row)]));
     }
- else     env.push(new ASTNum(ary.vecs()[col].at(row)));
+ else     env.push(new ValNum(ary.vecs()[col].at(row)));
     env.cleanup(ary);
   }
  else {
     Frame ary=env.peekAry();
-    cols=select(ary.numCols(),(AST)cols,env);
-    rows=select(ary.numRows(),(AST)rows,env);
-    Frame fr2=ary.deepSlice(rows,cols);
-    if (cols instanceof Frame)     for (    Vec v : ((Frame)cols).vecs())     DKV.remove(v._key);
-    if (rows instanceof Frame)     for (    Vec v : ((Frame)rows).vecs())     DKV.remove(v._key);
+    Object colSelect=select(ary.numCols(),cols,env);
+    Object rowSelect=select(ary.numRows(),rows,env);
+    Frame fr2=ary.deepSlice(rowSelect,colSelect);
+    if (colSelect instanceof Frame)     for (    Vec v : ((Frame)colSelect).vecs())     Keyed.remove(v._key);
+    if (rowSelect instanceof Frame)     for (    Vec v : ((Frame)rowSelect).vecs())     Keyed.remove(v._key);
     if (fr2 == null)     fr2=new Frame();
     env.cleanup(ary,env.popAry());
-    env.push(new ASTFrame(fr2));
+    env.push(new ValFrame(fr2));
   }
 }
