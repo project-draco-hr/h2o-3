@@ -9,26 +9,26 @@
   Object right=env.peekAt(-1);
 switch (left_type) {
 case Env.NUM:
-    d1=((ASTNum)left)._d;
+    d1=((ValNum)left)._d;
   break;
 case Env.ARY:
-fr1=((ASTFrame)left)._fr;
+fr1=((ValFrame)left)._fr;
 break;
 case Env.STR:
-s1=((ASTString)left)._s;
+s1=((ValStr)left)._s;
 break;
 default :
 throw H2O.fail("Got unusable type: " + left_type + " in binary operator "+ opStr());
 }
 switch (right_type) {
 case Env.NUM:
-d0=((ASTNum)right)._d;
+d0=((ValNum)right)._d;
 break;
 case Env.ARY:
-fr0=((ASTFrame)right)._fr;
+fr0=((ValFrame)right)._fr;
 break;
 case Env.STR:
-s0=((ASTString)right)._s;
+s0=((ValStr)right)._s;
 break;
 default :
 throw H2O.fail("Got unusable type: " + right_type + " in binary operator "+ opStr());
@@ -36,21 +36,21 @@ throw H2O.fail("Got unusable type: " + right_type + " in binary operator "+ opSt
 if ((fr0 == null && fr1 == null) && (s0 == null && s1 == null)) {
 env.pop();
 env.pop();
-env.push(new ASTNum(op(d0,d1)));
+env.push(new ValNum(op(d0,d1)));
 return;
 }
 if (fr0 == null && fr1 == null) {
 env.pop();
 env.pop();
 if (s0 == null) {
-if (opStr().equals("==") || opStr().equals("!=")) env.push(new ASTNum(Double.valueOf(op(d0,s1))));
- else env.push(new ASTString('\"',op(d0,s1)));
+if (opStr().equals("==") || opStr().equals("!=")) env.push(new ValNum(Double.valueOf(op(d0,s1))));
+ else env.push(new ValStr(op(d0,s1)));
 }
  else if (s1 == null) {
-if (opStr().equals("==") || opStr().equals("!=")) env.push(new ASTNum(Double.valueOf(op(s0,d1))));
- else env.push(new ASTString('\"',op(s0,d1)));
+if (opStr().equals("==") || opStr().equals("!=")) env.push(new ValNum(Double.valueOf(op(s0,d1))));
+ else env.push(new ValStr(op(s0,d1)));
 }
- else env.push(new ASTString('\"',op(s0,s1)));
+ else env.push(new ValStr(op(s0,s1)));
 return;
 }
 final boolean lf=fr0 != null;
@@ -143,5 +143,5 @@ if (env.isAry()) env.cleanup(env.popAry());
  else env.pop();
 if (env.isAry()) env.cleanup(env.popAry());
  else env.pop();
-env.push(new ASTFrame(fr2));
+env.push(new ValFrame(fr2));
 }
