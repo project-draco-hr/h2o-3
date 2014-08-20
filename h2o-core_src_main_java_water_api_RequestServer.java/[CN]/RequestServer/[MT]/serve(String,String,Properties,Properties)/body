@@ -10,6 +10,9 @@
   try {
     Route route=lookup(method,versioned_path);
     if (route == null)     return getResource(uri);
+ else     if (route._handler_class == water.api.DownloadDataHandler.class) {
+      return wrap2(HTTP_OK,handle(type,route,version,parms));
+    }
  else {
       capturePathParms(parms,versioned_path,route);
       maybeLogRequest(path,versioned_path,route._url_pattern.pattern(),parms);
