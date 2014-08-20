@@ -1,0 +1,31 @@
+{
+  try {
+    sb.append("Origin: ").append(H2O.SELF._key);
+    sb.append("<table cellpadding='10'>");
+    sb.append("<tr>");
+    sb.append("<th>Destination / Message Size</th>");
+    for (    int msg_size : msg_sizes) {
+      sb.append("<th>");
+      sb.append(PrettyPrint.bytes(msg_size));
+      sb.append("</th>");
+    }
+    for (int n=0; n < microseconds[0].length; ++n) {
+      sb.append("</tr>");
+      sb.append("<tr>");
+      sb.append("<td>");
+      sb.append(H2O.CLOUD._memary[n]._key);
+      sb.append("</td>");
+      for (int m=0; m < msg_sizes.length; ++m) {
+        sb.append("<td>");
+        sb.append(PrettyPrint.usecs((long)microseconds[m][n])).append(", ").append(PrettyPrint.bytesPerSecond((long)bandwidths[m][n]));
+        sb.append("</td>");
+      }
+    }
+    sb.append("</tr>");
+    sb.append("</table>");
+  }
+ catch (  Throwable t) {
+    return false;
+  }
+  return true;
+}
