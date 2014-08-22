@@ -2,7 +2,8 @@
   microseconds=new double[msg_sizes.length][];
   microseconds_collective=new double[msg_sizes.length];
   NetworkTester nt=new NetworkTester(msg_sizes,microseconds,microseconds_collective,repeats,serial,collective);
-  nt.compute2();
+  H2O.submitTask(nt);
+  nt.join();
   bandwidths=new double[msg_sizes.length][];
   for (int i=0; i < bandwidths.length; ++i) {
     bandwidths[i]=new double[microseconds[i].length];

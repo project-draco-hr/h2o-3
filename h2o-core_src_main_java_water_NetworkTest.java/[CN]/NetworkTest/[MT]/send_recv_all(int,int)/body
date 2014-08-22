@@ -1,11 +1,13 @@
 {
-  PingPongTask ppt=new PingPongTask(msg_size);
+  byte[] payload=new byte[msg_size];
+  new Random().nextBytes(payload);
   final int siz=H2O.CLOUD.size();
   double[] times=new double[siz];
   for (int i=0; i < siz; ++i) {
     H2ONode node=H2O.CLOUD._memary[i];
     Timer t=new Timer();
     for (int l=0; l < repeats; ++l) {
+      PingPongTask ppt=new PingPongTask(payload);
       new RPC<>(node,ppt).call().get();
     }
     times[i]=(double)t.nanos() / repeats;
