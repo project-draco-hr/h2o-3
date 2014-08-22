@@ -1,0 +1,19 @@
+{
+  microseconds=new double[msg_sizes.length][];
+  microseconds_collective=new double[msg_sizes.length];
+  NetworkTester nt=new NetworkTester(msg_sizes,microseconds,microseconds_collective,repeats,serial,collective);
+  nt.compute2();
+  bandwidths=new double[msg_sizes.length][];
+  for (int i=0; i < bandwidths.length; ++i) {
+    bandwidths[i]=new double[microseconds[i].length];
+    for (int j=0; j < microseconds[i].length; ++j) {
+      bandwidths[i][j]=(2 * msg_sizes[i]) / (microseconds[i][j] / 1e6);
+    }
+  }
+  bandwidths_collective=new double[msg_sizes.length];
+  for (int i=0; i < bandwidths_collective.length; ++i) {
+    bandwidths_collective[i]=(2 * H2O.CLOUD.size() * msg_sizes[i]) / (microseconds_collective[i] / 1e6);
+  }
+  nodes=new String[H2O.CLOUD.size()];
+  for (int i=0; i < nodes.length; ++i)   nodes[i]=H2O.CLOUD._memary[i]._key.toString();
+}

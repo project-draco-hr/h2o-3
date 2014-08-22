@@ -1,0 +1,11 @@
+{
+  byte[] payload=new byte[msg_size];
+  new Random().nextBytes(payload);
+  Vec v=Vec.makeConSeq(0.,1);
+  Timer t=new Timer();
+  for (int l=0; l < repeats; ++l) {
+    new CollectiveTask(payload).doAll(v);
+  }
+  v.remove(new Futures()).blockForPending();
+  return (double)t.nanos() / repeats;
+}

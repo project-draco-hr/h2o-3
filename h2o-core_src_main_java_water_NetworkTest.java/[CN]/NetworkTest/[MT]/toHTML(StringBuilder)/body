@@ -1,6 +1,6 @@
 {
   try {
-    sb.append("Origin: ").append(H2O.SELF._key);
+    sb.append("Origin: " + H2O.SELF._key);
     sb.append("<table cellpadding='10'>");
     sb.append("<tr>");
     sb.append("<th>Destination / Message Size</th>");
@@ -9,7 +9,18 @@
       sb.append(PrettyPrint.bytes(msg_size));
       sb.append("</th>");
     }
-    for (int n=0; n < microseconds[0].length; ++n) {
+    sb.append("</tr>");
+    sb.append("<tr>");
+    sb.append("<td>");
+    sb.append("All (broadcast & reduce)");
+    sb.append("</td>");
+    for (int m=0; m < msg_sizes.length; ++m) {
+      sb.append("<td>");
+      sb.append(PrettyPrint.usecs((long)microseconds_collective[m])).append(", ").append(PrettyPrint.bytesPerSecond((long)bandwidths_collective[m]));
+      sb.append("</td>");
+    }
+    sb.append("</tr>");
+    for (int n=0; n < H2O.CLOUD._memary.length; ++n) {
       sb.append("</tr>");
       sb.append("<tr>");
       sb.append("<td>");

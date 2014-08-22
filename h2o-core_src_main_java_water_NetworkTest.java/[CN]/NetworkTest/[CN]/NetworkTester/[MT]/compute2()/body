@@ -1,0 +1,15 @@
+{
+  if (serial) {
+    for (int i=0; i < microseconds.length; ++i) {
+      microseconds[i]=send_recv_all(msg_sizes[i],repeats);
+      ArrayUtils.div(microseconds[i],1e3f);
+    }
+  }
+  if (collective) {
+    for (int i=0; i < microseconds_collective.length; ++i) {
+      microseconds_collective[i]=send_recv_collective(msg_sizes[i],repeats);
+    }
+    ArrayUtils.div(microseconds_collective,1e3f);
+  }
+  tryComplete();
+}
