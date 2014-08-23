@@ -1,12 +1,14 @@
 {
   try {
-    InputStream is=null;
-    is=ClassLoader.getSystemClassLoader().getResourceAsStream("resources/www" + uri);
-    if (is != null)     return is;
-    is=ClassLoader.getSystemClassLoader().getResourceAsStream("resources/main/www" + uri);
-    if (is != null)     return is;
-    is=ClassLoader.getSystemClassLoader().getResourceAsStream("www" + uri);
-    if (is != null)     return is;
+    if (System.getProperty("webdev") == null) {
+      InputStream is=null;
+      is=ClassLoader.getSystemClassLoader().getResourceAsStream("resources/www" + uri);
+      if (is != null)       return is;
+      is=ClassLoader.getSystemClassLoader().getResourceAsStream("resources/main/www" + uri);
+      if (is != null)       return is;
+      is=ClassLoader.getSystemClassLoader().getResourceAsStream("www" + uri);
+      if (is != null)       return is;
+    }
     for (    File f : RESOURCE_FILES) {
       File f2=new File(f,uri);
       if (f2.exists())       return new FileInputStream(f2);
