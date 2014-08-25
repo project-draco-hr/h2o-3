@@ -1,0 +1,20 @@
+{
+  if (_cats == 0)   return;
+  if (!_useAllFactorLevels)   throw new UnsupportedOperationException("All factor levels must be present for re-scaling with SoftMax.");
+  assert(in.length == out.length);
+  assert(in.length == fullN());
+  final Vec[] vecs=_adaptedFrame.vecs();
+  int k=0;
+  for (int i=0; i < _cats; ++i) {
+    final int factors=vecs[i].domain().length;
+    final float max=ArrayUtils.maxValue(in,k,k + factors);
+    float scale=0;
+    for (int j=0; j < factors; ++j) {
+      out[k + j]=(float)Math.exp(in[k + j] - max);
+      scale+=out[k + j];
+    }
+    for (int j=0; j < factors; ++j)     out[k + j]/=scale;
+    k+=factors;
+  }
+  assert(k == numStart());
+}
