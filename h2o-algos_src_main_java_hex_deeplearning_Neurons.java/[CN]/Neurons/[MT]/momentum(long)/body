@@ -1,8 +1,9 @@
 {
   double m=params.momentum_start;
   if (params.momentum_ramp > 0) {
-    if (n >= params.momentum_ramp)     m=params.momentum_stable;
- else     m+=(params.momentum_stable - params.momentum_start) * n / params.momentum_ramp;
+    final long num=n != -1 ? _minfo.get_processed_total() : n;
+    if (num >= params.momentum_ramp)     m=params.momentum_stable;
+ else     m+=(params.momentum_stable - params.momentum_start) * num / params.momentum_ramp;
   }
   return (float)m;
 }

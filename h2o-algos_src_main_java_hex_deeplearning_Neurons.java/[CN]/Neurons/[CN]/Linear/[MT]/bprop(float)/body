@@ -1,9 +1,9 @@
 {
+  assert(target != missing_real_value);
   if (params.loss != Loss.MeanSquare)   throw new UnsupportedOperationException("Regression is only implemented for MeanSquare error.");
   final int row=0;
   final float g=target - _a.get(row);
-  final long processed=_minfo.get_processed_total();
-  float m=momentum(processed);
-  float r=rate(processed) * (1f - m);
+  float m=momentum();
+  float r=_minfo.adaDelta() ? 0 : rate(_minfo.get_processed_total()) * (1f - m);
   bprop(row,g,r,m);
 }

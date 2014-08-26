@@ -1,0 +1,20 @@
+{
+  long tspi=mp.train_samples_per_iteration;
+  assert(tspi == 0 || tspi == -1 || tspi == -2 || tspi >= 1);
+  if (tspi == 0 || (!mp.replicate_training_data && tspi == -1)) {
+    tspi=numRows;
+    if (!mp.quiet_mode)     Log.info("Setting train_samples_per_iteration (" + mp.train_samples_per_iteration + ") to one epoch: #rows ("+ tspi+ ").");
+  }
+ else   if (tspi == -1) {
+    tspi=(mp.single_node_mode ? 1 : H2O.CLOUD.size()) * numRows;
+    if (!mp.quiet_mode)     Log.info("Setting train_samples_per_iteration (" + mp.train_samples_per_iteration + ") to #nodes x #rows ("+ tspi+ ").");
+  }
+ else   if (tspi == -2) {
+    throw H2O.unimpl();
+  }
+ else {
+    tspi=Math.min(tspi,(long)(mp.epochs * numRows));
+  }
+  assert(tspi != 0 && tspi != -1 && tspi != -2 && tspi >= 1);
+  return tspi;
+}

@@ -1,10 +1,10 @@
 {
-  final long processed=_minfo.get_processed_total();
-  float m=momentum(processed);
-  float r=rate(processed) * (1 - m);
+  float m=momentum();
+  float r=_minfo.adaDelta() ? 0 : rate(_minfo.get_processed_total()) * (1f - m);
   if (_w instanceof DenseRowMatrix) {
     final int rows=_a.size();
     for (int row=0; row < rows; row++) {
+      if (_minfo.get_params().autoencoder && _index == _minfo.get_params().hidden.length)       _e.set(row,autoEncoderError(row));
       float g=_e.get(row) * (1f - _a.get(row) * _a.get(row));
       bprop(row,g,r,m);
     }

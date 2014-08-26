@@ -1,6 +1,6 @@
 {
   for (int w=0; w < dense_row_weights.length; ++w) {
-    final Random rng=getDeterRNG(get_params().seed + 0xBAD5EED + w+ 1);
+    final Random rng=water.util.RandomUtils.getDeterRNG(get_params().seed + 0xBAD5EED + w+ 1);
     final double range=Math.sqrt(6. / (units[w] + units[w + 1]));
     for (int i=0; i < get_weights(w).rows(); i++) {
       for (int j=0; j < get_weights(w).cols(); j++) {
@@ -9,7 +9,7 @@
  else           get_weights(w).set(i,j,(float)uniformDist(rng,-range,range));
         }
  else         if (get_params().initial_weight_distribution == DeepLearning.InitialWeightDistribution.Uniform) {
-          get_weights(w).set(i,j,(float)uniformDist(rng,-get_params().initial_weight_scale,parameters.initial_weight_scale));
+          get_weights(w).set(i,j,(float)uniformDist(rng,-get_params().initial_weight_scale,get_params().initial_weight_scale));
         }
  else         if (get_params().initial_weight_distribution == DeepLearning.InitialWeightDistribution.Normal) {
           get_weights(w).set(i,j,(float)(rng.nextGaussian() * get_params().initial_weight_scale));

@@ -1,9 +1,9 @@
 {
   final Errors lasterror=last_scored();
-  if (errors == null)   return null;
-  ConfusionMatrix cm=lasterror.validation ? lasterror.valid_confusion_matrix : lasterror.train_confusion_matrix;
+  if (lasterror == null)   return null;
+  water.api.ConfusionMatrix cm=lasterror.validation || lasterror.num_folds > 0 ? lasterror.valid_confusion_matrix : lasterror.train_confusion_matrix;
   if (cm == null || cm.cm == null) {
-    if (lasterror.validation) {
+    if (lasterror.validation || lasterror.num_folds > 0) {
       return new ConfMat(lasterror.valid_err,lasterror.validAUC != null ? lasterror.validAUC.F1() : 0);
     }
  else {
