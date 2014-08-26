@@ -1,7 +1,7 @@
 {
   _nfolds=_foldId=0;
-  _standardize=standardize;
-  _standardize_response=standardize_response;
+  _predictor_transform=predictor_transform;
+  _response_transform=response_transform;
   _responses=nResponses;
   _useAllFactorLevels=useAllFactorLevels;
   _catLvls=null;
@@ -25,13 +25,15 @@
   Vec[] vecs2=vecs.clone();
   String[] names=fr._names.clone();
   _catOffsets=MemoryManager.malloc4(ncats + 1);
+  _catMissing=new int[ncats];
   int len=_catOffsets[0]=0;
   for (int i=0; i < ncats; ++i) {
     Vec v=(vecs2[i]=vecs[cats[i]]);
     names[i]=fr._names[cats[i]];
-    _catOffsets[i + 1]=(len+=v.domain().length - (useAllFactorLevels ? 0 : 1));
+    _catMissing[i]=v.naCnt() > 0 ? 1 : 0;
+    _catOffsets[i + 1]=(len+=v.domain().length - (useAllFactorLevels ? 0 : 1) + (v.naCnt() > 0 ? 1 : 0));
   }
-  if (standardize) {
+  if (predictor_transform != TransformType.NONE) {
     _normSub=MemoryManager.malloc8d(nnums);
     _normMul=MemoryManager.malloc8d(nnums);
     Arrays.fill(_normMul,1);
@@ -40,12 +42,16 @@
   for (int i=0; i < nnums; ++i) {
     Vec v=(vecs2[i + ncats]=vecs[nums[i]]);
     names[i + ncats]=fr._names[nums[i]];
-    if (standardize) {
+    if (predictor_transform == TransformType.STANDARDIZE) {
       _normSub[i]=v.mean();
       _normMul[i]=v.sigma() != 0 ? 1.0 / v.sigma() : 1.0;
     }
+ else     if (predictor_transform == TransformType.NORMALIZE) {
+      _normSub[i]=v.mean();
+      _normMul[i]=(v.max() - v.min() > 0) ? 1.0 / (v.max() - v.min()) : 1.0;
+    }
   }
-  if (standardize_response) {
+  if (response_transform != TransformType.NONE && _responses > 0) {
     _normRespSub=MemoryManager.malloc8d(_responses);
     _normRespMul=MemoryManager.malloc8d(_responses);
     Arrays.fill(_normRespMul,1);
@@ -53,9 +59,13 @@
  else   _normRespSub=_normRespMul=null;
   for (int i=0; i < _responses; ++i) {
     Vec v=(vecs2[nnums + ncats + i]=vecs[nnums + ncats + i]);
-    if (standardize_response) {
+    if (response_transform == TransformType.STANDARDIZE) {
       _normRespSub[i]=v.mean();
       _normRespMul[i]=v.sigma() != 0 ? 1.0 / v.sigma() : 1.0;
+    }
+ else     if (response_transform == TransformType.NORMALIZE) {
+      _normRespSub[i]=v.mean();
+      _normRespMul[i]=(v.max() - v.min() > 0) ? 1.0 / (v.max() - v.min()) : 1.0;
     }
   }
   _adaptedFrame=new Frame(names,vecs2);
