@@ -1,5 +1,12 @@
 {
   float[][] rate=get_params().adaptive_rate ? new float[units.length - 1][] : null;
+  if (get_params().autoencoder && get_params().sparsity_beta > 0) {
+    for (int k=0; k < get_params().hidden.length; k++) {
+      mean_a[k]=0;
+      for (int j=0; j < avg_activations[k].size(); j++)       mean_a[k]+=avg_activations[k].get(j);
+      mean_a[k]/=avg_activations[k].size();
+    }
+  }
   for (int y=1; y < units.length; y++) {
     mean_rate[y]=rms_rate[y]=0;
     mean_bias[y]=rms_bias[y]=0;

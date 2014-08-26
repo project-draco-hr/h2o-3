@@ -7,22 +7,25 @@
     _e=new DenseVector(units);
   }
   if (training && (this instanceof MaxoutDropout || this instanceof TanhDropout || this instanceof RectifierDropout|| this instanceof Input)) {
-    _dropout=this instanceof Input ? new Dropout(units,params.input_dropout_ratio) : new Dropout(units,params.hidden_dropout_ratios[index - 1]);
+    _dropout=this instanceof Input ? new Dropout(units,params.input_dropout_ratio) : new Dropout(units,params.hidden_dropout_ratios[_index]);
   }
   if (!(this instanceof Input)) {
-    _previous=neurons[index - 1];
+    _previous=neurons[_index];
     _minfo=minfo;
-    _w=minfo.get_weights(index - 1);
-    _b=minfo.get_biases(index - 1);
+    _w=minfo.get_weights(_index);
+    _b=minfo.get_biases(_index);
+    if (params.autoencoder && params.sparsity_beta > 0 && _index < params.hidden.length) {
+      _avg_a=minfo.get_avg_activations(_index);
+    }
     if (minfo.has_momenta()) {
-      _wm=minfo.get_weights_momenta(index - 1);
-      _bm=minfo.get_biases_momenta(index - 1);
+      _wm=minfo.get_weights_momenta(_index);
+      _bm=minfo.get_biases_momenta(_index);
     }
     if (minfo.adaDelta()) {
-      _ada_dx_g=minfo.get_ada_dx_g(index - 1);
-      _bias_ada_dx_g=minfo.get_biases_ada_dx_g(index - 1);
+      _ada_dx_g=minfo.get_ada_dx_g(_index);
+      _bias_ada_dx_g=minfo.get_biases_ada_dx_g(_index);
     }
-    _shortcut=(params.fast_mode || (!_minfo.get_params().adaptive_rate && !_minfo.has_momenta() && params.l1 == 0.0 && params.l2 == 0.0));
+    _shortcut=(params.fast_mode || (!params.adaptive_rate && !_minfo.has_momenta() && params.l1 == 0.0 && params.l2 == 0.0));
   }
   sanityCheck(training);
 }

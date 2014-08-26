@@ -28,5 +28,8 @@
     }
     _b.add(row,rate * d);
   }
+  if (params.autoencoder && params.sparsity_beta > 0 && !(this instanceof Output) && !(this instanceof Input) && (_index != params.hidden.length)) {
+    _b.add(row,-(float)(rate * params.sparsity_beta * (_avg_a._data[row] - params.average_activation)));
+  }
   if (Float.isInfinite(_b.get(row)))   _minfo.set_unstable();
 }

@@ -5,10 +5,16 @@
     final DeepLearningModel previous=DKV.get(checkpoint).get();
     if (previous == null)     throw new IllegalArgumentException("Checkpoint not found.");
     Log.info("Resuming from checkpoint.");
+    if (n_folds != 0) {
+      throw new UnsupportedOperationException("n_folds must be 0: Cross-validation is not supported during checkpoint restarts.");
+    }
+ else {
+    }
     if (source == null || !Arrays.equals(source._key._kb,previous.model_info().get_params().source._key._kb)) {
       throw new IllegalArgumentException("source must be the same as for the checkpointed model.");
     }
-    if (response == null || !Arrays.equals(response._key._kb,previous.model_info().get_params().response._key._kb)) {
+    autoencoder=previous.model_info().get_params().autoencoder;
+    if (!autoencoder && (response == null || !Arrays.equals(response._key._kb,previous.model_info().get_params().response._key._kb))) {
       throw new IllegalArgumentException("response must be the same as for the checkpointed model.");
     }
     if (ArrayUtils.difference(ignored_cols,previous.model_info().get_params().ignored_cols).length != 0 || ArrayUtils.difference(previous.model_info().get_params().ignored_cols,ignored_cols).length != 0) {
@@ -27,9 +33,8 @@
       final DataInfo dataInfo=prepareDataInfo();
       cp=new DeepLearningModel(previous,dest(),self(),dataInfo);
       cp.write_lock(self());
-      assert(DKV.get(cp._key) != null);
-      assert(_state == JobState.RUNNING);
-      Object A=cp.model_info().get_params(), B=this;
+      final DeepLearning A=cp.model_info().get_params();
+      Object B=this;
       for (      Field fA : A.getClass().getDeclaredFields()) {
         if (ArrayUtils.contains(cp_modifiable,fA.getName())) {
           if (!expert_mode && ArrayUtils.contains(expert_options,fA.getName()))           continue;
@@ -48,6 +53,10 @@
             }
           }
         }
+      }
+      if (A.n_folds != 0) {
+        Log.warn("Disabling cross-validation: Not supported when resuming training from a checkpoint.");
+        A.n_folds=0;
       }
       cp.update(self());
     }

@@ -1,7 +1,7 @@
 {
-  final long processed=_minfo.get_processed_total();
-  float m=momentum(processed);
-  float r=rate(processed) * (1 - m);
+  assert(target != missing_int_value);
+  float m=momentum();
+  float r=_minfo.adaDelta() ? 0 : rate(_minfo.get_processed_total()) * (1f - m);
   float g;
   final float rows=_a.size();
   for (int row=0; row < rows; row++) {

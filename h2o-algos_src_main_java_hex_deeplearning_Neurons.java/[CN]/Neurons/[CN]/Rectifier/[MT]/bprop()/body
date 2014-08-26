@@ -1,11 +1,11 @@
 {
-  final long processed=_minfo.get_processed_total();
-  float m=momentum(processed);
-  float r=rate(processed) * (1 - m);
+  float m=momentum();
+  float r=_minfo.adaDelta() ? 0 : rate(_minfo.get_processed_total()) * (1f - m);
   final int rows=_a.size();
   if (_w instanceof DenseRowMatrix) {
     for (int row=0; row < rows; row++) {
-      final float g=_a.get(row) > 0f ? _e.get(row) : 0f;
+      if (_minfo.get_params().autoencoder && _index == _minfo.get_params().hidden.length)       _e.set(row,autoEncoderError(row));
+      float g=_a.get(row) > 0f ? _e.get(row) : 0f;
       bprop(row,g,r,m);
     }
   }
