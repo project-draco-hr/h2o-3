@@ -1,4 +1,5 @@
 {
+  Scope.enter();
   DeepLearningModel cp=null;
   if (_parms.checkpoint == null)   cp=initModel();
  else {
@@ -67,11 +68,12 @@
   trainModel(cp);
   remove();
   int validlen=_parms.validation != null ? _parms.validation.vecs().length : 0;
-  Key[] keep=new Key[_parms.source.vecs().length + validlen + 3];
+  Key[] keep=new Key[_parms.source.vecs().length + validlen + 4];
   for (int i=0; i < _parms.source.vecs().length; ++i)   keep[i]=_parms.source.vecs()[i]._key;
   keep[_parms.source.vecs().length]=_parms.source._key;
   for (int i=0; i < validlen; ++i)   keep[i]=_parms.validation.vecs()[i]._key;
   if (_parms.validation != null)   keep[_parms.source.vecs().length + 1]=_parms.validation._key;
   keep[_parms.source.vecs().length + 2]=_dest;
+  keep[_parms.source.vecs().length + 3]=cp.actual_best_model_key;
   Scope.exit(keep);
 }
