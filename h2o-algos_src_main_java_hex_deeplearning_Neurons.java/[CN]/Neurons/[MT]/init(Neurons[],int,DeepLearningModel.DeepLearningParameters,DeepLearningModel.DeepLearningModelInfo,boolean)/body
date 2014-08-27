@@ -1,0 +1,31 @@
+{
+  _index=index - 1;
+  params=(DeepLearningModel.DeepLearningParameters)p.clone();
+  params.rate*=Math.pow(params.rate_decay,index - 1);
+  _a=new DenseVector(units);
+  if (!(this instanceof Output) && !(this instanceof Input)) {
+    _e=new DenseVector(units);
+  }
+  if (training && (this instanceof MaxoutDropout || this instanceof TanhDropout || this instanceof RectifierDropout|| this instanceof Input)) {
+    _dropout=this instanceof Input ? new Dropout(units,params.input_dropout_ratio) : new Dropout(units,params.hidden_dropout_ratios[_index]);
+  }
+  if (!(this instanceof Input)) {
+    _previous=neurons[_index];
+    _minfo=minfo;
+    _w=minfo.get_weights(_index);
+    _b=minfo.get_biases(_index);
+    if (params.autoencoder && params.sparsity_beta > 0 && _index < params.hidden.length) {
+      _avg_a=minfo.get_avg_activations(_index);
+    }
+    if (minfo.has_momenta()) {
+      _wm=minfo.get_weights_momenta(_index);
+      _bm=minfo.get_biases_momenta(_index);
+    }
+    if (minfo.adaDelta()) {
+      _ada_dx_g=minfo.get_ada_dx_g(_index);
+      _bias_ada_dx_g=minfo.get_biases_ada_dx_g(_index);
+    }
+    _shortcut=(params.fast_mode || (!params.adaptive_rate && !_minfo.has_momenta() && params.l1 == 0.0 && params.l2 == 0.0));
+  }
+  sanityCheck(training);
+}

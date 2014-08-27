@@ -2,9 +2,9 @@
   long seed0=0xDECAF;
   int num_runs=0;
   for (int repeat=0; repeat < 5; ++repeat) {
-    DeepLearning.Activation[] activations={DeepLearning.Activation.Tanh,DeepLearning.Activation.Rectifier};
-    DeepLearning.Loss[] losses={DeepLearning.Loss.MeanSquare,DeepLearning.Loss.CrossEntropy};
-    DeepLearning.InitialWeightDistribution[] dists={DeepLearning.InitialWeightDistribution.Normal,DeepLearning.InitialWeightDistribution.Uniform,DeepLearning.InitialWeightDistribution.UniformAdaptive};
+    Activation[] activations={Activation.Tanh,Activation.Rectifier};
+    Loss[] losses={Loss.MeanSquare,Loss.CrossEntropy};
+    InitialWeightDistribution[] dists={InitialWeightDistribution.Normal,InitialWeightDistribution.Uniform,InitialWeightDistribution.UniformAdaptive};
     final long seed=seed0 + repeat;
     Random rng=new Random(seed);
     double[] initial_weight_scales={1e-4 + rng.nextDouble()};
@@ -13,9 +13,9 @@
     int[] hiddens={1,2 + rng.nextInt(50)};
     int[] epochs={1,2 + rng.nextInt(50)};
     double[] rates={0.01,1e-5 + rng.nextDouble() * .1};
-    for (    DeepLearning.Activation activation : activations) {
-      for (      DeepLearning.Loss loss : losses) {
-        for (        DeepLearning.InitialWeightDistribution dist : dists) {
+    for (    Activation activation : activations) {
+      for (      Loss loss : losses) {
+        for (        InitialWeightDistribution dist : dists) {
           for (          double scale : initial_weight_scales) {
             for (            double holdout_ratio : holdout_ratios) {
               for (              double momentum : momenta) {
@@ -27,7 +27,7 @@
                           DeepLearningModel mymodel=null;
                           Frame frame=null;
                           Frame fr=null;
-                          DeepLearning p=null;
+                          DeepLearningParameters p=null;
                           Frame trainPredict=null;
                           Frame testPredict=null;
                           try {
@@ -66,7 +66,7 @@
                               int limit=(int)(frame.numRows() * holdout_ratio);
                               _train=frame(names,water.util.ArrayUtils.subarray(rows,0,limit));
                               _test=frame(names,water.util.ArrayUtils.subarray(rows,limit,(int)frame.numRows() - limit));
-                              p=new DeepLearning(Key.make(),1);
+                              p=new DeepLearningParameters();
                               p.source=_train;
                               p.response=_train.lastVec();
                               p.ignored_cols=null;
@@ -85,7 +85,6 @@
                             p.rate=rate / (1 - momentum);
                             p.activation=activation;
                             p.max_w2=Float.POSITIVE_INFINITY;
-                            p.epochs=epoch;
                             p.input_dropout_ratio=0;
                             p.rate_annealing=0;
                             p.l1=0;
@@ -112,7 +111,9 @@
                             p.single_node_mode=true;
                             p.sparse=sparse;
                             p.col_major=col_major;
-                            mymodel=p.initModel();
+                            p.epochs=0;
+                            mymodel=new DeepLearning(p).train().get();
+                            p.epochs=epoch;
                             Neurons[] neurons=DeepLearningTask.makeNeuronsForTraining(mymodel.model_info());
                             Neurons l=neurons[1];
                             for (int o=0; o < l._a.size(); o++) {
@@ -129,7 +130,8 @@
                               ref._nn.oBiases[o]=l._b.get(o);
                             }
                             ref.train((int)p.epochs,rate,p.momentum_stable,loss);
-                            mymodel=p.trainModel(mymodel);
+                            mymodel.delete();
+                            mymodel=new DeepLearning(p).train().get();
                             Assert.assertTrue(mymodel.model_info().get_processed_total() == epoch * fr.numRows());
                             final double abseps=1e-4;
                             final double releps=1e-4;
@@ -186,7 +188,7 @@
                             compareVal(testErr,myTestErr,abseps,releps);
                             Log.info("Scoring: PASS");
                             float best_err=Float.MAX_VALUE;
-                            for (                            DeepLearningModel.Errors err : mymodel.scoring_history()) {
+                            for (                            Errors err : mymodel.scoring_history()) {
                               best_err=Math.min(best_err,(float)err.train_err);
                             }
                             Log.info("Actual best error : " + best_err * 100 + "%.");

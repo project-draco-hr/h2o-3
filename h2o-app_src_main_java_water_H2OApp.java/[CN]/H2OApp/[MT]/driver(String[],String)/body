@@ -2,8 +2,10 @@
   H2O.main(args);
   H2O.registerResourceRoot(new File(relpath + File.separator + "h2o-web/src/main/resources/www"));
   H2O.registerResourceRoot(new File(relpath + File.separator + "h2o-core/src/main/resources/www"));
+  H2O.registerGET("/DeepLearning",hex.schemas.DeepLearningHandler.class,"compute2","/DeepLearning","Deep Learning","Model");
   H2O.registerGET("/KMeans",hex.schemas.KMeansHandler.class,"train","/KMeans","KMeans","Model");
   H2O.registerGET("/Example",hex.schemas.ExampleHandler.class,"work","/Example","Example","Model");
+  ModelBuilder.registerModelBuilder("deeplearning",DeepLearning.class);
   ModelBuilder.registerModelBuilder("kmeans",KMeans.class);
   ModelBuilder.registerModelBuilder("example",Example.class);
   H2O.finalizeRequest();

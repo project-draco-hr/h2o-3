@@ -21,7 +21,7 @@
           for (          boolean shuffle : new boolean[]{true,false}) {
             for (            boolean balance_classes : new boolean[]{true,false}) {
               for (              int resp : responses[i]) {
-                for (                DeepLearning.ClassSamplingMethod csm : new DeepLearning.ClassSamplingMethod[]{DeepLearning.ClassSamplingMethod.Stratified,DeepLearning.ClassSamplingMethod.Uniform}) {
+                for (                ClassSamplingMethod csm : new ClassSamplingMethod[]{ClassSamplingMethod.Stratified,ClassSamplingMethod.Uniform}) {
                   for (                  int scoretraining : new int[]{200,20,0}) {
                     for (                    int scorevalidation : new int[]{200,20,0}) {
                       for (                      int vf : new int[]{0,1,-1}) {
@@ -46,7 +46,7 @@
                                   dest_tmp=Key.make("first");
 {
                                     Log.info("Using seed: " + seed);
-                                    DeepLearning p=new DeepLearning(dest_tmp,1);
+                                    DeepLearningParameters p=new DeepLearningParameters();
                                     p.checkpoint=null;
                                     p.source=frame;
                                     p.response=frame.vecs()[resp];
@@ -70,21 +70,19 @@
                                     p.quiet_mode=true;
                                     p.score_validation_sampling=csm;
                                     try {
-                                      p.exec();
+                                      model1=new DeepLearning(dest_tmp,p,1).train().get();
                                     }
  catch (                                    Throwable t) {
                                       t.printStackTrace();
                                       throw new RuntimeException(t);
                                     }
-                                    model1=DKV.get(dest_tmp).get();
                                     if (n_folds != 0) {
                                       throw H2O.unimpl();
                                     }
                                   }
                                   dest=Key.make("restart");
-                                  DeepLearning p=new DeepLearning(dest,1);
+                                  DeepLearningParameters p=new DeepLearningParameters();
                                   final DeepLearningModel tmp_model=DKV.get(dest_tmp).get();
-                                  Assert.assertTrue(tmp_model.get_params()._state == Job.JobState.DONE);
                                   Assert.assertTrue(tmp_model.model_info().get_processed_total() >= frame.numRows() * epochs);
                                   assert(tmp_model != null);
                                   p.checkpoint=dest_tmp;
@@ -98,25 +96,15 @@
                                   p.seed=seed;
                                   p.train_samples_per_iteration=train_samples_per_iteration;
                                   try {
-                                    p.exec();
+                                    model1=new DeepLearning(dest,p,1).train().get();
                                   }
  catch (                                  Throwable t) {
                                     t.printStackTrace();
                                     throw new RuntimeException(t);
                                   }
                                   model2=DKV.get(dest).get();
-                                  Assert.assertTrue(model2.get_params()._state == Job.JobState.DONE);
-{
-                                    StringBuilder sb=new StringBuilder();
-                                    model2.generateHTML("test",sb);
-                                  }
                                   if (model2.actual_best_model_key != null) {
                                     final DeepLearningModel best_model=DKV.get(model2.actual_best_model_key).get();
-                                    Assert.assertTrue(best_model.get_params()._state == Job.JobState.DONE);
-{
-                                      StringBuilder sb=new StringBuilder();
-                                      best_model.generateHTML("test",sb);
-                                    }
                                     if (override_with_best_model) {
                                       Assert.assertEquals(best_model.error(),model2.error(),0);
                                     }

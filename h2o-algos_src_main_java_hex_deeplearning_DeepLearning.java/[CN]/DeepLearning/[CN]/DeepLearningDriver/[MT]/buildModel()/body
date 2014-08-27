@@ -1,0 +1,77 @@
+{
+  DeepLearningModel cp=null;
+  if (_parms.checkpoint == null)   cp=initModel();
+ else {
+    final DeepLearningModel previous=DKV.get(_parms.checkpoint).get();
+    if (previous == null)     throw new IllegalArgumentException("Checkpoint not found.");
+    Log.info("Resuming from checkpoint.");
+    if (_parms.n_folds != 0) {
+      throw new UnsupportedOperationException("n_folds must be 0: Cross-validation is not supported during checkpoint restarts.");
+    }
+ else {
+    }
+    if (_parms.source == null || !Arrays.equals(_parms.source._key._kb,previous.model_info().get_params().source._key._kb)) {
+      throw new IllegalArgumentException("source must be the same as for the checkpointed model.");
+    }
+    _parms.autoencoder=previous.model_info().get_params().autoencoder;
+    if (!_parms.autoencoder && (_parms.response == null || !Arrays.equals(_parms.response._key._kb,previous.model_info().get_params().response._key._kb))) {
+      throw new IllegalArgumentException("response must be the same as for the checkpointed model.");
+    }
+    if (ArrayUtils.difference(_parms.ignored_cols,previous.model_info().get_params().ignored_cols).length != 0 || ArrayUtils.difference(previous.model_info().get_params().ignored_cols,_parms.ignored_cols).length != 0) {
+      _parms.ignored_cols=previous.model_info().get_params().ignored_cols;
+      Log.warn("Automatically re-using ignored_cols from the checkpointed model.");
+    }
+    if ((_parms.validation == null) == (previous.model_info().get_params().validation != null) || (_parms.validation != null && _parms.validation._key != null && previous.model_info().get_params().validation._key != null && !Arrays.equals(_parms.validation._key._kb,previous.model_info().get_params().validation._key._kb))) {
+      throw new IllegalArgumentException("validation must be the same as for the checkpointed model.");
+    }
+    if (_parms.classification != previous.model_info().get_params().classification) {
+      Log.warn("Automatically switching to " + ((_parms.classification=!_parms.classification) ? "classification" : "regression") + " (same as the checkpointed model).");
+    }
+    _parms.epochs+=previous.epoch_counter;
+    Log.info("Adding " + String.format("%.3f",previous.epoch_counter) + " epochs from the checkpointed model.");
+    try {
+      final DataInfo dataInfo=prepareDataInfo();
+      cp=new DeepLearningModel(previous,dest(),self(),dataInfo);
+      cp.write_lock(self());
+      final DeepLearningModel.DeepLearningParameters A=cp.model_info().get_params();
+      Object B=_parms;
+      for (      Field fA : A.getClass().getDeclaredFields()) {
+        if (ArrayUtils.contains(cp_modifiable,fA.getName())) {
+          if (!_parms.expert_mode && ArrayUtils.contains(expert_options,fA.getName()))           continue;
+          for (          Field fB : B.getClass().getDeclaredFields()) {
+            if (fA.equals(fB)) {
+              try {
+                if (fB.get(B) == null || fA.get(A) == null || !fA.get(A).toString().equals(fB.get(B).toString())) {
+                  if (fA.get(A) == null && fB.get(B) == null)                   continue;
+                  Log.info("Applying user-requested modification of '" + fA.getName() + "': "+ fA.get(A)+ " -> "+ fB.get(B));
+                  fA.set(A,fB.get(B));
+                }
+              }
+ catch (              IllegalAccessException e) {
+                e.printStackTrace();
+              }
+            }
+          }
+        }
+      }
+      if (A.n_folds != 0) {
+        Log.warn("Disabling cross-validation: Not supported when resuming training from a checkpoint.");
+        A.n_folds=0;
+      }
+      cp.update(self());
+    }
+  finally {
+      if (cp != null)       cp.unlock(self());
+    }
+  }
+  trainModel(cp);
+  remove();
+  int validlen=_parms.validation != null ? _parms.validation.vecs().length : 0;
+  Key[] keep=new Key[_parms.source.vecs().length + validlen + 3];
+  for (int i=0; i < _parms.source.vecs().length; ++i)   keep[i]=_parms.source.vecs()[i]._key;
+  keep[_parms.source.vecs().length]=_parms.source._key;
+  for (int i=0; i < validlen; ++i)   keep[i]=_parms.validation.vecs()[i]._key;
+  if (_parms.validation != null)   keep[_parms.source.vecs().length + 1]=_parms.validation._key;
+  keep[_parms.source.vecs().length + 2]=_dest;
+  Scope.exit(keep);
+}

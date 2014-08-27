@@ -1,0 +1,17 @@
+{
+  super(destKey,dinfo._adaptedFrame,params,new DeepLearningOutput(),priorDist);
+  this.jobKey=jobKey;
+  run_time=0;
+  start_time=System.currentTimeMillis();
+  _timeLastScoreEnter=start_time;
+  model_info=new DeepLearningModelInfo(jobKey,params,dinfo);
+  actual_best_model_key=Key.makeUserHidden(Key.make());
+  if (params.n_folds != 0)   actual_best_model_key=null;
+  if (!get_params().autoencoder) {
+    errors=new Errors[1];
+    errors[0]=new Errors();
+    errors[0].validation=(params.validation != null);
+    errors[0].num_folds=params.n_folds;
+  }
+  assert(Arrays.equals(_key._kb,destKey._kb));
+}
