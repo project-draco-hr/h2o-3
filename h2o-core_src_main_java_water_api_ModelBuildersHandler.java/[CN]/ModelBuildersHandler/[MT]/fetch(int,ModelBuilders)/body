@@ -1,17 +1,5 @@
 {
-  try {
-    Class<? extends ModelBuilder> clz=ModelBuilder.getModelBuilder(m.algo);
-    if (!(clz.getGenericSuperclass() instanceof ParameterizedType)) {
-      throw H2O.fail("Class is not parameterized as expected: " + clz);
-    }
-    Type[] handler_type_parms=((ParameterizedType)(clz.getGenericSuperclass())).getActualTypeArguments();
-    Class<? extends Model.Parameters> pclz=(Class<? extends Model.Parameters>)handler_type_parms[1];
-    ModelBuilder modelbuilder=clz.getDeclaredConstructor(new Class[]{(Class)handler_type_parms[1]}).newInstance(pclz.newInstance());
-    m.model_builders=new IcedHashMap<>();
-    m.model_builders.put(m.algo,modelbuilder);
-  }
- catch (  Exception e) {
-    throw H2O.fail("Exception when trying to instantiate ModelBuilder for: " + m.algo + ": "+ e);
-  }
+  m.model_builders=new IcedHashMap<>();
+  m.model_builders.put(m.algo,createModelBuilder(m.algo));
   return this.schema(version).fillFromImpl(m);
 }
