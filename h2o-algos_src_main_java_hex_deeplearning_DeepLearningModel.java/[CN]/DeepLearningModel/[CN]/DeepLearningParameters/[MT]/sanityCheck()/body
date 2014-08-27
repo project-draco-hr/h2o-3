@@ -18,14 +18,38 @@
   if (input_dropout_ratio < 0 || input_dropout_ratio >= 1) {
     throw new IllegalArgumentException("Input dropout must be in [0,1).");
   }
+  if (response.isEnum() && !classification) {
+    Log.info("Automatically switching to classification for enum response.");
+    classification=true;
+  }
+  if (H2O.CLOUD.size() == 1 && replicate_training_data) {
+    Log.info("Disabling replicate_training_data on 1 node.");
+    replicate_training_data=false;
+  }
+  if (single_node_mode && (H2O.CLOUD.size() == 1 || !replicate_training_data)) {
+    Log.info("Disabling single_node_mode (only for multi-node operation with replicated training data).");
+    single_node_mode=false;
+  }
+  if (!use_all_factor_levels && autoencoder) {
+    Log.info("Enabling all_factor_levels for auto-encoders.");
+    use_all_factor_levels=true;
+  }
+  if (override_with_best_model && n_folds != 0) {
+    Log.info("Disabling override_with_best_model in combination with n-fold cross-validation.");
+    override_with_best_model=false;
+  }
   if (!quiet_mode) {
     if (adaptive_rate) {
       Log.info("Using automatic learning rate.  Ignoring the following input parameters:");
       Log.info("  rate, rate_decay, rate_annealing, momentum_start, momentum_ramp, momentum_stable, nesterov_accelerated_gradient.");
+      momentum_start=0;
+      momentum_stable=0;
     }
  else {
       Log.info("Using manual learning rate.  Ignoring the following input parameters:");
       Log.info("  rho, epsilon.");
+      rho=0;
+      epsilon=0;
     }
     if (initial_weight_distribution == InitialWeightDistribution.UniformAdaptive) {
       Log.info("Ignoring initial_weight_scale for UniformAdaptive weight distribution.");
