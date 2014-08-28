@@ -2,7 +2,7 @@
   try {
     lock_data();
     _parms.sanityCheck();
-    final DataInfo dinfo=prepareDataInfo();
+    final DataInfo dinfo=prepareDataInfo(_parms);
     final Vec resp=dinfo._adaptedFrame.lastVec();
     float[] priorDist=_parms.classification ? new MRUtils.ClassDist(resp).doAll(resp).rel_dist() : null;
     final DeepLearningModel model=new DeepLearningModel(dest(),self(),_parms.source._key,dinfo,(DeepLearningModel.DeepLearningParameters)_parms.clone(),priorDist);
