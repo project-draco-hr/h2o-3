@@ -1,0 +1,9 @@
+@staticmethod
+def check_sandbox_for_errors(cloudShutdownIsError=False, sandboxIgnoreErrors=False, python_test_name=''):
+    return
+    if (nodes and nodes[0].sandbox_error_report()):
+        return
+    ignore = (sandboxIgnoreErrors or (nodes and nodes[0].sandbox_ignore_errors))
+    errorFound = h2o_sandbox.check_sandbox_for_errors(LOG_DIR=LOG_DIR, sandboxIgnoreErrors=ignore, cloudShutdownIsError=cloudShutdownIsError, python_test_name=python_test_name)
+    if (errorFound and nodes):
+        nodes[0].sandbox_error_report(True)
