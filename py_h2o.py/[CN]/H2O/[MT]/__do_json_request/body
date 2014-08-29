@@ -1,4 +1,4 @@
-def __do_json_request(self, jsonRequest=None, fullUrl=None, timeout=10, params=None, returnFast=False, cmd='get', extraComment=None, ignoreH2oError=False, noExtraErrorCheck=False, **kwargs):
+def __do_json_request(self, jsonRequest=None, fullUrl=None, timeout=10, params=None, postData=None, returnFast=False, cmd='get', extraComment=None, ignoreH2oError=False, noExtraErrorCheck=False, **kwargs):
     if fullUrl:
         url = fullUrl
     else:
@@ -26,7 +26,7 @@ def __do_json_request(self, jsonRequest=None, fullUrl=None, timeout=10, params=N
     log_rest((url + paramsStr))
     try:
         if (cmd == 'post'):
-            r = requests.post(url, timeout=timeout, params=params, **kwargs)
+            r = requests.post(url, timeout=timeout, params=params, data=json.dumps(postData), **kwargs)
         else:
             r = requests.get(url, timeout=timeout, params=params, **kwargs)
     except Exception as e:
