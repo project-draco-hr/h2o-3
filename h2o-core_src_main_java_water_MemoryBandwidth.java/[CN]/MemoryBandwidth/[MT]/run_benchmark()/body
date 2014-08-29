@@ -1,0 +1,20 @@
+{
+  final long M=Math.min(10000000l,Runtime.getRuntime().maxMemory() / 10);
+  int[] vals=MemoryManager.malloc4((int)M);
+  double total;
+  int repeats=20;
+  Timer timer=new Timer();
+  long sum=0;
+  for (int l=repeats - 1; l >= 0; --l) {
+    for (int i=0; i < M; ++i) {
+      vals[i]=i + l;
+    }
+    sum=0;
+    for (int i=0; i < M; ++i) {
+      sum+=vals[i];
+    }
+  }
+  total=(double)timer.time() / 1000. / repeats;
+  double time=total + ((M * (M - 1) / 2) - sum);
+  return (double)2 * M * 4 / time;
+}
