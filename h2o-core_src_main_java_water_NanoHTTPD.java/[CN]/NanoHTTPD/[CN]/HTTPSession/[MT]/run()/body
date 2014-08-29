@@ -98,7 +98,12 @@
           }
           postLine=postLine.trim();
         }
-        decodeParms(postLine,parms);
+        if (contentType.equalsIgnoreCase("application/json")) {
+          parms.put("_post_body",postLine);
+        }
+ else {
+          decodeParms(postLine,parms);
+        }
       }
     }
     Response r=serve(uri,method,header,parms);
