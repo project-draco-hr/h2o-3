@@ -1,0 +1,59 @@
+{
+  double gflops_result=0.0;
+  double residn_result=0.0;
+  double time_result=0.0;
+  double eps_result=0.0;
+  double a[][]=new double[200][201];
+  double b[]=new double[200];
+  double x[]=new double[200];
+  double cray, ops, total, norma, normx;
+  double resid, time;
+  double kf;
+  int n, i, ntimes, info, lda, ldaa, kflops;
+  int ipvt[]=new int[200];
+  lda=201;
+  ldaa=200;
+  cray=.056;
+  n=200;
+  ops=(2.0e0 * (n * n * n)) / 3.0 + 2.0 * (n * n);
+  norma=matgen(a,lda,n,b);
+  int repeats=200;
+  for (int r=0; r < 10; ++r) {
+    info=dgefa(a,lda,n,ipvt);
+    dgesl(a,lda,n,ipvt,b,0);
+  }
+  Timer timer=new Timer();
+  for (int r=0; r < repeats; ++r) {
+    info=dgefa(a,lda,n,ipvt);
+    dgesl(a,lda,n,ipvt,b,0);
+  }
+  total=(double)timer.time() / 1000.;
+  for (i=0; i < n; i++) {
+    x[i]=b[i];
+  }
+  norma=matgen(a,lda,n,b);
+  for (i=0; i < n; i++) {
+    b[i]=-b[i];
+  }
+  dmxpy(n,b,n,lda,x,a);
+  resid=0.0;
+  normx=0.0;
+  for (i=0; i < n; i++) {
+    resid=(resid > abs(b[i])) ? resid : abs(b[i]);
+    normx=(normx > abs(x[i])) ? normx : abs(x[i]);
+  }
+  eps_result=epslon(1.0);
+  residn_result=resid / (n * norma * normx* eps_result);
+  residn_result+=0.005;
+  residn_result=(int)(residn_result * 100);
+  residn_result/=100;
+  time_result=total;
+  time_result+=0.005;
+  time_result=(int)(time_result * 100);
+  time_result/=100;
+  gflops_result=ops / (1.0e9 * total) * repeats;
+  gflops_result+=0.0005;
+  gflops_result=(int)(gflops_result * 1000);
+  gflops_result/=1000;
+  return gflops_result;
+}

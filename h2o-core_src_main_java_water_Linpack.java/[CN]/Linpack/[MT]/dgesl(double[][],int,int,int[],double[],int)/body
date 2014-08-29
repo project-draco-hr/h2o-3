@@ -1,0 +1,44 @@
+{
+  double t;
+  int k, kb, l, nm1, kp1;
+  nm1=n - 1;
+  if (job == 0) {
+    if (nm1 >= 1) {
+      for (k=0; k < nm1; k++) {
+        l=ipvt[k];
+        t=b[l];
+        if (l != k) {
+          b[l]=b[k];
+          b[k]=t;
+        }
+        kp1=k + 1;
+        daxpy(n - (kp1),t,a[k],kp1,1,b,kp1,1);
+      }
+    }
+    for (kb=0; kb < n; kb++) {
+      k=n - (kb + 1);
+      b[k]/=a[k][k];
+      t=-b[k];
+      daxpy(k,t,a[k],0,1,b,0,1);
+    }
+  }
+ else {
+    for (k=0; k < n; k++) {
+      t=ddot(k,a[k],0,1,b,0,1);
+      b[k]=(b[k] - t) / a[k][k];
+    }
+    if (nm1 >= 1) {
+      for (kb=1; kb < nm1; kb++) {
+        k=n - (kb + 1);
+        kp1=k + 1;
+        b[k]+=ddot(n - (kp1),a[k],kp1,1,b,kp1,1);
+        l=ipvt[k];
+        if (l != k) {
+          t=b[l];
+          b[l]=b[k];
+          b[k]=t;
+        }
+      }
+    }
+  }
+}

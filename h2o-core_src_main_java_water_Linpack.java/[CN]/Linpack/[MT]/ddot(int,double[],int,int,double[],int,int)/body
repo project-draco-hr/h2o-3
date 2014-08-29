@@ -1,0 +1,22 @@
+{
+  double dtemp;
+  int i, ix, iy;
+  dtemp=0;
+  if (n > 0) {
+    if (incx != 1 || incy != 1) {
+      ix=0;
+      iy=0;
+      if (incx < 0)       ix=(-n + 1) * incx;
+      if (incy < 0)       iy=(-n + 1) * incy;
+      for (i=0; i < n; i++) {
+        dtemp+=dx[ix + dx_off] * dy[iy + dy_off];
+        ix+=incx;
+        iy+=incy;
+      }
+    }
+ else {
+      for (i=0; i < n; i++)       dtemp+=dx[i + dx_off] * dy[i + dy_off];
+    }
+  }
+  return (dtemp);
+}
