@@ -1,0 +1,14 @@
+{
+  new TAtomic<GLMModel>(cmp){
+    @Override public GLMModel atomic(    GLMModel old){
+      if (old == null)       return old;
+      old._output._submodels=old._output._submodels.clone();
+      int id=old._output.submodelIdForLambda(lambda);
+      old._output._submodels[id]=(Submodel)old._output._submodels[id].clone();
+      old._output._submodels[id].xvalidation=val;
+      old._output.pickBestModel(false);
+      return old;
+    }
+  }
+.fork(modelKey);
+}

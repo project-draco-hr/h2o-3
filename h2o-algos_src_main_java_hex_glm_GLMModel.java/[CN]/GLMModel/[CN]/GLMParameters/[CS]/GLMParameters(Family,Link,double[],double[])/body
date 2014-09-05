@@ -1,0 +1,30 @@
+{
+  this.family=f;
+  this.lambda=lambda;
+  this.alpha=alpha;
+  tweedie_link_power=Double.NaN;
+  tweedie_variance_power=Double.NaN;
+  if (l == Link.family_default)   link=family.defaultLink;
+ else {
+    this.link=l;
+switch (family) {
+case gaussian:
+      if (link != Link.identity && link != Link.log && link != Link.inverse)       throw new IllegalArgumentException("Incompatible link function for selected family. Only identity, log and inverse links are allowed for family=gaussian.");
+    break;
+case binomial:
+  if (link != Link.logit && link != Link.log)   throw new IllegalArgumentException("Incompatible link function for selected family. Only logit and log links are allowed for family=binomial.");
+break;
+case poisson:
+if (link != Link.log && link != Link.identity) throw new IllegalArgumentException("Incompatible link function for selected family. Only log and identity links are allowed for family=poisson.");
+break;
+case gamma:
+if (link != Link.inverse && link != Link.log && link != Link.identity) throw new IllegalArgumentException("Incompatible link function for selected family. Only inverse, log and identity links are allowed for family=gamma.");
+break;
+case tweedie:
+if (link != Link.tweedie) throw new IllegalArgumentException("Incompatible link function for selected family. Only tweedie link allowed for family=tweedie.");
+break;
+default :
+H2O.fail();
+}
+}
+}

@@ -1,0 +1,29 @@
+{
+  final Frame fr=DKV.get(_parms._src).get();
+  fr.read_lock(_key);
+  Vec response=fr.vec(_parms._response);
+  Frame source=DataInfo.prepareFrame(fr,response,_parms._ignored_cols,false,true,true);
+  DataInfo dinfo=new DataInfo(source,1,_parms.useAllFactorLvls || _parms.lambda_search,_parms._standardize ? DataInfo.TransformType.STANDARDIZE : DataInfo.TransformType.NONE,DataInfo.TransformType.NONE);
+  ;
+  _progressKey=Key.make();
+  DKV.put(_progressKey,new GLM2_Progress(100));
+  H2OCountedCompleter cmp=new H2OCountedCompleter(){
+    @Override public void compute2(){
+    }
+    @Override public void onCompletion(    CountedCompleter cc){
+      fr.unlock(_key);
+      DKV.remove(_progressKey);
+      done();
+    }
+    @Override public boolean onExceptionalCompletion(    Throwable ex,    CountedCompleter cc){
+      cancel2(ex);
+      DKV.remove(_progressKey);
+      fr.unlock(_key);
+      return true;
+    }
+  }
+;
+  start(cmp);
+  H2O.submitTask(new GLMDriver(cmp,_parms,_key,_progressKey,_dest,dinfo));
+  return this;
+}

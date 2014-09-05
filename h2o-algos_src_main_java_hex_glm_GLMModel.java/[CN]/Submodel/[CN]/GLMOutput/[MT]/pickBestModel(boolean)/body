@@ -1,0 +1,23 @@
+{
+  int bestId=_submodels.length - 1;
+  if (_submodels.length > 2) {
+    boolean xval=false;
+    GLMValidation bestVal=null;
+    for (    Submodel sm : _submodels) {
+      if (sm.xvalidation != null) {
+        xval=true;
+        bestVal=sm.xvalidation;
+      }
+    }
+    if (!xval)     bestVal=_submodels[0].validation;
+    for (int i=1; i < _submodels.length; ++i) {
+      GLMValidation val=xval ? _submodels[i].xvalidation : _submodels[i].validation;
+      if (val == null || val == bestVal)       continue;
+      if ((useAuc && val.auc > bestVal.auc) || (xval && val.residual_deviance < bestVal.residual_deviance) || (((bestVal.residual_deviance - val.residual_deviance) / val.null_deviance) >= 0.01)) {
+        bestVal=val;
+        bestId=i;
+      }
+    }
+  }
+  setSubmodelIdx(_best_lambda_idx=bestId);
+}

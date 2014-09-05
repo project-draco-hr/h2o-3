@@ -1,0 +1,9 @@
+{
+  double r1=(double)_nobs / (_nobs + gt._nobs);
+  _gram.mul(r1);
+  double r2=(double)gt._nobs / (_nobs + gt._nobs);
+  gt._gram.mul(r2);
+  _gram.add(gt._gram);
+  if (_XY != null)   for (int i=0; i < _XY.length; ++i)   for (int j=0; j < _XY[i].length; ++j)   _XY[i][j]=_XY[i][j] * r1 + gt._XY[i][j] * r2;
+  _nobs+=gt._nobs;
+}

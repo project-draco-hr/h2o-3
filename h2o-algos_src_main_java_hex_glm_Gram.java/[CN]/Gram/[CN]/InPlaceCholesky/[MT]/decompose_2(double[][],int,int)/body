@@ -1,0 +1,39 @@
+{
+  boolean isspd=true;
+  final int N=xx.length;
+  P=Math.max(1,P);
+  for (int j=0; j < N; j+=STEP) {
+    final int tjR=Math.min(j + STEP,N);
+    for (int i=j; i < tjR; i++) {
+      double rowi[]=xx[i];
+      double d=0.0;
+      for (int k=j; k < i; k++) {
+        double rowk[]=xx[k];
+        double s=0.0;
+        for (int jj=0; jj < k; jj++)         s+=rowk[jj] * rowi[jj];
+        rowi[k]=s=(rowi[k] - s) / rowk[k];
+        d+=s * s;
+      }
+      for (int jj=0; jj < j; jj++) {
+        double s=rowi[jj];
+        d+=s * s;
+      }
+      d=rowi[i] - d;
+      isspd=isspd && (d > 0.0);
+      rowi[i]=Math.sqrt(Math.max(0.0,d));
+    }
+    if (tjR == N)     break;
+    int i=tjR;
+    Futures fs=new Futures();
+    int rpb=0;
+    int p=P;
+    while (tjR * (rpb=(N - tjR) / p) < Gram.MIN_TSKSZ && p > 1)     --p;
+    while (p-- > 1) {
+      fs.add(new BlockTask(xx,i,i + rpb,j,tjR).fork());
+      i+=rpb;
+    }
+    new BlockTask(xx,i,N,j,tjR).compute();
+    fs.blockForPending();
+  }
+  return new InPlaceCholesky(xx,isspd);
+}

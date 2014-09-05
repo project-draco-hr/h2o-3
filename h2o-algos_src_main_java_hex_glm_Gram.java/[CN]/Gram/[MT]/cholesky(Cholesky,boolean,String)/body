@@ -1,0 +1,73 @@
+{
+  long start=System.currentTimeMillis();
+  if (chol == null) {
+    double[][] xx=_xx.clone();
+    for (int i=0; i < xx.length; ++i)     xx[i]=xx[i].clone();
+    chol=new Cholesky(xx,_diag.clone());
+  }
+  final Cholesky fchol=chol;
+  final int sparseN=_diag.length;
+  final int denseN=_fullN - sparseN;
+  if (_diag != null)   for (int i=0; i < sparseN; ++i) {
+    double d=1.0 / (chol._diag[i]=Math.sqrt(_diag[i]));
+    for (int j=0; j < denseN; ++j)     chol._xx[j][i]=d * _xx[j][i];
+  }
+  ForkJoinTask[] fjts=new ForkJoinTask[denseN];
+  final int[][] nz=new int[denseN][];
+  for (int i=0; i < denseN; ++i) {
+    final int fi=i;
+    fjts[i]=new RecursiveAction(){
+      @Override protected void compute(){
+        int[] tmp=new int[sparseN];
+        double[] rowi=fchol._xx[fi];
+        int n=0;
+        for (int k=0; k < sparseN; ++k)         if (rowi[k] != .0)         tmp[n++]=k;
+        nz[fi]=Arrays.copyOf(tmp,n);
+      }
+    }
+;
+  }
+  ForkJoinTask.invokeAll(fjts);
+  for (int i=0; i < denseN; ++i) {
+    final int fi=i;
+    fjts[i]=new RecursiveAction(){
+      @Override protected void compute(){
+        double[] rowi=fchol._xx[fi];
+        int[] nzi=nz[fi];
+        for (int j=0; j <= fi; ++j) {
+          double[] rowj=fchol._xx[j];
+          int[] nzj=nz[j];
+          double s=0;
+          for (int t=0, z=0; t < nzi.length && z < nzj.length; ) {
+            int k1=nzi[t];
+            int k2=nzj[z];
+            if (k1 < k2) {
+              t++;
+              continue;
+            }
+ else             if (k1 > k2) {
+              z++;
+              continue;
+            }
+ else {
+              s+=rowi[k1] * rowj[k1];
+              t++;
+              z++;
+            }
+          }
+          rowi[j + sparseN]=_xx[fi][j + sparseN] - s;
+        }
+      }
+    }
+;
+  }
+  ForkJoinTask.invokeAll(fjts);
+  double[][] arr=new double[denseN][];
+  for (int i=0; i < arr.length; ++i)   arr[i]=Arrays.copyOfRange(fchol._xx[i],sparseN,sparseN + denseN);
+  int p=Runtime.getRuntime().availableProcessors();
+  InPlaceCholesky d=InPlaceCholesky.decompose_2(arr,10,p);
+  fchol.setSPD(d.isSPD());
+  arr=d.getL();
+  for (int i=0; i < arr.length; ++i)   System.arraycopy(arr[i],0,fchol._xx[i],sparseN,i + 1);
+  return chol;
+}

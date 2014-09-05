@@ -1,0 +1,17 @@
+{
+  super(jobKey,dinfo,glm,cmp);
+  ArrayList<double[]> betas=new ArrayList<double[]>();
+  double diff=1;
+  while (diff > betaEps && betas.size() < 100) {
+    diff=0;
+    for (int i=0; i < newBeta.length; ++i) {
+      newBeta[i]=0.5 * (oldBeta == null ? newBeta[i] : (oldBeta[i] + newBeta[i]));
+      double d=newBeta[i] - (oldBeta == null ? 0 : oldBeta[i]);
+      if (d > diff)       diff=d;
+ else       if (d < -diff)       diff=-d;
+    }
+    betas.add(newBeta.clone());
+  }
+  _glmts=new GLMIterationTask[betas.size()];
+  for (int i=0; i < _glmts.length; ++i)   _glmts[i]=new GLMIterationTask(jobKey,dinfo,glm,false,true,true,betas.get(i),ymu,1.0 / nobs,new float[]{0},null);
+}

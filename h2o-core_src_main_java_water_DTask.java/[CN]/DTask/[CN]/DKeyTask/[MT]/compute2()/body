@@ -1,0 +1,13 @@
+{
+  if (_key.home()) {
+    Value val=H2O.get(_key);
+    if (val != null) {
+      V v=val.get();
+      map(v);
+    }
+    tryComplete();
+  }
+ else {
+    new RPC(_key.home_node(),this).addCompleter(this).call();
+  }
+}

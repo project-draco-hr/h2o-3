@@ -1,0 +1,40 @@
+{
+  ADMMSolver admm=new ADMMSolver(_lambda,_alpha,1e-2);
+  if (gram != null)   return admm.solve(gram,xy,yy,beta);
+  Arrays.fill(beta,0);
+  long t1=System.currentTimeMillis();
+  final double[] xb=gram.mul(beta);
+  double objval=objectiveVal(xy,yy,beta,xb);
+  final double[] newB=MemoryManager.malloc8d(beta.length);
+  final double[] newG=MemoryManager.malloc8d(beta.length);
+  double step=1;
+  final double l1pen=_lambda * _alpha;
+  final double l2pen=_lambda * (1 - _alpha);
+  double lsmobjval=lsm_objectiveVal(xy,yy,beta,xb);
+  boolean converged=false;
+  final int intercept=beta.length - 1;
+  int iter=0;
+  MAIN:   while (!converged && iter < 1000) {
+    ++iter;
+    step=1;
+    while (step > 1e-12) {
+      double l2shrink=1 / (1 + step * l2pen);
+      double l1shrink=l1pen * step;
+      for (int i=0; i < beta.length - 1; ++i)       newB[i]=l2shrink * shrinkage((beta[i] - step * (xb[i] - xy[i])),l1shrink);
+      newB[intercept]=beta[intercept] - step * (xb[intercept] - xy[intercept]);
+      gram.mul(newB,newG);
+      double newlsmobj=lsm_objectiveVal(xy,yy,newB,newG);
+      double fhat=f_hat(newB,lsmobjval,beta,xb,xy,step);
+      if (newlsmobj <= fhat) {
+        lsmobjval=newlsmobj;
+        converged=betaDiff(beta,newB) < 1e-6;
+        System.arraycopy(newB,0,beta,0,newB.length);
+        System.arraycopy(newG,0,xb,0,newG.length);
+        continue MAIN;
+      }
+ else       step*=0.8;
+    }
+    converged=true;
+  }
+  return converged;
+}
