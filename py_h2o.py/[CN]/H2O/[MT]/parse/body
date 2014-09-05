@@ -11,9 +11,8 @@ def parse(self, key, key2=None, timeoutSecs=300, retryDelaySecs=0.2, initialDela
     job_key = parse_result['job']['name']
     if noPoll:
         return this.jobs(job_key)
-    job_json = self.poll_job(job_key)
+    job_json = self.poll_job(job_key, timeoutSecs=timeoutSecs)
     if job_json:
-        print repr(job_json)
         dest_key = job_json['jobs'][0]['dest']['name']
         return self.frames(dest_key)
     return None

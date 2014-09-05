@@ -1,4 +1,4 @@
-def build_model(self, algo, training_frame, parameters, timeoutSecs=60, **kwargs):
+def build_model(self, algo, training_frame, parameters, timeoutSecs=60, asynchronous=False, **kwargs):
     assert (algo is not None), '"algo" parameter is null'
     assert (training_frame is not None), '"training_frame" parameter is null'
     assert (parameters is not None), '"parameters" parameter is null'
@@ -11,4 +11,11 @@ def build_model(self, algo, training_frame, parameters, timeoutSecs=60, **kwargs
     assert (frames['frames'][0]['key']['name'] == training_frame), '/Frames/{0} returned Frame {1} rather than Frame {2}'.format(training_frame, frames['frames'][0]['key']['name'], training_frame)
     parameters['src'] = training_frame
     result = self.__do_json_request(('/2/ModelBuilders.json/' + algo), cmd='post', timeout=timeoutSecs, postData=parameters)
-    return result
+    if asynchronous:
+        return result
+    else:
+        job = result['jobs'][0]
+        job_key = job['key']['name']
+        H2O.verboseprint(('model building job_key: ' + repr(job_key)))
+        job_json = self.poll_job(job_key, timeoutSecs=timeoutSecs)
+        return job_json
