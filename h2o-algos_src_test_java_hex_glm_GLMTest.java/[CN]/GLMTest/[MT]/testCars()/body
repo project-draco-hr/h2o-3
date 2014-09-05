@@ -20,6 +20,7 @@
     model.delete();
     params=new GLMParameters(Family.gamma,Family.gamma.defaultLink,new double[]{0},new double[]{0});
     params._response=fr.find("power (hp)");
+    params._ignored_cols=new int[]{fr.find("name")};
     params._src=parsed;
     params.lambda=new double[]{0};
     new GLM(jobKey,modelKey,"glm test simple poisson",params).train().get();
@@ -30,6 +31,7 @@
     double[] vls3=new double[]{166.95862,-0.00531,-2.46690,0.12635,0.02159,-4.66995,-0.85724};
     params=new GLMParameters(Family.gaussian);
     params._response=fr.find("power (hp)");
+    params._ignored_cols=new int[]{fr.find("name")};
     params._src=parsed;
     params.lambda=new double[]{0};
     new GLM(jobKey,modelKey,"glm test simple poisson",params).train().get();
@@ -37,11 +39,7 @@
     coefs=model.coefficients();
     for (int i=0; i < cfs1.length; ++i)     assertEquals(vls3[i],coefs.get(cfs1[i]),1e-4);
   }
- catch (  Throwable t) {
-    t.printStackTrace();
-    System.out.println("haha");
-  }
- finally {
+  finally {
     if (fr != null)     fr.delete();
     if (model != null)     model.delete();
     DKV.remove(jobKey);
