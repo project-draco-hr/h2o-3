@@ -1,0 +1,28 @@
+{
+  Key parsed=Key.make("prostate_parsed");
+  Key modelKey=Key.make("prostate_model");
+  GLMModel model=null;
+  Frame fr=getFrameForFile(parsed,"smalldata/glm_test/prostate_cat_replaced.csv");
+  try {
+    String[] cfs1=new String[]{"Intercept","AGE","RACE.R2","RACE.R3","DPROS","DCAPS","PSA","VOL","GLEASON"};
+    double[] vals=new double[]{-8.14867,-0.01368,0.32337,-0.38028,0.55964,0.49548,0.02794,-0.01104,0.97704};
+    GLMParameters params=new GLMParameters(Family.binomial);
+    params._response=fr.find("CAPSULE");
+    params._ignored_cols=new int[]{fr.find("ID")};
+    params._src=parsed;
+    params.lambda=new double[]{0};
+    new GLM(jobKey,modelKey,"glm test simple poisson",params).train().get();
+    model=DKV.get(modelKey).get();
+    HashMap<String,Double> coefs=model.coefficients();
+    for (int i=0; i < cfs1.length; ++i)     assertEquals(vals[i],coefs.get(cfs1[i]),1e-4);
+    GLMValidation val=model.validation();
+    assertEquals(512.3,val.nullDeviance(),1e-1);
+    assertEquals(378.3,val.residualDeviance(),1e-1);
+    assertEquals(396.3,val.aic(),1e-1);
+  }
+  finally {
+    fr.delete();
+    if (model != null)     model.delete();
+    DKV.remove(jobKey);
+  }
+}

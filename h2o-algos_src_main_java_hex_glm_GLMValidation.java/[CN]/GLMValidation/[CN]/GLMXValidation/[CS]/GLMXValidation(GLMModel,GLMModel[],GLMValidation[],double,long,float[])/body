@@ -1,0 +1,14 @@
+{
+  super(mainModel._key,mainModel._ymu,mainModel._parms,mainModel.rank(lambda),thresholds);
+  xval_models=new Key[xvalModels.length];
+  for (int i=0; i < xval_models.length; ++i)   xval_models[i]=xvalModels[i]._key;
+  double t=0;
+  for (int i=0; i < xvalModels.length; ++i) {
+    add(xvals[i]);
+    t+=xvals[i].best_threshold;
+  }
+  computeAUC();
+  computeAIC();
+  best_threshold=(float)(t / xvalModels.length);
+  this.nobs=nobs;
+}

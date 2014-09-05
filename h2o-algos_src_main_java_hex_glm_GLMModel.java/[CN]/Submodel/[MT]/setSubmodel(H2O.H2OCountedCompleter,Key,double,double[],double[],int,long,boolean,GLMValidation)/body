@@ -1,0 +1,28 @@
+{
+  final Submodel sm=new Submodel(lambda,beta,norm_beta,runtime,iteration,sparseCoef);
+  sm.validation=val;
+  cmp.addToPendingCount(1);
+  new TAtomic<GLMModel>(cmp){
+    @Override public GLMModel atomic(    GLMModel old){
+      if (old == null)       return old;
+      if (old._output._submodels == null) {
+        old._output._submodels=new Submodel[]{sm};
+      }
+ else {
+        int id=old._output.submodelIdForLambda(lambda);
+        if (id < 0) {
+          id=-id - 1;
+          old._output._submodels=Arrays.copyOf(old._output._submodels,old._output._submodels.length + 1);
+          for (int i=old._output._submodels.length - 1; i > id; --i)           old._output._submodels[i]=old._output._submodels[i - 1];
+        }
+ else         if (old._output._submodels[id].iteration > sm.iteration)         return old;
+ else         old._output._submodels=old._output._submodels.clone();
+        old._output._submodels[id]=sm;
+        old._run_time=Math.max(old._run_time,sm.run_time);
+      }
+      old._output.pickBestModel(false);
+      return old;
+    }
+  }
+.fork(modelKey);
+}

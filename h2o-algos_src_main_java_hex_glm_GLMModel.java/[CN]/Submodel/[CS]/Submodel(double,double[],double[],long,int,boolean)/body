@@ -1,0 +1,24 @@
+{
+  this.lambda_value=lambda;
+  this.run_time=run_time;
+  this.iteration=iteration;
+  int r=0;
+  if (beta != null) {
+    final double[] b=norm_beta != null ? norm_beta : beta;
+    for (    double d : beta)     if (d != 0)     ++r;
+    idxs=MemoryManager.malloc4(sparseCoef ? r : beta.length);
+    int j=0;
+    for (int i=0; i < beta.length; ++i)     if (!sparseCoef || beta[i] != 0)     idxs[j++]=i;
+    j=0;
+    this.beta=MemoryManager.malloc8d(idxs.length);
+    for (    int i : idxs)     this.beta[j++]=beta[i];
+    if (norm_beta != null) {
+      j=0;
+      this.norm_beta=MemoryManager.malloc8d(idxs.length);
+      for (      int i : idxs)       this.norm_beta[j++]=norm_beta[i];
+    }
+  }
+ else   idxs=null;
+  rank=r;
+  this.sparseCoef=sparseCoef;
+}

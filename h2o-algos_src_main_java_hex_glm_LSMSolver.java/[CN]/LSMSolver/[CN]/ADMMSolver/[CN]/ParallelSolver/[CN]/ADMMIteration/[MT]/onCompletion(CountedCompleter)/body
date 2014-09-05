@@ -1,0 +1,24 @@
+{
+  final double[] xyPrime=_xyPrime;
+  final double orlx=_orlx;
+  for (int j=0; j < N - 1; ++j) {
+    double x_hat=xyPrime[j];
+    x_hat=x_hat * orlx + (1 - orlx) * z[j];
+    z[j]=shrinkage(x_hat + u[j],kappa);
+    u[j]+=x_hat - z[j];
+  }
+  z[N - 1]=xyPrime[N - 1];
+  if (_iter == _k) {
+    double[] grad=grad(gram,z,xy);
+    subgrad(_alpha,_lambda,z,grad);
+    for (int x=0; x < grad.length - 1; ++x) {
+      if (gerr < grad[x] || gerr < -grad[x])       gerr=grad[x];
+    }
+    if (gerr < 9e-4)     return;
+    _k+=round;
+  }
+  if (_iter < max_iter) {
+    getCompleter().addToPendingCount(1);
+    new ADMMIteration((H2O.H2OCountedCompleter)getCompleter()).fork();
+  }
+}

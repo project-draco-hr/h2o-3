@@ -1,0 +1,67 @@
+{
+  H2O.H2OCountedCompleter cmp=(H2O.H2OCountedCompleter)getCompleter();
+  cmp.addToPendingCount(1);
+  final double[] fullBeta;
+  if (newBeta == null) {
+    fullBeta=MemoryManager.malloc8d(_taskInfo._dinfo.fullN() + 1);
+    fullBeta[fullBeta.length - 1]=_taskInfo._params.linkInv(_taskInfo._ymu);
+  }
+ else   fullBeta=expandVec(newBeta,_activeCols,_taskInfo._dinfo.fullN() + 1);
+  new GLMIterationTask(_jobKey,_taskInfo._dinfo,_taskInfo._params,false,true,true,fullBeta,_taskInfo._ymu,1.0 / _taskInfo._nobs,_taskInfo._thresholds,new H2O.H2OCallback<GLMIterationTask>(cmp){
+    @Override public String toString(){
+      return "checkKKTAndComplete.Callback, completer = " + getCompleter() == null ? "null" : getCompleter().toString();
+    }
+    @Override public void callback(    final GLMIterationTask glmt2){
+      final double[] grad=glmt2.gradient(_taskInfo._params.alpha[0],_lambda);
+      if (ArrayUtils.hasNaNsOrInfs(grad)) {
+        if (!failedLineSearch) {
+          LogInfo("Check KKT got NaNs. Invoking line search");
+          _taskInfo._params.higher_accuracy=true;
+          getCompleter().addToPendingCount(1);
+          new GLMTask.GLMLineSearchTask(_jobKey,_activeData,_taskInfo._params,_lastResult._beta,contractVec(fullBeta,_activeCols),1e-4,_taskInfo._ymu,_taskInfo._nobs,new LineSearchIteration(getCompleter())).asyncExec(_activeData._adaptedFrame);
+          return;
+        }
+ else {
+          LogInfo("got NaNs/Infs in gradient at lambda " + _lambda);
+        }
+      }
+      double[] subgrad=grad.clone();
+      ADMMSolver.subgrad(_taskInfo._params.alpha[0],_lambda,fullBeta,subgrad);
+      double err=GLM_GRAD_EPS;
+      if (!failedLineSearch && _activeCols != null) {
+        for (        int c : _activeCols)         if (subgrad[c] > err)         err=subgrad[c];
+ else         if (subgrad[c] < -err)         err=-subgrad[c];
+        int[] failedCols=new int[64];
+        int fcnt=0;
+        double grad_eps=GLM_GRAD_EPS;
+        for (        int c : _activeCols)         if (subgrad[c] > grad_eps)         grad_eps=subgrad[c];
+ else         if (subgrad[c] < -grad_eps)         grad_eps=-subgrad[c];
+        for (int i=0; i < grad.length - 1; ++i) {
+          if (Arrays.binarySearch(_activeCols,i) >= 0)           continue;
+          if (subgrad[i] > grad_eps || -subgrad[i] > grad_eps) {
+            if (fcnt == failedCols.length)             failedCols=Arrays.copyOf(failedCols,failedCols.length << 1);
+            failedCols[fcnt++]=i;
+          }
+        }
+        if (fcnt > 0) {
+          final int n=_activeCols.length;
+          _activeCols=Arrays.copyOf(_activeCols,_activeCols.length + fcnt);
+          for (int i=0; i < fcnt; ++i)           _activeCols[n + i]=failedCols[i];
+          Arrays.sort(_activeCols);
+          LogInfo(fcnt + " variables failed KKT conditions check! Adding them to the model and continuing computation.(grad_eps = " + grad_eps+ ", activeCols = "+ (_activeCols.length > 100 ? "lost" : Arrays.toString(_activeCols)));
+          _activeData=_taskInfo._dinfo.filterExpandedColumns(_activeCols);
+          getCompleter().addToPendingCount(1);
+          new GLMIterationTask(_jobKey,_activeData,_taskInfo._params,true,true,true,contractVec(glmt2._beta,_activeCols),_taskInfo._ymu,1.0 / _taskInfo._nobs,_taskInfo._thresholds,new Iteration(getCompleter())).asyncExec(_activeData._adaptedFrame);
+          return;
+        }
+      }
+      _taskInfo._beta=glmt2._beta;
+      _taskInfo._gradient=glmt2.gradient(_taskInfo._params.alpha[0],_taskInfo._lambda);
+      _taskInfo._iter=_iter;
+      int diff=MAX_ITERATIONS_PER_LAMBDA - _iter + _taskInfo._iter;
+      if (diff > 0)       new GLM2_ProgressUpdate(diff).fork(_progressKey);
+      setSubmodel(newBeta,glmt2._val,(H2O.H2OCountedCompleter)getCompleter().getCompleter());
+    }
+  }
+).asyncExec(_taskInfo._dinfo._adaptedFrame);
+}

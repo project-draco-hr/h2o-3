@@ -1,0 +1,8 @@
+{
+  if (_taskInfo._params.family == Family.gaussian)   return false;
+  if (glmt._beta == null)   return false;
+  if (ArrayUtils.hasNaNsOrInfs(glmt._xy) || (glmt._grad != null && ArrayUtils.hasNaNsOrInfs(glmt._grad)) || (glmt._gram != null && glmt._gram.hasNaNsOrInfs()))   return true;
+  if (glmt._val != null && (glmt._val.residual_deviance > glmt._val.null_deviance))   return true;
+  if (glmt._val == null)   return false;
+  return needLineSearch(glmt._beta,objval(glmt),step);
+}
