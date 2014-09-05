@@ -3,9 +3,12 @@ def poll_job(self, job_key, timeoutSecs=10, retryDelaySecs=0.5, **kwargs):
     h2o_util.check_params_update_kwargs(params_dict, kwargs, 'poll_job', True)
     start_time = time.time()
     while True:
+        H2O.verboseprint((('Polling for job: ' + job_key) + '. . .'))
         result = self.__do_json_request(('2/Jobs.json/' + job_key), timeout=timeoutSecs, params=params_dict)
-        if (result['jobs'][0]['status'] == 'DONE'):
+        if ((result['jobs'][0]['status'] == 'DONE') or (result['jobs'][0]['status'] == 'CANCELLED') or (result['jobs'][0]['status'] == 'FAILED')):
+            H2O.verboseprint((((('Job ' + result['jobs'][0]['status']) + ': ') + job_key) + '.'))
             return result
         if ((time.time() - start_time) > timeoutSecs):
+            H2O.verboseprint((((('Job: ' + job_key) + ' timed out in: ') + timeoutSecs) + '.'))
             return None
         time.sleep(retryDelaySecs)
