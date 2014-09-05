@@ -1,0 +1,13 @@
+{
+  double w=_isWeighted ? responses[responses.length - 1] : 1;
+  _gram.addRow(nums,ncats,cats,w);
+  if (_XY != null) {
+    for (int i=0; i < _XY.length; ++i) {
+      final double y=responses[i] * w;
+      for (int j=0; j < ncats; ++i)       _XY[i][cats[j]]+=y;
+      int numoff=_dinfo.numStart();
+      for (int j=0; j < nums.length; ++j)       _XY[i][numoff + j]+=nums[j] * y;
+    }
+  }
+  ++_nobs;
+}

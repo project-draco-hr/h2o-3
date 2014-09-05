@@ -2,12 +2,13 @@ def build_model(self, algo, training_frame, parameters, timeoutSecs=60, **kwargs
     assert (algo is not None), '"algo" parameter is null'
     assert (training_frame is not None), '"training_frame" parameter is null'
     assert (parameters is not None), '"parameters" parameter is null'
-    model_builders = self.model_builders()
+    model_builders = self.model_builders(timeoutSecs=timeoutSecs)
     assert (model_builders is not None), '/ModelBuilders REST call failed'
     assert (algo in model_builders['model_builders'])
     builder = model_builders['model_builders'][algo]
     frames = self.frames(key=training_frame)
     assert (frames is not None), '/Frames/{0} REST call failed'.format(training_frame)
     assert (frames['frames'][0]['key']['name'] == training_frame), '/Frames/{0} returned Frame {1} rather than Frame {2}'.format(training_frame, frames['frames'][0]['key']['name'], training_frame)
+    parameters['src'] = training_frame
     result = self.__do_json_request(('/2/ModelBuilders.json/' + algo), cmd='post', timeout=timeoutSecs, postData=parameters)
     return result
