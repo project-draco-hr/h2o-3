@@ -26,10 +26,14 @@ def __do_json_request(self, jsonRequest=None, fullUrl=None, timeout=10, params=N
         log_rest('POST')
     log_rest((url + paramsStr))
     try:
-        if (cmd == 'post'):
+        if ('post' == cmd):
             r = requests.post(url, timeout=timeout, params=params, data=postData, **kwargs)
-        else:
+        elif ('delete' == cmd):
+            r = requests.delete(url, timeout=timeout, params=params, **kwargs)
+        elif ('get' == cmd):
             r = requests.get(url, timeout=timeout, params=params, **kwargs)
+        else:
+            raise ValueError(("Unknown HTTP command (expected 'get', 'post' or 'delete'): " + cmd))
     except Exception as e:
         exc_info = sys.exc_info()
         if (not noExtraErrorCheck):
