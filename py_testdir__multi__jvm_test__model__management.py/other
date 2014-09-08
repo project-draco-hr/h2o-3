@@ -37,7 +37,24 @@ prostate_key = parse_result['frames'][0]['key']['name']
 model_builders = a_node.model_builders()
 pp.pprint(model_builders)
 kmeans_builder = a_node.model_builders(algo='kmeans')['model_builders']['kmeans']
+kmeans_model_name = 'KMeansModel'
 jobs = a_node.build_model(algo='kmeans', training_frame=prostate_key, parameters={'K': 2, }, timeoutSecs=240)
 models = a_node.models()
 print 'After Model build: Models: '
 pp.pprint(models)
+found_kmeans = False
+for model in models['models']:
+    if (model['key'] == 'KMeansModel'):
+        found_kmeans = True
+assert found_kmeans, 'Did not find KMeansModel in the models list.'
+a_node.delete_model(kmeans_model_name)
+models = a_node.models()
+found_kmeans = False
+for model in models['models']:
+    if (model['key'] == 'KMeansModel'):
+        found_kmeans = True
+assert (not found_kmeans), ('Found KMeansModel in the models list: ' + h2o_util.dump_json(models))
+jobs = a_node.build_model(algo='kmeans', training_frame=prostate_key, parameters={'K': 2, }, timeoutSecs=240)
+a_node.delete_models()
+models = a_node.models()
+assert (('models' in models) and (0 == len(models['models']))), ("Called delete_models and the models list isn't empty: " + h2o_util.dump_json(models))
