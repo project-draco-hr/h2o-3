@@ -53,7 +53,11 @@
     if (_parms.autoencoder)     model.doScoring(train,trainScoreFrame,validScoreFrame,self(),validAdapter.getValidAdaptor());
     model.update(self());
     Log.info("Starting to train the Deep Learning model.");
-    do     model.set_model_info(mp.epochs == 0 ? model.model_info() : H2O.CLOUD.size() > 1 && mp.replicate_training_data ? (mp.single_node_mode ? new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model)).doAll(Key.make()).model_info() : new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model)).doAllNodes().model_info()) : new DeepLearningTask(self(),model.model_info(),rowFraction(train,mp,model)).doAll(train).model_info());
+    do {
+      model.set_model_info(mp.epochs == 0 ? model.model_info() : H2O.CLOUD.size() > 1 && mp.replicate_training_data ? (mp.single_node_mode ? new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model)).doAll(Key.make()).model_info() : new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model)).doAllNodes().model_info()) : new DeepLearningTask(self(),model.model_info(),rowFraction(train,mp,model)).doAll(train).model_info());
+      update(model.actual_train_samples_per_iteration);
+      if (!mp.quiet_mode)       Log.info("Progress: " + PrettyPrint.formatPct(progress()));
+    }
  while (model.doScoring(train,trainScoreFrame,validScoreFrame,self(),validAdapter.getValidAdaptor()));
     if (!isCancelledOrCrashed() && _parms.override_with_best_model && model.actual_best_model_key != null && _parms.n_folds == 0) {
       DeepLearningModel best_model=DKV.get(model.actual_best_model_key).get();
