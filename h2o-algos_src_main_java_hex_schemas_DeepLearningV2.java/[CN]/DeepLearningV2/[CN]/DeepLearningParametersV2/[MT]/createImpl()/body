@@ -1,5 +1,9 @@
 {
   DeepLearningParameters impl=new DeepLearningParameters();
-  BeanUtils.copyProperties(impl,this,BeanUtils.FieldNaming.DEST_HAS_UNDERSCORES);
+  BeanUtils.copyProperties(impl,this,BeanUtils.FieldNaming.CONSISTENT);
+  Value v=DKV.get(training_frame);
+  if (null == v)   throw H2O.fail("Failed to find training frame: " + training_frame);
+  impl.source=v.get();
+  impl.response_vec=impl.source.vec(response);
   return impl;
 }

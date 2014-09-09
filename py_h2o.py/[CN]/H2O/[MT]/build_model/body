@@ -9,7 +9,7 @@ def build_model(self, algo, training_frame, parameters, timeoutSecs=60, asynchro
     frames = self.frames(key=training_frame)
     assert (frames is not None), '/Frames/{0} REST call failed'.format(training_frame)
     assert (frames['frames'][0]['key']['name'] == training_frame), '/Frames/{0} returned Frame {1} rather than Frame {2}'.format(training_frame, frames['frames'][0]['key']['name'], training_frame)
-    parameters['src'] = training_frame
+    parameters['training_frame'] = training_frame
     result = self.__do_json_request(('/2/ModelBuilders.json/' + algo), cmd='post', timeout=timeoutSecs, postData=parameters)
     if asynchronous:
         return result
