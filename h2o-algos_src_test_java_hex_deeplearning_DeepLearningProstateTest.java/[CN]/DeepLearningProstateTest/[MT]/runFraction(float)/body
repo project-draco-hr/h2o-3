@@ -69,12 +69,16 @@
                                     p.balance_classes=balance_classes;
                                     p.quiet_mode=true;
                                     p.score_validation_sampling=csm;
+                                    DeepLearning dl=new DeepLearning(dest_tmp,p);
                                     try {
-                                      model1=new DeepLearning(dest_tmp,p).train().get();
+                                      model1=dl.train().get();
                                     }
  catch (                                    Throwable t) {
                                       t.printStackTrace();
                                       throw new RuntimeException(t);
+                                    }
+ finally {
+                                      dl.remove();
                                     }
                                     if (n_folds != 0) {
                                       throw H2O.unimpl();
@@ -95,12 +99,16 @@
                                   p.epochs=epochs;
                                   p.seed=seed;
                                   p.train_samples_per_iteration=train_samples_per_iteration;
+                                  DeepLearning dl=new DeepLearning(dest,p);
                                   try {
-                                    model1=new DeepLearning(dest,p).train().get();
+                                    model1=dl.train().get();
                                   }
  catch (                                  Throwable t) {
                                     t.printStackTrace();
                                     throw new RuntimeException(t);
+                                  }
+ finally {
+                                    dl.remove();
                                   }
                                   model2=DKV.get(dest).get();
                                   if (model2.actual_best_model_key != null) {
