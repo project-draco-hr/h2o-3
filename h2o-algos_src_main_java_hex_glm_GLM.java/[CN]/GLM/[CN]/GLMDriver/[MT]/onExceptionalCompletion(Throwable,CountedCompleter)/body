@@ -1,5 +1,10 @@
 {
   if (!_gotException.getAndSet(true)) {
+    if (ex instanceof TooManyPredictorsException) {
+      _maxLambda=_lambdaId;
+      this.tryComplete();
+      return false;
+    }
     new RemoveCall(null,_dstKey).invokeTask();
     return true;
   }
