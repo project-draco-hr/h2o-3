@@ -1,0 +1,14 @@
+{
+  AST ary=E.parse();
+  AST y=E.skipWS().parse();
+  if (y instanceof ASTString && ((ASTString)y)._s.equals("null")) {
+    _ynull=true;
+    y=ary;
+  }
+  AST a=E._env.lookup((ASTId)E.skipWS().parse());
+  _narm=((ASTNum)a).dbl() == 1;
+  ASTString use=(ASTString)E.skipWS().parse();
+  ASTVar res=(ASTVar)clone();
+  res._asts=new AST[]{use,y,ary};
+  return res;
+}

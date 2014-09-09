@@ -1,0 +1,41 @@
+{
+  if (env.isNum()) {
+    env.pop();
+    env.push(new ValNum(Double.NaN));
+  }
+ else {
+    Frame fr=env.peekAry();
+    Frame y=((ValFrame)env.peekAt(-1))._fr;
+    String use=((ValStr)env.peekAt(-2))._s;
+    String[] rownames=fr.names();
+    String[] colnames=y.names();
+    if (fr.numRows() != y.numRows())     throw new IllegalArgumentException("In var(): incompatible dimensions. Frames must have the same number of rows.");
+    final double[][] covars=new double[y.numCols()][fr.numCols()];
+    final MRTask[][] tsks=new MRTask[y.numCols()][fr.numCols()];
+    for (int c=0; c < y.numCols(); ++c) {
+      Futures fs=new Futures();
+      for (int r=0; r < fr.numCols(); ++r) {
+        final Frame f=new Frame(y.vecs()[c],fr.vecs()[r]);
+        tsks[c][r]=new CovarTask().dfork(f);
+      }
+    }
+    for (int c=0; c < y.numCols(); c++)     for (int r=0; r < fr.numCols(); r++)     covars[c][r]=((CovarTask)tsks[c][r].getResult())._ss / (fr.numRows() - 1);
+    env.pop();
+    env.pop();
+    env.pop();
+    if (covars.length == 1 && covars[0].length == 1)     env.push(new ValNum(covars[0][0]));
+ else {
+      Key keys[]=Vec.VectorGroup.VG_LEN1.addVecs(covars.length);
+      Vec[] vecs=new Vec[covars.length];
+      for (int i=0; i < covars.length; i++) {
+        AppendableVec v=new AppendableVec(keys[i]);
+        NewChunk c=new NewChunk(v,0);
+        v.setDomain(null);
+        for (int j=0; j < covars[0].length; j++)         c.addNum(covars[i][j]);
+        c.close(0,null);
+        vecs[i]=v.close(null);
+      }
+      env.push(new ValFrame(new Frame(colnames,vecs)));
+    }
+  }
+}
