@@ -1,0 +1,24 @@
+{
+  if (c.vec().isEnum() || c.vec().isUUID()) {
+    _sum=Double.NaN;
+    _rowcnt=0;
+    return;
+  }
+  if (_narm) {
+    for (int r=0; r < c.len(); r++)     if (!c.isNA0(r)) {
+      _sum+=c.at0(r);
+      _rowcnt++;
+    }
+  }
+ else {
+    for (int r=0; r < c.len(); r++)     if (c.isNA0(r)) {
+      _rowcnt=0;
+      _sum=Double.NaN;
+      return;
+    }
+ else {
+      _sum+=c.at0(r);
+      _rowcnt++;
+    }
+  }
+}
