@@ -1,5 +1,5 @@
 {
-  Throwable e;
+  Throwable e=null;
   Env env=null;
   try {
     env=water.cascade.Exec.exec(cascade._ast);
@@ -32,6 +32,7 @@ catch (  Throwable e2) {
     Log.err(e=e2);
   }
  finally {
+    if (e != null)     cascade._error=e.getMessage();
     if (env != null) {
       try {
         env.remove_and_unlock();
