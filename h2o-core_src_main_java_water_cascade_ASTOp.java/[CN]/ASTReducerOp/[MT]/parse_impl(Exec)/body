@@ -1,0 +1,18 @@
+{
+  ArrayList<AST> dblarys=new ArrayList<>();
+  AST ary=E.parse();
+  dblarys.add(ary);
+  AST a=null;
+  while (E.peek() != ')') {
+    a=E.skipWS().parse();
+    if (a instanceof ASTNum || a instanceof ASTFrame || a instanceof ASTSlice|| a instanceof ASTBinOp)     dblarys.add(a);
+ else     break;
+  }
+  a=E._env.lookup((ASTId)a);
+  _narm=((ASTNum)a).dbl() == 1;
+  ASTReducerOp res=(ASTReducerOp)clone();
+  AST[] arys=new AST[dblarys.size()];
+  for (int i=0; i < dblarys.size(); i++)   arys[i]=dblarys.get(i);
+  res._asts=arys;
+  return res;
+}
