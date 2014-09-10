@@ -22,6 +22,19 @@
     for (    double d : sm.norm_beta)     l1norm+=Math.abs(d);
     double objval=sm.validation.residual_deviance / sm.validation.nobs + sm.lambda_value * l1norm;
     assertEquals(0.32922849120947384,objval,0.32922849120947384 * 1e-2);
+    GLMModel m=new GetScoringModelTask(null,model._key,sm.lambda_value).invokeTask()._res;
+    Frame score=m.score(fr);
+    MSETsk mse=new MSETsk().doAll(score.anyVec(),fr.vec(m._output.responseName()));
+    assertEquals(val.residualDeviance(),mse._resDev,1e-6);
+    score.remove();
+    model._output.setSubmodelIdx(model._output._submodels.length >> 1);
+    sm=model._output._submodels[model._output._best_lambda_idx];
+    val=model._output._submodels[model._output._best_lambda_idx].validation;
+    m=new GetScoringModelTask(null,model._key,sm.lambda_value).invokeTask()._res;
+    score=m.score(fr);
+    mse=new MSETsk().doAll(score.anyVec(),fr.vec(m._output.responseName()));
+    assertEquals(val.residualDeviance(),mse._resDev,1e-6);
+    score.remove();
   }
   finally {
     fr.delete();
