@@ -2,5 +2,11 @@
   Model model=getFromDKV(m.key);
   m.models=new Model[1];
   m.models[0]=model;
-  return this.schema(version).fillFromImpl(m);
+  ModelsBase schema=this.schema(version).fillFromImpl(m);
+  if (m.find_compatible_frames) {
+    Frames compatible=new Frames();
+    compatible.frames=Models.findCompatibleFrames(model,Frames.fetchAll(),m.fetchFrameCols());
+    schema.models[0].compatible_frames=(new FramesHandler()).schema(version).fillFromImpl(compatible);
+  }
+  return schema;
 }

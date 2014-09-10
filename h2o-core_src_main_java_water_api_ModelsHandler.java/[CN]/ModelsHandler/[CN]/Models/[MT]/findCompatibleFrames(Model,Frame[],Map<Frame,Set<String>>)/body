@@ -1,0 +1,20 @@
+{
+  List<Frame> compatible_frames=new ArrayList<Frame>();
+  Set<String> model_column_names=new HashSet(Arrays.asList(model._output._names));
+  for (  Map.Entry<Frame,Set<String>> entry : all_frames_cols.entrySet()) {
+    Frame frame=entry.getKey();
+    Set<String> frame_cols=entry.getValue();
+    if (frame_cols.containsAll(model_column_names)) {
+      try {
+        Frame[] outputs=model.adapt(frame,false);
+        Frame adapted=outputs[0];
+        Frame trash=outputs[1];
+        trash.delete();
+        compatible_frames.add(frame);
+      }
+ catch (      Exception e) {
+      }
+    }
+  }
+  return compatible_frames.toArray(new Frame[0]);
+}
