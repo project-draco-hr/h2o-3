@@ -22,6 +22,31 @@
     for (    double d : sm.norm_beta)     l1norm+=Math.abs(d);
     double objval=sm.validation.residual_deviance / sm.validation.nobs + sm.lambda_value * l1norm;
     assertEquals(0.32922849120947384,objval,0.32922849120947384 * 1e-2);
+    GLMModel m=new GetScoringModelTask(null,model._key,sm.lambda_value).invokeTask()._res;
+    Frame score=m.score(fr);
+    MSETsk mse=new MSETsk().doAll(score.anyVec(),fr.vec(m._output.responseName()));
+    assertEquals(val.residualDeviance(),mse._resDev,1e-6);
+    score.remove();
+    model._output.setSubmodelIdx(model._output._submodels.length >> 1);
+    sm=model._output._submodels[model._output._best_lambda_idx];
+    val=model._output._submodels[model._output._best_lambda_idx].validation;
+    m=new GetScoringModelTask(null,model._key,sm.lambda_value).invokeTask()._res;
+    score=m.score(fr);
+    mse=new MSETsk().doAll(score.anyVec(),fr.vec(m._output.responseName()));
+    assertEquals(val.residualDeviance(),mse._resDev,1e-6);
+    score.remove();
+    params=new GLMParameters(Family.gaussian);
+    params._response=0;
+    params._training_frame=parsed;
+    params.lambda_search=true;
+    params.nlambdas=35;
+    params.lambda_min_ratio=0.18;
+    params.maxActivePredictors=20;
+    params.alpha=new double[]{1};
+    new GLM(jobKey,modelKey,"glm test simple poisson",params).train().get();
+    model=DKV.get(modelKey).get();
+    assertTrue(model._output._submodels.length > 3);
+    assertTrue(model.validation().residualDeviance() <= 93);
   }
   finally {
     fr.delete();

@@ -5,6 +5,7 @@
   Frame source=DataInfo.prepareFrame(fr,response,_parms._ignored_cols,false,true,true);
   DataInfo dinfo=new DataInfo(source,1,_parms.useAllFactorLvls || _parms.lambda_search,_parms._standardize ? DataInfo.TransformType.STANDARDIZE : DataInfo.TransformType.NONE,DataInfo.TransformType.NONE);
   H2OCountedCompleter cmp=new H2OCountedCompleter(){
+    AtomicBoolean _gotException=new AtomicBoolean(false);
     @Override public void compute2(){
     }
     @Override public void onCompletion(    CountedCompleter cc){
@@ -13,10 +14,13 @@
       done();
     }
     @Override public boolean onExceptionalCompletion(    Throwable ex,    CountedCompleter cc){
-      cancel2(ex);
-      DKV.remove(_progressKey);
-      fr.unlock(_key);
-      return true;
+      if (!_gotException.getAndSet(true)) {
+        cancel2(ex);
+        DKV.remove(_progressKey);
+        fr.unlock(_key);
+        return true;
+      }
+      return false;
     }
   }
 ;
