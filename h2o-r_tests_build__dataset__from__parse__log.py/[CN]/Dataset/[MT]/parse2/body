@@ -1,0 +1,69 @@
+def parse2(self, f):
+    '\n        Parse file specified by constructor.\n        '
+    line_num = 0
+    s = f.readline()
+    while (len(s) > 0):
+        line_num += 1
+        match_groups = re.search('Parse result for (.*) .(\\d+) rows.:', s)
+        if (match_groups is not None):
+            dataset_name = match_groups.group(1)
+            if (self.dataset_name is not None):
+                print 'ERROR: Too many datasets found on file {} line {}'.format(self.parse_log_path, line_num)
+                sys.exit(1)
+            self.dataset_name = dataset_name
+            num_rows = int(match_groups.group(2))
+            self.num_rows = num_rows
+            s = f.readline()
+            continue
+        match_groups = re.search((((((('INFO WATER:' + '\\s*C(\\d+):') + '\\s*numeric') + '\\s*min\\((\\S*)\\)') + '\\s*max\\((\\S*).\\)') + '\\s*(na\\((\\S+)\\))?') + '\\s*(constant)?'), s)
+        if (match_groups is not None):
+            col_num = int(match_groups.group(1))
+            min_val = float(match_groups.group(2))
+            max_val = float(match_groups.group(3))
+            na_count = match_groups.group(5)
+            if (na_count is None):
+                na_count = 0
+            else:
+                na_count = int(na_count)
+            constant_str = match_groups.group(6)
+            is_constant = (constant_str is not None)
+            if is_constant:
+                if (min_val != max_val):
+                    print 'ERROR: is_constant mismatch on file {} line {}'.format(self.parse_log_path, line_num)
+                    sys.exit(1)
+            na_fraction = (float(na_count) / float(self.num_rows))
+            is_min_integer = (float(int(min_val)) == float(min_val))
+            is_max_integer = (float(int(min_val)) == float(min_val))
+            is_integer = (is_min_integer and is_max_integer)
+            c = RealColumn(col_num, ('C' + str(col_num)), min_val, max_val, na_fraction, is_integer)
+            self.add_col(c)
+            s = f.readline()
+            continue
+        match_groups = re.search(((((((('INFO WATER:' + '\\s*C(\\d+):') + '\\s*categorical') + '\\s*min\\((\\S*)\\)') + '\\s*max\\((\\S*).\\)') + '\\s*(na\\((\\S+)\\))?') + '\\s*(constant)?') + '\\s*numLevels\\((\\d+)\\)'), s)
+        if (match_groups is not None):
+            col_num = int(match_groups.group(1))
+            min_val = float(match_groups.group(2))
+            max_val = float(match_groups.group(3))
+            na_count = match_groups.group(5)
+            if (na_count is None):
+                na_count = 0
+            else:
+                na_count = int(na_count)
+            constant_str = match_groups.group(6)
+            is_constant = (constant_str is not None)
+            if is_constant:
+                if (min_val != max_val):
+                    print 'ERROR: is_constant mismatch on file {} line {}'.format(self.parse_log_path, line_num)
+                    sys.exit(1)
+            num_levels = int(match_groups.group(7))
+            if is_constant:
+                if (num_levels != 1):
+                    print 'ERROR: num_levels mismatch on file {} line {}'.format(self.parse_log_path, line_num)
+                    sys.exit(1)
+            na_fraction = (float(na_count) / float(self.num_rows))
+            c = CategoricalColumn(col_num, ('C' + str(col_num)), num_levels, na_fraction)
+            self.add_col(c)
+            s = f.readline()
+            continue
+        print 'ERROR: Unrecognized regexp pattern on file {} line {}'.format(self.parse_log_path, line_num)
+        sys.exit(1)

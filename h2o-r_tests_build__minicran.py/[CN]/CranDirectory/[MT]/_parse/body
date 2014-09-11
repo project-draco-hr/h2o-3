@@ -1,0 +1,37 @@
+def _parse(self):
+    f = open(self.packages_file, 'r')
+    STATE_NONE = 1
+    STATE_IN_DEP = 2
+    state = STATE_NONE
+    p = None
+    for line in f:
+        if (len(line) == 0):
+            f.close()
+            return
+        line = line.rstrip('\r\n')
+        m = re.match('Package: (\\S+)', line)
+        if (m is not None):
+            package_name = m.group(1)
+            p = CranPackage(package_name)
+            self._add_package(p)
+            state = STATE_NONE
+            continue
+        m = re.match('Version: (\\S+)', line)
+        if (m is not None):
+            package_version = m.group(1)
+            p.set_version(package_version)
+            state = STATE_NONE
+            continue
+        m = re.match('Depends: (.*)', line)
+        if (m is not None):
+            s = m.group(1)
+            p.add_dependencies(s)
+            state = STATE_IN_DEP
+            continue
+        if (':' in line):
+            state = STATE_NONE
+            continue
+        if (state == STATE_IN_DEP):
+            if (p is not None):
+                p.add_dependencies(line)
+    f.close()

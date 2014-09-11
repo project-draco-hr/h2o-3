@@ -1,0 +1,21 @@
+def parse_args(argv):
+    global g_parse_log_path
+    global g_num_rows
+    i = 1
+    while (i < len(argv)):
+        s = argv[i]
+        if (s == '-f'):
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_parse_log_path = argv[i]
+        elif (s == '--rows'):
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_num_rows = int(argv[i])
+        elif ((s == '-h') or (s == '--h') or (s == '-help') or (s == '--help')):
+            usage()
+        else:
+            unknown_arg(s)
+        i += 1

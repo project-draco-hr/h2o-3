@@ -1,0 +1,50 @@
+def parse_args(argv):
+    global g_platform
+    global g_output_dir
+    global g_rversion
+    global g_branch
+    global g_buildnum
+    global g_print_only
+    i = 1
+    while (i < len(argv)):
+        s = argv[i]
+        if (s == '--platform'):
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_platform = argv[i]
+            if (g_platform not in ['linux', 'windows', 'macosx']):
+                bad_arg(s)
+        elif (s == '--rversion'):
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_rversion = argv[i]
+            if (g_rversion not in ['2.14', '2.15', '3.0']):
+                bad_arg(s)
+        elif (s == '--outputdir'):
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_output_dir = argv[i]
+        elif (s == '--branch'):
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_branch = argv[i]
+        elif (s == '--buildnum'):
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_buildnum = argv[i]
+        elif (s == '-n'):
+            g_print_only = True
+        elif ((s == '-h') or (s == '--h') or (s == '-help') or (s == '--help')):
+            usage()
+        else:
+            unknown_arg(s)
+        i += 1
+    if (g_platform is None):
+        unspecified_arg('platform')
+    if (g_output_dir is None):
+        unspecified_arg('output directory')

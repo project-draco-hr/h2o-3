@@ -1,0 +1,13 @@
+def start(self, ip, port):
+    '\n        Start the test in a non-blocking fashion.\n\n        @param ip: IP address of cloud to run on.\n        @param port: Port of cloud to run on.\n        @return: none\n        '
+    if (self.cancelled or self.terminated):
+        return
+    self.start_seconds = time.time()
+    self.ip = ip
+    self.port = port
+    cmd = ['R', '-f', self.test_name, '--args', ((self.ip + ':') + str(self.port))]
+    test_short_dir_with_no_slashes = re.sub('[\\\\/]', '_', self.test_short_dir)
+    self.output_file_name = os.path.join(self.output_dir, (((test_short_dir_with_no_slashes + '_') + self.test_name) + '.out.txt'))
+    f = open(self.output_file_name, 'w')
+    self.child = subprocess.Popen(args=cmd, stdout=f, stderr=subprocess.STDOUT, cwd=self.test_dir)
+    self.pid = self.child.pid

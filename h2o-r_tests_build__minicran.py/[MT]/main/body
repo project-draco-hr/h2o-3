@@ -1,0 +1,15 @@
+def main(argv):
+    '\n    Main program.\n\n    @return: none\n    '
+    global g_script_name
+    global g_tmp_dir
+    g_script_name = os.path.basename(argv[0])
+    parse_args(argv)
+    g_tmp_dir = tempfile.mkdtemp(suffix='.tmp_minicran')
+    print ('Created tmp directory: ' + g_tmp_dir)
+    atexit.register(remove_tmp_dir)
+    try:
+        b = MinicranBuilder(g_print_only, g_output_dir, g_tmp_dir, g_platform, g_rversion, g_branch, g_buildnum)
+        b.build()
+    except KeyboardInterrupt:
+        print ''
+        pass

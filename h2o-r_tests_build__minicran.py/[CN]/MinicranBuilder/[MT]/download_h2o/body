@@ -1,0 +1,26 @@
+def download_h2o(self):
+    if (self.buildnum == 'latest'):
+        latest_url = ((self.s3_url_prefix + self.branch) + '/latest')
+        latest_path = os.path.join(self.tmp_dir, 'latest')
+        download_file(latest_url, latest_path)
+        f = open(latest_path, 'r')
+        line = f.readline()
+        self.buildnum = line.strip()
+        f.close()
+    print ('H2O branch: ' + self.branch)
+    print ('H2O build number: ' + self.buildnum)
+    project_version_url = ((((self.s3_url_prefix + self.branch) + '/') + str(self.buildnum)) + '/project_version')
+    project_version_path = os.path.join(self.tmp_dir, 'project_version')
+    download_file(project_version_url, project_version_path)
+    if True:
+        f = open(project_version_path, 'r')
+        line = f.readline()
+        self.project_version = line.strip()
+        f.close()
+    print ('H2O project version: ' + self.project_version)
+    desc_file_name = 'PACKAGES'
+    desc_url = (((((self.s3_url_prefix + self.branch) + '/') + str(self.buildnum)) + '/R/src/contrib/') + desc_file_name)
+    desc_path = os.path.join(self.tmp_dir, desc_file_name)
+    download_file(desc_url, desc_path)
+    self.h2o_cran = CranDirectory(desc_path)
+    self.h2o_cran.emit()

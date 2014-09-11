@@ -1,0 +1,11 @@
+def create_cran_layout(self):
+    if (self.platform == 'windows'):
+        self.repo_subdir = ((('bin/' + self.platform) + '/contrib/') + self.rversion)
+        self.extension = '.zip'
+    elif (self.platform == 'macosx'):
+        self.repo_subdir = ((('bin/' + self.platform) + '/contrib/') + self.rversion)
+        self.extension = '.tgz'
+    else:
+        self.repo_subdir = 'src/contrib'
+        self.extension = '.tar.gz'
+    os.makedirs(os.path.join(self.output_dir, self.repo_subdir))

@@ -1,0 +1,18 @@
+def add_dependencies(self, dependencies):
+    stripped = dependencies.strip()
+    arr = stripped.split(',')
+    for dep in arr:
+        stripped_dep = dep.strip()
+        if (len(stripped_dep) == 0):
+            continue
+        m = re.match('\\(.*', stripped_dep)
+        if (m is not None):
+            continue
+        m = re.match('([a-zA-Z0-9\\.]*)[ (]?.*', stripped_dep)
+        if (m is None):
+            print ''
+            print (((('ERROR: Match failed for ' + self.package_name) + ' (') + stripped_dep) + ')')
+            print ''
+            sys.exit(1)
+        dependency_name = m.group(1)
+        self.package_dependencies.append(dependency_name)

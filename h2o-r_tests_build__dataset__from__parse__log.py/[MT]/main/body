@@ -1,0 +1,15 @@
+def main(argv):
+    '\n    Main program.\n\n    @return: none\n    '
+    global g_script_name
+    global g_parse_log_path
+    g_script_name = os.path.basename(argv[0])
+    parse_args(argv)
+    if (g_parse_log_path is None):
+        print ''
+        print 'ERROR: -f not specified'
+        usage()
+    d = Dataset(g_parse_log_path)
+    d.parse()
+    d.emit_header()
+    for i in range(0, g_num_rows):
+        d.emit_one_row()

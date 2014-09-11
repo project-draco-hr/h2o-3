@@ -1,0 +1,14 @@
+def create_output_dir(self):
+    if os.path.exists(self.output_dir):
+        print ''
+        print ('ERROR: Output directory already exists: ' + self.output_dir)
+        print ''
+        sys.exit(1)
+    try:
+        os.makedirs(self.output_dir)
+    except OSError as e:
+        print ''
+        print 'mkdir failed (errno {0}): {1}'.format(e.errno, e.strerror)
+        print ('    ' + self.output_dir)
+        print ''
+        sys.exit(1)
