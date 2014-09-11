@@ -1,0 +1,14 @@
+{
+  training_duration_in_ms+=(System.currentTimeMillis() - training_start_time);
+  Log.info("setting training_duration_in_ms to: " + training_duration_in_ms + " for Model: "+ this._key.toString()+ " ("+ this.getClass().getSimpleName()+ "@"+ System.identityHashCode(this)+ ")");
+  final long d=training_duration_in_ms;
+  new TAtomic<Model>(){
+    @Override public Model atomic(    Model m){
+      if (m != null) {
+        m.training_duration_in_ms=d;
+      }
+      return m;
+    }
+  }
+.invoke(_key);
+}

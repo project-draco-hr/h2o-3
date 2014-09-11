@@ -1,0 +1,14 @@
+{
+  Log.info("setting training_start_time to: " + training_start_time + " for Model: "+ this._key.toString()+ " ("+ this.getClass().getSimpleName()+ "@"+ System.identityHashCode(this)+ ")");
+  final long t=training_start_time;
+  new TAtomic<Model>(){
+    @Override public Model atomic(    Model m){
+      if (m != null) {
+        m.training_start_time=t;
+      }
+      return m;
+    }
+  }
+.invoke(_key);
+  this.training_start_time=training_start_time;
+}
