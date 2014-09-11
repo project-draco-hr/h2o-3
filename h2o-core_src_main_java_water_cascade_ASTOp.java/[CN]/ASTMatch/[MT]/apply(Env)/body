@@ -1,0 +1,19 @@
+{
+  Frame fr=e.pop0Ary();
+  if (fr.numCols() != 1)   throw new IllegalArgumentException("can only match on a single categorical column.");
+  if (!fr.anyVec().isEnum())   throw new IllegalArgumentException("can only match on a single categorical column.");
+  Key tmp=Key.make();
+  final String[] matches=_matches;
+  Frame rez=new MRTask(){
+    private int in(    String s){
+      return Arrays.asList(matches).contains(s) ? 1 : 0;
+    }
+    @Override public void map(    Chunk c,    NewChunk n){
+      int rows=c.len();
+      for (int r=0; r < rows; ++r)       n.addNum(in(c.vec().domain()[(int)c.at80(r)]));
+    }
+  }
+.doAll(1,fr.anyVec()).outputFrame(tmp,null,null);
+  e.cleanup(fr);
+  e.push(new ValFrame(rez));
+}
