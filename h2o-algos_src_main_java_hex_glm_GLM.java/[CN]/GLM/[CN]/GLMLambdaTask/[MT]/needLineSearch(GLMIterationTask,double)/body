@@ -4,5 +4,5 @@
   if (ArrayUtils.hasNaNsOrInfs(glmt._xy) || (glmt._grad != null && ArrayUtils.hasNaNsOrInfs(glmt._grad)) || (glmt._gram != null && glmt._gram.hasNaNsOrInfs()))   return true;
   if (glmt._val != null && (glmt._val.residual_deviance > glmt._val.null_deviance))   return true;
   if (glmt._val == null)   return false;
-  return needLineSearch(glmt._beta,objval(glmt),step);
+  return needLineSearch(glmt._beta,objval(glmt,_taskInfo._params.alpha[0],_currentLambda),step);
 }
