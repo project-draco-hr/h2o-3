@@ -12,13 +12,13 @@
       H2OCountedCompleter cmp=new LambdaSearchIteration((H2OCountedCompleter)getCompleter());
       cmp.addToPendingCount(tasks.length - 1);
       for (int i=0; i < tasks.length; ++i) {
-        _state[i]._lambda=currentLambda;
+        _state[i]._lastLambda=currentLambda;
         tasks[i]=new GLMLambdaTask(cmp,_jobKey,_progressKey,_state[i],nextLambda);
       }
       new ParallelTasks(new LambdaSearchIteration((H2OCountedCompleter)getCompleter()),tasks).fork();
     }
  else {
-      _state[0]._lambda=currentLambda;
+      _state[0]._lastLambda=currentLambda;
       new GLMLambdaTask(new LambdaSearchIteration((H2OCountedCompleter)getCompleter()),_jobKey,_progressKey,_state[0],nextLambda).fork();
     }
   }
