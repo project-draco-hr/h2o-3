@@ -3,6 +3,7 @@
   Key modelKey=Key.make("prostate_model");
   GLMModel model=null;
   Frame fr=parse_test_file(parsed,"smalldata/glm_test/prostate_cat_replaced.csv");
+  Frame score=null;
   try {
     String[] cfs1=new String[]{"Intercept","AGE","RACE.R2","RACE.R3","DPROS","DCAPS","PSA","VOL","GLEASON"};
     double[] vals=new double[]{-8.14867,-0.01368,0.32337,-0.38028,0.55964,0.49548,0.02794,-0.01104,0.97704};
@@ -19,10 +20,20 @@
     assertEquals(512.3,val.nullDeviance(),1e-1);
     assertEquals(378.3,val.residualDeviance(),1e-1);
     assertEquals(396.3,val.aic(),1e-1);
+    score=model.score(fr);
+    AUC auc=new AUC();
+    auc.predict=score;
+    auc.actual=fr;
+    auc.vactual=fr.vec("CAPSULE");
+    auc.vpredict=score.vec("1");
+    auc.execImpl();
+    AUCData adata=auc.data();
+    assertEquals(val.auc(),adata.AUC(),1e-2);
   }
   finally {
     fr.delete();
     if (model != null)     model.delete();
+    if (score != null)     score.delete();
     DKV.remove(jobKey);
   }
 }
