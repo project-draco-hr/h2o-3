@@ -1,10 +1,7 @@
 def start(self):
     '\n        Start one node of H2O.\n        (Stash away the self.child and self.pid internally here.)\n\n        @return: none\n        '
-    cmd = ['java', ('-Xmx' + self.xmx), '-ea', '-jar', self.h2o_jar, '-name', self.cloud_name, '-baseport', str(self.my_base_port), '-hdfs_version', 'cdh3']
+    cmd = ['java', ('-Xmx' + self.xmx), '-ea', '-jar', self.h2o_jar, '-name', self.cloud_name, '-baseport', str(self.my_base_port)]
     ec2_hdfs_config_file_name = os.path.expanduser('~/.ec2/core-site.xml')
-    if os.path.exists(ec2_hdfs_config_file_name):
-        cmd.append('-hdfs_config')
-        cmd.append(ec2_hdfs_config_file_name)
     self.output_file_name = os.path.join(self.output_dir, (((('java_' + str(self.cloud_num)) + '_') + str(self.node_num)) + '.out.txt'))
     f = open(self.output_file_name, 'w')
     self.child = subprocess.Popen(args=cmd, stdout=f, stderr=subprocess.STDOUT, cwd=self.output_dir)
