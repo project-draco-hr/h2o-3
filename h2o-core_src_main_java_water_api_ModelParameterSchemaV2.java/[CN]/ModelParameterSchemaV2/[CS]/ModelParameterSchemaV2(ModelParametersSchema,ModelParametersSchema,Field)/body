@@ -7,7 +7,8 @@
     o=f.get(schema);
     this.actual_value=(o == null ? null : o.toString());
     boolean is_enum=Enum.class.isAssignableFrom(f.getType());
-    this.type=(is_enum ? "enum" : f.getType().toString());
+    boolean is_array=f.getType().isArray();
+    this.type=consType(f.getType());
     API annotation=f.getAnnotation(API.class);
     if (null != annotation) {
       String l=annotation.label();
