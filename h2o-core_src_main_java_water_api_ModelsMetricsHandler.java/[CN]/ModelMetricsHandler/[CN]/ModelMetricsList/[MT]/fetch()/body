@@ -1,0 +1,41 @@
+{
+  final Key[] modelMetricsKeys=KeySnapshot.globalSnapshot().filter(new KeySnapshot.KVFilter(){
+    @Override public boolean filter(    KeySnapshot.KeyInfo k){
+      if (!Value.isSubclassOf(k._type,ModelMetrics.class))       return false;
+      if (null == model && null == frame)       return true;
+      Value mmv=DKV.get(k._key);
+      if (null == mmv)       throw H2O.fail("Failed to find ModelMetrics object for which we have a key: " + k._key.toString());
+      if ("water.ModelMetrics".equals(mmv.className()))       throw H2O.fail("ModelMetrics key points to a non-ModelMetrics object in the DKV: " + k._key.toString() + " has class: "+ mmv.className());
+      ModelMetrics mm=mmv.get();
+      if (null == mm)       throw H2O.fail("Failed to find ModelMetrics object for which we have a key: " + k._key.toString());
+      if (model != null) {
+        Value v=DKV.get(model.getKey());
+        if (null == v)         return false;
+        if (!v.isModel() || !mm.isForModel((Model)v.get()))         return false;
+      }
+      if (frame != null) {
+        Value v=DKV.get(frame.getKey());
+        if (null == v)         return false;
+        if (!v.isFrame() || !mm.isForFrame((Frame)v.get()))         return false;
+      }
+      return true;
+    }
+  }
+).keys();
+  ModelMetrics[] model_metrics_list=new ModelMetrics[modelMetricsKeys.length];
+  for (int i=0; i < modelMetricsKeys.length; i++) {
+    Key key=modelMetricsKeys[i];
+    Value v=DKV.get(key);
+    if (null == v) {
+      Log.warn("ModelMetrics key not found in DKV: " + key.toString());
+      continue;
+    }
+    if (!"water.ModelMetrics".equals(v.className())) {
+      Log.warn("ModelMetrics key: " + key.toString() + " points to a value of some other class: "+ v.className());
+      continue;
+    }
+    ModelMetrics model_metrics=v.get();
+    model_metrics_list[i]=model_metrics;
+  }
+  return model_metrics_list;
+}
