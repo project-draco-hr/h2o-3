@@ -1,13 +1,13 @@
 {
   try {
     this.name=f.getName();
+    boolean is_array=f.getType().isArray();
     Object o;
     o=f.get(default_schema);
-    this.default_value=(o == null ? null : o.toString());
+    this.default_value=consValue(o);
     o=f.get(schema);
-    this.actual_value=(o == null ? null : o.toString());
+    this.actual_value=consValue(o);
     boolean is_enum=Enum.class.isAssignableFrom(f.getType());
-    boolean is_array=f.getType().isArray();
     this.type=consType(f.getType());
     API annotation=f.getAnnotation(API.class);
     if (null != annotation) {
