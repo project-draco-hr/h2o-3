@@ -1,0 +1,8 @@
+{
+  final Set<Key> kys=H2O.localKeySet();
+  Log.info("Removing " + kys.size() + " keys from nodeIdx("+ H2O.SELF.index()+ ") out of "+ H2O.CLOUD.size()+ " nodes.");
+  Futures fs=new Futures();
+  for (  Key k : kys)   DKV.remove(k,fs);
+  fs.blockForPending();
+  Log.info("Keys remaining: " + H2O.store_size());
+}
