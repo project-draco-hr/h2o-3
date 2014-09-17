@@ -1,5 +1,5 @@
 {
-  water.ModelMetrics metrics=water.ModelMetrics.getFromDKV(score_model,frame);
+  ModelMetrics metrics=ModelMetrics.getFromDKV(score_model,frame);
   if (null == metrics) {
     water.util.Log.debug("Cache miss: computing ModelMetrics. . .");
     long before=System.currentTimeMillis();
@@ -19,7 +19,7 @@
     }
  else {
     }
-    metrics=new water.ModelMetrics(score_model.getUniqueId(),score_model._output.getModelCategory(),frame.getUniqueId(),after - before,after,(auc == null ? null : auc.data()),cm);
+    metrics=new ModelMetrics(score_model.getUniqueId(),score_model._output.getModelCategory(),frame.getUniqueId(),after - before,after,(auc == null ? null : auc.data()),cm);
     metrics.putInDKV();
   }
  else {
