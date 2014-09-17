@@ -1,5 +1,5 @@
 {
-  if (source.numCols() <= 1)   throw new IllegalArgumentException("Training data must have at least 2 features (incl. response).");
+  if (_training_frame.numCols() <= 1)   throw new IllegalArgumentException("Training data must have at least 2 features (incl. response).");
   if (hidden == null)   throw new IllegalArgumentException("There must be at least one hidden layer.");
   for (int i=0; i < hidden.length; ++i) {
     if (hidden[i] == 0)     throw new IllegalArgumentException("Hidden layer size must be >0.");
@@ -18,7 +18,7 @@
   if (input_dropout_ratio < 0 || input_dropout_ratio >= 1) {
     throw new IllegalArgumentException("Input dropout must be in [0,1).");
   }
-  if (response_vec.isEnum() && !classification) {
+  if (_training_frame.vec(response_column).isEnum() && !classification) {
     Log.info("Automatically switching to classification for enum response_vec.");
     classification=true;
   }
@@ -89,7 +89,7 @@
     classification=false;
     Log.info("Using regression mode for auto-encoder.");
   }
-  if (autoencoder && validation != null)   throw new UnsupportedOperationException("Cannot specify a validation dataset for auto-encoder.");
+  if (autoencoder && _validation_frame != null)   throw new UnsupportedOperationException("Cannot specify a validation dataset for auto-encoder.");
   if (autoencoder && activation == Activation.Maxout)   throw new UnsupportedOperationException("Maxout activation is not supported for auto-encoder.");
   if (!sparse && col_major) {
     if (!quiet_mode)     throw new IllegalArgumentException("Cannot use column major storage for non-sparse data handling.");

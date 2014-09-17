@@ -11,18 +11,18 @@
     }
  else {
     }
-    if (_parms.source == null || !Arrays.equals(_parms.source._key._kb,previous.model_info().get_params().source._key._kb)) {
+    if (_parms._training_frame == null || !Arrays.equals(_parms._training_frame._key._kb,previous.model_info().get_params()._training_frame._key._kb)) {
       throw new IllegalArgumentException("source must be the same as for the checkpointed model.");
     }
     _parms.autoencoder=previous.model_info().get_params().autoencoder;
-    if (!_parms.autoencoder && (_parms.response_vec == null || !Arrays.equals(_parms.response_vec._key._kb,previous.model_info().get_params().response_vec._key._kb))) {
+    if (!_parms.autoencoder && (_parms.response_column == null || !Arrays.equals(_parms._training_frame.vec(_parms.response_column)._key._kb,_parms._training_frame.vec(previous.model_info().get_params().response_column)._key._kb))) {
       throw new IllegalArgumentException("response_vec must be the same as for the checkpointed model.");
     }
-    if (ArrayUtils.difference(_parms.ignored_cols,previous.model_info().get_params().ignored_cols).length != 0 || ArrayUtils.difference(previous.model_info().get_params().ignored_cols,_parms.ignored_cols).length != 0) {
-      _parms.ignored_cols=previous.model_info().get_params().ignored_cols;
+    if (ArrayUtils.difference(_parms.ignored_columns,previous.model_info().get_params().ignored_columns).length != 0 || ArrayUtils.difference(previous.model_info().get_params().ignored_columns,_parms.ignored_columns).length != 0) {
+      _parms.ignored_columns=previous.model_info().get_params().ignored_columns;
       Log.warn("Automatically re-using ignored_cols from the checkpointed model.");
     }
-    if ((_parms.validation == null) == (previous._validationKey != null) || (_parms.validation != null && _parms.validation._key != null && previous._validationKey != null && !Arrays.equals(_parms.validation._key._kb,previous._validationKey._kb))) {
+    if ((_parms._validation_frame == null) == (previous._parms._validation_frame != null) || (_parms._validation_frame != null && _parms._validation_frame._key != null && previous._parms._validation_frame != null && !Arrays.equals(_parms._validation_frame._key._kb,previous._parms._validation_frame._key._kb))) {
       throw new IllegalArgumentException("validation must be the same as for the checkpointed model.");
     }
     if (_parms.classification != previous.model_info().get_params().classification) {
@@ -66,15 +66,15 @@
     }
   }
   trainModel(cp);
-  int validlen=_parms.validation != null ? _parms.validation.vecs().length : 0;
-  Key[] keep=new Key[_parms.source.vecs().length + validlen + 6];
-  for (int i=0; i < _parms.source.vecs().length; ++i)   keep[i]=_parms.source.vecs()[i]._key;
-  keep[_parms.source.vecs().length]=_parms.source._key;
-  for (int i=0; i < validlen; ++i)   keep[i]=_parms.validation.vecs()[i]._key;
-  if (_parms.validation != null)   keep[_parms.source.vecs().length + 1]=_parms.validation._key;
-  keep[_parms.source.vecs().length + 2]=_dest;
-  keep[_parms.source.vecs().length + 3]=cp.actual_best_model_key;
-  keep[_parms.source.vecs().length + 4]=self();
-  keep[_parms.source.vecs().length + 5]=_progressKey;
+  int validlen=_parms._validation_frame != null ? _parms._validation_frame.vecs().length : 0;
+  Key[] keep=new Key[_parms._training_frame.vecs().length + validlen + 6];
+  for (int i=0; i < _parms._training_frame.vecs().length; ++i)   keep[i]=_parms._training_frame.vecs()[i]._key;
+  keep[_parms._training_frame.vecs().length]=_parms._training_frame._key;
+  for (int i=0; i < validlen; ++i)   keep[i]=_parms._validation_frame.vecs()[i]._key;
+  if (_parms._validation_frame != null)   keep[_parms._training_frame.vecs().length + 1]=_parms._validation_frame._key;
+  keep[_parms._training_frame.vecs().length + 2]=_dest;
+  keep[_parms._training_frame.vecs().length + 3]=cp.actual_best_model_key;
+  keep[_parms._training_frame.vecs().length + 4]=self();
+  keep[_parms._training_frame.vecs().length + 5]=_progressKey;
   Scope.exit(keep);
 }
