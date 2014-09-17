@@ -32,9 +32,14 @@ catch (    IllegalAccessException iae) {
   for (  Field f : fields.values()) {
     int mods=f.getModifiers();
     if (Modifier.isTransient(mods) || Modifier.isStatic(mods))     continue;
-    API api=(API)f.getAnnotations()[0];
-    if (api.required()) {
-      if (parms.getProperty(f.getName()) == null)       throw new IllegalArgumentException("Required field " + f.getName() + " not specified");
+    try {
+      API api=(API)f.getAnnotations()[0];
+      if (api.required()) {
+        if (parms.getProperty(f.getName()) == null)         throw new IllegalArgumentException("Required field " + f.getName() + " not specified");
+      }
+    }
+ catch (    ArrayIndexOutOfBoundsException e) {
+      throw new IllegalArgumentException("Missing annotation for API field: " + f.getName());
     }
   }
   return (S)this;

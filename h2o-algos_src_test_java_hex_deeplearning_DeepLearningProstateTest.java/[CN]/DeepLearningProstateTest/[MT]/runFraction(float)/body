@@ -29,7 +29,7 @@
                           if (n_folds != 0 && vf != 0)                           continue;
                           for (                          boolean keep_cv_splits : new boolean[]{false}) {
                             for (                            boolean override_with_best_model : new boolean[]{false,true}) {
-                              for (                              int train_samples_per_iteration : new int[]{-2,-1,0,rng.nextInt(100),500}) {
+                              for (                              int train_samples_per_iteration : new int[]{500}) {
                                 DeepLearningModel model1=null, model2=null, tmp_model=null;
                                 Key dest=null, dest_tmp=null;
                                 count++;
@@ -48,9 +48,9 @@
                                     Log.info("Using seed: " + seed);
                                     DeepLearningParameters p=new DeepLearningParameters();
                                     p.checkpoint=null;
-                                    p.source=frame;
-                                    p.response_vec=frame.vecs()[resp];
-                                    p.validation=valid;
+                                    p._training_frame=frame;
+                                    p.response_column=frame._names[resp];
+                                    p._validation_frame=valid;
                                     p.hidden=hidden;
                                     if (i == 0 && resp == 2)                                     p.classification=false;
                                     p.override_with_best_model=override_with_best_model;
@@ -80,6 +80,7 @@
  finally {
                                       dl.remove();
                                     }
+                                    assert(p.train_samples_per_iteration <= 0 || model1.epoch_counter > epochs || Math.abs(model1.epoch_counter - epochs) / epochs < 0.1);
                                     if (n_folds != 0) {
                                       throw H2O.unimpl();
                                     }
@@ -91,9 +92,9 @@
                                   assert(tmp_model != null);
                                   p.checkpoint=dest_tmp;
                                   p.n_folds=0;
-                                  p.source=frame;
-                                  p.validation=valid;
-                                  p.response_vec=frame.vecs()[resp];
+                                  p._training_frame=frame;
+                                  p._validation_frame=valid;
+                                  p.response_column=frame._names[resp];
                                   if (i == 0 && resp == 2)                                   p.classification=false;
                                   p.override_with_best_model=override_with_best_model;
                                   p.epochs=epochs;

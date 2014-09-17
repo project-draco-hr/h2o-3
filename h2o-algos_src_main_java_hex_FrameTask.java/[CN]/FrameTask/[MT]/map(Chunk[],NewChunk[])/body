@@ -8,21 +8,11 @@
   double[] response=_dinfo._responses == 0 ? null : MemoryManager.malloc8d(_dinfo._responses);
   int start=0;
   int end=nrows;
-  boolean contiguous=false;
   Random skip_rng=null;
   final int repeats=(int)Math.ceil(_useFraction);
   final float fraction=_useFraction / repeats;
   if (fraction < 1.0) {
     skip_rng=RandomUtils.getDeterRNG(new Random().nextLong());
-    if (contiguous) {
-      final int howmany=(int)Math.ceil(fraction * nrows);
-      if (howmany > 0) {
-        start=skip_rng.nextInt(nrows - howmany);
-        end=start + howmany;
-      }
-      assert(start < nrows);
-      assert(end <= nrows);
-    }
   }
   long[] shuf_map=null;
   if (_shuffle) {
@@ -35,7 +25,7 @@
     OUTER:     for (int rr=start; rr < end; ++rr) {
       final int r=shuf_map != null ? (int)shuf_map[rr - start] : rr;
       final long lr=r + chunks[0].start();
-      if ((_dinfo._nfolds > 0 && (lr % _dinfo._nfolds) == _dinfo._foldId) || (skip_rng != null && skip_rng.nextFloat() > _useFraction))       continue;
+      if ((_dinfo._nfolds > 0 && (lr % _dinfo._nfolds) == _dinfo._foldId) || (skip_rng != null && skip_rng.nextFloat() > fraction))       continue;
       ++num_processed_rows;
       for (      Chunk c : chunks)       if (skipMissing() && c.isNA0(r))       continue OUTER;
       int i=0, ncats=0;

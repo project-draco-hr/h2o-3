@@ -1,0 +1,28 @@
+{
+  if (center) {
+    String[] centers=E.skipWS().peek() == '{' ? E.xpeek('{').parseString('}').split(";") : null;
+    if (centers == null) {
+      AST a=E._env.lookup((ASTId)E.skipWS().parse());
+      _center=((ASTNum)a).dbl() == 1;
+      _centers=null;
+    }
+ else {
+      for (int i=0; i < centers.length; ++i)       centers[i]=centers[i].replace("\"","").replace("\'","");
+      _centers=new double[centers.length];
+      for (int i=0; i < centers.length; ++i)       _centers[i]=Double.valueOf(centers[i]);
+    }
+  }
+ else {
+    String[] centers=E.skipWS().peek() == '{' ? E.xpeek('{').parseString('}').split(";") : null;
+    if (centers == null) {
+      AST a=E._env.lookup((ASTId)E.skipWS().parse());
+      _scale=((ASTNum)a).dbl() == 1;
+      _scales=null;
+    }
+ else {
+      for (int i=0; i < centers.length; ++i)       centers[i]=centers[i].replace("\"","").replace("\'","");
+      _scales=new double[centers.length];
+      for (int i=0; i < centers.length; ++i)       _scales[i]=Double.valueOf(centers[i]);
+    }
+  }
+}

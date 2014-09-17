@@ -10,7 +10,7 @@
     Vec v=fr.vec(0);
     System.out.println(v.min() + ", " + v.max()+ ", mean = "+ v.mean());
     GLMParameters params=new GLMParameters(Family.poisson);
-    params._training_frame=fr._key;
+    params._training_frame=DKV.get(fr._key).get();
     params._response=1;
     params.lambda=new double[]{0};
     params.higher_accuracy=true;
@@ -22,7 +22,7 @@
     fr.delete();
     FVecTest.makeByteVec(raw,"x,y\n1,0\n2,1\n3,2\n4,3\n5,1\n6,4\n7,9\n8,18\n9,23\n10,31\n11,20\n12,25\n13,37\n14,45\n");
     fr=ParseDataset2.parse(parsed,new Key[]{raw});
-    params._training_frame=fr._key;
+    params._training_frame=DKV.get(fr._key).get();
     params.higher_accuracy=true;
     params._standardize=false;
     new GLM(jobKey,modelKey,"glm test simple poisson",params).train().get();

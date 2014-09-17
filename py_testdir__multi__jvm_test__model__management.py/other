@@ -39,30 +39,42 @@ pp.pprint(model_builders)
 kmeans_builder = a_node.model_builders(algo='kmeans')['model_builders']['kmeans']
 kmeans_model_name = 'KMeansModel'
 print 'About to build a KMeans model. . .'
-jobs = a_node.build_model(algo='kmeans', training_frame=prostate_key, parameters={'K': 2, }, timeoutSecs=240)
+kmeans_parameters = {'K': 2, }
+jobs = a_node.build_model(algo='kmeans', training_frame=prostate_key, parameters=kmeans_parameters, timeoutSecs=240)
 print 'Done building KMeans model.'
 deep_learning_model_name = 'DeepLearningModel'
 print 'About to build a DeepLearning model. . .'
-jobs = a_node.build_model(algo='deeplearning', training_frame=prostate_key, parameters={'classification': True, 'response': 'CAPSULE', }, timeoutSecs=240)
+dl_parameters = {'classification': True, 'response_column': 'CAPSULE', }
+jobs = a_node.build_model(algo='deeplearning', training_frame=prostate_key, parameters=dl_parameters, timeoutSecs=240)
 print 'Done building DeepLearning model.'
 models = a_node.models()
 print 'After Model build: Models: '
 pp.pprint(models)
 found_kmeans = False
+kmeans_model = None
 for model in models['models']:
     if (model['key'] == kmeans_model_name):
         found_kmeans = True
+        kmeans_model = model
 assert found_kmeans, (('Did not find ' + kmeans_model_name) + ' in the models list.')
+validate_actual_parameters(kmeans_parameters, kmeans_model['parameters'], prostate_key, None)
 found_dl = False
+dl_model = None
 for model in models['models']:
     if (model['key'] == deep_learning_model_name):
         found_dl = True
+        dl_model = model
 assert found_dl, (('Did not find ' + deep_learning_model_name) + ' in the models list.')
+validate_actual_parameters(dl_parameters, dl_model['parameters'], prostate_key, None)
 model = a_node.models(key=kmeans_model_name, find_compatible_frames=True)
 found_kmeans = False
 h2o_util.assertKeysExist(model['models'][0], '', ['compatible_frames'])
 h2o_util.assertKeysExist(model['models'][0]['compatible_frames'], '', ['frames'])
-assert (model['models'][0]['compatible_frames']['frames'][0]['key']['name'] == prostate_key), (prostate_key + ' not found in the compatible_frames list.')
+found = False
+for frame in model['models'][0]['compatible_frames']['frames']:
+    if (frame['key']['name'] == prostate_key):
+        found = True
+assert found, (('Failed to find ' + prostate_key) + ' in compatible_frames list.')
 a_node.delete_model(kmeans_model_name)
 models = a_node.models()
 found_kmeans = False
