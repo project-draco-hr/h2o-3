@@ -1,6 +1,7 @@
 {
   Scope.enter();
   DeepLearningModel cp=null;
+  Frame tra_fr=_parms._training_frame.get();
   if (_parms.checkpoint == null)   cp=initModel();
  else {
     final DeepLearningModel previous=DKV.get(_parms.checkpoint).get();
@@ -11,18 +12,18 @@
     }
  else {
     }
-    if (_parms._training_frame == null || !Arrays.equals(_parms._training_frame._key._kb,previous.model_info().get_params()._training_frame._key._kb)) {
+    if (_parms._training_frame == null || !Arrays.equals(_parms._training_frame._kb,previous.model_info().get_params()._training_frame._kb)) {
       throw new IllegalArgumentException("source must be the same as for the checkpointed model.");
     }
     _parms.autoencoder=previous.model_info().get_params().autoencoder;
-    if (!_parms.autoencoder && (_parms.response_column == null || !Arrays.equals(_parms._training_frame.vec(_parms.response_column)._key._kb,_parms._training_frame.vec(previous.model_info().get_params().response_column)._key._kb))) {
+    if (!_parms.autoencoder && (_parms.response_column == null || !Arrays.equals(tra_fr.vec(_parms.response_column)._key._kb,tra_fr.vec(previous.model_info().get_params().response_column)._key._kb))) {
       throw new IllegalArgumentException("response_vec must be the same as for the checkpointed model.");
     }
     if (ArrayUtils.difference(_parms.ignored_columns,previous.model_info().get_params().ignored_columns).length != 0 || ArrayUtils.difference(previous.model_info().get_params().ignored_columns,_parms.ignored_columns).length != 0) {
       _parms.ignored_columns=previous.model_info().get_params().ignored_columns;
       Log.warn("Automatically re-using ignored_cols from the checkpointed model.");
     }
-    if ((_parms._validation_frame == null) == (previous._parms._validation_frame != null) || (_parms._validation_frame != null && _parms._validation_frame._key != null && previous._parms._validation_frame != null && !Arrays.equals(_parms._validation_frame._key._kb,previous._parms._validation_frame._key._kb))) {
+    if ((_parms._validation_frame == null) == (previous._parms._validation_frame != null) || (_parms._validation_frame != null && _parms._validation_frame != null && previous._parms._validation_frame != null && !Arrays.equals(_parms._validation_frame._kb,previous._parms._validation_frame._kb))) {
       throw new IllegalArgumentException("validation must be the same as for the checkpointed model.");
     }
     if (_parms.classification != previous.model_info().get_params().classification) {
@@ -66,15 +67,16 @@
     }
   }
   trainModel(cp);
-  int validlen=_parms._validation_frame != null ? _parms._validation_frame.vecs().length : 0;
-  Key[] keep=new Key[_parms._training_frame.vecs().length + validlen + 6];
-  for (int i=0; i < _parms._training_frame.vecs().length; ++i)   keep[i]=_parms._training_frame.vecs()[i]._key;
-  keep[_parms._training_frame.vecs().length]=_parms._training_frame._key;
-  for (int i=0; i < validlen; ++i)   keep[i]=_parms._validation_frame.vecs()[i]._key;
-  if (_parms._validation_frame != null)   keep[_parms._training_frame.vecs().length + 1]=_parms._validation_frame._key;
-  keep[_parms._training_frame.vecs().length + 2]=_dest;
-  keep[_parms._training_frame.vecs().length + 3]=cp.actual_best_model_key;
-  keep[_parms._training_frame.vecs().length + 4]=self();
-  keep[_parms._training_frame.vecs().length + 5]=_progressKey;
+  Frame val_fr=_parms._validation_frame == null ? null : _parms._validation_frame.get();
+  int validlen=val_fr != null ? val_fr.vecs().length : 0;
+  Key[] keep=new Key[tra_fr.vecs().length + validlen + 6];
+  for (int i=0; i < tra_fr.vecs().length; ++i)   keep[i]=tra_fr.vecs()[i]._key;
+  keep[tra_fr.vecs().length]=_parms._training_frame;
+  for (int i=0; i < validlen; ++i)   keep[i]=val_fr.vecs()[i]._key;
+  if (val_fr != null)   keep[tra_fr.vecs().length + 1]=_parms._validation_frame;
+  keep[tra_fr.vecs().length + 2]=_dest;
+  keep[tra_fr.vecs().length + 3]=cp.actual_best_model_key;
+  keep[tra_fr.vecs().length + 4]=self();
+  keep[tra_fr.vecs().length + 5]=_progressKey;
   Scope.exit(keep);
 }
