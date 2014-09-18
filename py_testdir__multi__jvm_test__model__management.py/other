@@ -17,7 +17,7 @@ frames = a_node.frames()
 print 'Frames: '
 pp.pprint(frames)
 print 'Testing /ModelBuilders. . .'
-model_builders = a_node.model_builders()
+model_builders = a_node.model_builders(timeoutSecs=240)
 print 'ModelBuilders: '
 pp.pprint(model_builders)
 for algo in algos:
@@ -26,7 +26,7 @@ for algo in algos:
     validate_builder(builder)
 print 'Testing /ModelBuilders/{algo}. . .'
 for algo in algos:
-    model_builder = a_node.model_builders(algo=algo)
+    model_builder = a_node.model_builders(algo=algo, timeoutSecs=240)
     assert (algo in model_builder['model_builders']), ('Failed to find algo: ' + algo)
     builder = model_builders['model_builders'][algo]
     validate_builder(builder)
@@ -34,18 +34,30 @@ import_result = a_node.import_files(path='/Users/rpeck/Source/h2o2/smalldata/log
 parse_result = a_node.parse(key=import_result['keys'][0])
 pp.pprint(parse_result)
 prostate_key = parse_result['frames'][0]['key']['name']
-model_builders = a_node.model_builders()
+import_result = a_node.import_files(path='/Users/rpeck/Source/h2o2/smalldata/airlines/allyears2k_headers.zip')
+parse_result = a_node.parse(key=import_result['keys'][0])
+pp.pprint(parse_result)
+airlines_key = parse_result['frames'][0]['key']['name']
+model_builders = a_node.model_builders(timeoutSecs=240)
 pp.pprint(model_builders)
-kmeans_builder = a_node.model_builders(algo='kmeans')['model_builders']['kmeans']
-kmeans_model_name = 'KMeansModel'
+kmeans_builder = a_node.model_builders(algo='kmeans', timeoutSecs=240)['model_builders']['kmeans']
+kmeans_model_name = 'prostate_KMeans_1'
 print 'About to build a KMeans model. . .'
 kmeans_parameters = {'K': 2, }
-jobs = a_node.build_model(algo='kmeans', training_frame=prostate_key, parameters=kmeans_parameters, timeoutSecs=240)
+jobs = a_node.build_model(algo='kmeans', destination_key=kmeans_model_name, training_frame=prostate_key, parameters=kmeans_parameters, timeoutSecs=240)
 print 'Done building KMeans model.'
-deep_learning_model_name = 'DeepLearningModel'
+dl_prostate_model_name = 'prostate_DeepLearning_1'
 print 'About to build a DeepLearning model. . .'
-dl_parameters = {'classification': True, 'response_column': 'CAPSULE', }
-jobs = a_node.build_model(algo='deeplearning', training_frame=prostate_key, parameters=dl_parameters, timeoutSecs=240)
+dl_prostate_1_parameters = {'classification': True, 'response_column': 'CAPSULE', }
+jobs = a_node.build_model(algo='deeplearning', destination_key=dl_prostate_model_name, training_frame=prostate_key, parameters=dl_prostate_1_parameters, timeoutSecs=240)
+print 'Done building DeepLearning model.'
+models = a_node.models()
+print 'After Model build: Models: '
+pp.pprint(models)
+dl_airlines_model_name = 'airlines_DeepLearning_1'
+print 'About to build a DeepLearning model. . .'
+dl_airline_1_parameters = {'classification': True, 'response_column': 'IsDepDelayed', }
+jobs = a_node.build_model(algo='deeplearning', destination_key=dl_airlines_model_name, training_frame=airlines_key, parameters=dl_airline_1_parameters, timeoutSecs=240)
 print 'Done building DeepLearning model.'
 models = a_node.models()
 print 'After Model build: Models: '
@@ -61,11 +73,19 @@ validate_actual_parameters(kmeans_parameters, kmeans_model['parameters'], prosta
 found_dl = False
 dl_model = None
 for model in models['models']:
-    if (model['key'] == deep_learning_model_name):
+    if (model['key'] == dl_prostate_model_name):
         found_dl = True
         dl_model = model
-assert found_dl, (('Did not find ' + deep_learning_model_name) + ' in the models list.')
-validate_actual_parameters(dl_parameters, dl_model['parameters'], prostate_key, None)
+assert found_dl, (('Did not find ' + dl_prostate_model_name) + ' in the models list.')
+validate_actual_parameters(dl_prostate_1_parameters, dl_model['parameters'], prostate_key, None)
+found_dl = False
+dl_model = None
+for model in models['models']:
+    if (model['key'] == dl_airlines_model_name):
+        found_dl = True
+        dl_model = model
+assert found_dl, (('Did not find ' + dl_airlines_model_name) + ' in the models list.')
+validate_actual_parameters(dl_airline_1_parameters, dl_model['parameters'], airlines_key, None)
 model = a_node.models(key=kmeans_model_name, find_compatible_frames=True)
 found_kmeans = False
 h2o_util.assertKeysExist(model['models'][0], '', ['compatible_frames'])

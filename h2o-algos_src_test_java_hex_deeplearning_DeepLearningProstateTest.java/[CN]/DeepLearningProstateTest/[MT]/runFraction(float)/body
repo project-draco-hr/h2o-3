@@ -43,14 +43,14 @@
                                   Frame valid=null;
                                   if (vf == 1)                                   valid=frame;
  else                                   if (vf == -1)                                   valid=vframe;
-                                  dest_tmp=Key.make(Key.make().toString() + "first");
 {
                                     Log.info("Using seed: " + seed);
                                     DeepLearningParameters p=new DeepLearningParameters();
+                                    p._destination_key=Key.make(Key.make().toString() + "first");
                                     p.checkpoint=null;
-                                    p._training_frame=frame;
+                                    p._training_frame=frame._key;
                                     p.response_column=frame._names[resp];
-                                    p._validation_frame=valid;
+                                    p._validation_frame=valid == null ? null : valid._key;
                                     p.hidden=hidden;
                                     if (i == 0 && resp == 2)                                     p.classification=false;
                                     p.override_with_best_model=override_with_best_model;
@@ -69,7 +69,7 @@
                                     p.balance_classes=balance_classes;
                                     p.quiet_mode=true;
                                     p.score_validation_sampling=csm;
-                                    DeepLearning dl=new DeepLearning(dest_tmp,p);
+                                    DeepLearning dl=new DeepLearning(p);
                                     try {
                                       model1=dl.train().get();
                                     }
@@ -85,22 +85,22 @@
                                       throw H2O.unimpl();
                                     }
                                   }
-                                  dest=Key.make();
                                   DeepLearningParameters p=new DeepLearningParameters();
+                                  p._destination_key=Key.make();
                                   tmp_model=DKV.get(dest_tmp).get();
                                   Assert.assertTrue(tmp_model.model_info().get_processed_total() >= frame.numRows() * epochs);
                                   assert(tmp_model != null);
                                   p.checkpoint=dest_tmp;
                                   p.n_folds=0;
-                                  p._training_frame=frame;
-                                  p._validation_frame=valid;
+                                  p._training_frame=frame._key;
+                                  p._validation_frame=valid == null ? null : valid._key;
                                   p.response_column=frame._names[resp];
                                   if (i == 0 && resp == 2)                                   p.classification=false;
                                   p.override_with_best_model=override_with_best_model;
                                   p.epochs=epochs;
                                   p.seed=seed;
                                   p.train_samples_per_iteration=train_samples_per_iteration;
-                                  DeepLearning dl=new DeepLearning(dest,p);
+                                  DeepLearning dl=new DeepLearning(p);
                                   try {
                                     model1=dl.train().get();
                                   }
@@ -144,7 +144,7 @@
                                       double CMerrorOrig;
 {
                                         sb=new StringBuilder();
-                                        water.ConfusionMatrix CM=new water.ConfusionMatrix();
+                                        ConfusionMatrix CM=new ConfusionMatrix();
                                         CM.actual=valid;
                                         CM.vactual=valid.vecs()[resp];
                                         CM.predict=pred;
