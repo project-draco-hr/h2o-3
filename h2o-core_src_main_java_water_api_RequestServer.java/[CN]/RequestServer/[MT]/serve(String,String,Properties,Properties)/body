@@ -20,9 +20,13 @@
     }
   }
  catch (  IllegalArgumentException e) {
+    Log.warn("Caught IllegalArgumentException: " + e);
+    Log.warn("Stacktrace: " + e.getStackTrace());
     return wrap(HTTP_BADREQUEST,new HttpErrorV1(400,e.getMessage(),uri),type);
   }
 catch (  Exception e) {
+    Log.warn("Caught exception: " + e);
+    Log.warn("Stacktrace: " + e.getStackTrace());
     return wrap("unimplemented".equals(e.getMessage()) ? HTTP_NOTIMPLEMENTED : HTTP_INTERNALERROR,new HttpErrorV1(e),type);
   }
 }

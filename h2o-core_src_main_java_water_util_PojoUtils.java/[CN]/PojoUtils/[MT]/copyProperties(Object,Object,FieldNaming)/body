@@ -35,6 +35,19 @@
             dest_field.set(dest,v.get());
           }
         }
+ else         if (dest_field.getType().isArray() && f.getType().isArray() && (dest_field.getType().getComponentType() != f.getType().getComponentType())) {
+          if (dest_field.getType().getComponentType() == int.class && f.getType().getComponentType() == Integer.class) {
+            int[] copy=(int[])f.get(origin);
+            dest_field.set(dest,copy);
+          }
+ else           if (dest_field.getType().getComponentType() == Integer.class && f.getType().getComponentType() == int.class) {
+            Integer[] copy=(Integer[])f.get(origin);
+            dest_field.set(dest,copy);
+          }
+ else {
+            throw H2O.fail("Don't know how to cast an array of: " + f.getType().getComponentType() + " to an array of: "+ dest_field.getType().getComponentType());
+          }
+        }
  else {
           dest_field.set(dest,f.get(origin));
         }
