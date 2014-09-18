@@ -31,7 +31,7 @@
                             for (                            boolean override_with_best_model : new boolean[]{false,true}) {
                               for (                              int train_samples_per_iteration : new int[]{-2,-1,0,rng.nextInt(200),500}) {
                                 DeepLearningModel model1=null, model2=null, tmp_model=null;
-                                Key dest=null, dest_tmp=null;
+                                Key dest=null, dest_tmp;
                                 count++;
                                 if (fraction < rng.nextFloat())                                 continue;
                                 try {
@@ -47,6 +47,7 @@
                                     Log.info("Using seed: " + seed);
                                     DeepLearningParameters p=new DeepLearningParameters();
                                     p._destination_key=Key.make(Key.make().toString() + "first");
+                                    dest_tmp=p._destination_key;
                                     p.checkpoint=null;
                                     p._training_frame=frame._key;
                                     p.response_column=frame._names[resp];
@@ -86,10 +87,11 @@
                                     }
                                   }
                                   DeepLearningParameters p=new DeepLearningParameters();
-                                  p._destination_key=Key.make();
                                   tmp_model=DKV.get(dest_tmp).get();
                                   Assert.assertTrue(tmp_model.model_info().get_processed_total() >= frame.numRows() * epochs);
                                   assert(tmp_model != null);
+                                  p._destination_key=Key.make();
+                                  dest=p._destination_key;
                                   p.checkpoint=dest_tmp;
                                   p.n_folds=0;
                                   p._training_frame=frame._key;
