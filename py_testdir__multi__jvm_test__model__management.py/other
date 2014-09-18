@@ -37,15 +37,15 @@ prostate_key = parse_result['frames'][0]['key']['name']
 model_builders = a_node.model_builders(timeoutSecs=240)
 pp.pprint(model_builders)
 kmeans_builder = a_node.model_builders(algo='kmeans', timeoutSecs=240)['model_builders']['kmeans']
-kmeans_model_name = 'KMeansModel'
+kmeans_model_name = 'prostate_KMeans_1'
 print 'About to build a KMeans model. . .'
 kmeans_parameters = {'K': 2, }
-jobs = a_node.build_model(algo='kmeans', training_frame=prostate_key, parameters=kmeans_parameters, timeoutSecs=240)
+jobs = a_node.build_model(algo='kmeans', destination_key=kmeans_model_name, training_frame=prostate_key, parameters=kmeans_parameters, timeoutSecs=240)
 print 'Done building KMeans model.'
-deep_learning_model_name = 'DeepLearningModel'
+deep_learning_model_name = 'prostate_DeepLearning_1'
 print 'About to build a DeepLearning model. . .'
 dl_parameters = {'classification': True, 'response_column': 'CAPSULE', }
-jobs = a_node.build_model(algo='deeplearning', training_frame=prostate_key, parameters=dl_parameters, timeoutSecs=240)
+jobs = a_node.build_model(algo='deeplearning', destination_key=deep_learning_model_name, training_frame=prostate_key, parameters=dl_parameters, timeoutSecs=240)
 print 'Done building DeepLearning model.'
 models = a_node.models()
 print 'After Model build: Models: '
