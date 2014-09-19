@@ -1,0 +1,60 @@
+{
+  if (null == dest || null == origin)   return;
+  Map<String,Field> dest_fields=new HashMap<>();
+  Map<String,Field> origin_fields=new HashMap<>();
+  for (  Field f : dest.getClass().getFields())   dest_fields.put(f.getName(),f);
+  for (  Field f : origin.getClass().getFields())   origin_fields.put(f.getName(),f);
+  for (  Map.Entry<String,Field> entry : origin_fields.entrySet()) {
+    String origin_name=entry.getKey();
+    Field f=entry.getValue();
+    String dest_name=null;
+    if (field_naming == FieldNaming.CONSISTENT) {
+      dest_name=origin_name;
+    }
+ else     if (field_naming == FieldNaming.DEST_HAS_UNDERSCORES) {
+      dest_name="_" + origin_name;
+    }
+ else     if (field_naming == FieldNaming.ORIGIN_HAS_UNDERSCORES) {
+      dest_name=origin_name.substring(1);
+    }
+    try {
+      if (dest_fields.containsKey(dest_name)) {
+        Field dest_field=dest_fields.get(dest_name);
+        if (null == f.get(origin)) {
+          dest_field.set(dest,null);
+        }
+ else         if (dest_field.getType() == Key.class && Keyed.class.isAssignableFrom(f.getType())) {
+          dest_field.set(dest,((Keyed)f.get(origin))._key);
+        }
+ else         if (f.getType() == Key.class && Keyed.class.isAssignableFrom(dest_field.getType())) {
+          Value v=DKV.get((Key)f.get(origin));
+          if (null == v) {
+            dest_field.set(dest,null);
+          }
+ else {
+            dest_field.set(dest,v.get());
+          }
+        }
+ else         if (dest_field.getType().isArray() && f.getType().isArray() && (dest_field.getType().getComponentType() != f.getType().getComponentType())) {
+          if (dest_field.getType().getComponentType() == int.class && f.getType().getComponentType() == Integer.class) {
+            int[] copy=(int[])f.get(origin);
+            dest_field.set(dest,copy);
+          }
+ else           if (dest_field.getType().getComponentType() == Integer.class && f.getType().getComponentType() == int.class) {
+            Integer[] copy=(Integer[])f.get(origin);
+            dest_field.set(dest,copy);
+          }
+ else {
+            throw H2O.fail("Don't know how to cast an array of: " + f.getType().getComponentType() + " to an array of: "+ dest_field.getType().getComponentType());
+          }
+        }
+ else {
+          dest_field.set(dest,f.get(origin));
+        }
+      }
+    }
+ catch (    IllegalAccessException e) {
+      Log.err("Illegal access exception trying to copy field: " + origin_name + " of class: "+ origin.getClass()+ " to field: "+ dest_name+ " of class: "+ dest.getClass());
+    }
+  }
+}

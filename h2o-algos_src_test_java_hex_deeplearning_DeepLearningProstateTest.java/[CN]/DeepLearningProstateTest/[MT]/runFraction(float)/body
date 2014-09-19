@@ -29,9 +29,9 @@
                           if (n_folds != 0 && vf != 0)                           continue;
                           for (                          boolean keep_cv_splits : new boolean[]{false}) {
                             for (                            boolean override_with_best_model : new boolean[]{false,true}) {
-                              for (                              int train_samples_per_iteration : new int[]{500}) {
+                              for (                              int train_samples_per_iteration : new int[]{-2,-1,0,rng.nextInt(200),500}) {
                                 DeepLearningModel model1=null, model2=null, tmp_model=null;
-                                Key dest=null, dest_tmp=null;
+                                Key dest=null, dest_tmp;
                                 count++;
                                 if (fraction < rng.nextFloat())                                 continue;
                                 try {
@@ -43,10 +43,11 @@
                                   Frame valid=null;
                                   if (vf == 1)                                   valid=frame;
  else                                   if (vf == -1)                                   valid=vframe;
-                                  dest_tmp=Key.make(Key.make().toString() + "first");
 {
                                     Log.info("Using seed: " + seed);
                                     DeepLearningParameters p=new DeepLearningParameters();
+                                    p._destination_key=Key.make(Key.make().toString() + "first");
+                                    dest_tmp=p._destination_key;
                                     p.checkpoint=null;
                                     p._training_frame=frame._key;
                                     p.response_column=frame._names[resp];
@@ -69,7 +70,7 @@
                                     p.balance_classes=balance_classes;
                                     p.quiet_mode=true;
                                     p.score_validation_sampling=csm;
-                                    DeepLearning dl=new DeepLearning(dest_tmp,p);
+                                    DeepLearning dl=new DeepLearning(p);
                                     try {
                                       model1=dl.train().get();
                                     }
@@ -80,16 +81,17 @@
  finally {
                                       dl.remove();
                                     }
-                                    assert(p.train_samples_per_iteration <= 0 || model1.epoch_counter > epochs || Math.abs(model1.epoch_counter - epochs) / epochs < 0.1);
+                                    assert(((p.train_samples_per_iteration <= 0 || p.train_samples_per_iteration >= frame.numRows()) && model1.epoch_counter > epochs) || Math.abs(model1.epoch_counter - epochs) / epochs < 0.20);
                                     if (n_folds != 0) {
                                       throw H2O.unimpl();
                                     }
                                   }
-                                  dest=Key.make();
                                   DeepLearningParameters p=new DeepLearningParameters();
                                   tmp_model=DKV.get(dest_tmp).get();
                                   Assert.assertTrue(tmp_model.model_info().get_processed_total() >= frame.numRows() * epochs);
                                   assert(tmp_model != null);
+                                  p._destination_key=Key.make();
+                                  dest=p._destination_key;
                                   p.checkpoint=dest_tmp;
                                   p.n_folds=0;
                                   p._training_frame=frame._key;
@@ -100,7 +102,7 @@
                                   p.epochs=epochs;
                                   p.seed=seed;
                                   p.train_samples_per_iteration=train_samples_per_iteration;
-                                  DeepLearning dl=new DeepLearning(dest,p);
+                                  DeepLearning dl=new DeepLearning(p);
                                   try {
                                     model1=dl.train().get();
                                   }
