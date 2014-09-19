@@ -12,7 +12,8 @@
   if (drop != 0)   return;
   H2O cloud=H2O.CLOUD;
   boolean is_member=cloud.contains(ab._h2o);
-  if (UDP.udp.UDPS[ctrl]._paxos || is_member) {
+  boolean is_client=ab._h2o._heartbeat._client;
+  if (UDP.udp.UDPS[ctrl]._paxos || (is_member || is_client)) {
     H2O.submitTask(new FJPacket(ab,ctrl));
     return;
   }
