@@ -101,4 +101,10 @@
   if (!sparse && col_major) {
     if (!quiet_mode)     throw new IllegalArgumentException("Cannot use column major storage for non-sparse data handling.");
   }
+  if (!classification && balance_classes) {
+    throw new IllegalArgumentException("balance_classes requires classification to be enabled.");
+  }
+  if (class_sampling_factors != null && !balance_classes) {
+    throw new IllegalArgumentException("class_sampling_factors requires balance_classes to be enabled.");
+  }
 }
