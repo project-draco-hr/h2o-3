@@ -1,5 +1,21 @@
 {
+  if (!H2O.ARGS.client)   return;
+  new Thread(){
+    @Override public void run(){
+      System.out.println("Client is starting timer");
+      try {
+        Thread.sleep(8000);
+      }
+ catch (      Exception ignore) {
+      }
+      System.out.println("Client is committing shutting prematurely");
+      System.exit(0);
+    }
+  }
+.start();
+  System.out.println("Server is loading file");
   Frame fr=parse_test_file("../../datasets/UCI/UCI-large/covtype/covtype.data");
+  System.out.println("Server loaded file");
   try {
     final int iters=100;
     final long start=System.currentTimeMillis();
