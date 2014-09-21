@@ -6,7 +6,11 @@ synchronized (this) {
         if (_pending_cnt == 0)         return;
         f=_pending[--_pending_cnt];
       }
-      f.get();
+      try {
+        f.get();
+      }
+ catch (      CancellationException e) {
+      }
     }
   }
  catch (  ExecutionException e) {
