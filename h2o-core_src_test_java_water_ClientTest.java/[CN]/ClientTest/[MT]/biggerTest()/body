@@ -14,7 +14,14 @@
   }
 .start();
   System.out.println("Server is loading file");
-  Frame fr=parse_test_file("../../datasets/UCI/UCI-large/covtype/covtype.data");
+  Frame fr=RPC.call(H2O.CLOUD.leader(),new DTask(){
+    Frame _fr;
+    @Override protected void compute2(){
+      _fr=parse_test_file(Key.make("covtype.hex"),"../../datasets/UCI/UCI-large/covtype/covtype.data");
+      tryComplete();
+    }
+  }
+).get()._fr;
   System.out.println("Server loaded file");
   try {
     final int iters=100;
