@@ -1,9 +1,12 @@
 {
-  this.model=new UniqueIdV3().fillFromImpl(m.model);
-  this.frame=new UniqueIdV3().fillFromImpl(m.frame);
-  this.model_category=m.model_category;
-  this.duration_in_ms=m.duration_in_ms;
-  this.scoring_time=m.scoring_time;
-  this.auc=new AUCV3().fillFromImpl(m.auc);
+  Model model=modelMetrics.model.get();
+  this.model=model.schema().fillFromImpl(model);
+  this.model_checksum=modelMetrics.model_checksum;
+  this.frame=new FrameV2((Frame)modelMetrics.frame.get()).fillFromImpl((Frame)modelMetrics.frame.get());
+  this.frame_checksum=modelMetrics.frame_checksum;
+  this.model_category=modelMetrics.model_category;
+  this.duration_in_ms=modelMetrics.duration_in_ms;
+  this.scoring_time=modelMetrics.scoring_time;
+  this.auc=new AUCV3().fillFromImpl(modelMetrics.auc);
   return this;
 }
