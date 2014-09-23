@@ -1,0 +1,41 @@
+{
+  if (!H2O.ARGS.client)   return;
+  new Thread(){
+    @Override public void run(){
+      System.out.println("Client is starting timer");
+      try {
+        Thread.sleep(2000);
+      }
+ catch (      Exception ignore) {
+      }
+      System.out.println("Client is committing shutting prematurely");
+      System.exit(0);
+    }
+  }
+.start();
+  System.out.println("Server is loading file");
+  Frame fr=RPC.call(H2O.CLOUD.leader(),new DTask(){
+    Frame _fr;
+    @Override protected void compute2(){
+      _fr=parse_test_file(Key.make("covtype.hex"),"../../datasets/UCI/UCI-large/covtype/covtype.data");
+      tryComplete();
+    }
+  }
+).get()._fr;
+  System.out.println("Server loaded file");
+  try {
+    final int iters=100;
+    final long start=System.currentTimeMillis();
+    CalcSumsTask lr1=null;
+    for (int i=0; i < iters; i++) {
+      lr1=new CalcSumsTask().doAll(fr.vecs()[0],fr.vecs()[1]);
+    }
+    final long end=System.currentTimeMillis();
+    final double meanX=lr1._sumX / lr1._nrows;
+    final double meanY=lr1._sumY / lr1._nrows;
+    System.out.println("CalcSums iter over covtype: " + (end - start) / iters + "ms, meanX=" + meanX + ", meanY=" + meanY + ", nrows=" + lr1._nrows);
+  }
+  finally {
+    fr.delete();
+  }
+}
