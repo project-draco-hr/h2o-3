@@ -34,6 +34,14 @@
   }
   for (  int aC2 : c2)   if (aC2 >= numCols())   throw new IllegalArgumentException("Trying to select column " + (aC2 + 1) + " but only "+ numCols()+ " present.");
   if (c2.length == 0)   throw new IllegalArgumentException("No columns selected (did you try to select column 0 instead of column 1?)");
+  if (numRows() == 0) {
+    return new MRTask(){
+      @Override public void map(      Chunk[] chks,      NewChunk[] nchks){
+        for (        NewChunk nc : nchks)         nc.addNA();
+      }
+    }
+.doAll(c2.length,this).outputFrame(names(c2),domains(c2));
+  }
   if (orows == null)   return new DeepSlice(null,c2,vecs()).doAll(c2.length,this).outputFrame(names(c2),domains(c2));
  else   if (orows instanceof long[]) {
     final long CHK_ROWS=1000000;
