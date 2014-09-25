@@ -1,0 +1,10 @@
+{
+  ModelMetrics metrics=ModelMetrics.getFromDKV(parms.model,parms.frame);
+  if (null != metrics) {
+    Log.debug("using ModelMetrics from the cache. . .");
+    return this.fetch(version,parms);
+  }
+  Log.debug("Cache miss: computing ModelMetrics. . .");
+  parms.model.score(parms.frame,true);
+  return this.fetch(version,parms);
+}

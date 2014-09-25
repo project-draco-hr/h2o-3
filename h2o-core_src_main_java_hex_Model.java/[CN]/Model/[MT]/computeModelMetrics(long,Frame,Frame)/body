@@ -1,16 +1,28 @@
 {
-  if (_output.getModelCategory() == Model.ModelCategory.Binomial || _output.getModelCategory() == Model.ModelCategory.Multinomial) {
+  if (_output.getModelCategory() == Model.ModelCategory.Binomial) {
+    if (!(this instanceof SupervisedModel)) {
+      Log.warn("Classification model is not a subclass of SupervisedModel; don't know how to calcError!");
+      return null;
+    }
     SupervisedModel sm=(SupervisedModel)this;
     AUC auc=new AUC();
     ConfusionMatrix cm=new ConfusionMatrix();
     HitRatio hr=new HitRatio();
     sm.calcError(frame,frame.vec(_output.responseName()),predictions,predictions,"Prediction error:",true,20,cm,auc,hr);
-    return ModelMetrics.createModelMetrics(this,frame,System.currentTimeMillis() - start_time,start_time,auc.aucdata,cm);
+    ModelMetrics mm=ModelMetrics.createModelMetrics(this,frame,System.currentTimeMillis() - start_time,start_time,auc.aucdata,cm);
+    _output.addModelMetrics(mm);
+    return mm;
   }
  else   if (_output.getModelCategory() == Model.ModelCategory.Regression) {
+    if (!(this instanceof SupervisedModel)) {
+      Log.warn("Classification model is not a subclass of SupervisedModel; don't know how to calcError!");
+      return null;
+    }
     SupervisedModel sm=(SupervisedModel)this;
     sm.calcError(frame,frame.vec(_output.responseName()),predictions,predictions,"Prediction error:",true,20,null,null,null);
-    return ModelMetrics.createModelMetrics(this,frame,System.currentTimeMillis() - start_time,start_time,null,null);
+    ModelMetrics mm=ModelMetrics.createModelMetrics(this,frame,System.currentTimeMillis() - start_time,start_time,null,null);
+    _output.addModelMetrics(mm);
+    return mm;
   }
   return null;
 }
