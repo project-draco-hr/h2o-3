@@ -1,7 +1,17 @@
 {
-  if (_ds == null)   c.addNum(_ls[_lId],_xs[_lId]);
+  if (_ds == null && _ss == null) {
+    c.addNum(_ls[_lId],_xs[_lId]);
+  }
  else {
-    if (_ls != null)     c.addUUID(_ls[_lId],Double.doubleToRawLongBits(_ds[_lId]));
+    if (_ls != null) {
+      c.addUUID(_ls[_lId],Double.doubleToRawLongBits(_ds[_lId]));
+    }
+ else     if (_ss != null) {
+      int sidx=_is[_lId];
+      int slen=_lId + 1 < _is.length ? _is[_lId + 1] - sidx : _sslen - sidx;
+      ValueString vstr=new ValueString().set(_ss,sidx,slen);
+      c.addStr(vstr);
+    }
  else     c.addNum(_ds[_lId]);
   }
 }
