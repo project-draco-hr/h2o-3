@@ -39,7 +39,7 @@
   }
  else {
     final Frame rhs_ary=e.pop0Ary();
-    if (rhs_ary.numCols() != lhs_ary.numCols())     throw new IllegalArgumentException("Right-hand frame has " + (rhs_ary.numCols() > lhs_ary.numCols() ? "more " : "fewer ") + "columns than the left-hand side.");
+    if ((cols == null && rhs_ary.numCols() != lhs_ary.numCols()) || (cols != null && rhs_ary.numCols() != ((long[])cols).length))     throw new IllegalArgumentException("Right-hand frame has does not match the number of columns required in the assignment to the left-hand side.");
     if (rhs_ary.numRows() > lhs_ary.numRows())     throw new IllegalArgumentException("Right-hand side frame has more rows than the left-hand side.");
     if (rows instanceof long[]) {
       final long[] rows0=(long[])rows;
@@ -71,37 +71,31 @@
       return;
     }
  else     if (rows instanceof Frame) {
-      Frame rr=new Frame(lhs_ary).add((Frame)rows);
-      if (rr.numCols() != lhs_ary.numCols() + 1)       throw new IllegalArgumentException("Got multiple columns for row predicate.");
-      int num_rows=(int)rr.lastVec().max();
-      if (num_rows - 1 != rhs_ary.numRows())       throw new IllegalArgumentException("Right-hand side array does not match the number of rows selected in the left-hand side.");
-      Frame lhs=new MRTask(){
-        @Override public void map(        Chunk[] cs,        NewChunk[] ncs){
-          Chunk pred=cs[cs.length - 1];
-          int rows=cs[0].len();
-          for (int r=0; r < rows; ++r) {
-            long row_id=(long)pred.at0(r);
-            if (row_id != 0) {
-              row_id--;
-              for (int c=0; c < cols0.length; ++c) {
-                int col=(int)cols0[c];
-                if (cs[col].vec().isEnum())                 if (!rhs_ary.vecs()[col].isEnum()) {
-                  cs[col].setNA0(r);
-                  continue;
-                }
- else                 if (cs[col].vec().isNumeric())                 if (!rhs_ary.vecs()[col].isNumeric()) {
-                  cs[col].setNA0(r);
-                  continue;
-                }
-                cs[col].set0(r,rhs_ary.vecs()[col].at(row_id));
-              }
-            }
+      if (((Frame)rows).numCols() != 1)       throw new IllegalArgumentException("Got multiple columns for row predicate.");
+      Frame pred=new MRTask(){
+        @Override public void map(        Chunk c,        NewChunk nc){
+          for (int r=0; r < c.len(); ++r) {
+            double d=c.at0(r);
+            if (d != 0)             nc.addNum(d);
           }
         }
       }
-.doAll(rr.numCols() - 1,rr).outputFrame(lhs_ary.names(),lhs_ary.domains());
-      e.cleanup(lhs_ary,rr,(Frame)rows);
-      e.push(new ValFrame(lhs));
+.doAll(1,(Frame)rows).outputFrame(null,null);
+      if (pred.numRows() != rhs_ary.numRows())       throw new IllegalArgumentException("Right-hand side array does not match the number of rows selected in the left-hand side.");
+      Frame rr=new Frame(rhs_ary).add(pred);
+      new MRTask(){
+        @Override public void map(        Chunk[] cs){
+          Chunk pred=cs[cs.length - 1];
+          int rows=cs[0].len();
+          for (int r=0; r < rows; ++r) {
+            long row_id=(long)pred.at0(r) - 1;
+            replaceRow(cs,r,row_id,cols0,lhs_ary);
+          }
+        }
+      }
+.doAll(rr.numCols(),rr);
+      e.cleanup(pred,rr,(Frame)rows);
+      e.push0(new ValFrame(lhs_ary));
       return;
     }
  else     throw new IllegalArgumentException("Invalid row selection. (note: RHS was Frame");
