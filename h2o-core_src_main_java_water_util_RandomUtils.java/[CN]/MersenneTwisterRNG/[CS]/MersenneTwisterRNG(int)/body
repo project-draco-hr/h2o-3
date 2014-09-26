@@ -5,15 +5,16 @@
   }
   int i=1;
   int j=0;
-  for (int k=Math.max(N,seedInts.length); k > 0; k--) {
-    mt[i]=(mt[i] ^ ((mt[i - 1] ^ (mt[i - 1] >>> 30)) * SEED_FACTOR1)) + seedInts[j] + j;
+  for (int k=Math.max(N,SEEDS.length); k > 0; k--) {
+    int jseeds=(j == 0 || j == 1) ? seedInts[j] : SEEDS[j];
+    mt[i]=(mt[i] ^ ((mt[i - 1] ^ (mt[i - 1] >>> 30)) * SEED_FACTOR1)) + jseeds + j;
     i++;
     j++;
     if (i >= N) {
       mt[0]=mt[N - 1];
       i=1;
     }
-    if (j >= seedInts.length) {
+    if (j >= SEEDS.length) {
       j=0;
     }
   }
