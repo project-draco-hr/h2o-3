@@ -16,6 +16,7 @@
     ValSeries a=env.popSeries();
     if (!a.isValid())     throw new IllegalArgumentException("Cannot mix negative and positive array selection.");
     if (a.isColSelector())     return a.toArray();
+    if (a.isNum())     return select(len,new ValNum(a.toNum()),env,isCol);
     Frame ary=env.peekAry();
     Vec v0=a.all_neg() ? ary.anyVec().makeCon(1) : ary.anyVec().makeZero();
     final ValSeries a0=a;
@@ -26,7 +27,7 @@
     }
 .doAll(v0).getResult()._fr : new MRTask(){
       @Override public void map(      Chunk cs){
-        for (long i=cs.start(); i < cs.len() + cs.start(); ++i)         if (a0.contains(i))         cs.set0((int)(i - cs.start()),1);
+        for (long i=cs.start(); i < cs.len() + cs.start(); ++i)         if (a0.contains(i))         cs.set0((int)(i - cs.start()),i + 1);
       }
     }
 .doAll(v0).getResult()._fr;

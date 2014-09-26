@@ -1,0 +1,109 @@
+{
+  final long[] cols0=cols == null ? new long[lhs_ary.numCols()] : (long[])cols;
+  if (cols == null)   for (int i=0; i < lhs_ary.numCols(); ++i)   cols0[i]=i;
+  if (!e.isAry()) {
+    String s=null;
+    double d=Double.NaN;
+    if (e.isStr())     s=e.popStr();
+ else     if (e.isNum())     d=e.popDbl();
+ else     throw new IllegalArgumentException("Did not get a single number or factor level on the RHS of the assignment.");
+    final double d0=d;
+    final String s0=s;
+    if (rows instanceof long[]) {
+      final long[] rows0=(long[])rows;
+      new MRTask(){
+        @Override public void map(        Chunk[] chks){
+          for (int row=0; row < chks[0].len(); ++row)           if (Arrays.asList(rows0).contains(row))           replaceRow(chks,row,d0,s0,cols0);
+        }
+      }
+.doAll(lhs_ary.numCols(),lhs_ary);
+      e.push0(new ValFrame(lhs_ary));
+      return;
+    }
+ else     if (rows instanceof Frame) {
+      Frame rr=new Frame(lhs_ary).add((Frame)rows);
+      if (rr.numCols() != lhs_ary.numCols() + 1)       throw new IllegalArgumentException("Got multiple columns for row predicate.");
+      new MRTask(){
+        @Override public void map(        Chunk[] cs,        NewChunk[] ncs){
+          Chunk pred=cs[cs.length - 1];
+          int rows=cs[0].len();
+          for (int r=0; r < rows; ++r)           if (pred.at0(r) != 0)           replaceRow(cs,r,d0,s0,cols0);
+        }
+      }
+.doAll(rr.numCols() - 1,rr);
+      e.cleanup(rr,(Frame)rows);
+      e.push0(new ValFrame(lhs_ary));
+      return;
+    }
+ else     throw new IllegalArgumentException("Invalid row selection. (note: RHS was a constant)");
+  }
+ else {
+    final Frame rhs_ary=e.pop0Ary();
+    if (rhs_ary.numCols() != lhs_ary.numCols())     throw new IllegalArgumentException("Right-hand frame has " + (rhs_ary.numCols() > lhs_ary.numCols() ? "more " : "fewer ") + "columns than the left-hand side.");
+    if (rhs_ary.numRows() > lhs_ary.numRows())     throw new IllegalArgumentException("Right-hand side frame has more rows than the left-hand side.");
+    if (rows instanceof long[]) {
+      final long[] rows0=(long[])rows;
+      if (rows0.length != rhs_ary.numRows())       throw new IllegalArgumentException("Right-hand side array does not match the number of rows selected in the left-hand side.");
+      new MRTask(){
+        @Override public void map(        Chunk[] chks){
+          for (int row=0; row < chks[0].len(); ++row) {
+            if (Arrays.asList(rows0).contains(row)) {
+              long row_id=(long)Arrays.asList(rows0).indexOf(row);
+              for (int c=0; c < cols0.length; ++c) {
+                int col=(int)cols0[c];
+                if (chks[col].vec().isEnum())                 if (!rhs_ary.vecs()[col].isEnum()) {
+                  chks[col].setNA0(row);
+                  continue;
+                }
+ else                 if (chks[col].vec().isNumeric())                 if (!rhs_ary.vecs()[col].isNumeric()) {
+                  chks[col].setNA0(row);
+                  continue;
+                }
+                chks[col].set0(row,rhs_ary.vecs()[col].at(row_id));
+              }
+            }
+          }
+        }
+      }
+.doAll(lhs_ary.numCols(),lhs_ary);
+      e.cleanup(rhs_ary);
+      e.push0(new ValFrame(lhs_ary));
+      return;
+    }
+ else     if (rows instanceof Frame) {
+      Frame rr=new Frame(lhs_ary).add((Frame)rows);
+      if (rr.numCols() != lhs_ary.numCols() + 1)       throw new IllegalArgumentException("Got multiple columns for row predicate.");
+      int num_rows=(int)rr.lastVec().max();
+      if (num_rows - 1 != rhs_ary.numRows())       throw new IllegalArgumentException("Right-hand side array does not match the number of rows selected in the left-hand side.");
+      Frame lhs=new MRTask(){
+        @Override public void map(        Chunk[] cs,        NewChunk[] ncs){
+          Chunk pred=cs[cs.length - 1];
+          int rows=cs[0].len();
+          for (int r=0; r < rows; ++r) {
+            long row_id=(long)pred.at0(r);
+            if (row_id != 0) {
+              row_id--;
+              for (int c=0; c < cols0.length; ++c) {
+                int col=(int)cols0[c];
+                if (cs[col].vec().isEnum())                 if (!rhs_ary.vecs()[col].isEnum()) {
+                  cs[col].setNA0(r);
+                  continue;
+                }
+ else                 if (cs[col].vec().isNumeric())                 if (!rhs_ary.vecs()[col].isNumeric()) {
+                  cs[col].setNA0(r);
+                  continue;
+                }
+                cs[col].set0(r,rhs_ary.vecs()[col].at(row_id));
+              }
+            }
+          }
+        }
+      }
+.doAll(rr.numCols() - 1,rr).outputFrame(lhs_ary.names(),lhs_ary.domains());
+      e.cleanup(lhs_ary,rr,(Frame)rows);
+      e.push(new ValFrame(lhs));
+      return;
+    }
+ else     throw new IllegalArgumentException("Invalid row selection. (note: RHS was Frame");
+  }
+}

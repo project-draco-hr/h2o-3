@@ -1,0 +1,26 @@
+{
+  for (int c=0; c < cols.length; ++c) {
+    int col=(int)cols[c];
+    if (chks[col].vec().isEnum()) {
+      if (s0 == null) {
+        chks[col].setNA0(row);
+        continue;
+      }
+      String[] dom=chks[col].vec().domain();
+      if (in(s0,dom)) {
+        chks[col].set0(row,Arrays.asList(dom).indexOf(s0));
+        continue;
+      }
+      chks[col].setNA0(row);
+      continue;
+    }
+ else     if (chks[col].vec().isNumeric()) {
+      if (Double.isNaN(d0) || s0 != null) {
+        chks[col].setNA0(row);
+        continue;
+      }
+      chks[col].set(row,d0);
+      continue;
+    }
+  }
+}
