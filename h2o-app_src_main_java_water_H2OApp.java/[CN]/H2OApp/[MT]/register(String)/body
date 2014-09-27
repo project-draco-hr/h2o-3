@@ -1,0 +1,17 @@
+{
+  H2O.registerResourceRoot(new File(relpath + File.separator + "h2o-web/src/main/resources/www"));
+  H2O.registerResourceRoot(new File(relpath + File.separator + "h2o-core/src/main/resources/www"));
+  H2O.registerGET("/DeepLearning",hex.schemas.DeepLearningHandler.class,"train","/DeepLearning","Deep Learning","Model");
+  H2O.registerGET("/GLM",hex.schemas.GLMHandler.class,"train","/GLM","GLM","Model");
+  H2O.registerGET("/KMeans",hex.schemas.KMeansHandler.class,"train","/KMeans","KMeans","Model");
+  H2O.registerGET("/Example",hex.schemas.ExampleHandler.class,"train","/Example","Example","Model");
+  ModelBuilder.registerModelBuilder("kmeans",KMeans.class);
+  H2O.registerPOST("/2/ModelBuilders/kmeans",KMeansBuilderHandler.class,"train");
+  ModelBuilder.registerModelBuilder("deeplearning",DeepLearning.class);
+  H2O.registerPOST("/2/ModelBuilders/deeplearning",DeepLearningBuilderHandler.class,"train");
+  ModelBuilder.registerModelBuilder("glm",GLM.class);
+  H2O.registerPOST("/2/ModelBuilders/glm",GLMBuilderHandler.class,"train");
+  ModelBuilder.registerModelBuilder("example",Example.class);
+  H2O.registerPOST("/2/ModelBuilders/example",ExampleBuilderHandler.class,"train");
+  H2O.finalizeRequest();
+}
