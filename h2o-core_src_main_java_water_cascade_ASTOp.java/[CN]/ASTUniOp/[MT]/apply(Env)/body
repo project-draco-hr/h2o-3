@@ -3,7 +3,7 @@
     env.push(new ValNum(op(env.popDbl())));
     return;
   }
-  Frame fr=env.popAry();
+  Frame fr=env.pop0Ary();
   final ASTUniOp uni=this;
   Frame fr2=new MRTask(){
     @Override public void map(    Chunk[] chks,    NewChunk[] nchks){
@@ -21,6 +21,6 @@
     }
   }
 .doAll(fr.numCols(),fr).outputFrame(Key.make(),fr._names,null);
-  env.push(new ValFrame(fr2));
   env.cleanup(fr);
+  env.push(new ValFrame(fr2));
 }
