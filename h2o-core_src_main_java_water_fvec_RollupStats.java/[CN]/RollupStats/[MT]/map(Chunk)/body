@@ -7,7 +7,7 @@
   boolean isUUID=c._vec.isUUID();
   boolean isString=c._vec.isString();
   if (isString)   _isInt=false;
-  for (int i=c.nextNZ(-1); i < c.len(); i=c.nextNZ(i)) {
+  for (int i=c.nextNZ(-1); i < c._len; i=c.nextNZ(i)) {
     if (c.isNA0(i)) {
       _naCnt++;
     }
@@ -32,7 +32,7 @@
     }
   }
   if (c.isSparse()) {
-    int zeros=c.len() - c.sparseLen();
+    int zeros=c._len - c.sparseLen();
     for (int i=0; i < Math.min(_mins.length,zeros); i++) {
       min(0);
       max(0);
@@ -44,7 +44,7 @@
   }
  else   if (!Double.isNaN(_mean) && _rows > 0) {
     _mean=_mean / _rows;
-    for (int i=0; i < c.len(); i++) {
+    for (int i=0; i < c._len; i++) {
       if (!c.isNA0(i)) {
         double d=c.at0(i) - _mean;
         _sigma+=d * d;
