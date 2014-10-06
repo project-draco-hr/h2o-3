@@ -1,10 +1,12 @@
 import sys, pprint
 sys.path.extend(['.', '..', 'py'])
 import h2o, h2o_util
-algos = ['example', 'kmeans', 'deeplearning', 'glm']
-clean_up = False
 pp = pprint.PrettyPrinter(indent=4)
 a_node = h2o.H2O('127.0.0.1', 54321)
+algos = ['example', 'kmeans', 'deeplearning', 'glm']
+clean_up = False
+h2o.H2O.verbose = True
+h2o.H2O.verboseprint('connected to: ', '127.0.0.1', 54321)
 models = a_node.models()
 print 'Models: '
 pp.pprint(models)
@@ -122,6 +124,22 @@ for mm in mms['model_metrics']:
     if ((model_key == dl_prostate_model_name) and (frame_key == prostate_key)):
         found_mm = True
 assert found_mm, ((('Failed to find ModelMetrics object for model: ' + dl_prostate_model_name) + ' and frame: ') + prostate_key)
+p = a_node.predict(model=dl_prostate_model_name, frame=prostate_key)
+assert (p is not None), ((('Got a null result for scoring: ' + dl_prostate_model_name) + ' on: ') + prostate_key)
+assert ('model_metrics' in p), (((('Predictions for scoring: ' + dl_prostate_model_name) + ' on: ') + prostate_key) + ' does not contain a model_metrics object.')
+mm = p['model_metrics'][0]
+h2o.H2O.verboseprint('mm: ', repr(mm))
+assert ('auc' in mm), (((('Predictions for scoring: ' + dl_prostate_model_name) + ' on: ') + prostate_key) + ' does not contain an AUC.')
+assert ('cm' in mm), (((('Predictions for scoring: ' + dl_prostate_model_name) + ' on: ') + prostate_key) + ' does not contain a CM.')
+assert ('predictions' in mm), (((('Predictions for scoring: ' + dl_prostate_model_name) + ' on: ') + prostate_key) + ' does not contain an predictions section.')
+predictions = mm['predictions']
+h2o.H2O.verboseprint('p: ', repr(p))
+assert ('columns' in predictions), (((('Predictions for scoring: ' + dl_prostate_model_name) + ' on: ') + prostate_key) + ' does not contain an columns section.')
+assert (len(predictions['columns']) > 0), (((('Predictions for scoring: ' + dl_prostate_model_name) + ' on: ') + prostate_key) + ' does not contain any columns.')
+assert ('label' in predictions['columns'][0]), (((('Predictions for scoring: ' + dl_prostate_model_name) + ' on: ') + prostate_key) + ' column 0 has no label element.')
+assert ('predict' == predictions['columns'][0]['label']), (((('Predictions for scoring: ' + dl_prostate_model_name) + ' on: ') + prostate_key) + " column 0 is not 'predict'.")
+assert (380 == predictions['rows']), (((('Predictions for scoring: ' + dl_prostate_model_name) + ' on: ') + prostate_key) + ' has an unexpected number of rows.')
+print ((((('Predictions for scoring: ' + dl_prostate_model_name) + ' on: ') + prostate_key) + ':  ') + repr(p))
 found_dl = False
 dl_model = None
 for model in models['models']:

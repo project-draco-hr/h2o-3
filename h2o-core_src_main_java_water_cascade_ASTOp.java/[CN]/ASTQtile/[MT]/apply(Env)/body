@@ -1,0 +1,56 @@
+{
+  final Frame probs=_probs == null ? env.pop0Ary() : null;
+  if (probs != null && probs.numCols() != 1)   throw new IllegalArgumentException("Probs must be a single vector.");
+  Frame x=env.pop0Ary();
+  if (x.numCols() != 1)   throw new IllegalArgumentException("Must specify a single column in quantile. Got: " + x.numCols() + " columns.");
+  Vec xv=x.anyVec();
+  if (xv.isEnum()) {
+    throw new IllegalArgumentException("Quantile: column type cannot be Enum.");
+  }
+  double p[];
+  Vec pv=probs == null ? null : probs.anyVec();
+  if (pv != null) {
+    p=new double[(int)pv.length()];
+    for (int i=0; i < pv.length(); i++) {
+      if ((p[i]=pv.at((long)i)) < 0 || p[i] > 1)       throw new IllegalArgumentException("Quantile: probs must be in the range of [0, 1].");
+    }
+  }
+ else   p=_probs;
+  String[] names=new String[p.length];
+  for (int i=0; i < names.length; ++i)   names[i]=Double.toString(p[i]) + "%";
+  Vec res=Vec.makeCon((long)Double.NaN,null,p.length);
+  Vec p_names=Vec.makeSeq(res.length());
+  p_names.set_factors(names);
+  final int MAX_ITERATIONS=16;
+  final int MAX_QBINS=1000;
+  final boolean MULTIPASS=true;
+  final int INTERPOLATION=_type;
+  final Quantiles[] qbins1=new Quantiles.BinTask2(MAX_QBINS,xv.min(),xv.max()).doAll(xv)._qbins;
+  for (int i=0; i < p.length; i++) {
+    double quantile=p[i];
+    qbins1[0].finishUp(xv,new double[]{quantile},INTERPOLATION,MULTIPASS);
+    if (qbins1[0]._done) {
+      res.set(i,qbins1[0]._pctile[0]);
+    }
+ else {
+      Quantiles[] qbinsM=new Quantiles.BinTask2(MAX_QBINS,qbins1[0]._newValStart,qbins1[0]._newValEnd).doAll(xv)._qbins;
+      for (int iteration=2; iteration <= MAX_ITERATIONS; iteration++) {
+        qbinsM[0].finishUp(xv,new double[]{quantile},INTERPOLATION,MULTIPASS);
+        if (qbinsM[0]._done) {
+          res.set(i,qbinsM[0]._pctile[0]);
+          break;
+        }
+        qbinsM=new Quantiles.BinTask2(MAX_QBINS,qbinsM[0]._newValStart,qbinsM[0]._newValEnd).doAll(xv)._qbins;
+      }
+    }
+  }
+  res.chunkForChunkIdx(0).close(0,null);
+  p_names.chunkForChunkIdx(0).close(0,null);
+  Futures pf=p_names.postWrite(new Futures());
+  pf.blockForPending();
+  Futures f=res.postWrite(new Futures());
+  f.blockForPending();
+  Frame fr=new Frame(new String[]{"P","Q"},new Vec[]{p_names,res});
+  env.cleanup(probs,x);
+  env.push(new ValFrame(fr));
+}

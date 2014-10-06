@@ -1,0 +1,85 @@
+{
+  init(q);
+  String[] names=new String[1];
+  q.column.rollupStats();
+  boolean multiPass;
+  Quantiles[] qbins;
+  double[] quantiles_to_do=new double[1];
+  quantiles_to_do[0]=q.quantile;
+  double approxResult;
+  double exactResult;
+  q.result_single=Double.NaN;
+  q.result=Double.NaN;
+  boolean done=false;
+  qbins=null;
+  if (q.multiple_pass == 0 || q.multiple_pass == 2) {
+    multiPass=false;
+    q.result_single=Double.NaN;
+    if (q.multiple_pass == 0)     q.result=Double.NaN;
+    double valStart=q.column.min();
+    double valEnd=q.column.max();
+    qbins=new Quantiles.BinTask2(q.max_qbins,valStart,valEnd).doAll(q.column)._qbins;
+    Log.debug("Q_ for approx. valStart: " + valStart + " valEnd: "+ valEnd);
+    q.interpolation_type_used=q.interpolation_type;
+    q.quantile_requested=quantiles_to_do[0];
+    if (qbins != null) {
+      qbins[0].finishUp(q.column,quantiles_to_do,q.interpolation_type,multiPass);
+      q.column_name=names[0];
+      q.iterations=1;
+      done=qbins[0]._done;
+      approxResult=qbins[0]._pctile[0];
+      q.interpolated=qbins[0]._interpolated;
+    }
+ else {
+      q.column_name="";
+      q.iterations=0;
+      done=false;
+      approxResult=Double.NaN;
+      q.interpolated=false;
+    }
+    q.result_single=approxResult;
+    if (q.multiple_pass == 0)     q.result=approxResult;
+  }
+  if (q.multiple_pass == 1 || q.multiple_pass == 2) {
+    final int MAX_ITERATIONS=16;
+    multiPass=true;
+    exactResult=Double.NaN;
+    double valStart=q.column.min();
+    double valEnd=q.column.max();
+    for (int b=0; b < MAX_ITERATIONS; b++) {
+      if (!(q.multiple_pass == 2 && b == 0)) {
+        qbins=new Quantiles.BinTask2(q.max_qbins,valStart,valEnd).doAll(q.column)._qbins;
+      }
+      q.iterations=b + 1;
+      if (qbins == null)       break;
+ else {
+        qbins[0].finishUp(q.column,quantiles_to_do,q.interpolation_type,multiPass);
+        Log.debug("\nQ_ multipass iteration: " + q.iterations + " valStart: "+ valStart+ " valEnd: "+ valEnd);
+        double valBinSize=qbins[0]._valBinSize;
+        Log.debug("Q_ valBinSize: " + valBinSize);
+        valStart=qbins[0]._newValStart;
+        valEnd=qbins[0]._newValEnd;
+        done=qbins[0]._done;
+        if (done)         break;
+      }
+    }
+    q.interpolation_type_used=q.interpolation_type;
+    q.quantile_requested=quantiles_to_do[0];
+    if (qbins != null) {
+      q.column_name=names[0];
+      done=qbins[0]._done;
+      exactResult=qbins[0]._pctile[0];
+      q.interpolated=qbins[0]._interpolated;
+    }
+ else {
+      q.column_name="";
+      q.iterations=0;
+      done=false;
+      exactResult=Double.NaN;
+      q.interpolated=false;
+    }
+    qbins=null;
+    q.result=exactResult;
+  }
+  return schema(version).fillFromImpl(q);
+}

@@ -1,0 +1,22 @@
+{
+  AST ary=E.parse();
+  AST seq=null;
+  if (E.skipWS().peek() == '{') {
+    String[] ps=E.xpeek('{').parseString('}').split(";");
+    _probs=new double[ps.length];
+    for (int i=0; i < ps.length; ++i) {
+      double v=Double.valueOf(ps[i]);
+      if (v < 0 || v > 1)       throw new IllegalArgumentException("Quantile: probs must be in the range of [0, 1].");
+      _probs[i]=v;
+    }
+  }
+ else   seq=E.parse();
+  AST a=E._env.lookup((ASTId)E.skipWS().parse());
+  _narm=((ASTNum)a).dbl() == 1;
+  AST b=E._env.lookup((ASTId)E.skipWS().parse());
+  _names=((ASTNum)b).dbl() == 1;
+  _type=(int)((ASTNum)E.skipWS().parse()).dbl();
+  ASTQtile res=(ASTQtile)clone();
+  res._asts=seq == null ? new AST[]{ary} : new AST[]{ary,seq};
+  return res;
+}
