@@ -1,0 +1,7 @@
+{
+  final double reg=1.0 / _nobs;
+  GLMIterationTask[] glmts=new GLMLineSearchTask(_jobKey,_dinfo,_glmp,betas,_ymu,_nobs,null).doAll(_dinfo._adaptedFrame)._glmts;
+  GradientInfo[] ginfos=new GradientInfo[glmts.length];
+  for (int i=0; i < ginfos.length; ++i)   ginfos[i]=new GLMGradientInfo(glmts[i],_lambda);
+  return ginfos;
+}

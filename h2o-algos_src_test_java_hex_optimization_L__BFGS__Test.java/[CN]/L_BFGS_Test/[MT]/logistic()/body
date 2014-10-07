@@ -1,0 +1,22 @@
+{
+  Key parsedKey=Key.make("prostate");
+  try {
+    GLMParameters glmp=new GLMParameters(Family.binomial);
+    Frame source=parse_test_file(parsedKey,"smalldata/glm_test/prostate_cat_replaced.csv");
+    source.add("CAPSULE",source.remove("CAPSULE"));
+    source.remove("ID").remove();
+    DataInfo dinfo=new DataInfo(source,1,false,DataInfo.TransformType.STANDARDIZE,DataInfo.TransformType.NONE);
+    GLMGradientSolver solver=new GLMGradientSolver(glmp,dinfo,1e-5,source.vec("CAPSULE").mean(),source.numRows());
+    L_BFGS_Params lp=new L_BFGS_Params();
+    lp._gradEps=1e-8;
+    L_BFGS.Result r=L_BFGS.solve(dinfo.fullN() + 1,solver,lp);
+    GLMGradientInfo ginfo=(GLMGradientInfo)r.ginfo;
+    assertEquals(378.33830534354166,ginfo._val.residualDeviance(),1e-3);
+  }
+  finally {
+    Value v=DKV.get(parsedKey);
+    if (v != null) {
+      v.<Frame>get().delete();
+    }
+  }
+}
