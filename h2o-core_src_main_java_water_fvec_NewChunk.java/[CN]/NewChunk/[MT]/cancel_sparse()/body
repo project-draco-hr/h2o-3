@@ -1,14 +1,14 @@
 {
-  if (sparseLen() != len()) {
+  if (sparseLen() != _len) {
     if (_is != null) {
-      int[] is=MemoryManager.malloc4(len());
-      for (int i=0; i < len(); i++)       is[i]=-1;
+      int[] is=MemoryManager.malloc4(_len);
+      for (int i=0; i < _len; i++)       is[i]=-1;
       for (int i=0; i < sparseLen(); i++)       is[_id[i]]=_is[i];
       _is=is;
     }
  else     if (_ds == null) {
-      int[] xs=MemoryManager.malloc4(len());
-      long[] ls=MemoryManager.malloc8(len());
+      int[] xs=MemoryManager.malloc4(_len);
+      long[] ls=MemoryManager.malloc8(_len);
       for (int i=0; i < sparseLen(); ++i) {
         xs[_id[i]]=_xs[i];
         ls[_id[i]]=_ls[i];
@@ -17,11 +17,11 @@
       _ls=ls;
     }
  else {
-      double[] ds=MemoryManager.malloc8d(len());
+      double[] ds=MemoryManager.malloc8d(_len);
       for (int i=0; i < sparseLen(); ++i)       ds[_id[i]]=_ds[i];
       _ds=ds;
     }
-    set_sparseLen(len());
+    set_sparseLen(_len);
   }
   _id=null;
 }

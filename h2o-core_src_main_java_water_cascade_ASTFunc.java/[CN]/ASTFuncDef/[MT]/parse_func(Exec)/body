@@ -1,0 +1,21 @@
+{
+  String name=((ASTString)E.parse())._s;
+  _name=name;
+  Env.SymbolTable table=E._env.newTable();
+  String[] args=E.skipWS().peek() == '{' ? E.xpeek('{').parseString('}').split(";") : null;
+  _arg_names=args;
+  if (args == null)   table.put(null,Env.NULL,null);
+ else   for (  String arg : args)   table.put(arg,Env.NULL,null);
+  _table=table;
+  ArrayList<AST> ast_ary=new ArrayList<>();
+  String[] asts=E.skipWS().peek() == '{' ? E.xpeek('{').parseString('}').split(";") : null;
+  if (asts != null) {
+    for (    String ast1 : asts) {
+      AST ast=E.parseAST(ast1,E._env);
+      ast_ary.add(ast);
+    }
+  }
+  ASTFunc res=(ASTFunc)clone();
+  res._asts=asts == null ? null : ast_ary.toArray(new AST[ast_ary.size()]);
+  putUDF(res,name);
+}

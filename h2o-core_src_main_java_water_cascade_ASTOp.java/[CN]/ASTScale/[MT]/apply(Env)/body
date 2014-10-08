@@ -18,7 +18,7 @@
   if (doCenter) {
     centered=new MRTask(){
       @Override public void map(      Chunk[] cs,      NewChunk[] ncs){
-        int rows=cs[0].len();
+        int rows=cs[0]._len;
         int cols=cs.length;
         for (int r=0; r < rows; ++r)         for (int c=0; c < cols; ++c) {
           double numer=cs[c].at0(r) - (use_mean ? cs[c].vec().mean() : centers == null ? 0 : centers[c]);
@@ -43,7 +43,7 @@
   if (doScale) {
     scaled=new MRTask(){
       @Override public void map(      Chunk[] cs,      NewChunk[] ncs){
-        int rows=cs[0].len();
+        int rows=cs[0]._len;
         int cols=cs.length;
         for (int r=0; r < rows; ++r)         for (int c=0; c < cols; ++c) {
           double denom=cs[c].at0(r) / (use_rms ? rms[c] : use_sig ? cs[c].vec().sigma() : scales == null ? 1 : scales[c]);

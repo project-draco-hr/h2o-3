@@ -16,13 +16,13 @@
     nbins=Math.min(lim,nbins);
   }
   _bins=new Histo(this,nbins).doAll(vec)._bins;
-  _pctiles=new double[PERCENTILES.length];
+  _pctiles=new double[Vec.PERCENTILES.length];
   int j=0;
   long hsum=0;
   double base=h_base();
   double stride=h_stride();
-  for (int i=0; i < PERCENTILES.length; i++) {
-    final double P=PERCENTILES[i];
+  for (int i=0; i < Vec.PERCENTILES.length; i++) {
+    final double P=Vec.PERCENTILES[i];
     long pint=(long)(P * rows);
     while (hsum < pint)     hsum+=_bins[j++];
     _pctiles[i]=base + stride * (j - 1);

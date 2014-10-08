@@ -1,0 +1,30 @@
+{
+  StringBuilder sb=new StringBuilder();
+  String hdr=header(lvl);
+  write0(sb,hdr,s);
+  if (stdout)   System.out.println(sb);
+  org.apache.log4j.Logger l4j=_logger != null ? _logger : createLog4j();
+switch (lvl) {
+case FATAL:
+    l4j.fatal(sb);
+  break;
+case ERRR:
+l4j.error(sb);
+break;
+case WARN:
+l4j.warn(sb);
+break;
+case INFO:
+l4j.info(sb);
+break;
+case DEBUG:
+l4j.debug(sb);
+break;
+case TRACE:
+l4j.trace(sb);
+break;
+default :
+l4j.error("Invalid log level requested");
+l4j.error(s);
+}
+}

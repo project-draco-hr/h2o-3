@@ -5,11 +5,11 @@
       Vec v=Vec.makeRepSeq((long)_length,fr.numRows());
       new MRTask(){
         @Override public void map(        Chunk c){
-          for (int i=0; i < c.len(); ++i)           c.set0(i,fr.anyVec().at((long)c.at0(i)));
+          for (int i=0; i < c._len; ++i)           c.set0(i,fr.anyVec().at((long)c.at0(i)));
         }
       }
 .doAll(v);
-      v.set_factors(fr.anyVec().factors());
+      v.setDomain(fr.anyVec().domain());
       Frame f=new Frame(new String[]{"C1"},new Vec[]{v});
       env.cleanup(fr);
       env.push(new ValFrame(f));
@@ -28,7 +28,7 @@
     if (len <= 0)     throw new IllegalArgumentException("Error in rep_len: argument length.out must be coercible to a positive integer");
     if (env.isStr()) {
       Frame fr=new Frame(new String[]{"C1"},new Vec[]{Vec.makeConSeq(0,len)});
-      fr.anyVec().set_factors(new String[]{env.popStr()});
+      fr.anyVec().setDomain(new String[]{env.popStr()});
       env.push(new ValFrame(fr));
     }
  else     if (env.isNum()) {

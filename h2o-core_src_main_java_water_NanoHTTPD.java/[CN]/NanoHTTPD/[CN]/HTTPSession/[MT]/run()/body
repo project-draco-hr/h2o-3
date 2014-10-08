@@ -1,5 +1,6 @@
 {
   try (Socket mySocket=this.mySocket){
+    long startMillis=System.currentTimeMillis();
     InputStream is=new BufferedInputStream(mySocket.getInputStream());
     is.mark(MAX_HEADER_BUFFER_SIZE);
     int bufsize=8192;
@@ -108,7 +109,7 @@
     }
     Response r=serve(uri,method,header,parms);
     if (r == null)     sendError(HTTP_INTERNALERROR,"SERVER INTERNAL ERROR: Serve() returned a null response.");
- else     sendResponse(r.status,r.mimeType,r.header,r.data);
+ else     sendResponse(startMillis,r.status,r.mimeType,r.header,r.data);
     in.close();
     is.close();
   }

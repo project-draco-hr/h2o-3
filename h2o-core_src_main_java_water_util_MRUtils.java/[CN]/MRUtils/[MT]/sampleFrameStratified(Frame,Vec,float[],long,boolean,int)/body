@@ -8,7 +8,7 @@
   Frame r=new MRTask(){
     @Override public void map(    Chunk[] cs,    NewChunk[] ncs){
       final Random rng=getDeterRNG(seed + cs[0].cidx());
-      for (int r=0; r < cs[0].len(); r++) {
+      for (int r=0; r < cs[0]._len; r++) {
         if (cs[labelidx].isNA0(r))         continue;
         final int label=(int)cs[labelidx].at80(r);
         assert(sampling_ratios.length > label && label >= 0);
@@ -35,7 +35,7 @@
     long sumdist=ArrayUtils.sum(dist);
     Log.info("After stratified sampling: " + sumdist + " rows.");
     for (int i=0; i < dist.length; ++i) {
-      Log.info("Class " + r.vecs()[labelidx].factors()[i] + ": count: "+ dist[i]+ " sampling ratio: "+ sampling_ratios[i]+ " actual relative frequency: "+ (float)dist[i] / sumdist * dist.length);
+      Log.info("Class " + r.vecs()[labelidx].factor(i) + ": count: "+ dist[i]+ " sampling ratio: "+ sampling_ratios[i]+ " actual relative frequency: "+ (float)dist[i] / sumdist * dist.length);
     }
   }
   if (ArrayUtils.minValue(dist) == 0 && count < 10) {

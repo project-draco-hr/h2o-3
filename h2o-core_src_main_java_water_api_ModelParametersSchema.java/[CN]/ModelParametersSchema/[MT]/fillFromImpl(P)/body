@@ -1,5 +1,8 @@
 {
-  PojoUtils.copyProperties(this,parms,PojoUtils.FieldNaming.ORIGIN_HAS_UNDERSCORES);
-  PojoUtils.copyProperties(this,parms,PojoUtils.FieldNaming.CONSISTENT);
+  PojoUtils.copyProperties(this,parms,PojoUtils.FieldNaming.ORIGIN_HAS_UNDERSCORES,new String[]{"validation_messages"});
+  PojoUtils.copyProperties(this,parms,PojoUtils.FieldNaming.CONSISTENT,new String[]{"validation_messages"});
+  this.validation_messages=new ValidationMessageBase[parms.validation_messages.length];
+  int i=0;
+  for (  ValidationMessage vm : parms.validation_messages)   this.validation_messages[i++]=new ValidationMessageV2().fillFromImpl(vm);
   return (S)this;
 }
