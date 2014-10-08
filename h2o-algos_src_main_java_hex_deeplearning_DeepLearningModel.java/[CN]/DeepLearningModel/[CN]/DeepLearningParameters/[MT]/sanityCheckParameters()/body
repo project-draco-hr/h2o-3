@@ -23,7 +23,7 @@
   }
   if (classification && !balance_classes || !classification)   hide("max_after_balance_size","max_after_balance_size required regression OR classification with balance_classes.");
   if (!classification && _validation_frame != null || _validation_frame == null)   hide("score_validation_sampling","score_validation_sampling requires regression and a validation frame OR no validation frame.");
-  if (activation != Activation.TanhWithDropout && activation != Activation.MaxoutWithDropout && activation != Activation.RectifierWithDropout)   hide("hidden_dropout_ratios","hidden_dropout_ratios is used only with a non-dropout activation function.");
+  if (activation != Activation.TanhWithDropout && activation != Activation.MaxoutWithDropout && activation != Activation.RectifierWithDropout)   hide("hidden_dropout_ratios","hidden_dropout_ratios requires a dropout activation function.");
   if (hidden_dropout_ratios == null) {
     if (activation == Activation.TanhWithDropout || activation == Activation.MaxoutWithDropout || activation == Activation.RectifierWithDropout) {
       hidden_dropout_ratios=new double[hidden.length];
@@ -35,7 +35,7 @@
     validation_error("hidden_dropout_ratios","Must have " + hidden.length + " hidden layer dropout ratios.");
   }
  else   if (activation != Activation.TanhWithDropout && activation != Activation.MaxoutWithDropout && activation != Activation.RectifierWithDropout) {
-    if (!quiet_mode)     validation_warn("hidden_dropout_ratios","Ignoring hidden_dropout_ratios because a non-Dropout activation function was specified.");
+    if (!quiet_mode)     validation_warn("hidden_dropout_ratios","Ignoring hidden_dropout_ratios because a non-dropout activation function was specified.");
   }
   if (input_dropout_ratio < 0 || input_dropout_ratio >= 1) {
     validation_error("input_dropout_ratio","Input dropout must be in [0,1).");
@@ -99,7 +99,7 @@
     }
     if (n_folds != 0) {
       if (override_with_best_model) {
-        validation_warn("override_with_best_model","Automatically setting override_with_best_model to false, since the final model is the only scored model with n-fold cross-validation.");
+        validation_warn("override_with_best_model","Automatically disabling override_with_best_model, since the final model is the only scored model with n-fold cross-validation.");
         override_with_best_model=false;
       }
     }
