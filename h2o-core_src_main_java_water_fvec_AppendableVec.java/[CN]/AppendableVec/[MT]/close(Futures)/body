@@ -1,2 +1,48 @@
 {
+  int nchunk=_espc.length;
+  DKV.remove(chunkKey(nchunk),fs);
+  while (nchunk > 0 && _espc[nchunk - 1] == 0) {
+    nchunk--;
+    DKV.remove(chunkKey(nchunk),fs);
+  }
+  int[] ctypes=new int[STRING + 1];
+  for (int i=0; i < nchunk; ++i)   ctypes[_chunkTypes[i]]++;
+  int t=-1;
+  for (int i=0; i < _timCnt.length; i++)   if (_timCnt[i] != 0)   if (t == -1)   t=i;
+ else   t=-2;
+  if (t == -2)   ctypes[TIME]=0;
+  int idx=0;
+  for (int i=0; i < ctypes.length; i++)   if (i != NA && ctypes[i] > ctypes[idx])   idx=i;
+  for (int i=0; i < nchunk; ++i)   if (_chunkTypes[i] != idx)   DKV.put(chunkKey(i),new C0DChunk(Double.NaN,(int)_espc[i]),fs);
+  byte type=T_BAD;
+switch (idx) {
+case ENUM:
+    type=T_ENUM;
+  break;
+case NUMBER:
+type=T_NUM;
+break;
+case TIME:
+type=(byte)(T_TIME + t);
+break;
+case UUID:
+type=T_UUID;
+break;
+case STRING:
+type=T_STR;
+break;
+default :
+type=T_BAD;
+break;
+}
+long espc[]=new long[nchunk + 1];
+long x=0;
+for (int i=0; i < nchunk; i++) {
+espc[i]=x;
+x+=_espc[i];
+}
+espc[nchunk]=x;
+Vec vec=new Vec(_key,espc,domain(),type);
+DKV.put(_key,vec,fs);
+return vec;
 }
