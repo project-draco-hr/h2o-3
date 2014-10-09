@@ -3,6 +3,9 @@
   f.frames=new Frame[1];
   f.frames[0]=frame;
   FramesBase schema=this.schema(version).fillFromImpl(f);
+  for (  FrameV2 a_frame : schema.frames) {
+    a_frame.clearSummaryFields();
+  }
   if (f.find_compatible_models) {
     Model[] compatible=Frames.findCompatibleModels(frame,Models.fetchAll(),f.fetchModelCols());
     schema.compatible_models=new ModelSchema[compatible.length];
