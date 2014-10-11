@@ -1,0 +1,10 @@
+{
+  final Key rskey=vec.rollupStatsKey();
+  RollupStats rs=getOrNull(vec);
+  if (rs == null || computeHisto && !rs.hasHisto())   fs.add(new RPC(vec.rollupStatsKey().home_node(),new ComputeRollupsTask(vec,computeHisto)).addCompleter(new H2OCallback(){
+    @Override public void callback(    H2OCountedCompleter h2OCountedCompleter){
+      DKV.get(vec.rollupStatsKey());
+    }
+  }
+).call());
+}

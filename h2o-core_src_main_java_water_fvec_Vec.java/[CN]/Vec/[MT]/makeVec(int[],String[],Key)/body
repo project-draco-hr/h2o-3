@@ -1,0 +1,13 @@
+{
+  long[] espc=new long[2];
+  espc[1]=vals.length;
+  Vec v=new Vec(vecKey,espc);
+  v._domain=domain;
+  NewChunk nc=new NewChunk(v,0);
+  Futures fs=new Futures();
+  for (  int i : vals)   nc.addNum(i,0);
+  nc.close(fs);
+  DKV.put(v._key,v,fs);
+  fs.blockForPending();
+  return v;
+}

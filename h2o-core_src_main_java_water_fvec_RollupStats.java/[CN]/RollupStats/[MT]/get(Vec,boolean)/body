@@ -1,0 +1,9 @@
+{
+  final Key rskey=vec.rollupStatsKey();
+  RollupStats rs=getOrNull(vec);
+  while (rs == null || computeHisto && !rs.hasHisto()) {
+    RPC.call(rskey.home_node(),new ComputeRollupsTask(vec,computeHisto)).get();
+    rs=getOrNull(vec);
+  }
+  return rs;
+}
