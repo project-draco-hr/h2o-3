@@ -6,6 +6,9 @@
       if (is == null && (cl=Thread.currentThread().getContextClassLoader()) != null) {
         is=loadResource(uri,cl);
       }
+      if (is == null && (cl=JarHash.class.getClassLoader()) != null) {
+        is=loadResource(uri,cl);
+      }
       if (is != null)       return is;
     }
     for (    File f : RESOURCE_FILES) {
@@ -15,6 +18,6 @@
   }
  catch (  FileNotFoundException ignore) {
   }
-  Log.info("Resource not found: " + uri);
+  Log.warn("Resource not found: " + uri);
   return null;
 }
