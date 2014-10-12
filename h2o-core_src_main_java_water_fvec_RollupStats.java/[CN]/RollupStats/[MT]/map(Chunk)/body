@@ -1,4 +1,7 @@
 {
+  _checksum=0;
+  long start=c._start;
+  long l=81985529216486895L;
   _size=c.byteSize();
   _mins=new double[5];
   Arrays.fill(_mins,Double.MAX_VALUE);
@@ -6,19 +9,24 @@
   Arrays.fill(_maxs,-Double.MAX_VALUE);
   boolean isUUID=c._vec.isUUID();
   boolean isString=c._vec.isString();
+  ValueString vs=new ValueString();
   if (isString)   _isInt=false;
   for (int i=c.nextNZ(-1); i < c._len; i=c.nextNZ(i)) {
     if (c.isNA0(i)) {
       _naCnt++;
     }
  else     if (isUUID) {
-      if (c.at16l0(i) != 0 || c.at16h0(i) != 0)       _nzCnt++;
+      long lo=c.at16l0(i), hi=c.at16h0(i);
+      if (lo != 0 || hi != 0)       _nzCnt++;
+      l=lo ^ 37 * hi;
     }
  else     if (isString) {
       _nzCnt++;
+      l=c.atStr0(vs,i).hashCode();
     }
  else {
       double d=c.at0(i);
+      l=Double.doubleToRawLongBits(d);
       if (d == Double.POSITIVE_INFINITY)       _pinfs++;
  else       if (d == Double.NEGATIVE_INFINITY)       _ninfs++;
  else {
@@ -30,6 +38,7 @@
         if (_isInt && ((long)d) != d)         _isInt=false;
       }
     }
+    if (l != 0)     _checksum^=(17 * (start + i)) ^ 23 * l;
   }
   if (c.isSparse()) {
     int zeros=c._len - c.sparseLen();
