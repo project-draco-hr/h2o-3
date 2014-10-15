@@ -1,0 +1,22 @@
+{
+  MarkdownBuilder builder=new MarkdownBuilder();
+  builder.comment("Preview with http://jbt.github.io/markdown-editor");
+  builder.heading1(_http_method,_url_pattern.toString().replace("(?<","{").replace(">.*)","}"));
+  builder.hline();
+  builder.paragraph(_summary);
+  builder.heading2("parameters");
+  try {
+    builder.tableHeader("name","type","description");
+    Handler h=_handler_class.newInstance();
+    Schema s=h.schema(h.min_ver());
+    SchemaMetadata meta=new SchemaMetadata(s);
+    for (    FieldMetadata field_meta : meta.fields.values()) {
+      builder.tableRow(field_meta.name,field_meta.type,field_meta.help);
+    }
+  }
+ catch (  Exception e) {
+    throw H2O.fail("Caught exception using reflection on handler method: " + _handler_method + ": "+ e);
+  }
+  if (null != appendToMe)   appendToMe.append(builder.stringBuffer());
+  return builder.stringBuffer();
+}
