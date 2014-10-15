@@ -131,8 +131,10 @@
     classification=false;
     validation_info("classification","Using regression mode for auto-encoder.");
   }
+  if (!autoencoder && sparsity_beta != 0)   validation_info("sparsity_beta","Sparsity beta can only be used for autoencoder.");
   if (autoencoder && _validation_frame != null)   validation_error("validation_frame","Cannot specify a validation dataset for auto-encoder.");
   if (autoencoder && activation == Activation.Maxout)   validation_error("activation","Maxout activation is not supported for auto-encoder.");
+  if (max_categorical_features < 1)   validation_error("max_categorical_features","max_categorical_features must be at least 1.");
   if (!sparse && col_major) {
     if (!quiet_mode)     validation_error("col_major","Cannot use column major storage for non-sparse data handling.");
   }
@@ -141,6 +143,13 @@
   }
   if (class_sampling_factors != null && !balance_classes) {
     validation_error("class_sampling_factors","class_sampling_factors requires balance_classes to be enabled.");
+  }
+  if (reproducible) {
+    if (!quiet_mode)     Log.info("Automatically enabling force_load_balancing, disabling single_node_mode and replicate_training_data\nand setting train_samples_per_iteration to -1 to enforce reproducibility.");
+    force_load_balance=true;
+    single_node_mode=false;
+    train_samples_per_iteration=-1;
+    replicate_training_data=false;
   }
   return validation_error_count;
 }

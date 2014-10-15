@@ -8,7 +8,8 @@
   if (has_momenta() && adaDelta())   throw new IllegalArgumentException("Cannot have non-zero momentum and adaptive rate at the same time.");
   final int layers=get_params().hidden.length;
   units=new int[layers + 2];
-  units[0]=num_input;
+  if (get_params().max_categorical_features <= Integer.MAX_VALUE - dinfo._nums)   units[0]=Math.min(dinfo._nums + get_params().max_categorical_features,num_input);
+ else   units[0]=num_input;
   System.arraycopy(get_params().hidden,0,units,1,layers);
   units[layers + 1]=num_output;
   dense_row_weights=new Neurons.DenseRowMatrix[layers + 1];

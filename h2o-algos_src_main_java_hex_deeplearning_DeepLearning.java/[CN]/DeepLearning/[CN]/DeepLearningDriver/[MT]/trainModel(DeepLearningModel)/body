@@ -49,7 +49,7 @@
       if (!_parms.quiet_mode)       Log.info("Number of chunks of the validation data: " + validScoreFrame.anyVec().nChunks());
     }
     model.actual_train_samples_per_iteration=computeTrainSamplesPerIteration(mp,train.numRows(),model);
-    if (mp.replicate_training_data && (model.actual_train_samples_per_iteration == train.numRows() * (mp.single_node_mode ? 1 : H2O.CLOUD.size())) && !mp.shuffle_training_data&& H2O.CLOUD.size() > 1) {
+    if (mp.replicate_training_data && (model.actual_train_samples_per_iteration == train.numRows() * (mp.single_node_mode ? 1 : H2O.CLOUD.size())) && !mp.shuffle_training_data&& H2O.CLOUD.size() > 1 && !mp.reproducible) {
       Log.warn("Enabling training data shuffling, because all nodes train on the full dataset (replicated training data).");
       mp.shuffle_training_data=true;
     }
