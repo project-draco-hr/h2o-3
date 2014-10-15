@@ -1,0 +1,14 @@
+{
+  boolean is_enum=Enum.class.isAssignableFrom(clz);
+  boolean is_array=clz.isArray();
+  if (is_enum)   return "enum";
+  if (is_array)   return consType(clz.getComponentType()) + "[]";
+  if (hex.Model.class.isAssignableFrom(clz))   return "Model";
+  if (water.fvec.Frame.class.isAssignableFrom(clz))   return "Frame";
+  if (water.fvec.Vec.class.isAssignableFrom(clz))   return "Vec";
+  if (water.Key.class.isAssignableFrom(clz))   return "Key";
+  if (String.class.isAssignableFrom(clz))   return "string";
+  if (clz.equals(Boolean.TYPE) || clz.equals(Integer.TYPE) || clz.equals(Long.TYPE)|| clz.equals(Float.TYPE)|| clz.equals(Double.TYPE))   return clz.toString();
+  Log.warn("Don't know how to generate a client-friendly type name for class: " + clz.toString());
+  return clz.toString();
+}

@@ -1,0 +1,27 @@
+{
+  try {
+    this.name=f.getName();
+    boolean is_array=f.getType().isArray();
+    Object o;
+    f.setAccessible(true);
+    o=f.get(schema);
+    this.value=consValue(o);
+    boolean is_enum=Enum.class.isAssignableFrom(f.getType());
+    this.type=consType(f.getType());
+    API annotation=f.getAnnotation(API.class);
+    if (null != annotation) {
+      String l=annotation.label();
+      this.label=(null == l || l.isEmpty() ? f.getName() : l);
+      this.help=annotation.help();
+      this.required=annotation.required();
+      this.level=annotation.level();
+      this.values=annotation.values();
+      if (is_enum && (null == this.values || 0 == this.values.length)) {
+        throw H2O.fail("Didn't find values annotation for enum field: " + this.name);
+      }
+    }
+  }
+ catch (  Exception e) {
+    throw H2O.fail("Caught exception accessing field: " + f + " for schema object: "+ this+ ": "+ e.toString());
+  }
+}
