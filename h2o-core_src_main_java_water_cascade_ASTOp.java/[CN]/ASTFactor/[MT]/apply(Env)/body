@@ -3,9 +3,6 @@
   if (ary.numCols() != 1)   throw new IllegalArgumentException("factor requires a single column");
   Vec v0=ary.anyVec();
   Vec v1=v0.isEnum() ? null : v0.toEnum();
-  if (v1 != null) {
-    ary.delete();
-    ary=new Frame(ary._names,new Vec[]{v1});
-  }
-  env.push(new ValFrame(ary));
+  Frame fr=new Frame(ary._names,new Vec[]{v1 == null ? v0.makeCopy() : v1});
+  env.push(new ValFrame(fr));
 }
