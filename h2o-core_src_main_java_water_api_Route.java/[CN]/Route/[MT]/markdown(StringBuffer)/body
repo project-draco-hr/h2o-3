@@ -1,0 +1,42 @@
+{
+  MarkdownBuilder builder=new MarkdownBuilder();
+  builder.comment("Preview with http://jbt.github.io/markdown-editor");
+  builder.heading1(_http_method,_url_pattern.toString().replace("(?<","{").replace(">.*)","}"));
+  builder.hline();
+  builder.paragraph(_summary);
+  try {
+    Handler h=_handler_class.newInstance();
+    Schema s=h.schema(h.min_ver());
+    SchemaMetadata meta=new SchemaMetadata(s);
+    boolean first;
+    first=true;
+    builder.heading2("parameters");
+    for (    SchemaMetadata.FieldMetadata field_meta : meta.fields.values()) {
+      if (field_meta.direction == API.Direction.INPUT || field_meta.direction == API.Direction.INOUT) {
+        if (first) {
+          builder.tableHeader("name","required?","level","type","default","description","values");
+          first=false;
+        }
+        builder.tableRow(field_meta.name,String.valueOf(field_meta.required),field_meta.level.name(),field_meta.type,field_meta.value,field_meta.help,(field_meta.values == null || field_meta.values.length == 0 ? "" : Arrays.toString(field_meta.values)));
+      }
+    }
+    if (first)     builder.paragraph("(none)");
+    first=true;
+    builder.heading2("output");
+    for (    SchemaMetadata.FieldMetadata field_meta : meta.fields.values()) {
+      if (field_meta.direction == API.Direction.OUTPUT || field_meta.direction == API.Direction.INOUT) {
+        if (first) {
+          builder.tableHeader("name","type","default","description","values");
+          first=false;
+        }
+        builder.tableRow(field_meta.name,field_meta.type,field_meta.value,field_meta.help,(field_meta.values == null || field_meta.values.length == 0 ? "" : Arrays.toString(field_meta.values)));
+      }
+    }
+    if (first)     builder.paragraph("(none)");
+  }
+ catch (  Exception e) {
+    throw H2O.fail("Caught exception using reflection on handler method: " + _handler_method + ": "+ e);
+  }
+  if (null != appendToMe)   appendToMe.append(builder.stringBuffer());
+  return builder.stringBuffer();
+}
