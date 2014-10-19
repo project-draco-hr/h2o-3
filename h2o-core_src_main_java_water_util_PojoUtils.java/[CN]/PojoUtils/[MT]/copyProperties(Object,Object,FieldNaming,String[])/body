@@ -4,8 +4,8 @@
   Map<String,Field> origin_fields=new HashMap<>();
   Set<String> skip=new HashSet();
   if (null != skip_fields)   skip.addAll(Arrays.asList(skip_fields));
-  for (  Field f : dest.getClass().getFields())   if (!skip.contains(f.getName()))   dest_fields.put(f.getName(),f);
-  for (  Field f : origin.getClass().getFields())   if (!skip.contains(f.getName()))   origin_fields.put(f.getName(),f);
+  for (  Field f : ReflectionUtils.getFieldsUpTo(dest.getClass(),Iced.class))   if (!skip.contains(f.getName()))   dest_fields.put(f.getName(),f);
+  for (  Field f : ReflectionUtils.getFieldsUpTo(origin.getClass(),Iced.class))   if (!skip.contains(f.getName()))   origin_fields.put(f.getName(),f);
   for (  Map.Entry<String,Field> entry : origin_fields.entrySet()) {
     String origin_name=entry.getKey();
     Field f=entry.getValue();
@@ -22,6 +22,7 @@
     try {
       if (dest_fields.containsKey(dest_name)) {
         Field dest_field=dest_fields.get(dest_name);
+        dest_field.setAccessible(true);
         if (null == f.get(origin)) {
           dest_field.set(dest,null);
         }
