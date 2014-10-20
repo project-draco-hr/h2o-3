@@ -1,0 +1,19 @@
+{
+  Frame fr=null;
+  GBMModel model=null;
+  try {
+    fr=_parms._training_frame.get();
+    fr.read_lock(_key);
+    throw H2O.unimpl();
+  }
+ catch (  Throwable t) {
+    t.printStackTrace();
+    cancel2(t);
+    throw t;
+  }
+ finally {
+    if (model != null)     model.unlock(_key);
+    if (fr != null)     fr.unlock(_key);
+    done();
+  }
+}

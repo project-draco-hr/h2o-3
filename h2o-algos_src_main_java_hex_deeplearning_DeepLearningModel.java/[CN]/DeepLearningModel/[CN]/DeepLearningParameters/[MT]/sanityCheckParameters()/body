@@ -6,7 +6,7 @@
     if (hidden[i] == 0)     validation_error("hidden","Hidden layer size must be >0.");
   }
   if (_validation_frame == null)   hide("score_validation_samples","score_validation_samples requires a validation frame.");
-  if (classification) {
+  if (_classification) {
     hide("regression_stop","regression_stop is used only with regression.");
   }
  else {
@@ -15,13 +15,13 @@
     hide("max_hit_ratio_k","max_hit_ratio_k is used only with classification.");
     hide("balance_classes","balance_classes is used only with classification.");
   }
-  if (classification && balance_classes) {
+  if (_classification && balance_classes) {
   }
  else {
     hide("class_sampling_factors","class_sampling_factors requires both classification and balance_classes.");
   }
-  if (classification && !balance_classes || !classification)   hide("max_after_balance_size","max_after_balance_size required regression OR classification with balance_classes.");
-  if (!classification && _validation_frame != null || _validation_frame == null)   hide("score_validation_sampling","score_validation_sampling requires regression and a validation frame OR no validation frame.");
+  if (_classification && !balance_classes || !_classification)   hide("max_after_balance_size","max_after_balance_size required regression OR classification with balance_classes.");
+  if (!_classification && _validation_frame != null || _validation_frame == null)   hide("score_validation_sampling","score_validation_sampling requires regression and a validation frame OR no validation frame.");
   if (activation != Activation.TanhWithDropout && activation != Activation.MaxoutWithDropout && activation != Activation.RectifierWithDropout)   hide("hidden_dropout_ratios","hidden_dropout_ratios requires a dropout activation function.");
   if (hidden_dropout_ratios == null) {
     if (activation == Activation.TanhWithDropout || activation == Activation.MaxoutWithDropout || activation == Activation.RectifierWithDropout) {
@@ -39,14 +39,14 @@
   if (input_dropout_ratio < 0 || input_dropout_ratio >= 1) {
     validation_error("input_dropout_ratio","Input dropout must be in [0,1).");
   }
-  if (classification) {
-    if (response_column == null)     validation_error("response_column","Response column must be specified.");
-    if (null == fr.vec(response_column))     validation_error("response_column","Response column " + response_column + " not found in frame: "+ _training_frame+ ".");
+  if (_classification) {
+    if (_response_column == null)     validation_error("response_column","Response column must be specified.");
+    if (null == fr.vec(_response_column))     validation_error("response_column","Response column " + _response_column + " not found in frame: "+ _training_frame+ ".");
   }
   if (null != ignored_columns)   for (  String ignored_column : ignored_columns)   if (null == fr.vec(ignored_column))   validation_error("ignored_columns","Ignored column " + ignored_column + " not found in frame: "+ _training_frame+ ".");
-  if (null != response_column && fr.vec(response_column).isEnum() && !classification) {
+  if (null != _response_column && fr.vec(_response_column).isEnum() && !_classification) {
     validation_error("classification","Must choose classification for a categorical response column.");
-    classification=true;
+    _classification=true;
   }
   if (H2O.CLOUD.size() == 1 && replicate_training_data) {
     hide("replicate_training_data","replicate_training_data is only valid with cloud size greater than 1.");
@@ -104,7 +104,7 @@
     }
   }
   if (loss == Loss.Automatic) {
-    if (!classification) {
+    if (!_classification) {
       if (!quiet_mode)       validation_info("loss","Automatically setting loss to MeanSquare for regression.");
       loss=Loss.MeanSquare;
     }
@@ -125,10 +125,10 @@
       if (average_activation <= 0)       validation_error("average_activation","Rectifier average activation must be positive.");
     }
   }
-  if (!classification && loss == Loss.CrossEntropy)   validation_error("loss","Cannot use CrossEntropy loss function for regression.");
+  if (!_classification && loss == Loss.CrossEntropy)   validation_error("loss","Cannot use CrossEntropy loss function for regression.");
   if (autoencoder && loss != Loss.MeanSquare)   validation_error("loss","Must use MeanSquare loss function for auto-encoder.");
-  if (autoencoder && classification) {
-    classification=false;
+  if (autoencoder && _classification) {
+    _classification=false;
     validation_info("classification","Using regression mode for auto-encoder.");
   }
   if (!autoencoder && sparsity_beta != 0)   validation_info("sparsity_beta","Sparsity beta can only be used for autoencoder.");
@@ -138,7 +138,7 @@
   if (!sparse && col_major) {
     if (!quiet_mode)     validation_error("col_major","Cannot use column major storage for non-sparse data handling.");
   }
-  if (!classification && balance_classes) {
+  if (!_classification && balance_classes) {
     validation_error("balance_classes","balance_classes requires classification to be enabled.");
   }
   if (class_sampling_factors != null && !balance_classes) {
