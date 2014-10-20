@@ -16,7 +16,7 @@
       throw new IllegalArgumentException("source must be the same as for the checkpointed model.");
     }
     _parms.autoencoder=previous.model_info().get_params().autoencoder;
-    if (!_parms.autoencoder && (_parms.response_column == null || !Arrays.equals(tra_fr.vec(_parms.response_column)._key._kb,tra_fr.vec(previous.model_info().get_params().response_column)._key._kb))) {
+    if (!_parms.autoencoder && (_parms._response_column == null || !Arrays.equals(tra_fr.vec(_parms._response_column)._key._kb,tra_fr.vec(previous.model_info().get_params()._response_column)._key._kb))) {
       throw new IllegalArgumentException("response_vec must be the same as for the checkpointed model.");
     }
     if (ArrayUtils.difference(_parms.ignored_columns,previous.model_info().get_params().ignored_columns).length != 0 || ArrayUtils.difference(previous.model_info().get_params().ignored_columns,_parms.ignored_columns).length != 0) {
@@ -26,8 +26,8 @@
     if ((_parms._validation_frame == null) == (previous._parms._validation_frame != null) || (_parms._validation_frame != null && _parms._validation_frame != null && previous._parms._validation_frame != null && !Arrays.equals(_parms._validation_frame._kb,previous._parms._validation_frame._kb))) {
       throw new IllegalArgumentException("validation must be the same as for the checkpointed model.");
     }
-    if (_parms.classification != previous.model_info().get_params().classification) {
-      Log.warn("Automatically switching to " + ((_parms.classification=!_parms.classification) ? "classification" : "regression") + " (same as the checkpointed model).");
+    if (_parms._classification != previous.model_info().get_params()._classification) {
+      Log.warn("Automatically switching to " + ((_parms._classification=!_parms._classification) ? "classification" : "regression") + " (same as the checkpointed model).");
     }
     _parms.epochs+=previous.epoch_counter;
     Log.info("Adding " + String.format("%.3f",previous.epoch_counter) + " epochs from the checkpointed model.");

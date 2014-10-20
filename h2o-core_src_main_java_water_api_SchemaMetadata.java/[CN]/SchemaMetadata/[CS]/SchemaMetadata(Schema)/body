@@ -1,8 +1,6 @@
 {
-  fields=new ArrayList<FieldMetadata>();
-  String field_name=null;
-  for (  Field field : ReflectionUtils.getFieldsUpTo(schema.getClass(),Schema.class)) {
-    field_name=field.getName();
+  fields=new ArrayList<>();
+  for (  Field field : Weaver.getWovenFields(schema.getClass())) {
     FieldMetadata fmd=FieldMetadata.createIfApiAnnotation(schema,field);
     if (null != fmd)     fields.add(fmd);
   }
