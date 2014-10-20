@@ -1,9 +1,9 @@
 {
-  fields=new TreeMap<String,FieldMetadata>();
+  fields=new ArrayList<FieldMetadata>();
   String field_name=null;
   for (  Field field : ReflectionUtils.getFieldsUpTo(schema.getClass(),Schema.class)) {
     field_name=field.getName();
     FieldMetadata fmd=FieldMetadata.createIfApiAnnotation(schema,field);
-    if (null != fmd)     fields.put(field_name,fmd);
+    if (null != fmd)     fields.add(fmd);
   }
 }
