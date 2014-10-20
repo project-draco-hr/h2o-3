@@ -1,3 +1,6 @@
 def flat_file(test):
-    test.a_node = h2o.H2O(use_this_ip_addr=test.cfg['topology']['local_cloud']['ip'], port=test.cfg['topology']['local_cloud']['port'])
-    test.timeoutSecs = test.cfg['topology']['local_cloud']['timeoutSecs']
+    with open(test.cfg['topology']['cloudByFlatFile']['flatFile'], 'r') as f:
+        first_line = f.readline()
+        tokens = first_line.split(':', 2)
+    test.a_node = h2o.H2O(use_this_ip_addr=tokens[0], port=int(tokens[1]))
+    test.timeoutSecs = test.cfg['topology']['cloudByFlatFile']['timeoutSecs']
