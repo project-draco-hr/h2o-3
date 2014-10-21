@@ -1,0 +1,10 @@
+@test(groups=['pending'], depends_on=[testImportProstate])
+def testImportAirlines(self):
+    import_result = self.a_node.import_files(path=os.path.abspath(os.path.join(self.cfg.basedir, self.cfg.data['airlines'])))
+    parse_result = self.a_node.parse(key=import_result['keys'][0])
+    self.airlines_key = parse_result['frames'][0]['key']['name']
+    model_builders = self.a_node.model_builders(timeoutSecs=self.timeoutSecs)
+    kmeans_builder = self.a_node.model_builders(algo='kmeans', timeoutSecs=self.timeoutSecs)['model_builders']['kmeans']
+    self.kmeans_model_name = 'prostate_KMeans_1'
+    self.kmeans_parameters = {'K': 2, }
+    jobs = self.a_node.build_model(algo='kmeans', destination_key=self.kmeans_model_name, training_frame=self.prostate_key, parameters=self.kmeans_parameters, timeoutSecs=self.timeoutSecs)
