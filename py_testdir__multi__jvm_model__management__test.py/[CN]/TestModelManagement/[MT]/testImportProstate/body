@@ -1,7 +1,11 @@
 @test(groups=['rgm'], depends_on=[testModelBuilders])
 def testImportProstate(self):
     cleanup(self.a_node)
-    import_result = self.a_node.import_files(path=os.path.abspath(os.path.join(self.cfg.basedir, self.cfg.data['prostate'])))
+    prostate_tuple = self.cfg.data['prostate']
+    if (prostate_tuple[0] == 'file'):
+        import_result = self.a_node.import_files(path=os.path.abspath(prostate_tuple[1]))
+    else:
+        raise RuntimeError('Unsupported file type specified')
     parse_result = self.a_node.parse(key=import_result['keys'][0])
     self.prostate_key = parse_result['frames'][0]['key']['name']
     frames = self.a_node.frames()['frames']
