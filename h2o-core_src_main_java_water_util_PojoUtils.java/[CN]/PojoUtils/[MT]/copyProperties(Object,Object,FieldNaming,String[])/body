@@ -15,11 +15,14 @@
  else     if (field_naming == FieldNaming.ORIGIN_HAS_UNDERSCORES) {
       dest_name=origin_name.substring(1);
     }
+    if (skip_fields != null & ArrayUtils.contains(skip_fields,dest_name))     continue;
     try {
       Field dest_field=null;
-      for (      Field fd : dest_fields)       if (fd.getName().equals(dest_name)) {
-        dest_field=fd;
-        break;
+      for (      Field fd : dest_fields) {
+        if (fd.getName().equals(dest_name)) {
+          dest_field=fd;
+          break;
+        }
       }
       if (dest_field != null) {
         dest_field.setAccessible(true);
