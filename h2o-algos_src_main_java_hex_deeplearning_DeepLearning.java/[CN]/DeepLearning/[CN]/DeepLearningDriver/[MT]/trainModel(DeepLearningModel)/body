@@ -2,14 +2,14 @@
   Frame validScoreFrame=null;
   Frame train, trainScoreFrame;
   try {
-    lock_data();
+    _parms.lock_frames(DeepLearning.this);
     if (model == null) {
       model=DKV.get(dest()).get();
     }
     model.write_lock(self());
     final DeepLearningModel.DeepLearningParameters mp=model._parms;
-    Frame tra_fr=_parms._training_frame.get();
-    Frame val_fr=_parms._validation_frame == null ? null : _parms._validation_frame.<Frame>get();
+    Frame tra_fr=_parms.train();
+    Frame val_fr=_parms._valid == null ? null : _parms.valid();
     ValidationAdapter validAdapter=new ValidationAdapter(val_fr,_parms._classification);
     validAdapter.prepareValidationWithModel(model);
     final long model_size=model.model_info().size();
@@ -88,7 +88,7 @@
   }
  finally {
     if (model != null)     model.unlock(self());
-    unlock_data();
+    _parms.unlock_frames(DeepLearning.this);
     for (    Frame f : _delete_me)     f.delete();
   }
   return model;

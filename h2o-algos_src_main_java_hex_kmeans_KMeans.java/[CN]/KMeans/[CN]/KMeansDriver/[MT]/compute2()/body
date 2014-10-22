@@ -1,10 +1,8 @@
 {
-  Frame fr=null;
   KMeansModel model=null;
   try {
-    fr=_parms._training_frame.get();
-    fr.read_lock(_key);
-    if (fr.numRows() < _parms._K)     throw new IllegalArgumentException("Cannot make " + _parms._K + " clusters out of "+ fr.numRows()+ " rows.");
+    _parms.lock_frames(KMeans.this);
+    Frame fr=_parms.train();
     Vec vecs[]=fr.vecs();
     final int N=vecs.length;
     int ncats=0, len=N;
@@ -103,7 +101,7 @@
   }
  finally {
     if (model != null)     model.unlock(_key);
-    if (fr != null)     fr.unlock(_key);
+    _parms.unlock_frames(KMeans.this);
     done();
   }
   tryComplete();

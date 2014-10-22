@@ -21,6 +21,12 @@
           for (          boolean shuffle : new boolean[]{true,false}) {
             for (            boolean balance_classes : new boolean[]{true,false}) {
               for (              int resp : responses[i]) {
+                boolean classification=!(i == 0 && resp == 2);
+                Vec old=frame.vecs()[resp];
+                if (classification) {
+                  frame.replace(resp,old.toEnum());
+                  DKV.put(frame._key,frame);
+                }
                 for (                ClassSamplingMethod csm : new ClassSamplingMethod[]{ClassSamplingMethod.Stratified,ClassSamplingMethod.Uniform}) {
                   for (                  int scoretraining : new int[]{200,20,0}) {
                     for (                    int scorevalidation : new int[]{200,20,0}) {
@@ -49,9 +55,9 @@
                                     p._destination_key=Key.make(Key.make().toString() + "first");
                                     dest_tmp=p._destination_key;
                                     p.checkpoint=null;
-                                    p._training_frame=frame._key;
+                                    p._train=frame._key;
                                     p._response_column=frame._names[resp];
-                                    p._validation_frame=valid == null ? null : valid._key;
+                                    p._valid=valid == null ? null : valid._key;
                                     p.hidden=hidden;
                                     p.override_with_best_model=override_with_best_model;
                                     p.epochs=epochs;
@@ -66,7 +72,7 @@
                                     p.score_validation_samples=scorevalidation;
                                     p.classification_stop=-1;
                                     p.regression_stop=-1;
-                                    p.balance_classes=p._classification && balance_classes;
+                                    p.balance_classes=classification && balance_classes;
                                     p.quiet_mode=true;
                                     p.score_validation_sampling=csm;
                                     DeepLearning dl=new DeepLearning(p);
@@ -93,15 +99,14 @@
                                   dest=p._destination_key;
                                   p.checkpoint=dest_tmp;
                                   p.n_folds=0;
-                                  p._training_frame=frame._key;
-                                  p._validation_frame=valid == null ? null : valid._key;
+                                  p._train=frame._key;
+                                  p._valid=valid == null ? null : valid._key;
                                   p._response_column=frame._names[resp];
-                                  p._classification=!(i == 0 && resp == 2);
                                   p.override_with_best_model=override_with_best_model;
                                   p.epochs=epochs;
                                   p.seed=seed;
                                   p.train_samples_per_iteration=train_samples_per_iteration;
-                                  p.balance_classes=p._classification && balance_classes;
+                                  p.balance_classes=classification && balance_classes;
                                   DeepLearning dl=new DeepLearning(p);
                                   try {
                                     model1=dl.train().get();
@@ -198,6 +203,8 @@
                     }
                   }
                 }
+                if (classification)                 frame.replace(resp,old).remove();
+                DKV.put(frame._key,frame);
               }
             }
           }

@@ -1,6 +1,6 @@
 {
-  final Frame fr=_parms._training_frame.get();
-  fr.read_lock(_key);
+  _parms.lock_frames(this);
+  final Frame fr=_parms.train();
   Vec response=fr.vec(_parms._response);
   Frame source=DataInfo.prepareFrame(fr,response,_parms._ignored_cols,false,true,true);
   DataInfo dinfo=new DataInfo(Key.make(),source,1,_parms.useAllFactorLvls || _parms.lambda_search,_parms._standardize ? DataInfo.TransformType.STANDARDIZE : DataInfo.TransformType.NONE,DataInfo.TransformType.NONE);
@@ -10,7 +10,7 @@
     @Override public void compute2(){
     }
     @Override public void onCompletion(    CountedCompleter cc){
-      fr.unlock(_key);
+      _parms.unlock_frames(GLM.this);
       DKV.remove(_progressKey);
       done();
     }
@@ -18,7 +18,7 @@
       if (!_gotException.getAndSet(true)) {
         cancel2(ex);
         DKV.remove(_progressKey);
-        fr.unlock(_key);
+        _parms.unlock_frames(GLM.this);
         return true;
       }
       return false;
