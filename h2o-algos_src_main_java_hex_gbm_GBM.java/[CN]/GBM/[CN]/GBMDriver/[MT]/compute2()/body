@@ -1,9 +1,7 @@
 {
-  Frame fr=null;
   GBMModel model=null;
   try {
-    fr=_parms._training_frame.get();
-    fr.read_lock(_key);
+    _parms.lock_frames(GBM.this);
     throw H2O.unimpl();
   }
  catch (  Throwable t) {
@@ -13,7 +11,7 @@
   }
  finally {
     if (model != null)     model.unlock(_key);
-    if (fr != null)     fr.unlock(_key);
+    _parms.unlock_frames(GBM.this);
     done();
   }
 }
