@@ -1,0 +1,18 @@
+{
+  if (isBareS3NBucketWithoutTrailingSlash(importFiles._path)) {
+    importFiles._path+="/";
+  }
+  Log.info("ImportHDFS processing (" + importFiles._path + ")");
+  ArrayList<String> succ=new ArrayList<String>();
+  ArrayList<String> fail=new ArrayList<String>();
+  try {
+    PersistHdfs.addFolder(new Path(importFiles._path),succ,fail);
+    importFiles._keys=succ.toArray(new String[succ.size()]);
+    importFiles._files=importFiles._keys;
+    importFiles._fails=fail.toArray(new String[fail.size()]);
+    return schema(version).fillFromImpl(importFiles);
+  }
+ catch (  IOException e) {
+    throw new HDFSIOException(importFiles._path,PersistHdfs.CONF.toString(),e);
+  }
+}
