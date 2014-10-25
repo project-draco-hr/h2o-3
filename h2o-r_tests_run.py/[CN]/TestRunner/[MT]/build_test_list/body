@@ -6,9 +6,12 @@ def build_test_list(self, test_group, run_small, run_medium, run_large):
         if root.endswith('Util'):
             continue
         for f in files:
-            if (not re.match('.*runit.*\\.[rR]$', f)):
-                continue
-            if ('h2o-runit.R' in f):
+            is_test = False
+            if is_python_test_file(f):
+                is_test = True
+            if is_runit_test_file(f):
+                is_test = True
+            if (not is_test):
                 continue
             is_small = False
             is_medium = False
