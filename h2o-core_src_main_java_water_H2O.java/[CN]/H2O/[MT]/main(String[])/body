@@ -1,6 +1,6 @@
 {
   if (!START_TIME_MILLIS.compareAndSet(0L,System.currentTimeMillis()))   return;
-  new Arguments(args).extract(ARGS);
+  parseArguments(args);
   String ice=DEFAULT_ICE_ROOT();
   if (ARGS.ice_root != null)   ice=ARGS.ice_root.replace("\\","/");
   try {
@@ -13,7 +13,7 @@
   if (ARGS.version) {
     exit(0);
   }
-  if (ARGS.help || ARGS.h) {
+  if (ARGS.help) {
     printHelp();
     exit(0);
   }
