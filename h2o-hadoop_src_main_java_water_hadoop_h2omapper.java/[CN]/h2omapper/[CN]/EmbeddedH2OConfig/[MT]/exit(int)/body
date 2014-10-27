@@ -1,0 +1,33 @@
+{
+  try {
+    MapperToDriverMessage msg=new MapperToDriverMessage();
+    msg.setDriverCallbackIpPort(_driverCallbackIp,_driverCallbackPort);
+    msg.setMessageExit(_embeddedWebServerIp,_embeddedWebServerPort,status);
+    System.out.printf("EmbeddedH2OConfig: exit called (%d)\n",status);
+    BackgroundWriterThread bwt=new BackgroundWriterThread();
+    bwt.setMessage(msg);
+    bwt.start();
+    System.out.println("EmbeddedH2OConfig: after bwt.start()");
+  }
+ catch (  Exception e) {
+    System.out.println("EmbeddedH2OConfig: exit caught an exception 1");
+    e.printStackTrace();
+  }
+  try {
+    Thread.sleep(1000);
+    Socket s=new Socket("127.0.0.1",_mapperCallbackPort);
+    byte[] b=new byte[1];
+    b[0]=(byte)status;
+    OutputStream os=s.getOutputStream();
+    os.write(b);
+    os.flush();
+    s.close();
+    System.out.println("EmbeddedH2OConfig: after write to mapperCallbackPort");
+    Thread.sleep(60 * 1000);
+  }
+ catch (  Exception e) {
+    System.out.println("EmbeddedH2OConfig: exit caught an exception 2");
+    e.printStackTrace();
+  }
+  System.exit(111);
+}

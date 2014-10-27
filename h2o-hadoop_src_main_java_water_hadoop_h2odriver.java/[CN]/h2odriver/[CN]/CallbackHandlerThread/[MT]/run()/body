@@ -1,0 +1,52 @@
+{
+  MapperToDriverMessage msg=new MapperToDriverMessage();
+  try {
+    msg.read(_s);
+    char type=msg.getType();
+    if (type == MapperToDriverMessage.TYPE_EOF_NO_MESSAGE) {
+      _s.close();
+      return;
+    }
+    if (type == MapperToDriverMessage.TYPE_EMBEDDED_WEB_SERVER_IP_PORT) {
+      _s.close();
+    }
+ else     if (type == MapperToDriverMessage.TYPE_FETCH_FLATFILE) {
+      System.out.println("H2O node " + msg.getEmbeddedWebServerIp() + ":"+ msg.getEmbeddedWebServerPort()+ " requested flatfile");
+      _cm.registerNode(msg.getEmbeddedWebServerIp(),msg.getEmbeddedWebServerPort(),_s);
+    }
+ else     if (type == MapperToDriverMessage.TYPE_CLOUD_SIZE) {
+      _s.close();
+      System.out.println("H2O node " + msg.getEmbeddedWebServerIp() + ":"+ msg.getEmbeddedWebServerPort()+ " reports H2O cluster size "+ msg.getCloudSize());
+      if (msg.getCloudSize() == numNodes) {
+synchronized (h2odriver.class) {
+          if (!clusterIsUp) {
+            if (clusterReadyFileName != null) {
+              createClusterReadyFile(msg.getEmbeddedWebServerIp(),msg.getEmbeddedWebServerPort());
+              System.out.println("Cluster notification file (" + clusterReadyFileName + ") created.");
+            }
+            clusterIsUp=true;
+          }
+        }
+      }
+    }
+ else     if (type == MapperToDriverMessage.TYPE_EXIT) {
+      System.out.println("H2O node " + msg.getEmbeddedWebServerIp() + ":"+ msg.getEmbeddedWebServerPort()+ " on host "+ _s.getInetAddress().getHostAddress()+ " exited with status "+ msg.getExitStatus());
+      _s.close();
+      if (!clusterIsUp) {
+        clusterFailedToComeUp=true;
+      }
+    }
+ else {
+      _s.close();
+      System.err.println("MapperToDriverMessage: Read invalid type (" + type + ") from socket, ignoring...");
+    }
+  }
+ catch (  Exception e) {
+    System.out.println("Exception occurred in CallbackHandlerThread");
+    System.out.println(e.toString());
+    if (e.getMessage() != null) {
+      System.out.println(e.getMessage());
+    }
+    e.printStackTrace();
+  }
+}
