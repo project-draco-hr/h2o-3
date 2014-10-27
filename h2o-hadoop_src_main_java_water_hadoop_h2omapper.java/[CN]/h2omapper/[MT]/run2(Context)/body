@@ -19,6 +19,7 @@
   context.write(textId,new Text("mapred.local.dir is " + ice_root));
   String driverIp=conf.get(H2O_DRIVER_IP_KEY);
   String driverPortString=conf.get(H2O_DRIVER_PORT_KEY);
+  int driverPort=Integer.parseInt(driverPortString);
   String network=conf.get(H2O_NETWORK_KEY);
   String nthreadsString=conf.get(H2O_NTHREADS_KEY);
   String basePortString=conf.get(H2O_BASE_PORT_KEY);
@@ -28,7 +29,7 @@
   ServerSocket ss=new ServerSocket();
   InetSocketAddress sa=new InetSocketAddress("127.0.0.1",0);
   ss.bind(sa);
-  String localPortString=Integer.toString(ss.getLocalPort());
+  int localPort=ss.getLocalPort();
   List<String> argsList=new ArrayList<String>();
   argsList.add("-ice_root");
   argsList.add(ice_root);
@@ -85,16 +86,14 @@
       argsList.add(fileName);
     }
   }
-  argsList.add("-driverip");
-  argsList.add(driverIp);
-  argsList.add("-driverport");
-  argsList.add(driverPortString);
-  argsList.add("-mapperport");
-  argsList.add(localPortString);
   context.write(textId,new Text("before water.H2O.main()"));
   String[] args=(String[])argsList.toArray(new String[0]);
   try {
-    registerEmbeddedH2OConfig(args);
+    _embeddedH2OConfig=new EmbeddedH2OConfig();
+    _embeddedH2OConfig.setDriverCallbackIp(driverIp);
+    _embeddedH2OConfig.setDriverCallbackPort(driverPort);
+    _embeddedH2OConfig.setMapperCallbackPort(localPort);
+    H2O.setEmbeddedH2OConfig(_embeddedH2OConfig);
     Log.POST(11,"After register");
     water.H2O.main(args);
     Log.POST(12,"After main");
