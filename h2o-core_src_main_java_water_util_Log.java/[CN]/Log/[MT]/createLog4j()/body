@@ -1,9 +1,12 @@
 {
   if (_logger != null)   return _logger;
   File dir=new File(H2O.ICE_ROOT.getScheme() == null || Persist.Schemes.FILE.equals(H2O.ICE_ROOT.getScheme()) ? H2O.ICE_ROOT.getPath() : H2O.DEFAULT_ICE_ROOT());
-  String log4jProperties=System.getProperty("log4j.configuration");
-  if (log4jProperties != null) {
-    PropertyConfigurator.configure(log4jProperties);
+  String log4jConfiguration=System.getProperty("log4j.configuration");
+  boolean launchedWithHadoopJar=H2O.ARGS.hdfs_skip;
+  boolean log4jConfigurationProvided=log4jConfiguration != null;
+  boolean useProvidedLog4jConfigurationFile=log4jConfigurationProvided && !launchedWithHadoopJar;
+  if (useProvidedLog4jConfigurationFile) {
+    PropertyConfigurator.configure(log4jConfiguration);
   }
  else {
     java.util.Properties p=new java.util.Properties();

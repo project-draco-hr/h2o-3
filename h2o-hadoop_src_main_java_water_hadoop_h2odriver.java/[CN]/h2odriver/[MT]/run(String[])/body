@@ -1,0 +1,19 @@
+{
+  int rv=-1;
+  try {
+    rv=run2(args);
+  }
+ catch (  org.apache.hadoop.mapred.FileAlreadyExistsException e) {
+    if (ctrlc != null) {
+      ctrlc.setComplete();
+    }
+    System.out.println("ERROR: " + (e.getMessage() != null ? e.getMessage() : "(null)"));
+    System.exit(1);
+  }
+catch (  Exception e) {
+    System.out.println("ERROR: " + (e.getMessage() != null ? e.getMessage() : "(null)"));
+    e.printStackTrace();
+    System.exit(1);
+  }
+  return rv;
+}

@@ -1,0 +1,43 @@
+{
+synchronized (_dupChecker) {
+    String entry=ip + ":" + port;
+    if (_dupChecker.contains(entry)) {
+      System.out.println("ERROR: Duplicate node registered (" + entry + "), exiting");
+      System.exit(1);
+    }
+    _nodes.add(entry);
+    _socks.add(s);
+    if (_nodes.size() != numNodes) {
+      return;
+    }
+    _registered=true;
+    System.out.println("Sending flatfiles to nodes...");
+    assert(_nodes.size() == numNodes);
+    assert(_nodes.size() == _socks.size());
+    String flatfile="";
+    for (int i=0; i < _nodes.size(); i++) {
+      String val=_nodes.get(i);
+      flatfile+=val;
+      flatfile+="\n";
+    }
+    for (int i=0; i < _socks.size(); i++) {
+      Socket nodeSock=_socks.get(i);
+      DriverToMapperMessage msg=new DriverToMapperMessage();
+      msg.setMessageFetchFlatfileResponse(flatfile);
+      try {
+        System.out.println("    [Sending flatfile to node " + _nodes.get(i) + "]");
+        msg.write(nodeSock);
+        nodeSock.close();
+      }
+ catch (      Exception e) {
+        System.out.println("ERROR: Failed to write to H2O node " + _nodes.get(i));
+        System.out.println(e.toString());
+        if (e.getMessage() != null) {
+          System.out.println(e.getMessage());
+        }
+        e.printStackTrace();
+        System.exit(1);
+      }
+    }
+  }
+}

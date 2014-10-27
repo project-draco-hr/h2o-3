@@ -1,0 +1,19 @@
+{
+  String fileName=clusterReadyFileName + ".tmp";
+  String text=ip + ":" + port+ "\n";
+  try {
+    File file=new File(fileName);
+    BufferedWriter output=new BufferedWriter(new FileWriter(file));
+    output.write(text);
+    output.flush();
+    output.close();
+    File file2=new File(clusterReadyFileName);
+    boolean success=file.renameTo(file2);
+    if (!success) {
+      throw new Exception("Failed to create file " + clusterReadyFileName);
+    }
+  }
+ catch (  IOException e) {
+    e.printStackTrace();
+  }
+}

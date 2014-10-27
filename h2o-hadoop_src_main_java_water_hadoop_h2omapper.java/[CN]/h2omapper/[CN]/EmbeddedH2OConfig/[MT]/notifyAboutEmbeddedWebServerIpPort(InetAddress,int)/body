@@ -1,0 +1,17 @@
+{
+  _embeddedWebServerIp=ip.getHostAddress();
+  _embeddedWebServerPort=port;
+  try {
+    MapperToDriverMessage msg=new MapperToDriverMessage();
+    msg.setDriverCallbackIpPort(_driverCallbackIp,_driverCallbackPort);
+    msg.setMessageEmbeddedWebServerIpPort(ip.getHostAddress(),port);
+    BackgroundWriterThread bwt=new BackgroundWriterThread();
+    System.out.printf("EmbeddedH2OConfig: notifyAboutEmbeddedWebServerIpPort called (%s, %d)\n",ip.getHostAddress(),port);
+    bwt.setMessage(msg);
+    bwt.start();
+  }
+ catch (  Exception e) {
+    System.out.println("EmbeddedH2OConfig: notifyAboutEmbeddedWebServerIpPort caught an Exception");
+    e.printStackTrace();
+  }
+}

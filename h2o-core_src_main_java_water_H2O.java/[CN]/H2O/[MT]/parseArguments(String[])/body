@@ -1,0 +1,78 @@
+{
+  for (int i=0; i < args.length; i++) {
+    OptString s=new OptString(args[i]);
+    if (s.matches("h") || s.matches("help")) {
+      ARGS.help=true;
+    }
+ else     if (s.matches("version")) {
+      ARGS.version=true;
+    }
+ else     if (s.matches("name")) {
+      i=s.incrementAndCheck(i,args);
+      ARGS.name=args[i];
+    }
+ else     if (s.matches("flatfile")) {
+      i=s.incrementAndCheck(i,args);
+      ARGS.flatfile=args[i];
+    }
+ else     if (s.matches("port")) {
+      i=s.incrementAndCheck(i,args);
+      ARGS.port=s.parseInt(args[i]);
+    }
+ else     if (s.matches("baseport")) {
+      i=s.incrementAndCheck(i,args);
+      ARGS.baseport=s.parseInt(args[i]);
+    }
+ else     if (s.matches("ip")) {
+      i=s.incrementAndCheck(i,args);
+      ARGS.ip=args[i];
+    }
+ else     if (s.matches("network")) {
+      i=s.incrementAndCheck(i,args);
+      ARGS.network=args[i];
+    }
+ else     if (s.matches("client")) {
+      ARGS.client=true;
+    }
+ else     if (s.matches("ice_root")) {
+      i=s.incrementAndCheck(i,args);
+      ARGS.ice_root=args[i];
+    }
+ else     if (s.matches("nthreads")) {
+      i=s.incrementAndCheck(i,args);
+      ARGS.nthreads=s.parseInt(args[i]);
+    }
+ else     if (s.matches("hdfs")) {
+      i=s.incrementAndCheck(i,args);
+      ARGS.hdfs=args[i];
+    }
+ else     if (s.matches("hdfs_version")) {
+      i=s.incrementAndCheck(i,args);
+      ARGS.hdfs_version=args[i];
+    }
+ else     if (s.matches("hdfs_config")) {
+      i=s.incrementAndCheck(i,args);
+      ARGS.hdfs_config=args[i];
+    }
+ else     if (s.matches("hdfs_skip")) {
+      ARGS.hdfs_skip=true;
+    }
+ else     if (s.matches("aws_credentials")) {
+      i=s.incrementAndCheck(i,args);
+      ARGS.aws_credentials=args[i];
+    }
+ else     if (s.matches("log_level")) {
+      i=s.incrementAndCheck(i,args);
+      ARGS.log_level=args[i];
+    }
+ else     if (s.matches("random_udp_drop")) {
+      ARGS.random_udp_drop=true;
+    }
+ else     if (s.matches("md5skip")) {
+      ARGS.md5skip=true;
+    }
+ else {
+      parseFailed("Unknown argument (" + s + ")");
+    }
+  }
+}
