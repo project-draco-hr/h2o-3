@@ -1,0 +1,13 @@
+{
+  ArrayList<Field> flds=new ArrayList<>();
+  while (Iced.class.isAssignableFrom(clz) || Freezable.class.isAssignableFrom(clz) || H2O.H2OCountedCompleter.class.isAssignableFrom(clz)) {
+    for (    Field f : clz.getDeclaredFields()) {
+      int mods=f.getModifiers();
+      if (Modifier.isTransient(mods) || Modifier.isStatic(mods))       continue;
+      if ("_ice_id".equals(f.getName()))       continue;
+      flds.add(f);
+    }
+    clz=clz.getSuperclass();
+  }
+  return flds.toArray(new Field[flds.size()]);
+}

@@ -1,0 +1,29 @@
+{
+  long startMillis=System.currentTimeMillis();
+  while (true) {
+    if (clusterFailedToComeUp) {
+      System.out.println("ERROR: At least one node failed to come up during cluster formation");
+      job.killJob();
+      return 4;
+    }
+    if (job.isComplete()) {
+      break;
+    }
+    if (clusterIsUp) {
+      break;
+    }
+    long nowMillis=System.currentTimeMillis();
+    long deltaMillis=nowMillis - startMillis;
+    if (cloudFormationTimeoutSeconds > 0) {
+      if (deltaMillis > (cloudFormationTimeoutSeconds * 1000)) {
+        System.out.println("ERROR: Timed out waiting for H2O cluster to come up (" + cloudFormationTimeoutSeconds + " seconds)");
+        System.out.println("ERROR: (Try specifying the -timeout option to increase the waiting time limit)");
+        job.killJob();
+        return 3;
+      }
+    }
+    final int ONE_SECOND_MILLIS=1000;
+    Thread.sleep(ONE_SECOND_MILLIS);
+  }
+  return 0;
+}

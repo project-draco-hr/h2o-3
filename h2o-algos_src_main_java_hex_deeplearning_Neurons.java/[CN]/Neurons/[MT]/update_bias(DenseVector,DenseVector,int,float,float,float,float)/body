@@ -1,16 +1,16 @@
 {
   final boolean have_momenta=_minfo.has_momenta();
   final boolean have_ada=_minfo.adaDelta();
-  final float l1=(float)params.l1;
-  final float l2=(float)params.l2;
+  final float l1=(float)params._l1;
+  final float l2=(float)params._l2;
   final float bias=_b.get(row);
   partial_grad-=Math.signum(bias) * l1 + bias * l2;
   if (have_ada) {
-    final float rho=(float)params.rho;
-    final float eps=(float)params.epsilon;
+    final float rho=(float)params._rho;
+    final float eps=(float)params._epsilon;
     rate=computeAdaDeltaRateForBias(avg_grad2,row,_bias_ada_dx_g,rho,eps);
   }
-  if (!params.nesterov_accelerated_gradient) {
+  if (!params._nesterov_accelerated_gradient) {
     final float delta=rate * partial_grad;
     _b.add(row,delta);
     if (have_momenta) {
@@ -27,8 +27,8 @@
     }
     _b.add(row,rate * d);
   }
-  if (params.autoencoder && params.sparsity_beta > 0 && !(this instanceof Output) && !(this instanceof Input) && (_index != params.hidden.length)) {
-    _b.add(row,-(float)(rate * params.sparsity_beta * (_avg_a._data[row] - params.average_activation)));
+  if (params._autoencoder && params._sparsity_beta > 0 && !(this instanceof Output) && !(this instanceof Input) && (_index != params._hidden.length)) {
+    _b.add(row,-(float)(rate * params._sparsity_beta * (_avg_a._data[row] - params._average_activation)));
   }
   if (Float.isInfinite(_b.get(row)))   _minfo.set_unstable();
 }

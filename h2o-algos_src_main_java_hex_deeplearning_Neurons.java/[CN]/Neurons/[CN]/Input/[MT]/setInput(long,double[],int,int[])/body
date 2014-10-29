@@ -1,9 +1,9 @@
 {
   _a=_dvec;
   Arrays.fill(_a.raw(),0f);
-  if (params.max_categorical_features < _dinfo.fullN() - _dinfo._nums) {
+  if (params._max_categorical_features < _dinfo.fullN() - _dinfo._nums) {
     assert(nums.length == _dinfo._nums);
-    final int M=nums.length + params.max_categorical_features;
+    final int M=nums.length + params._max_categorical_features;
     final boolean random_projection=false;
     final boolean hash_trick=true;
     if (random_projection) {
@@ -12,7 +12,7 @@
       DenseVector orig=new DenseVector(N);
       for (int i=0; i < numcat; ++i)       orig.set(cats[i],1f);
       for (int i=0; i < nums.length; ++i)       orig.set(_dinfo.numStart() + i,Double.isNaN(nums[i]) ? 0f : (float)nums[i]);
-      Random rng=new Random(params.seed);
+      Random rng=new Random(params._seed);
       for (int i=0; i < M; ++i) {
         for (int j=0; j < N; ++j) {
           final float rnd=rng.nextFloat();
@@ -25,12 +25,12 @@
     }
  else     if (hash_trick) {
       assert(_a.size() == M);
-      final int cM=params.max_categorical_features;
+      final int cM=params._max_categorical_features;
       assert(_a.size() == M);
       Hash murmur=MurmurHash.getInstance();
       for (int i=0; i < numcat; ++i) {
         ByteBuffer buf=ByteBuffer.allocate(4);
-        int hashval=murmur.hash(buf.putInt(cats[i]).array(),4,(int)params.seed);
+        int hashval=murmur.hash(buf.putInt(cats[i]).array(),4,(int)params._seed);
         _a.add(Math.abs(hashval % cM),1f);
       }
       for (int i=0; i < nums.length; ++i)       _a.set(cM + i,Double.isNaN(nums[i]) ? 0f : (float)nums[i]);
@@ -41,9 +41,9 @@
     for (int i=0; i < nums.length; ++i)     _a.set(_dinfo.numStart() + i,Double.isNaN(nums[i]) ? 0f : (float)nums[i]);
   }
   if (_dropout == null)   return;
-  seed+=params.seed + 0x1337B4BE;
+  seed+=params._seed + 0x1337B4BE;
   _dropout.randomlySparsifyActivation(_a,seed);
-  if (params.sparse) {
+  if (params._sparse) {
     _svec=new SparseVector(_dvec);
     _a=_svec;
   }

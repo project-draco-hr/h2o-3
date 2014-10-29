@@ -1,0 +1,22 @@
+{
+  try {
+    Log.POST(0,"Entered run");
+    setup(context);
+    while (context.nextKeyValue()) {
+    }
+    int exitStatus=run2(context);
+    cleanup(context);
+    Log.POST(1000,"Leaving run");
+    System.out.println("Exiting with status " + exitStatus);
+    System.out.flush();
+    if (exitStatus != 0) {
+      System.exit(exitStatus);
+    }
+  }
+ catch (  Exception e) {
+    Log.POST(999,e);
+    System.exit(100);
+  }
+  System.out.println("Exiting mapper run method");
+  System.out.flush();
+}

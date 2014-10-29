@@ -1,10 +1,9 @@
 {
   long seed0=0xDECAF;
   int num_runs=0;
-  NFSFileVec nfs=NFSFileVec.make(find_test_file(PATH));
   Frame frame=null;
   try {
-    frame=water.parser.ParseDataset2.parse(Key.make("iris.hex"),nfs._key);
+    frame=parse_test_file(Key.make("iris.hex"),PATH);
     for (int repeat=0; repeat < 5; ++repeat) {
       Activation[] activations={Activation.Tanh,Activation.Rectifier};
       Loss[] losses={Loss.MeanSquare,Loss.CrossEntropy};
@@ -28,9 +27,10 @@
                       for (                      double rate : rates) {
                         for (                        boolean sparse : new boolean[]{true,false}) {
                           for (                          boolean col_major : new boolean[]{false}) {
+                            Scope.enter();
                             DeepLearningModel mymodel=null;
                             Frame fr=null;
-                            DeepLearningParameters p=null;
+                            DeepLearningParameters p;
                             Frame trainPredict=null;
                             Frame testPredict=null;
                             try {
@@ -67,52 +67,57 @@
                                 int limit=(int)(frame.numRows() * holdout_ratio);
                                 _train=frame(names,water.util.ArrayUtils.subarray(rows,0,limit));
                                 _test=frame(names,water.util.ArrayUtils.subarray(rows,limit,(int)frame.numRows() - limit));
+                                String resp_name=_train.lastVecName();
+                                _train.add(resp_name,_train.remove(resp_name).toEnum());
+                                _test.add(resp_name,_test.remove(resp_name).toEnum());
+                                DKV.put(_train._key,_train);
+                                DKV.put(_test._key,_test);
                                 p=new DeepLearningParameters();
-                                p._training_frame=_train._key;
-                                p.response_column=_train.lastVecName();
-                                p.ignored_columns=null;
-                                p.ignore_const_cols=true;
-                                fr=FrameTask.DataInfo.prepareFrame(_train,_train.vec(p.response_column),_train.find(p.ignored_columns),true,p.ignore_const_cols);
+                                p._train=_train._key;
+                                p._response_column=resp_name;
+                                p._ignored_columns=null;
+                                p._ignore_const_cols=true;
+                                fr=FrameTask.DataInfo.prepareFrame(_train,_train.vec(p._response_column),_train.find(p._ignored_columns),true,p._ignore_const_cols);
                                 dinfo=new FrameTask.DataInfo(Key.make(),fr,1,false,FrameTask.DataInfo.TransformType.STANDARDIZE);
                               }
  while (dinfo._adaptedFrame.lastVec().domain().length < 3);
                               DeepLearningMLPReference ref=new DeepLearningMLPReference();
                               ref.init(activation,RandomUtils.getDeterRNG(seed),holdout_ratio,hidden);
-                              p.seed=seed;
-                              p.hidden=new int[]{hidden};
-                              p.adaptive_rate=false;
-                              p.rho=0;
-                              p.epsilon=0;
-                              p.rate=rate / (1 - momentum);
-                              p.activation=activation;
-                              p.max_w2=Float.POSITIVE_INFINITY;
-                              p.input_dropout_ratio=0;
-                              p.rate_annealing=0;
-                              p.l1=0;
-                              p.loss=loss;
-                              p.l2=0;
-                              p.momentum_stable=momentum;
-                              p.momentum_start=p.momentum_stable;
-                              p.momentum_ramp=0;
-                              p.initial_weight_distribution=dist;
-                              p.initial_weight_scale=scale;
-                              p.classification=true;
-                              p.diagnostics=true;
-                              p._validation_frame=null;
-                              p.quiet_mode=true;
-                              p.fast_mode=false;
-                              p.nesterov_accelerated_gradient=false;
-                              p.train_samples_per_iteration=0;
-                              p.ignore_const_cols=false;
-                              p.shuffle_training_data=false;
-                              p.classification_stop=-1;
-                              p.force_load_balance=false;
-                              p.override_with_best_model=false;
-                              p.replicate_training_data=false;
-                              p.single_node_mode=true;
-                              p.sparse=sparse;
-                              p.col_major=col_major;
-                              p.epochs=0;
+                              p._seed=seed;
+                              p._hidden=new int[]{hidden};
+                              p._adaptive_rate=false;
+                              p._rho=0;
+                              p._epsilon=0;
+                              p._rate=rate / (1 - momentum);
+                              p._activation=activation;
+                              p._max_w2=Float.POSITIVE_INFINITY;
+                              p._input_dropout_ratio=0;
+                              p._rate_annealing=0;
+                              p._l1=0;
+                              p._loss=loss;
+                              p._l2=0;
+                              p._momentum_stable=momentum;
+                              p._momentum_start=p._momentum_stable;
+                              p._momentum_ramp=0;
+                              p._initial_weight_distribution=dist;
+                              p._initial_weight_scale=scale;
+                              p._classification=true;
+                              p._diagnostics=true;
+                              p._valid=null;
+                              p._quiet_mode=true;
+                              p._fast_mode=false;
+                              p._nesterov_accelerated_gradient=false;
+                              p._train_samples_per_iteration=0;
+                              p._ignore_const_cols=false;
+                              p._shuffle_training_data=false;
+                              p._classification_stop=-1;
+                              p._force_load_balance=false;
+                              p._override_with_best_model=false;
+                              p._replicate_training_data=false;
+                              p._single_node_mode=true;
+                              p._sparse=sparse;
+                              p._col_major=col_major;
+                              p._epochs=0;
                               DeepLearning dl=new DeepLearning(p);
                               try {
                                 mymodel=dl.train().get();
@@ -120,7 +125,7 @@
   finally {
                                 dl.remove();
                               }
-                              p.epochs=epoch;
+                              p._epochs=epoch;
                               Neurons[] neurons=DeepLearningTask.makeNeuronsForTraining(mymodel.model_info());
                               Neurons l=neurons[1];
                               for (int o=0; o < l._a.size(); o++) {
@@ -136,7 +141,7 @@
                                 }
                                 ref._nn.oBiases[o]=l._b.get(o);
                               }
-                              ref.train((int)p.epochs,rate,p.momentum_stable,loss);
+                              ref.train((int)p._epochs,rate,p._momentum_stable,loss);
                               mymodel.delete_best_model();
                               mymodel.delete();
                               dl=new DeepLearning(p);
@@ -193,9 +198,9 @@
                               final double trainErr=ref._nn.Accuracy(ref._trainData);
                               final double testErr=ref._nn.Accuracy(ref._testData);
                               trainPredict=mymodel.score(_train,false);
-                              final double myTrainErr=mymodel.calcError(_train,_train.lastVec(),trainPredict,trainPredict,"Final training error:",true,p.max_confusion_matrix_size,new hex.ConfusionMatrix(),null,null);
+                              final double myTrainErr=mymodel.calcError(_train,_train.lastVec(),trainPredict,trainPredict,"Final training error:",true,p._max_confusion_matrix_size,new hex.ConfusionMatrix(),null,null);
                               testPredict=mymodel.score(_test,false);
-                              final double myTestErr=mymodel.calcError(_test,_test.lastVec(),testPredict,testPredict,"Final testing error:",true,p.max_confusion_matrix_size,new hex.ConfusionMatrix(),null,null);
+                              final double myTestErr=mymodel.calcError(_test,_test.lastVec(),testPredict,testPredict,"Final testing error:",true,p._max_confusion_matrix_size,new hex.ConfusionMatrix(),null,null);
                               Log.info("H2O  training error : " + myTrainErr * 100 + "%, test error: " + myTestErr * 100 + "%");
                               Log.info("REF  training error : " + trainErr * 100 + "%, test error: " + testErr * 100 + "%");
                               compareVal(trainErr,myTrainErr,abseps,releps);
@@ -206,11 +211,11 @@
                                 best_err=Math.min(best_err,(float)err.train_err);
                               }
                               Log.info("Actual best error : " + best_err * 100 + "%.");
-                              if (p.override_with_best_model) {
+                              if (p._override_with_best_model) {
                                 Frame bestPredict=null;
                                 try {
                                   bestPredict=mymodel.score(_train,false);
-                                  final double bestErr=mymodel.calcError(_train,_train.lastVec(),bestPredict,bestPredict,"Best error:",true,p.max_confusion_matrix_size,new hex.ConfusionMatrix(),null,null);
+                                  final double bestErr=mymodel.calcError(_train,_train.lastVec(),bestPredict,bestPredict,"Best error:",true,p._max_confusion_matrix_size,new hex.ConfusionMatrix(),null,null);
                                   Log.info("Best_model's error : " + bestErr * 100 + "%.");
                                   compareVal(bestErr,best_err,abseps,releps);
                                 }
@@ -230,6 +235,7 @@
                               if (fr != null)                               fr.delete();
                               if (trainPredict != null)                               trainPredict.delete();
                               if (testPredict != null)                               testPredict.delete();
+                              Scope.exit();
                             }
                           }
                         }

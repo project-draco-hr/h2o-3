@@ -1,21 +1,23 @@
 {
+  super();
   try {
     this.name=f.getName();
-    boolean is_array=f.getType().isArray();
-    Object o;
     f.setAccessible(true);
-    o=f.get(schema);
+    Object o=f.get(schema);
     this.value=consValue(o);
     boolean is_enum=Enum.class.isAssignableFrom(f.getType());
     this.type=consType(f.getType());
+    this.is_schema=(Schema.class.isAssignableFrom(f.getType()));
     API annotation=f.getAnnotation(API.class);
     if (null != annotation) {
       String l=annotation.label();
-      this.label=(null == l || l.isEmpty() ? f.getName() : l);
       this.help=annotation.help();
+      this.label=(null == l || l.isEmpty() ? f.getName() : l);
       this.required=annotation.required();
       this.level=annotation.level();
+      this.direction=annotation.direction();
       this.values=annotation.values();
+      this.json=annotation.json();
       if (is_enum && (null == this.values || 0 == this.values.length)) {
         throw H2O.fail("Didn't find values annotation for enum field: " + this.name);
       }

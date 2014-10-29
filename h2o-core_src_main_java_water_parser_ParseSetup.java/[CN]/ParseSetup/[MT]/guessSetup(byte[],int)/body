@@ -2,11 +2,11 @@
   assert _isValid;
   ParseSetup ps=guessSetup(bits,_singleQuotes,checkHeader);
   if (!ps._isValid)   return ps;
-  if (_pType == ParserType.CSV && ps._pType == ParserType.ARFF) {
+  if ((_pType == ParserType.CSV || _pType == ParserType.AUTO) && ps._pType == ParserType.ARFF) {
     if (ps._sep == ParseSetup.AUTO_SEP && _sep != ParseSetup.AUTO_SEP)     ps._sep=_sep;
     return ps;
   }
-  if (_pType == ParserType.ARFF && ps._pType == ParserType.CSV) {
+  if (_pType == ParserType.ARFF && (ps._pType == ParserType.CSV || _pType == ParserType.AUTO)) {
     if (ps._sep != ParseSetup.AUTO_SEP && _sep == ParseSetup.AUTO_SEP)     _sep=ps._sep;
     return this;
   }

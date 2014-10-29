@@ -15,9 +15,9 @@
   for (  String key : parms.stringPropertyNames()) {
     try {
       Field f=fields.get(key);
-      if (null == f)       throw new IllegalArgumentException("Unknown argument: " + key);
+      if (null == f)       throw new IllegalArgumentException("Unknown argument (not found): " + key);
       int mods=f.getModifiers();
-      if (Modifier.isTransient(mods) || Modifier.isStatic(mods))       throw new IllegalArgumentException("Unknown argument: " + key);
+      if (Modifier.isTransient(mods) || Modifier.isStatic(mods))       throw new IllegalArgumentException("Unknown argument (transient or static): " + key);
       API api=(API)f.getAnnotations()[0];
       if (api.direction() == API.Direction.OUTPUT)       throw new IllegalArgumentException("Attempting to set output field: " + key);
       Object parse_result=parse(parms.getProperty(key),f.getType(),api.required());

@@ -1,0 +1,20 @@
+{
+  System.out.printf("EmbeddedH2OConfig: fetchFlatfile called\n");
+  MapperToDriverMessage msg=new MapperToDriverMessage();
+  msg.setMessageFetchFlatfile(_embeddedWebServerIp,_embeddedWebServerPort);
+  Socket s=new Socket(_driverCallbackIp,_driverCallbackPort);
+  msg.write(s);
+  DriverToMapperMessage msg2=new DriverToMapperMessage();
+  msg2.read(s);
+  if (msg2.getType() != DriverToMapperMessage.TYPE_FETCH_FLATFILE_RESPONSE) {
+    Log.err("DriverToMapperMessage type unrecognized");
+    throw new Exception("DriverToMapperMessage type unrecognized");
+  }
+  s.close();
+  String flatfile=msg2.getFlatfile();
+  System.out.printf("EmbeddedH2OConfig: fetchFlatfile returned\n");
+  System.out.println("------------------------------------------------------------");
+  System.out.println(flatfile);
+  System.out.println("------------------------------------------------------------");
+  return flatfile;
+}

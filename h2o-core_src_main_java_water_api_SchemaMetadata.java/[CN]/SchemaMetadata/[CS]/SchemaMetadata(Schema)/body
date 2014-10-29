@@ -1,9 +1,8 @@
 {
-  fields=new TreeMap<String,FieldMetadata>();
-  String field_name=null;
-  for (  Field field : ReflectionUtils.getFieldsUpTo(schema.getClass(),Object.class)) {
-    field_name=field.getName();
-    FieldMetadata fmd=new FieldMetadata(schema,field);
-    fields.put(field_name,fmd);
+  fields=new ArrayList<>();
+  for (  Field field : Weaver.getWovenFields(schema.getClass())) {
+    FieldMetadata fmd=FieldMetadata.createIfApiAnnotation(schema,field);
+    if (null != fmd)     fields.add(fmd);
   }
+  this.markdown=schema.markdown(this,null).toString();
 }

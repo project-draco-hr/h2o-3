@@ -1,0 +1,22 @@
+{
+  _dupChecker=new HashSet<String>();
+  _nodes=new ArrayList<String>();
+  _socks=new ArrayList<Socket>();
+  while (true) {
+    try {
+      Socket s=_ss.accept();
+      CallbackHandlerThread t=new CallbackHandlerThread();
+      t.setSocket(s);
+      t.setCallbackManager(this);
+      t.start();
+    }
+ catch (    Exception e) {
+      System.out.println("Exception occurred in CallbackManager");
+      System.out.println(e.toString());
+      if (e.getMessage() != null) {
+        System.out.println(e.getMessage());
+      }
+      e.printStackTrace();
+    }
+  }
+}

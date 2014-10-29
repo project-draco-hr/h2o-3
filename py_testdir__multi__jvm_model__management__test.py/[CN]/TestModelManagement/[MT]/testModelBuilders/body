@@ -1,0 +1,6 @@
+@test(groups=['rgm'], depends_on=[testConnect])
+def testModelBuilders(self):
+    model_builders = self.a_node.model_builders(timeoutSecs=self.timeoutSecs)
+    for algo in self.algos:
+        assert (algo in model_builders['model_builders']), ('Failed to find algo: ' + algo)
+        validate_builder(model_builders['model_builders'][algo])

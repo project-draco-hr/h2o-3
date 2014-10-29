@@ -1,0 +1,38 @@
+{
+  MarkdownBuilder builder=new MarkdownBuilder();
+  builder.comment("Preview with http://jbt.github.io/markdown-editor");
+  builder.heading1("schema ",this.getClass().getSimpleName());
+  builder.hline();
+  boolean first;
+  first=true;
+  builder.heading2("input fields");
+  try {
+    for (    SchemaMetadata.FieldMetadata field_meta : meta.fields) {
+      if (field_meta.direction == API.Direction.INPUT || field_meta.direction == API.Direction.INOUT) {
+        if (first) {
+          builder.tableHeader("name","required?","level","type","schema?","default","description","values");
+          first=false;
+        }
+        builder.tableRow(field_meta.name,String.valueOf(field_meta.required),field_meta.level.name(),field_meta.type,String.valueOf(field_meta.is_schema),field_meta.value,field_meta.help,(field_meta.values == null || field_meta.values.length == 0 ? "" : Arrays.toString(field_meta.values)));
+      }
+    }
+    if (first)     builder.paragraph("(none)");
+    first=true;
+    builder.heading2("output fields");
+    for (    SchemaMetadata.FieldMetadata field_meta : meta.fields) {
+      if (field_meta.direction == API.Direction.OUTPUT || field_meta.direction == API.Direction.INOUT) {
+        if (first) {
+          builder.tableHeader("name","type","schema?","default","description","values");
+          first=false;
+        }
+        builder.tableRow(field_meta.name,field_meta.type,String.valueOf(field_meta.is_schema),field_meta.value,field_meta.help,(field_meta.values == null || field_meta.values.length == 0 ? "" : Arrays.toString(field_meta.values)));
+      }
+    }
+    if (first)     builder.paragraph("(none)");
+  }
+ catch (  Exception e) {
+    throw H2O.fail("Caught exception using reflection on schema: " + this + ": "+ e);
+  }
+  if (null != appendToMe)   appendToMe.append(builder.stringBuffer());
+  return builder.stringBuffer();
+}

@@ -1,15 +1,15 @@
 {
   try {
-    lock_data();
+    _parms.lock_frames(DeepLearning.this);
     if (_parms.sanityCheckParameters() > 0)     throw new IllegalArgumentException("Error(s) in model parameters: " + _parms.validationErrors());
     final DataInfo dinfo=prepareDataInfo(_parms);
     final Vec resp=dinfo._adaptedFrame.lastVec();
-    float[] priorDist=_parms.classification ? new MRUtils.ClassDist(resp).doAll(resp).rel_dist() : null;
-    final DeepLearningModel model=new DeepLearningModel(dest(),self(),_parms._training_frame,dinfo,(DeepLearningModel.DeepLearningParameters)_parms.clone(),priorDist);
+    float[] priorDist=_parms._classification ? new MRUtils.ClassDist(resp).doAll(resp).rel_dist() : null;
+    final DeepLearningModel model=new DeepLearningModel(dest(),self(),_parms._train,dinfo,(DeepLearningModel.DeepLearningParameters)_parms.clone(),priorDist);
     model.model_info().initializeMembers();
     return model;
   }
   finally {
-    unlock_data();
+    _parms.unlock_frames(DeepLearning.this);
   }
 }

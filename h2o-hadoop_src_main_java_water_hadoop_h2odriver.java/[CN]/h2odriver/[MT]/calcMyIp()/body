@@ -1,0 +1,16 @@
+{
+  Enumeration nis=NetworkInterface.getNetworkInterfaces();
+  System.out.println("Determining driver host interface for mapper->driver callback...");
+  while (nis.hasMoreElements()) {
+    NetworkInterface ni=(NetworkInterface)nis.nextElement();
+    Enumeration ias=ni.getInetAddresses();
+    while (ias.hasMoreElements()) {
+      InetAddress ia=(InetAddress)ias.nextElement();
+      String s=ia.getHostAddress();
+      System.out.println("    [Possible callback IP address: " + s + "]");
+    }
+  }
+  InetAddress ia=InetAddress.getLocalHost();
+  String s=ia.getHostAddress();
+  return s;
+}
