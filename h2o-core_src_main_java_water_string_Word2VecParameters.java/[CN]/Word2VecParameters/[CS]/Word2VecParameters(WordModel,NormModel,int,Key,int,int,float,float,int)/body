@@ -1,0 +1,17 @@
+{
+  this(vocabKey,vecSize,winSize,sentSampleRate,learningRate,epochs);
+  if (numNegEx < 0) {
+    Log.err("Negative value for the number of negative samples not allowed for Word2Vec.  Expected value > 0, received " + numNegEx);
+    _valid=false;
+  }
+ else   if (normModel == NormModel.HSM && numNegEx != 0) {
+    Log.err("Both hierarchical softmax and negative samples != 0 is not allowed for Word2Vec.  Expected value = 0, received " + numNegEx);
+    _valid=false;
+  }
+ else   if (_valid) {
+    _wordModel=wordModel;
+    _normModel=normModel;
+    _numNegEx=numNegEx;
+    buildUnigramTable();
+  }
+}

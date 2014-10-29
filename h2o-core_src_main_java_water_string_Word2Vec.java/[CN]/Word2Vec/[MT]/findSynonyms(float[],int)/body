@@ -1,0 +1,25 @@
+{
+  int[] matches=new int[cnt];
+  float[] scores=new float[cnt];
+  float[] curVec=new float[_params._vecSize];
+  if (tarVec.length != _params._vecSize) {
+    Log.warn("Target vector length differs from the vocab's vector length.");
+    return;
+  }
+  for (int i=0; i < _params._vocabSize; i++) {
+    for (int j=0; j < _params._vecSize; j++)     curVec[j]=(float)_w2vFrame.vec(j + 1).at(i);
+    float score=cosineSimilarity(tarVec,curVec);
+    for (int j=0; j < cnt; j++) {
+      if (score > scores[j] && score < 0.999999) {
+        for (int k=cnt - 1; k > j; k--) {
+          scores[k]=scores[k - 1];
+          matches[k]=matches[k - 1];
+        }
+        scores[j]=score;
+        matches[j]=i;
+        break;
+      }
+    }
+  }
+  for (int i=0; i < cnt; i++)   System.out.println(_w2vFrame.vec(0).atStr(new ValueString(),matches[i]) + " " + scores[i]);
+}

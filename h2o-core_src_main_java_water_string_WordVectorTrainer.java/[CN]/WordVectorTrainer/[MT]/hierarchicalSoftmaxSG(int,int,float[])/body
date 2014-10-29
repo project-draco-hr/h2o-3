@@ -1,0 +1,16 @@
+{
+  final int vecSize=_wordVecSize;
+  final float alpha=_curLearningRate;
+  float gradient, f=0;
+  int l2;
+  for (int i=0; i < _HBWTCode[targetWord].length; i++, f=0) {
+    l2=_HBWTPoint[targetWord][i] * vecSize;
+    for (int j=0; j < vecSize; j++)     f+=_syn0[j + l1] * _syn1[j + l2];
+    if (f <= -MAX_EXP)     continue;
+ else     if (f >= MAX_EXP)     continue;
+ else     f=_expTable[(int)((f + MAX_EXP) * (EXP_TABLE_SIZE / MAX_EXP / 2))];
+    gradient=(1 - _HBWTCode[targetWord][i] - f) * alpha;
+    for (int j=0; j < vecSize; j++)     neu1e[j]+=gradient * _syn1[j + l2];
+    for (int j=0; j < vecSize; j++)     _syn1[j + l2]+=gradient * _syn0[j + l1];
+  }
+}

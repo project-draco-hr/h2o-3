@@ -1,0 +1,22 @@
+{
+  final int vecSize=_wordVecSize, negExCnt=_negExCnt;
+  float gradient, f=0;
+  int targetWord, label, l2;
+  label=1;
+  targetWord=curWord;
+  l2=targetWord * vecSize;
+  for (int i=0; i < vecSize; i++)   f+=_syn0[i + l1] * _syn1[i + l2];
+  gradient=getGradientNS(f,label);
+  for (int i=0; i < vecSize; i++)   neu1e[i]+=gradient * _syn1[i + l2];
+  for (int i=0; i < vecSize; i++)   _syn1[i + l2]+=gradient * _syn0[i + l1];
+  label=0;
+  for (int i=1; i < negExCnt + 1; i++, f=0) {
+    targetWord=_unigramTable[_rand.nextInt(Word2VecParameters.UNIGRAM_TABLE_SIZE)];
+    if (targetWord == curWord)     continue;
+    l2=targetWord * vecSize;
+    for (int j=0; j < vecSize; j++)     f+=_syn0[j + l1] * _syn1[j + l2];
+    gradient=getGradientNS(f,label);
+    for (int j=0; j < vecSize; j++)     neu1e[j]+=gradient * _syn1[j + l2];
+    for (int j=0; j < vecSize; j++)     _syn1[j + l2]+=gradient * _syn0[j + l1];
+  }
+}
