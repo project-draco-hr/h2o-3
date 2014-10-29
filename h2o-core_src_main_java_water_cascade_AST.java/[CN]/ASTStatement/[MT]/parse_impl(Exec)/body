@@ -1,10 +1,9 @@
 {
   ArrayList<AST> ast_ary=new ArrayList<AST>();
-  String[] asts=E.skipWS().peek() == '{' ? E.xpeek('{').parseString('}').split(";") : null;
-  if (asts == null)   return null;
-  for (int i=0; i < asts.length; ++i) {
-    AST ast=E.parseAST(asts[i],E._env);
+  while (E.hasNextStmnt()) {
+    AST ast=E.parse();
     ast_ary.add(ast);
+    E.skipEOS();
   }
   ASTStatement res=(ASTStatement)clone();
   res._asts=ast_ary.toArray(new AST[ast_ary.size()]);
