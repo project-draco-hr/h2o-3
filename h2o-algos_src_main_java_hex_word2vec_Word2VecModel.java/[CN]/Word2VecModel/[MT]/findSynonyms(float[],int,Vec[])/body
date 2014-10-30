@@ -3,9 +3,10 @@
   int[] matches=new int[cnt];
   float[] scores=new float[cnt];
   float[] curVec=new float[vecSize];
+  HashMap<String,Float> res=new HashMap<>();
   if (tarVec.length != vs.length - 1) {
     Log.warn("Target vector length differs from the vocab's vector length.");
-    return;
+    return null;
   }
   for (int i=0; i < vocabSize; i++) {
     for (int j=0; j < vecSize; j++)     curVec[j]=(float)vs[j + 1].at(i);
@@ -22,5 +23,8 @@
       }
     }
   }
-  for (int i=0; i < cnt; i++)   System.out.println(vs[0].atStr(new ValueString(),matches[i]) + " " + scores[i]);
+  for (int i=0; i < cnt; i++) {
+    res.put(vs[0].atStr(new ValueString(),matches[i]).toString(),scores[i]);
+  }
+  return res;
 }

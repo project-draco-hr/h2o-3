@@ -1,10 +1,12 @@
 {
+  HashMap<String,Float> hm=new HashMap<>();
   if (cnt > 0) {
     NonBlockingHashMap<ValueString,Integer> vocabHM=buildVocabHashMap();
     Vec[] vs=((Frame)_w2vKey.get()).vecs();
     ValueString tmp=new ValueString(target);
     float[] tarVec=transform(tmp,vocabHM,vs);
-    findSynonyms(tarVec,cnt,vs);
+    hm=findSynonyms(tarVec,cnt,vs);
   }
  else   Log.err("Synonym count must be greater than 0.");
+  return hm;
 }
