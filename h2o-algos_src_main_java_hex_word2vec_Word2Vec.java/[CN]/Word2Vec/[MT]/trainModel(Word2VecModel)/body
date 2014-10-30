@@ -5,7 +5,6 @@
     if (model == null) {
       model=DKV.get(dest()).get();
     }
-    model.write_lock(self());
     Log.info("Starting to train the Word2Vec model.");
     for (int i=0; i < _parms._epochs; i++) {
       start=System.currentTimeMillis();
@@ -19,6 +18,7 @@
     model.buildModelOutput();
   }
  catch (  RuntimeException ex) {
+    model=DKV.get(dest()).get();
     _state=JobState.CANCELLED;
     Log.info("Word2Vec model building was cancelled.");
     throw ex;
