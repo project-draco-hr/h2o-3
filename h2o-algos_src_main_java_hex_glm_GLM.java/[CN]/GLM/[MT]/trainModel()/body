@@ -1,0 +1,26 @@
+{
+  _parms.lock_frames(this);
+  DataInfo dinfo=new DataInfo(Key.make(),_train,_valid,1,_parms.useAllFactorLvls || _parms.lambda_search,_parms._standardize ? DataInfo.TransformType.STANDARDIZE : DataInfo.TransformType.NONE,DataInfo.TransformType.NONE);
+  DKV.put(dinfo._key,dinfo);
+  H2OCountedCompleter cmp=new H2OCountedCompleter(){
+    AtomicBoolean _gotException=new AtomicBoolean(false);
+    @Override public void compute2(){
+    }
+    @Override public void onCompletion(    CountedCompleter cc){
+      _parms.unlock_frames(GLM.this);
+      done();
+    }
+    @Override public boolean onExceptionalCompletion(    Throwable ex,    CountedCompleter cc){
+      if (!_gotException.getAndSet(true)) {
+        cancel2(ex);
+        _parms.unlock_frames(GLM.this);
+        return true;
+      }
+      return false;
+    }
+  }
+;
+  start(cmp,100);
+  H2O.submitTask(new GLMDriver(cmp,_parms,_key,_progressKey,_dest,dinfo));
+  return this;
+}

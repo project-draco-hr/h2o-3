@@ -1,0 +1,13 @@
+{
+  super.init();
+  if (_nclass > SharedTreeModel.SharedTreeParameters.MAX_SUPPORTED_LEVELS)   throw new IllegalArgumentException("Too many levels in response column!");
+  if (_parms._requested_ntrees < 0 || _parms._requested_ntrees > 100000)   error("requested_ntrees","Requested ntrees must be between 1 and 100000");
+  _ntrees=_parms._requested_ntrees;
+  if (_parms._checkpoint != null) {
+    if (DKV.get(_parms._checkpoint) == null)     error("_checkpoint","Checkpoint " + _parms._checkpoint.toString() + " does not exists!");
+ else {
+      M checkpointModel=DKV.get(_parms._checkpoint).get();
+      _ntrees=_parms._requested_ntrees + checkpointModel._output._ntrees;
+    }
+  }
+}

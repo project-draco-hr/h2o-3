@@ -1,4 +1,5 @@
 {
+  GLM job=null;
   Key parsed=Key.make("prostate_parsed");
   Key modelKey=Key.make("prostate_model");
   GLMModel model=null;
@@ -8,11 +9,13 @@
     String[] cfs1=new String[]{"Intercept","AGE","RACE.R2","RACE.R3","DPROS","DCAPS","PSA","VOL","GLEASON"};
     double[] vals=new double[]{-8.14867,-0.01368,0.32337,-0.38028,0.55964,0.49548,0.02794,-0.01104,0.97704};
     GLMParameters params=new GLMParameters(Family.binomial);
-    params._response=fr.find("CAPSULE");
-    params._ignored_cols=new int[]{fr.find("ID")};
+    params._response_column="CAPSULE";
+    params._response=fr.find(params._response_column);
+    params._ignored_columns=new String[]{"ID"};
     params._train=parsed;
     params.lambda=new double[]{0};
-    new GLM(jobKey,modelKey,"glm test simple poisson",params).train().get();
+    job=new GLM(modelKey,"glm test simple poisson",params);
+    job.trainModel().get();
     model=DKV.get(modelKey).get();
     HashMap<String,Double> coefs=model.coefficients();
     for (int i=0; i < cfs1.length; ++i)     assertEquals(vals[i],coefs.get(cfs1[i]),1e-4);
@@ -37,6 +40,6 @@
     fr.delete();
     if (model != null)     model.delete();
     if (score != null)     score.delete();
-    DKV.remove(jobKey);
+    if (job != null)     job.remove();
   }
 }

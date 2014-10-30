@@ -1,4 +1,5 @@
 {
+  GLM job=null;
   Key parsed=Key.make("glm_parsed");
   Key modelKey=Key.make("glm_model");
   GLMModel model=null;
@@ -6,11 +7,13 @@
   Frame score=null;
   try {
     GLMParameters params=new GLMParameters(Family.binomial);
-    params._response=fr.find("response");
-    params._ignored_cols=new int[]{fr.find("ID")};
+    params._response_column="response";
+    params._response=fr.find(params._response_column);
+    params._ignored_columns=new String[]{"ID"};
     params._train=parsed;
     params.lambda=new double[]{0};
-    new GLM(jobKey,modelKey,"glm test simple poisson",params).train().get();
+    job=new GLM(modelKey,"glm test simple poisson",params);
+    job.trainModel().get();
     model=DKV.get(modelKey).get();
     assertEquals(model.validation().auc(),1,1e-4);
     double[] beta=model.beta();
@@ -31,6 +34,6 @@
     fr.remove();
     if (model != null)     model.delete();
     if (score != null)     score.delete();
-    DKV.remove(jobKey);
+    if (job != null)     job.remove();
   }
 }
