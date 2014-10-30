@@ -1,14 +1,28 @@
 {
-  final int vecSize=_parms._vecSize, vocabSize=_modelInfo._vocabSize;
-  Vec words=((Frame)_parms._vocabKey.get()).vec(0);
-  _output._vocabSize=vocabSize;
-  _output._vecSize=vecSize;
-  _output._word=new String[vocabSize];
-  _output._vecs=new float[vocabSize][];
-  for (int i=0; i < vocabSize; i++) {
-    _output._word[i]=words.atStr(new ValueString(),i).toString();
-    _output._vecs[i]=new float[vecSize];
-    for (int j=0; j < vecSize; j++)     _output._vecs[i][j]=_modelInfo._syn0[i * vecSize + j];
+  final int vecSize=_parms._vecSize;
+  Futures fs=new Futures();
+  String[] colNames=new String[vecSize];
+  Vec[] vecs=new Vec[vecSize];
+  Key keys[]=Vec.VectorGroup.VG_LEN1.addVecs(vecs.length);
+  NewChunk cs[]=new NewChunk[vecs.length];
+  AppendableVec avs[]=new AppendableVec[vecs.length];
+  for (int i=0; i < vecs.length; i++) {
+    avs[i]=new AppendableVec(keys[i]);
+    cs[i]=new NewChunk(avs[i],0);
   }
-  _output.buildVocabHashMap();
+  for (int i=0; i < _modelInfo._vocabSize; i++) {
+    for (int j=0; j < vecSize; j++) {
+      cs[j].addNum(_modelInfo._syn0[i * vecSize + j]);
+    }
+  }
+  for (int i=0; i < vecs.length; i++) {
+    colNames[i]=new String("V" + i);
+    cs[i].close(0,fs);
+    vecs[i]=avs[i].close(fs);
+  }
+  fs.blockForPending();
+  _w2vFrame=new Frame(_w2vKey=Key.make("w2v"));
+  _w2vFrame.add("Word",((Frame)_parms._vocabKey.get()).vec(0));
+  _w2vFrame.add(colNames,vecs);
+  DKV.put(_w2vKey,_w2vFrame);
 }
