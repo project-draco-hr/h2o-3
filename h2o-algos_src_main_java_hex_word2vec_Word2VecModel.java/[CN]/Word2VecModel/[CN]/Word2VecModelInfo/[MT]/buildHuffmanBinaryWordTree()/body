@@ -1,0 +1,69 @@
+{
+  int min1i, min2i, pos1, pos2;
+  int[] point=new int[MAX_CODE_LENGTH];
+  int[] code=new int[MAX_CODE_LENGTH];
+  long[] count=new long[_vocabSize * 2 - 1];
+  int[] binary=new int[_vocabSize * 2 - 1];
+  int[] parent_node=new int[_vocabSize * 2 - 1];
+  Vec wCount=((Frame)_parameters._vocabKey.get()).vec(1);
+  _HBWTCode=new int[_vocabSize][];
+  _HBWTPoint=new int[_vocabSize][];
+  assert(_vocabSize == wCount.length());
+  for (int i=0; i < _vocabSize; i++)   count[i]=wCount.at8(i);
+  for (int i=_vocabSize; i < _vocabSize * 2 - 1; i++)   count[i]=(long)1e15;
+  pos1=_vocabSize - 1;
+  pos2=_vocabSize;
+  for (int i=0; i < _vocabSize - 1; i++) {
+    if (pos1 >= 0) {
+      if (count[pos1] < count[pos2]) {
+        min1i=pos1;
+        pos1--;
+      }
+ else {
+        min1i=pos2;
+        pos2++;
+      }
+    }
+ else {
+      min1i=pos2;
+      pos2++;
+    }
+    if (pos1 >= 0) {
+      if (count[pos1] < count[pos2]) {
+        min2i=pos1;
+        pos1--;
+      }
+ else {
+        min2i=pos2;
+        pos2++;
+      }
+    }
+ else {
+      min2i=pos2;
+      pos2++;
+    }
+    count[_vocabSize + i]=count[min1i] + count[min2i];
+    parent_node[min1i]=_vocabSize + i;
+    parent_node[min2i]=_vocabSize + i;
+    binary[min2i]=1;
+  }
+  for (int j=0; j < _vocabSize; j++) {
+    int k=j;
+    int m=0;
+    while (true) {
+      int val=binary[k];
+      code[m]=val;
+      point[m]=k;
+      m++;
+      k=parent_node[k];
+      if (k == 0)       break;
+    }
+    _HBWTCode[j]=new int[m];
+    _HBWTPoint[j]=new int[m + 1];
+    _HBWTPoint[j][0]=_vocabSize - 2;
+    for (int l=0; l < m; l++) {
+      _HBWTCode[j][m - l - 1]=code[l];
+      _HBWTPoint[j][m - l]=point[l] - _vocabSize;
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  super(null);
+  _input=input;
+  _wordModel=input.getParams()._wordModel;
+  _normModel=input.getParams()._normModel;
+  _vocab=input.getParams()._vocabKey.get();
+  _vocabSize=(int)_vocab.numRows();
+  _wordVecSize=input.getParams()._vecSize;
+  _windowSize=input.getParams()._windowSize;
+  _syn0=input._syn0;
+  _syn1=input._syn1;
+  _initLearningRate=input.getParams()._initLearningRate;
+  _sentSampleRate=input.getParams()._sentSampleRate;
+  _epochs=input.getParams()._epochs;
+  assert(_output == null);
+  assert(_vocab.numRows() > 0);
+  if (input.getParams()._normModel == NormModel.NegSampling) {
+    _negExCnt=input.getParams()._numNegEx;
+    _unigramTable=input._uniTable;
+    _HBWTCode=null;
+    _HBWTPoint=null;
+  }
+ else {
+    _negExCnt=0;
+    _unigramTable=null;
+    _HBWTCode=input._HBWTCode;
+    _HBWTPoint=input._HBWTPoint;
+  }
+}

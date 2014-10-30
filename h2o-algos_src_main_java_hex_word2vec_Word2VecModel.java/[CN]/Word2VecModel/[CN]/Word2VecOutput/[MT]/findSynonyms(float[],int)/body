@@ -1,0 +1,26 @@
+{
+  if (cnt > 0) {
+    int[] matches=new int[cnt];
+    float[] scores=new float[cnt];
+    if (tarVec.length != _vecSize) {
+      Log.warn("Target vector length differs from the vocab's vector length.");
+      return;
+    }
+    for (int i=0; i < _vocabSize; i++) {
+      float score=cosineSimilarity(tarVec,_vecs[i]);
+      for (int j=0; j < cnt; j++) {
+        if (score > scores[j] && score < 0.999999) {
+          for (int k=cnt - 1; k > j; k--) {
+            scores[k]=scores[k - 1];
+            matches[k]=matches[k - 1];
+          }
+          scores[j]=score;
+          matches[j]=i;
+          break;
+        }
+      }
+    }
+    for (int i=0; i < cnt; i++)     System.out.println(_word[matches[i]] + " " + scores[i]);
+  }
+ else   Log.err("Synonym count must be greater than 0.");
+}

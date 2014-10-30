@@ -1,0 +1,28 @@
+{
+  Word2Vec job=null;
+  Word2VecModel w2vm=null;
+  Word2VecModel.Word2VecOutput w2vmo=null;
+  Frame fr=null;
+  try {
+    fr=parse_test_file("smalldata/text/text8");
+    Word2VecModel.Word2VecParameters parms=new Word2VecModel.Word2VecParameters();
+    parms._train=fr._key;
+    parms._wordModel=Word2Vec.WordModel.CBOW;
+    parms._normModel=Word2Vec.NormModel.HSM;
+    parms._vecSize=25;
+    parms._windowSize=4;
+    parms._sentSampleRate=0.001f;
+    parms._initLearningRate=0.025f;
+    parms._epochs=2;
+    job=new Word2Vec(parms);
+    job.train();
+    w2vm=job.get();
+    w2vmo=w2vm._output;
+    w2vmo.findSynonyms("cat",5);
+  }
+  finally {
+    if (fr != null)     fr.remove();
+    if (job != null)     job.remove();
+    if (w2vm != null)     w2vm.delete();
+  }
+}

@@ -1,0 +1,14 @@
+{
+  final int vecSize=_parms._vecSize, vocabSize=_modelInfo._vocabSize;
+  Vec words=((Frame)_parms._vocabKey.get()).vec(0);
+  _output._vocabSize=vocabSize;
+  _output._vecSize=vecSize;
+  _output._word=new String[vocabSize];
+  _output._vecs=new float[vocabSize][];
+  for (int i=0; i < vocabSize; i++) {
+    _output._word[i]=words.atStr(new ValueString(),i).toString();
+    _output._vecs[i]=new float[vecSize];
+    for (int j=0; j < vecSize; j++)     _output._vecs[i][j]=_modelInfo._syn0[i * vecSize + j];
+  }
+  _output.buildVocabHashMap();
+}
