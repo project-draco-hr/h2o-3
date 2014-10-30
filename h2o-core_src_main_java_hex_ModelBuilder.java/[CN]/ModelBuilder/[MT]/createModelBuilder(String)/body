@@ -11,7 +11,10 @@
     Model.Parameters p=pclz.newInstance();
     modelBuilder=constructor.newInstance(p);
   }
- catch (  Exception e) {
+ catch (  java.lang.reflect.InvocationTargetException e) {
+    throw H2O.fail("Exception when trying to instantiate ModelBuilder for: " + algo + ": "+ e.getCause());
+  }
+catch (  Exception e) {
     throw H2O.fail("Exception when trying to instantiate ModelBuilder for: " + algo + ": "+ e);
   }
   return modelBuilder;
