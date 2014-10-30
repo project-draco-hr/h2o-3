@@ -64,6 +64,8 @@
                                 int limit=(int)(frame.numRows() * holdout_ratio);
                                 _train=frame(names,water.util.ArrayUtils.subarray(rows,0,limit));
                                 _test=frame(names,water.util.ArrayUtils.subarray(rows,limit,(int)frame.numRows() - limit));
+                                Vec ve=_train.lastVec().toEnum();
+                                _train.replace(_train.numCols() - 1,ve);
                                 DeepLearningParameters p=new DeepLearningParameters();
                                 p._train=_train._key;
                                 p._response_column=_train.lastVecName();
@@ -71,7 +73,7 @@
                                 p._ignored_columns=null;
                                 dl=new DeepLearning(p);
                               }
- while (dl._response.domain().length < 3);
+ while (dl._nclass < 3);
                               DeepLearningMLPReference ref=new DeepLearningMLPReference();
                               ref.init(activation,RandomUtils.getDeterRNG(seed),holdout_ratio,hidden);
                               DeepLearningParameters p=new DeepLearningParameters();
