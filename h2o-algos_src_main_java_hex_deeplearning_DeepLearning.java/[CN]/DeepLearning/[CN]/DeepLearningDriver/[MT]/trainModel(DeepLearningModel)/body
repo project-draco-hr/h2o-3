@@ -14,14 +14,14 @@
     final long model_size=model.model_info().size();
     if (!_parms._quiet_mode)     Log.info("Number of model parameters (weights/biases): " + String.format("%,d",model_size));
     train=model.model_info().data_info()._adaptedFrame;
-    if (mp.force_load_balance)     train=reBalance(train,mp.replicate_training_data);
-    if (model._output.isClassifier() && mp.balance_classes) {
+    if (mp._force_load_balance)     train=reBalance(train,mp._replicate_training_data);
+    if (model._output.isClassifier() && mp._balance_classes) {
       float[] trainSamplingFactors=new float[train.lastVec().domain().length];
       if (mp._class_sampling_factors != null) {
         if (mp._class_sampling_factors.length != train.lastVec().domain().length)         throw new IllegalArgumentException("class_sampling_factors must have " + train.lastVec().domain().length + " elements");
         trainSamplingFactors=mp._class_sampling_factors.clone();
       }
-      train=sampleFrameStratified(train,train.lastVec(),trainSamplingFactors,(long)(mp.max_after_balance_size * train.numRows()),mp.seed,true,false);
+      train=sampleFrameStratified(train,train.lastVec(),trainSamplingFactors,(long)(mp._max_after_balance_size * train.numRows()),mp._seed,true,false);
       model._output._modelClassDist=new MRUtils.ClassDist(train.lastVec()).doAll(train.lastVec()).rel_dist();
     }
     model.training_rows=train.numRows();
@@ -38,7 +38,7 @@
         final String responseName=tra_fr._names != null && rIndex >= 0 ? tra_fr._names[rIndex] : "response_vec";
         adaptedValid.add(validAdapter.getValidAdaptor().adaptedValidationResponse(responseName),validAdapter.getValidAdaptor().getAdaptedValidationResponse2CM());
       }
-      if (model._output.isClassifier() && mp.balance_classes && mp.score_validation_sampling == DeepLearningModel.DeepLearningParameters.ClassSamplingMethod.Stratified) {
+      if (model._output.isClassifier() && mp._balance_classes && mp._score_validation_sampling == DeepLearningModel.DeepLearningParameters.ClassSamplingMethod.Stratified) {
         validScoreFrame=sampleFrameStratified(adaptedValid,adaptedValid.lastVec(),null,mp._score_validation_samples > 0 ? mp._score_validation_samples : adaptedValid.numRows(),mp._seed + 1,false,false);
       }
  else {
