@@ -29,8 +29,6 @@
                           for (                          boolean col_major : new boolean[]{false}) {
                             Scope.enter();
                             DeepLearningModel mymodel=null;
-                            Frame fr=null;
-                            DeepLearningParameters p;
                             Frame trainPredict=null;
                             Frame testPredict=null;
                             try {
@@ -45,12 +43,11 @@
                               Log.info("Using seed " + seed);
                               Random rand;
                               int trial=0;
-                              FrameTask.DataInfo dinfo;
+                              DeepLearning dl;
                               do {
                                 Log.info("Trial #" + ++trial);
                                 if (_train != null)                                 _train.delete();
                                 if (_test != null)                                 _test.delete();
-                                if (fr != null)                                 fr.delete();
                                 rand=RandomUtils.getDeterRNG(seed);
                                 double[][] rows=new double[(int)frame.numRows()][frame.numCols()];
                                 String[] names=new String[frame.numCols()];
@@ -67,60 +64,58 @@
                                 int limit=(int)(frame.numRows() * holdout_ratio);
                                 _train=frame(names,water.util.ArrayUtils.subarray(rows,0,limit));
                                 _test=frame(names,water.util.ArrayUtils.subarray(rows,limit,(int)frame.numRows() - limit));
-                                String resp_name=_train.lastVecName();
-                                _train.add(resp_name,_train.remove(resp_name).toEnum());
-                                _test.add(resp_name,_test.remove(resp_name).toEnum());
-                                DKV.put(_train._key,_train);
-                                DKV.put(_test._key,_test);
-                                p=new DeepLearningParameters();
+                                DeepLearningParameters p=new DeepLearningParameters();
                                 p._train=_train._key;
-                                p._response_column=resp_name;
+                                p._response_column=_train.lastVecName();
+                                p._toEnum=true;
                                 p._ignored_columns=null;
-                                p._ignore_const_cols=true;
-                                fr=FrameTask.DataInfo.prepareFrame(_train,_train.vec(p._response_column),_train.find(p._ignored_columns),true,p._ignore_const_cols);
-                                dinfo=new FrameTask.DataInfo(Key.make(),fr,1,false,FrameTask.DataInfo.TransformType.STANDARDIZE);
+                                dl=new DeepLearning(p);
                               }
- while (dinfo._adaptedFrame.lastVec().domain().length < 3);
+ while (dl._response.domain().length < 3);
                               DeepLearningMLPReference ref=new DeepLearningMLPReference();
                               ref.init(activation,RandomUtils.getDeterRNG(seed),holdout_ratio,hidden);
-                              p._seed=seed;
-                              p._hidden=new int[]{hidden};
-                              p._adaptive_rate=false;
-                              p._rho=0;
-                              p._epsilon=0;
-                              p._rate=rate / (1 - momentum);
-                              p._activation=activation;
-                              p._max_w2=Float.POSITIVE_INFINITY;
-                              p._input_dropout_ratio=0;
-                              p._rate_annealing=0;
-                              p._l1=0;
-                              p._loss=loss;
-                              p._l2=0;
-                              p._momentum_stable=momentum;
-                              p._momentum_start=p._momentum_stable;
-                              p._momentum_ramp=0;
-                              p._initial_weight_distribution=dist;
-                              p._initial_weight_scale=scale;
-                              p._classification=true;
-                              p._diagnostics=true;
+                              DeepLearningParameters p=new DeepLearningParameters();
+                              p._train=_train._key;
+                              p._response_column=_train.lastVecName();
+                              p._toEnum=true;
+                              p._ignored_columns=null;
+                              p.seed=seed;
+                              p.hidden=new int[]{hidden};
+                              p.adaptive_rate=false;
+                              p.rho=0;
+                              p.epsilon=0;
+                              p.rate=rate / (1 - momentum);
+                              p.activation=activation;
+                              p.max_w2=Float.POSITIVE_INFINITY;
+                              p.input_dropout_ratio=0;
+                              p.rate_annealing=0;
+                              p.l1=0;
+                              p.loss=loss;
+                              p.l2=0;
+                              p.momentum_stable=momentum;
+                              p.momentum_start=p.momentum_stable;
+                              p.momentum_ramp=0;
+                              p.initial_weight_distribution=dist;
+                              p.initial_weight_scale=scale;
+                              p.diagnostics=true;
                               p._valid=null;
                               p._quiet_mode=true;
                               p._fast_mode=false;
                               p._nesterov_accelerated_gradient=false;
-                              p._train_samples_per_iteration=0;
-                              p._ignore_const_cols=false;
-                              p._shuffle_training_data=false;
-                              p._classification_stop=-1;
-                              p._force_load_balance=false;
-                              p._override_with_best_model=false;
-                              p._replicate_training_data=false;
-                              p._single_node_mode=true;
-                              p._sparse=sparse;
-                              p._col_major=col_major;
-                              p._epochs=0;
-                              DeepLearning dl=new DeepLearning(p);
+                              p.train_samples_per_iteration=0;
+                              p.ignore_const_cols=false;
+                              p.shuffle_training_data=false;
+                              p.classification_stop=-1;
+                              p.force_load_balance=false;
+                              p.override_with_best_model=false;
+                              p.replicate_training_data=false;
+                              p.single_node_mode=true;
+                              p.sparse=sparse;
+                              p.col_major=col_major;
+                              p.epochs=0;
+                              dl=new DeepLearning(p);
                               try {
-                                mymodel=dl.train().get();
+                                mymodel=dl.trainModel().get();
                               }
   finally {
                                 dl.remove();
@@ -146,12 +141,12 @@
                               mymodel.delete();
                               dl=new DeepLearning(p);
                               try {
-                                mymodel=dl.train().get();
+                                mymodel=dl.trainModel().get();
                               }
   finally {
                                 dl.remove();
                               }
-                              Assert.assertTrue(mymodel.model_info().get_processed_total() == epoch * fr.numRows());
+                              Assert.assertTrue(mymodel.model_info().get_processed_total() == epoch * dl.train().numRows());
                               final double abseps=1e-4;
                               final double releps=1e-4;
                               neurons=DeepLearningTask.makeNeuronsForTesting(mymodel.model_info());
@@ -232,7 +227,6 @@
                               }
                               if (_train != null)                               _train.delete();
                               if (_test != null)                               _test.delete();
-                              if (fr != null)                               fr.delete();
                               if (trainPredict != null)                               trainPredict.delete();
                               if (testPredict != null)                               testPredict.delete();
                               Scope.exit();

@@ -1,0 +1,16 @@
+{
+  super(b);
+  if (b == null)   return;
+  _names=b._train.names();
+  _domains=b._train.domains();
+  if (b.isClassifier()) {
+    MRUtils.ClassDist cdmt=new MRUtils.ClassDist(b._nclass).doAll(b._response);
+    _distribution=cdmt.dist();
+    _priorClassDist=cdmt.rel_dist();
+  }
+ else {
+    _distribution=new long[]{b._train.numRows()};
+    _priorClassDist=new float[]{1.0f};
+  }
+  _modelClassDist=_priorClassDist;
+}

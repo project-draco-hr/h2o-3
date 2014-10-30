@@ -1,4 +1,5 @@
 {
+  GLM job=null;
   Key raw=Key.make("gaussian_test_data_raw");
   Key parsed=Key.make("gaussian_test_data_parsed");
   Key modelKey=Key.make("gaussian_test");
@@ -10,8 +11,10 @@
     GLMParameters params=new GLMParameters(Family.gaussian);
     params._train=fr._key;
     params._response=1;
+    params._response_column=fr._names[params._response];
     params.lambda=new double[]{0};
-    new GLM(jobKey,modelKey,"glm test simple gaussian",params).train().get();
+    job=new GLM(modelKey,"glm test simple gaussian",params);
+    job.trainModel().get();
     model=DKV.get(modelKey).get();
     HashMap<String,Double> coefs=model.coefficients();
     assertEquals(0.0,coefs.get("Intercept"),1e-4);
@@ -20,6 +23,6 @@
   finally {
     if (fr != null)     fr.remove();
     if (model != null)     model.remove();
-    DKV.remove(jobKey);
+    if (job != null)     job.remove();
   }
 }
