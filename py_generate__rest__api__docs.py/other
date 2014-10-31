@@ -2,7 +2,6 @@ import sys, pprint, argparse, string, errno
 sys.path.extend(['.', 'py'])
 import h2o, h2o_util
 import os
-from grip import export
 here = os.path.dirname(os.path.realpath(__file__))
 parser = argparse.ArgumentParser(description='Attach to an H2O instance and call its REST API to generate the REST API docs and write them to the filesystem.')
 parser.add_argument('--verbose', '-v', help='verbose output', action='store_true')
@@ -54,4 +53,5 @@ for num in range(len(endpoints)):
     with open(save_full_md, 'w') as the_file:
         the_file.write(markdown)
     if args.generate_html:
+        from grip import export
         export(path=save_full_md, gfm=True, out_filename=save_full_html, username=args.github_user, password=args.github_password)
