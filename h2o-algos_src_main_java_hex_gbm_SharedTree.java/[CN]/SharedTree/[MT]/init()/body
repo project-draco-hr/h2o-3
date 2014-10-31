@@ -1,7 +1,7 @@
 {
   super.init();
   if (_nclass > SharedTreeModel.SharedTreeParameters.MAX_SUPPORTED_LEVELS)   throw new IllegalArgumentException("Too many levels in response column!");
-  if (_parms._requested_ntrees < 0 || _parms._requested_ntrees > 100000)   error("requested_ntrees","Requested ntrees must be between 1 and 100000");
+  if (_parms._requested_ntrees < 0 || _parms._requested_ntrees > 100000)   error("_requested_ntrees","Requested ntrees must be between 1 and 100000");
   _ntrees=_parms._requested_ntrees;
   if (_parms._checkpoint) {
     Value cv=DKV.get(_parms._destination_key);
@@ -10,6 +10,6 @@
       _ntrees=_parms._requested_ntrees + checkpointModel._output._ntrees;
     }
   }
-  _ncols=_train.numCols() - 1;
+  if (null != _train)   _ncols=_train.numCols() - 1;
   _initialPrediction=_nclass == 1 ? _response.mean() : 0;
 }
