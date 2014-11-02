@@ -5,7 +5,6 @@
   float[] neu1=new float[vecSize];
   float[] neu1e=new float[vecSize];
   int[] sentence=new int[MAX_SENTENCE_LEN];
-  _curLearningRate=_output._curLearningRate;
   for (int i=0; i < cs.length; i++)   if (cs[i] instanceof CStrChunk) {
     while ((sentLen=getSentence(sentence,cs[0])) > 0) {
       for (int sentIdx=0; sentIdx < sentLen; sentIdx++) {
@@ -21,8 +20,7 @@
         for (int winIdx=winSizeMod; winIdx < winSize * 2 + 1 - winSizeMod; winIdx++) {
           if (winIdx != winSize) {
             winWordSentIdx=sentIdx - winSize + winIdx;
-            if (winWordSentIdx < 0)             continue;
-            if (winWordSentIdx >= sentLen)             continue;
+            if (winWordSentIdx < 0 || winWordSentIdx >= sentLen)             continue;
             winWord=sentence[winWordSentIdx];
             if (_wordModel == WordModel.SkipGram)             skipGram(curWord,winWord,neu1e);
  else {
@@ -31,7 +29,7 @@
             }
           }
         }
-        if (_wordModel == WordModel.CBOW && bagSize > 0)         CBOW(curWord,sentence,sentIdx,sentLen,winSizeMod,bagSize,l1,neu1,neu1e);
+        if (_wordModel == WordModel.CBOW && bagSize > 0)         CBOW(curWord,sentence,sentIdx,sentLen,winSizeMod,bagSize,neu1,neu1e);
       }
     }
   }
