@@ -1,5 +1,5 @@
 {
-  String name=((ASTString)E.parse())._s;
+  String name=E.parseID();
   _name=name;
   Env.SymbolTable table=E._env.newTable();
   String[] args=E.skipWS().peek() == '{' ? E.xpeek('{').parseString('}').split(";") : null;
@@ -7,8 +7,8 @@
   if (args == null)   table.put(null,Env.NULL,null);
  else   for (  String arg : args)   table.put(arg,Env.NULL,null);
   _table=table;
-  _body=new ASTStatement().parse_impl(E);
-  ASTFunc res=(ASTFunc)clone();
+  _body=new ASTStatement().parse_impl(E.skipWS());
+  ASTFuncDef res=(ASTFuncDef)clone();
   res._asts=null;
   putUDF(res,name);
 }
