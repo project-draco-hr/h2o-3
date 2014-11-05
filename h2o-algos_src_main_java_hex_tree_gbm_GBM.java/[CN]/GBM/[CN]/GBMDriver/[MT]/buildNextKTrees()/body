@@ -1,3 +1,20 @@
 {
+  final DTree[] ktrees=new DTree[_nclass];
+  DHistogram hcs[][][]=new DHistogram[_nclass][1][_ncols];
+  final int top_level_extra_bins=1 << 10;
+  int nbins=Math.max(top_level_extra_bins,_parms._nbins);
+  for (int k=0; k < _nclass; k++) {
+    if (_model._output._distribution[k] != 0) {
+      if (k == 1 && _nclass == 2)       continue;
+      ktrees[k]=new DTree(_train._names,_ncols,(char)_parms._nbins,(char)_nclass,_parms._min_rows);
+      new GBMUndecidedNode(ktrees[k],-1,DHistogram.initialHist(_train,_ncols,nbins,hcs[k][0],false,false));
+    }
+  }
+  int[] leafs=new int[_nclass];
+  int depth=0;
+  for (; depth < _parms._max_depth; depth++) {
+    if (!isRunning())     return;
+    throw H2O.unimpl();
+  }
   throw H2O.unimpl();
 }
