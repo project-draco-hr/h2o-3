@@ -1,0 +1,12 @@
+{
+  try {
+    Process p=new ProcessBuilder("git","describe","--always","--dirty").start();
+    p.waitFor();
+    BufferedReader br=new BufferedReader(new InputStreamReader(p.getInputStream()));
+    String line=br.readLine();
+    return line;
+  }
+ catch (  Exception e) {
+    return "(unknown)";
+  }
+}
