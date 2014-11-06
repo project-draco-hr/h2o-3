@@ -1,0 +1,21 @@
+{
+  H2OCountedCompleter sb1ts[]=new H2OCountedCompleter[_nclass];
+  Vec vecs[]=fr.vecs();
+  for (int k=0; k < _nclass; k++) {
+    final DTree tree=ktrees[k];
+    if (tree == null)     continue;
+    Frame fr2=new Frame(Arrays.copyOf(fr._names,_ncols + 1),Arrays.copyOf(vecs,_ncols + 1));
+    fr2.add(fr._names[_ncols + 1 + k],vecs[_ncols + 1 + k]);
+    fr2.add(fr._names[_ncols + 1 + _nclass+ k],vecs[_ncols + 1 + _nclass+ k]);
+    fr2.add(fr._names[_ncols + 1 + _nclass+ _nclass+ k],vecs[_ncols + 1 + _nclass+ _nclass+ k]);
+    H2O.submitTask(sb1ts[k]=new ScoreBuildOneTree(k,nbins,tree,leafs,hcs,fr2,subset,build_tree_one_node));
+  }
+  boolean did_split=false;
+  for (int k=0; k < _nclass; k++) {
+    final DTree tree=ktrees[k];
+    if (tree == null)     continue;
+    sb1ts[k].join();
+    if (((ScoreBuildOneTree)sb1ts[k])._did_split)     did_split=true;
+  }
+  return did_split ? hcs : null;
+}
