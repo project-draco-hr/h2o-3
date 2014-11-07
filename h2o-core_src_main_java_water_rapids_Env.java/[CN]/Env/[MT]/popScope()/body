@@ -1,6 +1,10 @@
 {
   _local.clear();
   Futures fs=new Futures();
+  for (  String k : _local._local_frames.keySet()) {
+    Frame f=_local._local_frames.remove(k);
+    for (    Vec v : f.vecs())     removeVec(v,fs);
+  }
   for (  Vec v : _refcnt.keySet()) {
     if (!_locked.contains(v._key))     fs=removeVec(v,fs);
     extinguishCounts(v);
