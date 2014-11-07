@@ -1,0 +1,53 @@
+{
+  CoxPHModel.CoxPHParameters p=model._parms;
+  CoxPHModel.CoxPHOutput o=model._output;
+  final int n_coef=o.coef.length;
+  int nz=0;
+switch (p.ties) {
+case efron:
+    for (int t=0; t < coxMR.sizeEvents.length; ++t) {
+      final double sizeEvents_t=coxMR.sizeEvents[t];
+      final double sizeCensored_t=coxMR.sizeCensored[t];
+      if (sizeEvents_t > 0 || sizeCensored_t > 0) {
+        final long countEvents_t=coxMR.countEvents[t];
+        final double sumRiskEvents_t=coxMR.sumRiskEvents[t];
+        final double rcumsumRisk_t=coxMR.rcumsumRisk[t];
+        final double avgSize=sizeEvents_t / countEvents_t;
+        o.cumhaz_0[nz]=0;
+        o.var_cumhaz_1[nz]=0;
+        for (int j=0; j < n_coef; ++j)         o.var_cumhaz_2[nz][j]=0;
+        for (long e=0; e < countEvents_t; ++e) {
+          final double frac=((double)e) / ((double)countEvents_t);
+          final double haz=1 / (rcumsumRisk_t - frac * sumRiskEvents_t);
+          final double haz_sq=haz * haz;
+          o.cumhaz_0[nz]+=avgSize * haz;
+          o.var_cumhaz_1[nz]+=avgSize * haz_sq;
+          for (int j=0; j < n_coef; ++j)           o.var_cumhaz_2[nz][j]+=avgSize * ((coxMR.rcumsumXRisk[t][j] - frac * coxMR.sumXRiskEvents[t][j]) * haz_sq);
+        }
+        nz++;
+      }
+    }
+  break;
+case breslow:
+for (int t=0; t < coxMR.sizeEvents.length; ++t) {
+  final double sizeEvents_t=coxMR.sizeEvents[t];
+  final double sizeCensored_t=coxMR.sizeCensored[t];
+  if (sizeEvents_t > 0 || sizeCensored_t > 0) {
+    final double rcumsumRisk_t=coxMR.rcumsumRisk[t];
+    final double cumhaz_0_nz=sizeEvents_t / rcumsumRisk_t;
+    o.cumhaz_0[nz]=cumhaz_0_nz;
+    o.var_cumhaz_1[nz]=sizeEvents_t / (rcumsumRisk_t * rcumsumRisk_t);
+    for (int j=0; j < n_coef; ++j)     o.var_cumhaz_2[nz][j]=(coxMR.rcumsumXRisk[t][j] / rcumsumRisk_t) * cumhaz_0_nz;
+    nz++;
+  }
+}
+break;
+default :
+throw new IllegalArgumentException("ties method must be either efron or breslow");
+}
+for (int t=1; t < o.cumhaz_0.length; ++t) {
+o.cumhaz_0[t]=o.cumhaz_0[t - 1] + o.cumhaz_0[t];
+o.var_cumhaz_1[t]=o.var_cumhaz_1[t - 1] + o.var_cumhaz_1[t];
+for (int j=0; j < n_coef; ++j) o.var_cumhaz_2[t][j]=o.var_cumhaz_2[t - 1][j] + o.var_cumhaz_2[t][j];
+}
+}

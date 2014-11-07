@@ -31,6 +31,14 @@
       _normSub[i]=v.mean();
     }
   }
+ else   if ((_predictor_transform=predictor_transform) == TransformType.DEMEAN && _nums > 0) {
+    _normMul=null;
+    _normSub=MemoryManager.malloc8d(_nums);
+    for (int i=0; i < _nums; ++i) {
+      Vec v=fr.vec(catLevels.length + i);
+      _normSub[i]=v.mean();
+    }
+  }
  else {
     _normMul=null;
     _normSub=null;
@@ -50,6 +58,14 @@
     for (int i=0; i < responses; ++i) {
       Vec v=fr.vec(fr.numCols() - responses + i);
       _normRespSub[i]=(v.max() - v.min() > 0) ? 1.0 / (v.max() - v.min()) : 1.0;
+      _normRespSub[i]=v.mean();
+    }
+  }
+ else   if ((_response_transform=response_transform) == TransformType.DEMEAN && responses > 0) {
+    _normRespMul=null;
+    _normRespSub=MemoryManager.malloc8d(responses);
+    for (int i=0; i < responses; ++i) {
+      Vec v=fr.vec(fr.numCols() - responses + i);
       _normRespSub[i]=v.mean();
     }
   }
