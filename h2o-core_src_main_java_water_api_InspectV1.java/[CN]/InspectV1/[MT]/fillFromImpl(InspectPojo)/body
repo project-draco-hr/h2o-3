@@ -1,11 +1,13 @@
 {
-  key=i._val._key;
-  if (i._val.isFrame())   kind="frame";
- else   if (i._val.isModel())   kind="model";
- else   if (i._val.isVec())   kind="vec";
- else   if (i._val.isKey())   kind="key";
- else   kind="unknown";
+  if (null != i._val) {
+    key=i._val._key;
+    if (i._val.isFrame())     kind="frame";
+ else     if (i._val.isModel())     kind="model";
+ else     if (i._val.isVec())     kind="vec";
+ else     if (i._val.isKey())     kind="key";
+ else     kind="unknown";
+  }
   schema=i._schema;
-  schema.fillFromImpl(i._val.get());
+  if (null != schema)   schema.fillFromImpl(null == i._val ? null : i._val.get());
   return this;
 }
