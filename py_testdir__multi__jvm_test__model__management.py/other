@@ -183,6 +183,16 @@ models = a_node.models()
 if h2o.H2O.verbose:
     print 'After Model build: Models: '
     pp.pprint(models)
+found_kmeans = False
+kmeans_model = None
+print 'looking for model: ', kmeans_model_name
+for model in models['models']:
+    print 'Is it: ', model['key'], '?'
+    if (model['key'] == kmeans_model_name):
+        found_kmeans = True
+        kmeans_model = model
+assert found_kmeans, (('Did not find ' + kmeans_model_name) + ' in the models list.')
+validate_actual_parameters(kmeans_parameters, kmeans_model['parameters'], prostate_key, None)
 result = a_node.frames(key=prostate_key, find_compatible_models=True, len=5)
 frames = result['frames']
 frames_dict = h2o_util.list_to_dict(frames, 'key/name')
