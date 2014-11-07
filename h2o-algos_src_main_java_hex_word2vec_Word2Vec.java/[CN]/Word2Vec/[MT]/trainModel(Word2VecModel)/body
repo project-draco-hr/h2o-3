@@ -1,5 +1,6 @@
 {
   long start, stop, lastCnt=0;
+  long tstart, tstop;
   float tDiff;
   try {
     _parms.lock_frames(Word2Vec.this);
@@ -7,6 +8,7 @@
       model=DKV.get(dest()).get();
     }
     Log.info("Starting to train the Word2Vec model.");
+    tstart=System.currentTimeMillis();
     for (int i=0; i < _parms._epochs; i++) {
       start=System.currentTimeMillis();
       model.setModelInfo(new WordVectorTrainer(model.getModelInfo()).doAll(_parms.train()).getModelInfo());
@@ -17,6 +19,8 @@
       Log.info("Epoch " + i + " "+ tDiff+ "s  Words trained/s: "+ (model.getModelInfo().getTotalProcessed() - lastCnt) / tDiff);
       lastCnt=model.getModelInfo().getTotalProcessed();
     }
+    tstop=System.currentTimeMillis();
+    Log.info("Total time :" + ((float)(tstop - tstart)) / 1000f);
     Log.info("Finished training the Word2Vec model.");
     model.buildModelOutput();
   }

@@ -1,5 +1,5 @@
 {
-  final int vecSize=_wordVecSize, negExCnt=_negExCnt;
+  final int vecSize=_wordVecSize, negExCnt=_negExCnt, uTblSize=_unigramTable.length;
   final float alpha=_curLearningRate;
   float gradient, f=0;
   int targetWord, l2;
@@ -12,7 +12,7 @@
   for (int i=0; i < vecSize; i++)   _syn1[i + l2]+=gradient * neu1[i];
   for (int i=1; i < negExCnt + 1; i++) {
     f=0;
-    targetWord=_unigramTable[cheapRandInt(Word2VecModelInfo.UNIGRAM_TABLE_SIZE)];
+    targetWord=_unigramTable[cheapRandInt(uTblSize)];
     if (targetWord == curWord)     continue;
     l2=targetWord * vecSize;
     for (int j=0; j < vecSize; j++)     f+=neu1[j] * _syn1[j + l2];
