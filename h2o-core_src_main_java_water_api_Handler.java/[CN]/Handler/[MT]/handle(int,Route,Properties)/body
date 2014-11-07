@@ -2,9 +2,11 @@
   if (!(min_ver() <= version && version <= max_ver()))   return new HttpErrorV1(new IllegalArgumentException("Version " + version + " is not in range V"+ min_ver()+ "-V"+ max_ver()));
   S schema=schema(version);
   if (null == schema)   throw H2O.fail("Failed to find a schema for version: " + version + " in: "+ this.getClass());
+  I defaults=schema.createImpl();
+  schema.fillFromImpl(defaults);
   schema=schema.fillFromParms(parms);
   if (null == schema)   throw H2O.fail("fillFromParms returned a null schema for version: " + version + " in: "+ this.getClass()+ " with params: "+ parms);
-  final I i=schema.createImpl();
+  final I i=schema.createAndFillImpl();
   _t_start=System.currentTimeMillis();
   Schema result=null;
   try {
