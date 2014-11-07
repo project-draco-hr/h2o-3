@@ -1,4 +1,7 @@
 {
-  if (_cms == null)   return null;
-  throw H2O.unimpl();
+  if (_nclass != 2)   return null;
+  final int n=_cms.length;
+  ConfusionMatrix2[] res=new ConfusionMatrix2[n];
+  for (int i=0; i < n; i++)   res[i]=new ConfusionMatrix2(_cms[i]);
+  return new AUC(res,ModelUtils.DEFAULT_THRESHOLDS,_bldr.valid().lastVec().domain());
 }

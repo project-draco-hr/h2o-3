@@ -1,5 +1,5 @@
 {
-  super.init();
+  super.init(expensive);
   if (_parms._max_after_balance_size <= 0.0)   error("_max_after_balance_size","Max size after balancing needs to be positive, suggest 1.0f");
   if (_train == null)   return;
   if (_train.numCols() <= 1)   error("_train","Training data must have at least 2 features (incl. response).");
@@ -9,6 +9,10 @@
   Vec vresp=_valid.remove(ridx);
   if (_response.isBad())   error("_response_column","Response column is all NAs!");
   if (_response.isConst())   error("_response_column","Response column is constant!");
+  if (_parms._toEnum && expensive) {
+    _response=_response.toEnum();
+    vresp=vresp.toEnum();
+  }
   _train.add(_parms._response_column,_response);
   _valid.add(_parms._response_column,vresp);
   _nclass=_response.isEnum() ? _response.domain().length : 1;
