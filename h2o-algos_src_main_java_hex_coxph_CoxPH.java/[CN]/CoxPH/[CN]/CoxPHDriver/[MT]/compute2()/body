@@ -1,6 +1,8 @@
 {
   CoxPHModel model=null;
   try {
+    Scope.enter();
+    init(true);
     _parms.lock_frames(CoxPH.this);
     applyScoringFrameSideEffects();
     model=new CoxPHModel(dest(),_parms,new CoxPHModel.CoxPHOutput(CoxPH.this));
@@ -53,6 +55,7 @@
   }
  finally {
     _parms.unlock_frames(CoxPH.this);
+    Scope.exit();
     done();
   }
   tryComplete();
