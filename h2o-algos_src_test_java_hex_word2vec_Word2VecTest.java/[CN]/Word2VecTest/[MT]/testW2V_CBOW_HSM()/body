@@ -3,21 +3,23 @@
   Word2VecModel w2vm=null;
   Frame fr=null;
   try {
-    fr=parse_test_file("smalldata/text/text8");
+    fr=parse_test_file("bigdata/laptop/text8.gz");
     Word2VecModel.Word2VecParameters parms=new Word2VecModel.Word2VecParameters();
     parms._train=fr._key;
-    parms._minWordFreq=5;
+    parms._minWordFreq=20;
     parms._wordModel=Word2Vec.WordModel.CBOW;
     parms._normModel=Word2Vec.NormModel.HSM;
     parms._vecSize=100;
-    parms._windowSize=5;
-    parms._sentSampleRate=0.001f;
+    parms._windowSize=4;
+    parms._sentSampleRate=0.01f;
     parms._initLearningRate=0.05f;
-    parms._epochs=10;
+    parms._epochs=25;
     job=new Word2Vec(parms);
     job.train();
     w2vm=job.get();
-    printResults(w2vm.findSynonyms("dog",5));
+    HashMap hm=w2vm.findSynonyms("dog",10);
+    printResults(hm);
+    Assert.assertTrue(hm.containsKey("dogs"));
   }
   finally {
     if (fr != null)     fr.remove();
