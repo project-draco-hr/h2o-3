@@ -3,6 +3,7 @@
   final ASTFunc op=(ASTFunc)ASTOp.get(_fun);
   Frame fr2=null;
   Frame fr=env.pop0Ary();
+  ArrayList<Frame> cleanup=new ArrayList<>();
   if (_margin == 2) {
     int ncols=fr.numCols();
     double[] row_result=new double[0];
@@ -18,7 +19,9 @@
  else {
       if (env.peekAry().numCols() != 1)       throw new UnsupportedOperationException(err);
       vecs_result=new Vec[ncols];
-      vecs_result[0]=env.pop0Ary().anyVec();
+      Frame v=env.pop0Ary();
+      cleanup.add(v);
+      vecs_result[0]=v.anyVec();
     }
     for (int i=1; i < ncols; i++) {
       tmp=new Frame(new String[]{fr.names()[i]},new Vec[]{fr.vecs()[i]});
@@ -68,7 +71,7 @@
     for (int i=0; i < names.length; i++)     names[i]="C" + (i + 1);
     fr2=mrt.doAll(outlen,fr).outputFrame(names,null);
   }
- else   throw new IllegalArgumentException("MARGIN limited to 1 (rows) or 2 (cols)");
+ else   if (_margin != 1 && _margin != 2)   throw new IllegalArgumentException("MARGIN limited to 1 (rows) or 2 (cols)");
   env.cleanup(fr);
   env.push(new ValFrame(fr2));
 }

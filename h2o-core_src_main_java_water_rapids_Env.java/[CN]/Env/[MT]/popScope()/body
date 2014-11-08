@@ -4,10 +4,7 @@
   for (  String k : _local._local_frames.keySet()) {
     Frame f=_local._local_frames.remove(k);
     for (    Vec v : f.vecs())     removeVec(v,fs);
-  }
-  for (  Vec v : _refcnt.keySet()) {
-    if (!_locked.contains(v._key))     fs=removeVec(v,fs);
-    extinguishCounts(v);
+    f.delete();
   }
   if (_local_locked != null) {
     for (    Key k : _local_locked) {
@@ -15,5 +12,4 @@
     }
   }
   fs.blockForPending();
-  _stack.popAll();
 }

@@ -3,14 +3,13 @@
   _margin=(int)((ASTNum)E.skipWS().parse())._d;
   _fun=((ASTId)E.skipWS().parse())._id;
   ArrayList<AST> fun_args=new ArrayList<>();
-  while (E.hasNext()) {
-    fun_args.add(E.skipWS().parse());
-  }
-  if (fun_args.size() > 0) {
-    _fun_args=fun_args.toArray(new AST[fun_args.size()]);
+  while (E.skipWS().hasNext()) {
+    fun_args.add(E.parse());
   }
   ASTApply res=(ASTApply)clone();
   res._asts=new AST[]{ary};
-  res._fun_args=_fun_args;
+  if (fun_args.size() > 0) {
+    _fun_args=fun_args.toArray(new AST[fun_args.size()]);
+  }
   return res;
 }

@@ -1,11 +1,21 @@
 {
-  if (_refcnt.get(v) == null)   return;
+  if (v == null)   return false;
+  if (_refcnt.get(v) == null && !_locked.contains(v._key)) {
+    if (_local_locked != null && _local_locked.contains(v._key))     return false;
+    removeVec(v,null);
+    return true;
+  }
+  if (_refcnt.get(v) == null) {
+    return false;
+  }
   int cnt=_refcnt.get(v)._val - 1;
   if (cnt <= 0 && !_locked.contains(v._key) && DKV.get(v._key) != null) {
     removeVec(v,null);
     extinguishCounts(v);
+    return true;
   }
  else {
     _refcnt.put(v,new IcedInt(cnt));
   }
+  return false;
 }
