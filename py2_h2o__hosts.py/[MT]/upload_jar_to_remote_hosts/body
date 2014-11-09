@@ -10,11 +10,11 @@ def upload_jar_to_remote_hosts(hosts, slow_connection=False):
         for h in hosts:
             f = find_file('build/h2o.jar')
             h.upload_file(f, progress=prog)
-            h.upload_file(flatfile_pathname())
+            h.upload_file(h2o_bc.flatfile_pathname())
     else:
         f = find_file('build/h2o.jar')
         hosts[0].upload_file(f, progress=prog)
         hosts[0].push_file_to_remotes(f, hosts[1:])
-        f = find_file(flatfile_pathname())
+        f = find_file(h2o_bc.flatfile_pathname())
         hosts[0].upload_file(f, progress=prog)
         hosts[0].push_file_to_remotes(f, hosts[1:])
