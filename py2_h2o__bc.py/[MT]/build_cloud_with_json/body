@@ -24,10 +24,17 @@ def build_cloud_with_json(h2o_nodes_json='h2o-nodes.json'):
     nodeList = []
     if (not nodeStateList):
         raise Exception(('nodeStateList is empty. %s file must be empty/corrupt' % h2o_nodes_json))
-    for nodeState in nodeStateList:
-        print 'Cloning state for node', nodeState['node_id'], 'from', h2o_nodes_json
-        newNode = ExternalH2O(nodeState)
-        nodeList.append(newNode)
+    try:
+        for nodeState in nodeStateList:
+            print 'Cloning state for node', nodeState['node_id'], 'from', h2o_nodes_json
+            newNode = ExternalH2O(nodeState)
+            nodeList.append(newNode)
+        verify_cloud_size(nodeList, expectedCloudName=nodeList[0].cloud_name, expectedLocked=None)
+    except:
+        check_sandbox_for_errors(python_test_name=h2o_args.python_test_name)
+        raise
+    print 'Saving the ', h2o_nodes_json, 'we used to', LOG_DIR
+    shutil.copy(h2o_nodes_json, ((LOG_DIR + '/') + os.path.basename(h2o_nodes_json)))
     print ''
     h2p.red_print('Ingested from json:', nodeList[0].java_heap_GB, 'GB java heap(s) with', len(nodeList), 'total nodes')
     print ''

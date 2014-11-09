@@ -10,6 +10,9 @@ def create_node(possMember, h2oNodes, expectedSize, hdfsSetup):
     gc = do_json_request(http_addr, port, 'Cloud.json', timeout=10)
     if (gc is None):
         return possMemberList
+    version = gc['version']
+    if (not version.startswith('0')):
+        raise Exception(("h2o version at node[0] doesn't look like h2o-dev version. (start with 0) %s" % version))
     consensus = gc['consensus']
     locked = gc['locked']
     cloud_size = gc['cloud_size']

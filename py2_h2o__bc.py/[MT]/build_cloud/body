@@ -68,7 +68,7 @@ def build_cloud(node_count=1, base_port=None, hosts=None, timeoutSecs=30, retryD
         if conservative:
             for n in nodeList:
                 stabilize_cloud(n, nodeList, timeoutSecs=timeoutSecs, noSandboxErrorCheck=True)
-        verify_cloud_size(nodeList, expectedCloudName=nodeList[0].cloud_name)
+        verify_cloud_size(nodeList, expectedCloudName=nodeList[0].cloud_name, expectedLocked=0)
         check_sandbox_for_errors(python_test_name=h2o_args.python_test_name)
     except:
         if (cleanup and nodeList):
@@ -79,20 +79,19 @@ def build_cloud(node_count=1, base_port=None, hosts=None, timeoutSecs=30, retryD
     print len(nodeList), 'total jvms in H2O cloud'
     nodeList[0].h2o_log_msg()
     if h2o_args.config_json:
-        LOG_DIR = get_sandbox_name()
         print 'Saving the ', h2o_args.config_json, 'we used to', LOG_DIR
         shutil.copy(h2o_args.config_json, ((LOG_DIR + '/') + os.path.basename(h2o_args.config_json)))
-    cs_time = str(datetime.datetime.now())
-    cs_cwd = os.getcwd()
-    cs_python_cmd_line = ('python %s %s' % (h2o_args.python_test_name, h2o_args.python_cmd_args))
-    cs_python_test_name = h2o_args.python_test_name
-    if h2o_args.config_json:
-        cs_config_json = os.path.abspath(h2o_args.config_json)
-    else:
-        cs_config_json = None
-    cs_username = h2o_args.python_username
-    cs_ip = h2o_args.python_cmd_ip
     if create_json:
+        cs_time = str(datetime.datetime.now())
+        cs_cwd = os.getcwd()
+        cs_python_cmd_line = ('python %s %s' % (h2o_args.python_test_name, h2o_args.python_cmd_args))
+        cs_python_test_name = h2o_args.python_test_name
+        if h2o_args.config_json:
+            cs_config_json = os.path.abspath(h2o_args.config_json)
+        else:
+            cs_config_json = None
+        cs_username = h2o_args.python_username
+        cs_ip = h2o_args.python_cmd_ip
         q = {'cloud_start': {'time': cs_time, 'cwd': cs_cwd, 'python_test_name': cs_python_test_name, 'python_cmd_line': cs_python_cmd_line, 'config_json': cs_config_json, 'username': cs_username, 'ip': cs_ip, }, 'h2o_nodes': h2o_util.json_repr(nodeList), }
         with open('h2o-nodes.json', 'w+') as f:
             f.write(json.dumps(q, indent=4))
