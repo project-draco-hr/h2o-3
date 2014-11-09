@@ -1,9 +1,9 @@
 def models(self, key=None, timeoutSecs=10, **kwargs):
     '\n    Return all of the models in the h2o cluster, or a single model given its key.  \n    The models are contained in a list called "models" at the top level of the\n    result.  Currently the list is unordered.\n    TODO:\n    When find_compatible_frames is implemented then the top level \n    dict will also contain a "frames" list.\n    '
     params_dict = {'find_compatible_frames': False, }
-    h2o_util.check_params_update_kwargs(params_dict, kwargs, 'models', True)
+    h2o_methods.check_params_update_kwargs(params_dict, kwargs, 'models', True)
     if key:
-        result = self.__do_json_request(('3/Models.json/' + key), timeout=timeoutSecs, params=params_dict)
+        result = self.do_json_request(('3/Models.json/' + key), timeout=timeoutSecs, params=params_dict)
     else:
-        result = self.__do_json_request('3/Models.json', timeout=timeoutSecs, params=params_dict)
+        result = self.do_json_request('3/Models.json', timeout=timeoutSecs, params=params_dict)
     return result

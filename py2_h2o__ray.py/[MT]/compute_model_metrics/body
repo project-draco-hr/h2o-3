@@ -8,7 +8,7 @@ def compute_model_metrics(self, model, frame, timeoutSecs=60, **kwargs):
     frames = self.frames(key=frame)
     assert (frames is not None), '/Frames/{0} REST call failed'.format(frame)
     assert (frames['frames'][0]['key']['name'] == frame), '/Frames/{0} returned Frame {1} rather than Frame {2}'.format(frame, frames['frames'][0]['key']['name'], frame)
-    result = self.__do_json_request(((('/3/ModelMetrics.json/models/' + model) + '/frames/') + frame), cmd='post', timeout=timeoutSecs)
+    result = self.do_json_request(((('/3/ModelMetrics.json/models/' + model) + '/frames/') + frame), cmd='post', timeout=timeoutSecs)
     mm = result['model_metrics'][0]
     verboseprint(('model metrics: ' + repr(mm)))
     return mm

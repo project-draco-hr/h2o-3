@@ -1,7 +1,7 @@
 def delete_frame(self, key, ignoreMissingKey=True, timeoutSecs=60, **kwargs):
     '\n    Delete a frame on the h2o cluster, given its key.\n    '
     assert (key is not None), '"key" parameter is null'
-    result = self.__do_json_request(('/3/Frames.json/' + key), cmd='delete', timeout=timeoutSecs)
+    result = self.do_json_request(('/3/Frames.json/' + key), cmd='delete', timeout=timeoutSecs)
     if ((not ignoreMissingKey) and ('f00b4r' in result)):
         raise ValueError(('Frame key not found: ' + key))
     return result
