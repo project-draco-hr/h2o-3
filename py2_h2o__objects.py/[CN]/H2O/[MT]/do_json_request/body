@@ -1,4 +1,4 @@
-def do_json_request(self, jsonRequest=None, fullUrl=None, timeout=10, params=None, returnFast=False, cmd='get', extraComment=None, ignoreH2oError=False, noSandboxErrorCheck=False, **kwargs):
+def do_json_request(self, jsonRequest=None, fullUrl=None, timeout=10, params=None, postData=None, returnFast=False, cmd='get', extraComment=None, ignoreH2oError=False, noSandboxErrorCheck=False, **kwargs):
     if fullUrl:
         url = fullUrl
     else:
@@ -16,10 +16,14 @@ def do_json_request(self, jsonRequest=None, fullUrl=None, timeout=10, params=Non
     else:
         log((('Start ' + url) + paramsStr))
     try:
-        if (cmd == 'post'):
-            r = requests.post(url, timeout=timeout, params=params, **kwargs)
-        else:
+        if ('post' == cmd):
+            r = requests.post(url, timeout=timeout, params=params, data=postData, **kwargs)
+        elif ('delete' == cmd):
+            r = requests.delete(url, timeout=timeout, params=params, **kwargs)
+        elif ('get' == cmd):
             r = requests.get(url, timeout=timeout, params=params, **kwargs)
+        else:
+            raise ValueError(("Unknown HTTP command (expected 'get', 'post' or 'delete'): " + cmd))
     except Exception as e:
         exc_info = sys.exc_info()
         if (not noSandboxErrorCheck):
@@ -27,6 +31,11 @@ def do_json_request(self, jsonRequest=None, fullUrl=None, timeout=10, params=Non
             time.sleep(2)
             check_sandbox_for_errors(python_test_name=h2o_args.python_test_name)
         raise exc_info[1], None, exc_info[2]
+    if (200 != r.status_code):
+        print 'JSON call returned non-200 status: ', url
+        print ('r.status_code: ' + str(r.status_code))
+        print ('r.headers: ' + repr(r.headers))
+        print ('r.text: ' + r.text)
     if (not r):
         raise Exception(('Maybe bad url? no r in __do_json_request in %s:' % inspect.stack()[1][3]))
     h2o_nodes.json_url_history.append(r.url)
