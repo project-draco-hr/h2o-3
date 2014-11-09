@@ -1,0 +1,14 @@
+def file_clean_for_R(csvPathname1, csvPathname2):
+    infile = open(csvPathname1, 'r')
+    outfile = open(csvPathname2, 'w')
+    for line in infile.readlines():
+        if ((not line.startswith('#')) and (not re.match('[A-Za-z]+', line))):
+            line = (line.strip(' \n\r') + '\n')
+            line = re.sub(' +', ',', line)
+            line = re.sub(',\\.,', ',0,', line)
+            line = re.sub('^\\.,', '0,', line)
+            line = re.sub(',\\.$', ',0', line)
+            outfile.write(line)
+    infile.close()
+    outfile.close()
+    print ((('\n' + csvPathname1) + ' cleaned for R to ') + csvPathname2)

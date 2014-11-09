@@ -1,0 +1,56 @@
+def do_json_request(self, jsonRequest=None, fullUrl=None, timeout=10, params=None, returnFast=False, cmd='get', extraComment=None, ignoreH2oError=False, noSandboxErrorCheck=False, **kwargs):
+    if fullUrl:
+        url = fullUrl
+    else:
+        url = self.url(jsonRequest)
+    if (params is not None):
+        params2 = params.copy()
+        for k in params2:
+            if (params2[k] is None):
+                del params[k]
+        paramsStr = ('?' + '&'.join([('%s=%s' % (k, v)) for (k, v) in params.items()]))
+    else:
+        paramsStr = ''
+    if extraComment:
+        log((('Start ' + url) + paramsStr), comment=extraComment)
+    else:
+        log((('Start ' + url) + paramsStr))
+    try:
+        if (cmd == 'post'):
+            r = requests.post(url, timeout=timeout, params=params, **kwargs)
+        else:
+            r = requests.get(url, timeout=timeout, params=params, **kwargs)
+    except Exception as e:
+        exc_info = sys.exc_info()
+        if (not noSandboxErrorCheck):
+            h2p.red_print(('ERROR: got exception on %s to h2o. \nGoing to check sandbox, then rethrow..' % (url + paramsStr)))
+            time.sleep(2)
+            check_sandbox_for_errors(python_test_name=h2o_args.python_test_name)
+        raise exc_info[1], None, exc_info[2]
+    if (not r):
+        raise Exception(('Maybe bad url? no r in __do_json_request in %s:' % inspect.stack()[1][3]))
+    h2o_nodes.json_url_history.append(r.url)
+    rjson = None
+    if returnFast:
+        return
+    try:
+        rjson = r.json()
+    except:
+        print dump_json(r.text)
+        if (not isinstance(r, (list, dict))):
+            raise Exception('h2o json responses should always be lists or dicts, see previous for text')
+        raise Exception('Could not decode any json from the request.')
+    for e in ['error', 'Error', 'errors', 'Errors']:
+        if ((e in rjson) and rjson[e]):
+            print 'rjson:', dump_json(rjson)
+            emsg = ('rjson %s in %s: %s' % (e, inspect.stack()[1][3], rjson[e]))
+            if ignoreH2oError:
+                print emsg
+            else:
+                print emsg
+                raise Exception(emsg)
+    for w in ['warning', 'Warning', 'warnings', 'Warnings']:
+        if ((w in rjson) and rjson[w]):
+            verboseprint(dump_json(rjson))
+            print ('rjson %s in %s: %s' % (w, inspect.stack()[1][3], rjson[w]))
+    return rjson

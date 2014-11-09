@@ -1,0 +1,93 @@
+def find_folder_and_filename(bucket, pathWithRegex, schema='put', returnFullPath=False):
+    checkPath = True
+    giveUpAndSearchLocally = False
+    if ((bucket is not None) and re.match('/', pathWithRegex)):
+        verboseprint('You said bucket:', bucket, "so stripping incorrect leading '/' from", pathWithRegex)
+        pathWithRegex = pathWithRegex.lstrip('/')
+    if (bucket is None):
+        bucketPath = ''
+    elif (bucket == '.'):
+        bucketPath = os.getcwd()
+    elif (h2o_nodes.nodes[0].remoteH2O and (schema != 'put') and (os.environ.get('H2O_REMOTE_BUCKETS_ROOT') or h2o_nodes.nodes[0].h2o_remote_buckets_root)):
+        if (((bucket == 'smalldata') or (bucket == 'datasets')) and (schema == 'local')):
+            msg1 = "\nWARNING: you're using remote nodes, and 'smalldata' or 'datasets' git buckets, with schema!=put"
+            msg2 = "\nThose aren't git pull'ed by the test. Since they are user-maintained, not globally-maintained-by-0xdata,"
+            msg3 = '\nthey may be out of date at those remote nodes?'
+            msg4 = '\nGoing to assume we find a path to them locally, and remote path will be the same'
+            h2p.red_print(msg1, msg2, msg3, msg4)
+            giveUpAndSearchLocally = True
+        else:
+            if os.environ.get('H2O_REMOTE_BUCKETS_ROOT'):
+                rootPath = os.environ.get('H2O_REMOTE_BUCKETS_ROOT')
+                print 'Found H2O_REMOTE_BUCKETS_ROOT:', rootPath
+            else:
+                rootPath = h2o_nodes.nodes[0].h2o_remote_buckets_root
+                print 'Found h2o_nodes[0].h2o_remote_buckets_root:', rootPath
+            bucketPath = os.path.join(rootPath, bucket)
+            checkPath = False
+    elif os.environ.get('H2O_BUCKETS_ROOT'):
+        rootPath = os.environ.get('H2O_BUCKETS_ROOT')
+        print 'Using H2O_BUCKETS_ROOT environment variable:', rootPath
+        if (not os.path.exists(rootPath)):
+            raise Exception(("H2O_BUCKETS_ROOT in env but %s doesn't exist." % rootPath))
+        bucketPath = os.path.join(rootPath, bucket)
+        if (not os.path.exists(bucketPath)):
+            raise Exception(("H2O_BUCKETS_ROOT and path used to form %s which doesn't exist." % bucketPath))
+    else:
+        giveUpAndSearchLocally = True
+    if giveUpAndSearchLocally:
+        username = getpass.getuser()
+        h2oUsername = h2o_nodes.nodes[0].username
+        verboseprint('username:', username, 'h2oUsername:', h2oUsername)
+        if (bucket == 'datasets'):
+            possibleUsers = []
+        elif (h2oUsername != username):
+            possibleUsers = [username, h2oUsername, '0xdiag']
+        else:
+            possibleUsers = [username, '0xdiag']
+        for u in possibleUsers:
+            rootPath = os.path.expanduser(('~' + u))
+            bucketPath = os.path.join(rootPath, bucket)
+            verboseprint('Checking bucketPath:', bucketPath, 'assuming home is', rootPath)
+            if os.path.exists(bucketPath):
+                verboseprint('search A did find', bucket, 'at', rootPath)
+                break
+        else:
+            rootPath = os.getcwd()
+            verboseprint('find_bucket looking upwards from', rootPath, 'for', bucket)
+            levels = 0
+            while (not os.path.exists(os.path.join(rootPath, bucket))):
+                verboseprint("Didn't find", bucket, 'at', rootPath)
+                rootPath = os.path.split(rootPath)[0]
+                levels += 1
+                if (levels == 6):
+                    raise Exception(('unable to find bucket: %s. Maybe missing link in /home/0xdiag or /home/0xcustomer or jenkins ~? or whatever user is running the python or the h2o?' % bucket))
+            verboseprint('search B did find', bucket, 'at', rootPath)
+            bucketPath = os.path.join(rootPath, bucket)
+    if (pathWithRegex is None):
+        if returnFullPath:
+            return bucketPath
+        else:
+            return (bucketPath, None)
+    elif ('/' in pathWithRegex):
+        (head, tail) = os.path.split(pathWithRegex)
+        folderPath = os.path.abspath(os.path.join(bucketPath, head))
+        if ('/mnt/0xcustomer-datasets' in folderPath):
+            pass
+        else:
+            retry = 0
+            while (checkPath and (not os.path.exists(folderPath)) and (retry < 5)):
+                print 'Retrying', folderPath, "in case there's a autofs mount problem"
+                os.stat(folderPath)
+                retry += 1
+                time.sleep(1)
+            if (checkPath and (not os.path.exists(folderPath))):
+                raise Exception(("%s doesn't exist. %s under %s may be wrong?" % (folderPath, head, bucketPath)))
+    else:
+        folderPath = bucketPath
+        tail = pathWithRegex
+    verboseprint('folderPath:', folderPath, 'tail:', tail)
+    if returnFullPath:
+        return os.path.join(folderPath, tail)
+    else:
+        return (folderPath, tail)

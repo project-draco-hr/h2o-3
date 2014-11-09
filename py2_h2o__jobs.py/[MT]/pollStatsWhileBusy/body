@@ -1,0 +1,56 @@
+def pollStatsWhileBusy(timeoutSecs=300, pollTimeoutSecs=15, retryDelaySecs=5):
+    busy = True
+    trials = 0
+    start = time.time()
+    polls = 0
+    statSum = {}
+    lastUsedMemBytes = [1 for i in range(64)]
+    while busy:
+        polls += 1
+        a = h2o_nodes.nodes[0].jobs_admin(timeoutSecs=60)
+        busy = False
+        for j in a['jobs']:
+            if ((j['end_time'] == '') and (not (j['cancelled'] or (j['result'].get('val', None) == 'CANCELLED')))):
+                busy = True
+                verboseprint('Still busy')
+                break
+        cloudStatus = h2o_nodes.nodes[0].get_cloud(timeoutSecs=timeoutSecs)
+        nodes = cloudStatus['nodes']
+        for (i, n) in enumerate(nodes):
+            totMemBytes = n['tot_mem_bytes']
+            maxMemBytes = n['max_mem_bytes']
+            freeMemBytes = n['free_mem_bytes']
+            usedMemBytes = (totMemBytes - freeMemBytes)
+            availMemBytes = (maxMemBytes - usedMemBytes)
+            print ('Node %s:' % i), 'num_cpus:', n['num_cpus'], 'my_cpu_%:', n['my_cpu_%'], 'sys_cpu_%:', n['sys_cpu_%'], 'system_load:', n['system_load'], 'tot_mem_bytes: {:,}'.format(totMemBytes), 'max_mem_bytes: {:,}'.format(maxMemBytes), 'free_mem_bytes: {:,}'.format(freeMemBytes), 'usedMemBytes: {:,}'.format(usedMemBytes)
+            decrease = round((((0.0 + lastUsedMemBytes[i]) - usedMemBytes) / lastUsedMemBytes[i]), 3)
+            if (decrease > 0.05):
+                print 
+                print '\nProbably GC at Node {:}: usedMemBytes decreased by {:f} pct.. {:,} {:,}'.format(i, (100 * decrease), lastUsedMemBytes[i], usedMemBytes)
+                lastUsedMemBytes[i] = usedMemBytes
+            if (usedMemBytes > lastUsedMemBytes[i]):
+                lastUsedMemBytes[i] = usedMemBytes
+            for stat in n:
+                if (stat in statSum):
+                    try:
+                        statSum[stat] += n[stat]
+                    except TypeError:
+                        print ('ERROR: statSum[stat] should be number %s %s %s' % (statSum[stat], stat, n[stat]))
+                else:
+                    try:
+                        statSum[stat] = (n[stat] + 0.0)
+                    except TypeError:
+                        pass
+        trials += 1
+        if ((trials % 5) == 0):
+            check_sandbox_for_errors()
+        time.sleep(retryDelaySecs)
+        if ((time.time() - start) > timeoutSecs):
+            raise Exception(('Timeout while polling in pollStatsWhileBusy: %s seconds' % timeoutSecs))
+    print ('Did %s polls' % polls)
+    statMean = {}
+    print 'Values are summed across all nodes (cloud members), so divide by node count'
+    for s in statSum:
+        statMean[s] = round(((statSum[s] + 0.0) / polls), 2)
+        print 'per poll mean', (s + ':'), statMean[s]
+    return statMean

@@ -1,0 +1,8 @@
+def wait(self, timeout=0):
+    if (self.rc is not None):
+        return self.rc
+    try:
+        self.rc = self.ps.wait(timeout)
+        return self.rc
+    except psutil.TimeoutExpired:
+        return None

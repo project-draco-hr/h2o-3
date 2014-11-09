@@ -1,0 +1,19 @@
+def clean_sandbox():
+    IS_THIS_FASTER = True
+    if os.path.exists(LOG_DIR):
+        for f in glob.glob((LOG_DIR + '/syn_datasets/*')):
+            verboseprint('cleaning', f)
+            os.remove(f)
+        print 'Removing', LOG_DIR, '(if slow, might be old ice dir spill files)'
+        start = time.time()
+        if IS_THIS_FASTER:
+            try:
+                os.system(('rm -rf ' + LOG_DIR))
+            except OSError:
+                pass
+        else:
+            shutil.rmtree(LOG_DIR, ignore_errors=False, onerror=handleRemoveError)
+        elapsed = (time.time() - start)
+        print ('Took %s secs to remove %s' % (elapsed, LOG_DIR))
+    if (not os.path.exists(LOG_DIR)):
+        os.mkdir(LOG_DIR)

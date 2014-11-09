@@ -1,0 +1,11 @@
+def is_alive(self):
+    verboseprint('Doing is_alive check for RemoteH2O')
+    if self.channel.closed:
+        return False
+    if self.channel.exit_status_ready():
+        return False
+    try:
+        self.get_cloud(noSandboxErrorCheck=True)
+        return True
+    except:
+        return False

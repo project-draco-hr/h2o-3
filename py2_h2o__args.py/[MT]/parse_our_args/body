@@ -1,0 +1,46 @@
+def parse_our_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-bd', '--browse_disable', help="Disable any web browser stuff. Needed for batch. nosetests and jenkins disable browser through other means already, so don't need", action='store_true')
+    parser.add_argument('-b', '--browse_json', help='Pops a browser to selected json equivalent urls. Selective. Also keeps test alive (and H2O alive) till you ctrl-c. Then should do clean exit', action='store_true')
+    parser.add_argument('-v', '--verbose', help='increased output', action='store_true')
+    parser.add_argument('-ip', '--ip', type=str, help='IP address to use for single host H2O with psutil control')
+    parser.add_argument('-network', '--network', type=str, help='network/mask (shorthand form) to use to resolve multiple possible IPs')
+    parser.add_argument('-cj', '--config_json', help='Use this json format file to provide multi-host defaults. Overrides the default file pytest_config-<username>.json. These are used only if you do build_cloud_with_hosts()')
+    parser.add_argument('-dbg', '--debugger', help='Launch java processes with java debug attach mechanisms', action='store_true')
+    parser.add_argument('-rud', '--random_udp_drop', help='Drop 20 pct. of the UDP packets at the receive side', action='store_true')
+    parser.add_argument('-s', '--random_seed', type=int, help='initialize SEED (64-bit integer) for random generators')
+    parser.add_argument('-bf', '--beta_features', help='enable or switch to beta features (import2/parse2)', action='store_true')
+    parser.add_argument('-slp', '--sleep_at_tear_down', help='open browser and time.sleep(3600) at tear_down_cloud() (typical test end/fail)', action='store_true')
+    parser.add_argument('-aai', '--abort_after_import', help='abort the test after printing the full path to the first dataset used by import_parse/import_only', action='store_true')
+    parser.add_argument('-ccj', '--clone_cloud_json', type=str, help='a h2o-nodes.json file can be passed (see build_cloud(create_json=True). This will create a cloned set of node objects, so any test that builds a cloud, can also be run on an existing cloud without changing the test')
+    parser.add_argument('-dts', '--disable_time_stamp', help='Disable the timestamp on all stdout. Useful when trying to capture some stdout (like json prints) for use elsewhere', action='store_true')
+    parser.add_argument('-debug_rest', '--debug_rest', help='Print REST API interactions to rest.log', action='store_true')
+    parser.add_argument('-nc', '--nocolor', help="don't emit the chars that cause color printing", action='store_true')
+    parser.add_argument('-long', '--long_test_case', help='some tests will vary behavior to more, longer cases', action='store_true')
+    parser.add_argument('-uc', '--usecloud', nargs='?', const='localhost:54321', type=str, help='ip:port of cloud to send tests to instead of starting clouds.')
+    parser.add_argument('-ucs', '--usecloud_size', help='optionally say the size of the usecloud, code will check size is as expected')
+    parser.add_argument('unittest_args', nargs='*')
+    args = parser.parse_args()
+    if args.nocolor:
+        h2p.disable_colors()
+    global browse_disable, browse_json, verbose, ip_from_cmd_line, config_json, debugger
+    global random_udp_drop
+    global random_seed, beta_features, sleep_at_tear_down, abort_after_import
+    global clone_cloud_json, disable_time_stamp, debug_rest, long_test_case, usecloud, usecloud_size
+    browse_disable = (args.browse_disable or (getpass.getuser() == 'jenkins'))
+    browse_json = args.browse_json
+    verbose = args.verbose
+    ip_from_cmd_line = args.ip
+    network_from_cmd_line = args.network
+    config_json = args.config_json
+    debugger = args.debugger
+    random_udp_drop = args.random_udp_drop
+    random_seed = args.random_seed
+    sleep_at_tear_down = args.sleep_at_tear_down
+    abort_after_import = args.abort_after_import
+    clone_cloud_json = args.clone_cloud_json
+    disable_time_stamp = args.disable_time_stamp
+    debug_rest = args.debug_rest
+    long_test_case = args.long_test_case
+    usecloud = args.usecloud
+    sys.argv[1:] = (['-v', '--failfast'] + args.unittest_args)
