@@ -1,0 +1,28 @@
+def jenkins_h2o_port_allocate():
+    "\n    input: jenkins environment variable EXECUTOR_NUMBER\n    output: creates ./BASE_PORT.sh, that you should 'source ./PORT.sh'\n        (can't see the env. variables directly from python?)\n\n    which will create os environment variables H2O_PORT and H2O_PORT_OFFSET (legacy)\n\n        internal state for this script that can be updated: \n            USED_HOSTNAMES (list of machine names), \n            PORTS_PER_SLOT (max per any job), \n            DEFAULT_BASE_PORT\n        If you modify any of the internal state, you may introduce contention between \n        new jenkins jobs and running jenkins jobs. (might not!)\n        You should stop/start all jobs (or ignore failures) if you modify internal state here. \n        Hence, no parameters to avoid living dangerously!\n    "
+    if os.environ.has_key('EXECUTOR_NUMBER'):
+        executor = int(os.environ['EXECUTOR_NUMBER'])
+    else:
+        executor = 1
+    print 'jenkins EXECUTOR_NUMBER:', executor
+    if ((executor < 0) or (executor >= EXECUTOR_NUM)):
+        raise Exception(('executor: %s wrong? Expecting 1-8 jenkins executors on a machine (0-7 exp.)' % executor))
+    h2oPort = DEFAULT_BASE_PORT
+    h2oPortOffset = 0
+    hostname = socket.gethostname()
+    if (hostname not in USED_HOSTNAMES):
+        print ("WARNING: this hostname: %s isn't in my list. You should add it?" % hostname)
+        print 'Will use default base port'
+    else:
+        hostnameIndex = USED_HOSTNAMES.index(hostname)
+        h2oPortOffset = (PORTS_PER_SLOT * (executor + hostnameIndex))
+        h2oPort += h2oPortOffset
+    print ('Possible h2o base_port range is %s to %s' % (DEFAULT_BASE_PORT, ((DEFAULT_BASE_PORT + ((PORTS_PER_SLOT * EXECUTOR_NUM) * len(USED_HOSTNAMES))) - 2)))
+    print ('Possible h2o ports used ranged is %s to %s' % (DEFAULT_BASE_PORT, ((DEFAULT_BASE_PORT + ((PORTS_PER_SLOT * EXECUTOR_NUM) * len(USED_HOSTNAMES))) - 1)))
+    print ("want to 'export H2O_PORT=%s'" % h2oPort)
+    print ("want to 'export H2O_PORT_OFFSET=%s # legacy'" % h2oPortOffset)
+    f = open('H2O_BASE_PORT.sh', 'w')
+    f.write(('export H2O_PORT=%s\n' % h2oPort))
+    f.write(('export H2O_PORT_OFFSET=%s # legacy\n' % h2oPortOffset))
+    f.close()
+    print '\nNow please:\nsource ./H2O_BASE_PORT.sh'
