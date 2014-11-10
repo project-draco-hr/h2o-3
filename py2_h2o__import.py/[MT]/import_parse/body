@@ -1,0 +1,17 @@
+def import_parse(node=None, schema='local', bucket=None, path=None, src_key=None, hex_key=None, timeoutSecs=30, retryDelaySecs=0.1, initialDelaySecs=0, pollTimeoutSecs=180, noise=None, benchmarkLogging=None, noPoll=False, doSummary=True, noPrint=True, importParentDir=True, **kwargs):
+    if (not node):
+        node = h2o_nodes.nodes[0]
+    (importResult, importPattern) = import_only(node, schema, bucket, path, timeoutSecs, retryDelaySecs, initialDelaySecs, pollTimeoutSecs, noise, benchmarkLogging, noPoll, doSummary, src_key, noPrint, importParentDir, **kwargs)
+    verboseprint('importPattern:', importPattern)
+    verboseprint('importResult', dump_json(importResult))
+    parseResult = parse_only(node, importPattern, hex_key, timeoutSecs, retryDelaySecs, initialDelaySecs, pollTimeoutSecs, noise, benchmarkLogging, noPoll, **kwargs)
+    verboseprint('parseResult:', dump_json(parseResult))
+    if (doSummary and (not noPoll)):
+        check_sandbox_for_errors()
+        inspect = node.inspect(parseResult['destination_key'], timeoutSecs=timeoutSecs)
+        numRows = inspect['numRows']
+        numCols = inspect['numCols']
+        node.summary_page(parseResult['destination_key'], timeoutSecs=timeoutSecs, noPrint=noPrint, numRows=numRows, numCols=numCols)
+    else:
+        check_sandbox_for_errors()
+    return parseResult

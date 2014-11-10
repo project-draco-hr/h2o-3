@@ -1,0 +1,21 @@
+{
+  CoxPHModel.CoxPHParameters p=model._parms;
+  CoxPHModel.CoxPHOutput o=model._output;
+  o.n_missing=o.n - coxMR.n;
+  o.n=coxMR.n;
+  for (int j=0; j < o.x_mean_cat.length; j++)   o.x_mean_cat[j]=coxMR.sumWeightedCatX[j] / coxMR.sumWeights;
+  for (int j=0; j < o.x_mean_num.length; j++)   o.x_mean_num[j]=coxMR.dinfo()._normSub[j] + coxMR.sumWeightedNumX[j] / coxMR.sumWeights;
+  System.arraycopy(coxMR.dinfo()._normSub,o.x_mean_num.length,o.mean_offset,0,o.mean_offset.length);
+  int nz=0;
+  for (int t=0; t < coxMR.countEvents.length; ++t) {
+    o.total_event+=coxMR.countEvents[t];
+    if (coxMR.sizeEvents[t] > 0 || coxMR.sizeCensored[t] > 0) {
+      o.time[nz]=o.min_time + t;
+      o.n_risk[nz]=coxMR.sizeRiskSet[t];
+      o.n_event[nz]=coxMR.sizeEvents[t];
+      o.n_censor[nz]=coxMR.sizeCensored[t];
+      nz++;
+    }
+  }
+  if (p.start_column == null)   for (int t=o.n_risk.length - 2; t >= 0; --t)   o.n_risk[t]+=o.n_risk[t + 1];
+}

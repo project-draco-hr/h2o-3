@@ -1,0 +1,74 @@
+{
+  CoxPHModel.CoxPHParameters p=model._parms;
+  CoxPHModel.CoxPHOutput o=model._output;
+  final int n_coef=o.coef.length;
+  final int n_time=coxMR.sizeEvents.length;
+  double newLoglik=0;
+  for (int j=0; j < n_coef; ++j)   o.gradient[j]=0;
+  for (int j=0; j < n_coef; ++j)   for (int k=0; k < n_coef; ++k)   o.hessian[j][k]=0;
+switch (p.ties) {
+case efron:
+    final double[] newLoglik_t=MemoryManager.malloc8d(n_time);
+  final double[][] gradient_t=malloc2DArray(n_time,n_coef);
+final double[][][] hessian_t=malloc3DArray(n_time,n_coef,n_coef);
+ForkJoinTask[] fjts=new ForkJoinTask[n_time];
+for (int t=n_time - 1; t >= 0; --t) {
+final int _t=t;
+fjts[t]=new RecursiveAction(){
+@Override protected void compute(){
+  final double sizeEvents_t=coxMR.sizeEvents[_t];
+  if (sizeEvents_t > 0) {
+    final long countEvents_t=coxMR.countEvents[_t];
+    final double sumLogRiskEvents_t=coxMR.sumLogRiskEvents[_t];
+    final double sumRiskEvents_t=coxMR.sumRiskEvents[_t];
+    final double rcumsumRisk_t=coxMR.rcumsumRisk[_t];
+    final double avgSize=sizeEvents_t / countEvents_t;
+    newLoglik_t[_t]=sumLogRiskEvents_t;
+    System.arraycopy(coxMR.sumXEvents[_t],0,gradient_t[_t],0,n_coef);
+    for (long e=0; e < countEvents_t; ++e) {
+      final double frac=((double)e) / ((double)countEvents_t);
+      final double term=rcumsumRisk_t - frac * sumRiskEvents_t;
+      newLoglik_t[_t]-=avgSize * Math.log(term);
+      for (int j=0; j < n_coef; ++j) {
+        final double djTerm=coxMR.rcumsumXRisk[_t][j] - frac * coxMR.sumXRiskEvents[_t][j];
+        final double djLogTerm=djTerm / term;
+        gradient_t[_t][j]-=avgSize * djLogTerm;
+        for (int k=0; k < n_coef; ++k) {
+          final double dkTerm=coxMR.rcumsumXRisk[_t][k] - frac * coxMR.sumXRiskEvents[_t][k];
+          final double djkTerm=coxMR.rcumsumXXRisk[_t][j][k] - frac * coxMR.sumXXRiskEvents[_t][j][k];
+          hessian_t[_t][j][k]-=avgSize * (djkTerm / term - (djLogTerm * (dkTerm / term)));
+        }
+      }
+    }
+  }
+}
+}
+;
+}
+ForkJoinTask.invokeAll(fjts);
+for (int t=0; t < n_time; ++t) newLoglik+=newLoglik_t[t];
+for (int t=0; t < n_time; ++t) for (int j=0; j < n_coef; ++j) o.gradient[j]+=gradient_t[t][j];
+for (int t=0; t < n_time; ++t) for (int j=0; j < n_coef; ++j) for (int k=0; k < n_coef; ++k) o.hessian[j][k]+=hessian_t[t][j][k];
+break;
+case breslow:
+for (int t=n_time - 1; t >= 0; --t) {
+final double sizeEvents_t=coxMR.sizeEvents[t];
+if (sizeEvents_t > 0) {
+final double sumLogRiskEvents_t=coxMR.sumLogRiskEvents[t];
+final double rcumsumRisk_t=coxMR.rcumsumRisk[t];
+newLoglik+=sumLogRiskEvents_t;
+newLoglik-=sizeEvents_t * Math.log(rcumsumRisk_t);
+for (int j=0; j < n_coef; ++j) {
+final double dlogTerm=coxMR.rcumsumXRisk[t][j] / rcumsumRisk_t;
+o.gradient[j]+=coxMR.sumXEvents[t][j];
+o.gradient[j]-=sizeEvents_t * dlogTerm;
+for (int k=0; k < n_coef; ++k) o.hessian[j][k]-=sizeEvents_t * (((coxMR.rcumsumXXRisk[t][j][k] / rcumsumRisk_t) - (dlogTerm * (coxMR.rcumsumXRisk[t][k] / rcumsumRisk_t))));
+}
+}
+}
+break;
+default :
+throw new IllegalArgumentException("ties method must be either efron or breslow");
+}
+return newLoglik;
+}

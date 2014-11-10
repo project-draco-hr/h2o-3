@@ -1,0 +1,39 @@
+def check(self, first, second, path='', with_values=False):
+    if (second != None):
+        if (not isinstance(first, type(second))):
+            message = ('%s- %s, %s' % (path, type(first), type(second)))
+            TYPE = None
+            self.save_diff(message, TYPE)
+    if isinstance(first, dict):
+        for key in first:
+            if (len(path) == 0):
+                new_path = key
+            else:
+                new_path = ('%s.%s' % (path, key))
+            if isinstance(second, dict):
+                if second.has_key(key):
+                    sec = second[key]
+                else:
+                    PATH = None
+                    self.save_diff(new_path, PATH)
+                    sec = None
+                self.check(first[key], sec, path=new_path, with_values=with_values)
+            else:
+                PATH = None
+                self.save_diff(new_path, PATH)
+                self.check(first[key], second, path=new_path, with_values=with_values)
+    elif isinstance(first, list):
+        for (index, item) in enumerate(first):
+            new_path = ('%s[%s]' % (path, index))
+            sec = None
+            if (second != None):
+                try:
+                    sec = second[index]
+                except (IndexError, KeyError):
+                    TYPE = None
+                    self.save_diff(('%s - %s, %s' % (new_path, type(first), type(second))), TYPE)
+            self.check(first[index], sec, path=new_path, with_values=with_values)
+    elif (with_values and (second != None)):
+        if (first != second):
+            self.save_diff(('%s - %s | %s' % (path, first, second)), 'diff')
+    return

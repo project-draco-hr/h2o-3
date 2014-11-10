@@ -1,0 +1,27 @@
+{
+  Chunk ys=chk_resp(chks);
+  if (_parms._loss == GBMModel.GBMParameters.Family.bernoulli) {
+    for (int row=0; row < ys._len; row++) {
+      if (ys.isNA0(row))       continue;
+      int y=(int)ys.at80(row);
+      Chunk wk=chk_work(chks,0);
+      wk.set0(row,y - 1f + (float)wk.at0(row));
+    }
+  }
+ else   if (_nclass > 1) {
+    for (int row=0; row < ys._len; row++) {
+      if (ys.isNA0(row))       continue;
+      int y=(int)ys.at80(row);
+      for (int k=0; k < _nclass; k++) {
+        if (_model._output._distribution[k] != 0) {
+          Chunk wk=chk_work(chks,k);
+          wk.set0(row,(y == k ? 1f : 0f) - (float)wk.at0(row));
+        }
+      }
+    }
+  }
+ else {
+    Chunk wk=chk_work(chks,0);
+    for (int row=0; row < ys._len; row++)     wk.set0(row,(float)(ys.at0(row) - wk.at0(row)));
+  }
+}

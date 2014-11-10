@@ -1,0 +1,13 @@
+def __drain(src, dst):
+    for l in src:
+        if (type(dst) == type(0)):
+            try:
+                os.write(dst, l)
+            except:
+                os.write(dst, l.encode('utf8'))
+        else:
+            dst.write(l)
+            dst.flush()
+    src.close()
+    if (type(dst) == type(0)):
+        os.close(dst)

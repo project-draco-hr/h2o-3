@@ -1,0 +1,119 @@
+def import_only(node=None, schema='local', bucket=None, path=None, timeoutSecs=30, retryDelaySecs=0.1, initialDelaySecs=0, pollTimeoutSecs=180, noise=None, benchmarkLogging=None, noPoll=False, doSummary=True, src_key=None, noPrint=False, importParentDir=True, **kwargs):
+    if (src_key and (schema != 'put')):
+        raise Exception(("can only specify a 'src_key' param for schema='put'. You have %s %s" % (schema, src_key)))
+    if (not node):
+        node = h2o_nodes.nodes[0]
+    if (path is None):
+        raise Exception('import_only: path parameter needs to be specified')
+    if ('/' in path):
+        (head, pattern) = os.path.split(path)
+    else:
+        (head, pattern) = ('', path)
+    verboseprint('head:', head)
+    verboseprint('pattern:', pattern)
+    if importParentDir:
+        if re.search('[\\*<>{}[\\]~`]', head):
+            raise Exception(("h2o folder path %s can't be regex. path= was %s" % (head, path)))
+    elif re.search('[\\*<>{}[\\]~`]', path):
+        raise Exception(("h2o path %s can't be regex. path= was %s" % (head, path)))
+    if (schema == 'put'):
+        if re.search('[/\\*<>{}[\\]~`]', pattern):
+            raise Exception(("h2o putfile basename %s can't be regex. path= was %s" % (pattern, path)))
+        if (not path):
+            raise Exception("path= didn't say what file to put")
+        (folderPath, filename) = find_folder_and_filename(bucket, path, schema)
+        filePath = os.path.join(folderPath, filename)
+        verboseprint('put filename:', filename, 'folderPath:', folderPath, 'filePath:', filePath)
+        if (not noPrint):
+            h2p.green_print('\nimport_only:', h2o_args.python_test_name, ('uses put:/%s' % filePath))
+            h2p.green_print(('Local path to file that will be uploaded: %s' % filePath))
+            h2p.blue_print('That path resolves as:', os.path.realpath(filePath))
+        if h2o_args.abort_after_import:
+            raise Exception("Aborting due to abort_after_import (-aai) argument's effect in import_only()")
+        key = node.put_file(filePath, key=src_key, timeoutSecs=timeoutSecs)
+        importResult = None
+        return (None, key)
+    if ((schema == 'local') and (not (node.redirect_import_folder_to_s3_path or node.redirect_import_folder_to_s3n_path))):
+        (folderPath, pattern) = find_folder_and_filename(bucket, path, schema)
+        filePath = os.path.join(folderPath, pattern)
+        h2p.green_print('\nimport_only:', h2o_args.python_test_name, ('uses local:/%s' % filePath))
+        h2p.green_print(('Path h2o will be told to use: %s' % filePath))
+        h2p.blue_print('If local jvms, path resolves locally as:', os.path.realpath(filePath))
+        if h2o_args.abort_after_import:
+            raise Exception("Aborting due to abort_after_import (-aai) argument's effect in import_only()")
+        folderURI = ('nfs:/' + folderPath)
+        if importParentDir:
+            finalImportString = folderPath
+        else:
+            finalImportString = ((folderPath + '/') + pattern)
+        importResult = node.import_files(finalImportString, timeoutSecs=timeoutSecs)
+    else:
+        if ((bucket is not None) and re.match('/', head)):
+            verboseprint('You said bucket:', bucket, "so stripping incorrect leading '/' from", head)
+            head = head.lstrip('/')
+        if (bucket and (head != '')):
+            folderOffset = ((bucket + '/') + head)
+        elif bucket:
+            folderOffset = bucket
+        else:
+            folderOffset = head
+        if h2o_args.abort_after_import:
+            raise Exception("Aborting due to abort_after_import (-aai) argument's effect in import_only()")
+        n = h2o_nodes.nodes[0]
+        if ((schema == 's3') or node.redirect_import_folder_to_s3_path):
+            folderOffset = re.sub('smalldata', 'h2o-smalldata', folderOffset)
+            folderURI = ('s3://' + folderOffset)
+            if (not n.aws_credentials):
+                print ('aws_credentials: %s' % n.aws_credentials)
+                print 'ERROR: Something was missing for s3 on the java -jar cmd line when the cloud was built'
+            if importParentDir:
+                finalImportString = folderURI
+            else:
+                finalImportString = ((folderURI + '/') + pattern)
+            importResult = node.import_files(finalImportString, timeoutSecs=timeoutSecs)
+        elif ((schema == 's3n') or node.redirect_import_folder_to_s3n_path):
+            folderOffset = re.sub('smalldata', 'h2o-smalldata', folderOffset)
+            if (not (n.use_hdfs and ((n.hdfs_version and n.hdfs_name_node) or n.hdfs_config))):
+                print ('use_hdfs: %s hdfs_version: %s hdfs_name_node: %s' % (n.use_hdfs, n.hdfs_version, n.hdfs_name_node))
+                if n.hdfs_config:
+                    print ('hdfs_config: %s' % n.hdfs_config)
+                print 'ERROR: Something was missing for s3n on the java -jar cmd line when the cloud was built'
+            folderURI = ('s3n://' + folderOffset)
+            if importParentDir:
+                finalImportString = folderURI
+            else:
+                finalImportString = ((folderURI + '/') + pattern)
+            importResult = node.import_files(finalImportString, timeoutSecs=timeoutSecs)
+        elif (schema == 'maprfs'):
+            if (not n.use_maprfs):
+                print ('use_maprfs: %s' % n.use_maprfs)
+                print 'ERROR: Something was missing for maprfs on the java -jar cmd line when the cloud was built'
+            if n.hdfs_name_node:
+                folderURI = ((('maprfs://' + n.hdfs_name_node) + '/') + folderOffset)
+            else:
+                folderURI = ('maprfs:/' + folderOffset)
+            if importParentDir:
+                finalImportString = folderURI
+            else:
+                finalImportString = ((folderURI + '/') + pattern)
+            importResult = node.import_files(finalImportString, timeoutSecs=timeoutSecs)
+        elif (schema == 'hdfs'):
+            if (not (n.use_hdfs and ((n.hdfs_version and n.hdfs_name_node) or n.hdfs_config))):
+                print ('use_hdfs: %s hdfs_version: %s hdfs_name_node: %s' % (n.use_hdfs, n.hdfs_version, n.hdfs_name_node))
+                if n.hdfs_config:
+                    print ('hdfs_config: %s' % n.hdfs_config)
+                print 'ERROR: Something was missing for hdfs on the java -jar cmd line when the cloud was built'
+            if n.hdfs_name_node:
+                folderURI = ((('hdfs://' + n.hdfs_name_node) + '/') + folderOffset)
+            else:
+                folderURI = ('hdfs://' + folderOffset)
+            if importParentDir:
+                finalImportString = folderURI
+            else:
+                finalImportString = ((folderURI + '/') + pattern)
+            importResult = node.import_files(finalImportString, timeoutSecs=timeoutSecs)
+        else:
+            raise Exception(('schema not understood: %s' % schema))
+    print '\nimport_only:', h2o_args.python_test_name, schema, 'uses', finalImportString
+    importPattern = ((folderURI + '/') + pattern)
+    return (importResult, importPattern)

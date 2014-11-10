@@ -10,7 +10,6 @@
     if (previous == null)     throw new IllegalArgumentException("Checkpoint not found.");
     Log.info("Resuming from checkpoint.");
     if (_parms._n_folds != 0)     throw new UnsupportedOperationException("n_folds must be 0: Cross-validation is not supported during checkpoint restarts.");
-    if (_train.checksum() != previous.model_info()._train.checksum())     throw new IllegalArgumentException("source must be the same as for the checkpointed model.");
     _parms._autoencoder=previous.model_info().get_params()._autoencoder;
     if (!_parms._autoencoder && (_parms._response_column == null || !_parms._response_column.equals(previous.model_info().get_params()._response_column))) {
       throw new IllegalArgumentException("response_vec must be the same as for the checkpointed model.");

@@ -1,0 +1,36 @@
+def file_read_csv_col(csvPathname, col=0, skipHeader=True, datatype='float', preview=5):
+    with open(csvPathname, 'rb') as f:
+        reader = csv.reader(f, quoting=csv.QUOTE_NONE)
+        print 'csv read of', csvPathname, 'column', col
+        rowNum = 0
+        dataList = []
+        lastRowLength = None
+        try:
+            for row in reader:
+                if (skipHeader and (rowNum == 0)):
+                    print 'Skipping header in this csv'
+                else:
+                    NA = False
+                    if (col > (len(row) - 1)):
+                        print ('col (zero indexed): %s points past the # entries in this row %s' % (col, row))
+                    if (lastRowLength and (len(row) != lastRowLength)):
+                        print ('Current row length: %s is different than last row length: %s' % (row, lastRowLength))
+                    if (col > (len(row) - 1)):
+                        colData = None
+                    else:
+                        colData = row[col]
+                    if ((rowNum < preview) and (len(row) <= 10)):
+                        print colData
+                    dataList.append(colData)
+                rowNum += 1
+                if ((rowNum % 10) == 0):
+                    pass
+                lastRowLength = len(row)
+        except csv.Error as e:
+            sys.exit(('file %s, line %d: %s' % (csvPathname, reader.line_num, e)))
+        if (datatype == 'float'):
+            D1 = [float(i) for i in dataList if i]
+        if (datatype == 'int'):
+            D1 = [int(i) for i in dataList if i]
+        print 'D1 done'
+    return D1

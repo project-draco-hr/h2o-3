@@ -1,0 +1,16 @@
+def delete_keys_at_all_nodes(node=None, pattern=None, timeoutSecs=120):
+    print "Going to delete all keys one at a time (slower than 'remove all keys')"
+    if (not node):
+        node = h2o_nodes.nodes[0]
+    print "Will cancel any running jobs, because we can't unlock keys on running jobs"
+    h2o_jobs.cancelAllJobs()
+    print 'unlock all keys first to make sure broken keys get removed'
+    node.unlock()
+    totalDeletedCnt = 0
+    deletedCnt = delete_keys(node, pattern=pattern, timeoutSecs=timeoutSecs)
+    totalDeletedCnt += deletedCnt
+    if pattern:
+        print 'Total: Deleted', totalDeletedCnt, 'keys with filter=', pattern, 'at', len(h2o_nodes.nodes), 'nodes'
+    else:
+        print 'Total: Deleted', totalDeletedCnt, 'keys at', len(h2o_nodes.nodes), 'nodes'
+    return totalDeletedCnt

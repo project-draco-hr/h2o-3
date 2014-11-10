@@ -1,0 +1,25 @@
+def do_json_request(addr=None, port=None, jsonRequest=None, params=None, timeout=7, **kwargs):
+    if (params is not None):
+        paramsStr = ('?' + '&'.join([('%s=%s' % (k, v)) for (k, v) in params.items()]))
+    else:
+        paramsStr = ''
+    url = create_url(addr, port, jsonRequest)
+    print (('Start ' + url) + paramsStr)
+    try:
+        r = requests.get(url, timeout=timeout, params=params, **kwargs)
+        rjson = r.json()
+        emsg = 'ERROR: Probing claimed existing cloud with Cloud.json'
+        if (not isinstance(rjson, (list, dict))):
+            raise Exception((emsg + ('h2o json responses should always be lists or dicts. Got %s' % dump_json(rj))))
+        elif (r.status_code != requests.codes.ok):
+            rjson = None
+            raise Exception((emsg + ("Couldn't decode. Status: %s" % r.status_code)))
+    except requests.ConnectionError as e:
+        rjson = None
+        emsg = 'ERROR: json got ConnectionError or other exception'
+        exc_info = sys.exc_info()
+        h2p.red_print(('%s\n %s\n %s\nGoing to check sandbox, then rethrow..' % (emsg, exc_info, (url + paramsStr))))
+        time.sleep(2)
+        check_sandbox_for_errors()
+        raise exc_info[1], None, exc_info[2]
+    return rjson

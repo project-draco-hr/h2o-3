@@ -1,0 +1,68 @@
+def pollWaitJobs(pattern=None, errorIfCancelled=False, timeoutSecs=60, pollTimeoutSecs=60, retryDelaySecs=5, benchmarkLogging=None, stallForNJobs=None):
+    wait = True
+    waitTime = 0
+    ignoredJobs = set()
+    while wait:
+        a = h2o_nodes.nodes[0].jobs_admin(timeoutSecs=pollTimeoutSecs)
+        verboseprint('jobs_admin():', dump_json(a))
+        jobs = a['jobs']
+        busy = 0
+        for j in jobs:
+            cancelled = (j['cancelled'] or (j['result'].get('val', None) == 'CANCELLED'))
+            description = j['description']
+            destination_key = j['destination_key']
+            end_time = j['end_time']
+            key = j['key']
+            progress = j['progress']
+            result = j['result']
+            start_time = j['start_time']
+            if (('exception' in result) and result['exception']):
+                check_sandbox_for_errors()
+                msg = ("ERROR: pollWaitJobs found a job with a exception result when it shouldn't have:\n %s" % dump_json(j))
+                raise Exception(msg)
+            if result:
+                if (('val' in result) and (result['val'] == 'OK')):
+                    pass
+                else:
+                    print ('non-empty result: %s for %s' % (result, key))
+            if (errorIfCancelled and cancelled):
+                check_sandbox_for_errors()
+                print ("ERROR: not stopping, but: pollWaitJobs found a cancelled job when it shouldn't have:\n %s" % dump_json(j))
+                print 'Continuing so maybe a json response will give more info'
+            elif ((end_time == '') and (not cancelled)):
+                if (not pattern):
+                    print 'time:', time.strftime('%I:%M:%S'), 'progress:', progress, destination_key
+                    verboseprint('description:', description, 'end_time:', end_time)
+                    busy += 1
+                    verboseprint(('pollWaitJobs: found a busy job, now: %s' % busy))
+                elif ((pattern in key) or (pattern in destination_key) or (pattern in description)):
+                    busy += 1
+                    verboseprint(('pollWaitJobs: found a pattern-matched busy job, now %s' % busy))
+                    print 'time:', time.strftime('%I:%M:%S'), 'progress:', progress, destination_key
+                elif (key not in ignoredJobs):
+                    jobMsg = ('%s %s %s' % (key, description, destination_key))
+                    verboseprint((" %s job in progress but we're ignoring it. Doesn't match pattern." % jobMsg))
+                    ignoredJobs.add(key)
+        if stallForNJobs:
+            waitFor = stallForNJobs
+        else:
+            waitFor = 0
+        print (' %s jobs in progress.' % busy), ('Waiting until %s in progress.' % waitFor)
+        wait = (busy > waitFor)
+        if (not wait):
+            break
+        if (wait and (waitTime > timeoutSecs)):
+            print dump_json(jobs)
+            raise Exception("Some queued jobs haven't completed after", timeoutSecs, 'seconds')
+        sys.stdout.write('.')
+        sys.stdout.flush()
+        time.sleep(retryDelaySecs)
+        waitTime += retryDelaySecs
+        if benchmarkLogging:
+            h2o.cloudPerfH2O.get_log_save(benchmarkLogging)
+        check_sandbox_for_errors()
+    patternKeys = []
+    for j in jobs:
+        if (pattern and (pattern in j['destination_key'])):
+            patternKeys.append(j['destination_key'])
+    return patternKeys

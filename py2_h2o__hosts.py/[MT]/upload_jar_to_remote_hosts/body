@@ -1,0 +1,20 @@
+def upload_jar_to_remote_hosts(hosts, slow_connection=False):
+
+    def prog(sofar, total):
+        username = getpass.getuser()
+        if (username != 'jenkins'):
+            p = int(((10.0 * sofar) / total))
+            sys.stdout.write(('\rUploading jar [%s%s] %02d%%' % (('#' * p), (' ' * (10 - p)), ((100 * sofar) / total))))
+            sys.stdout.flush()
+    if (not slow_connection):
+        for h in hosts:
+            f = find_file('build/h2o.jar')
+            h.upload_file(f, progress=prog)
+            h.upload_file(h2o_bc.flatfile_pathname())
+    else:
+        f = find_file('build/h2o.jar')
+        hosts[0].upload_file(f, progress=prog)
+        hosts[0].push_file_to_remotes(f, hosts[1:])
+        f = find_file(h2o_bc.flatfile_pathname())
+        hosts[0].upload_file(f, progress=prog)
+        hosts[0].push_file_to_remotes(f, hosts[1:])

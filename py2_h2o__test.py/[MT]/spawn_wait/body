@@ -1,0 +1,14 @@
+def spawn_wait(ps, stdout, stderr, capture_output=True, timeout=None):
+    rc = ps.wait(timeout)
+    if capture_output:
+        out = file(stdout).read()
+        err = file(stderr).read()
+    else:
+        out = 'stdout not captured'
+        err = 'stderr not captured'
+    if (rc is None):
+        ps.terminate()
+        raise Exception(('%s %s timed out after %d\nstdout:\n%s\n\nstderr:\n%s' % (ps.name, ps.cmdline, (timeout or 0), out, err)))
+    elif (rc != 0):
+        raise Exception(('%s %s failed.\nstdout:\n%s\n\nstderr:\n%s' % (ps.name, ps.cmdline, out, err)))
+    return rc

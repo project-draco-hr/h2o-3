@@ -1,0 +1,24 @@
+def delete_keys_from_import_result(node=None, pattern=None, importResult=None, timeoutSecs=30):
+    if (not node):
+        node = h2o_nodes.nodes[0]
+    deletedCnt = 0
+    if ('succeeded' in importResult):
+        kDict = importResult['succeeded']
+        for k in kDict:
+            key = k['key']
+            if ((pattern in key) or (pattern is None)):
+                print 'Removing', key
+                removeKeyResult = node.remove_key(key=key)
+                deletedCnt += 1
+    elif ('keys' in importResult):
+        kDict = importResult['keys']
+        for k in kDict:
+            key = k
+            if ((pattern in key) or (pattern is None)):
+                print 'Removing', key
+                removeKeyResult = node.remove_key(key=key)
+                deletedCnt += 1
+    else:
+        raise Exception("Can't find 'files' or 'succeeded' in your file dict. why? not from hdfs/s3 or local?")
+    print 'Deleted', deletedCnt, 'keys at', node
+    return deletedCnt

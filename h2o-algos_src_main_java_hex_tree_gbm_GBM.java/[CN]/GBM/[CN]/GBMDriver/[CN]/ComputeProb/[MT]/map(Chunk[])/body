@@ -1,0 +1,21 @@
+{
+  Chunk ys=chk_resp(chks);
+  if (_parms._loss == GBMModel.GBMParameters.Family.bernoulli) {
+    Chunk tr=chk_tree(chks,0);
+    Chunk wk=chk_work(chks,0);
+    for (int row=0; row < ys._len; row++)     wk.set0(row,1.0f / (1f + Math.exp(tr.at0(row))));
+  }
+ else   if (_nclass > 1) {
+    float fs[]=new float[_nclass + 1];
+    for (int row=0; row < ys._len; row++) {
+      float sum=score1(chks,fs,row);
+      if (Float.isInfinite(sum))       for (int k=0; k < _nclass; k++)       chk_work(chks,k).set0(row,Float.isInfinite(fs[k + 1]) ? 1.0f : 0.0f);
+ else       for (int k=0; k < _nclass; k++)       chk_work(chks,k).set0(row,fs[k + 1] / sum);
+    }
+  }
+ else {
+    Chunk tr=chk_tree(chks,0);
+    Chunk wk=chk_work(chks,0);
+    for (int row=0; row < ys._len; row++)     wk.set0(row,(float)tr.at0(row));
+  }
+}

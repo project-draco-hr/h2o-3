@@ -1,0 +1,18 @@
+{
+  AST ary=E.parse();
+  _margin=(int)((ASTNum)E.skipWS().parse())._d;
+  _fun=((ASTId)E.skipWS().parse())._id;
+  ArrayList<AST> fun_args=new ArrayList<>();
+  while (E.skipWS().hasNext()) {
+    fun_args.add(E.parse());
+  }
+  ASTApply res=(ASTApply)clone();
+  res._asts=new AST[]{ary};
+  if (fun_args.size() > 0) {
+    _fun_args=fun_args.toArray(new AST[fun_args.size()]);
+  }
+ else {
+    _fun_args=null;
+  }
+  return res;
+}

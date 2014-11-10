@@ -1,0 +1,39 @@
+{
+  CoxPHModel.CoxPHParameters p=model._parms;
+  CoxPHModel.CoxPHOutput o=model._output;
+  final int n_coef=o.coef.length;
+  final Matrix inv_hessian=new Matrix(o.hessian).inverse();
+  for (int j=0; j < n_coef; ++j) {
+    for (int k=0; k <= j; ++k) {
+      final double elem=-inv_hessian.get(j,k);
+      o.var_coef[j][k]=elem;
+      o.var_coef[k][j]=elem;
+    }
+  }
+  for (int j=0; j < n_coef; ++j) {
+    o.coef[j]=newCoef[j];
+    o.exp_coef[j]=Math.exp(o.coef[j]);
+    o.exp_neg_coef[j]=Math.exp(-o.coef[j]);
+    o.se_coef[j]=Math.sqrt(o.var_coef[j][j]);
+    o.z_coef[j]=o.coef[j] / o.se_coef[j];
+  }
+  if (o.iter == 0) {
+    o.null_loglik=newLoglik;
+    o.maxrsq=1 - Math.exp(2 * o.null_loglik / o.n);
+    o.score_test=0;
+    for (int j=0; j < n_coef; ++j) {
+      double sum=0;
+      for (int k=0; k < n_coef; ++k)       sum+=o.var_coef[j][k] * o.gradient[k];
+      o.score_test+=o.gradient[j] * sum;
+    }
+  }
+  o.loglik=newLoglik;
+  o.loglik_test=-2 * (o.null_loglik - o.loglik);
+  o.rsq=1 - Math.exp(-o.loglik_test / o.n);
+  o.wald_test=0;
+  for (int j=0; j < n_coef; ++j) {
+    double sum=0;
+    for (int k=0; k < n_coef; ++k)     sum-=o.hessian[j][k] * (o.coef[k] - p.init);
+    o.wald_test+=(o.coef[j] - p.init) * sum;
+  }
+}

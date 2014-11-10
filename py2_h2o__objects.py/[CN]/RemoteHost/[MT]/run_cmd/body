@@ -1,0 +1,10 @@
+def run_cmd(self, cmd):
+    log(('Running `%s` on %s' % (cmd, self)))
+    (stdin, stdout, stderr) = self.ssh.exec_command(cmd)
+    stdin.close()
+    sys.stdout.write(stdout.read())
+    sys.stdout.flush()
+    stdout.close()
+    sys.stderr.write(stderr.read())
+    sys.stderr.flush()
+    stderr.close()

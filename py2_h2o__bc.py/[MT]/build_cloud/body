@@ -1,0 +1,99 @@
+def build_cloud(node_count=1, base_port=None, hosts=None, timeoutSecs=30, retryDelaySecs=1, cleanup=True, rand_shuffle=True, conservative=False, create_json=False, clone_cloud=None, init_sandbox=True, usecloud=False, usecloud_size=None, **kwargs):
+    global stdout_wrapped
+    if ((not h2o_args.disable_time_stamp) and (not stdout_wrapped)):
+        sys.stdout = OutWrapper(sys.stdout)
+        stdout_wrapped = True
+    if (h2o_args.usecloud or usecloud):
+        nodesJsonPathname = 'h2o_fc-nodes.json'
+    elif h2o_args.clone_cloud_json:
+        nodesJsonPathname = h2o_args.clone_cloud_json
+    elif clone_cloud:
+        nodesJsonPathname = clone_cloud
+    else:
+        nodesJsonPathname = None
+    if ((h2o_args.clone_cloud_json or clone_cloud) or (h2o_args.usecloud or usecloud)):
+        if h2o_args.usecloud:
+            ip_port = h2o_args.usecloud
+        elif usecloud:
+            ip_port = usecloud
+        else:
+            ip_port = None
+        if h2o_args.usecloud_size:
+            useCloudExpectedSize = h2o_args.usecloud_size
+        else:
+            useCloudExpectedSize = usecloud_size
+        nodesJsonObject = h2o_fc.find_cloud(ip_port=ip_port, expectedSize=useCloudExpectedSize, nodesJsonPathname=nodesJsonPathname, **kwargs)
+        nodeList = build_cloud_with_json(h2o_nodes_json=nodesJsonPathname)
+        return nodeList
+    if init_sandbox:
+        clean_sandbox()
+    log('#*********************************************************************')
+    log((('Starting new test: ' + h2o_args.python_test_name) + ' at build_cloud() '))
+    log('#*********************************************************************')
+    ports_per_node = 2
+    nodeList = []
+    base_port = get_base_port(base_port)
+    try:
+        totalNodes = 0
+        portList = [(base_port + (ports_per_node * i)) for i in range(node_count)]
+        if (hosts is None):
+            write_flatfile(node_count=node_count, base_port=base_port)
+            hostCount = 1
+            if rand_shuffle:
+                random.shuffle(portList)
+            for p in portList:
+                verboseprint('psutil starting node', i)
+                newNode = LocalH2O(port=p, node_id=totalNodes, **kwargs)
+                nodeList.append(newNode)
+                totalNodes += 1
+        else:
+            hostCount = len(hosts)
+            hostPortList = []
+            for h in hosts:
+                for port in portList:
+                    hostPortList.append((h, port))
+            if rand_shuffle:
+                random.shuffle(hostPortList)
+            for (h, p) in hostPortList:
+                verboseprint('ssh starting node', totalNodes, 'via', h)
+                newNode = h.remote_h2o(port=p, node_id=totalNodes, **kwargs)
+                nodeList.append(newNode)
+                totalNodes += 1
+        verboseprint('Attempting Cloud stabilize of', totalNodes, 'nodes on', hostCount, 'hosts')
+        start = time.time()
+        stabilize_cloud(nodeList[0], nodeList, timeoutSecs=timeoutSecs, retryDelaySecs=retryDelaySecs, noSandboxErrorCheck=True)
+        verboseprint(len(nodeList), 'Last added node stabilized in ', (time.time() - start), ' secs')
+        verboseprint(('Built cloud: %d nodes on %d hosts, in %d s' % (len(nodeList), hostCount, (time.time() - start))))
+        h2p.red_print('Built cloud:', nodeList[0].java_heap_GB, 'GB java heap(s) with', len(nodeList), 'total nodes')
+        if conservative:
+            for n in nodeList:
+                stabilize_cloud(n, nodeList, timeoutSecs=timeoutSecs, noSandboxErrorCheck=True)
+        verify_cloud_size(nodeList, expectedCloudName=nodeList[0].cloud_name, expectedLocked=0)
+        check_sandbox_for_errors(python_test_name=h2o_args.python_test_name)
+    except:
+        if (cleanup and nodeList):
+            for n in nodeList:
+                n.terminate()
+        check_sandbox_for_errors(python_test_name=h2o_args.python_test_name)
+        raise
+    print len(nodeList), 'total jvms in H2O cloud'
+    nodeList[0].h2o_log_msg()
+    if h2o_args.config_json:
+        print 'Saving the ', h2o_args.config_json, 'we used to', LOG_DIR
+        shutil.copy(h2o_args.config_json, ((LOG_DIR + '/') + os.path.basename(h2o_args.config_json)))
+    if create_json:
+        cs_time = str(datetime.datetime.now())
+        cs_cwd = os.getcwd()
+        cs_python_cmd_line = ('python %s %s' % (h2o_args.python_test_name, h2o_args.python_cmd_args))
+        cs_python_test_name = h2o_args.python_test_name
+        if h2o_args.config_json:
+            cs_config_json = os.path.abspath(h2o_args.config_json)
+        else:
+            cs_config_json = None
+        cs_username = h2o_args.python_username
+        cs_ip = h2o_args.python_cmd_ip
+        q = {'cloud_start': {'time': cs_time, 'cwd': cs_cwd, 'python_test_name': cs_python_test_name, 'python_cmd_line': cs_python_cmd_line, 'config_json': cs_config_json, 'username': cs_username, 'ip': cs_ip, }, 'h2o_nodes': h2o_util.json_repr(nodeList), }
+        with open('h2o-nodes.json', 'w+') as f:
+            f.write(json.dumps(q, indent=4))
+    h2o_nodes.nodes[:] = nodeList
+    return nodeList

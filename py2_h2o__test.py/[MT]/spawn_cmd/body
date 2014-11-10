@@ -1,0 +1,12 @@
+def spawn_cmd(name, cmd, capture_output=True, **kwargs):
+    if capture_output:
+        (outfd, outpath) = tmp_file((name + '.stdout.'), '.log')
+        (errfd, errpath) = tmp_file((name + '.stderr.'), '.log')
+        ps = psutil.Popen(cmd, stdin=None, stdout=outfd, stderr=errfd, **kwargs)
+    else:
+        outpath = '<stdout>'
+        errpath = '<stderr>'
+        ps = psutil.Popen(cmd, **kwargs)
+    comment = ('PID %d, stdout %s, stderr %s' % (ps.pid, os.path.basename(outpath), os.path.basename(errpath)))
+    log(' '.join(cmd), comment=comment)
+    return (ps, outpath, errpath)

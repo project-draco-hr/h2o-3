@@ -12,6 +12,9 @@
     }
  else     if (type == MapperToDriverMessage.TYPE_FETCH_FLATFILE) {
       System.out.println("H2O node " + msg.getEmbeddedWebServerIp() + ":"+ msg.getEmbeddedWebServerPort()+ " requested flatfile");
+      if (msg.getEmbeddedWebServerIp().equals("127.0.0.1")) {
+        clusterHasNodeWithLocalhostIp=true;
+      }
       _cm.registerNode(msg.getEmbeddedWebServerIp(),msg.getEmbeddedWebServerPort(),_s);
     }
  else     if (type == MapperToDriverMessage.TYPE_CLOUD_SIZE) {

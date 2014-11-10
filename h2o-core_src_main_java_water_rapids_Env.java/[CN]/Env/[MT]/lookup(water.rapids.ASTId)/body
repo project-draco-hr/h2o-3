@@ -1,0 +1,14 @@
+{
+switch (getType(id.value(),true)) {
+case NUM:
+    return new ASTNum(Double.valueOf(getValue(id.value(),true)));
+case ARY:
+  return new ASTFrame(id.value());
+case LARY:
+return new ASTFrame(get_local(id.value()));
+case STR:
+return id.value().equals("null") ? new ASTNull() : new ASTString('\"',id.value());
+default :
+throw H2O.fail("Could not find appropriate type for identifier " + id);
+}
+}

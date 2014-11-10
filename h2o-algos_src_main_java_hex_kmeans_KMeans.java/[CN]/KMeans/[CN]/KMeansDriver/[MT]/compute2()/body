@@ -1,6 +1,7 @@
 {
   KMeansModel model=null;
   try {
+    init(true);
     _parms.lock_frames(KMeans.this);
     model=new KMeansModel(dest(),_parms,new KMeansModel.KMeansOutput(KMeans.this));
     model.delete_and_lock(_key);
@@ -49,11 +50,11 @@
           if (badrow) {
             Log.warn("KMeans: Re-running Lloyds to re-init another cluster");
             model._output._iters--;
-            if (reinit_attempts++ < _parms._K) {
+            if (_reinit_attempts++ < _parms._K) {
               continue LOOP;
             }
  else {
-              reinit_attempts=0;
+              _reinit_attempts=0;
               break;
             }
           }

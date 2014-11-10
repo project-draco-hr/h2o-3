@@ -1,19 +1,29 @@
 {
-  _parms.lock_frames(this);
+  _clean_enums=_parms._toEnum && !_response.isEnum();
+  init(true);
   DataInfo dinfo=new DataInfo(Key.make(),_train,_valid,1,_parms.useAllFactorLvls || _parms.lambda_search,_parms._standardize ? DataInfo.TransformType.STANDARDIZE : DataInfo.TransformType.NONE,DataInfo.TransformType.NONE);
   DKV.put(dinfo._key,dinfo);
+  _parms.lock_frames(this);
   H2OCountedCompleter cmp=new H2OCountedCompleter(){
     AtomicBoolean _gotException=new AtomicBoolean(false);
     @Override public void compute2(){
     }
     @Override public void onCompletion(    CountedCompleter cc){
-      _parms.unlock_frames(GLM.this);
       done();
+      _parms.unlock_frames(GLM.this);
+      if (_clean_enums) {
+        train().lastVec().remove();
+        valid().lastVec().remove();
+      }
     }
     @Override public boolean onExceptionalCompletion(    Throwable ex,    CountedCompleter cc){
       if (!_gotException.getAndSet(true)) {
         cancel2(ex);
         _parms.unlock_frames(GLM.this);
+        if (_clean_enums) {
+          train().lastVec().remove();
+          valid().lastVec().remove();
+        }
         return true;
       }
       return false;

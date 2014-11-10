@@ -1,0 +1,14 @@
+def check_port_group(base_port):
+    if (1 == 1):
+        username = getpass.getuser()
+        if (username == 'jenkins'):
+            command1Split = ['netstat', '-an']
+            command2Split = ['egrep']
+            command2Split.append(('(%s | %s)' % (base_port, (base_port + 1))))
+            command3Split = ['wc', '-l']
+            print 'Checking 2 ports starting at ', base_port
+            print ' '.join(command2Split)
+            p1 = subprocess.Popen(command1Split, stdout=subprocess.PIPE)
+            p2 = subprocess.Popen(command2Split, stdin=p1.stdout, stdout=subprocess.PIPE)
+            output = p2.communicate()[0]
+            print output

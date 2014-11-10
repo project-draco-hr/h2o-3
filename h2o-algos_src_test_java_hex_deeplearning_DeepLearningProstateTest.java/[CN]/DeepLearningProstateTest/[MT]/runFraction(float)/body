@@ -22,11 +22,6 @@
             for (            boolean balance_classes : new boolean[]{true,false}) {
               for (              int resp : responses[i]) {
                 boolean classification=!(i == 0 && resp == 2);
-                Vec old=frame.vecs()[resp];
-                if (classification) {
-                  frame.replace(resp,old.toEnum());
-                  DKV.put(frame._key,frame);
-                }
                 for (                ClassSamplingMethod csm : new ClassSamplingMethod[]{ClassSamplingMethod.Stratified,ClassSamplingMethod.Uniform}) {
                   for (                  int scoretraining : new int[]{200,20,0}) {
                     for (                    int scorevalidation : new int[]{200,20,0}) {
@@ -37,7 +32,7 @@
                             for (                            boolean override_with_best_model : new boolean[]{false,true}) {
                               for (                              int train_samples_per_iteration : new int[]{-2,-1,0,rng.nextInt(200),500}) {
                                 DeepLearningModel model1=null, model2=null, tmp_model=null;
-                                Key dest=null, dest_tmp;
+                                Key dest, dest_tmp;
                                 count++;
                                 if (fraction < rng.nextFloat())                                 continue;
                                 try {
@@ -128,14 +123,13 @@
                                     }
                                   }
                                   if (valid == null)                                   valid=frame;
-                                  double threshold=0;
                                   if (model2._output.isClassifier()) {
                                     Frame pred=null, pred2=null;
                                     try {
                                       pred=model2.score(valid);
                                       StringBuilder sb=new StringBuilder();
                                       AUC auc=new AUC();
-                                      double error=0;
+                                      double error;
                                       if (model2._output.nclasses() == 2) {
                                         auc.actual=valid;
                                         assert(resp == 1);
@@ -144,13 +138,12 @@
                                         auc.vpredict=pred.vecs()[2];
                                         auc.execImpl();
                                         AUCData aucd=auc.data();
-                                        threshold=aucd.threshold();
+                                        aucd.threshold();
                                         error=aucd.err();
                                         Log.info(sb);
                                         Assert.assertEquals(new ConfusionMatrix2(auc.data().cm()).err(),error,1e-15);
                                         Assert.assertEquals(model2.calcError(auc.actual,auc.vactual,pred,pred,"training",false,0,null,auc,null),error,1e-15);
                                       }
-                                      double CMerrorOrig;
 {
                                         sb=new StringBuilder();
                                         ConfusionMatrix CM=new ConfusionMatrix();
@@ -205,8 +198,6 @@
                     }
                   }
                 }
-                if (classification)                 frame.replace(resp,old).remove();
-                DKV.put(frame._key,frame);
               }
             }
           }
