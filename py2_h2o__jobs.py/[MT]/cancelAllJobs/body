@@ -1,0 +1,10 @@
+def cancelAllJobs(timeoutSecs=10, **kwargs):
+    time.sleep(2)
+    a = h2o_nodes.nodes[0].jobs_admin(timeoutSecs=120)
+    print 'jobs_admin():', dump_json(a)
+    jobsList = a['jobs']
+    for j in jobsList:
+        if (j['end_time'] == ''):
+            b = h2o_nodes.nodes[0].jobs_cancel(key=j['key'])
+            print 'jobs_cancel():', dump_json(b)
+    pollWaitJobs(timeoutSecs=timeoutSecs, **kwargs)

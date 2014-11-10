@@ -1,18 +1,15 @@
 {
-  Frame fr=env.peekAry();
+  Frame fr=env.pop0Ary();
   if (fr.vecs().length > 1)   throw new IllegalArgumentException("mean does not apply to multiple cols.");
   if (fr.vecs()[0].isEnum())   throw new IllegalArgumentException("mean only applies to numeric vector.");
   MeanNARMTask t=new MeanNARMTask(_narm).doAll(fr.anyVec()).getResult();
   if (t._rowcnt == 0 || Double.isNaN(t._sum)) {
     double ave=Double.NaN;
-    if (env.isAry())     env.cleanup(env.popAry());
- else     env.pop();
     env.push(new ValNum(ave));
   }
  else {
     double ave=t._sum / t._rowcnt;
-    if (env.isAry())     env.cleanup(env.popAry());
- else     env.pop();
     env.push(new ValNum(ave));
   }
+  env.cleanup(fr);
 }

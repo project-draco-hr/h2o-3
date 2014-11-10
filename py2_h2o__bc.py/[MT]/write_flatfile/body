@@ -1,0 +1,18 @@
+def write_flatfile(node_count=2, base_port=None, hosts=None, rand_shuffle=True):
+    base_port = get_base_port(base_port)
+    ports_per_node = 2
+    pff = open(flatfile_pathname(), 'w+')
+    hostPortList = []
+    if (hosts is None):
+        ip = h2o_args.python_cmd_ip
+        for i in range(node_count):
+            hostPortList.append(((ip + ':') + str((base_port + (ports_per_node * i)))))
+    else:
+        for h in hosts:
+            for i in range(node_count):
+                hostPortList.append(((h.h2o_addr + ':') + str((base_port + (ports_per_node * i)))))
+    if rand_shuffle:
+        random.shuffle(hostPortList)
+    for hp in hostPortList:
+        pff.write((hp + '\n'))
+    pff.close()

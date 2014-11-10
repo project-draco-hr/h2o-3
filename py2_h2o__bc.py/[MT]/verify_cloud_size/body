@@ -1,0 +1,57 @@
+def verify_cloud_size(nodeList=None, expectedCloudName=None, expectedLocked=None, verbose=False, timeoutSecs=10, ignoreHealth=True):
+    if (not nodeList):
+        nodeList = h2o_nodes.nodes
+    expectedSize = len(nodeList)
+    cloudStatus = [n.get_cloud(timeoutSecs=timeoutSecs) for n in nodeList]
+    cloudSizes = [(c['cloud_size'] + 1) for c in cloudStatus]
+    cloudConsensus = [c['consensus'] for c in cloudStatus]
+    cloudName = [c['cloud_name'] for c in cloudStatus]
+    cloudLocked = [c['locked'] for c in cloudStatus]
+    cloudVersion = [c['version'] for c in cloudStatus]
+    expectedVersion = cloudVersion[0]
+    if (not expectedVersion.startswith('0')):
+        raise Exception(("h2o version at node[0] doesn't look like h2o-dev version. (start with 0) %s" % expectedVersion))
+    for (i, v) in enumerate(cloudVersion):
+        if (v != expectedVersion):
+            versionStr = ','.join(map(str, cloudVersion))
+            raise Exception(('node %s. Inconsistent cloud version. nodeList report version: %s' % (i, versionStr)))
+    if (not ignoreHealth):
+        for c in cloudStatus:
+            if ('cloud_healthy' not in c):
+                raise Exception(('cloud_healthy missing: %s' % dump_json(c)))
+        cloudHealthy = [c['cloud_healthy'] for c in cloudStatus]
+        if (not all(cloudHealthy)):
+            msg = ('Some node reported cloud_healthy not true: %s' % cloudHealthy)
+            raise Exception(msg)
+    for (i, c) in enumerate(cloudStatus):
+        nodesHealthy = [n['healthy'] for n in c['nodes']]
+        if (not all(nodesHealthy)):
+            print ('node %s cloud status: %s' % (i, dump_json(c)))
+            msg = ('node %s says some node is not reporting node_healthy: %s' % (c['cloud_name'], nodesHealthy))
+            if (not ignoreHealth):
+                raise Exception(msg)
+    if ((expectedSize == 0) or (len(cloudSizes) == 0) or (len(cloudConsensus) == 0)):
+        print '\nexpectedSize:', expectedSize
+        print 'cloudSizes:', cloudSizes
+        print 'cloudConsensus:', cloudConsensus
+        raise Exception("Nothing in cloud. Can't verify size")
+    consensusStr = ','.join(map(str, cloudConsensus))
+    sizeStr = ','.join(map(str, cloudSizes))
+    for s in cloudSizes:
+        if (s != expectedSize):
+            raise Exception(('Inconsistent cloud size. nodeList report size: %s consensus: %s instead of %d.' % (sizeStr, consensusStr, expectedSize)))
+    if expectedCloudName:
+        for (i, cn) in enumerate(cloudName):
+            if (cn != expectedCloudName):
+                print ('node %s has the wrong cloud name: %s expectedCloudName: %s.' % (i, cn, expectedCloudName))
+                print 'tearing cloud down'
+                tear_down_cloud(nodeList=nodeList, sandboxIgnoreErrors=False)
+                raise Exception(('node %s has the wrong cloud name: %s expectedCloudName: %s' % (i, cn, expectedCloudName)))
+    if expectedLocked:
+        for (i, cl) in enumerate(cloudLocked):
+            if (cl != expectedLocked):
+                print ('node %s has the wrong locked: %s expectedLocked: %s.' % (i, cl, expectedLocked))
+                print 'tearing cloud down'
+                tear_down_cloud(nodeList=nodeList, sandboxIgnoreErrors=False)
+                raise Exception(('node %s has the wrong locked: %s expectedLocked: %s' % (i, cn, expectedLocked)))
+    return (sizeStr, consensusStr, expectedSize)

@@ -1,0 +1,74 @@
+def get_args(self):
+    args = ['java']
+    if (self.java_heap_GB is not None):
+        if (not (1 <= self.java_heap_GB <= 256)):
+            raise Exception(('java_heap_GB <1 or >256  (GB): %s' % self.java_heap_GB))
+        args += [('-Xms%dG' % self.java_heap_GB)]
+        args += [('-Xmx%dG' % self.java_heap_GB)]
+    if (self.java_heap_MB is not None):
+        if (not (1 <= self.java_heap_MB <= 256000)):
+            raise Exception(('java_heap_MB <1 or >256000  (MB): %s' % self.java_heap_MB))
+        args += [('-Xms%dm' % self.java_heap_MB)]
+        args += [('-Xmx%dm' % self.java_heap_MB)]
+    if (self.java_extra_args is not None):
+        args += [('%s' % self.java_extra_args)]
+    if self.use_debugger:
+        debuggerBasePort = 8000
+        if (self.node_id is None):
+            debuggerPort = debuggerBasePort
+        else:
+            debuggerPort = (debuggerBasePort + self.node_id)
+        if self.http_addr:
+            a = self.http_addr
+        else:
+            a = 'localhost'
+        if self.port:
+            b = str(self.port)
+        else:
+            b = 'h2o determined'
+        print ('You can attach debugger at port %s for jvm at %s:%s' % (debuggerPort, a, b))
+        args += [('-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=%s' % debuggerPort)]
+    if self.disable_assertions:
+        print 'WARNING: h2o is running with assertions disabled'
+    else:
+        args += ['-ea']
+    if self.use_maprfs:
+        args += ['-Djava.library.path=/opt/mapr/lib']
+    if self.classpath:
+        entries = [find_file('build/classes'), find_file('lib/javassist.jar')]
+        entries += glob.glob((find_file('lib') + '/*/*.jar'))
+        entries += glob.glob((find_file('lib') + '/*/*/*.jar'))
+        args += ['-classpath', os.pathsep.join(entries), 'water.Boot']
+    else:
+        args += ['-jar', self.get_h2o_jar()]
+    if (1 == 1):
+        if self.hdfs_config:
+            args += [('-hdfs_config ' + self.hdfs_config)]
+    if h2o_args.beta_features:
+        pass
+    if self.network:
+        args += [('-network ' + self.network)]
+    if (self.force_ip and self.h2o_addr):
+        args += [('-ip %s' % self.h2o_addr)]
+    if (self.port is not None):
+        args += [('-port %d' % self.port)]
+    if self.use_flatfile:
+        args += [('-flatfile ' + self.flatfile)]
+    args += [('-ice_root %s' % self.get_ice_dir())]
+    args += [('-name ' + self.cloud_name)]
+    if (1 == 0):
+        if self.hdfs_config:
+            args += [('-hdfs_config ' + self.hdfs_config)]
+    if self.use_hdfs:
+        args += [('-hdfs hdfs://' + self.hdfs_name_node), ('-hdfs_version ' + self.hdfs_version)]
+    if self.use_maprfs:
+        args += [('-hdfs maprfs:///' + self.hdfs_name_node), ('-hdfs_version ' + self.hdfs_version)]
+    if self.aws_credentials:
+        args += [('-aws_credentials ' + self.aws_credentials)]
+    if (self.random_udp_drop or h2o_args.random_udp_drop):
+        args += ['-random_udp_drop']
+    if self.force_tcp:
+        args += ['-force_tcp']
+    if self.disable_h2o_log:
+        args += ['-nolog']
+    return args

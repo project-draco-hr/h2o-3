@@ -1,0 +1,8 @@
+def handleRemoveError(func, path, exc):
+    excvalue = exc[1]
+    print 'Retrying shutil.rmtree of sandbox. Will ignore errors. Exception was', excvalue.errno
+    time.sleep(2)
+    try:
+        func(path)
+    except OSError:
+        pass

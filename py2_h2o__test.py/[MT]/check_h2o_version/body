@@ -1,0 +1,8 @@
+def check_h2o_version():
+    command1Split = ['java', '-jar', find_file('target/h2o.jar'), '--version']
+    command2Split = ['egrep', '-v', '( Java | started)']
+    print 'Running h2o to get java version'
+    p1 = Popen(command1Split, stdout=PIPE)
+    p2 = Popen(command2Split, stdin=p1.stdout, stdout=PIPE)
+    output = p2.communicate()[0]
+    print output

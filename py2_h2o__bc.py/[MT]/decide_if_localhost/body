@@ -1,0 +1,20 @@
+def decide_if_localhost():
+    if h2o_args.usecloud:
+        print '* Will ask h2o node about cloud using -uc argument:', h2o_args.usecloud
+        return True
+    if h2o_args.clone_cloud_json:
+        print '* Using description of already built cloud, in JSON you passed as -ccj argument:', h2o_args.clone_json
+        return True
+    if h2o_args.config_json:
+        print '* Will build cloud using config JSON you passed as -cj argument:', h2o_args.config_json
+        return False
+    hostsFile = default_hosts_file()
+    if os.path.exists(hostsFile):
+        print '* Will build cloud using config JSON file that matches your username, discovered in this directory: {0}.'.format(hostsFile)
+        return False
+    if ('hosts' in os.getcwd()):
+        print "Since you're in a *hosts* directory, we're using a config json"
+        print "* Expecting default username's config json here. Better exist!"
+        return False
+    print 'No special config control. Building local cloud per test...'
+    return True

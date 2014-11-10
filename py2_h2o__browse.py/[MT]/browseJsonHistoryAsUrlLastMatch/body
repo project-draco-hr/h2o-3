@@ -1,0 +1,15 @@
+def browseJsonHistoryAsUrlLastMatch(matchme, swapme=None):
+    if (not h2o_args.browse_disable):
+        len_history = len(h2o_nodes.json_url_history)
+        i = (-1)
+        while (((len_history + i) != 0) and (not re.search(matchme, h2o_nodes.json_url_history[i]))):
+            i = (i - 1)
+        url = h2o_nodes.json_url_history[i]
+        if (swapme is not None):
+            url = re.sub(matchme, swapme, url)
+        url = re.sub('ProgressPage', 'ProgressPage.html', url)
+        url = re.sub('Progress?!Page', 'Progress.html', url)
+        url = re.sub('.json', '.html', url)
+        verboseprint('browseJsonHistoryAsUrlLastMatch:', url)
+        print 'browseJsonHistoryAsUrlLastMatch,  decoded:', urllib.unquote(url)
+        webbrowser.open_new_tab(url)

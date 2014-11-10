@@ -1,0 +1,15 @@
+def __init__(self, addr, username=None, password=None, **kwargs):
+    import paramiko
+    self.h2o_addr = addr
+    self.http_addr = addr
+    self.username = username
+    self.ssh = paramiko.SSHClient()
+    policy = paramiko.AutoAddPolicy()
+    self.ssh.set_missing_host_key_policy(policy)
+    self.ssh.load_system_host_keys()
+    if (password is None):
+        self.ssh.connect(self.h2o_addr, username=username, **kwargs)
+    else:
+        self.ssh.connect(self.h2o_addr, username=username, password=password, **kwargs)
+    self.ssh.get_transport().set_keepalive(300)
+    self.uploaded = {}

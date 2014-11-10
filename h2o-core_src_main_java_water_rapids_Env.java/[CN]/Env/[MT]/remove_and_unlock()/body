@@ -10,4 +10,11 @@ default :
 break;
 }
 }
+Futures fs=new Futures();
+for (Vec v : _refcnt.keySet()) {
+if (_refcnt.get(v)._val == 0) {
+removeVec(v,fs);
+}
+}
+fs.blockForPending();
 }

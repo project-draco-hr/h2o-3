@@ -1,0 +1,17 @@
+def browseJsonHistoryAsUrl(retryDelaySecs=0.25):
+    if (not h2o_args.browse_disable):
+        tabCount = 0
+        for url in h2o_nodes.json_url_history:
+            if (not re.search('Cloud', url)):
+                url = re.sub('ProgressPage', 'ProgressPage.html', url)
+                url = re.sub('Progress?!Page', 'Progress.html', url)
+                url = re.sub('Progress\\?', 'Progress.html?', url)
+                url = re.sub('.json', '.html', url)
+                print 'browseJsonHistoryAsUrl:', url
+                print 'same, decoded:', urllib.unquote(url)
+                log(url, comment='From browseJsonHistoryAsUrl')
+                webbrowser.open(url, new=0)
+                time.sleep(retryDelaySecs)
+                tabCount += 1
+            if (tabCount == 50):
+                break
