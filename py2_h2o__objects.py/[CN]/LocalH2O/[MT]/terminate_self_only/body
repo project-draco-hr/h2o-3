@@ -1,0 +1,26 @@
+def terminate_self_only(self):
+
+    def on_terminate(proc):
+        print 'process {} terminated'.format(proc)
+    waitingForKill = False
+    try:
+        self.ps.terminate()
+        (gone, alive) = wait_procs(procs=[self.ps], timeout=3, callback=on_terminate)
+        if alive:
+            self.ps.kill()
+        waitingForKill = True
+        return self.wait(timeout=3)
+    except psutil.NoSuchProcess:
+        return (-1)
+    except:
+        if waitingForKill:
+            print '\nUsed psutil to kill h2o process...but'
+            print ("It didn't die within 2 secs. Maybe will die soon. Maybe not! At: %s" % self.http_addr)
+        else:
+            print 'Unexpected exception in terminate_self_only: ignoring'
+        if hasattr(self.ps.cmdline, '__call__'):
+            pcmdline = self.ps.cmdline()
+        else:
+            pcmdline = self.ps.cmdline
+        print 'process cmdline:', pcmdline
+        return (-1)

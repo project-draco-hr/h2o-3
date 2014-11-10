@@ -1,0 +1,37 @@
+{
+  _classification=classification;
+  _train=train;
+  _valid=valid;
+  data_info=dinfo;
+  parameters=params;
+  final int num_input=dinfo.fullN();
+  final int num_output=get_params()._autoencoder ? num_input : (_classification ? train.lastVec().cardinality() : 1);
+  assert(num_input > 0);
+  assert(num_output > 0);
+  if (has_momenta() && adaDelta())   throw new IllegalArgumentException("Cannot have non-zero momentum and adaptive rate at the same time.");
+  final int layers=get_params()._hidden.length;
+  units=new int[layers + 2];
+  if (get_params()._max_categorical_features <= Integer.MAX_VALUE - dinfo._nums)   units[0]=Math.min(dinfo._nums + get_params()._max_categorical_features,num_input);
+ else   units[0]=num_input;
+  System.arraycopy(get_params()._hidden,0,units,1,layers);
+  units[layers + 1]=num_output;
+  dense_row_weights=new Neurons.DenseRowMatrix[layers + 1];
+  dense_col_weights=new Neurons.DenseColMatrix[layers + 1];
+  if (get_params()._col_major)   dense_col_weights[0]=new Neurons.DenseColMatrix(units[1],units[0]);
+ else   dense_row_weights[0]=new Neurons.DenseRowMatrix(units[1],units[0]);
+  for (int i=1; i <= layers; ++i)   dense_row_weights[i]=new Neurons.DenseRowMatrix(units[i + 1],units[i]);
+  biases=new Neurons.DenseVector[layers + 1];
+  for (int i=0; i <= layers; ++i)   biases[i]=new Neurons.DenseVector(units[i + 1]);
+  if (get_params()._autoencoder && get_params()._sparsity_beta > 0) {
+    avg_activations=new Neurons.DenseVector[layers];
+    mean_a=new float[layers];
+    for (int i=0; i < layers; ++i)     avg_activations[i]=new Neurons.DenseVector(units[i + 1]);
+  }
+  fillHelpers();
+  mean_rate=new float[units.length];
+  rms_rate=new float[units.length];
+  mean_bias=new float[units.length];
+  rms_bias=new float[units.length];
+  mean_weight=new float[units.length];
+  rms_weight=new float[units.length];
+}

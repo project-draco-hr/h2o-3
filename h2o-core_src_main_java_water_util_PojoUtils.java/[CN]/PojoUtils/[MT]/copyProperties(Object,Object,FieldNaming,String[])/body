@@ -30,13 +30,6 @@
         if (null == f.get(origin)) {
           dest_field.set(dest,null);
         }
- else         if (dest_field.getType() == Key.class && Keyed.class.isAssignableFrom(f.getType())) {
-          dest_field.set(dest,((Keyed)f.get(origin))._key);
-        }
- else         if (f.getType() == Key.class && Keyed.class.isAssignableFrom(dest_field.getType())) {
-          Value v=DKV.get((Key)f.get(origin));
-          dest_field.set(dest,(null == v ? null : v.get()));
-        }
  else         if (dest_field.getType().isArray() && f.getType().isArray() && (dest_field.getType().getComponentType() != f.getType().getComponentType())) {
           if (dest_field.getType().getComponentType() == int.class && f.getType().getComponentType() == Integer.class) {
             int[] copy=(int[])f.get(origin);
@@ -64,13 +57,22 @@
             }
             dest_field.set(dest,translation);
           }
- else           if (dest_field.getType().getComponentType() == Integer.class && f.getType().getComponentType() == int.class) {
-            Integer[] copy=(Integer[])f.get(origin);
-            dest_field.set(dest,copy);
-          }
  else {
             throw H2O.fail("Don't know how to cast an array of: " + f.getType().getComponentType() + " to an array of: "+ dest_field.getType().getComponentType());
           }
+        }
+ else         if (dest_field.getType() == Key.class && Keyed.class.isAssignableFrom(f.getType())) {
+          dest_field.set(dest,((Keyed)f.get(origin))._key);
+        }
+ else         if (f.getType() == Key.class && Keyed.class.isAssignableFrom(dest_field.getType())) {
+          Value v=DKV.get((Key)f.get(origin));
+          dest_field.set(dest,(null == v ? null : v.get()));
+        }
+ else         if (dest_field.getType() == Pattern.class && String.class.isAssignableFrom(f.getType())) {
+          dest_field.set(dest,Pattern.compile((String)f.get(origin)));
+        }
+ else         if (f.getType() == Pattern.class && String.class.isAssignableFrom(dest_field.getType())) {
+          dest_field.set(dest,f.get(origin).toString());
         }
  else         if (Enum.class.isAssignableFrom(dest_field.getType()) && String.class.isAssignableFrom(f.getType())) {
           Class<Enum> dest_class=(Class<Enum>)dest_field.getType();

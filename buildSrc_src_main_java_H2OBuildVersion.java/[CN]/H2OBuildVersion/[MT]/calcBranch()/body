@@ -1,0 +1,20 @@
+{
+  try {
+    Process p=new ProcessBuilder("git","branch").start();
+    p.waitFor();
+    BufferedReader br=new BufferedReader(new InputStreamReader(p.getInputStream()));
+    String line=br.readLine();
+    while (line != null) {
+      if (!line.startsWith("*")) {
+        line=br.readLine();
+        continue;
+      }
+      String branch=line.substring(2);
+      return branch;
+    }
+    return "(unknown)";
+  }
+ catch (  Exception e) {
+    return "(unknown)";
+  }
+}

@@ -1,0 +1,14 @@
+{
+  String name=E.parseID();
+  _name=name;
+  Env.SymbolTable table=E._env.newTable();
+  String[] args=E.skipWS().peek() == '{' ? E.xpeek('{').parseString('}').split(";") : null;
+  _arg_names=args;
+  if (args == null)   table.put(null,Env.NULL,null);
+ else   for (  String arg : args)   table.put(arg,Env.NULL,null);
+  _table=table;
+  _body=new ASTStatement().parse_impl(E.skipWS());
+  ASTFunc res=new ASTFunc(_name,_arg_names,_table,_body);
+  res._asts=null;
+  putUDF(res,name);
+}

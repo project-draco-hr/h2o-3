@@ -1,0 +1,124 @@
+def check_sandbox_for_errors(LOG_DIR=None, python_test_name='', cloudShutdownIsError=False, sandboxIgnoreErrors=False, pattern=None, verbose=False):
+    errorFound = False
+    if (not LOG_DIR):
+        LOG_DIR = './sandbox'
+    if (not os.path.exists(LOG_DIR)):
+        if verbose:
+            print 'directory', LOG_DIR, 'not found'
+        return
+    goodLogsList = []
+    if pattern:
+        if verbose:
+            print 'Only looking at files that match pattern:', pattern
+        tempFileList = glob.glob(((LOG_DIR + '/') + pattern))
+        for filename in tempFileList:
+            if (os.path.isfile(filename) and (not re.search('doneToLine', filename)) and (not re.search('\\.json$', filename))):
+                goodLogsList.append(os.path.basename(filename))
+        if (len(goodLogsList) == 0):
+            raise Exception(('Unexpected: h2o_sandbox found 0 files in %s that matched the pattern: %s' % (LOG_DIR, pattern)))
+    else:
+        tempFileList = os.listdir(LOG_DIR)
+        if verbose:
+            print 'kbn1:', tempFileList
+        for filename in tempFileList:
+            if (re.search('h2o.*stdout|h2o.*stderr|h2o.*\\.log.*', filename) and (not re.search('doneToLine', filename))):
+                goodLogsList.append(filename)
+        if verbose:
+            print 'kbn2:', goodLogsList
+        if (len(goodLogsList) == 0):
+            emsg = ('Unexpected: h2o_sandbox found 0 files in %s that matched the stdout/stderr or log pattern' % LOG_DIR)
+            if sandboxIgnoreErrors:
+                print emsg
+                return
+            else:
+                pass
+    if verbose:
+        print 'h2o_sandbox: checking', len(goodLogsList), 'files'
+    errLines = []
+    for filename in goodLogsList:
+        goodLogPath = ((LOG_DIR + '/') + filename)
+        goodLog = open(goodLogPath, 'r')
+        if verbose:
+            print '\nScraping this log:', goodLogPath
+        try:
+            with open(((LOG_DIR + '/doneToLine.') + filename)) as f:
+                r = f.readline().rstrip()
+                if ((not r) or (r == '')):
+                    doneToLine = 0
+                else:
+                    try:
+                        doneToLine = int(r)
+                    except:
+                        raise Exception(('%s/doneToLine.%s is corrupted (multiprocess issue?): %s' % (LOG_DIR, filename, r)))
+        except IOError:
+            doneToLine = 0
+        if pattern:
+            doneToLine = 0
+        regex1String = 'found multiple|exception|error|ERRR|assert|killing|killed|required ports'
+        if cloudShutdownIsError:
+            regex1String += '|shutdown command'
+        regex1 = re.compile(regex1String, re.IGNORECASE)
+        regex2 = re.compile('Caused', re.IGNORECASE)
+        regex3 = re.compile('warn|Retrying after IO error', re.IGNORECASE)
+        printing = 0
+        lines = 0
+        currentLine = 0
+        log_python_test_name = None
+        if verbose:
+            print ('Using doneToLine line marker %s with %s' % (doneToLine, goodLogPath))
+        for line in goodLog:
+            currentLine += 1
+            m = re.search('(python_test_name:) (.*)', line)
+            if m:
+                log_python_test_name = m.group(2)
+            if (currentLine <= doneToLine):
+                continue
+            printSingleWarning = False
+            foundBad = False
+            if (not (' bytes)' in line)):
+                printSingleWarning = regex3.search(line)
+                foundBadPartial = regex1.search(line)
+                foundBad = (foundBadPartial and (not ('Retrying after IO error' or ('Error on' in line) or ('ApiPortWatchdog' in line) or ('Error reduced' in line) or ('out-of-bag error estimation' in line) or ('reconstruction error' in line) or ('Prediction error' in line) or (('Act/Prd' in line) and ('Error' in line)) or (('AUC' in line) and ('Gini' in line) and ('Precision' in line)) or ('Error on training data' in line) or ('Error on validation data' in line) or ('WARN SCORM' in line) or ('stack_traces' in line) or ('out_of_bag_error_estimate' in line) or ('Training Error' in line) or ('Mean Squared Error' in line) or (('Error' in line) and ('Actual' in line)) or ('prediction error' in line) or ('errors on' in line) or ('class.error' in line) or ('error rate' in line) or ('[Loaded ' in line) or ('[WARN]' in line) or ('CalcSquareErrorsTasks' in line))))
+            if ((printing == 0) and foundBad):
+                printing = 1
+                lines = 1
+            elif (printing == 1):
+                lines += 1
+                foundCaused = regex2.search(line)
+                foundAt = re.match('[\\t ]+at ', line)
+                if (foundBad and (lines > 10) and (not (foundCaused or foundAt))):
+                    printing = 2
+            if (printing == 1):
+                errLines.append(line)
+                sys.stdout.write(line)
+            if printSingleWarning:
+                if (not (('Unable to load native-hadoop library' in line) or ('stack_traces' in line) or ('Multiple local IPs detected' in line) or ('[Loaded ' in line) or ('RestS3Service' in line))):
+                    sys.stdout.write(line)
+        goodLog.close()
+        with open((((LOG_DIR + '/') + 'doneToLine.') + filename), 'w') as f:
+            f.write((str(currentLine) + '\n'))
+    sys.stdout.flush()
+    if (len(errLines) != 0):
+        justInfo = 0
+        for e in errLines:
+            if ('Broken pipe' in e):
+                justInfo = 1
+            elif ((justInfo == 0) and (not re.match('INFO:', e))):
+                justInfo = 2
+        if (justInfo == 2):
+            emsg1 = (' check_sandbox_for_errors: Errors in sandbox stdout or stderr (or R stdout/stderr).\n' + 'Could have occurred at any prior time\n\n')
+            emsg2 = ''.join(errLines)
+            errorFound = True
+            errorMessage = ((str(python_test_name) + emsg1) + emsg2)
+            if (pattern or sandboxIgnoreErrors):
+                print '########################################################################################################################################'
+                print errorMessage
+                print '########################################################################################################################################'
+            else:
+                raise Exception(errorMessage)
+    if errorFound:
+        return errorMessage
+    else:
+        if verbose:
+            print 'h2o_sandbox: h2o logs seem okay'
+        return

@@ -1,0 +1,8 @@
+def check_sandbox_for_errors(cloudShutdownIsError=False, sandboxIgnoreErrors=False, python_test_name=''):
+    global sandbox_error_was_reported
+    if sandbox_error_was_reported:
+        return
+    ignore = (sandboxIgnoreErrors or (h2o_nodes.nodes and h2o_nodes.nodes[0].sandbox_ignore_errors))
+    errorFound = h2o_sandbox.check_sandbox_for_errors(LOG_DIR=LOG_DIR, sandboxIgnoreErrors=ignore, cloudShutdownIsError=cloudShutdownIsError, python_test_name=python_test_name)
+    if errorFound:
+        sandbox_error_was_reported = True

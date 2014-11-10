@@ -1,0 +1,16 @@
+def validate_model_parameters(self, algo, training_frame, parameters, timeoutSecs=60, **kwargs):
+    '\n    Check a dictionary of model builder parameters on the h2o cluster using the given algorithm and model parameters.\n    '
+    assert (algo is not None), '"algo" parameter is null'
+    assert (parameters is not None), '"parameters" parameter is null'
+    model_builders = self.model_builders(timeoutSecs=timeoutSecs)
+    assert (model_builders is not None), '/ModelBuilders REST call failed'
+    assert (algo in model_builders['model_builders'])
+    builder = model_builders['model_builders'][algo]
+    if (training_frame is not None):
+        frames = self.frames(key=training_frame)
+        assert (frames is not None), '/Frames/{0} REST call failed'.format(training_frame)
+        assert (frames['frames'][0]['key']['name'] == training_frame), '/Frames/{0} returned Frame {1} rather than Frame {2}'.format(training_frame, frames['frames'][0]['key']['name'], training_frame)
+        parameters['training_frame'] = training_frame
+    result = self.do_json_request((('/2/ModelBuilders.json/' + algo) + '/parameters'), cmd='post', timeout=timeoutSecs, postData=parameters, ignoreH2oError=True, noExtraErrorCheck=True)
+    verboseprint(('model parameters validation: ' + repr(result)))
+    return result

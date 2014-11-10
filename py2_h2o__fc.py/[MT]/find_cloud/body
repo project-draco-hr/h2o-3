@@ -1,0 +1,46 @@
+def find_cloud(ip_port=None, expectedSize=1, nodesJsonPathname='h2o_fc-nodes.json', hdfs_version='cdh4', hdfs_config=None, hdfs_name_node='172.16.1.176', **kwargs):
+    if (not ip_port):
+        ip_port = 'localhost:54321'
+    hdfsSetup = (hdfs_version, hdfs_config, hdfs_name_node)
+    possMembersList = [ip_port]
+    h2oNodes = {}
+    alreadyAdded = set()
+    tries = 0
+    for (n1, possMember) in enumerate(possMembersList):
+        tries += 1
+        if (possMember not in alreadyAdded):
+            possMembersList2 = create_node(possMember, h2oNodes, expectedSize, hdfsSetup)
+            alreadyAdded.add(possMember)
+            for (n2, possMember2) in enumerate(possMembersList2):
+                tries += 1
+                if (possMember2 not in alreadyAdded):
+                    create_node(possMember2, h2oNodes, expectedSize, hdfsSetup)
+                    alreadyAdded.add(possMember2)
+    print ('\nDid %s tries' % tries)
+    print 'len(alreadyAdded):', len(alreadyAdded), alreadyAdded
+    h2oNodesList = [v for (k, v) in h2oNodes.iteritems()]
+    print 'Checking for two h2os at same ip address'
+    ips = {}
+    count = {}
+    for h in h2oNodesList:
+        ip = h['http_addr']
+        if (ip in ips):
+            count[ip] += 1
+            print ("\nWARNING: appears to be %s h2o's at the same IP address" % count[ip])
+            print 'initial:', ips[ip]
+            print 'another:', h, '\n'
+        else:
+            ips[ip] = h
+            count[ip] = 1
+    print 'Writing', nodesJsonPathname
+    cs_time = str(datetime.datetime.now())
+    cs_cwd = os.getcwd()
+    cs_python_cmd_line = ('python %s %s' % (h2o_args.python_test_name, h2o_args.python_cmd_args))
+    cs_python_test_name = h2o_args.python_test_name
+    cs_config_json = nodesJsonPathname
+    cs_username = h2o_args.python_username
+    cs_ip = h2o_args.python_cmd_ip
+    expandedCloud = {'cloud_start': {'time': cs_time, 'cwd': cs_cwd, 'python_test_name': cs_python_test_name, 'python_cmd_line': cs_python_cmd_line, 'config_json': cs_config_json, 'username': cs_username, 'ip': cs_ip, }, 'h2o_nodes': h2oNodesList, }
+    with open(nodesJsonPathname, 'w+') as f:
+        f.write(json.dumps(expandedCloud, indent=4))
+    return expandedCloud

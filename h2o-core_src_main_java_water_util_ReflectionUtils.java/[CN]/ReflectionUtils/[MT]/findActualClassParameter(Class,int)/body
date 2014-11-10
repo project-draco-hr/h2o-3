@@ -1,0 +1,21 @@
+{
+  Class<? extends Iced> iced_class=null;
+  if (clz.getGenericSuperclass() instanceof ParameterizedType) {
+    Type[] handler_type_parms=((ParameterizedType)(clz.getGenericSuperclass())).getActualTypeArguments();
+    if (handler_type_parms[parm] instanceof Class) {
+      iced_class=(Class)handler_type_parms[parm];
+    }
+ else     if (handler_type_parms[parm] instanceof TypeVariable) {
+      iced_class=(Class)((TypeVariable)(handler_type_parms[parm])).getBounds()[parm];
+    }
+ else {
+      String msg="Iced parameter for handler: " + clz + " uses a type parameterization scheme that we don't yet handle: "+ handler_type_parms[parm];
+      Log.warn(msg);
+      throw H2O.fail(msg);
+    }
+  }
+ else {
+    iced_class=Iced.class;
+  }
+  return iced_class;
+}

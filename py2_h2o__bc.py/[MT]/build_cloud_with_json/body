@@ -1,0 +1,43 @@
+def build_cloud_with_json(h2o_nodes_json='h2o-nodes.json'):
+    log('#*********************************************************************')
+    log((('Starting new test: ' + h2o_args.python_test_name) + ' at build_cloud_with_json()'))
+    log('#*********************************************************************')
+    print 'This only makes sense if h2o is running as defined by', h2o_nodes_json
+    print "For now, assuming it's a cloud on this machine, and here's info on h2o processes running here"
+    print 'No output means no h2o here! Some other info about stuff on the system is printed first though.'
+    import h2o_os_util
+    if (not os.path.exists(h2o_nodes_json)):
+        raise Exception((("build_cloud_with_json: Can't find " + h2o_nodes_json) + ' file'))
+    with open(h2o_nodes_json, 'rb') as f:
+        cloneJson = json.load(f)
+    if (not ('cloud_start' in cloneJson)):
+        raise Exception(("Can't find 'cloud_start' in %s, wrong file? h2o-nodes.json?" % h2o_nodes_json))
+    else:
+        cs = cloneJson['cloud_start']
+        print ("Info on the how the cloud we're cloning was started (info from %s)" % h2o_nodes_json)
+        valList = ['time', 'cwd', 'python_test_name', 'python_cmd_line', 'config_json', 'username', 'ip']
+        for v in valList:
+            if (v not in cs):
+                raise Exception(("Can't find %s in %s, wrong file or version change?" % (v, h2o_nodes_json)))
+            print ("cloud_start['%s']: %s" % (v, cs[v]))
+        nodeStateList = cloneJson['h2o_nodes']
+    nodeList = []
+    if (not nodeStateList):
+        raise Exception(('nodeStateList is empty. %s file must be empty/corrupt' % h2o_nodes_json))
+    try:
+        for nodeState in nodeStateList:
+            print 'Cloning state for node', nodeState['node_id'], 'from', h2o_nodes_json
+            newNode = ExternalH2O(nodeState)
+            nodeList.append(newNode)
+        verify_cloud_size(nodeList, expectedCloudName=None, expectedLocked=None)
+        nodeList[0].h2o_log_msg()
+    except:
+        check_sandbox_for_errors(python_test_name=h2o_args.python_test_name)
+        raise
+    print 'Saving the ', h2o_nodes_json, 'we used to', LOG_DIR
+    shutil.copy(h2o_nodes_json, ((LOG_DIR + '/') + os.path.basename(h2o_nodes_json)))
+    print ''
+    h2p.red_print('Ingested from json:', nodeList[0].java_heap_GB, 'GB java heap(s) with', len(nodeList), 'total nodes')
+    print ''
+    h2o_nodes.nodes[:] = nodeList
+    return nodeList

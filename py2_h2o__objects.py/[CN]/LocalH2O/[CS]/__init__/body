@@ -1,0 +1,16 @@
+def __init__(self, *args, **kwargs):
+    super(LocalH2O, self).__init__(*args, **kwargs)
+    self.rc = None
+    self.ice = tmp_dir('ice.')
+    self.flatfile = flatfile_pathname()
+    self.remoteH2O = False
+    h2o_os_util.check_port_group(self.port)
+    h2o_os_util.show_h2o_processes()
+    if (self.node_id is not None):
+        logPrefix = ('local-h2o-' + str(self.node_id))
+    else:
+        logPrefix = 'local-h2o'
+    cmd = ' '.join(self.get_args())
+    cmdSplit = shlex.split(cmd)
+    spawn = spawn_cmd(logPrefix, cmd=cmdSplit, capture_output=self.capture_output)
+    self.ps = spawn[0]

@@ -1,0 +1,11 @@
+{
+  P impl=null;
+  try {
+    Class<? extends ModelParametersSchema> parameters_class=(Class<? extends ModelParametersSchema>)ReflectionUtils.findActualClassParameter(this.getClass(),2);
+    impl=(P)parameters_class.newInstance();
+  }
+ catch (  Exception e) {
+    throw H2O.fail("Caught exception trying to instantiate a builder instance for ModelBuilderSchema: " + this + ": "+ e,e);
+  }
+  return impl;
+}

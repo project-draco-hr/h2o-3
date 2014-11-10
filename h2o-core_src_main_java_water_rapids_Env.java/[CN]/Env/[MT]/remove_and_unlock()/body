@@ -1,0 +1,25 @@
+{
+  while (!_stack.isEmpty()) {
+    int type=peekType();
+switch (type) {
+case ARY:
+      remove(peek(),false);
+    break;
+default :
+  pop();
+break;
+}
+}
+Futures fs=new Futures();
+for (Vec v : _refcnt.keySet()) {
+if (_refcnt.get(v)._val == 0) {
+removeVec(v,fs);
+}
+}
+for (String k : _global._local_frames.keySet()) {
+Frame f=_local._local_frames.get(k);
+for (Vec v : f.vecs()) removeVec(v,fs);
+f.delete();
+}
+fs.blockForPending();
+}

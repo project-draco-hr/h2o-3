@@ -1,0 +1,14 @@
+def log(cmd, comment=None):
+    filename = (LOG_DIR + '/commands.log')
+    with open(filename, 'a') as f:
+        f.write((str(datetime.datetime.now()) + ' -- '))
+        if cmd:
+            f.write(urlparse.unquote(cmd))
+            if comment:
+                f.write('    #')
+                f.write(comment)
+            f.write('\n')
+        elif comment:
+            f.write((comment + '\n'))
+    permissions = (((stat.S_IRUSR | stat.S_IWUSR) | stat.S_IRGRP) | stat.S_IROTH)
+    os.chmod(filename, permissions)

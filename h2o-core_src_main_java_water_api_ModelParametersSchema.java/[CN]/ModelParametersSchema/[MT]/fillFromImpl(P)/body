@@ -1,9 +1,14 @@
 {
-  PojoUtils.copyProperties(this,parms,PojoUtils.FieldNaming.ORIGIN_HAS_UNDERSCORES,new String[]{"_validation_messages"});
-  this.training_frame=parms._train == null ? null : (Frame)parms._train.get();
-  this.validation_frame=parms._valid == null ? null : (Frame)parms._valid.get();
-  this.validation_messages=new ValidationMessageBase[parms._validation_messages.length];
-  int i=0;
-  for (  ValidationMessage vm : parms._validation_messages)   this.validation_messages[i++]=new ValidationMessageV2().fillFromImpl(vm);
+  PojoUtils.copyProperties(this,impl,PojoUtils.FieldNaming.ORIGIN_HAS_UNDERSCORES);
+  if (null != impl._train) {
+    Value v=DKV.get(impl._train);
+    if (null == v)     throw new IllegalArgumentException("Failed to find training_frame: " + impl._train);
+    training_frame=v.get();
+  }
+  if (null != impl._valid) {
+    Value v=DKV.get(impl._valid);
+    if (null == v)     throw new IllegalArgumentException("Failed to find validation_frame: " + impl._valid);
+    validation_frame=v.get();
+  }
   return (S)this;
 }

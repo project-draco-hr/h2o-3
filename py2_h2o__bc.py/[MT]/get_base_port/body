@@ -1,0 +1,25 @@
+def get_base_port(base_port):
+    a = 0
+    if os.environ.has_key('H2O_PORT_OFFSET'):
+        a = int(os.environ['H2O_PORT_OFFSET'])
+        verboseprint('H2O_PORT_OFFSET', a)
+        if ((a < 8) or (a > 500)):
+            raise Exception(('H2O_PORT_OFFSET % os env variable should be either not set,                 or between 8 and 500' % a))
+    b = None
+    if os.environ.has_key('H2O_PORT'):
+        b = int(os.environ['H2O_PORT'])
+        verboseprint('H2O_PORT', a)
+        if ((b < 54321) or (b > 54999)):
+            raise Exception(('H2O_PORT %s os env variable should be either not set,                 or between 54321 and 54999.' % b))
+    if h2o_args.port_from_cmd_line:
+        base_port = h2o_args.port_from_cmd_line
+    elif b:
+        base_port = b
+    else:
+        if (getpass.getuser() == 'jenkins'):
+            base_port = 54340
+        else:
+            base_port = 54321
+        if a:
+            base_port += a
+    return base_port

@@ -1,0 +1,18 @@
+{
+  assertFalse(testRan);
+  assertFalse(Paxos._cloudLocked);
+  stall();
+  assertFalse(Paxos._cloudLocked);
+  try {
+    serve("/",null);
+    serve("/Cloud.html",null);
+    serve("/junk",null);
+    serve("/HTTP404",null);
+    Properties parms=new Properties();
+    parms.setProperty("src","./smalldata/iris");
+    serve("/Typeahead/files",parms);
+  }
+  finally {
+    testRan=true;
+  }
+}

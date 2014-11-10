@@ -1,0 +1,12 @@
+def count_keys_at_all_nodes(node=None, pattern=None, timeoutSecs=90):
+    if (not node):
+        node = h2o_nodes.nodes[0]
+    totalCnt = 0
+    for node in reversed(h2o_nodes.nodes):
+        nodeCnt = count_keys(node, pattern=pattern, timeoutSecs=timeoutSecs)
+        totalCnt += nodeCnt
+    if pattern:
+        print 'Total: ', totalCnt, 'keys with filter=', pattern, 'at', len(h2o_nodes.nodes), 'nodes'
+    else:
+        print 'Total: ', totalCnt, 'keys at', len(h2o_nodes.nodes), 'nodes'
+    return totalCnt

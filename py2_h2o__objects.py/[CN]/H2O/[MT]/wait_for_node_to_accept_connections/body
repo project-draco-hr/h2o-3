@@ -1,0 +1,11 @@
+def wait_for_node_to_accept_connections(self, nodeList, timeoutSecs=15, noSandboxErrorCheck=False):
+    verboseprint('wait_for_node_to_accept_connections')
+
+    def test(n, tries=None, timeoutSecs=timeoutSecs):
+        try:
+            n.get_cloud(noSandboxErrorCheck=noSandboxErrorCheck, timeoutSecs=timeoutSecs)
+            return True
+        except requests.ConnectionError as e:
+            return False
+    expectedCloudStr = ','.join([str(n) for n in nodeList])
+    self.stabilize(test, error=('waiting for initial connection: Expected cloud %s' % expectedCloudStr), timeoutSecs=timeoutSecs, retryDelaySecs=0.1)

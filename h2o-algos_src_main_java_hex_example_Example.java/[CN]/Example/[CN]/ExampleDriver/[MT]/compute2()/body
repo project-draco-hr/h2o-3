@@ -1,13 +1,14 @@
 {
   ExampleModel model=null;
   try {
+    Scope.enter();
     _parms.lock_frames(Example.this);
-    Frame fr=_parms.train();
-    model=new ExampleModel(dest(),fr,_parms,new ExampleModel.ExampleOutput());
+    init(true);
+    model=new ExampleModel(dest(),_parms,new ExampleModel.ExampleOutput(Example.this));
     model.delete_and_lock(_key);
     for (; model._output._iters < _parms._max_iters; model._output._iters++) {
       if (!isRunning())       return;
-      double[] maxs=new Max().doAll(fr)._maxs;
+      double[] maxs=new Max().doAll(_parms.train())._maxs;
       model._output._maxs=maxs;
       model.update(_key);
       update(1);
@@ -24,6 +25,7 @@
  finally {
     if (model != null)     model.unlock(_key);
     _parms.unlock_frames(Example.this);
+    Scope.exit(model._key);
     done();
   }
   tryComplete();

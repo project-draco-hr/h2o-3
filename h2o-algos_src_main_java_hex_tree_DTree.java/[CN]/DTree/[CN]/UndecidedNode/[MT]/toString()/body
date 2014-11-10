@@ -1,0 +1,42 @@
+{
+  final String colPad="  ";
+  final int cntW=4, mmmW=4, menW=5, varW=5;
+  final int colW=cntW + 1 + mmmW+ 1+ mmmW+ 1+ menW+ 1+ varW;
+  StringBuilder sb=new StringBuilder();
+  sb.append("Nid# ").append(_nid).append(", ");
+  printLine(sb).append("\n");
+  if (_hs == null)   return sb.append("_hs==null").toString();
+  final int ncols=_hs.length;
+  for (  DHistogram hs : _hs)   if (hs != null)   p(sb,hs._name + String.format(", %4.1f-%4.1f",hs._min,hs._maxEx),colW).append(colPad);
+  sb.append('\n');
+  for (  DHistogram hs : _hs) {
+    if (hs == null)     continue;
+    p(sb,"cnt",cntW).append('/');
+    p(sb,"min",mmmW).append('/');
+    p(sb,"max",mmmW).append('/');
+    p(sb,"mean",menW).append('/');
+    p(sb,"var",varW).append(colPad);
+  }
+  sb.append('\n');
+  int nbins=0;
+  for (int j=0; j < ncols; j++)   if (_hs[j] != null && _hs[j].nbins() > nbins)   nbins=_hs[j].nbins();
+  for (int i=0; i < nbins; i++) {
+    for (int j=0; j < ncols; j++) {
+      DHistogram h=_hs[j];
+      if (h == null)       continue;
+      if (i < h.nbins() && h._bins != null) {
+        p(sb,h.bins(i),cntW).append('/');
+        p(sb,h.binAt(i),mmmW).append('/');
+        p(sb,h.binAt(i + 1),mmmW).append('/');
+        p(sb,h.mean(i),menW).append('/');
+        p(sb,h.var(i),varW).append(colPad);
+      }
+ else {
+        p(sb,"",colW).append(colPad);
+      }
+    }
+    sb.append('\n');
+  }
+  sb.append("Nid# ").append(_nid);
+  return sb.toString();
+}

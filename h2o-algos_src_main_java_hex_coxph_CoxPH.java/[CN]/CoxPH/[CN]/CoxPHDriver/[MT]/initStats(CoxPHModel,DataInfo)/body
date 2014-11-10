@@ -1,0 +1,36 @@
+{
+  CoxPHModel.CoxPHParameters p=model._parms;
+  CoxPHModel.CoxPHOutput o=model._output;
+  o.n=p.stop_column.length();
+  o.data_info=dinfo;
+  final int n_offsets=(p.offset_columns == null) ? 0 : p.offset_columns.length;
+  final int n_coef=o.data_info.fullN() - n_offsets;
+  final String[] coefNames=o.data_info.coefNames();
+  o.coef_names=new String[n_coef];
+  System.arraycopy(coefNames,0,o.coef_names,0,n_coef);
+  o.coef=MemoryManager.malloc8d(n_coef);
+  o.exp_coef=MemoryManager.malloc8d(n_coef);
+  o.exp_neg_coef=MemoryManager.malloc8d(n_coef);
+  o.se_coef=MemoryManager.malloc8d(n_coef);
+  o.z_coef=MemoryManager.malloc8d(n_coef);
+  o.gradient=MemoryManager.malloc8d(n_coef);
+  o.hessian=malloc2DArray(n_coef,n_coef);
+  o.var_coef=malloc2DArray(n_coef,n_coef);
+  o.x_mean_cat=MemoryManager.malloc8d(n_coef - (o.data_info._nums - n_offsets));
+  o.x_mean_num=MemoryManager.malloc8d(o.data_info._nums - n_offsets);
+  o.mean_offset=MemoryManager.malloc8d(n_offsets);
+  o.offset_names=new String[n_offsets];
+  System.arraycopy(coefNames,n_coef,o.offset_names,0,n_offsets);
+  final Vec start_column=p.start_column;
+  final Vec stop_column=p.stop_column;
+  o.min_time=p.start_column == null ? (long)stop_column.min() : (long)start_column.min() + 1;
+  o.max_time=(long)stop_column.max();
+  final int n_time=new Vec.CollectDomain().doAll(stop_column).domain().length;
+  o.time=MemoryManager.malloc8(n_time);
+  o.n_risk=MemoryManager.malloc8d(n_time);
+  o.n_event=MemoryManager.malloc8d(n_time);
+  o.n_censor=MemoryManager.malloc8d(n_time);
+  o.cumhaz_0=MemoryManager.malloc8d(n_time);
+  o.var_cumhaz_1=MemoryManager.malloc8d(n_time);
+  o.var_cumhaz_2=malloc2DArray(n_time,n_coef);
+}
