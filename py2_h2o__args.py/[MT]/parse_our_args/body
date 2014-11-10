@@ -4,6 +4,7 @@ def parse_our_args():
     parser.add_argument('-b', '--browse_json', help='Pops a browser to selected json equivalent urls. Selective. Also keeps test alive (and H2O alive) till you ctrl-c. Then should do clean exit', action='store_true')
     parser.add_argument('-v', '--verbose', help='increased output', action='store_true')
     parser.add_argument('-ip', '--ip', type=str, help='IP address to use for single host H2O with psutil control')
+    parser.add_argument('-p', '--port', type=int, help='port to use for single host H2O with psutil control (used for start of multi jvm too)')
     parser.add_argument('-network', '--network', type=str, help='network/mask (shorthand form) to use to resolve multiple possible IPs')
     parser.add_argument('-cj', '--config_json', help='Use this json format file to provide multi-host defaults. Overrides the default file pytest_config-<username>.json. These are used only if you do build_cloud_with_hosts()')
     parser.add_argument('-dbg', '--debugger', help='Launch java processes with java debug attach mechanisms', action='store_true')
@@ -23,7 +24,7 @@ def parse_our_args():
     args = parser.parse_args()
     if args.nocolor:
         h2p.disable_colors()
-    global browse_disable, browse_json, verbose, ip_from_cmd_line, config_json, debugger
+    global browse_disable, browse_json, verbose, ip_from_cmd_line, port_from_cmd_line, config_json, debugger
     global random_udp_drop
     global random_seed, beta_features, sleep_at_tear_down, abort_after_import
     global clone_cloud_json, disable_time_stamp, debug_rest, long_test_case, usecloud, usecloud_size
@@ -31,6 +32,7 @@ def parse_our_args():
     browse_json = args.browse_json
     verbose = args.verbose
     ip_from_cmd_line = args.ip
+    port_from_cmd_line = args.port
     network_from_cmd_line = args.network
     config_json = args.config_json
     debugger = args.debugger
