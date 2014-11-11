@@ -34,6 +34,12 @@
           for (int i=0; i < from.length; i++)           copy[i]=from[i];
           f.set(this,copy);
         }
+ else         if (parse_result.getClass().getComponentType() == Double.class && f.getType().getComponentType() == double.class) {
+          Double[] from=(Double[])parse_result;
+          double[] copy=new double[from.length];
+          for (int i=0; i < from.length; i++)           copy[i]=from[i];
+          f.set(this,copy);
+        }
  else {
           throw H2O.fail("Don't know how to cast an array of: " + parse_result.getClass().getComponentType() + " to an array of: "+ f.getType().getComponentType());
         }
