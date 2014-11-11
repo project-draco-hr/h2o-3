@@ -1,0 +1,16 @@
+{
+  int winWordSentIdx, winWord;
+  final int vecSize=_wordVecSize, winSize=_windowSize;
+  final int curWinSize=_windowSize * 2 + 1 - winSize;
+  for (int i=0; i < vecSize; i++)   neu1[i]/=bagSize;
+  if (_normModel == NormModel.NegSampling)   negSamplingCBOW(curWord,neu1,neu1e);
+ else   hierarchicalSoftmaxCBOW(curWord,neu1,neu1e);
+  for (int winIdx=winSizeMod; winIdx < curWinSize; winIdx++) {
+    if (winIdx != winSize) {
+      winWordSentIdx=sentIdx - winSize + winIdx;
+      if (winWordSentIdx < 0 || winWordSentIdx >= sentLen)       continue;
+      winWord=sentence[winWordSentIdx];
+      for (int i=0; i < vecSize; i++)       _syn0[i + winWord * vecSize]+=neu1e[i];
+    }
+  }
+}

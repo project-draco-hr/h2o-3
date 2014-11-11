@@ -1,0 +1,25 @@
+{
+  final int vecSize=_wordVecSize, negExCnt=_negExCnt, uTblSize=_unigramTable.length;
+  final float alpha=_curLearningRate;
+  float gradient, f=0;
+  int targetWord, l2;
+  l2=curWord * vecSize;
+  for (int i=0; i < vecSize; i++)   f+=neu1[i] * _syn1[i + l2];
+  if (f > MAX_EXP)   gradient=0;
+ else   if (f < -MAX_EXP)   gradient=alpha;
+ else   gradient=(1 - _expTable[(int)((f + MAX_EXP) * (EXP_TABLE_SIZE / MAX_EXP / 2))]) * alpha;
+  for (int i=0; i < vecSize; i++)   neu1e[i]+=gradient * _syn1[i + l2];
+  for (int i=0; i < vecSize; i++)   _syn1[i + l2]+=gradient * neu1[i];
+  for (int i=1; i < negExCnt + 1; i++) {
+    f=0;
+    targetWord=_unigramTable[cheapRandInt(uTblSize)];
+    if (targetWord == curWord)     continue;
+    l2=targetWord * vecSize;
+    for (int j=0; j < vecSize; j++)     f+=neu1[j] * _syn1[j + l2];
+    if (f > MAX_EXP)     gradient=-alpha;
+ else     if (f < -MAX_EXP)     gradient=0;
+ else     gradient=(-_expTable[(int)((f + MAX_EXP) * (EXP_TABLE_SIZE / MAX_EXP / 2))]) * alpha;
+    for (int j=0; j < vecSize; j++)     neu1e[j]+=gradient * _syn1[j + l2];
+    for (int j=0; j < vecSize; j++)     _syn1[j + l2]+=gradient * neu1[j];
+  }
+}
