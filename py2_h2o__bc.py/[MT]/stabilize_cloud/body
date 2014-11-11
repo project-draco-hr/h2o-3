@@ -1,8 +1,9 @@
-def stabilize_cloud(node, nodeList, timeoutSecs=14.0, retryDelaySecs=0.25, noSandboxErrorCheck=False):
+def stabilize_cloud(node, nodeList, timeoutSecs=14.0, retryDelaySecs=0.25, noExtraErrorCheck=False):
     node_count = len(nodeList)
 
     def test(n, tries=None, timeoutSecs=14.0):
-        c = n.get_cloud(noSandboxErrorCheck=True, timeoutSecs=timeoutSecs)
+        c = n.get_cloud(noExtraErrorCheck=noExtraErrorCheck, timeoutSecs=timeoutSecs)
+        check_sandbox_for_errors(python_test_name=h2o_args.python_test_name)
         consensus = c['consensus']
         locked = c['locked']
         cloud_size = c['cloud_size']
@@ -26,5 +27,5 @@ def stabilize_cloud(node, nodeList, timeoutSecs=14.0, retryDelaySecs=0.25, noSan
             for ci in c['nodes']:
                 verboseprint(ci['h2o']['node'])
         return a
-    node.wait_for_node_to_accept_connections(nodeList, timeoutSecs=timeoutSecs, noSandboxErrorCheck=noSandboxErrorCheck)
+    node.wait_for_node_to_accept_connections(nodeList, timeoutSecs=timeoutSecs, noExtraErrorCheck=True)
     node.stabilize(test, error=('trying to build cloud of size %d' % node_count), timeoutSecs=timeoutSecs, retryDelaySecs=retryDelaySecs)
