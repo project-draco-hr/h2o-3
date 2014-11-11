@@ -1,0 +1,28 @@
+{
+  final int vecSize=vs.length - 1, vocabSize=(int)vs[0].length();
+  int[] matches=new int[cnt];
+  float[] scores=new float[cnt];
+  float[] curVec=new float[vecSize];
+  HashMap<String,Float> res=new HashMap<>();
+  if (tarVec.length != vs.length - 1) {
+    Log.warn("Target vector length differs from the vocab's vector length.");
+    return null;
+  }
+  for (int i=0; i < vocabSize; i++) {
+    for (int j=0; j < vecSize; j++)     curVec[j]=(float)vs[j + 1].at(i);
+    float score=cosineSimilarity(tarVec,curVec);
+    for (int j=0; j < cnt; j++) {
+      if (score > scores[j] && score < 0.999999) {
+        for (int k=cnt - 1; k > j; k--) {
+          scores[k]=scores[k - 1];
+          matches[k]=matches[k - 1];
+        }
+        scores[j]=score;
+        matches[j]=i;
+        break;
+      }
+    }
+  }
+  for (int i=0; i < cnt; i++)   res.put(vs[0].atStr(new ValueString(),matches[i]).toString(),scores[i]);
+  return res;
+}

@@ -1,0 +1,17 @@
+{
+  Key wca=null;
+  Frame fr=null;
+  try {
+    long start=System.currentTimeMillis();
+    fr=parse_test_file("bigdata/laptop/text8.gz");
+    System.out.println("Done Parse: " + (float)(System.currentTimeMillis() - start) / 1000 + "s");
+    start=System.currentTimeMillis();
+    wca=(new WordCountTask(3)).doAll(fr)._wordCountKey;
+    System.out.println("Done counting: " + (float)(System.currentTimeMillis() - start) / 1000 + "s");
+    Assert.assertEquals(100038l,((Frame)wca.get()).numRows());
+  }
+  finally {
+    if (fr != null)     fr.remove();
+    if (wca != null)     wca.remove();
+  }
+}

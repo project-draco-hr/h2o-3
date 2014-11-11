@@ -13,14 +13,12 @@
         _args[i]=new ASTFrame(f._key.toString());
         _table._local_frames.put(_arg_names[i],f);
       }
-      _table.put(_arg_names[i],Env.ARY,_args[i].value());
+      _table.put(_arg_names[i],Env.LARY,_args[i].value());
     }
  else     if (_args[i] instanceof ASTNull)     _table.put(_arg_names[i],Env.STR,"null");
  else     throw H2O.unimpl("Vector arguments are not supported.");
   }
   captured._local.copyOver(_table);
   _body.exec(captured);
-  e.cleanup(cleanme,f);
   _e=captured;
-  captured.popScope();
 }

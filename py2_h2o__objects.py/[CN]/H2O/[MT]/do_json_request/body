@@ -1,4 +1,4 @@
-def do_json_request(self, jsonRequest=None, fullUrl=None, timeout=10, params=None, postData=None, returnFast=False, cmd='get', extraComment=None, ignoreH2oError=False, noSandboxErrorCheck=False, **kwargs):
+def do_json_request(self, jsonRequest=None, fullUrl=None, timeout=10, params=None, postData=None, returnFast=False, cmd='get', extraComment=None, ignoreH2oError=False, noExtraErrorCheck=False, **kwargs):
     if fullUrl:
         url = fullUrl
     else:
@@ -26,7 +26,7 @@ def do_json_request(self, jsonRequest=None, fullUrl=None, timeout=10, params=Non
             raise ValueError(("Unknown HTTP command (expected 'get', 'post' or 'delete'): " + cmd))
     except Exception as e:
         exc_info = sys.exc_info()
-        if (not noSandboxErrorCheck):
+        if (not noExtraErrorCheck):
             h2p.red_print(('ERROR: got exception on %s to h2o. \nGoing to check sandbox, then rethrow..' % (url + paramsStr)))
             time.sleep(2)
             check_sandbox_for_errors(python_test_name=h2o_args.python_test_name)

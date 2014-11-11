@@ -1,20 +1,20 @@
-def stabilize_cloud(node, nodeList, timeoutSecs=14.0, retryDelaySecs=0.25, noSandboxErrorCheck=False):
+def stabilize_cloud(node, nodeList, timeoutSecs=14.0, retryDelaySecs=0.25, noExtraErrorCheck=False):
     node_count = len(nodeList)
 
     def test(n, tries=None, timeoutSecs=14.0):
-        c = n.get_cloud(noSandboxErrorCheck=True, timeoutSecs=timeoutSecs)
+        c = n.get_cloud(noExtraErrorCheck=noExtraErrorCheck, timeoutSecs=timeoutSecs)
+        check_sandbox_for_errors(python_test_name=h2o_args.python_test_name)
         consensus = c['consensus']
         locked = c['locked']
-        cloud_size = (c['cloud_size'] + 1)
+        cloud_size = c['cloud_size']
         cloud_name = c['cloud_name']
         if ('nodes' not in c):
             emsg = "\nH2O didn't include a list of nodes in get_cloud response after initial cloud build"
             raise Exception(emsg)
         if (cloud_size != node_count):
-            verboseprint('\nNodes in cloud while building:')
-            print 'kevin'
+            print '\nNodes in cloud while building:'
             for (i, ci) in enumerate(c['nodes']):
-                verboseprint(i, ci['h2o']['node'])
+                print ('node %s' % i), ci['h2o']['node']
         if (cloud_size > node_count):
             emsg = (((((((((('\n\nERROR: cloud_size: %d reported via json is bigger than we expect: %d' % (cloud_size, node_count)) + '\nLikely have zombie(s) with the same cloud name on the network.') + "\nLook at the cloud IP's in 'grep Paxos sandbox/*stdout*' for some IP's you didn't expect.") + "\n\nYou probably don't have to do anything, as the cloud shutdown in this test should") + "\nhave sent a Shutdown.json to all in that cloud (you'll see a kill -2 in the *stdout*).") + "\nIf you try again, and it still fails, go to those IPs and kill the zombie h2o's.") + '\nIf you think you really have an intermittent cloud build, report it.') + '\n') + '\nbuilding cloud size of 2 with 127.0.0.1 may temporarily report 3 incorrectly,') + '\nwith no zombie?')
             for ci in c['nodes']:
@@ -27,5 +27,5 @@ def stabilize_cloud(node, nodeList, timeoutSecs=14.0, retryDelaySecs=0.25, noSan
             for ci in c['nodes']:
                 verboseprint(ci['h2o']['node'])
         return a
-    node.wait_for_node_to_accept_connections(nodeList, timeoutSecs=timeoutSecs, noSandboxErrorCheck=noSandboxErrorCheck)
+    node.wait_for_node_to_accept_connections(nodeList, timeoutSecs=timeoutSecs, noExtraErrorCheck=True)
     node.stabilize(test, error=('trying to build cloud of size %d' % node_count), timeoutSecs=timeoutSecs, retryDelaySecs=retryDelaySecs)

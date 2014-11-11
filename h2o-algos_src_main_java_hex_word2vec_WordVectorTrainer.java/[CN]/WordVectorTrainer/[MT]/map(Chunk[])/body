@@ -1,0 +1,37 @@
+{
+  int wrdCnt=0, bagSize=0, sentLen, curWord, winSizeMod;
+  int winWordSentIdx, winWord;
+  final int winSize=_windowSize, vecSize=_wordVecSize;
+  float[] neu1=new float[vecSize];
+  float[] neu1e=new float[vecSize];
+  int[] sentence=new int[MAX_SENTENCE_LEN];
+  for (  Chunk chk : cs)   if (chk instanceof CStrChunk) {
+    while ((sentLen=getSentence(sentence,(CStrChunk)chk)) > 0) {
+      for (int sentIdx=0; sentIdx < sentLen; sentIdx++) {
+        if (wrdCnt % 10000 == 0)         updateAlpha(wrdCnt);
+        curWord=sentence[sentIdx];
+        wrdCnt++;
+        if (_wordModel == WordModel.CBOW) {
+          for (int j=0; j < vecSize; j++)           neu1[j]=0;
+          for (int j=0; j < vecSize; j++)           neu1e[j]=0;
+          bagSize=0;
+        }
+        winSizeMod=cheapRandInt(winSize);
+        for (int winIdx=winSizeMod; winIdx < winSize * 2 + 1 - winSizeMod; winIdx++) {
+          if (winIdx != winSize) {
+            winWordSentIdx=sentIdx - winSize + winIdx;
+            if (winWordSentIdx < 0 || winWordSentIdx >= sentLen)             continue;
+            winWord=sentence[winWordSentIdx];
+            if (_wordModel == WordModel.SkipGram)             skipGram(curWord,winWord,neu1e);
+ else {
+              for (int j=0; j < vecSize; j++)               neu1[j]+=_syn0[j + winWord * vecSize];
+              bagSize++;
+            }
+          }
+        }
+        if (_wordModel == WordModel.CBOW && bagSize > 0)         CBOW(curWord,sentence,sentIdx,sentLen,winSizeMod,bagSize,neu1,neu1e);
+      }
+    }
+  }
+  _output.addLocallyProcessed(wrdCnt);
+}

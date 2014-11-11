@@ -1,4 +1,4 @@
-def tear_down_cloud(nodeList=None, sandboxIgnoreErrors=False, final=False):
+def tear_down_cloud(nodeList=None, sandboxIgnoreErrors=False, force=False):
     if h2o_args.sleep_at_tear_down:
         print 'Opening browser to cloud, and sleeping for 3600 secs, before cloud teardown (for debug)'
         import h2o_browse as h2b
@@ -11,19 +11,19 @@ def tear_down_cloud(nodeList=None, sandboxIgnoreErrors=False, final=False):
         h2i.delete_keys_at_all_nodes(timeoutSecs=300)
         elapsed = (time.time() - start)
         print 'delete_keys_at_all_nodes(): took', elapsed, 'secs'
-    if ((not h2o_args.usecloud) and (not final)):
+    if ((not h2o_args.usecloud) or force):
         try:
             for n in nodeList:
                 n.shutdown_all()
         except:
             pass
-    try:
-        time.sleep(2)
-        for n in nodeList:
-            n.terminate()
-            verboseprint('tear_down_cloud n:', n)
-    except:
-        pass
+        try:
+            time.sleep(2)
+            for n in nodeList:
+                n.terminate()
+                verboseprint('tear_down_cloud n:', n)
+        except:
+            pass
     check_sandbox_for_errors(sandboxIgnoreErrors=sandboxIgnoreErrors, python_test_name=h2o_args.python_test_name)
     clean_sandbox_doneToLine()
     nodeList[:] = []
