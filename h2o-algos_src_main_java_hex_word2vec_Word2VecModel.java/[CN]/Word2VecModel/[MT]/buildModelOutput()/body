@@ -1,0 +1,28 @@
+{
+  final int vecSize=_parms._vecSize;
+  Futures fs=new Futures();
+  String[] colNames=new String[vecSize];
+  Vec[] vecs=new Vec[vecSize];
+  Key keys[]=Vec.VectorGroup.VG_LEN1.addVecs(vecs.length);
+  NewChunk cs[]=new NewChunk[vecs.length];
+  AppendableVec avs[]=new AppendableVec[vecs.length];
+  for (int i=0; i < vecs.length; i++) {
+    avs[i]=new AppendableVec(keys[i]);
+    cs[i]=new NewChunk(avs[i],0);
+  }
+  for (int i=0; i < _modelInfo._vocabSize; i++) {
+    for (int j=0; j < vecSize; j++) {
+      cs[j].addNum(_modelInfo._syn0[i * vecSize + j]);
+    }
+  }
+  for (int i=0; i < vecs.length; i++) {
+    colNames[i]=new String("V" + i);
+    cs[i].close(0,fs);
+    vecs[i]=avs[i].close(fs);
+  }
+  fs.blockForPending();
+  Frame fr=new Frame(_w2vKey=Key.make("w2v"));
+  fr.add("Word",((Frame)_parms._vocabKey.get()).vec(0));
+  fr.add(colNames,vecs);
+  DKV.put(_w2vKey,fr);
+}

@@ -1,6 +1,8 @@
 {
   Frame predictions=parms.model.score(parms.frame,true);
   ModelMetricsListSchemaV3 mm=this.fetch(version,parms);
-  mm.model_metrics[0].predictions=new FrameV2(predictions);
+  Frame persisted=new Frame(Key.make("predictions_" + Key.rand()),predictions.names(),predictions.vecs());
+  DKV.put(persisted);
+  mm.model_metrics[0].predictions=new FrameV2(persisted,0,100);
   return mm;
 }

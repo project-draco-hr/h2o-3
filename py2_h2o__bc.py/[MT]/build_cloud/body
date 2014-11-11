@@ -61,15 +61,16 @@ def build_cloud(node_count=1, base_port=None, hosts=None, timeoutSecs=30, retryD
                 totalNodes += 1
         verboseprint('Attempting Cloud stabilize of', totalNodes, 'nodes on', hostCount, 'hosts')
         start = time.time()
-        stabilize_cloud(nodeList[0], nodeList, timeoutSecs=timeoutSecs, retryDelaySecs=retryDelaySecs, noSandboxErrorCheck=True)
+        stabilize_cloud(nodeList[0], nodeList, timeoutSecs=timeoutSecs, retryDelaySecs=retryDelaySecs, noExtraErrorCheck=False)
         verboseprint(len(nodeList), 'Last added node stabilized in ', (time.time() - start), ' secs')
         verboseprint(('Built cloud: %d nodes on %d hosts, in %d s' % (len(nodeList), hostCount, (time.time() - start))))
         h2p.red_print('Built cloud:', nodeList[0].java_heap_GB, 'GB java heap(s) with', len(nodeList), 'total nodes')
         if conservative:
             for n in nodeList:
-                stabilize_cloud(n, nodeList, timeoutSecs=timeoutSecs, noSandboxErrorCheck=True)
+                stabilize_cloud(n, nodeList, timeoutSecs=timeoutSecs, noExtraErrorCheck=False)
         verify_cloud_size(nodeList, expectedCloudName=nodeList[0].cloud_name, expectedLocked=0)
         check_sandbox_for_errors(python_test_name=h2o_args.python_test_name)
+        nodeList[0].h2o_log_msg()
     except:
         if (cleanup and nodeList):
             for n in nodeList:
@@ -77,7 +78,6 @@ def build_cloud(node_count=1, base_port=None, hosts=None, timeoutSecs=30, retryD
         check_sandbox_for_errors(python_test_name=h2o_args.python_test_name)
         raise
     print len(nodeList), 'total jvms in H2O cloud'
-    nodeList[0].h2o_log_msg()
     if h2o_args.config_json:
         print 'Saving the ', h2o_args.config_json, 'we used to', LOG_DIR
         shutil.copy(h2o_args.config_json, ((LOG_DIR + '/') + os.path.basename(h2o_args.config_json)))

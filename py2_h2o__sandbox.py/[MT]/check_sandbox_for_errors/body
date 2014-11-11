@@ -19,12 +19,12 @@ def check_sandbox_for_errors(LOG_DIR=None, python_test_name='', cloudShutdownIsE
     else:
         tempFileList = os.listdir(LOG_DIR)
         if verbose:
-            print 'kbn1:', tempFileList
+            print 'tempFileList:', tempFileList
         for filename in tempFileList:
             if (re.search('h2o.*stdout|h2o.*stderr|h2o.*\\.log.*', filename) and (not re.search('doneToLine', filename))):
                 goodLogsList.append(filename)
         if verbose:
-            print 'kbn2:', goodLogsList
+            print 'goodLogsList:', goodLogsList
         if (len(goodLogsList) == 0):
             emsg = ('Unexpected: h2o_sandbox found 0 files in %s that matched the stdout/stderr or log pattern' % LOG_DIR)
             if sandboxIgnoreErrors:
@@ -54,7 +54,7 @@ def check_sandbox_for_errors(LOG_DIR=None, python_test_name='', cloudShutdownIsE
             doneToLine = 0
         if pattern:
             doneToLine = 0
-        regex1String = 'found multiple|exception|error|ERRR|assert|killing|killed|required ports'
+        regex1String = 'found multiple|exception|error|ERRR|assert|killing|killed|required ports|FATAL'
         if cloudShutdownIsError:
             regex1String += '|shutdown command'
         regex1 = re.compile(regex1String, re.IGNORECASE)
@@ -78,7 +78,7 @@ def check_sandbox_for_errors(LOG_DIR=None, python_test_name='', cloudShutdownIsE
             if (not (' bytes)' in line)):
                 printSingleWarning = regex3.search(line)
                 foundBadPartial = regex1.search(line)
-                foundBad = (foundBadPartial and (not ('Retrying after IO error' or ('Error on' in line) or ('ApiPortWatchdog' in line) or ('Error reduced' in line) or ('out-of-bag error estimation' in line) or ('reconstruction error' in line) or ('Prediction error' in line) or (('Act/Prd' in line) and ('Error' in line)) or (('AUC' in line) and ('Gini' in line) and ('Precision' in line)) or ('Error on training data' in line) or ('Error on validation data' in line) or ('WARN SCORM' in line) or ('stack_traces' in line) or ('out_of_bag_error_estimate' in line) or ('Training Error' in line) or ('Mean Squared Error' in line) or (('Error' in line) and ('Actual' in line)) or ('prediction error' in line) or ('errors on' in line) or ('class.error' in line) or ('error rate' in line) or ('[Loaded ' in line) or ('[WARN]' in line) or ('CalcSquareErrorsTasks' in line))))
+                foundBad = (foundBadPartial and (not (('Retrying after IO error' in line) or ('Error on' in line) or ('ApiPortWatchdog' in line) or ('Error reduced' in line) or ('out-of-bag error estimation' in line) or ('reconstruction error' in line) or ('Prediction error' in line) or (('Act/Prd' in line) and ('Error' in line)) or (('AUC' in line) and ('Gini' in line) and ('Precision' in line)) or ('Error on training data' in line) or ('Error on validation data' in line) or ('WARN SCORM' in line) or ('stack_traces' in line) or ('out_of_bag_error_estimate' in line) or ('Training Error' in line) or ('Mean Squared Error' in line) or (('Error' in line) and ('Actual' in line)) or ('prediction error' in line) or ('errors on' in line) or ('class.error' in line) or ('error rate' in line) or ('[Loaded ' in line) or ('[WARN]' in line) or ('CalcSquareErrorsTasks' in line))))
             if ((printing == 0) and foundBad):
                 printing = 1
                 lines = 1

@@ -1,0 +1,21 @@
+{
+  Vec count=_vocab.vec(1);
+  ValueString tmp=new ValueString();
+  float ran;
+  int wIdx, sentIdx=0;
+  int sentLen=(cs._len - 1 - _chkIdx);
+  if (sentLen >= MAX_SENTENCE_LEN)   sentLen=MAX_SENTENCE_LEN;
+ else   if (sentLen < MIN_SENTENCE_LEN)   return 0;
+  for (; _chkIdx < cs._len; _chkIdx++) {
+    cs.atStr0(tmp,_chkIdx);
+    if (!_vocabHM.containsKey(tmp))     continue;
+    wIdx=_vocabHM.get(tmp);
+    if (_sentSampleRate > 0) {
+      ran=((float)Math.sqrt(count.at8(wIdx) / (_sentSampleRate * _output._trainFrameSize)) + 1) * (_sentSampleRate * _output._trainFrameSize) / (float)count.at8(wIdx);
+      if (ran < _rand.nextFloat())       continue;
+    }
+    sentence[sentIdx++]=wIdx;
+    if (sentIdx >= sentLen)     break;
+  }
+  return sentLen;
+}

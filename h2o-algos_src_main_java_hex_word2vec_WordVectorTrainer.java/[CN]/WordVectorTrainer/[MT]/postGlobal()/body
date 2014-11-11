@@ -1,0 +1,14 @@
+{
+  if (H2O.CLOUD.size() > 1) {
+    long now=System.currentTimeMillis();
+    if (_chunkNodeCount < H2O.CLOUD.size() && (now - _lastWarn > 5000) && _warnCount < 3) {
+      Log.warn(H2O.CLOUD.size() - _chunkNodeCount + " node(s) (out of " + H2O.CLOUD.size() + ") are not contributing to model updates. Consider setting replicate_training_data to true or using a larger training dataset (or fewer H2O nodes).");
+      _lastWarn=now;
+      _warnCount++;
+    }
+  }
+  _output.div(_chunkNodeCount);
+  _output.addGloballyProcessed(_output.getLocallyProcessed());
+  _output.setLocallyProcessed(0);
+  assert(_input == null);
+}
