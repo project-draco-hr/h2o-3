@@ -1,4 +1,4 @@
-def parseFrameCheck(frames_result, multiplyExpected):
+def parseFrameCheck(frames_result, multiplyExpected, expectedColumnNames):
     print ''
     frame = frames_result['frames'][0]
     byteSize = frame['byteSize']
@@ -12,7 +12,7 @@ def parseFrameCheck(frames_result, multiplyExpected):
         domain = c['domain']
         print ('column: %s label: %s type: %s missing: %s zeros: %s domain: %s' % (i, label, stype, missing, zeros, domain))
         assertEqualMsg(zeros, (expectedZeros[i] * multiplyExpected))
-        assertEqualMsg(label, ('C%s' % (i + 1)))
+        assertEqualMsg(label, expectedColumnNames[i])
         assertEqualMsg(stype, 'int')
         assertEqualMsg(missing, 0)
         assertEqualMsg(domain, None)

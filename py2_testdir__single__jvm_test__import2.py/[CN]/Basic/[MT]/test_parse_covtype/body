@@ -6,10 +6,11 @@ def test_parse_covtype(self):
         kList = []
         for csvFilename in csvFilenameList:
             csvPathname = ((importFolderPath + '/') + csvFilename)
-            import_result = a_node.import_files(path=csvPathname)
-            k = import_result['keys'][0]
-            frames_result = a_node.frames(key=k, len=5, timeoutSecs=timeoutSecs)
-            kList.append(k)
+            if (not DO_IMPORT_PARSE):
+                import_result = a_node.import_files(path=csvPathname)
+                k = import_result['keys'][0]
+                frames_result = a_node.frames(key=k, len=5, timeoutSecs=timeoutSecs)
+                kList.append(k)
         print 'I think I imported these keys:', kList
         if DO_2X_SRC:
             kList2 = (kList + kList)
@@ -21,10 +22,17 @@ def test_parse_covtype(self):
             basename = basename.translate(None, (",[]!#$%&'()*+-./:;<=>?@\\^_`{|}~" + '"'))
         else:
             basename = 'abcd012345'
-        columnNames = (('[' + ','.join(map((lambda x: ((basename + '_') + str((x + 1)))), range(1)))) + ']')
-        kwargs = {'columnNames': columnNames, }
+        colLength = (1 if DO_TEST_BAD_COL_LENGTH else 55)
+        expectedColumnNames = map((lambda x: ((basename + '_') + str((x + 1)))), range(colLength))
+        columnNames = (('[' + ','.join(expectedColumnNames)) + ']')
+        kwargs = {'columnNames': columnNames, 'intermediateResults': False, }
         print kwargs
-        parse_result = a_node.parse(key=kList2, timeoutSecs=timeoutSecs, **kwargs)
+        if DO_IMPORT_PARSE:
+            multiplyExpected = 1
+            csvPathname = ((importFolderPath + '/') + SINGLE_CSVFILENAME)
+            parse_result = h2i.import_parse(path=csvPathname, timeoutSecs=timeoutSecs, **kwargs)
+        else:
+            parse_result = a_node.parse(key=kList2, timeoutSecs=timeoutSecs, **kwargs)
         k = parse_result['frames'][0]['key']['name']
         frames_result = a_node.frames(key=k, len=5)
-        parseFrameCheck(frames_result, multiplyExpected)
+        parseFrameCheck(frames_result, multiplyExpected, expectedColumnNames)

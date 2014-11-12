@@ -33,9 +33,18 @@ def parse(self, key, key2=None, timeoutSecs=300, retryDelaySecs=0.2, initialDela
         key = hex_key
     else:
         key = None
-    job_json = self.poll_job(job_key, timeoutSecs=timeoutSecs, key=key)
-    if job_json:
-        dest_key = job_json['jobs'][0]['dest']['name']
+    job_result = self.poll_job(job_key, timeoutSecs=timeoutSecs, key=key)
+    if job_result:
+        jobs = job_result['jobs'][0]
+        description = jobs['description']
+        dest = jobs['dest']
+        msec = jobs['msec']
+        status = jobs['status']
+        progress = jobs['progress']
+        dest_key = dest['name']
+        if (status == 'FAILED'):
+            print dump_json(job_result)
+            raise Exception(('Taking exception on parse job status: %s %s %s %s %s' % (status, progress, msec, dest_key, description)))
         return self.frames(dest_key)
     else:
-        raise Exception("parse didn't get a job_json result when it expected one")
+        raise Exception("parse didn't get a job_result when it expected one")
