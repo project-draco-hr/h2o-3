@@ -1,0 +1,38 @@
+def run_instances(count, ec2_config, region, waitForSSH=True, tags=None):
+    'Create a new reservation for count instances'
+    ec2params = inheritparams(ec2_config, EC2_API_RUN_INSTANCE)
+    ec2params.setdefault('min_count', count)
+    ec2params.setdefault('max_count', count)
+    reservation = None
+    conn = ec2_connect(region)
+    try:
+        reservation = conn.run_instances(**ec2params)
+        log('Reservation: {0}'.format(reservation.id))
+        log('Waiting for {0} EC2 instances {1} to come up, this can take 1-2 minutes.'.format(len(reservation.instances), reservation.instances))
+        start = time.time()
+        time.sleep(1)
+        for instance in reservation.instances:
+            while (instance.update() == 'pending'):
+                time.sleep(1)
+                h2o_cmd.dot()
+            if (not (instance.state == 'running')):
+                raise Exception('\x1b[91m[ec2] Error waiting for running state. Instance is in state {0}.\x1b[0m'.format(instance.state))
+        log('Instances started in {0} seconds'.format((time.time() - start)))
+        log('Instances: ')
+        for inst in reservation.instances:
+            log('   {0} ({1}) : public ip: {2}, private ip: {3}'.format(inst.public_dns_name, inst.id, inst.ip_address, inst.private_ip_address))
+        if waitForSSH:
+            wait_for_ssh([i.private_ip_address for i in reservation.instances])
+        try:
+            if tags:
+                conn.create_tags([i.id for i in reservation.instances], tags)
+        except:
+            warn('Something wrong during tagging instances. Exceptions IGNORED!')
+            print sys.exc_info()
+            pass
+        return reservation
+    except:
+        print '\x1b[91mUnexpected error\x1b[0m :', sys.exc_info()
+        if reservation:
+            terminate_reservation(reservation, region)
+        raise
