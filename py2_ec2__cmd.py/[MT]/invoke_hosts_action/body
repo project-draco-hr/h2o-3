@@ -1,0 +1,43 @@
+def invoke_hosts_action(action, hosts_config, args, ec2_reservation=None):
+    ids = [inst['id'] for inst in hosts_config['ec2_instances']]
+    ips = [inst['private_ip_address'] for inst in hosts_config['ec2_instances']]
+    region = hosts_config['ec2_region']
+    if (action == 'terminate'):
+        terminate_instances(ids, region)
+    elif (action == 'stop'):
+        stop_instances(ids, region)
+    elif (action == 'reboot'):
+        reboot_instances(ids, region)
+        wait_for_ssh(ips, skipAlive=False, requiredsuccess=10)
+    elif (action == 'start'):
+        start_instances(ids, region)
+    elif (action == 'distribute_h2o'):
+        pass
+    elif (action == 'start_h2o'):
+        try:
+            try:
+                h2o.config_json = args.hosts
+                log('Starting H2O cloud...')
+                h2o_hosts.build_cloud_with_hosts(timeoutSecs=120, retryDelaySecs=5)
+                h2o.touch_cloud()
+                log("Cloud started. Let's roll!")
+                log('You can start for example here \x1b[93mhttp://{0}:{1}\x1b[0m'.format(hosts_config['ec2_instances'][0]['public_dns_name'], hosts_config['base_port']))
+                if args.timeout:
+                    log('Cloud will shutdown after {0} seconds or use Ctrl+C to shutdown it.'.format(args.timeout))
+                    time.sleep(args.timeout)
+                else:
+                    log('To kill the cloud please use Ctrl+C as usual.')
+                    while True:
+                        time.sleep(3600)
+            except:
+                print traceback.format_exc()
+        finally:
+            log('Goodbye H2O cloud...')
+            h2o.tear_down_cloud()
+            log('Cloud is gone.')
+    elif (action == 'stop_h2o'):
+        pass
+    elif (action == 'clean_tmp'):
+        execute_using_ssh_commands(hosts_config, ec2_reservation, command_string='sudo rm -rf /tmp/*; df')
+    elif (action == 'nexec'):
+        execute_using_ssh_commands(hosts_config, ec2_reservation, command_string=args.cmd)

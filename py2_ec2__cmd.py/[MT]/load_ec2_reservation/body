@@ -1,0 +1,6 @@
+def load_ec2_reservation(reservation, region):
+    conn = ec2_connect(region)
+    lr = [r for r in conn.get_all_instances() if (r.id == reservation)]
+    if (not lr):
+        raise Exception('Reservation id {0} not found !'.format(reservation))
+    return lr[0]

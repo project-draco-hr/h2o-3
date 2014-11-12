@@ -1,0 +1,7 @@
+def get_ssh_commands(ec2_config, reservation, ssh_options=''):
+    cmds = []
+    if (not ssh_options):
+        ssh_options = ''
+    for i in reservation.instances:
+        cmds.append('ssh -i ~/.ec2/keys/mrjenkins_test.pem {1} ubuntu@{0}'.format(i.private_ip_address, ssh_options))
+    return cmds

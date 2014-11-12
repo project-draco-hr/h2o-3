@@ -1,10 +1,13 @@
-def poll_job(self, job_key, timeoutSecs=10, retryDelaySecs=0.5, **kwargs):
+def poll_job(self, job_key, timeoutSecs=10, retryDelaySecs=0.5, key=None, **kwargs):
     '\n    Poll a single job from the /Jobs endpoint until it is "status": "DONE" or "CANCELLED" or "FAILED" or we time out.\n    '
     params_dict = {}
     h2o_methods.check_params_update_kwargs(params_dict, kwargs, 'poll_job', True)
     start_time = time.time()
     while True:
         result = self.do_json_request(('2/Jobs.json/' + job_key), timeout=timeoutSecs, params=params_dict)
+        if key:
+            frames_result = self.frames(key=key)
+            print 'frames_result for key:', key, dump_json(result)
         jobs = result['jobs'][0]
         description = jobs['description']
         dest = jobs['dest']

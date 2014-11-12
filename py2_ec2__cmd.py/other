@@ -1,0 +1,26 @@
+import argparse
+import boto
+import os, time, sys, socket
+import h2o_cmd
+import h2o
+import h2o_hosts
+import json
+import commands
+import traceback
+'\n    Simple EC2 utility:\n     \n       * to setup clooud of 5 nodes: ./ec2_cmd.py create --instances 5\n       * to terminated the cloud   : ./ec2_cmd.py terminate --hosts <host file returned by previous command>\n'
+DEFAULT_NUMBER_OF_INSTANCES = 4
+DEFAULT_HOSTS_FILENAME = 'ec2-config-{0}.json'
+DEFAULT_REGION = 'us-east-1'
+DEFAULT_INSTANCE_NAME = 'node_{0}'.format(os.getenv('USER'))
+ADVANCED_SSH_OPTIONS = '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o GlobalKnownHostsFile=/dev/null'
+'\nDefault EC2 instance setup\n'
+DEFAULT_EC2_INSTANCE_CONFIGS = {'us-east-1': {'image_id': 'ami-cf5132a6', 'security_groups': ['MrJenkinsTest'], 'key_name': 'mrjenkins_test', 'instance_type': 'm1.xlarge', 'region': 'us-east-1', 'pem': '~/.ec2/keys/mrjenkins_test.pem', 'username': '0xdiag', 'aws_credentials': '~/.ec2/AwsCredentials.properties', 'hdfs_config': '~/.ec2/core-site.xml', }, 'us-west-1': {'image_id': 'ami-a6cbe6e3', 'security_groups': ['MrJenkinsTest'], 'key_name': 'mrjenkins_test', 'instance_type': 'm1.xlarge', 'pem': '~/.ec2/keys/mrjenkins_test.pem', 'username': '0xdiag', 'aws_credentials': '~/.ec2/AwsCredentials.properties', 'hdfs_config': '~/.ec2/core-site.xml', 'region': 'us-west-1', }, }
+' Memory mappings for instance kinds '
+MEMORY_MAPPING = {'m1.small': {'xmx': 1, }, 'm1.medium': {'xmx': 3, }, 'm1.large': {'xmx': 5, }, 'm1.xlarge': {'xmx': 12, }, 'm2.xlarge': {'xmx': 13, }, 'm2.2xlarge': {'xmx': 30, }, 'm2.4xlarge': {'xmx': 64, }, 'm3.medium': {'xmx': 3, }, 'm3.large': {'xmx': 5, }, 'm3.xlarge': {'xmx': 12, }, 'm3.2xlarge': {'xmx': 26, }, 'c1.medium': {'xmx': 1, }, 'c1.xlarge': {'xmx': 6, }, 'c3.large': {'xmx': 3, }, 'c3.xlarge': {'xmx': 5, }, 'c3.2xlarge': {'xmx': 12, }, 'c3.4xlarge': {'xmx': 27, }, 'c3.8xlarge': {'xmx': 56, }, 'cc2.8xlarge': {'xmx': 56, }, 'hi1.4xlarge': {'xmx': 56, }, 'cr1.8xlarge': {'xmx': 230, }, 'g2.2xlarge': {'xmx': 12, }, 'i2.xlarge': {'xmx': 27, }, 'i2.2xlarge': {'xmx': 57, }, 'cg1.4xlarge': {'xmx': 19, }, 'i2.4xlarge': {'xmx': 116, }, 'hs1.8xlarge': {'xmx': 112, }, 'i2.8xlarge': {'xmx': 236, }, }
+' EC2 API default configuration. The corresponding values are replaces by EC2 user config. '
+EC2_API_RUN_INSTANCE = {'image_id': None, 'min_count': 1, 'max_count': 1, 'key_name': None, 'security_groups': None, 'user_data': None, 'addressing_type': None, 'instance_type': None, 'placement': None, 'monitoring_enabled': False, 'subnet_id': None, 'block_device_map': None, 'disable_api_termination': False, 'instance_initiated_shutdown_behavior': None, }
+' Returns a boto connection to given region '
+' Run number of EC2 instance.\nWaits forthem and optionaly waits for ssh service.\n'
+' Wait for ssh port \n'
+if (__name__ == '__main__'):
+    main()
