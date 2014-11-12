@@ -1,0 +1,9 @@
+def report_reservations(region, reservation_id=None):
+    conn = ec2_connect(region)
+    reservations = conn.get_all_instances()
+    if reservation_id:
+        reservations = [i for i in reservations if (i.id == reservation_id)]
+    log('Reservations:')
+    for r in reservations:
+        report_reservation(r)
+        log('')

@@ -1,0 +1,13 @@
+def test_parse_covtype(self):
+    tryList = [('covtype200x.data', 200, 360)]
+    for (csvFilename, multiplyExpected, timeoutSecs) in tryList:
+        a_node = h2o.nodes[0]
+        importFolderPath = '/home/0xdiag/datasets/standard'
+        csvPathname = ((importFolderPath + '/') + csvFilename)
+        import_result = a_node.import_files(path=csvPathname)
+        k = import_result['keys'][0]
+        frames_result = a_node.frames(key=k, len=5, timeoutSecs=timeoutSecs)
+        parse_result = a_node.parse(key=k, timeoutSecs=timeoutSecs)
+        k = parse_result['frames'][0]['key']['name']
+        frames_result = a_node.frames(key=k, len=5)
+        parseFrameCheck(frames_result, multiplyExpected)

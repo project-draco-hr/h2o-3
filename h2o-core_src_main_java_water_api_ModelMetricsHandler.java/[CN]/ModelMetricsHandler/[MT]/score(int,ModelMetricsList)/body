@@ -6,5 +6,11 @@
   }
   Log.debug("Cache miss: computing ModelMetrics. . .");
   parms.model.score(parms.frame,true);
-  return this.fetch(version,parms);
+  ModelMetricsListSchemaV3 mm=this.fetch(version,parms);
+  if (null == mm)   mm=new ModelMetricsListSchemaV3();
+  if (null == mm.model_metrics || 0 == mm.model_metrics.length) {
+    mm.model_metrics=new ModelMetricsV3[1];
+    mm.model_metrics[0]=new ModelMetricsV3();
+  }
+  return mm;
 }

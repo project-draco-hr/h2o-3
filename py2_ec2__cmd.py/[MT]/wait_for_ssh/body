@@ -1,0 +1,14 @@
+def wait_for_ssh(ips, port=22, skipAlive=True, requiredsuccess=3):
+    ' Wait for ssh service to appear on given hosts'
+    log('Waiting for SSH on following hosts: {0}'.format(ips))
+    for ip in ips:
+        if ((not skipAlive) or (not ssh_live(ip, port))):
+            log('Waiting for SSH on instance {0}...'.format(ip))
+            count = 0
+            while (count < requiredsuccess):
+                if ssh_live(ip, port):
+                    count += 1
+                else:
+                    count = 0
+                time.sleep(1)
+                h2o_cmd.dot()
