@@ -1,0 +1,7 @@
+def ec2_connect(region):
+    check_required_env_variables()
+    import boto.ec2
+    conn = boto.ec2.connect_to_region(region)
+    if (not conn):
+        raise Exception('\x1b[91m[ec2] Cannot create EC2 connection into {0} region!\x1b[0m'.format(region))
+    return conn

@@ -1,0 +1,65 @@
+def main():
+    parser = argparse.ArgumentParser(description='H2O EC2 instances launcher')
+    parser.add_argument('action', choices=['help', 'demo', 'create', 'terminate', 'stop', 'reboot', 'start', 'distribute_h2o', 'start_h2o', 'show_defaults', 'dump_reservation', 'show_reservations', 'clean_tmp', 'nexec'], help='EC2 instances action!')
+    parser.add_argument('-c', '--config', help='Configuration file to configure NEW EC2 instances (if not specified default is used - see "show_defaults")', type=str, default=None)
+    parser.add_argument('-i', '--instances', help='Number of instances to launch', type=int, default=DEFAULT_NUMBER_OF_INSTANCES)
+    parser.add_argument('-H', '--hosts', help='Hosts file describing existing "EXISTING" EC2 instances ', type=str, default=None)
+    parser.add_argument('-r', '--region', help='Specifies target create region', type=str, default=DEFAULT_REGION)
+    parser.add_argument('--reservation', help='Reservation ID, for example "r-1824ec65"', type=str, default=None)
+    parser.add_argument('--name', help='Name for launched instances', type=str, default=DEFAULT_INSTANCE_NAME)
+    parser.add_argument('--timeout', help='Timeout in seconds.', type=int, default=None)
+    parser.add_argument('--instance_type', help='Enfore a type of EC2 to launch (e.g., m2.2xlarge).', type=str, default=None)
+    parser.add_argument('--cmd', help='Shell command to be executed by nexec.', type=str, default=None)
+    parser.add_argument('--image_id', help='Override defautl image_id', type=str, default=None)
+    parser.add_argument('--h2o_per_host', help='Number of JVM launched per node', type=int, default=1)
+    args = parser.parse_args()
+    ec2_region = load_ec2_region(args.region)
+    if (args.action == 'help'):
+        parser.print_help()
+    elif ((args.action == 'create') or (args.action == 'demo')):
+        ec2_config = load_ec2_config(args.config, ec2_region, args.instance_type, args.image_id)
+        tags = create_tags(Name=args.name)
+        log('EC2 region : {0}'.format(ec2_region))
+        log('EC2 itype  : {0}'.format(ec2_config['instance_type']))
+        log('EC2 ami    : {0}'.format(ec2_config['image_id']))
+        log('EC2 config : {0}'.format(ec2_config))
+        log('Instances  : {0}'.format(args.instances))
+        log('Tags       : {0}'.format(tags))
+        reservation = run_instances(args.instances, ec2_config, ec2_region, tags=tags)
+        (hosts_cfg, filename) = dump_hosts_config(ec2_config, reservation, filename=args.hosts, h2o_per_host=args.h2o_per_host)
+        dump_ssh_commands(ec2_config, reservation)
+        if (args.action == 'demo'):
+            args.hosts = filename
+            try:
+                invoke_hosts_action('start_h2o', hosts_cfg, args)
+            finally:
+                invoke_hosts_action('terminate', hosts_cfg, args)
+    elif (args.action == 'show_defaults'):
+        print 
+        print '\x1b[92mConfig\x1b[0m : {0}'.format(json.dumps(DEFAULT_EC2_INSTANCE_CONFIGS, indent=2))
+        print '\x1b[92mInstances\x1b[0m         : {0}'.format(DEFAULT_NUMBER_OF_INSTANCES)
+        print '\x1b[92mSupported regions\x1b[0m : {0}'.format([i for i in DEFAULT_EC2_INSTANCE_CONFIGS])
+        print 
+    elif (args.action == 'merge_reservations'):
+        merge_reservations(args.reservations, args.region)
+    elif (args.action == 'dump_reservation'):
+        ec2_config = load_ec2_config(args.config, ec2_region)
+        ec2_reservation = load_ec2_reservation(args.reservation, ec2_region)
+        dump_hosts_config(ec2_config, ec2_reservation, filename=args.hosts)
+    elif (args.action == 'show_reservations'):
+        report_reservations(args.region, args.reservation)
+    else:
+        if args.hosts:
+            hosts_config = load_hosts_config(args.hosts)
+            if hosts_config['ec2_reservation_id']:
+                ec2_reservation = load_ec2_reservation(hosts_config['ec2_reservation_id'], ec2_region)
+            else:
+                ec2_reservation = None
+        elif args.reservation:
+            ec2_config = load_ec2_config(args.config, ec2_region)
+            ec2_reservation = load_ec2_reservation(args.reservation, ec2_region)
+            (hosts_config, _) = dump_hosts_config(ec2_config, ec2_reservation, save=False)
+        invoke_hosts_action(args.action, hosts_config, args, ec2_reservation)
+        if ((args.action == 'terminate') and args.hosts):
+            log('Deleting {0} host file.'.format(args.hosts))
+            os.remove(args.hosts)

@@ -1,0 +1,9 @@
+def execute_using_ssh_commands(ec2_config, reservation, command_string='df'):
+    if (not command_string):
+        log('Nothing to execute. Exiting...')
+    cmds = get_ssh_commands(ec2_config, reservation, ADVANCED_SSH_OPTIONS)
+    for cmd in cmds:
+        c = (((cmd + " '") + command_string) + "'")
+        print ('\n' + c)
+        (ret, out) = commands.getstatusoutput(c)
+        print out
