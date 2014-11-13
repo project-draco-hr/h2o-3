@@ -1,0 +1,13 @@
+{
+  long bins[]=_bins=new long[_nbins];
+  double elems[]=_elems=new double[_nbins];
+  for (int row=0; row < chk._len; row++) {
+    double d=chk.at0(row);
+    double idx=(d - _lb) / _step;
+    if (!(0.0 <= idx && idx < bins.length))     continue;
+    int i=(int)idx;
+    if (bins[i] == 0)     elems[i]=d;
+ else     if (!Double.isNaN(elems[i]) && elems[i] != d)     elems[i]=Double.NaN;
+    bins[i]++;
+  }
+}

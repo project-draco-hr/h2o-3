@@ -1,0 +1,45 @@
+{
+  KMeans2Model model=null;
+  try {
+    Scope.enter();
+    _parms.lock_frames(KMeans2.this);
+    init(true);
+    model=new KMeans2Model(dest(),_parms,new KMeans2Model.KMeans2Output(KMeans2.this));
+    model.delete_and_lock(_key);
+    Frame f=train();
+    double clusters[][]=model._output._clusters=new double[_parms._K][f.numCols()];
+    Random R=new Random(1234);
+    for (int k=0; k < _parms._K; k++) {
+      long row=Math.abs(R.nextLong() % f.numRows());
+      for (int j=0; j < f.numCols(); j++)       clusters[k][j]=f.vecs()[j].at(row);
+    }
+    model.update(_key);
+    double last_mse=Double.MAX_VALUE;
+    for (; model._output._iters < _parms._max_iters; model._output._iters++) {
+      if (!isRunning())       break;
+      Lloyds ll=new Lloyds(clusters).doAll(f);
+      clusters=model._output._clusters=ArrayUtils.div(ll._sums,ll._rows);
+      model._output._mse=ll._se / f.numRows();
+      model.update(_key);
+      update(1);
+      StringBuilder sb=new StringBuilder();
+      sb.append("KMeans2: iter: ").append(model._output._iters).append(" ").append(model._output._mse).append(" ROWS=").append(Arrays.toString(ll._rows));
+      Log.info(sb);
+      double improv=(last_mse - model._output._mse) / model._output._mse;
+      if (improv < 1e-6)       break;
+      last_mse=model._output._mse;
+    }
+  }
+ catch (  Throwable t) {
+    t.printStackTrace();
+    cancel2(t);
+    throw t;
+  }
+ finally {
+    if (model != null)     model.unlock(_key);
+    _parms.unlock_frames(KMeans2.this);
+    Scope.exit(model._key);
+    done();
+  }
+  tryComplete();
+}
