@@ -8,10 +8,9 @@
   try {
     GLMParameters params=new GLMParameters(Family.binomial);
     params._response_column="response";
-    params._response=fr.find(params._response_column);
     params._ignored_columns=new String[]{"ID"};
     params._train=parsed;
-    params.lambda=new double[]{0};
+    params._lambda=new double[]{0};
     job=new GLM(modelKey,"glm test simple poisson",params);
     job.trainModel().get();
     model=DKV.get(modelKey).get();

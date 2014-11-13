@@ -10,9 +10,8 @@
     fr=ParseDataset2.parse(parsed,raw);
     GLMParameters params=new GLMParameters(Family.gaussian);
     params._train=fr._key;
-    params._response=1;
-    params._response_column=fr._names[params._response];
-    params.lambda=new double[]{0};
+    params._response_column=fr._names[1];
+    params._lambda=new double[]{0};
     job=new GLM(modelKey,"glm test simple gaussian",params);
     job.trainModel().get();
     model=DKV.get(modelKey).get();

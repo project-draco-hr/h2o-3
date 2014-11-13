@@ -12,11 +12,11 @@
       return "checkKKTAndComplete.Callback, completer = " + getCompleter() == null ? "null" : getCompleter().toString();
     }
     @Override public void callback(    final GLMIterationTask glmt2){
-      final double[] grad=glmt2.gradient(_taskInfo._params.alpha[0],_currentLambda);
+      final double[] grad=glmt2.gradient(_taskInfo._params._alpha[0],_currentLambda);
       if (ArrayUtils.hasNaNsOrInfs(grad)) {
         if (!failedLineSearch) {
           LogInfo("Check KKT got NaNs. Invoking line search");
-          _taskInfo._params.higher_accuracy=true;
+          _taskInfo._params._higher_accuracy=true;
           getCompleter().addToPendingCount(1);
           new GLMTask.GLMLineSearchTask(_jobKey,_activeData,_taskInfo._params,_lastResult._beta,contractVec(fullBeta,_activeCols),1e-4,_taskInfo._ymu,_taskInfo._nobs,new LineSearchIteration(getCompleter())).asyncExec(_activeData._adaptedFrame);
           return;
@@ -26,7 +26,7 @@
         }
       }
       double[] subgrad=grad.clone();
-      ADMMSolver.subgrad(_taskInfo._params.alpha[0],_currentLambda,fullBeta,subgrad);
+      ADMMSolver.subgrad(_taskInfo._params._alpha[0],_currentLambda,fullBeta,subgrad);
       double err=GLM_GRAD_EPS;
       if (!failedLineSearch && _activeCols != null) {
         for (        int c : _activeCols)         if (subgrad[c] > err)         err=subgrad[c];
@@ -56,7 +56,7 @@
         }
       }
       _taskInfo._beta=glmt2._beta;
-      _taskInfo._gradient=glmt2.gradient(_taskInfo._params.alpha[0],_taskInfo._lastLambda);
+      _taskInfo._gradient=glmt2.gradient(_taskInfo._params._alpha[0],_taskInfo._lastLambda);
       _taskInfo._iter=_iter;
       int diff=MAX_ITERATIONS_PER_LAMBDA - _iter + _taskInfo._iter;
       if (diff > 0)       new Job.ProgressUpdate(diff).fork(_progressKey);

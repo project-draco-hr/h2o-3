@@ -9,10 +9,9 @@
     fr=parse_test_file(parsed,"smalldata/junit/cars.csv");
     GLMParameters params=new GLMParameters(Family.poisson,Family.poisson.defaultLink,new double[]{0},new double[]{0});
     params._response_column="power (hp)";
-    params._response=fr.find(params._response_column);
     params._ignored_columns=new String[]{"name"};
     params._train=parsed;
-    params.lambda=new double[]{0};
+    params._lambda=new double[]{0};
     job=new GLM(modelKey,"glm test simple poisson",params);
     job.trainModel().get();
     model=DKV.get(modelKey).get();
@@ -31,10 +30,9 @@
     job.remove();
     params=new GLMParameters(Family.gamma,Family.gamma.defaultLink,new double[]{0},new double[]{0});
     params._response_column="power (hp)";
-    params._response=fr.find(params._response_column);
     params._ignored_columns=new String[]{"name"};
     params._train=parsed;
-    params.lambda=new double[]{0};
+    params._lambda=new double[]{0};
     job=new GLM(modelKey,"glm test simple poisson",params);
     job.trainModel().get();
     model=DKV.get(modelKey).get();
@@ -50,10 +48,9 @@
     double[] vls3=new double[]{166.95862,-0.00531,-2.46690,0.12635,0.02159,-4.66995,-0.85724};
     params=new GLMParameters(Family.gaussian);
     params._response_column="power (hp)";
-    params._response=fr.find(params._response_column);
     params._ignored_columns=new String[]{"name"};
     params._train=parsed;
-    params.lambda=new double[]{0};
+    params._lambda=new double[]{0};
     job=new GLM(modelKey,"glm test simple poisson",params);
     job.trainModel().get();
     model=DKV.get(modelKey).get();

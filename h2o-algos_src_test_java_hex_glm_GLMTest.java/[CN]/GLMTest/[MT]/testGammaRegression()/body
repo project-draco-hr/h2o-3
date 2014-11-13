@@ -8,10 +8,9 @@
     FVecTest.makeByteVec(raw,"x,y\n0,1\n1,0.5\n2,0.3333333\n3,0.25\n4,0.2\n5,0.1666667\n6,0.1428571\n7,0.125");
     fr=ParseDataset2.parse(parsed,raw);
     GLMParameters params=new GLMParameters(Family.gamma);
-    params._response=1;
-    params._response_column=fr._names[params._response];
+    params._response_column=fr._names[1];
     params._train=parsed;
-    params.lambda=new double[]{0};
+    params._lambda=new double[]{0};
     Key modelKey=Key.make("gamma_test");
     job=new GLM(modelKey,"glm test simple gamma",params);
     job.trainModel().get();
