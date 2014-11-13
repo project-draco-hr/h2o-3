@@ -15,11 +15,7 @@
       for (int p=0; p < _parms._probs.length; p++) {
         double prob=_parms._probs[p];
         Histo h=h1;
-        while (true) {
-          double q=model._output._quantiles[n][p]=h.findQuantile(prob);
-          if (!Double.isNaN(q))           break;
-          h=h.refinePass(prob).doAll(vec);
-        }
+        while (Double.isNaN(model._output._quantiles[n][p]=h.findQuantile(prob)))         h=h.refinePass(prob).doAll(vec);
         model._output._iters++;
         model.update(_key);
         update(1);
