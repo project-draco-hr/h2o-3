@@ -1,0 +1,15 @@
+{
+  if (_hs == null) {
+    long bins[]=_bins == null ? (_bins=new long[_nbins]) : _bins;
+    double elems[]=_elems == null ? (_elems=new double[_nbins]) : _elems;
+    double idx=(d - _lb) / _step;
+    if (!(0.0 <= idx && idx < bins.length))     return;
+    int i=(int)idx;
+    if (bins[i] == 0)     elems[i]=d;
+ else     if (!Double.isNaN(elems[i]) && elems[i] != d)     elems[i]=Double.NaN;
+    bins[i]++;
+  }
+ else {
+    throw H2O.unimpl();
+  }
+}

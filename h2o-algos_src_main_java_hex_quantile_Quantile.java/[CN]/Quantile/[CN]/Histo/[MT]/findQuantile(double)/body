@@ -1,0 +1,14 @@
+{
+  double p2=p * (_nrows - 1);
+  long r2=(long)p2;
+  int loidx=findBin(r2);
+  double lo=(loidx == _nbins) ? binEdge(_nbins) : _elems[loidx];
+  if (_hs != null && _hs[loidx] != null)   throw H2O.unimpl();
+  long r3=r2 == p2 ? r2 : r2 + 1;
+  int hiidx=findBin(r3);
+  double hi=(hiidx == _nbins) ? binEdge(_nbins) : _elems[hiidx];
+  if (_hs != null && _hs[hiidx] != null)   throw H2O.unimpl();
+  if (Double.isNaN(lo))   refineAt(loidx);
+  if (Double.isNaN(hi))   refineAt(hiidx);
+  return computeQuantile(lo,hi,r2,_nrows,p);
+}
