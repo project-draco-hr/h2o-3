@@ -1,0 +1,17 @@
+{
+  String majorMinorIncremental;
+  if (_versionFromGradle.endsWith("-SNAPSHOT")) {
+    majorMinorIncremental=_versionFromGradle.substring(0,_versionFromGradle.length() - "-SNAPSHOT".length());
+  }
+ else {
+    majorMinorIncremental=_versionFromGradle;
+  }
+  if (!Pattern.matches("\\d+\\.\\d+\\.\\d+",majorMinorIncremental)) {
+    throw new RuntimeException("majorMinorIncremental is malformed (" + majorMinorIncremental + ")");
+  }
+  String[] parts=majorMinorIncremental.split("\\.");
+  _buildMajorVersion=parts[0];
+  _buildMinorVersion=parts[1];
+  _buildIncrementalVersion=parts[2];
+  _buildNumber=calcBuildNumber(_rootDir,_versionFromGradle);
+}
