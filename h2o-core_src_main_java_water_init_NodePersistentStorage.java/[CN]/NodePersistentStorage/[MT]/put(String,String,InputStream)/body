@@ -1,5 +1,7 @@
 {
   Log.info("NPS put content category(" + categoryName + ") keyName("+ keyName+ ")");
+  validateCategoryName(categoryName);
+  validateKeyName(keyName);
   File d=new File(NPS_DIR);
   if (!d.exists()) {
     boolean success=d.mkdir();
@@ -9,6 +11,16 @@
   }
   if (!d.exists()) {
     throw new RuntimeException("NodePersistentStorage directory does not exist (" + d + ")");
+  }
+  File tmpd=new File(d + File.separator + "_tmp");
+  if (!tmpd.exists()) {
+    boolean success=tmpd.mkdir();
+    if (!success) {
+      throw new RuntimeException("Could not make NodePersistentStorage category directory (" + tmpd + ")");
+    }
+  }
+  if (!tmpd.exists()) {
+    throw new RuntimeException("NodePersistentStorage category directory does not exist (" + tmpd + ")");
   }
   File d2=new File(d + File.separator + categoryName);
   if (!d2.exists()) {
@@ -20,10 +32,10 @@
   if (!d2.exists()) {
     throw new RuntimeException("NodePersistentStorage category directory does not exist (" + d2 + ")");
   }
-  File f=new File(d2 + File.separator + keyName);
+  File tmpf=new File(tmpd + File.separator + keyName);
   FileOutputStream fos=null;
   try {
-    fos=new FileOutputStream(f);
+    fos=new FileOutputStream(tmpf);
     copyStream(is,fos);
   }
  catch (  Exception e) {
@@ -37,6 +49,19 @@
     }
  catch (    Exception ignore) {
     }
+  }
+  File realf=new File(d2 + File.separator + keyName);
+  try {
+    boolean success=tmpf.renameTo(realf);
+    if (!success) {
+      throw new RuntimeException("NodePersistentStorage move failed (" + tmpf + " -> "+ realf+ ")");
+    }
+    if (!realf.exists()) {
+      throw new RuntimeException("NodePersistentStorage file does not exist (" + realf + ")");
+    }
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
   }
   Log.info("Put succeeded");
 }

@@ -1,0 +1,19 @@
+{
+  validateCategoryName(categoryName);
+  String dirName=NPS_DIR + File.separator + categoryName;
+  File dir=new File(dirName);
+  File[] files=dir.listFiles();
+  if (files == null) {
+    return new NodePersistentStorageEntry[0];
+  }
+  ArrayList<NodePersistentStorageEntry> arr=new ArrayList<>();
+  for (  File f : files) {
+    NodePersistentStorageEntry entry=new NodePersistentStorageEntry();
+    entry._category=categoryName;
+    entry._name=f.getName();
+    entry._size=f.length();
+    entry._timestamp_millis=f.lastModified();
+    arr.add(entry);
+  }
+  return arr.toArray(new NodePersistentStorageEntry[arr.size()]);
+}
