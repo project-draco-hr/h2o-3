@@ -1,13 +1,18 @@
 {
-  Model model=modelMetrics.model.get();
-  this.model=model.schema().fillFromImpl(model);
-  this.model.output=null;
-  this.model_checksum=modelMetrics.model_checksum;
-  this.frame=new FrameV2(modelMetrics.frame);
-  this.frame_checksum=modelMetrics.frame_checksum;
-  this.model_category=modelMetrics.model_category;
-  this.duration_in_ms=modelMetrics.duration_in_ms;
-  this.scoring_time=modelMetrics.scoring_time;
-  this.auc=new AUCV3().fillFromImpl(modelMetrics.auc);
+  if (null != modelMetrics.model && null != DKV.get(modelMetrics.model) && null != DKV.get(modelMetrics.model).get())   this.model=(ModelSchema)Schema.schema(this.schema_version,DKV.get(modelMetrics.model).get().getClass());
+  if (null != modelMetrics.frame && null != DKV.get(modelMetrics.frame) && null != DKV.get(modelMetrics.frame).get())   this.frame=(FrameV2)Schema.schema(this.schema_version,DKV.get(modelMetrics.frame).get().getClass());
+  new AUCV3();
+  new ConfusionMatrixV3();
+  modelMetrics.cm=null;
+  if (null != modelMetrics.auc)   this.auc=(AUCBase)Schema.schema(this.schema_version,modelMetrics.auc);
+  if (null != modelMetrics.cm)   this.cm=(ConfusionMatrixBase)Schema.schema(this.schema_version,modelMetrics.cm);
+  super.fillFromImpl(modelMetrics);
+  Model m=(Model)DKV.getGet(modelMetrics.model);
+  if (null != m)   if (Model.class.isAssignableFrom(m.getClass()))   this.model.fillFromImpl(m);
+ else   throw H2O.fail("Can't fill a model schema from a non-Model key: " + modelMetrics.model);
+  Frame f=(Frame)DKV.getGet(modelMetrics.frame);
+  if (null != f)   if (Frame.class.isAssignableFrom(f.getClass()))   this.frame.fillFromImpl(f);
+ else   throw H2O.fail("Can't fill a frame schema from a non-Frame key: " + modelMetrics.frame);
+  if (null != this.model)   this.model.output=null;
   return this;
 }
