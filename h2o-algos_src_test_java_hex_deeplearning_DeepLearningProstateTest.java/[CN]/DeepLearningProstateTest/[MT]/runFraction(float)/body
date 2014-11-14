@@ -53,7 +53,7 @@
                                     p._train=frame._key;
                                     p._response_column=frame._names[resp];
                                     p._valid=valid == null ? null : valid._key;
-                                    p._toEnum=classification;
+                                    p._convert_to_enum=classification;
                                     p._hidden=hidden;
                                     p._override_with_best_model=override_with_best_model;
                                     p._epochs=epochs;
@@ -97,7 +97,7 @@
                                   p._n_folds=0;
                                   p._valid=valid == null ? null : valid._key;
                                   p._response_column=frame._names[resp];
-                                  p._toEnum=classification;
+                                  p._convert_to_enum=classification;
                                   p._override_with_best_model=override_with_best_model;
                                   p._epochs=epochs;
                                   p._seed=seed;
@@ -123,13 +123,14 @@
                                     }
                                   }
                                   if (valid == null)                                   valid=frame;
+                                  double threshold=0;
                                   if (model2._output.isClassifier()) {
                                     Frame pred=null, pred2=null;
                                     try {
                                       pred=model2.score(valid);
                                       StringBuilder sb=new StringBuilder();
                                       AUC auc=new AUC();
-                                      double error;
+                                      double error=0;
                                       if (model2._output.nclasses() == 2) {
                                         auc.actual=valid;
                                         assert(resp == 1);
@@ -139,11 +140,13 @@
                                         auc.execImpl();
                                         AUCData aucd=auc.data();
                                         aucd.threshold();
+                                        threshold=aucd.threshold();
                                         error=aucd.err();
                                         Log.info(sb);
                                         Assert.assertEquals(new ConfusionMatrix2(auc.data().cm()).err(),error,1e-15);
                                         Assert.assertEquals(model2.calcError(auc.actual,auc.vactual,pred,pred,"training",false,0,null,auc,null),error,1e-15);
                                       }
+                                      double CMerrorOrig;
 {
                                         sb=new StringBuilder();
                                         ConfusionMatrix CM=new ConfusionMatrix();
@@ -156,10 +159,55 @@
                                         sb.append("Threshold: " + "default\n");
                                         CM.toASCII(sb);
                                         Log.info(sb);
+                                        CMerrorOrig=new ConfusionMatrix2(CM.cm).err();
                                       }
                                       pred2=new Frame(Key.make("pred2"),pred.names(),pred.vecs());
                                       pred2.delete_and_lock(null);
                                       pred2.unlock(null);
+                                      if (model2._output.nclasses() == 2) {
+                                        String ast="(= ([ $pred2 \"null\" #0) (G ([ $pred2 \"null\" #2) #" + 0.5 + "))";
+                                        Env ev=Exec.exec(ast);
+                                        try {
+                                          pred2=ev.popAry();
+                                        }
+  finally {
+                                          if (ev != null)                                           ev.remove_and_unlock();
+                                        }
+                                        hex.ConfusionMatrix CM=new hex.ConfusionMatrix();
+                                        CM.actual=valid;
+                                        CM.vactual=valid.vecs()[1];
+                                        CM.predict=pred2;
+                                        CM.vpredict=pred2.vecs()[0];
+                                        CM.execImpl();
+                                        sb=new StringBuilder();
+                                        sb.append("\n");
+                                        sb.append("Threshold: " + 0.5 + "\n");
+                                        CM.toASCII(sb);
+                                        Log.info(sb);
+                                        double threshErr=new ConfusionMatrix2(CM.cm).err();
+                                        Assert.assertEquals(threshErr,CMerrorOrig,1e-15);
+                                        ast="(= ([ $pred2 \"null\" #0) (G ([ $pred2 \"null\" #2) #" + threshold + "))";
+                                        ev=Exec.exec(ast);
+                                        try {
+                                          pred2=ev.popAry();
+                                        }
+  finally {
+                                          if (ev != null)                                           ev.remove_and_unlock();
+                                        }
+                                        CM=new hex.ConfusionMatrix();
+                                        CM.actual=valid;
+                                        CM.vactual=valid.vecs()[1];
+                                        CM.predict=pred2;
+                                        CM.vpredict=pred2.vecs()[0];
+                                        CM.execImpl();
+                                        sb=new StringBuilder();
+                                        sb.append("\n");
+                                        sb.append("Threshold: ").append(threshold).append("\n");
+                                        CM.toASCII(sb);
+                                        Log.info(sb);
+                                        double threshErr2=new ConfusionMatrix2(CM.cm).err();
+                                        Assert.assertEquals(threshErr2,error,1e-15);
+                                      }
                                     }
   finally {
                                       if (pred != null)                                       pred.delete();

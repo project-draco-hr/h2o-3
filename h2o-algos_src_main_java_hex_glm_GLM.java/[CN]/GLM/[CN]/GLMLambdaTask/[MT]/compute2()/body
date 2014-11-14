@@ -5,7 +5,7 @@
   LogInfo("starting computation of lambda = " + _currentLambda + ", previous lambda = "+ _taskInfo._lastLambda);
   int[] activeCols=activeCols(_currentLambda,_taskInfo._lastLambda,_taskInfo._gradient);
   int n=activeCols == null ? _taskInfo._dinfo.fullN() : activeCols.length;
-  if (n > _taskInfo._params.maxActivePredictors)   throw new TooManyPredictorsException();
+  if (n > _taskInfo._params._max_active_predictors)   throw new TooManyPredictorsException();
   double[] beta=contractVec(_taskInfo._beta,_activeCols);
   _lastResult=new IterationInfo(_taskInfo._iter,beta,contractVec(_taskInfo._gradient,_activeCols),_taskInfo._objval);
   new GLMIterationTask(_jobKey,_activeData,_taskInfo._params,true,false,false,beta,_taskInfo._ymu,1.0 / _taskInfo._nobs,_taskInfo._thresholds,new Iteration(this)).asyncExec(_activeData._adaptedFrame);

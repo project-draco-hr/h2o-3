@@ -66,8 +66,10 @@
         if (st.countTokens() != 2)         sendError(HTTP_BADREQUEST,"BAD REQUEST: Content type is multipart/form-data but boundary syntax error. Usage: GET /example/file.html");
         st.nextToken();
         String boundary=st.nextToken();
-        boolean useValueArray=!Pattern.matches("/[0-9]+/.*",uri);
-        fileUpload(boundary,is,parms,useValueArray);
+        boolean handled=fileUpload(boundary,is,parms,uri);
+        if (handled) {
+          return;
+        }
       }
  else {
         String postLine="";

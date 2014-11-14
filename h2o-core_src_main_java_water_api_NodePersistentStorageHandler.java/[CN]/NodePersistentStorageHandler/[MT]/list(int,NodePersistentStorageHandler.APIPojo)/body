@@ -1,0 +1,12 @@
+{
+  NodePersistentStorage nps=H2O.getNPS();
+  NodePersistentStorageEntry[] entries=nps.list(obj._category);
+  String[] arr=new String[entries.length];
+  int i=0;
+  obj._names=arr;
+  for (  NodePersistentStorageEntry entry : entries) {
+    obj._names[i]=entry._name;
+    i++;
+  }
+  return this.schema(version).fillFromImpl(obj);
+}

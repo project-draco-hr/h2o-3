@@ -12,5 +12,7 @@
     }
   }
   if (_train != null)   _ncols=_train.numCols() - 1;
-  _initialPrediction=_nclass == 1 ? _response.mean() : 0;
+  if (_response == null)   return;
+  double mean=_response.mean();
+  _initialPrediction=_nclass == 1 ? mean : (_nclass == 2 ? -0.5 * Math.log(mean / (1.0 - mean)) : 0.0);
 }

@@ -1,7 +1,7 @@
 {
   double eta=0.0;
   final double[] b=beta();
-  if (!_parms.useAllFactorLvls) {
+  if (!_parms._use_all_factor_levels) {
     for (int i=0; i < _dinfo._catOffsets.length - 1; ++i)     if (chks[i].at0(row_in_chunk) != 0)     eta+=b[_dinfo._catOffsets[i] + (int)(chks[i].at0(row_in_chunk) - 1)];
   }
  else {
@@ -12,7 +12,7 @@
   eta+=b[b.length - 1];
   double mu=_parms.linkInv(eta);
   preds[0]=(float)mu;
-  if (_parms.family == Family.binomial) {
+  if (_parms._family == Family.binomial) {
     if (Double.isNaN(mu)) {
       preds[0]=Float.NaN;
       preds[1]=Float.NaN;

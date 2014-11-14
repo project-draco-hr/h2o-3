@@ -4,18 +4,22 @@
   if (_train == null)   return;
   if (_train.numCols() <= 1)   error("_train","Training data must have at least 2 features (incl. response).");
   int ridx=_train.find(_parms._response_column);
-  if (ridx == -1)   error("_response_column","Response column " + _parms._response_column + " not found in frame: "+ _parms.train()+ ".");
-  _response=_train.remove(ridx);
-  _vresponse=_valid.remove(ridx);
-  if (_response.isBad())   error("_response_column","Response column is all NAs!");
-  if (_response.isConst())   error("_response_column","Response column is constant!");
-  if (_parms._toEnum && expensive) {
-    _response=_response.toEnum();
-    _vresponse=_vresponse.toEnum();
+  if (ridx == -1) {
+    error("_response_column","Response column " + _parms._response_column + " not found in frame: "+ _parms.train()+ ".");
   }
-  _train.add(_parms._response_column,_response);
-  _valid.add(_parms._response_column,_vresponse);
-  _response_key=_response._key;
-  _vresponse_key=_vresponse._key;
-  _nclass=_response.isEnum() ? _response.domain().length : 1;
+ else {
+    _response=_train.remove(ridx);
+    _vresponse=_valid.remove(ridx);
+    if (_response.isBad())     error("_response_column","Response column is all NAs!");
+    if (_response.isConst())     error("_response_column","Response column is constant!");
+    if (_parms._convert_to_enum && expensive) {
+      _response=_response.toEnum();
+      _vresponse=_vresponse.toEnum();
+    }
+    _train.add(_parms._response_column,_response);
+    _valid.add(_parms._response_column,_vresponse);
+    _response_key=_response._key;
+    _vresponse_key=_vresponse._key;
+    _nclass=_response.isEnum() ? _response.domain().length : 1;
+  }
 }

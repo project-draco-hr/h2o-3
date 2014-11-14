@@ -12,10 +12,9 @@
     System.out.println(v.min() + ", " + v.max()+ ", mean = "+ v.mean());
     GLMParameters params=new GLMParameters(Family.poisson);
     params._train=fr._key;
-    params._response=1;
-    params._response_column=fr._names[params._response];
-    params.lambda=new double[]{0};
-    params.higher_accuracy=true;
+    params._response_column=fr._names[1];
+    params._lambda=new double[]{0};
+    params._higher_accuracy=true;
     params._standardize=false;
     job=new GLM(modelKey,"glm test simple poisson",params);
     job.trainModel().get();
@@ -28,10 +27,9 @@
     fr=ParseDataset2.parse(parsed,raw);
     GLMParameters params2=new GLMParameters(Family.poisson);
     params2._train=fr._key;
-    params2._response=1;
-    params2._response_column=fr._names[params2._response];
-    params2.lambda=new double[]{0};
-    params2.higher_accuracy=true;
+    params2._response_column=fr._names[1];
+    params2._lambda=new double[]{0};
+    params2._higher_accuracy=true;
     params2._standardize=false;
     job=new GLM(modelKey,"glm test simple poisson",params2);
     model=job.trainModel().get();

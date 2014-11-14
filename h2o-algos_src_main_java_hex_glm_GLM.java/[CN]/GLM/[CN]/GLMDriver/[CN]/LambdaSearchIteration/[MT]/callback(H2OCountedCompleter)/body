@@ -1,13 +1,13 @@
 {
   double currentLambda=lambdas[_lambdaId];
-  if (_params.n_folds > 1) {
+  if (_params._n_folds > 1) {
     ParallelTasks<GLMLambdaTask> t=(ParallelTasks<GLMLambdaTask>)h2OCountedCompleter;
     for (int i=0; i < t._tasks.length; ++i)     _state[i]=t._tasks[i]._taskInfo;
   }
   if (++_lambdaId < _maxLambda) {
     getCompleter().addToPendingCount(1);
     double nextLambda=lambdas[_lambdaId];
-    if (_params.n_folds > 1) {
+    if (_params._n_folds > 1) {
       GLMLambdaTask[] tasks=new GLMLambdaTask[_state.length];
       H2OCountedCompleter cmp=new LambdaSearchIteration((H2OCountedCompleter)getCompleter());
       cmp.addToPendingCount(tasks.length - 1);
