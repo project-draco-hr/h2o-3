@@ -1,6 +1,7 @@
 def test_simple2(self):
     a_node = h2o.nodes[0]
-    import_result = a_node.import_files(path=find_file('smalldata/poker/poker-hand-testing.data'))
+    csvPathname = find_file('smalldata/poker/poker-hand-testing.data')
+    import_result = a_node.import_files(path=csvPathname)
     k = import_result['keys'][0]
     frames_result = a_node.frames(key=k)
     frame = frames_result['frames'][0]
@@ -13,7 +14,17 @@ def test_simple2(self):
         stype = c['type']
         zeros = c['zeros']
         domain = c['domain']
-    parse_result = a_node.parse(key=k)
+    parse_result = a_node.parse(key=k, intermediateResults=DO_INTERMEDIATE_RESULTS)
     frame = parse_result['frames'][0]
     hex_key = frame['key']['name']
+    colCount = 11
+    rowCount = 1000000
+    start = time.time()
+    inspect = h2o_cmd.runInspect(None, hex_key)
+    print 'Inspect:', hex_key, 'took', (time.time() - start), 'seconds'
+    numCols = len(inspect['frames'][0]['columns'])
+    numRows = inspect['frames'][0]['rows']
+    print ('\n' + csvPathname), '    rows:', '{:,}'.format(numRows), '    len(columns):', '{:,}'.format(numCols)
+    self.assertEqual(numCols, colCount, ('parse created result with the wrong number of cols %s %s' % (numCols, colCount)))
+    self.assertEqual(numRows, rowCount, ("parse created result with the wrong number of rows (header shouldn't count) %s %s" % (numRows, rowCount)))
     verboseprint(hex_key, ':', dump_json(parse_result))
