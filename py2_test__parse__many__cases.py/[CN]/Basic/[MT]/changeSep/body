@@ -1,0 +1,15 @@
+def changeSep(self, rows, sepCase):
+    r = rows[(-1)]
+    tabseptab = re.search('\\t|\\t', r)
+    spsepsp = re.search(' | ', r)
+    if (tabseptab or spsepsp):
+        newSep = ','
+    else:
+        newSep = self.sepChangeDict[sepCase]
+    newRows = [r.replace('|', newSep) for r in rows]
+    if (newSep == '\x01'):
+        randomOtherSep = random.choice(self.sepChangeDict.values())
+        while (randomOtherSep == newSep):
+            randomOtherSep = random.choice(self.sepChangeDict.values())
+        newRows = [r.replace('@', randomOtherSep) for r in newRows]
+    return newRows
