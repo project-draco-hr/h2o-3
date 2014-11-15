@@ -1,8 +1,4 @@
-def validate_model_exists(model_name):
-    found = False
-    for model in models['models']:
-        if (model['key'] == model_name):
-            found = True
-            break
-    assert found, (('Did not find ' + model_name) + ' in the models list.')
-    return model
+def validate_model_exists(model_name, models):
+    models_dict = list_to_dict(models, 'key')
+    assert (model_name in models_dict), ((('Failed to find ' + model_name) + ' in models list: ') + repr(models_dict.keys()))
+    return models_dict[model_name]
