@@ -1,0 +1,46 @@
+def percentileOnSortedList(N, percent, key=(lambda x: x), interpolate='mean'):
+    interpolateChoices = ['floor', 'ceil', 'funky', 'linear', 'mean']
+    if (interpolate not in interpolateChoices):
+        print 'Bad choice for interpolate:', interpolate
+        print 'Supported choices:', interpolateChoices
+    '\n    Find the percentile of a list of values.\n\n    @parameter N - is a list of values. Note N MUST BE already sorted.\n    @parameter percent - a float value from 0.0 to 1.0.\n    @parameter key - optional key function to compute value from each element of N.\n\n    @return - the percentile of the values\n    '
+    if (N is None):
+        return None
+    k = ((len(N) - 1) * percent)
+    f = int(math.floor(k))
+    c = int(math.ceil(k))
+    if (f == c):
+        d = key(N[f])
+        msg = 'aligned:'
+    elif (interpolate == 'floor'):
+        d = key(N[f])
+        msg = 'fractional with floor:'
+    elif (interpolate == 'ceil'):
+        d = key(N[c])
+        msg = 'fractional with ceil:'
+    elif (interpolate == 'funky'):
+        d0 = (key(N[f]) * (c - k))
+        d1 = (key(N[c]) * (k - f))
+        d = (d0 + d1)
+        msg = 'fractional with Tung(floor and ceil) :'
+    elif (interpolate == 'linear'):
+        assert ((c - f) == 1)
+        assert ((k >= f) and (k <= c))
+        pctDiff = (k - f)
+        dDiff = (pctDiff * (key(N[c]) - key(N[f])))
+        d = key((N[f] + dDiff))
+        msg = ('fractional %s with linear(floor and ceil):' % pctDiff)
+    elif (interpolate == 'mean'):
+        d = ((key(N[c]) + key(N[f])) / 2.0)
+        msg = 'fractional with mean(floor and ceil):'
+    flooredK = int(f)
+    if (flooredK > 0):
+        print 'prior->', key(N[(flooredK - 1)]), ' '
+    else:
+        print 'prior->', '<bof>'
+    print 'floor->', key(N[flooredK]), ' ', msg, 'result:', d, 'f:', f, 'len(N):', len(N)
+    if ((flooredK + 1) < len(N)):
+        print ' ceil->', key(N[(flooredK + 1)]), 'c:', c
+    else:
+        print ' ceil-> <eof>', 'c:', c
+    return d
