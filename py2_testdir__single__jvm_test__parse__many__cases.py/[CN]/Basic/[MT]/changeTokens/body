@@ -1,0 +1,13 @@
+def changeTokens(self, rows, tokenCase, tokenChangeDict):
+    [cOpen, cClose] = tokenChangeDict[tokenCase]
+    newRows = []
+    for r in rows:
+        comment = re.match('^[ \\t]*#', r)
+        empty = re.match('^$', r)
+        if (not (comment or empty)):
+            r = re.sub('^', cOpen, r)
+            r = re.sub('\\|', ((cClose + '|') + cOpen), r)
+            r = re.sub('$', cClose, r)
+        verboseprint(r)
+        newRows.append(r)
+    return newRows

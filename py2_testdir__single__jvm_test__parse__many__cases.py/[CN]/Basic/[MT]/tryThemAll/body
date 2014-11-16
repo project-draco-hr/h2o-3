@@ -1,0 +1,24 @@
+def tryThemAll(self, set, rows, enumsOnly=False):
+    for eolCase in range(len(self.eolDict)):
+        eol = self.eolDict[eolCase]
+        if enumsOnly:
+            tcd = self.tokenChangeDict
+        else:
+            tcd = self.tokenChangeDictEnumsOnly
+        for tokenCase in range(len(tcd)):
+            newRows1 = self.changeTokens(rows, tokenCase, tcd)
+            for sepCase in range(len(self.sepChangeDict)):
+                newRows2 = self.changeSep(newRows1, sepCase)
+                csvPathname = (((((((((SYNDATASETS_DIR + '/parsetmp_') + str(set)) + '_') + str(eolCase)) + '_') + str(tokenCase)) + '_') + str(sepCase)) + '.data')
+                self.writeRows(csvPathname, newRows2, eol)
+                if ("'" in tcd[tokenCase][0]):
+                    singleQuotes = 1
+                else:
+                    singleQuotes = 0
+                parseResult = h2i.import_parse(path=csvPathname, schema='local', singleQuotes=singleQuotes, noPrint=(not h2o_args.verbose), retryDelaySecs=0.1, doSummary=DO_SUMMARY, intermediateResults=DO_INTERMEDIATE_RESULTS)
+                if DO_RF:
+                    h2o_cmd.runRF(parseResult=parseResult, trees=1, timeoutSecs=10, retryDelaySecs=0.1, noPrint=True, print_params=True)
+                verboseprint('Set', set)
+                h2o.check_sandbox_for_errors()
+                sys.stdout.write('.')
+                sys.stdout.flush()

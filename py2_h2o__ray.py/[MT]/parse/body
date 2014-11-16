@@ -1,8 +1,9 @@
-def parse(self, key, key2=None, timeoutSecs=300, retryDelaySecs=0.2, initialDelaySecs=None, pollTimeoutSecs=180, noise=None, benchmarkLogging=None, noPoll=False, intermediateResults=True, **kwargs):
+def parse(self, key, hex_key=None, timeoutSecs=300, retryDelaySecs=0.2, initialDelaySecs=None, pollTimeoutSecs=180, noise=None, benchmarkLogging=None, noPoll=False, intermediateResults=False, **kwargs):
     '\n    Parse an imported raw file or files into a Frame.\n    '
-    params_dict = {'srcs': None, 'hex': key2, 'pType': None, 'sep': None, 'ncols': None, 'checkHeader': None, 'singleQuotes': None, 'columnNames': None, }
+    params_dict = {'srcs': None, 'hex': hex_key, 'pType': None, 'sep': None, 'ncols': None, 'checkHeader': None, 'singleQuotes': None, 'columnNames': None, }
     if (not isinstance(key, basestring)):
-        print ("I noticed you're giving me multiple keys %s to parse:" % len(key)), key
+        if (not key):
+            raise Exception(('key seems to be bad in parse. Should be list or string. %s' % key))
         srcs = (('[' + ','.join(key)) + ']')
     else:
         srcs = (('[' + key) + ']')

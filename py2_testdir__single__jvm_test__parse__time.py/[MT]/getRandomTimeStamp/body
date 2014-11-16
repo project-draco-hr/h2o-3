@@ -1,0 +1,49 @@
+def getRandomTimeStamp():
+    day = days[h2o_util.weighted_choice(dayWeights)]
+    timestampFormat = random.randint(0, 5)
+    timestampFormat = 0
+    yearInt = random.randint(1970, 2016)
+    yearStr = str(yearInt)
+    if (timestampFormat == 0):
+        if (random.randint(0, 1) == 1):
+            if (str(yearStr[(-2)]) == '0'):
+                year = int(str(yearStr)[(-1):])
+            else:
+                year = int(str(yearStr)[(-2):])
+        else:
+            year = int(str(yearStr)[(-2):])
+    else:
+        year = yearInt
+    if (timestampFormat == 0):
+        monthIndex = random.randint(1, 12)
+        month = random.choice(months[monthIndex])
+    else:
+        month = str(random.randint(1, 12))
+    import calendar
+    legalDays = calendar.monthrange(yearInt, monthIndex)[1]
+    if (day > legalDays):
+        day = legalDays
+    hour = str(random.randint(0, 23))
+    if (random.randint(0, 1) == 1):
+        hour = hour.zfill(2)
+    minute = str(random.randint(0, 59))
+    if (random.randint(0, 1) == 1):
+        minute = minute.zfill(2)
+    second = str(random.randint(0, 59))
+    if (random.randint(0, 1) == 1):
+        second = second.zfill(2)
+    milli = str(random.randint(0, 999))
+    r = (random.randint(0, 2) == 1)
+    if (r == 1):
+        milli = milli.zfill(2)
+    elif (r == 2):
+        milli = milli.zfill(3)
+    if (timestampFormat == 0):
+        a = ('%s-%s-%02d' % (day, month, year))
+    elif (timestampFormat == 1):
+        a = ('%04d-%s-%s' % (year, month, day))
+    elif (timestampFormat == 2):
+        a = ('%04d-%s-%s %s:%s:%s' % (year, month, day, hour, minute, second))
+    else:
+        a = ('%04d-%s-%s %s:%s:%s:%s' % (year, month, day, hour, minute, second, milli))
+    return a

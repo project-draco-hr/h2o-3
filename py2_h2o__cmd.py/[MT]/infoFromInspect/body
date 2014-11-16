@@ -1,0 +1,25 @@
+def infoFromInspect(inspect):
+    if (not inspect):
+        raise Exception('inspect is empty for infoFromInspect')
+    if ('frames' not in inspect):
+        raise Exception(('infoFromInspect expects inspect= param from Frames result (single): %s' % inspect))
+    if (len(inspect['frames']) != 1):
+        raise Exception(('infoFromInspect expects inspect= param from Frames result (single): %s ' % inspect['frames']))
+    frame = inspect['frames'][0]
+    if frame['isText']:
+        raise Exception(('infoFromInspect only for parsed frames?: %s ' % frame['isText']))
+    columns = frame['columns']
+    key_name = frame['key']['name']
+    missingList = []
+    labelList = []
+    for (i, colDict) in enumerate(columns):
+        missing = colDict['missing']
+        if (missing != 0):
+            print ('%s: col: %d, %s: %d' % (key_name, i, 'missing', missing))
+            missingList.append(missing)
+        labelList.append(colDict['label'])
+    numCols = len(frame['columns'])
+    numRows = frame['rows']
+    byteSize = frame['byteSize']
+    print ('\n%s numRows: %s, numCols: %s, byteSize: %s' % (key_name, numRows, numCols, byteSize))
+    return (missingList, labelList, numRows, numCols)

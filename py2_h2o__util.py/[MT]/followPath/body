@@ -1,0 +1,14 @@
+def followPath(d, path_elems):
+    dCopy = copy.deepcopy(d)
+    for path_elem in path_elems:
+        if ('' != path_elem):
+            idx = (-1)
+            if path_elem.endswith(']'):
+                idx = int(path_elem[(path_elem.find('[') + 1):path_elem.find(']')])
+                path_elem = path_elem[:path_elem.find('[')]
+            assert (path_elem in dCopy), ((('Failed to find key: ' + path_elem) + ' in dict: ') + dCopy)
+            if ((-1) == idx):
+                dCopy = dCopy[path_elem]
+            else:
+                dCopy = dCopy[path_elem][idx]
+    return dCopy
