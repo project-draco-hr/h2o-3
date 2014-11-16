@@ -1,10 +1,17 @@
 def find_key(pattern=None):
-    found = None
-    kwargs = {'filter': pattern, }
-    storeViewResult = h2o_nodes.nodes[0].store_view(**kwargs)
-    keys = storeViewResult['keys']
-    if (len(keys) == 0):
+    try:
+        patternObj = re.compile(pattern)
+    except:
+        raise Exception('Need legal pattern in find_key, not %s', pattern)
+    frames = h2o_nodes.nodes[0].frames()['frames']
+    frames_dict = h2o_util.list_to_dict(frames, 'key/name')
+    result = []
+    for key in frames_dict:
+        if patternObj.search(key):
+            result.append(key)
+    if (len(result) == 0):
+        verboseprint(('Warning: No match for %s' % pattern))
         return None
-    if (len(keys) > 1):
-        verboseprint(('Warning: multiple imported keys match the key pattern given, Using: %s' % keys[0]['key']))
-    return keys[0]['key']
+    if (len(result) > 1):
+        verboseprint(('Warning: multiple imported keys match the key pattern %s, Using: %s' % (pattern, result[0])))
+    return result[0]
