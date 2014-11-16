@@ -1,0 +1,11 @@
+def write_syn_dataset(csvPathname, rowCount, colCount, colSepChar=',', rowSepChar='\n', SEED=12345678):
+    r1 = random.Random(SEED)
+    dsf = codecs.open(csvPathname, encoding='utf-8', mode='w+')
+    for i in range(rowCount):
+        rowData = []
+        for j in range(colCount):
+            r = generate_random_utf8_string(length=2, row=i, col=j)
+            rowData.append(r)
+        rowDataCsv = colSepChar.join(rowData)
+        dsf.write((rowDataCsv + rowSepChar))
+    dsf.close()
