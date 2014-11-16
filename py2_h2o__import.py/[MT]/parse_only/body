@@ -1,6 +1,12 @@
 def parse_only(node=None, pattern=None, hex_key=None, timeoutSecs=30, retryDelaySecs=0.1, initialDelaySecs=0, pollTimeoutSecs=180, noise=None, benchmarkLogging=None, noPoll=False, **kwargs):
     if (not node):
         node = h2o_nodes.nodes[0]
-    parseResult = node.parse(key=pattern, key2=hex_key, timeoutSecs=timeoutSecs, retryDelaySecs=retryDelaySecs, initialDelaySecs=initialDelaySecs, pollTimeoutSecs=pollTimeoutSecs, noise=noise, benchmarkLogging=benchmarkLogging, noPoll=noPoll, **kwargs)
+    framesResult = node.frames()
+    matchingList = []
+    for frame in framesResult['frames']:
+        key_name = frame['key']['name']
+        if fnmatch.fnmatch(key_name, pattern):
+            matchingList.append(key_name)
+    parseResult = node.parse(key=matchingList, hex_key=hex_key, timeoutSecs=timeoutSecs, retryDelaySecs=retryDelaySecs, initialDelaySecs=initialDelaySecs, pollTimeoutSecs=pollTimeoutSecs, noise=noise, benchmarkLogging=benchmarkLogging, noPoll=noPoll, **kwargs)
     parseResult['python_source'] = pattern
     return parseResult

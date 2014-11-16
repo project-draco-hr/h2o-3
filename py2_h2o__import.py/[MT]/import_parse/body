@@ -1,4 +1,7 @@
 def import_parse(node=None, schema='local', bucket=None, path=None, src_key=None, hex_key=None, timeoutSecs=30, retryDelaySecs=0.1, initialDelaySecs=0, pollTimeoutSecs=180, noise=None, benchmarkLogging=None, noPoll=False, doSummary=True, noPrint=True, importParentDir=True, **kwargs):
+    if (schema == 'put'):
+        h2p.yellow_print(("WARNING: hacking schema='put' to 'local'..h2o-dev doesn't support upload." + "\nMeans multi-machine with 'put' will fail"))
+        schema = 'local'
     if (not node):
         node = h2o_nodes.nodes[0]
     (importResult, importPattern) = import_only(node, schema, bucket, path, timeoutSecs, retryDelaySecs, initialDelaySecs, pollTimeoutSecs, noise, benchmarkLogging, noPoll, doSummary, src_key, noPrint, importParentDir, **kwargs)

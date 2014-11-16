@@ -1,0 +1,35 @@
+def test_parse_time(self):
+    SYNDATASETS_DIR = h2o.make_syn_dir()
+    csvFilename = 'syn_time.csv'
+    csvPathname = ((SYNDATASETS_DIR + '/') + csvFilename)
+    headerData = None
+    colCount = COLS
+    rowCount = ROWS
+    write_syn_dataset(csvPathname, rowCount, colCount, headerData)
+    for trial in range(20):
+        rowData = rand_rowData()
+        hex_key = (((csvFilename + '_') + str(trial)) + '.hex')
+        start = time.time()
+        parseResultA = h2i.import_parse(path=csvPathname, schema='put', hex_key=hex_key)
+        print '\nA trial #', trial, 'parse end on ', csvFilename, 'took', (time.time() - start), 'seconds'
+        inspect = h2o_cmd.runInspect(key=hex_key)
+        (missingValuesListA, labelListA, numRowsA, numColsA) = h2o_cmd.infoFromInspect(inspect)
+        print 'missingValuesListA', missingValuesListA
+        self.assertEqual(missingValuesListA, [], 'missingValuesList should be empty')
+        self.assertEqual(numColsA, colCount)
+        self.assertEqual(numRowsA, rowCount)
+        csvDownloadPathname = (SYNDATASETS_DIR + '/csvDownload.csv')
+        h2o.nodes[0].csv_download(key=hex_key, csvPathname=csvDownloadPathname)
+        if (1 == 0):
+            h2o.nodes[0].remove_key(hex_key)
+        start = time.time()
+        parseResultB = h2i.import_parse(path=csvDownloadPathname, schema='put', hex_key=hex_key)
+        print 'B trial #', trial, 'parse end on ', csvFilename, 'took', (time.time() - start), 'seconds'
+        inspect = h2o_cmd.runInspect(key=hex_key)
+        (missingValuesListB, labelListB, numRowsB, numColsB) = h2o_cmd.infoFromInspect(inspect)
+        print 'missingValuesListB', missingValuesListB
+        self.assertEqual(missingValuesListA, missingValuesListB, 'missingValuesList mismatches after re-parse of downloadCsv result')
+        self.assertEqual(numColsA, numColsB, 'numCols mismatches after re-parse of downloadCsv result')
+        self.assertEqual(numRowsA, numRowsB, ('numRowsA: %s numRowsB: %s mismatch after re-parse of downloadCsv result' % (numRowsA, numRowsB)))
+        print 'H2O writes the internal format (number) out for time.'
+        h2o.check_sandbox_for_errors()
