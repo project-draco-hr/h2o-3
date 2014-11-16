@@ -1,0 +1,23 @@
+import unittest, random, time, sys
+sys.path.extend(['.', '..', '../..', 'py'])
+import h2o, h2o_cmd, h2o_browse as h2b, h2o_import as h2i, h2o_util
+print 'have to add leading/trailing whitespace and single/double quotes?'
+print 'test dd-MMM-yy format. caps for month?'
+print 'apparently h2o NAs some cases. illegal dates in a month?'
+print "seems to be that we require leading zero in year, but it's okay to not have it in the date?"
+ROWS = 5
+COLS = 20
+RESTRICT_TO_28 = False
+RESTRICT_MONTH_TO_UPPER = True
+if RESTRICT_MONTH_TO_UPPER:
+    months = [['nullForZero'], ['JAN'], ['FEB'], ['MAR'], ['APR'], ['MAY'], ['JUN'], ['JUL'], ['AUG'], ['SEP'], ['OCT'], ['NOV'], ['DEC']]
+else:
+    months = [['nullForZero'], ['Jan', 'JAN', 'jan'], ['Feb', 'FEB', 'feb'], ['Mar', 'MAR', 'mar'], ['Apr', 'APR', 'apr'], ['May', 'MAY', 'may'], ['Jun', 'JUN', 'jun'], ['Jul', 'JUL', 'jul'], ['Aug', 'AUG', 'aug'], ['Sep', 'SEP', 'sep'], ['Oct', 'OCT', 'oct'], ['Nov', 'NOV', 'nov'], ['Dec', 'DEC', 'dec']]
+monthWeights = [(1 if (i != 1) else 5) for i in range(len(months))]
+if RESTRICT_TO_28:
+    days = map(str, range(1, 29))
+else:
+    days = map(str, range(1, 32))
+dayWeights = [(1 if (i < 27) else 8) for i in range(len(days))]
+if (__name__ == '__main__'):
+    h2o.unit_main()
