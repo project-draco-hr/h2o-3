@@ -1,0 +1,24 @@
+def showClusterDistribution(self, tupleResultList, expected=None, allowedDelta=None, allowError=False, trial=0):
+    from operator import itemgetter
+    if (expected is not None):
+        expected.sort(key=itemgetter(0))
+        totalRows = 0
+        totalError = 0
+        print '\nExpected distribution, rows and error:'
+        for (i, (expCenter, expRows, expError)) in enumerate(expected):
+            totalRows += expRows
+            totalError += expError
+        print 'totalRows:', totalRows, 'totalError:', totalError
+        for (i, (expCenter, expRows, expError)) in enumerate(expected):
+            print expCenter, ('pctRows: %0.2f' % (expRows / (totalRows + 0.0))), ('pctError: %0.2f' % (expError / (totalError + 0.0)))
+    if (tupleResultList is not None):
+        tupleResultList.sort(key=itemgetter(0))
+        totalRows = 0
+        totalError = 0
+        print '\nActual distribution, rows and error:'
+        for (i, (actCenter, actRows, actError)) in enumerate(tupleResultList):
+            totalRows += actRows
+            totalError += actError
+        print 'totalRows:', totalRows, 'totalError:', totalError
+        for (i, (actCenter, actRows, actError)) in enumerate(tupleResultList):
+            print actCenter, ('pctRows: %0.2f' % (actRows / (totalRows + 0.0))), ('pctError: %0.2f' % (actError / (totalError + 0.0)))

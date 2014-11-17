@@ -9,18 +9,21 @@ def build_model(self, algo, training_frame, parameters, destination_key=None, ti
     builder = model_builders['model_builders'][algo]
     frames = self.frames(key=training_frame)
     assert (frames is not None), '/Frames/{0} REST call failed'.format(training_frame)
-    assert (frames['frames'][0]['key']['name'] == training_frame), '/Frames/{0} returned Frame {1} rather than Frame {2}'.format(training_frame, frames['frames'][0]['key']['name'], training_frame)
+    key_name = frames['frames'][0]['key']['name']
+    assert (key_name == training_frame), '/Frames/{0} returned Frame {1} rather than Frame {2}'.format(training_frame, key_name, training_frame)
     parameters['training_frame'] = training_frame
     if (destination_key is not None):
         parameters['destination_key'] = destination_key
-    result = self.do_json_request(('/2/ModelBuilders.json/' + algo), cmd='post', timeout=timeoutSecs, postData=parameters)
+    result1 = self.do_json_request(('/2/ModelBuilders.json/' + algo), cmd='post', timeout=timeoutSecs, postData=parameters)
     if asynchronous:
-        return result
-    elif ('validation_error_count' in result):
-        return result
+        result = result1
+    elif ('validation_error_count' in result1):
+        h2p.yellow_print('parameter error in model_builders')
+        result = result1
     else:
-        job = result['jobs'][0]
+        job = result1['jobs'][0]
         job_key = job['key']['name']
         verboseprint(('model building job_key: ' + repr(job_key)))
-        job_json = self.poll_job(job_key, timeoutSecs=timeoutSecs)
-        return job_json
+        result = self.poll_job(job_key, timeoutSecs=timeoutSecs)
+    verboseprint('result:', result)
+    return result

@@ -1,11 +1,10 @@
-def model_builders(self, algo=None, parameters=None, timeoutSecs=10, **kwargs):
+def model_builders(self, algo=None, timeoutSecs=10, **kwargs):
     '\n    Return a model builder or all of the model builders known to the\n    h2o cluster.  The model builders are contained in a dictionary\n    called "model_builders" at the top level of the result.  The\n    dictionary maps algorithm names to parameters lists.  Each of the\n    parameters contains all the metdata required by a client to\n    present a model building interface to the user.\n\n    if parameters = True, return the parameters?\n    '
     params_dict = {}
-    h2o_methods.check_params_update_kwargs(params_dict, kwargs, 'model_builders', True)
+    h2o_methods.check_params_update_kwargs(params_dict, kwargs, 'model_builders', False)
     request = '2/ModelBuilders.json'
     if algo:
-        ((request + '/') + algo)
-    if parameters:
-        (request + '/parameters')
+        request += ('/' + algo)
     result = self.do_json_request(request, timeout=timeoutSecs, params=params_dict)
+    verboseprint(request, 'result:', dump_json(result))
     return result
