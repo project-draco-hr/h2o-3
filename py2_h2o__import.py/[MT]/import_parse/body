@@ -7,7 +7,8 @@ def import_parse(node=None, schema='local', bucket=None, path=None, src_key=None
     (importResult, importPattern) = import_only(node, schema, bucket, path, timeoutSecs, retryDelaySecs, initialDelaySecs, pollTimeoutSecs, noise, benchmarkLogging, noPoll, doSummary, src_key, noPrint, importParentDir, **kwargs)
     verboseprint('importPattern:', importPattern)
     verboseprint('importResult', dump_json(importResult))
-    parseResult = parse_only(node, importPattern, hex_key, timeoutSecs, retryDelaySecs, initialDelaySecs, pollTimeoutSecs, noise, benchmarkLogging, noPoll, **kwargs)
+    assert (len(importResult['keys']) >= 1), ('No keys imported, maybe bad bucket %s or path %s' % (bucket, path))
+    parseResult = parse_only(node, importPattern, hex_key, importResult['keys'], timeoutSecs, retryDelaySecs, initialDelaySecs, pollTimeoutSecs, noise, benchmarkLogging, noPoll, **kwargs)
     verboseprint('parseResult:', dump_json(parseResult))
     if (doSummary and (not noPoll)):
         check_sandbox_for_errors()
