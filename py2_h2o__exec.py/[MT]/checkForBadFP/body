@@ -1,0 +1,9 @@
+def checkForBadFP(value, name='min_value', nanOkay=False, infOkay=False, json=None):
+    if (('Infinity' in str(value)) and (not infOkay)):
+        if json:
+            print dump_json(json)
+        raise Exception(("Infinity in inspected %s can't be good for: %s" % (str(value), name)))
+    if (('NaN' in str(value)) and (not nanOkay)):
+        if json:
+            print dump_json(json)
+        raise Exception(("NaN in inspected %s can't be good for: %s" % (str(value), name)))

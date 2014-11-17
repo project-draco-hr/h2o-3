@@ -1,0 +1,39 @@
+def checkScalarResult(resultExec, resultKey, allowEmptyResult=False, nanOkay=False):
+    verboseprint('checkScalarResult resultExec:', dump_json(resultExec))
+    if ('funstr' not in resultExec):
+        emsg = "checkScalarResult: 'funstr' missing"
+    if ('result' not in resultExec):
+        emsg = "checkScalarResult: 'result' missing"
+    if ('scalar' not in resultExec):
+        emsg = "checkScalarResult: 'scalar' missing"
+    if ('num_cols' not in resultExec):
+        emsg = "checkScalarResult: 'num_cols' missing"
+    if ('num_rows' not in resultExec):
+        emsg = "checkScalarResult: 'num_rows' missing"
+    elif ('cols' not in resultExec):
+        emsg = "checkScalarResult: 'cols' missing"
+    else:
+        emsg = None
+        num_cols = resultExec['num_cols']
+        num_rows = resultExec['num_rows']
+        cols = resultExec['cols']
+    if emsg:
+        print (("\nKey: '" + str(resultKey)) + "' resultExec:\n"), dump_json(resultExec)
+        sys.stdout.flush()
+        raise Exception(('exec result (resultExec) missing what we expected. Look at json above. ' + emsg))
+    if ((cols and ((not num_rows) or (num_rows == 0))) and (not allowEmptyResult)):
+        print 'resultExec[0]:', dump_json(resultExec)
+        raise Exception((("checkScalarResult says 'cols' exist in exec json response," + (" but num_rows: %s is 0 or None. Is that an expected 'empty' key state?" % num_rows)) + " Use 'allowEmptyResult if so."))
+    if (not cols):
+        scalar = resultExec['scalar']
+        if (scalar is None):
+            raise Exception(('both cols and scalar are null: %s %s' % (cols, scalar)))
+        checkForBadFP(scalar, json=resultExec, nanOkay=nanOkay)
+        return scalar
+    metaDict = cols[0]
+    for (key, value) in metaDict.items():
+        print 'Inspect metaDict:', key, value
+    min_value = metaDict['min']
+    stype = metaDict['type']
+    checkForBadFP(min_value, json=metaDict, nanOkay=(nanOkay or (stype == 'Enum')))
+    return min_value

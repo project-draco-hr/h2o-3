@@ -1,0 +1,46 @@
+def test_exec2_xorsum(self):
+    SYNDATASETS_DIR = h2o.make_syn_dir()
+    tryList = [(ROWS, 1, 'r1', 0, 10, None)]
+    for trial in range(10):
+        ullResultList = []
+        for (rowCount, colCount, hex_key, expectedMin, expectedMax, expected) in tryList:
+            SEEDPERFILE = random.randint(0, sys.maxint)
+            maxDelta = (expectedMax - expectedMin)
+            csvFilename = (((('syn_real_' + str(rowCount)) + 'x') + str(colCount)) + '.csv')
+            csvPathname = ((SYNDATASETS_DIR + '/') + csvFilename)
+            csvPathnameFull = h2i.find_folder_and_filename(None, csvPathname, returnFullPath=True)
+            print 'Creating random', csvPathname
+            (expectedUllSum, expectedFpSum) = write_syn_dataset(csvPathname, rowCount, colCount, expectedMin, expectedMax, SEEDPERFILE)
+            expectedUllSumAsDouble = h2o_util.unsignedLongLongToDouble(expectedUllSum)
+            expectedFpSumAsLongLong = h2o_util.doubleToUnsignedLongLong(expectedFpSum)
+            parseResult = h2i.import_parse(path=csvPathname, schema='put', hex_key=hex_key, timeoutSecs=3000, retryDelaySecs=2)
+            (numRows, numCols, parse_key) = h2o_cmd.infoFromParse(parseResult)
+            assert (parse_key == hex_key)
+            assert (numCols == colCount)
+            assert (numRows == rowCount)
+            inspect = h2o_cmd.runInspect(key=hex_key)
+            (missingList, labelList, numRows, numCols) = h2o_cmd.infoFromInspect(inspect)
+            assert (len(missingList) == 0)
+            for execExpr in exprList:
+                for r in range(10):
+                    start = time.time()
+                    execResult = h2o_cmd.runExec(ast=execExpr, timeoutSecs=30)
+                    fpResult = execResult['scalar']
+                    print r, 'exec took', (time.time() - start), 'seconds'
+                    print r, 'execResult:', h2o.dump_json(execResult)
+                    h2o_cmd.runStoreView()
+                    ullResult = h2o_util.doubleToUnsignedLongLong(fpResult)
+                    ullResultList.append((ullResult, fpResult))
+                    print ('%30s' % 'ullResult (0.16x):'), ('0x%0.16x   %s' % (ullResult, fpResult))
+                    print ('%30s' % 'expectedUllSum (0.16x):'), ('0x%0.16x   %s' % (expectedUllSum, expectedUllSumAsDouble))
+                    print ('%30s' % 'expectedFpSum (0.16x):'), ('0x%0.16x   %s' % (expectedFpSumAsLongLong, expectedFpSum))
+                    if (ullResult != expectedUllSum):
+                        raise Exception(("h2o didn't get the same xorsum as python. 0x%0.16x 0x%0.16x" % (ullResult, expectedUllSum)))
+                        print ("h2o didn't get the same xorsum as python. 0x%0.16x 0x%0.16x" % (ullResult, expectedUllSum))
+            h2o.check_sandbox_for_errors()
+            print 'first result was from a sum. others are xorsum'
+            print 'ullResultList:'
+            for (ullResult, fpResult) in ullResultList:
+                print ('%30s' % 'ullResult (0.16x):'), ('0x%0.16x   %s' % (ullResult, fpResult))
+            print ('%30s' % 'expectedUllSum (0.16x):'), ('0x%0.16x   %s' % (expectedUllSum, expectedUllSumAsDouble))
+            print ('%30s' % 'expectedFpSum (0.16x):'), ('0x%0.16x   %s' % (expectedFpSumAsLongLong, expectedFpSum))
