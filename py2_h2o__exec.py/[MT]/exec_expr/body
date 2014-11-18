@@ -1,20 +1,20 @@
 def exec_expr(node=None, execExpr=None, resultKey=None, timeoutSecs=10, ignoreH2oError=False):
     if (not node):
         node = h2o_nodes.nodes[0]
+    kwargs = {'ast': execExpr, }
     start = time.time()
-    kwargs = {'str': execExpr, }
     resultExec = h2o_cmd.runExec(node, timeoutSecs=timeoutSecs, ignoreH2oError=ignoreH2oError, **kwargs)
     verboseprint('exec took', (time.time() - start), 'seconds')
-    verboseprint(resultExec)
+    print 'exec:', dump_json(resultExec)
     if (('cols' in resultExec) and resultExec['cols']):
         if (('funstr' in resultExec) and resultExec['funstr']):
             raise Exception(("cols and funstr shouldn't both be in resultExec: %s" % dump_json(resultExec)))
         else:
             print 'Frame return'
             if (resultKey is not None):
-                kwargs = {'str': resultKey, }
+                kwargs = {'ast': resultKey, }
                 resultExec = h2o_cmd.runExec(node, timeoutSecs=timeoutSecs, ignoreH2oError=ignoreH2oError, **kwargs)
-                verboseprint('resultExec2:', dump_json(resultExec))
+                print 'exec key result:', dump_json(resultExec)
             result = resultExec['cols'][0]['min']
     elif (('funstr' in resultExec) and resultExec['funstr']):
         print 'function return'
