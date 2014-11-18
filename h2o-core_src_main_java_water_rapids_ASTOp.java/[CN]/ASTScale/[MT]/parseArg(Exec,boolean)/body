@@ -1,6 +1,7 @@
 {
   if (center) {
-    String[] centers=E.skipWS().peek() == '{' ? E.xpeek('{').parseString('}').split(";") : null;
+    if (!E.skipWS().hasNext())     throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
+    String[] centers=E.peek() == '{' ? E.xpeek('{').parseString('}').split(";") : null;
     if (centers == null) {
       AST a=E._env.lookup((ASTId)E.skipWS().parse());
       _center=((ASTNum)a).dbl() == 1;
@@ -13,7 +14,8 @@
     }
   }
  else {
-    String[] centers=E.skipWS().peek() == '{' ? E.xpeek('{').parseString('}').split(";") : null;
+    if (!E.skipWS().hasNext())     throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
+    String[] centers=E.peek() == '{' ? E.xpeek('{').parseString('}').split(";") : null;
     if (centers == null) {
       AST a=E._env.lookup((ASTId)E.skipWS().parse());
       _scale=((ASTNum)a).dbl() == 1;

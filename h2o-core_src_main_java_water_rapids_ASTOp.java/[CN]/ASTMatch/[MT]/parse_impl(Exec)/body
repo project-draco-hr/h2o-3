@@ -1,6 +1,8 @@
 {
+  if (!E.hasNext())   throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
   AST ary=E.parse();
-  _matches=E.skipWS().peek() == '{' ? E.xpeek('{').parseString('}').split(";") : new String[]{E.parseString(E.peekPlus())};
+  if (!E.skipWS().hasNext())   throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
+  _matches=E.peek() == '{' ? E.xpeek('{').parseString('}').split(";") : new String[]{E.parseString(E.peekPlus())};
   for (int i=0; i < _matches.length; ++i)   _matches[i]=_matches[i].replace("\"","").replace("\'","");
   ASTNum nomatch=(ASTNum)E.skipWS().parse();
   _nomatch=nomatch.dbl();
