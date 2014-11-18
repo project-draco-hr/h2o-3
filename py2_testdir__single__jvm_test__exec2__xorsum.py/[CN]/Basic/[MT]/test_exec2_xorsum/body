@@ -23,10 +23,11 @@ def test_exec2_xorsum(self):
             assert (len(missingList) == 0)
             for execExpr in exprList:
                 for r in range(10):
-                    start = time.time()
-                    execResult = h2o_cmd.runExec(ast=execExpr, timeoutSecs=30)
-                    print r, 'exec took', (time.time() - start), 'seconds'
-                    fpResult = execResult['scalar']
+                    if (1 == 0):
+                        execResult = h2o_cmd.runExec(ast=execExpr, timeoutSecs=30)
+                        fpResult = execResult['scalar']
+                    else:
+                        (execResult, fpResult) = h2e.exec_expr(h2o.nodes[0], execExpr, resultKey='x', timeoutSecs=300)
                     print r, 'execResult:', h2o.dump_json(execResult)
                     h2o_cmd.runStoreView()
                     ullResult = h2o_util.doubleToUnsignedLongLong(fpResult)

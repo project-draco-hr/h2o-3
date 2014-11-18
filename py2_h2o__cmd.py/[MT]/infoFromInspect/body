@@ -14,10 +14,13 @@ def infoFromInspect(inspect):
     labelList = []
     for (i, colDict) in enumerate(columns):
         missing = colDict['missing']
+        label = colDict['label']
+        missingList.append(missing)
+        labelList.append(label)
         if (missing != 0):
-            print ('%s: col: %d, %s: %d' % (key_name, i, 'missing', missing))
-            missingList.append(missing)
-        labelList.append(colDict['label'])
+            print ('%s: col: %d $s, missing: %d' % (key_name, i, label, missing))
+    if (sum(missingList) == 0):
+        missingList = []
     numCols = len(frame['columns'])
     numRows = frame['rows']
     byteSize = frame['byteSize']
