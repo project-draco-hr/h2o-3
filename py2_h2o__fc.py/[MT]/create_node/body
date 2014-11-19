@@ -18,7 +18,6 @@ def create_node(possMember, h2oNodes, expectedSize, hdfsSetup):
     cloud_size = gc['cloud_size']
     cloud_name = gc['cloud_name']
     nodes = gc['nodes']
-    print 'kevin', expectedSize, cloud_size
     if (expectedSize and (cloud_size != expectedSize)):
         raise Exception(('cloud_size %s at %s disagrees with -expectedSize %s' % (cloud_size, cloud_name, expectedSize)))
     print "here's some info about the java heaps in the cloud you said you already built for me"
@@ -51,7 +50,7 @@ def create_node(possMember, h2oNodes, expectedSize, hdfsSetup):
         node_id = len(h2oNodes)
         use_maprfs = ('mapr' in hdfs_version)
         use_hdfs = (not use_maprfs)
-        node = {'http_addr': ip, 'port': int(port), 'java_heap_GB': java_heap_GB, 'node_id': node_id, 'remoteH2O': 'true', 'sandbox_error_was_reported': 'false', 'sandbox_ignore_errors': 'false', 'username': '0xcustomer', 'redirect_import_folder_to_s3_path': 'false', 'redirect_import_folder_to_s3n_path': 'false', 'delete_keys_at_teardown': 'true', 'use_hdfs': use_hdfs, 'use_maprfs': use_maprfs, 'h2o_remote_buckets_root': 'false', 'hdfs_version': hdfs_version, 'hdfs_name_node': hdfs_name_node, 'hdfs_config': hdfs_config, }
+        node = {'http_addr': ip, 'port': int(port), 'java_heap_GB': java_heap_GB, 'node_id': node_id, 'remoteH2O': 'true', 'sandbox_error_was_reported': 'false', 'sandbox_ignore_errors': 'false', 'username': '0xcustomer', 'redirect_import_folder_to_s3_path': 'false', 'redirect_import_folder_to_s3n_path': 'false', 'delete_keys_at_teardown': 'true', 'use_hdfs': use_hdfs, 'use_maprfs': use_maprfs, 'h2o_remote_buckets_root': 'false', 'hdfs_version': hdfs_version, 'hdfs_name_node': hdfs_name_node, 'hdfs_config': hdfs_config, 'aws_credentials': 'false', }
         if (name not in h2oNodes):
             h2oNodes[name] = node
             print ('Added node %s to possMemberList' % name)
