@@ -1,6 +1,14 @@
 {
+  if (!E.hasNext())   throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
   AST ary=E.parse();
-  _digits=(int)((ASTNum)(E.skipWS().parse())).dbl();
+  if (!(E.skipWS().hasNext()))   throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
+  try {
+    _digits=(int)((ASTNum)(E.parse())).dbl();
+  }
+ catch (  ClassCastException e) {
+    e.printStackTrace();
+    throw new IllegalArgumentException("Expected a double for `digits` argument.");
+  }
   ASTRound res=(ASTRound)clone();
   res._asts=new AST[]{ary};
   return res;

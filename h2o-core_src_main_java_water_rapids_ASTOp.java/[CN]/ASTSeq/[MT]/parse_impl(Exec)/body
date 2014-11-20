@@ -1,7 +1,28 @@
 {
-  _from=E.nextDbl();
-  _to=E.nextDbl();
-  _by=E.nextDbl();
+  try {
+    if (!E.skipWS().hasNext())     throw new IllegalArgumentException("End of input unexpected. Badly formed AST. Missing `from` argument.");
+    _from=E.nextDbl();
+  }
+ catch (  ClassCastException e) {
+    e.printStackTrace();
+    throw new IllegalArgumentException("Argument `from` expected to be a number.");
+  }
+  try {
+    if (!E.skipWS().hasNext())     throw new IllegalArgumentException("End of input unexpected. Badly formed AST. Missing `to` argument.");
+    _to=E.nextDbl();
+  }
+ catch (  ClassCastException e) {
+    e.printStackTrace();
+    throw new IllegalArgumentException("Argument `to` expected to be a number.");
+  }
+  try {
+    if (!E.skipWS().hasNext())     throw new IllegalArgumentException("End of input unexpected. Badly formed AST. Missing `by` argument.");
+    _by=E.nextDbl();
+  }
+ catch (  ClassCastException e) {
+    e.printStackTrace();
+    throw new IllegalArgumentException("Argument `by` expected to be a number.");
+  }
   ASTSeq res=(ASTSeq)clone();
   res._asts=new AST[]{};
   return res;

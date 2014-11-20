@@ -1,6 +1,8 @@
 {
+  if (!E.hasNext())   throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
   AST l=E.parse();
-  AST r=E.skipWS().parse();
+  if (!E.skipWS().hasNext())   throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
+  AST r=E.parse();
   ASTBinOp res=(ASTBinOp)clone();
   res._asts=new AST[]{l,r};
   return res;

@@ -11,7 +11,7 @@ def tear_down_cloud(nodeList=None, sandboxIgnoreErrors=False, force=False):
         h2i.delete_keys_at_all_nodes(timeoutSecs=300)
         elapsed = (time.time() - start)
         print 'delete_keys_at_all_nodes(): took', elapsed, 'secs'
-    if ((not h2o_args.usecloud) or force):
+    if (force or (not (h2o_args.usecloud or h2o_args.clone_cloud_json))):
         try:
             for n in nodeList:
                 n.shutdown_all()
