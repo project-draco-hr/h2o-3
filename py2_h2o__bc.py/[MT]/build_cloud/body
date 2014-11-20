@@ -22,7 +22,12 @@ def build_cloud(node_count=1, base_port=None, hosts=None, timeoutSecs=30, retryD
             useCloudExpectedSize = h2o_args.usecloud_size
         else:
             useCloudExpectedSize = usecloud_size
-        nodesJsonObject = h2o_fc.find_cloud(ip_port=ip_port, expectedSize=useCloudExpectedSize, nodesJsonPathname=nodesJsonPathname, **kwargs)
+        if (h2o_args.usecloud or usecloud):
+            nodesJsonObject = h2o_fc.find_cloud(ip_port=ip_port, expectedSize=useCloudExpectedSize, nodesJsonPathname=nodesJsonPathname, **kwargs)
+        elif h2o_args.clone_cloud_json:
+            nodesJsonPathname = h2o_args.clone_cloud_json
+        else:
+            nodesJsonPathname = clone_cloud
         nodeList = build_cloud_with_json(h2o_nodes_json=nodesJsonPathname)
         return nodeList
     if init_sandbox:
