@@ -1,0 +1,26 @@
+def create_file_with_seps(rowCount, colCount):
+    colSepCase = 1
+    if (colSepCase == 0):
+        colSepHexString = '01'
+    else:
+        colSepHexString = '2c'
+    colSepChar = colSepHexString.decode('hex')
+    colSepInt = int(colSepHexString, base=16)
+    print 'colSepChar:', colSepChar
+    print 'colSepInt', colSepInt
+    rowSepCase = random.randint(0, 1)
+    if (rowSepCase == 0):
+        rowSepHexString = '0a'
+    else:
+        rowSepHexString = '0d0a'
+    rowSepChar = rowSepHexString.decode('hex')
+    print 'rowSepChar:', rowSepChar
+    SEEDPERFILE = random.randint(0, sys.maxint)
+    if DO_TEN_INTEGERS:
+        csvFilename = (((('syn_int10_' + str(rowCount)) + 'x') + str(colCount)) + '.csv')
+    else:
+        csvFilename = (((('syn_enums_' + str(rowCount)) + 'x') + str(colCount)) + '.csv')
+    csvPathname = ((SYNDATASETS_DIR + '/') + csvFilename)
+    print 'Creating random', csvPathname
+    write_syn_dataset(csvPathname, rowCount, colCount, SEEDPERFILE, colSepChar=colSepChar, rowSepChar=rowSepChar)
+    return csvPathname
