@@ -1,0 +1,39 @@
+{
+  initCloud();
+  File f=new File("smalldata/glm_test/gaussian.csv");
+  NFSFileVec nfs=NFSFileVec.make(f);
+  Frame frame=water.parser.ParseDataset2.parse(Key.make(),nfs._key);
+  frame.remove(0);
+  int k=7;
+  double[][] clusters=new double[k][frame.vecs().length];
+  Random rand=new Random();
+  for (int cluster=0; cluster < clusters.length; cluster++) {
+    long row=Math.max(0,(long)(rand.nextDouble() * frame.vecs().length) - 1);
+    for (int i=0; i < frame.vecs().length; i++) {
+      Vec v=frame.vecs()[i];
+      clusters[cluster][i]=v.at(row);
+    }
+  }
+  int NUM_ITERS=10;
+  for (int i=0; i < NUM_ITERS; i++) {
+    KMeans task=new KMeans();
+    task._clusters=clusters;
+    task.doAll(frame);
+    for (int c=0; c < clusters.length; c++) {
+      if (task._counts[c] > 0) {
+        for (int v=0; v < frame.vecs().length; v++) {
+          double value=task._sums[c][v] / task._counts[c];
+          clusters[c][v]=value;
+        }
+      }
+    }
+    System.out.println("Error is " + task._error);
+  }
+  System.out.println("Clusters:");
+  DecimalFormat df=new DecimalFormat("#.00");
+  for (  double[] cluster : clusters) {
+    for (int v=0; v < frame.vecs().length; v++)     System.out.print(df.format(cluster[v]) + ", ");
+    System.out.println("");
+  }
+  System.exit(0);
+}
