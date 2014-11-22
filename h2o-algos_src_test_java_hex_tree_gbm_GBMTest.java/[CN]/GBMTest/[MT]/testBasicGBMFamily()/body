@@ -1,0 +1,13 @@
+{
+  Scope.enter();
+  basicGBM("./smalldata/logreg/prostate.csv",new PrepData(){
+    int prep(    Frame fr){
+      fr.remove("ID").remove();
+      int ci=fr.find("RACE");
+      Scope.track(fr.replace(ci,fr.vecs()[ci].toEnum())._key);
+      return fr.find("CAPSULE");
+    }
+  }
+,false,Family.bernoulli);
+  Scope.exit();
+}
