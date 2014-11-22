@@ -12,9 +12,9 @@ def test_GBM_covtype_train_test(self):
     (missingList, labelList, numRows, numCols) = h2o_cmd.infoFromInspect(inspectResult)
     labelListUsed = list(labelList)
     numColsUsed = numCols
-    parameters = {'validation_frame': train_key, 'ignored_columns': None, 'score_each_iteration': True, 'response_column': 'C55', 'do_classification': True, 'ntrees': 4, 'max_depth': 20, 'min_rows': 3, 'nbins': 40, 'learn_rate': 0.2, 'variable_importance': True, }
-    model_key = 'benign_dl.hex'
-    bmResult = h2o.n0.build_model(algo='gbm', destination_key=model_key, training_frame=parse_key, parameters=parameters, timeoutSecs=10)
+    parameters = {'validation_frame': train_key, 'ignored_columns': None, 'score_each_iteration': True, 'response_column': 'C55', 'do_classification': True, 'ntrees': 2, 'max_depth': 10, 'min_rows': 3, 'nbins': 40, 'learn_rate': 0.2, 'variable_importance': True, }
+    model_key = 'benign_gbm.hex'
+    bmResult = h2o.n0.build_model(algo='gbm', destination_key=model_key, training_frame=parse_key, parameters=parameters, timeoutSecs=60)
     bm = OutputObj(bmResult, 'bm')
     modelResult = h2o.n0.models(key=model_key)
     model = OutputObj(modelResult['models'][0]['output'], 'model')
@@ -22,4 +22,5 @@ def test_GBM_covtype_train_test(self):
     cmm = OutputObj(cmmResult, 'cmm')
     mmResult = h2o.n0.model_metrics(model=model_key, frame=parse_key, timeoutSecs=60)
     mm = OutputObj(mmResult, 'mm')
+    print 'Skipping predict'
     h2o_cmd.runStoreView()

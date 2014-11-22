@@ -3,6 +3,7 @@ def poll_job(self, job_key, timeoutSecs=10, retryDelaySecs=0.5, key=None, **kwar
     params_dict = {}
     h2o_methods.check_params_update_kwargs(params_dict, kwargs, 'poll_job', False)
     start_time = time.time()
+    pollCount = 0
     while True:
         result = self.do_json_request(('2/Jobs.json/' + job_key), timeout=timeoutSecs, params=params_dict)
         if key:
@@ -17,8 +18,15 @@ def poll_job(self, job_key, timeoutSecs=10, retryDelaySecs=0.5, key=None, **kwar
         progress = jobs['progress']
         print description, 'dest_name:', dest_name, '\tprogress:', ('%-10s' % progress), '\tstatus:', ('%-12s' % status), '\tmsec:', msec
         if ((status == 'DONE') or (status == 'CANCELLED') or (status == 'FAILED')):
+            h2o_sandbox.check_sandbox_for_errors()
             return result
         if ((time.time() - start_time) > timeoutSecs):
-            print 'Job:', job_key, 'timed out in:', timeoutSecs
+            h2o_sandbox.check_sandbox_for_errors()
+            emsg = ('Job:', job_key, 'timed out in:', timeoutSecs)
+            raise Exception(emsg)
+            print emsg
             return None
+        if ((pollCount % 2) == 0):
+            h2o_sandbox.check_sandbox_for_errors()
         time.sleep(retryDelaySecs)
+        pollCount += 1

@@ -11,8 +11,6 @@ def test_w2v_basic_1(self):
         inspectResult = h2o_cmd.runInspect(key=parse_key)
         (missingList, labelList, numRows, numCols) = h2o_cmd.infoFromInspect(inspectResult)
         src_key = h2i.find_key('syn_.*csv')
-        expected = []
-        allowedDelta = 0
         labelListUsed = list(labelList)
         numColsUsed = numCols
         for trial in range(1):
@@ -25,5 +23,7 @@ def test_w2v_basic_1(self):
             cmmResult = h2o.n0.compute_model_metrics(model=model_key, frame=parse_key, timeoutSecs=60)
             cmm = OutputObj(cmmResult, 'cmm')
             mmResult = h2o.n0.model_metrics(model=model_key, frame=parse_key, timeoutSecs=60)
-            mm = OutputObj(mmResult, 'mm')
+            mm = OutputObj(mmResult['model_metrics'][0], 'mm')
+            prResult = h2o.n0.predict(model=model_key, frame=parse_key, timeoutSecs=60)
+            pr = OutputObj(prResult['model_metrics'][0]['predictions'], 'pr')
             h2o_cmd.runStoreView()
