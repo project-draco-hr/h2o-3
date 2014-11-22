@@ -16,8 +16,14 @@ def test_kmeans_prostate(self):
         kmeansSeed = random.randint(0, sys.maxint)
         parameters = {'validation_frame': parse_key, 'ignored_columns': '[ID]', 'score_each_iteration': False, 'K': 3, 'max_iters': 500, 'normalize': False, 'seed': kmeansSeed, 'init': 'PlusPlus', }
         model_key = 'prostate_k.hex'
-        kmeansResult = h2o.n0.build_model(algo='kmeans', destination_key=model_key, training_frame=parse_key, parameters=parameters, timeoutSecs=10)
+        bmResult = h2o.n0.build_model(algo='kmeans', destination_key=model_key, training_frame=parse_key, parameters=parameters, timeoutSecs=10)
+        bm = OutputObj(bmResult, 'bm')
         modelResult = h2o.n0.models(key=model_key)
+        model = OutputObj(modelResult['models'][0]['output'], 'model')
+        cmmResult = h2o.n0.compute_model_metrics(model=model_key, frame=parse_key, timeoutSecs=60)
+        cmm = OutputObj(cmmResult, 'cmm')
+        mmResult = h2o.n0.model_metrics(model=model_key, frame=parse_key, timeoutSecs=60)
+        mm = OutputObj(mmResult, 'mm')
         h2o_cmd.runStoreView()
         (tuplesSorted, iters, mse, names) = h2o_kmeans.simpleCheckKMeans(self, modelResult, parameters, numRows, numColsUsed, labelListUsed)
         (ids, mses, rows, clusters) = zip(*tuplesSorted)
