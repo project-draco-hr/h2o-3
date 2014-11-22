@@ -1,0 +1,41 @@
+def test_hdfs_cdh5(self):
+    print '\nLoad a list of files from HDFS, parse and do 1 RF tree'
+    print '\nYou can try running as hduser/hduser if fail'
+    csvFilenameAll = [('and-testing.data', 60), ('covtype.data', 60), ('covtype4x.shuffle.data', 60), ('hhp.unbalanced.012.data.gz', 60), ('hhp.unbalanced.data.gz', 60), ('leads.csv', 60), ('prostate_long_1G.csv', 200), ('airlines_all.csv', 1200)]
+    if (1 == 0):
+        csvFilenameList = random.sample(csvFilenameAll, 8)
+    else:
+        csvFilenameList = csvFilenameAll
+    trial = 0
+    print 'try importing /tmp2'
+    d = h2i.import_only(path='tmp2/*', schema='hdfs', timeoutSecs=1000)
+    for (csvFilename, timeoutSecs) in csvFilenameList:
+        print 'Loading', csvFilename, 'from HDFS'
+        start = time.time()
+        hex_key = 'a.hex'
+        csvPathname = ('datasets/' + csvFilename)
+        parseResult = h2i.import_parse(path=csvPathname, schema='hdfs', hex_key=hex_key, timeoutSecs=1000)
+        print 'hdfs parse of', csvPathname, 'took', (time.time() - start), 'secs'
+        (numRows, numCols, parse_key) = h2o_cmd.infoFromParse(parseResult)
+        inspectResult = h2o_cmd.runInspect(key=parse_key)
+        (missingValuesListA, labelListA, numRowsA, numColsA) = h2o_cmd.infoFromInspect(inspectResult)
+        if DO_EXPORT:
+            start = time.time()
+            print 'Saving', csvFilename, 'to HDFS'
+            print "Using /tmp2 to avoid the '.' prefixed files in /tmp2 (kills import)"
+            print 'Unique per-user to avoid permission issues'
+            username = getpass.getuser()
+            csvPathname = ('tmp2/a%s.%s.csv' % (trial, username))
+            csvPathname = ('tmp2/a%s.%s.csv' % ('_h2o_export_files', username))
+            path = ((('hdfs://' + h2o.nodes[0].hdfs_name_node) + '/') + csvPathname)
+            h2o.nodes[0].export_files(src_key=hex_key, path=path, force=1, timeoutSecs=timeoutSecs)
+            print 'export_files of', hex_key, 'to', path, 'took', (time.time() - start), 'secs'
+            trial += 1
+            print 'Re-Loading', csvFilename, 'from HDFS'
+            start = time.time()
+            hex_key = 'a2.hex'
+            time.sleep(2)
+            d = h2i.import_only(path=csvPathname, schema='hdfs', timeoutSecs=1000)
+            print h2o.dump_json(d)
+            parseResult = h2i.import_parse(path=csvPathname, schema='hdfs', hex_key=hex_key, timeoutSecs=1000)
+            print 'hdfs re-parse of', csvPathname, 'took', (time.time() - start), 'secs'
