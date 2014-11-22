@@ -1,0 +1,38 @@
+def simpleCheckGLMScore(self, glmScore, family='gaussian', allowFailWarning=False, **kwargs):
+    warnings = None
+    if ('warnings' in glmScore):
+        warnings = glmScore['warnings']
+        x = re.compile('failed', re.IGNORECASE)
+        c = re.compile('converge', re.IGNORECASE)
+        for w in warnings:
+            print '\nwarning:', w
+            if (re.search(x, w) and (not allowFailWarning)):
+                if re.search(c, w):
+                    pass
+                else:
+                    raise Exception(w)
+    validation = glmScore['validation']
+    validation['err'] = h2o_util.cleanseInfNan(validation['err'])
+    validation['nullDev'] = h2o_util.cleanseInfNan(validation['nullDev'])
+    validation['resDev'] = h2o_util.cleanseInfNan(validation['resDev'])
+    print ('%15s %s' % ('err:\t', validation['err']))
+    print ('%15s %s' % ('nullDev:\t', validation['nullDev']))
+    print ('%15s %s' % ('resDev:\t', validation['resDev']))
+    if (family == 'binomial'):
+        print ('%15s %s' % ('auc:\t', validation['auc']))
+        print ('%15s %s' % ('threshold:\t', validation['threshold']))
+    err = False
+    if ((family == 'poisson') or (family == 'gaussian')):
+        if ('aic' not in validation):
+            print 'aic is missing from the glm json response'
+            err = True
+    if math.isnan(validation['err']):
+        print ("Why is this err = 'nan'?? %6s %s" % ('err:\t', validation['err']))
+        err = True
+    if math.isnan(validation['resDev']):
+        print ("Why is this resDev = 'nan'?? %6s %s" % ('resDev:\t', validation['resDev']))
+        err = True
+    if err:
+        raise Exception('How am I supposed to tell that any of these errors should be ignored?')
+    if math.isnan(validation['nullDev']):
+        pass
