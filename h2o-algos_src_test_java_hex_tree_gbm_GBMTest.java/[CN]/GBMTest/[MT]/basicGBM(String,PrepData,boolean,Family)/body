@@ -1,6 +1,6 @@
 {
   GBMModel gbm=null;
-  Frame fr=null, fr2=null;
+  Frame fr=null, fr2=null, vfr=null;
   try {
     fr=parse_test_file(fname);
     int idx=prep.prep(fr);
@@ -22,6 +22,11 @@
     parms._nbins=50;
     parms._learn_rate=.2f;
     parms._score_each_iteration=true;
+    if (validation) {
+      vfr=new Frame(fr);
+      water.DKV.put(vfr);
+      parms._valid=vfr._key;
+    }
     GBM job=null;
     try {
       job=new GBM(parms);
@@ -32,10 +37,12 @@
     }
     fr2=gbm.score(fr);
     Assert.assertTrue(job._state == water.Job.JobState.DONE);
+    return gbm._output;
   }
   finally {
     if (fr != null)     fr.remove();
     if (fr2 != null)     fr2.remove();
+    if (vfr != null)     vfr.remove();
     if (gbm != null)     gbm.delete();
   }
 }
