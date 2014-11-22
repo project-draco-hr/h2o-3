@@ -30,13 +30,13 @@ if h2o.H2O.verbose:
 for algo in algos:
     assert (algo in model_builders['model_builders']), ('Failed to find algo: ' + algo)
     builder = model_builders['model_builders'][algo]
-    validate_builder(builder)
+    validate_builder(algo, builder)
 print 'Testing /ModelBuilders/{algo}. . .'
 for algo in algos:
     model_builder = a_node.model_builders(algo=algo, timeoutSecs=240)
     assert (algo in model_builder['model_builders']), ('Failed to find algo: ' + algo)
     builder = model_builders['model_builders'][algo]
-    validate_builder(builder)
+    validate_builder(algo, builder)
 print 'Testing /ModelMetrics. . .'
 model_metrics = a_node.model_metrics(timeoutSecs=240)
 if h2o.H2O.verbose:
@@ -104,8 +104,8 @@ for model_spec in models_to_build:
     model = model_spec.build_and_validate_model(a_node)
     built_models[model_spec['dest_key']] = model
 model_builders = a_node.model_builders(timeoutSecs=240)['model_builders']
-servers_algos = model_builders.keys()
-assert (len((set(servers_algos) - set(algos))) == 0), ((("Our set of algos doesn't match what the server knows about.  Ours: " + repr(algos)) + "; server's: ") + repr(servers_algos))
+server_algos = model_builders.keys()
+assert (len((set(server_algos) - set(algos))) == 0), ((("Our set of algos doesn't match what the server knows about.  Ours: " + repr(algos)) + "; server's: ") + repr(server_algos))
 for (algo, model_builder) in model_builders.iteritems():
     parameters_list = model_builder['parameters']
     test_parameters = {value['name']: value['default_value'] for value in parameters_list}
