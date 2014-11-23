@@ -1,0 +1,55 @@
+def test_kmeans_sphere100(self):
+    SYNDATASETS_DIR = h2o.make_syn_dir()
+    csvFilename = 'syn_spheres100.csv'
+    csvPathname = ((SYNDATASETS_DIR + '/') + csvFilename)
+    centersList = write_spheres_dataset(csvPathname, CLUSTERS, SPHERE_PTS)
+    if SHUFFLE_SPHERES:
+        csvFilename2 = 'syn_spheres100_shuffled.csv'
+        csvPathname2 = ((SYNDATASETS_DIR + '/') + csvFilename2)
+        h2o_util.file_shuffle(csvPathname, csvPathname2)
+    else:
+        csvFilename2 = csvFilename
+        csvPathname2 = csvPathname
+    print '\nStarting', csvFilename
+    parseResult = h2i.import_parse(path=csvPathname2, schema='put', hex_key=(csvFilename2 + '.hex'))
+    (numRows, numCols, parse_key) = h2o_cmd.infoFromParse(parseResult)
+    inspectResult = h2o_cmd.runInspect(key=parse_key)
+    (missingList, labelList, numRows, numCols) = h2o_cmd.infoFromInspect(inspectResult)
+    numColsUsed = numCols
+    labelListUsed = labelList
+    destination_key = 'syn_spheres100.hex'
+    cols = ','.join(map(str, range(DIMENSIONS)))
+    for trial in range(2):
+        parameters = {'validation_frame': parse_key, 'ignored_columns': None, 'score_each_iteration': False, 'K': CLUSTERS, 'max_iters': 50, 'normalize': False, 'init': 'Furthest', }
+        timeoutSecs = 100
+        model_key = 'sphere100_k.hex'
+        kmeansResult = h2o.n0.build_model(algo='kmeans', destination_key=model_key, training_frame=parse_key, parameters=parameters, timeoutSecs=timeoutSecs)
+        start = time.time()
+        modelResult = h2o.n0.models(key=model_key)
+        elapsed = (time.time() - start)
+        print 'kmeans end on ', csvPathname, 'took', elapsed, 'seconds.', ('%d pct. of timeout' % ((elapsed / timeoutSecs) * 100))
+        (tuplesSorted, iters, mse, names) = h2o_kmeans.simpleCheckKMeans(self, modelResult, parameters, numRows, numColsUsed, labelListUsed)
+        h2o_cmd.runStoreView()
+        (ids, mses, rows, clusters) = zip(*tuplesSorted)
+        clustersSorted = sorted(clusters, key=sum)
+        centersSorted = sorted(centersList, key=sum)
+        kmeansResult = modelResult
+        print '\ntrial #', trial, 'h2o result, centers (sorted by key=sum)'
+        cf = '{0:6.2f}'
+        for c in clustersSorted:
+            print ' '.join(map(cf.format, c))
+        print '\ngenerated centers (sorted by key=sum)'
+        for c in centersSorted:
+            print ' '.join(map(cf.format, c))
+        for (i, center) in enumerate(centersSorted):
+            a = center
+            b = clustersSorted[i]
+            print '\nexpected:', a
+            print 'h2o:', b
+            aStr = ','.join(map(str, a))
+            bStr = ','.join(map(str, b))
+            iStr = str(i)
+            for (i, v) in enumerate(a):
+                emsg = (((((((aStr + ' != ') + bStr) + '. Sorted cluster center ') + iStr) + ' axis ') + str(i)) + ' not correct.')
+                self.assertAlmostEqual(a[i], b[i], delta=ALLOWED_CENTER_DELTA, msg=emsg)
+        print 'Trial #', trial, 'completed'

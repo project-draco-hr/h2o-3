@@ -4,4 +4,5 @@ def delete_model(self, key, ignoreMissingKey=True, timeoutSecs=60, **kwargs):
     result = self.do_json_request(('/3/Models.json/' + key), cmd='delete', timeout=timeoutSecs)
     if ((not ignoreMissingKey) and ('f00b4r' in result)):
         raise ValueError(('Model key not found: ' + key))
+    verboseprint('delete_model result:', dump_json(result))
     return result

@@ -1,0 +1,85 @@
+def test_summary2_exp(self):
+    SYNDATASETS_DIR = h2o.make_syn_dir()
+    LAMBD = random.uniform(0.005, 0.5)
+    tryList = [(5, 1, 'x.hex', 1, 20000, ['C1', None, None, None, None, None])]
+    timeoutSecs = 10
+    trial = 1
+    n = h2o.nodes[0]
+    lenNodes = len(h2o.nodes)
+    x = 0
+    timeoutSecs = 60
+
+
+    class Column(object):
+
+        def __init__(self, column):
+            assert isinstance(column, dict)
+            for (k, v) in column.iteritems():
+                setattr(self, k, v)
+    for (rowCount, colCount, hex_key, rangeMin, rangeMax, expected) in tryList:
+        SEEDPERFILE = random.randint(0, sys.maxint)
+        x += 1
+        csvFilename = (((((('syn_' + 'binary') + '_') + str(rowCount)) + 'x') + str(colCount)) + '.csv')
+        csvPathname = ((SYNDATASETS_DIR + '/') + csvFilename)
+        print 'Creating random', csvPathname, 'lambd:', LAMBD
+        (expectedMin, expectedMax) = write_syn_dataset(csvPathname, rowCount, colCount, lambd=LAMBD, SEED=SEEDPERFILE)
+        print 'expectedMin:', expectedMin, 'expectedMax:', expectedMax
+        maxDelta = (((expectedMax - expectedMin) / 20.0) / 2.0)
+        maxDelta = (1.05 * maxDelta)
+        expected[1] = expectedMin
+        expected[5] = expectedMax
+        csvPathnameFull = h2i.find_folder_and_filename(None, csvPathname, returnFullPath=True)
+        parseResult = h2i.import_parse(path=csvPathname, schema='put', hex_key=hex_key, timeoutSecs=30, doSummary=False)
+        (numRows, numCols, parse_key) = h2o_cmd.infoFromParse(parseResult)
+        inspect = h2o_cmd.runInspect(key=parse_key)
+        (missingList, labelList, numRows, numCols) = h2o_cmd.infoFromInspect(inspect)
+        print ('\n' + csvFilename)
+        summaryResult = h2o_cmd.runSummary(key=hex_key, column='C1')
+        h2o.verboseprint('Summary2 summaryResult:', h2o.dump_json(summaryResult))
+        columns = summaryResult['frames'][0]['columns']
+        default_pctiles = summaryResult['frames'][0]['default_pctiles']
+        co = Column(columns[0])
+        coList = [co.base, len(co.bins), len(co.data), co.domain, co.label, co.maxs, co.mean, co.mins, co.missing, co.ninfs, co.pctiles, co.pinfs, co.precision, co.sigma, co.str_data, co.stride, co.type, co.zeros]
+        for c in coList:
+            print c
+        print 'len(co.bins):', len(co.bins)
+        print 'co.label:', co.label, 'mean (2 places):', h2o_util.twoDecimals(co.mean)
+        print 'co.label:', co.label, 'std dev. (2 places):', h2o_util.twoDecimals(co.sigma)
+        print "FIX! hacking the co.pctiles because it's short by two"
+        pctiles = (([0] + co.pctiles) + [0])
+        if expected[0]:
+            self.assertEqual(co.label, expected[0])
+        if expected[1]:
+            h2o_util.assertApproxEqual(co.mins[0], expected[1], tol=maxDelta, msg='min is not approx. expected')
+        if expected[2]:
+            h2o_util.assertApproxEqual(pctiles[3], expected[2], tol=maxDelta, msg='25th percentile is not approx. expected')
+        if expected[3]:
+            h2o_util.assertApproxEqual(pctiles[5], expected[3], tol=maxDelta, msg='50th percentile (median) is not approx. expected')
+        if expected[4]:
+            h2o_util.assertApproxEqual(pctiles[7], expected[4], tol=maxDelta, msg='75th percentile is not approx. expected')
+        if expected[5]:
+            h2o_util.assertApproxEqual(co.maxs[0], expected[5], tol=maxDelta, msg='max is not approx. expected')
+        if (expected[1] and expected[5]):
+            expectedRange = (expected[5] - expected[1])
+            expectedBin = (expectedRange / (MAX_QBINS - 2))
+            maxErr = expectedBin
+        else:
+            print "Test won't calculate max expected error"
+            maxErr = 0
+        pt = h2o_util.twoDecimals(pctiles)
+        mx = h2o_util.twoDecimals(co.maxs)
+        mn = h2o_util.twoDecimals(co.mins)
+        print 'co.label:', co.label, 'co.pctiles (2 places):', pt
+        print 'default_pctiles:', default_pctiles
+        print 'co.label:', co.label, 'co.maxs: (2 places):', mx
+        print 'co.label:', co.label, 'co.mins: (2 places):', mn
+        compareActual = (mn[0], pt[3], pt[5], pt[7], mx[0])
+        h2p.green_print('min/25/50/75/max co.label:', co.label, '(2 places):', compareActual)
+        print 'co.label:', co.label, 'co.maxs (2 places):', mx
+        print 'co.label:', co.label, 'co.mins (2 places):', mn
+        trial += 1
+        h2o.nodes[0].remove_all_keys()
+        scipyCol = 0
+        print 'h2oSummary2MaxErr', maxErr
+        if ((co.label != '') and expected[scipyCol]):
+            h2o_summ.quantile_comparisons(csvPathnameFull, skipHeader=False, col=scipyCol, datatype='float', quantile=(0.5 if DO_MEDIAN else 0.999), h2oSummary2=pctiles[(5 if DO_MEDIAN else 10)], h2oSummary2MaxErr=maxErr)

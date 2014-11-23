@@ -1,0 +1,20 @@
+def exec_expr_list_across_cols(lenNodes, exprList, keyX, minCol=0, maxCol=54, timeoutSecs=10, incrementingResult=True):
+    colResultList = []
+    for colX in range(minCol, maxCol):
+        for (i, exprTemplate) in enumerate(exprList):
+            if (lenNodes is None):
+                execNode = 0
+            else:
+                execNode = 0
+            execExpr = fill_in_expr_template(exprTemplate, colX, colX, 0, keyX)
+            if incrementingResult:
+                resultKey = ('Result' + str(colX))
+            else:
+                resultKey = keyX
+            (resultExec, result) = exec_expr(h2o_nodes.nodes[execNode], execExpr, None, timeoutSecs)
+            print '\nexecResult:', dump_json(resultExec)
+            if check_sandbox_for_errors():
+                raise Exception(('Found errors in sandbox stdout or stderr, on trial #%s.' % trial))
+        print 'Column #', colX, 'completed\n'
+        colResultList.append(result)
+    return colResultList

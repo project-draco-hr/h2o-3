@@ -1,4 +1,15 @@
-def runStoreView(*args, **kwargs):
-    print 'WARNING: faking store view'
-    a = {'keys': {}, }
-    return a
+def runStoreView(node=None, **kwargs):
+    if (not node):
+        node = h2o_nodes.nodes[0]
+    print '\nStoreView:'
+    a = node.frames()
+    frameList = [af['key']['name'] for af in a['frames']]
+    for f in frameList:
+        print 'frame:', f
+    print '# of frames:', len(frameList)
+    b = node.models()
+    modelList = [bm['key'] for bm in b['models']]
+    for m in modelList:
+        print 'model:', m
+    print '# of models:', len(modelList)
+    return (frameList + modelList)

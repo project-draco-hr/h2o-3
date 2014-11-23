@@ -1,0 +1,21 @@
+def write_syn_dataset(csvPathname, rowCount, colCount, SEED, enumChoices, intChoices):
+    r1 = random.Random(SEED)
+    dsf = open(csvPathname, 'w+')
+    naCnt = [0 for j in range(colCount)]
+    for i in range(rowCount):
+        rowData = []
+        for j in range(colCount):
+            ri = random.choice(enumChoices)
+            rowData.append(ri)
+        rowDataCsv = ','.join(map(str, rowData))
+        dsf.write((rowDataCsv + '\n'))
+    if intChoices:
+        for choice in intChoices:
+            rowData = []
+            for j in range(colCount):
+                rowData.append(choice)
+                naCnt[j] += 1
+            rowDataCsv = ','.join(map(str, rowData))
+            dsf.write((rowDataCsv + '\n'))
+    dsf.close()
+    return naCnt

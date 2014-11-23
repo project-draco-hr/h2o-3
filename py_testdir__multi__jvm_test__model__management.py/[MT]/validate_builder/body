@@ -1,6 +1,11 @@
-def validate_builder(builder):
-    assert (('parameters' in builder) and isinstance(builder['parameters'], list))
+def validate_builder(algo, builder):
+    ' Validate that a model builder seems to have a well-formed parameters list. '
+    assert ('parameters' in builder), (((('Failed to find parameters list in builder: ' + algo) + ' (') + repr(builder)) + ')')
+    assert isinstance(builder['parameters'], list), (((("'parameters' element is not a list in builder: " + algo) + ' (') + repr(builder)) + ')')
     parameters = builder['parameters']
     assert (len(parameters) > 0)
     for parameter in parameters:
         h2o_util.assertKeysExist(parameter, '', ['name', 'label', 'help', 'required', 'type', 'default_value', 'actual_value', 'level', 'values'])
+    assert ('can_build' in builder), (((('Failed to find can_build list in builder: ' + algo) + ' (') + repr(builder)) + ')')
+    assert isinstance(builder['can_build'], list), (((("'can_build' element is not a list in builder: " + algo) + ' (') + repr(builder)) + ')')
+    assert (len(builder['can_build']) > 0), (((("'can_build' list is empty in builder: " + algo) + ' (') + repr(builder)) + ')')

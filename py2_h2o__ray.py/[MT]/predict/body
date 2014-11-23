@@ -8,4 +8,5 @@ def predict(self, model, frame, timeoutSecs=60, **kwargs):
     assert (frames is not None), '/Frames/{0} REST call failed'.format(frame)
     assert (frames['frames'][0]['key']['name'] == frame), '/Frames/{0} returned Frame {1} rather than Frame {2}'.format(frame, frames['frames'][0]['key']['name'], frame)
     result = self.do_json_request(((('/3/Predictions.json/models/' + model) + '/frames/') + frame), cmd='post', timeout=timeoutSecs)
+    h2o_sandbox.check_sandbox_for_errors()
     return result

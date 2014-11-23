@@ -1,0 +1,22 @@
+def test_parse_manyfile_hack(self):
+    for trial in range(2):
+        importFolderPath = '/home/0xdiag/datasets/manyfiles-nflx-gz'
+        importList = []
+        maxi = 50
+        for i in range(10, ((10 + maxi) + 1)):
+            csvFilename = ('file_%s.dat.gz' % i)
+            csvPathname = ((importFolderPath + '/') + csvFilename)
+            importResult = h2o.n0.import_files(path=csvPathname)
+            import_key = importResult['keys'][0]
+            assert (len(importResult['keys']) == 1)
+            assert (len(importResult['files']) == 1)
+            assert (len(importResult['fails']) == 0)
+            assert (len(importResult['dels']) == 0)
+            importList.append(import_key)
+        timeoutSecs = 800
+        parseResult = h2o.n0.parse(key=importList, timeoutSecs=timeoutSecs)
+        (numRows, numCols, parse_key) = h2o_cmd.infoFromParse(parseResult)
+        inspectResult = h2o_cmd.runInspect(key=parse_key)
+        (missingList, labelList, numRows, numCols) = h2o_cmd.infoFromInspect(inspectResult)
+        assert (numRows == (maxi * 100000))
+        assert (numCols == 542)

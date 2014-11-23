@@ -1,19 +1,51 @@
 {
   AST ary=E.parse();
-  String[] cuts=E.skipWS().peek() == '{' ? E.xpeek('{').parseString('}').split(";") : E.peek() == '#' ? new String[]{Double.toString(((ASTNum)E.parse()).dbl())} : new String[]{E.parseString(E.peekPlus())};
+  String[] cuts;
+  try {
+    cuts=E.skipWS().peek() == '{' ? E.xpeek('{').parseString('}').split(";") : E.peek() == '#' ? new String[]{Double.toString(((ASTNum)E.parse()).dbl())} : new String[]{E.parseString(E.peekPlus())};
+  }
+ catch (  ClassCastException e) {
+    e.printStackTrace();
+    throw new IllegalArgumentException("Argument `breaks` was malformed. Bad AST input.");
+  }
   for (int i=0; i < cuts.length; ++i)   cuts[i]=cuts[i].replace("\"","").replace("\'","");
   _cuts=new double[cuts.length];
   for (int i=0; i < cuts.length; ++i)   _cuts[i]=Double.valueOf(cuts[i]);
-  _labels=E.skipWS().peek() == '{' ? E.xpeek('{').parseString('}').split(";") : new String[]{E.parseString(E.peekPlus())};
+  try {
+    _labels=E.skipWS().peek() == '{' ? E.xpeek('{').parseString('}').split(";") : new String[]{E.parseString(E.peekPlus())};
+  }
+ catch (  ClassCastException e) {
+    e.printStackTrace();
+    throw new IllegalArgumentException("Argument `labels` was malformed. Bad AST input.");
+  }
   for (int i=0; i < _labels.length; ++i)   _labels[i]=_labels[i].replace("\"","").replace("\'","");
   if (_labels.length == 1 && _labels[0].equals("null"))   _labels=null;
   AST inc_lowest=E.skipWS().parse();
   inc_lowest=E._env.lookup((ASTId)inc_lowest);
-  _includelowest=((ASTNum)inc_lowest).dbl() == 1;
+  try {
+    _includelowest=((ASTNum)inc_lowest).dbl() == 1;
+  }
+ catch (  ClassCastException e) {
+    e.printStackTrace();
+    throw new IllegalArgumentException("Argument `include.lowest` expected to be TRUE/FALSE.");
+  }
   AST right=E.skipWS().parse();
   right=E._env.lookup((ASTId)right);
-  _right=((ASTNum)right).dbl() == 1;
-  ASTNum diglab=(ASTNum)E.skipWS().parse();
+  try {
+    _right=((ASTNum)right).dbl() == 1;
+  }
+ catch (  ClassCastException e) {
+    e.printStackTrace();
+    throw new IllegalArgumentException("Argument `right` expected to be a TRUE/FALSE.");
+  }
+  ASTNum diglab;
+  try {
+    diglab=(ASTNum)E.skipWS().parse();
+  }
+ catch (  ClassCastException e) {
+    e.printStackTrace();
+    throw new IllegalArgumentException("Argument `dig.lab` expected to be a number.");
+  }
   _diglab=diglab.dbl();
   _diglab=_diglab >= 12 ? 12 : _diglab;
   ASTCut res=(ASTCut)clone();

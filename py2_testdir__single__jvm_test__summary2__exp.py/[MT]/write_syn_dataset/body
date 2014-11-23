@@ -1,0 +1,22 @@
+def write_syn_dataset(csvPathname, rowCount, colCount, lambd=0.2, SEED=None):
+    r1 = random.Random(SEED)
+    dsf = open(csvPathname, 'w+')
+    expectedMin = None
+    expectedMax = None
+    for i in range(rowCount):
+        rowData = []
+        for j in range(colCount):
+            ri = random.expovariate(lambd=lambd)
+            if (expectedMin is None):
+                expectedMin = ri
+            else:
+                expectedMin = min(expectedMin, ri)
+            if (expectedMax is None):
+                expectedMax = ri
+            else:
+                expectedMax = max(expectedMax, ri)
+            rowData.append(ri)
+        rowDataCsv = ','.join(map(str, rowData))
+        dsf.write((rowDataCsv + '\n'))
+    dsf.close()
+    return (expectedMin, expectedMax)

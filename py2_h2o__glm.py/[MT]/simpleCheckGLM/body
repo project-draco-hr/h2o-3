@@ -1,0 +1,146 @@
+def simpleCheckGLM(self, glm, colX, allowFailWarning=False, allowZeroCoeff=False, prettyPrint=False, noPrint=False, maxExpectedIterations=None, doNormalized=False, **kwargs):
+    GLMModel = glm['glm_model']
+    if (not GLMModel):
+        raise Exception(("GLMModel didn't exist in the glm response? %s" % dump_json(glm)))
+    warnings = None
+    if (('warnings' in GLMModel) and GLMModel['warnings']):
+        warnings = GLMModel['warnings']
+        x = re.compile('failed', re.IGNORECASE)
+        c = re.compile('converge', re.IGNORECASE)
+        for w in warnings:
+            print '\nwarning:', w
+            if (re.search(x, w) and (not allowFailWarning)):
+                if re.search(c, w):
+                    pass
+                else:
+                    raise Exception(w)
+    GLMParams = GLMModel['glm']
+    family = GLMParams['family']
+    submodels = GLMModel['submodels']
+    best_lambda_idx = GLMModel['best_lambda_idx']
+    print 'best_lambda_idx:', best_lambda_idx
+    lambda_max = GLMModel['lambda_max']
+    print 'lambda_max:', lambda_max
+    if ((1 == 0) and (lambda_max <= submodels[best_lambda_idx].lambda_value)):
+        raise Exception(("lambda_max %s should always be > the lambda result %s we're checking" % (lambda_max, submodels[best_lambda_idx].lambda_value)))
+    if ((best_lambda_idx >= len(submodels)) or (best_lambda_idx < 0)):
+        raise Exception(('best_lambda_idx: %s should point to one of lambdas (which has len %s)' % (best_lambda_idx, len(submodels))))
+    if ((best_lambda_idx >= len(submodels)) or (best_lambda_idx < 0)):
+        raise Exception(('best_lambda_idx: %s should point to one of submodels (which has len %s)' % (best_lambda_idx, len(submodels))))
+    submodels1 = submodels[best_lambda_idx]
+    iterations = submodels1['iteration']
+    print 'GLMModel/iterations:', iterations
+    if ((maxExpectedIterations is not None) and (iterations > maxExpectedIterations)):
+        raise Exception(('Convergence issue? GLM did iterations: %d which is greater than expected: %d' % (iterations, maxExpectedIterations)))
+    if ('validation' not in submodels1):
+        raise Exception(("Should be a 'validation' key in submodels1: %s" % dump_json(submodels1)))
+    validationsList = submodels1['validation']
+    validations = validationsList
+    n_folds = kwargs.setdefault('n_folds', None)
+    print 'GLMModel/validations'
+    validations['null_deviance'] = h2o_util.cleanseInfNan(validations['null_deviance'])
+    validations['residual_deviance'] = h2o_util.cleanseInfNan(validations['residual_deviance'])
+    print ('%15s %s' % ('null_deviance:\t', validations['null_deviance']))
+    print ('%15s %s' % ('residual_deviance:\t', validations['residual_deviance']))
+    if (family == 'binomial'):
+        print ('%15s %s' % ('auc:\t', validations['auc']))
+        best_threshold = validations['best_threshold']
+        thresholds = validations['thresholds']
+        print ('%15s %s' % ('best_threshold:\t', best_threshold))
+        best_index = None
+        for (i, t) in enumerate(thresholds):
+            if (t >= best_threshold):
+                best_index = i
+                break
+        assert (best_index != None), ('%s %s' % (best_threshold, thresholds))
+        print ("Now printing the right 'best_threshold' %s from '_cms" % best_threshold)
+        submodels = glm['glm_model']['submodels']
+        cms = submodels[0]['validation']['_cms']
+        self.assertEqual(len(thresholds), len(cms), msg=('thresholds %s and cm %s should be lists of the same size. %s' % (len(thresholds), len(cms), thresholds)))
+        assert (best_index < len(cms)), ('%s %s' % (best_index, len(cms)))
+        cm = cms[best_index]
+        print 'cm:', dump_json(cm['_arr'])
+        predErr = cm['_predErr']
+        classErr = cm['_classErr']
+        pctWrong = 0
+        print 'predErr:', predErr
+        print 'calculated pctWrong from cm:', pctWrong
+        print 'classErr:', classErr
+        print '\nTrain\n==========\n'
+    if ((family == 'poisson') or (family == 'gaussian')):
+        print ('%15s %s' % ('aic:\t', validations['aic']))
+    coefficients_names = GLMModel['coefficients_names']
+    idxs = submodels1['idxs']
+    print 'idxs:', idxs
+    coefficients_names = coefficients_names
+    norm_beta = submodels1['norm_beta']
+    beta = submodels1['beta']
+    if doNormalized:
+        beta_used = norm_beta
+    else:
+        beta_used = beta
+    coefficients = {}
+    for (i, b) in zip(idxs, beta_used[:(-1)]):
+        name = coefficients_names[i]
+        coefficients[name] = b
+    print 'len(idxs)', len(idxs), 'len(beta_used)', len(beta_used)
+    print 'coefficients:', coefficients
+    print 'beta:', beta
+    print 'norm_beta:', norm_beta
+    coefficients['Intercept'] = beta_used[(-1)]
+    print 'len(coefficients_names)', len(coefficients_names)
+    print 'len(idxs)', len(idxs)
+    print 'idxs[-1]', idxs[(-1)]
+    print 'intercept demapping info:', 'coefficients_names[-i]:', coefficients_names[(-1)], 'idxs[-1]:', idxs[(-1)], 'coefficients_names[idxs[-1]]:', coefficients_names[idxs[(-1)]], 'beta_used[-1]:', beta_used[(-1)], "coefficients['Intercept']", coefficients['Intercept']
+    interceptName = coefficients_names[idxs[(-1)]]
+    if ((interceptName != 'Intercept') or (abs(beta_used[(-1)]) < 1e-26)):
+        raise Exception(("'Intercept' should be last in coefficients_names and beta %s %s %s" % (idxs[(-1)], beta_used[(-1)], (('-' + interceptName) + '-'))))
+    if (len(idxs) > len(beta_used)):
+        raise Exception(("idxs shouldn't be longer than beta_used %s %s" % (len(idxs), len(beta_used))))
+    intercept = coefficients.pop('Intercept', None)
+    coefficients_names.pop()
+    y = kwargs['response']
+
+    def add_to_coefficient_list_and_string(c, cList, cString):
+        if (c in coefficients):
+            cValue = coefficients[c]
+            cValueString = ('%s: %.5e   ' % (c, cValue))
+        else:
+            print (("Warning: didn't see '" + c) + "' in json coefficient response."), "Inserting 'None' with assumption it was dropped due to constant column)"
+            cValue = None
+            cValueString = ('%s: %s   ' % (c, cValue))
+        cList.append(cValue)
+        if prettyPrint:
+            cValueString = (('H2O coefficient ' + cValueString) + '\n')
+        return (cString + cValueString)
+    cString = ''
+    cList = []
+    for c in coefficients_names:
+        cString = add_to_coefficient_list_and_string(c, cList, cString)
+    if prettyPrint:
+        print ('\nH2O intercept:\t\t%.5e' % intercept)
+        print cString
+    elif (not noPrint):
+        print '\nintercept:', intercept, cString
+    print '\nTotal # of coefficients:', len(coefficients_names)
+    if ((not allowZeroCoeff) and (colX is not None)):
+        absXCoeff = abs(float(coefficients[str(colX)]))
+        self.assertGreater(absXCoeff, 1e-26, (((((((("abs. value of GLM coefficients['" + str(colX)) + "'] is ") + str(absXCoeff)) + ', not >= 1e-26 for X=') + str(colX)) + '\n') + 'kwargs:') + dump_json(kwargs)))
+    absIntercept = abs(float(intercept))
+    self.assertGreater(absIntercept, 1e-26, ((((("abs. value of GLM coefficients['Intercept'] is " + str(absIntercept)) + ', not >= 1e-26 for Intercept') + '\n') + 'kwargs:') + dump_json(kwargs)))
+    if (len(coefficients) > 0):
+        maxKey = max([(abs(coefficients[x]), x) for x in coefficients])[1]
+        print 'H2O Largest abs. coefficient value:', maxKey, coefficients[maxKey]
+        minKey = min([(abs(coefficients[x]), x) for x in coefficients])[1]
+        print 'H2O Smallest abs. coefficient value:', minKey, coefficients[minKey]
+    else:
+        print 'Warning, no coefficients returned. Must be intercept only?'
+    if ((not allowZeroCoeff) and (len(coefficients) > 1)):
+        s = 0.0
+        for c in coefficients:
+            v = coefficients[c]
+            s += abs(float(v))
+        self.assertGreater(s, 1e-26, (((('sum of abs. value of GLM coefficients/intercept is ' + str(s)) + ', not >= 1e-26\n') + 'kwargs:') + dump_json(kwargs)))
+    print 'submodels1, run_time (milliseconds):', submodels1['run_time']
+    check_sandbox_for_errors()
+    return (warnings, cList, intercept)

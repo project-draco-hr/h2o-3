@@ -1,0 +1,14 @@
+def rapids(self, timeoutSecs=120, ignoreH2oError=False, **kwargs):
+    if ('ast' in kwargs):
+        assert isinstance(kwargs['ast'], basestring), ('only string assumed? %s' % ast)
+    if ('funs' in kwargs):
+        assert isinstance(kwargs['funs'], basestring), ('only string assumed? %s' % funs)
+    params_dict = {'ast': None, 'funs': None, }
+    check_params_update_kwargs(params_dict, kwargs, 'rapids', True)
+    result = self.do_json_request('Rapids.json', timeout=timeoutSecs, params=params_dict)
+    verboseprint('rapids result:', dump_json(result))
+    if (('exception' in result) and result['exception'] and (not ignoreH2oError)):
+        exception = result['exception']
+        raise Exception(('rapids with kwargs:\n%s\ngot exception:\n"%s"\n' % (dump_json(kwargs), exception)))
+    h2o_sandbox.check_sandbox_for_errors()
+    return result

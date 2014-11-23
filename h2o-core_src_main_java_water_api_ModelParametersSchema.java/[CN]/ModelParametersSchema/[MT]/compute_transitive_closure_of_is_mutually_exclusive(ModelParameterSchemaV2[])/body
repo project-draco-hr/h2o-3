@@ -1,0 +1,26 @@
+{
+  Map<String,Set<String>> field_exclusivity_groups=new HashMap<>();
+  for (int i=0; i < metadata.length; i++) {
+    ModelParameterSchemaV2 param=metadata[i];
+    String name=param.name;
+    List<String> me=new ArrayList<String>();
+    me.add(name);
+    me.addAll(Arrays.asList(param.is_mutually_exclusive_with));
+    Set new_set=new HashSet();
+    for (    String s : me) {
+      if (field_exclusivity_groups.containsKey(s))       new_set.addAll(field_exclusivity_groups.get(s));
+ else       new_set.add(s);
+    }
+    for (    String s : me) {
+      field_exclusivity_groups.put(s,new_set);
+    }
+  }
+  for (int i=0; i < metadata.length; i++) {
+    ModelParameterSchemaV2 param=metadata[i];
+    String name=param.name;
+    Set<String> me=field_exclusivity_groups.get(name);
+    Set<String> not_me=new HashSet(me);
+    not_me.remove(name);
+    param.is_mutually_exclusive_with=not_me.toArray(new String[not_me.size()]);
+  }
+}

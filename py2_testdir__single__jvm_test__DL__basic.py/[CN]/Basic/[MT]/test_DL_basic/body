@@ -1,0 +1,28 @@
+def test_DL_basic(self):
+    importFolderPath = 'logreg'
+    csvFilename = 'benign.csv'
+    hex_key = 'benign.hex'
+    csvPathname = ((importFolderPath + '/') + csvFilename)
+    parseResult = h2i.import_parse(bucket='smalldata', path=csvPathname, hex_key=hex_key, checkHeader=1, timeoutSecs=180, doSummary=False)
+    (numRows, numCols, parse_key) = h2o_cmd.infoFromParse(parseResult)
+    inspectResult = h2o_cmd.runInspect(key=parse_key)
+    (missingList, labelList, numRows, numCols) = h2o_cmd.infoFromInspect(inspectResult)
+    expected = []
+    allowedDelta = 0
+    labelListUsed = list(labelList)
+    labelListUsed.remove('STR')
+    numColsUsed = (numCols - 1)
+    for trial in range(1):
+        parameters = {'validation_frame': parse_key, 'ignored_columns': '[STR]', 'score_each_iteration': None, 'response_column': 'FNDX', 'do_classification': None, 'balance_classes': None, 'max_after_balance_size': None, 'n_folds': None, 'keep_cross_validation_splits': None, 'checkpoint': None, 'override_with_best_model': None, 'expert_mode': None, 'autoencoder': None, 'use_all_factor_levels': None, 'activation': None, 'hidden': None, 'epochs': None, 'train_samples_per_iteration': None, 'target_ratio_comm_to_comp': None, 'seed': None, 'adaptive_rate': None, 'rho': None, 'epsilon': None, 'rate': None, 'rate_annealing': None, 'rate_decay': None, 'momentum_start': None, 'momentum_ramp': None, 'momentum_stable': None, 'nesterov_accelerated_gradient': None, 'input_dropout_ratio': None, 'hidden_dropout_ratios': None, 'l1': None, 'l2': None, 'max_w2': None, 'initial_weight_distribution': None, 'initial_weight_scale': None, 'loss': None, 'score_interval': None, 'score_training_samples': None, 'score_validation_samples': None, 'score_duty_cycle': None, 'classification_stop': None, 'regression_stop': None, 'quiet_mode': None, 'max_confusion_matrix_size': None, 'max_hit_ratio_k': None, 'balance_classes': None, 'class_sampling_factors': None, 'max_after_balance_size': None, 'score_validation_sampling': None, 'diagnostics': None, 'variable_importances': None, 'fast_mode': None, 'ignore_const_cols': None, 'force_load_balance': None, 'replicate_training_data': None, 'single_node_mode': None, 'shuffle_training_data': None, 'missing_values_handling': None, 'sparse': None, 'col_major': None, 'average_activation': None, 'sparsity_beta': None, }
+        model_key = 'benign_dl.hex'
+        bmResult = h2o.n0.build_model(algo='deeplearning', destination_key=model_key, training_frame=parse_key, parameters=parameters, timeoutSecs=10)
+        bm = OutputObj(bmResult, 'bm')
+        modelResult = h2o.n0.models(key=model_key)
+        model = OutputObj(modelResult['models'][0]['output'], 'model')
+        cmmResult = h2o.n0.compute_model_metrics(model=model_key, frame=parse_key, timeoutSecs=60)
+        cmm = OutputObj(cmmResult, 'cmm')
+        mmResult = h2o.n0.model_metrics(model=model_key, frame=parse_key, timeoutSecs=60)
+        mm = OutputObj(mmResult['model_metrics'][0], 'mm')
+        prResult = h2o.n0.predict(model=model_key, frame=parse_key, timeoutSecs=60)
+        pr = OutputObj(prResult['model_metrics'][0]['predictions'], 'pr')
+        h2o_cmd.runStoreView()

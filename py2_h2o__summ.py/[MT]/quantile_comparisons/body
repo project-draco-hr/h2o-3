@@ -1,0 +1,91 @@
+def quantile_comparisons(csvPathname, skipHeader=False, col=0, datatype='float', h2oSummary2=None, h2oSummary2MaxErr=None, h2oQuantilesApprox=None, h2oQuantilesExact=None, h2oExecQuantiles=None, interpolate='linear', quantile=0.5, use_genfromtxt=False):
+    SCIPY_INSTALLED = True
+    try:
+        import scipy as sp
+        import numpy as np
+        print 'Both numpy and scipy are installed. Will do extra checks'
+    except ImportError:
+        print 'numpy or scipy is not installed. Will only do sort-based checking'
+        SCIPY_INSTALLED = True
+    if (use_genfromtxt and SCIPY_INSTALLED):
+        print 'Using numpy.genfromtxt. Better handling of null bytes'
+        target = np.genfromtxt(open(csvPathname, 'r'), delimiter=',', skip_header=(1 if skipHeader else 0), dtype=None)
+    else:
+        print 'Using python csv reader'
+        target = h2o_util.file_read_csv_col(csvPathname, col=col, datatype=datatype, skipHeader=skipHeader, preview=5)
+    if (datatype == 'float'):
+        targetFP = map(float, target)
+    if (datatype == 'int'):
+        targetFP = map(int, target)
+    if SCIPY_INSTALLED:
+        p = np.percentile(targetFP, (quantile * 100))
+        h2p.red_print('numpy.percentile', p)
+        from scipy import stats
+        s1 = stats.scoreatpercentile(targetFP, (quantile * 100))
+        h2p.red_print('scipy stats.scoreatpercentile', s1)
+        if (1 == 0):
+            alphap = 0
+            betap = 0
+            alphap = 0.5
+            betap = 0.5
+            alphap = (1 / 3.0)
+            betap = (1 / 3.0)
+        if (interpolate == 'mean'):
+            alphap = 0.4
+            betap = 0.4
+        if (interpolate == 'linear'):
+            alphap = 1
+            betap = 1
+        s2List = stats.mstats.mquantiles(targetFP, prob=quantile, alphap=alphap, betap=betap)
+        s2 = s2List[0]
+        h2p.red_print('scipy stats.mstats.mquantiles:', s2)
+    targetFP.sort()
+    b = percentileOnSortedList(targetFP, quantile, interpolate='linear')
+    label = (str((quantile * 100)) + '%')
+    h2p.blue_print(label, 'from sort:', b)
+    if SCIPY_INSTALLED:
+        h2p.blue_print(label, 'from numpy:', p)
+        h2p.blue_print(label, 'from scipy 1:', s1)
+        h2p.blue_print(label, 'from scipy 2:', s2)
+    h2p.blue_print(label, 'from h2o summary:', h2oSummary2)
+    h2p.blue_print(label, 'from h2o multipass:', h2oQuantilesExact)
+    h2p.blue_print(label, 'from h2o singlepass:', h2oQuantilesApprox)
+    if h2oExecQuantiles:
+        h2p.blue_print(label, 'from h2o exec:', h2oExecQuantiles)
+    if h2oQuantilesExact:
+        if math.isnan(float(h2oQuantilesExact)):
+            raise Exception(('h2oQuantilesExact is unexpectedly NaN %s' % h2oQuantilesExact))
+        h2o_util.assertApproxEqual(h2oQuantilesExact, b, tol=2e-07, msg='h2o quantile multipass is not approx. same as sort algo')
+    if h2oQuantilesApprox:
+        if math.isnan(float(h2oQuantilesApprox)):
+            raise Exception(('h2oQuantilesApprox is unexpectedly NaN %s' % h2oQuantilesApprox))
+        if h2oSummary2MaxErr:
+            h2o_util.assertApproxEqual(h2oQuantilesApprox, b, tol=h2oSummary2MaxErr, msg='h2o quantile singlepass is not approx. same as sort algo')
+        else:
+            h2o_util.assertApproxEqual(h2oQuantilesApprox, b, rel=0.1, msg='h2o quantile singlepass is not approx. same as sort algo')
+    if h2oSummary2:
+        if math.isnan(float(h2oSummary2)):
+            raise Exception(('h2oSummary2 is unexpectedly NaN %s' % h2oSummary2))
+        if h2oSummary2MaxErr:
+            h2o_util.assertApproxEqual(h2oSummary2, b, tol=h2oSummary2MaxErr, msg='h2o summary2 is not approx. same as sort algo (calculated expected max error)')
+        else:
+            h2o_util.assertApproxEqual(h2oSummary2, b, rel=1.0, msg='h2o summary2 is not approx. same as sort algo (sloppy compare)')
+    if (h2oQuantilesApprox and h2oSummary2):
+        h2o_util.assertApproxEqual(h2oSummary2, h2oQuantilesApprox, rel=0.04, msg=('h2o summary2 is not approx. same as h2o singlepass.' + ' Check that max_qbins is 1000 (summary2 is fixed) and type 7 interpolation'))
+    if h2oExecQuantiles:
+        if math.isnan(float(h2oExecQuantiles)):
+            raise Exception(('h2oExecQuantiles is unexpectedly NaN %s' % h2oExecQuantiles))
+        h2o_util.assertApproxEqual(h2oExecQuantiles, b, rel=1.0, msg='h2o summary2 is not approx. same as sort algo')
+    if SCIPY_INSTALLED:
+        if h2oQuantilesExact:
+            h2o_util.assertApproxEqual(h2oQuantilesExact, p, tol=2e-07, msg='h2o quantile multipass is not same as numpy.percentile')
+            h2o_util.assertApproxEqual(h2oQuantilesExact, s1, tol=2e-07, msg='h2o quantile multipass is not same as scipy stats.scoreatpercentile')
+        if (h2oQuantilesApprox and (1 == 0)):
+            if (interpolate == 'mean'):
+                h2o_util.assertApproxEqual(h2oQuantilesApprox, s2, rel=0.5, msg='h2o quantile singlepass is not approx. same as scipy stats.mstats.mquantiles')
+            else:
+                h2o_util.assertApproxEqual(h2oQuantilesApprox, s2, rel=0.5, msg='h2o quantile singlepass is not same as scipy stats.mstats.mquantiles')
+        if (1 == 0):
+            a = stats.mstats.mquantiles(targetFP, prob=quantile, alphap=alphap, betap=betap)
+            h2p.red_print('after sort')
+            h2p.red_print('scipy stats.mstats.mquantiles:', s3)

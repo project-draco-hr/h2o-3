@@ -9,18 +9,38 @@ def build_model(self, algo, training_frame, parameters, destination_key=None, ti
     builder = model_builders['model_builders'][algo]
     frames = self.frames(key=training_frame)
     assert (frames is not None), '/Frames/{0} REST call failed'.format(training_frame)
-    assert (frames['frames'][0]['key']['name'] == training_frame), '/Frames/{0} returned Frame {1} rather than Frame {2}'.format(training_frame, frames['frames'][0]['key']['name'], training_frame)
+    key_name = frames['frames'][0]['key']['name']
+    assert (key_name == training_frame), '/Frames/{0} returned Frame {1} rather than Frame {2}'.format(training_frame, key_name, training_frame)
     parameters['training_frame'] = training_frame
     if (destination_key is not None):
         parameters['destination_key'] = destination_key
-    result = self.do_json_request(('/2/ModelBuilders.json/' + algo), cmd='post', timeout=timeoutSecs, postData=parameters)
+    print 'build_model parameters', parameters
+    result1 = self.do_json_request(('/2/ModelBuilders.json/' + algo), cmd='post', timeout=timeoutSecs, postData=parameters)
+    verboseprint('build_model result', dump_json(result1))
     if asynchronous:
-        return result
-    elif ('validation_error_count' in result):
-        return result
+        result = result1
+    elif ('validation_error_count' in result1):
+        h2p.yellow_print('parameter error in model_builders')
+        result = result1
     else:
-        job = result['jobs'][0]
-        job_key = job['key']['name']
-        verboseprint(('model building job_key: ' + repr(job_key)))
-        job_json = self.poll_job(job_key, timeoutSecs=timeoutSecs)
-        return job_json
+        job_result = result1['jobs'][0]
+        job_key = job_result['key']['name']
+        verboseprint(('build_model job_key: ' + repr(job_key)))
+        job_result = self.poll_job(job_key, timeoutSecs=timeoutSecs)
+        verboseprint(job_result)
+        if job_result:
+            jobs = job_result['jobs'][0]
+            description = jobs['description']
+            dest = jobs['dest']
+            msec = jobs['msec']
+            status = jobs['status']
+            progress = jobs['progress']
+            if (status == 'FAILED'):
+                print dump_json(job_result)
+                raise Exception(('Taking exception on build_model job status: %s %s %s %s' % (status, progress, msec, description)))
+            result = job_result
+        else:
+            raise Exception("build_model didn't get a job_result when it expected one")
+    verboseprint('result:', result)
+    h2o_sandbox.check_sandbox_for_errors()
+    return result

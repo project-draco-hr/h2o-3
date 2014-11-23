@@ -11,4 +11,5 @@ def compute_model_metrics(self, model, frame, timeoutSecs=60, **kwargs):
     result = self.do_json_request(((('/3/ModelMetrics.json/models/' + model) + '/frames/') + frame), cmd='post', timeout=timeoutSecs)
     mm = result['model_metrics'][0]
     verboseprint(('model metrics: ' + repr(mm)))
+    h2o_sandbox.check_sandbox_for_errors()
     return mm
