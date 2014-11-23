@@ -1,2 +1,11 @@
 def xNum(number):
-    return ('#%s' % number)
+    if isinstance(number, (list, tuple)):
+        raise Exception(("xexec xNum doesn't take lists or tuples %s" % number))
+    elif isinstance(number, basestring):
+        if re.match('#', number):
+            return number
+    try:
+        junk = (1.0 + number)
+        return ('#%s' % number)
+    except:
+        return number
