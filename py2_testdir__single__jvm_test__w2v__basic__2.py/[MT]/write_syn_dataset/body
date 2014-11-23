@@ -1,0 +1,22 @@
+def write_syn_dataset(csvPathname, rowCount, colCount=1, SEED='12345678', colSepChar=',', rowSepChar='\n'):
+    r1 = random.Random(SEED)
+    dsf = open(csvPathname, 'w+')
+    for row in range(rowCount):
+        rowData = []
+        lenLol = len(lol)
+        targetSum = 0
+        for col in range(colCount):
+            (t, ri) = random_enum((col % lenLol))
+            targetSum += t
+            if (row < 2):
+                while True:
+                    if (("'" in ri) or ('"' in ri) or whitespaceRegex.match(ri)):
+                        (t, ri) = random_enum((col % lenLol))
+                    else:
+                        break
+            rowData.append(ri)
+        avg = ((targetSum + 0.0) / colCount)
+        rowData.append(targetSum)
+        rowDataCsv = (colSepChar.join(map(str, rowData)) + rowSepChar)
+        dsf.write(rowDataCsv)
+    dsf.close()

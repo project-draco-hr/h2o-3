@@ -1,0 +1,25 @@
+def test_rapids_row_range(self):
+    SYNDATASETS_DIR = h2o.make_syn_dir()
+    tryList = [(1000000, 5, 'cA', 200)]
+    for (rowCount, colCount, hex_key, timeoutSecs) in tryList:
+        SEEDPERFILE = random.randint(0, sys.maxint)
+        csvFilename = (((((('syn_' + str(SEEDPERFILE)) + '_') + str(rowCount)) + 'x') + str(colCount)) + '.csv')
+        csvPathname = ((SYNDATASETS_DIR + '/') + csvFilename)
+        print '\nCreating random', csvPathname
+        write_syn_dataset(csvPathname, rowCount, colCount, SEEDPERFILE)
+        parseResult = h2i.import_parse(path=csvPathname, schema='put', hex_key=hex_key, timeoutSecs=timeoutSecs, doSummary=False)
+        inspect = h2o_cmd.runInspect(key=hex_key)
+        (missingList, labelList, numRows, numCols) = h2o_cmd.infoFromInspect(inspect)
+        print ('\n' + csvPathname), '    numRows:', '{:,}'.format(numRows), '    numCols:', '{:,}'.format(numCols)
+        self.assertEqual(numCols, colCount, ('parse created result with the wrong number of cols %s %s' % (numCols, colCount)))
+        self.assertEqual(numRows, rowCount, ('parse created result with the wrong number of rows %s %s' % (numRows, rowCount)))
+        from h2o_rexec import rFrame, rVector, rUnary, rBinary, rCall, rSequence, rColon, rAssign, rNum, rExec
+        REPEAT = 1
+        for i in range(REPEAT):
+            hex_key_i = ((hex_key + '_') + str(i))
+            (resultExec, result) = rExec(rAssign(hex_key_i, rFrame(hex_key, '#1', None)))
+            (resultExec, result) = rExec(rAssign(hex_key_i, rFrame(hex_key, rColon('#1', '#100'), None)))
+            (resultExec, result) = rExec(rAssign(hex_key_i, rFrame(hex_key, rColon('#1', rNum((rowCount - 10))), None)))
+            inspect = h2o_cmd.runInspect(None, hex_key_i, timeoutSecs=timeoutSecs)
+            (missingList, labelList, numRows, numCols) = h2o_cmd.infoFromInspect(inspect)
+            print ('\n' + csvPathname), '    numRows:', '{:,}'.format(numRows), '    numCols:', '{:,}'.format(numCols)

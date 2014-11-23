@@ -12,13 +12,17 @@ def infoFromInspect(inspect):
     key_name = frame['key']['name']
     missingList = []
     labelList = []
+    typeList = []
     for (i, colDict) in enumerate(columns):
         missing = colDict['missing']
         label = colDict['label']
+        stype = colDict['type']
         missingList.append(missing)
         labelList.append(label)
+        typeList.append(stype)
         if (missing != 0):
             print ('%s: col: %s %s, missing: %d' % (key_name, i, label, missing))
+    print 'inspect typeList:', typeList
     if (sum(missingList) == 0):
         missingList = []
     numCols = len(frame['columns'])
