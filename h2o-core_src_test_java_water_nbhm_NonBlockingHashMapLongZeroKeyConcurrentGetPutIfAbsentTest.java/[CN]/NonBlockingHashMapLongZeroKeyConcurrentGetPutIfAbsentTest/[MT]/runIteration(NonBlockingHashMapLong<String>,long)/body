@@ -1,0 +1,8 @@
+{
+  List<Callable<String>> tasks=new ArrayList<Callable<String>>(N_THREADS);
+  for (int i=1; i <= N_THREADS; i++) {
+    tasks.add(new PutIfAbsent(map,key,"worker #" + i));
+  }
+  List<String> results=executeTasks(tasks);
+  return new HashSet<String>(results);
+}
