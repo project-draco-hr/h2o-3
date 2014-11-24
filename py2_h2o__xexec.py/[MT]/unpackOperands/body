@@ -1,0 +1,16 @@
+def unpackOperands(operands, joinSep=',', parent='none'):
+    operandList = []
+    if isinstance(operands, (list, tuple)):
+        for v in operands:
+            if (not isinstance(v, (list, tuple))):
+                operandList.append(xNum(v))
+            else:
+                for v2 in v:
+                    operandList.append(xNum(v2))
+    else:
+        operandList.append(xNum(operands))
+    if (len(operandList) != 0):
+        operandString = joinSep.join(map(str, operandList))
+        return ('%s' % operandString)
+    else:
+        raise Exception(('xexec unpackOperands for %s, no operands: %s' % (parent, operands)))
