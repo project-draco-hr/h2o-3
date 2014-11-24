@@ -1,28 +1,2 @@
 {
-  Env env=new Env(new HashSet<Key>());
-  final ASTOp op=(ASTOp)ASTOp.get(_fun).clone();
-  Key fr_key=Key.make("ddply_grpkey_" + _grpnum);
-  Frame aa=DKV.get(fr_key).get();
-  op.exec(env,new ASTFrame(aa),_fun_args);
-  Frame fr=null;
-  if (env.isAry() && (fr=env.pop0Ary()).numRows() != 1)   throw new IllegalArgumentException("Result of ddply can only return 1 row but instead returned " + fr.numRows());
-  _ncols=fr == null ? 1 : fr.numCols();
-  double[] r=null;
-  double d=Double.NaN;
-  if (fr == null)   d=env.popDbl();
- else {
-    r=new double[_ncols];
-    for (int i=0; i < _ncols; ++i)     r[i]=fr.vecs()[i].at(0);
-  }
-  Key resultKey=Key.make("ddply_RemoteRez_" + _grpnum);
-  Result rez=new Result(d,r);
-  Futures fs=new Futures();
-  DKV.put(resultKey,rez,fs);
-  fs.blockForPending();
-  _fr.delete();
-  aa.delete();
-  _fr=null;
-  _ds=null;
-  _envkey=null;
-  tryComplete();
 }
