@@ -1,0 +1,31 @@
+{
+  AST ary=E.parse();
+  AST s=null;
+  try {
+    s=E.skipWS().parse();
+    _cols=((ASTSeries)s).toArray();
+    if (_cols.length > 1000)     throw new IllegalArgumentException("Too many columns selected. Please select < 1000 columns.");
+  }
+ catch (  ClassCastException e) {
+    try {
+      _cols=new long[]{(long)((ASTNum)s).dbl()};
+    }
+ catch (    ClassCastException e2) {
+      throw new IllegalArgumentException("Badly formed AST. Columns argument must be a ASTSeries or ASTNum");
+    }
+  }
+  _fun=((ASTId)E.skipWS().parse())._id;
+  ArrayList<AST> fun_args=new ArrayList<>();
+  while (E.skipWS().hasNext()) {
+    fun_args.add(E.parse());
+  }
+  ASTddply res=(ASTddply)clone();
+  res._asts=new AST[]{ary};
+  if (fun_args.size() > 0) {
+    _fun_args=fun_args.toArray(new AST[fun_args.size()]);
+  }
+ else {
+    _fun_args=null;
+  }
+  return res;
+}

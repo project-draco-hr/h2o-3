@@ -1,0 +1,20 @@
+{
+  ddplyPass1 p1=ddplyPass1.PASS1TMP.remove(_p1key);
+  Futures fs=new Futures();
+  int cidx=H2O.SELF.index();
+  for (int i=0; i < _dss.length; i++) {
+    Group g=new Group(_dss[i]);
+    NewChunk nc=p1._groups == null ? null : p1._groups.get(g);
+    if (nc != null && nc._len > 0) {
+      nc.set_vec(_avs[i]);
+      nc.close(cidx,fs);
+    }
+ else {
+      DKV.put(_avs[i].chunkKey(cidx),new C0LChunk(0,0),fs);
+    }
+  }
+  fs.blockForPending();
+  _p1key=null;
+  _dss=null;
+  tryComplete();
+}
