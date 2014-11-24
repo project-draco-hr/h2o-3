@@ -1,0 +1,24 @@
+def pp_cm(jcm, header=None):
+    header = [('"%s"' % i) for i in range(len(jcm[0]))]
+    cm = '{0:<8}'.format('')
+    for h in header:
+        cm = '{0}|{1:<8}'.format(cm, h)
+    cm = '{0}|{1:<8}'.format(cm, 'error')
+    c = 0
+    for line in jcm:
+        lineSum = sum(line)
+        if ((c < 0) or (c >= len(line))):
+            raise Exception(('Error in h2o_gbm.pp_cm. c: %s line: %s len(line): %s jcm: %s' % (c, line, len(line), dump_json(jcm))))
+        print 'c:', c, 'line:', line
+        errorSum = (lineSum - line[c])
+        if (lineSum > 0):
+            err = (float(errorSum) / lineSum)
+        else:
+            err = 0.0
+        fl = '{0:<8}'.format(header[c])
+        for num in line:
+            fl = '{0}|{1:<8}'.format(fl, num)
+        fl = '{0}|{1:<8.2f}'.format(fl, err)
+        cm = '{0}\n{1}'.format(cm, fl)
+        c += 1
+    return cm

@@ -1,7 +1,14 @@
 def xFcn(function='sum', *operands):
     print ('xFcn %s has %s operands' % (function, len(operands)))
-    oprStr = unpackOperands(operands, joinSep=' ', parent='xSequence')
+    if (function in xFcnXlate):
+        function = xFcnXlate[function]
+    required = legalFunction(function)
+    if (required == 0):
+        raise Exception(('h2o_xexec xFcn legalFunction not found: %s' % function))
+    (oprStr, oprList) = unpackOperands(operands, joinSep=' ', parent='xSequence')
     if (len(oprStr) == 0):
-        raise Exception(('xexec xFcn, no operands: %s' % operands))
+        raise Exception(('h2o_exec xFcn, no operands: %s' % operands))
+    if ((len(oprList) != required) and (required < 3) and (function != 'cbind')):
+        raise Exception(('h2o_xexec xFcn wrong # of operands: %s %s' % (required, len(operands))))
     else:
         return ('(%s %s)' % (function, oprStr))

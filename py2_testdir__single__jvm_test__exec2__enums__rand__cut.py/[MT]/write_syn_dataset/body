@@ -1,0 +1,15 @@
+def write_syn_dataset(csvPathname, rowCount, inCount=1, outCount=1, SEED='12345678', colSepChar=',', rowSepChar='\n', quoteChars='', colEnumList=None):
+    r1 = random.Random(SEED)
+    dsf = open(csvPathname, 'w+')
+    for row in range(rowCount):
+        rowData = []
+        for iCol in range(inCount):
+            ri = random.choice(colEnumList[iCol])
+            rowData.append(ri)
+        for oCol in range(outCount):
+            ri = ('%.2f' % random.uniform(0, 10000000.0))
+            rowData.append(ri)
+        rowDataCsv = (colSepChar.join(map(str, rowData)) + rowSepChar)
+        dsf.write(rowDataCsv)
+    dsf.close()
+    return colEnumList
