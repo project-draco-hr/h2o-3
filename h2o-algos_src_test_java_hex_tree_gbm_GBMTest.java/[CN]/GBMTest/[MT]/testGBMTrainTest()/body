@@ -4,8 +4,9 @@
     GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
     parms._valid=parse_test_file("smalldata/gbm_test/ecology_eval.csv")._key;
     Frame train=parse_test_file("smalldata/gbm_test/ecology_model.csv");
-    parms._train=train._key;
     train.remove("Site").remove();
+    DKV.put(train);
+    parms._train=train._key;
     parms._response_column="Angaus";
     parms._convert_to_enum=true;
     parms._ntrees=5;
