@@ -1,0 +1,37 @@
+{
+  GBMModel gbm=null;
+  try {
+    GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
+    parms._valid=parse_test_file("smalldata/gbm_test/ecology_eval.csv")._key;
+    Frame train=parse_test_file("smalldata/gbm_test/ecology_model.csv");
+    parms._train=train._key;
+    train.remove("Site").remove();
+    parms._response_column="Angaus";
+    parms._convert_to_enum=true;
+    parms._ntrees=5;
+    parms._max_depth=10;
+    parms._min_rows=10;
+    parms._nbins=100;
+    parms._learn_rate=.2f;
+    parms._loss=Family.AUTO;
+    GBM job=null;
+    try {
+      job=new GBM(parms);
+      gbm=job.trainModel().get();
+    }
+  finally {
+      if (job != null)       job.remove();
+    }
+    double auc=gbm._output._auc.data().AUC();
+    Assert.assertTrue(0.80 <= auc && auc < 0.83);
+    ConfusionMatrix2 cmf1=gbm._output._auc.data().CM();
+    Assert.assertArrayEquals(ar(ar(311,82),ar(32,75)),cmf1._arr);
+  }
+  finally {
+    if (gbm != null) {
+      gbm._parms._train.remove();
+      gbm._parms._valid.remove();
+      gbm.delete();
+    }
+  }
+}
