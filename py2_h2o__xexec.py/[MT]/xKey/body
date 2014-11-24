@@ -1,2 +1,9 @@
 def xKey(key):
-    return ('$%s' % key)
+    if isinstance(key, (list, tuple)):
+        raise Exception(("xexec xKey doesn't take lists or tuples %s" % key))
+    if (not isinstance(key, basestring)):
+        raise Exception(('xexec xKey wants to be a string %s' % key))
+    if re.match('\\$', frame):
+        return key
+    else:
+        return ('$%s' % key)
