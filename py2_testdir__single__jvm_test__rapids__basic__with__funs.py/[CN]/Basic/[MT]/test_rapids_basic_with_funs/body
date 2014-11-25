@@ -9,6 +9,16 @@ def test_rapids_basic_with_funs(self):
         (execResult, result) = h2e.exec_expr(h2o.nodes[0], funs, doFuns=True, resultKey=None, timeoutSecs=4)
         execExpr2 = '(apply $r1 #2 $anon)'
         (execResult, result) = h2e.exec_expr(h2o.nodes[0], execExpr2, doFuns=False, resultKey=None, timeoutSecs=4)
+        r = re.search('![a-z][A-Z][0-9]+', execExpr)
+        if r:
+            lhs = r.group(0)[1:]
+            print 'Found key lhs assign', lhs
+            storeview = h2o_cmd.runStoreView()
+            print '\nstoreview:', dump_json(storeview)
+            if (not (k in storeView['keys'])):
+                raise Exception('Expected to find %s in %s', (k, storeView['keys']))
+        else:
+            print 'No key lhs assign'
         if (execResult['num_rows'] or execResult['num_cols']):
             keys.append(execExpr2)
     print '\nExpressions that created keys'
