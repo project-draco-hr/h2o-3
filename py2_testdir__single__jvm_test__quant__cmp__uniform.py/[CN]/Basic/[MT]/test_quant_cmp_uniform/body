@@ -1,0 +1,69 @@
+def test_quant_cmp_uniform(self):
+    SYNDATASETS_DIR = h2o.make_syn_dir()
+    tryList = [((5 * ROWS), 1, 'x.hex', 1, 20000, ['C1', 1.1, 5000.0, 10000.0, 15000.0, 20000.0]), ((5 * ROWS), 1, 'x.hex', (-5000), 0, ['C1', (-5001.0), (-3750.0), (-2445), (-1200.0), 99]), ((1 * ROWS), 1, 'x.hex', (-100000), 100000, ['C1', (-100001.0), (-50000.0), 1613.0, 50000.0, 100000.0]), ((1 * ROWS), 1, 'x.hex', (-1), 1, ['C1', (-1.05), (-0.48), 0.0087, 0.5, 1.0]), ((1 * ROWS), 1, 'A.hex', 1, 100, ['C1', 1.05, 26.0, 51.0, 76.0, 100.0]), ((1 * ROWS), 1, 'A.hex', (-99), 99, ['C1', (-99), (-50.0), 0, 50.0, 99]), ((1 * ROWS), 1, 'B.hex', 1, 10000, ['C1', 1.05, 2501.0, 5001.0, 7501.0, 10000.0]), ((1 * ROWS), 1, 'B.hex', (-100), 100, ['C1', (-100.1), (-50.0), 0.85, 51.7, 100, 0]), ((1 * ROWS), 1, 'C.hex', 1, 100000, ['C1', 1.05, 25002.0, 50002.0, 75002.0, 100000.0]), ((1 * ROWS), 1, 'C.hex', (-101), 101, ['C1', (-100.1), (-50.45), (-1.18), 49.28, 100.0])]
+    timeoutSecs = 10
+    trial = 1
+    n = h2o.nodes[0]
+    lenNodes = len(h2o.nodes)
+    x = 0
+    timeoutSecs = 60
+    for (rowCount, colCount, hex_key, expectedMin, expectedMax, expected) in tryList:
+        colname = expected[0]
+        maxDelta = (((expectedMax - expectedMin) / 1000.0) / 2.0)
+        maxDelta = (1.05 * maxDelta)
+        SEEDPERFILE = random.randint(0, sys.maxint)
+        x += 1
+        csvFilename = (((((('syn_' + 'binary') + '_') + str(rowCount)) + 'x') + str(colCount)) + '.csv')
+        csvPathname = ((SYNDATASETS_DIR + '/') + csvFilename)
+        print 'Creating random', csvPathname
+        write_syn_dataset(csvPathname, rowCount, colCount, expectedMin, expectedMax, SEEDPERFILE)
+        csvPathnameFull = h2i.find_folder_and_filename(None, csvPathname, returnFullPath=True)
+        parseResult = h2i.import_parse(path=csvPathname, schema='put', hex_key=hex_key, timeoutSecs=30, doSummary=False)
+        (numRows, numCols, parse_key) = h2o_cmd.infoFromParse(parseResult)
+        inspect = h2o_cmd.runInspect(key=parse_key)
+        (missingList, labelList, numRows, numCols) = h2o_cmd.infoFromInspect(parseResult)
+        summaryResult = h2o_cmd.runSummary(key=parse_key)
+        columns = summaryResult['frames'][0]['columns']
+        default_pctiles = summaryResult['frames'][0]['default_pctiles']
+        co = OutputObj(columns[0], 'summary')
+        coList = [co.base, len(co.bins), len(co.data), co.domain, co.label, co.maxs, co.mean, co.mins, co.missing, co.ninfs, co.pctiles, co.pinfs, co.precision, co.sigma, co.str_data, co.stride, co.type, co.zeros]
+        for c in coList:
+            print c
+        print 'len(co.bins):', len(co.bins)
+        print 'co.label:', co.label, 'mean (2 places):', h2o_util.twoDecimals(co.mean)
+        print 'co.label:', co.label, 'std dev. (2 places):', h2o_util.twoDecimals(co.sigma)
+        print "FIX! hacking the co.pctiles because it's short by two"
+        summ_pctiles = (([0] + co.pctiles) + [0])
+        pt = h2o_util.twoDecimals(summ_pctiles)
+        mx = h2o_util.twoDecimals(co.maxs)
+        mn = h2o_util.twoDecimals(co.mins)
+        exp = h2o_util.twoDecimals(expected[1:])
+        print 'co.label:', co.label, 'co.pctiles (2 places):', pt
+        print 'default_pctiles:', default_pctiles
+        print 'co.label:', co.label, 'co.maxs: (2 places):', mx
+        print 'co.label:', co.label, 'co.mins: (2 places):', mn
+        h2p.green_print('min/25/50/75/max co.label:', co.label, '(2 places):', mn[0], pt[3], pt[5], pt[7], mx[0])
+        h2p.green_print('min/25/50/75/max co.label:', co.label, '(2 places):', exp[0], exp[1], exp[2], exp[3], exp[4])
+        probsStr = ('[%s]' % ','.join(map(str, probsList)))
+        parameters = {'destination_key': 'a.hex', 'training_frame': parse_key, 'validation_frame': parse_key, 'ignored_columns': None, 'score_each_iteration': False, 'probs': probsStr, }
+        model_key = 'qhex'
+        bmResult = h2o.n0.build_model(algo='quantile', destination_key=model_key, training_frame=parse_key, parameters=parameters, timeoutSecs=10)
+        bm = OutputObj(bmResult, 'bm')
+        msec = bm.jobs[0]['msec']
+        print 'bm msec', msec
+        modelResult = h2o.n0.models(key=model_key)
+        model = OutputObj(modelResult['models'][0], 'model')
+        print 'model.output:', model.output
+        print "model.output:['quantiles']", model.output['quantiles']
+        print "model.output:['iters']", model.output['iters']
+        print "model.output:['names']", model.output['names']
+        quantiles = model.output['quantiles'][0]
+        iters = model.output['iters']
+        assert (iters == 11), iters
+        print 'quantiles: ', quantiles
+        print 'iters: ', quantiles
+        h2o_cmd.runStoreView()
+        trial += 1
+        if (colname != ''):
+            h2o_summ.quantile_comparisons(csvPathnameFull, col=0, datatype='float', quantile=CHECK_PCTILE, h2oExecQuantiles=quantiles[CHECK_PCTILE_INDEX])
+        h2o.nodes[0].remove_all_keys()
