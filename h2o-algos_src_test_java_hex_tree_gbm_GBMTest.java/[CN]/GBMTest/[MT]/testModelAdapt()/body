@@ -1,0 +1,47 @@
+{
+  GBMModel gbm=null;
+  try {
+    GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
+    Frame v, t;
+    parms._train=(t=parse_test_file("smalldata/junit/mixcat_train.csv"))._key;
+    parms._valid=(v=parse_test_file("smalldata/junit/mixcat_test.csv"))._key;
+    parms._response_column="Response";
+    parms._convert_to_enum=true;
+    parms._ntrees=1;
+    parms._learn_rate=1.0f;
+    parms._min_rows=1;
+    parms._loss=Family.AUTO;
+    GBM job=null;
+    try {
+      job=new GBM(parms);
+      gbm=job.trainModel().get();
+    }
+  finally {
+      if (job != null)       job.remove();
+    }
+    for (int i=0; i < gbm._output.nclasses(); i++)     System.out.println("Class " + gbm._output._domains[gbm._output._domains.length - 1][i] + " ----\n"+ gbm._output.toStringTree(0,i));
+    SB sbt=new SB();
+    for (int i=0; i < t.numRows(); i++) {
+      for (int j=0; j < t.numCols(); j++)       sbt.p(t.vecs()[j].at8(i)).p(' ');
+      sbt.nl();
+    }
+    System.out.println(sbt.toString());
+    Frame res=gbm.score(v);
+    SB sbv=new SB();
+    for (int i=0; i < v.numRows(); i++) {
+      for (int j=0; j < v.numCols(); j++)       sbv.p(v.vecs()[j].at8(i)).p(' ');
+      sbv.p(" --> ");
+      for (int j=0; j < res.numCols(); j++)       sbv.p(res.vecs()[j].at(i)).p(' ');
+      sbv.nl();
+    }
+    System.out.println(sbv.toString());
+    res.remove();
+  }
+  finally {
+    if (gbm != null) {
+      gbm._parms._train.remove();
+      gbm._parms._valid.remove();
+      gbm.delete();
+    }
+  }
+}
