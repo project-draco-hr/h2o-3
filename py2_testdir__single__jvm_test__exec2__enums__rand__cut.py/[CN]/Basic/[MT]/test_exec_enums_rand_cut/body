@@ -25,7 +25,7 @@ def test_exec_enums_rand_cut(self):
                 if (c is None):
                     continue
                 else:
-                    e = xFcn('==', xNum(c), xFrame('p', col=i))
+                    e = xFcn('==', xItem(c), xFrame('p', col=i))
                     cutExprList.append(e)
             cutExpr = None
             for ce in cutExprList:
@@ -51,9 +51,9 @@ def test_exec_enums_rand_cut(self):
         (missingList, valueList, numRows, numCols) = h2o_cmd.infoFromInspect(inspect)
         if (1 == 1):
             xAssignE('b', xC(xSeq(1, 2, 3)))
-            xAssignE('a', xCbind(['$b' for i in range(colCount)]))
+            xAssignE('a', xCbind(['b' for i in range(colCount)]))
             for eKey in eKeys:
-                xAssignE(eKey, '$a')
+                xAssignE(eKey, 'a')
         xList = []
         eList = []
         fList = []
@@ -65,7 +65,7 @@ def test_exec_enums_rand_cut(self):
             eKey = e[1]
             if (1 == 1):
                 start = time.time()
-                xAssignE(fKey, random.choice(rowExprList), justPrint=False)
+                xAssignE(fKey, random.choice(rowExprList))
                 elapsed = (time.time() - start)
                 execTime = elapsed
                 print 'exec 2 took', elapsed, 'seconds.'
