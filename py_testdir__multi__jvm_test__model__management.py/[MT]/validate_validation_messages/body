@@ -1,11 +1,11 @@
 def validate_validation_messages(result, expected_error_fields):
     '\n    Check that we got the expected ERROR validation messages for a model build or validation check with bad parameters.\n    '
-    assert ('validation_error_count' in result), 'Failed to find validation_error_count in bad-parameters model build result.'
-    assert (0 < result['validation_error_count']), '0 != validation_error_count in bad-parameters model build validation result.'
+    assert ('validation_error_count' in result), 'FAIL: Failed to find validation_error_count in bad-parameters model build result.'
+    assert (0 < result['validation_error_count']), 'FAIL: 0 != validation_error_count in bad-parameters model build validation result.'
     error_fields = []
     for validation_message in result['validation_messages']:
         if (validation_message['message_type'] == 'ERROR'):
             error_fields.append(validation_message['field_name'])
     not_found = [item for item in expected_error_fields if (item not in error_fields)]
-    assert (len(not_found) == 0), ((('Failed to find all expected ERROR validation messages.  Missing: ' + repr(not_found)) + ' from result: ') + repr(error_fields))
-    assert (len(not_found) == 0), ((('Failed to find all expected ERROR validation messages.  Missing: ' + repr(not_found)) + ' from result: ') + repr(result['validation_messages']))
+    assert (len(not_found) == 0), ((('FAIL: Failed to find all expected ERROR validation messages.  Missing: ' + repr(not_found)) + ' from result: ') + repr(error_fields))
+    assert (len(not_found) == 0), ((('FAIL: Failed to find all expected ERROR validation messages.  Missing: ' + repr(not_found)) + ' from result: ') + repr(result['validation_messages']))
