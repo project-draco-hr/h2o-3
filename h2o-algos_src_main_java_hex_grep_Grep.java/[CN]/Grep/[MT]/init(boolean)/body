@@ -1,0 +1,18 @@
+{
+  super.init(expensive);
+  if (_parms._regex == null) {
+    error("_regex","regex is missing");
+  }
+ else {
+    try {
+      Pattern.compile(_parms._regex);
+    }
+ catch (    PatternSyntaxException pse) {
+      error("regex",pse.getMessage());
+    }
+  }
+  if (_parms._train == null)   return;
+  Vec[] vecs=_parms.train().vecs();
+  if (vecs.length != 1)   error("_train","Frame must contain exactly 1 Vec (of raw text)");
+  if (!(vecs[0] instanceof ByteVec))   error("_train","Frame must contain exactly 1 Vec (of raw text)");
+}

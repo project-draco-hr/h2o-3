@@ -1,0 +1,31 @@
+{
+  int span_idx=-1;
+  int idxs_idx=0;
+  long at_value=-1;
+  for (  int o : ids._order) {
+    if (o == 0) {
+      if (ids._spans[++span_idx].contains(cur)) {
+        at_value=cur - ids._spans[span_idx]._min;
+        break;
+      }
+    }
+ else {
+      boolean _br=false;
+      if (idxs_idx >= 0) {
+        for (int i=0; i < ids._idxs.length; ++i) {
+          if (ids._idxs[i] == cur) {
+            at_value=i;
+            _br=true;
+            break;
+          }
+        }
+        if (_br)         break;
+ else         --idxs_idx;
+      }
+    }
+  }
+  if (span_idx >= 0) {
+    return s._spans[span_idx]._min + at_value;
+  }
+ else   return s._idxs[(int)at_value];
+}

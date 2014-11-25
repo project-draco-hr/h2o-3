@@ -1,0 +1,18 @@
+def test_rapids_basic(self):
+    bucket = 'smalldata'
+    csvPathname = 'iris/iris_wheader.csv'
+    hexKey = 'r1'
+    parseResult = h2i.import_parse(bucket=bucket, path=csvPathname, schema='put', hex_key=hexKey)
+    keys = []
+    for trial in range(100):
+        for execExpr in funsList:
+            funs = ('[%s]' % execExpr)
+            (execResult, result) = h2e.exec_expr(h2o.nodes[0], funs, doFuns=True, resultKey=None, timeoutSecs=4)
+            execExpr2 = '(apply $r1 #2 $anon)'
+            (execResult, result) = h2e.exec_expr(h2o.nodes[0], execExpr2, doFuns=False, resultKey=None, timeoutSecs=4)
+            if (execResult['num_rows'] or execResult['num_cols']):
+                keys.append(execExpr)
+    print '\nExpressions that created keys'
+    for k in keys:
+        print k
+    h2o.check_sandbox_for_errors()

@@ -11,7 +11,7 @@ def do_json_request(self, jsonRequest=None, fullUrl=None, timeout=10, params=Non
         paramsStr = ('?' + '&'.join([('%s=%s' % (k, v)) for (k, v) in params.items()]))
     else:
         paramsStr = ''
-    extraComment2 = ((repr(postData) + ';') if (cmd == 'post') else '')
+    extraComment2 = (((' ' + repr(postData)) + ';') if (cmd == 'post') else '')
     extraComment2 += (extraComment if extraComment else '')
     if (len(extraComment2) > 0):
         log((('Start ' + url) + paramsStr), comment=extraComment2)
@@ -20,6 +20,7 @@ def do_json_request(self, jsonRequest=None, fullUrl=None, timeout=10, params=Non
     try:
         if ('post' == cmd):
             r = requests.post(url, timeout=timeout, params=params, data=postData, **kwargs)
+            print ('post r.headers: ' + repr(r.headers))
         elif ('delete' == cmd):
             r = requests.delete(url, timeout=timeout, params=params, **kwargs)
         elif ('get' == cmd):

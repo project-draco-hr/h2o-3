@@ -1,0 +1,57 @@
+def goodXFromColumnInfo(y, num_cols=None, missingValuesDict=None, constantValuesDict=None, enumSizeDict=None, colTypeDict=None, colNameDict=None, keepPattern=None, key=None, timeoutSecs=120, forRF=False, noPrint=False):
+    y = str(y)
+    if (key is not None):
+        (missingValuesDict, constantValuesDict, enumSizeDict, colTypeDict, colNameDict) = h2o_cmd.columnInfoFromInspect(key, exceptionOnMissingValues=False, max_column_display=99999999, timeoutSecs=timeoutSecs)
+        num_cols = len(colNameDict)
+    if (keepPattern is not None):
+        keepX = re.compile(keepPattern)
+    else:
+        keepX = None
+    x = range(num_cols)
+    xOrig = x[:]
+    ignore_x = []
+    for k in xOrig:
+        name = colNameDict[k]
+        if (str(k) == y):
+            if (not noPrint):
+                print ('Removing %d because name: %s matches output %s' % (k, str(k), y))
+            x.remove(k)
+        elif (name == y):
+            if (not noPrint):
+                print ('Removing %d because name: %s matches output %s' % (k, name, y))
+            x.remove(k)
+        elif ((keepX is not None) and (not keepX.match(name))):
+            if (not noPrint):
+                print ("Removing %d because name: %s doesn't match desired keepPattern %s" % (k, name, keepPattern))
+            x.remove(k)
+            ignore_x.append(k)
+        elif (k in missingValuesDict):
+            value = missingValuesDict[k]
+            if (not noPrint):
+                print ('Removing %d with name: %s because it has %d missing values' % (k, name, value))
+            x.remove(k)
+            ignore_x.append(k)
+        elif (k in constantValuesDict):
+            value = constantValuesDict[k]
+            if (not noPrint):
+                print ('Removing %d with name: %s because it has constant value: %s ' % (k, name, str(value)))
+            x.remove(k)
+            ignore_x.append(k)
+        elif (k in enumSizeDict):
+            value = enumSizeDict[k]
+            if (not noPrint):
+                print ('Removing %d %s because it has enums of size: %d' % (k, name, value))
+            x.remove(k)
+            ignore_x.append(k)
+    if (not noPrint):
+        print 'x has', len(x), 'cols'
+        print 'ignore_x has', len(ignore_x), 'cols'
+    x = ','.join(map(str, x))
+    ignore_x = ','.join(map(str, ignore_x))
+    if (not noPrint):
+        print '\nx:', x
+        print '\nignore_x:', ignore_x
+    if forRF:
+        return ignore_x
+    else:
+        return x

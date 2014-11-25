@@ -1,0 +1,53 @@
+def test_rapids_vec_fail(self):
+    start = time.time()
+    xList = []
+    eList = []
+    fList = []
+    bucket = 'smalldata'
+    csvPathname = 'iris/iris_wheader.csv'
+    hexKey = 'r1'
+    parseResult = h2i.import_parse(bucket=bucket, path=csvPathname, schema='put', hex_key=hexKey)
+    keys = []
+    maxx = 29
+    for trial in range(int(1000000.0), int(8000000.0), int(1000000.0)):
+        length = trial
+        execExpr = ('(= !vreal (c {(: #0 #%s)})' % (length - 1))
+        start = time.time()
+        (execResult, result) = h2e.exec_expr(h2o.nodes[0], execExpr, resultKey=None, timeoutSecs=10)
+        elapsed1 = (time.time() - start)
+        if execResult['num_rows']:
+            keys.append(execExpr)
+        execExpr = '(= !vint (N $vreal #0))'
+        (execResult, result) = h2e.exec_expr(h2o.nodes[0], execExpr, resultKey=None, timeoutSecs=10)
+        execExpr = '(= !v2 (+ $vint <patt>))'
+        for j in range(3):
+            execExpr = re.sub('<patt>', '(+ $vint <patt>)', execExpr)
+        execExpr = re.sub('<patt>', '(+ $vint $vint)', execExpr)
+        start = time.time()
+        (execResult, result) = h2e.exec_expr(h2o.nodes[0], execExpr, resultKey=None, timeoutSecs=10)
+        elapsed2 = (time.time() - start)
+        execExpr = '(= !v1 (+ $vreal $vreal))'
+        start = time.time()
+        (execResult, result) = h2e.exec_expr(h2o.nodes[0], execExpr, resultKey=None, timeoutSecs=10)
+        elapsed1 = (time.time() - start)
+        inspectResult = h2o_cmd.runInspect(key='vreal')
+        h2o_cmd.infoFromInspect(inspectResult)
+        inspectResult = h2o_cmd.runInspect(key='vint')
+        h2o_cmd.infoFromInspect(inspectResult)
+        summaryResult = h2o_cmd.runSummary(key='vreal')
+        if execResult['num_rows']:
+            keys.append(execExpr)
+        xList.append(length)
+        eList.append(elapsed1)
+        fList.append(elapsed2)
+    if (1 == 1):
+        xLabel = 'vector length'
+        eLabel = 'elapsed (v1 = vint + vint)'
+        fLabel = 'elapsed (v2 = vreal + vreal)'
+        eListTitle = ''
+        fListTitle = ''
+        h2o_gbm.plotLists(xList, xLabel, eListTitle, eList, eLabel, fListTitle, fList, fLabel)
+    print '\nExpressions that created keys'
+    for k in keys:
+        print k
+    h2o.check_sandbox_for_errors()

@@ -1,0 +1,37 @@
+def pp_cm_summary(cm):
+    scoresList = cm
+    totalScores = 0
+    totalRight = 0
+    classErrorPctList = []
+    predictedClassDict = {}
+    for (classIndex, s) in enumerate(scoresList):
+        classSum = sum(s)
+        if (classSum == 0):
+            print 'classIndex:', classIndex, 'classSum', classSum, '<- why 0?'
+        elif (classIndex >= len(s)):
+            print 'Why is classindex:', classIndex, 'for s:"', s
+        else:
+            classRightPct = (((s[classIndex] + 0.0) / classSum) * 100)
+            totalRight += s[classIndex]
+            classErrorPct = (100 - classRightPct)
+            classErrorPctList.append(classErrorPct)
+            print 'class:', classIndex, 'classSum', classSum, 'classErrorPct:', ('%4.2f' % classErrorPct)
+            for (pIndex, p) in enumerate(s):
+                if (pIndex not in predictedClassDict):
+                    predictedClassDict[pIndex] = p
+                else:
+                    predictedClassDict[pIndex] += p
+        totalScores += classSum
+    print 'Predicted summary:'
+    for (predictedClass, p) in predictedClassDict.items():
+        print (str(predictedClass) + ':'), p
+    print 'totalScores:', totalScores
+    print 'totalRight:', totalRight
+    if (totalScores != 0):
+        pctRight = ((100.0 * totalRight) / totalScores)
+    else:
+        pctRight = 0.0
+    print 'pctRight:', ('%5.2f' % pctRight)
+    pctWrong = (100 - pctRight)
+    print 'pctWrong:', ('%5.2f' % pctWrong)
+    return pctWrong

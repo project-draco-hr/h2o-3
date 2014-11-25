@@ -1,0 +1,39 @@
+{
+  GBM gbm=null;
+  Frame fr=null;
+  try {
+    GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
+    fr=parse_test_file("smalldata/gbm_test/ecology_model.csv");
+    parms._train=fr._key;
+    fr.remove("Site").remove();
+    parms._response_column="Angaus";
+    parms._ntrees=10;
+    parms._max_depth=10;
+    parms._min_rows=1;
+    parms._nbins=20;
+    parms._learn_rate=.2f;
+    gbm=new GBM(parms);
+    gbm.trainModel();
+    try {
+      Thread.sleep(50);
+    }
+ catch (    Exception ignore) {
+    }
+    try {
+      fr.delete();
+      Assert.fail("Should toss IAE instead of reaching here");
+    }
+ catch (    IllegalArgumentException ignore) {
+    }
+catch (    DException.DistributedException de) {
+      assertTrue(de.getMessage().contains("java.lang.IllegalArgumentException"));
+    }
+    GBMModel model=gbm.get();
+    Assert.assertTrue(gbm._state == Job.JobState.DONE);
+    if (model != null)     model.delete();
+  }
+  finally {
+    if (fr != null)     fr.remove();
+    if (gbm != null)     gbm.remove();
+  }
+}

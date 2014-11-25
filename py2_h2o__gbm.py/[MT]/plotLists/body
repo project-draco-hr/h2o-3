@@ -1,0 +1,32 @@
+def plotLists(xList, xLabel=None, eListTitle=None, eList=None, eLabel=None, fListTitle=None, fList=None, fLabel=None, server=False):
+    if (h2o_args.python_username != 'kevin'):
+        return
+    if server:
+        import matplotlib
+        matplotlib.use('Agg')
+    import pylab as plt
+    print 'xList', xList
+    print 'eList', eList
+    print 'fList', fList
+    font = {'family': 'normal', 'weight': 'normal', 'size': 26, }
+    plt.rcdefaults()
+    if eList:
+        if eListTitle:
+            plt.title(eListTitle)
+        plt.figure()
+        plt.plot(xList, eList)
+        plt.xlabel(xLabel)
+        plt.ylabel(eLabel)
+        plt.draw()
+        plt.savefig('eplot.jpg', format='jpg')
+    if fList:
+        if fListTitle:
+            plt.title(fListTitle)
+        plt.figure()
+        plt.plot(xList, fList)
+        plt.xlabel(xLabel)
+        plt.ylabel(fLabel)
+        plt.draw()
+        plt.savefig('fplot.jpg', format='jpg')
+    if (eList or fList):
+        plt.show()

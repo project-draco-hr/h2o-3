@@ -1,0 +1,22 @@
+{
+  List<Future<String>> futures=new ArrayList<Future<String>>(N_THREADS);
+  final CountDownLatch startLatch=new CountDownLatch(N_THREADS + 1);
+  for (  Callable<String> t : tasks) {
+    final Callable<String> task=t;
+    Future<String> future=service.submit(new Callable<String>(){
+      @Override public String call() throws Exception {
+        startLatch.countDown();
+        startLatch.await();
+        return task.call();
+      }
+    }
+);
+    futures.add(future);
+  }
+  startLatch.countDown();
+  List<String> results=new ArrayList<String>(N_THREADS);
+  for (  Future<String> f : futures) {
+    results.add(f.get());
+  }
+  return results;
+}

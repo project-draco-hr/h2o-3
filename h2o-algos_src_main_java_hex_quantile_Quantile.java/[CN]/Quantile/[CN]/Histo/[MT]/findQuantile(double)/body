@@ -1,0 +1,13 @@
+{
+  double p2=prob * (_nrows - 1);
+  long r2=(long)p2;
+  int loidx=findBin(r2);
+  double lo=(loidx == _nbins) ? binEdge(_nbins) : _elems[loidx];
+  if (Double.isNaN(lo))   return Double.NaN;
+  if (r2 == p2)   return lo;
+  long r3=r2 + 1;
+  int hiidx=findBin(r3);
+  double hi=(hiidx == _nbins) ? binEdge(_nbins) : _elems[hiidx];
+  if (Double.isNaN(hi))   return Double.NaN;
+  return computeQuantile(lo,hi,r2,_nrows,prob);
+}

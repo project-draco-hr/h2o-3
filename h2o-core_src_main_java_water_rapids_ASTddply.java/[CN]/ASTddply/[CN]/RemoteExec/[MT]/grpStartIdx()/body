@@ -1,0 +1,12 @@
+{
+  H2ONode[] array=H2O.CLOUD.members();
+  Arrays.sort(array);
+  int ngrps=_numgrps / array.length;
+  int self=Arrays.binarySearch(array,H2O.SELF);
+  int grp_start=0;
+  grp_start+=ngrps * (self);
+  for (int i=0; i < self; ++i) {
+    if (i < _numgrps - ngrps * array.length)     grp_start++;
+  }
+  return grp_start;
+}

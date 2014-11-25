@@ -1,16 +1,23 @@
 def delete_keys_at_all_nodes(node=None, pattern=None, timeoutSecs=120):
-    print "Going to delete all keys one at a time (slower than 'remove all keys')"
-    if (not node):
-        node = h2o_nodes.nodes[0]
-    print "Will cancel any running jobs, because we can't unlock keys on running jobs"
-    h2o_jobs.cancelAllJobs()
-    print 'unlock all keys first to make sure broken keys get removed'
-    node.unlock()
-    totalDeletedCnt = 0
-    deletedCnt = delete_keys(node, pattern=pattern, timeoutSecs=timeoutSecs)
-    totalDeletedCnt += deletedCnt
-    if pattern:
-        print 'Total: Deleted', totalDeletedCnt, 'keys with filter=', pattern, 'at', len(h2o_nodes.nodes), 'nodes'
+    print 'Frame is too slow to look up key names when a lot of unparsed files were imported'
+    print 'Just using remove_all_keys and saying 0 removed'
+    print 'WARNING: pattern is ignored'
+    if (1 == 1):
+        h2o.n0.remove_all_keys()
+        return 0
     else:
-        print 'Total: Deleted', totalDeletedCnt, 'keys at', len(h2o_nodes.nodes), 'nodes'
-    return totalDeletedCnt
+        print "Going to delete all keys one at a time (slower than 'remove all keys')"
+        if (not node):
+            node = h2o_nodes.nodes[0]
+        print "Will cancel any running jobs, because we can't unlock keys on running jobs"
+        h2o_jobs.cancelAllJobs()
+        print 'unlock all keys first to make sure broken keys get removed'
+        node.unlock()
+        totalDeletedCnt = 0
+        deletedCnt = delete_keys(node, pattern=pattern, timeoutSecs=timeoutSecs)
+        totalDeletedCnt += deletedCnt
+        if pattern:
+            print 'Total: Deleted', totalDeletedCnt, 'keys with filter=', pattern, 'at', len(h2o_nodes.nodes), 'nodes'
+        else:
+            print 'Total: Deleted', totalDeletedCnt, 'keys at', len(h2o_nodes.nodes), 'nodes'
+        return totalDeletedCnt

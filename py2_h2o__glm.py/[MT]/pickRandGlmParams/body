@@ -1,0 +1,33 @@
+def pickRandGlmParams(paramDict, params):
+    colX = 0
+    randomGroupSize = random.randint(1, len(paramDict))
+    for i in range(randomGroupSize):
+        randomKey = random.choice(paramDict.keys())
+        randomV = paramDict[randomKey]
+        randomValue = random.choice(randomV)
+        params[randomKey] = randomValue
+        if (randomKey == 'x'):
+            colX = randomValue
+        if ('family' not in params):
+            if (('link' in params) and (params['link'] not in ('identity', 'log', 'inverse', 'familyDefault'))):
+                params['link'] = None
+        elif ((params['family'] is not None) and ('link' in params) and (params['link'] is not None)):
+            if (params['family'] == 'poisson'):
+                if (params['link'] not in ('identity', 'log', 'familyDefault')):
+                    params['link'] = None
+            elif (params['family'] == 'tweedie'):
+                if (params['link'] not in 'tweedie'):
+                    params['link'] = None
+            elif (params['family'] == 'binomial'):
+                if (params['link'] not in ('logit', 'log', 'familyDefault')):
+                    params['link'] = None
+            elif (params['family'] == 'gaussian'):
+                if (params['link'] not in ('identity', 'log', 'inverse', 'familyDefault')):
+                    params['link'] = None
+        elif (params['family'] is None):
+            if (('link' in params) and (params['link'] not in ('identity', 'log', 'inverse', 'familyDefault'))):
+                params['link'] = None
+        if (('lambda_search' in params) and (params['lambda_search'] == 1)):
+            if (('nlambdas' in params) and (params['nlambdas'] <= 1)):
+                params['nlambdas'] = 2
+    return colX

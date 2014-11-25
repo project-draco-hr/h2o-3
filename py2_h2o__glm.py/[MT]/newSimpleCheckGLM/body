@@ -1,0 +1,30 @@
+def newSimpleCheckGLM(self, model, parameters, labelList, labelListUsed, allowFailWarning=False, allowZeroCoeff=False, prettyPrint=False, noPrint=False, maxExpectedIterations=None, doNormalized=False):
+    warnings = ''
+    intercept = model.global_beta[(-1)]
+    interceptName = model.coefficient_names[(-1)]
+    coeffs = model.global_beta[:(-1)]
+    coeffs_names = model.coefficient_names[:(-1)]
+    assert (len(coeffs) == (len(model.coefficient_names) - 1))
+    assert (len(coeffs) == len(labelListUsed)), ('%s %s' % (coeffs, labelListUsed))
+    assert (len(model.names) == (len(labelListUsed) + 1)), ('%s %s' % (model.names, labelList))
+    assert (model.threshold != 0)
+    print 'len(coeffs)', len(coeffs)
+    print 'coeffs:', coeffs
+    if ((interceptName != 'Intercept') or (abs(intercept) < 1e-26)):
+        raise Exception(("'Intercept' should be last in coefficient_names and global_beta %s %s" % (interceptName, intercept)))
+    y = parameters['response_column']
+    cString = '\n'
+    for (i, c) in enumerate(coeffs_names):
+        cString += ('%s: %.5e   ' % (coeffs_names[i], coeffs[i]))
+    print cString
+    print ('\nH2O intercept:\t\t%.5e' % intercept)
+    print '\nTotal # of coeffs:', len(coeffs_names)
+    absIntercept = abs(float(intercept))
+    self.assertGreater(absIntercept, 1e-26, ((((("abs. value of GLM coeffs['Intercept'] is " + str(absIntercept)) + ', not >= 1e-26 for Intercept') + '\n') + 'parameters:') + dump_json(parameters)))
+    if ((not allowZeroCoeff) and (len(coeffs) > 1)):
+        s = 0.0
+        for c in coeffs:
+            s += abs(float(c))
+        self.assertGreater(s, 1e-26, (((('sum of abs. value of GLM coeffs/intercept is ' + str(s)) + ', not >= 1e-26\n') + 'parameters:') + dump_json(parameters)))
+    check_sandbox_for_errors()
+    return (warnings, coeffs, intercept)

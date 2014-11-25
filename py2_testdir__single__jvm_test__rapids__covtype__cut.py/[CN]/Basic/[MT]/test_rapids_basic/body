@@ -1,0 +1,16 @@
+def test_rapids_basic(self):
+    bucket = 'home-0xdiag-datasets'
+    csvPathname = 'standard/covtype.data'
+    hexKey = 'p'
+    parseResult = h2i.import_parse(bucket=bucket, path=csvPathname, schema='put', hex_key=hexKey)
+    keys = []
+    for execExpr in exprList:
+        (execResult, result) = h2e.exec_expr(h2o.nodes[0], execExpr, resultKey=None, timeoutSecs=4)
+        if (execResult['num_rows'] or execResult['num_cols']):
+            keys.append(execExpr)
+        else:
+            h2p.yellow_print('\nNo key created?\n', dump_json(execResult))
+    print "\nExpressions that created keys. Shouldn't all of these expressions create keys"
+    for k in keys:
+        print k
+    h2o.check_sandbox_for_errors()

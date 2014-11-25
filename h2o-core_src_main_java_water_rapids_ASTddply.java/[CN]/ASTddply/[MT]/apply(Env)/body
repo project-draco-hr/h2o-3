@@ -1,0 +1,92 @@
+{
+  Frame fr=env.pop0Ary();
+  for (  long l : _cols) {
+    if (l > fr.numCols() || l < 0)     throw new IllegalArgumentException("Column " + (l + 1) + " out of range for frame columns "+ fr.numCols());
+  }
+  ddplyPass1 p1=new ddplyPass1(true,_cols).doAll(fr);
+  int numgrps=p1._groups.size();
+  int csz=H2O.CLOUD.size();
+  ddplyPass2 p2=new ddplyPass2(p1,numgrps,csz).doAllNodes();
+  Key rows[]=p2.close();
+  AppendableVec av;
+  ArrayList<AppendableVec> grpCols=new ArrayList<>();
+  ArrayList<NewChunk> nchks=new ArrayList<>();
+  for (  long ignored : _cols) {
+    grpCols.add(av=new AppendableVec(Vec.VectorGroup.VG_LEN1.addVec()));
+    nchks.add(new NewChunk(av,0));
+  }
+  Futures fs=new Futures();
+  RemoteExec[] results=new RemoteExec[csz];
+  for (int i=0; i < csz; ++i) {
+    fs.add(RPC.call(H2O.CLOUD._memary[i],results[i]=(new RemoteExec(numgrps,fr._key,rows,_fun,_fun_args))));
+  }
+  fs.blockForPending();
+  AppendableVec[] grpColz=new AppendableVec[results[0]._vs.length];
+  NewChunk[] nchkz=new NewChunk[results[0]._vs.length];
+  for (int i=0; i < nchkz.length; ++i) {
+    nchkz[i]=new NewChunk(grpColz[i]=new AppendableVec(Vec.VectorGroup.VG_LEN1.addVec()),0);
+    Chunk src=((Vec)DKV.get(results[0]._vs[i]).get()).chunkForChunkIdx(0);
+    nchkz[i].add(src.inflate_impl(new NewChunk(src)));
+  }
+  for (int i=1; i < results.length; ++i) {
+    for (int j=0; j < nchkz.length; ++j) {
+      Chunk src=((Vec)DKV.get(results[i]._vs[j]).get()).chunkForChunkIdx(0);
+      nchkz[j].add(src.inflate_impl(new NewChunk(src)));
+    }
+  }
+  for (  Group g : p1._groups.keySet()) {
+    int c=0;
+    for (    double d : g._ds)     nchks.get(c++).addNum(d);
+  }
+  Vec vres[]=new Vec[grpCols.size() + grpColz.length];
+  for (int i=0, j=0; i < vres.length; ++i) {
+    if (i < grpCols.size())     nchks.get(i).close(0,fs);
+ else     nchkz[j].close(0,fs);
+    vres[i]=i < grpCols.size() ? grpCols.get(i).close(fs) : grpColz[j++].close(fs);
+  }
+  fs.blockForPending();
+  String[] names=new String[grpCols.size() + grpColz.length];
+  for (int i=0; i < _cols.length; i++) {
+    names[i]=fr._names[(int)_cols[i]];
+    vres[i].setDomain(fr.vecs()[(int)_cols[i]].domain());
+  }
+  Vec rm;
+  for (int i=_cols.length; i < names.length; i++)   names[i]="C" + (i - _cols.length + 1);
+  for (int i=0; i < vres.length; ++i) {
+    if (vres[0].group().equals(vres[i].group()))     continue;
+    vres[i]=vres[0].align(rm=vres[i]);
+    Keyed.remove(rm._key);
+  }
+  Frame ff=new Frame(names,vres);
+  boolean anyNA=false;
+  Frame res=ff;
+  for (  Vec v : ff.vecs())   if (v.naCnt() != 0) {
+    anyNA=true;
+    break;
+  }
+  if (anyNA) {
+    res=new MRTask(){
+      @Override public void map(      Chunk[] cs,      NewChunk[] nc){
+        int rows=cs[0]._len;
+        int cols=cs.length;
+        boolean[] NACols=new boolean[cols];
+        ArrayList<Integer> xrows=new ArrayList<>();
+        for (int i=0; i < cols; ++i)         NACols[i]=(cs[i].vec().naCnt() != 0);
+        for (int r=0; r < rows; ++r)         for (int c=0; c < cols; ++c)         if (NACols[c])         if (cs[c].isNA0(r)) {
+          xrows.add(r);
+          break;
+        }
+        for (int r=0; r < rows; ++r) {
+          if (xrows.contains(r))           continue;
+          for (int c=0; c < cols; ++c) {
+            if (cs[c].vec().isEnum())             nc[c].addEnum((int)cs[c].at80(r));
+ else             nc[c].addNum(cs[c].at0(r));
+          }
+        }
+      }
+    }
+.doAll(ff.numCols(),ff).outputFrame(null,ff.names(),ff.domains());
+    ff.delete();
+  }
+  env.push(new ValFrame(res));
+}

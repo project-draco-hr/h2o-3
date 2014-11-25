@@ -8,6 +8,8 @@
   H2O.registerGET("/GBM",hex.schemas.GBMHandler.class,"train","/GBM","GBM","Model","Train a GBM model on the specified Frame.");
   H2O.registerGET("/Word2Vec",hex.schemas.Word2VecHandler.class,"train","/Word2Vec","Word2Vec","Model","Train a Word2Vec model on the specified Frame.");
   H2O.registerGET("/Synonyms",hex.schemas.SynonymsHandler.class,"findSynonyms","/Synonyms","Synonyms","Synonyms","Return the synonyms.");
+  H2O.registerGET("/Grep",hex.schemas.GrepHandler.class,"train","/Grep","Grep","Model","Run Grep on the specified Frame.");
+  H2O.registerGET("/Quantile",hex.schemas.QuantileHandler.class,"train","/Quantile","Quantile","Model","Train a Quantile model on the specified Frame.");
   ModelBuilder.registerModelBuilder("gbm",GBM.class);
   H2O.registerPOST("/2/ModelBuilders/gbm",GBMBuilderHandler.class,"train","Train a GBM model on the specified Frame.");
   H2O.registerPOST("/2/ModelBuilders/gbm/parameters",GBMBuilderHandler.class,"validate_parameters","Validate a set of GBM model builder parameters.");
@@ -26,5 +28,11 @@
   ModelBuilder.registerModelBuilder("example",Example.class);
   H2O.registerPOST("/2/ModelBuilders/example",ExampleBuilderHandler.class,"train","Train an Example model on the specified Frame.");
   H2O.registerPOST("/2/ModelBuilders/example/parameters",ExampleBuilderHandler.class,"validate_parameters","Validate a set of Example model builder parameters.");
+  ModelBuilder.registerModelBuilder("quantile",Quantile.class);
+  H2O.registerPOST("/2/ModelBuilders/quantile",QuantileBuilderHandler.class,"train","Train a Quantile model on the specified Frame.");
+  H2O.registerPOST("/2/ModelBuilders/quantile/parameters",QuantileBuilderHandler.class,"validate_parameters","Validate a set of Quantile model builder parameters.");
+  ModelBuilder.registerModelBuilder("grep",Grep.class);
+  H2O.registerPOST("/2/ModelBuilders/grep",GrepBuilderHandler.class,"train","Search a raw text file for matches");
+  H2O.registerPOST("/2/ModelBuilders/grep/parameters",GrepBuilderHandler.class,"validate_parameters","Validate a set of Grep parameters.");
   H2O.finalizeRequest();
 }
