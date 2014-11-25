@@ -15,6 +15,7 @@ def runSummary(node=None, key=None, expected=None, column=None, **kwargs):
         def __iter__(self):
             for (attr, value) in self.__dict__.iteritems():
                 yield (attr, value)
+    from h2o_test import OutputObj
     inspect = runInspect(key=key)
     (missingList, labelList, numRows, numCols) = infoFromInspect(inspect)
     lastChecksum = None
@@ -34,7 +35,7 @@ def runSummary(node=None, key=None, expected=None, column=None, **kwargs):
         assert ((rows != 0) and (rows is not None))
         assert (not frame['isText'])
         lastChecksum = checksum
-        co = Column(columns[0])
+        co = OutputObj(columns[0], ('summary_%s' % label))
         coList = [co.base, len(co.bins), len(co.data), co.domain, co.label, co.maxs, co.mean, co.mins, co.missing, co.ninfs, co.pctiles, co.pinfs, co.precision, co.sigma, co.str_data, co.stride, co.type, co.zeros]
         for (k, v) in co:
             print k, v
