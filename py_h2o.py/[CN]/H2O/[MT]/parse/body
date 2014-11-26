@@ -2,7 +2,7 @@ def parse(self, key, dest_key=None, timeoutSecs=300, retryDelaySecs=0.2, initial
     if benchmarkLogging:
         cloudPerfH2O.get_log_save(initOnly=True)
     parse_setup_params = {'srcs': (('[' + key) + ']'), }
-    setup_result = self.__do_json_request(jsonRequest='ParseSetup.json', timeout=timeoutSecs, params=parse_setup_params)
+    setup_result = self.__do_json_request(jsonRequest='ParseSetup.json', cmd='post', timeout=timeoutSecs, postData=parse_setup_params)
     H2O.verboseprint('ParseSetup result:', h2o_util.dump_json(setup_result))
     first = True
     ascii_column_names = '['
@@ -15,7 +15,7 @@ def parse(self, key, dest_key=None, timeoutSecs=300, retryDelaySecs=0.2, initial
     parse_params = {'srcs': (('[' + setup_result['srcs'][0]['name']) + ']'), 'hex': (dest_key if dest_key else setup_result['hexName']), 'pType': setup_result['pType'], 'sep': setup_result['sep'], 'ncols': setup_result['ncols'], 'checkHeader': setup_result['checkHeader'], 'singleQuotes': setup_result['singleQuotes'], 'columnNames': ascii_column_names, }
     H2O.verboseprint(('parse_params: ' + repr(parse_params)))
     h2o_util.check_params_update_kwargs(parse_params, kwargs, 'parse', print_params=H2O.verbose)
-    parse_result = self.__do_json_request(jsonRequest='Parse.json', timeout=timeoutSecs, params=parse_params, **kwargs)
+    parse_result = self.__do_json_request(jsonRequest='Parse.json', cmd='post', timeout=timeoutSecs, postData=parse_params, **kwargs)
     H2O.verboseprint('Parse result:', h2o_util.dump_json(parse_result))
     job_key = parse_result['job']['name']
     if noPoll:
