@@ -1,0 +1,38 @@
+def test_rapids_basic_with_funs_pick5(self):
+    bucket = 'smalldata'
+    csvPathname = 'iris/iris_wheader.csv'
+    hexKey = 'r1'
+    parseResult = h2i.import_parse(bucket=bucket, path=csvPathname, schema='put', hex_key=hexKey)
+    keys = []
+    while initList:
+        if (len(initList) >= 5):
+            pick5 = [initList.pop(0) for i in range(5)]
+        else:
+            pick5 = initList
+            global initList
+            initList = []
+        pick6 = (['(= !v (c {#1;#4567;(: #9 #90);(: #9 #45);#450})'] + pick5)
+        execExpr1 = ';;'.join(pick6)
+        funs = ('[(def anon {x}  (%s);;;)]' % execExpr1)
+        (execResult, result) = h2e.exec_expr(h2o.nodes[0], funs, doFuns=True, resultKey=None, timeoutSecs=5)
+        execExpr2 = '(apply $r1 #2 $anon)'
+        (execResult, result) = h2e.exec_expr(h2o.nodes[0], execExpr2, doFuns=False, resultKey=None, timeoutSecs=15)
+        r = re.search('![a-zA-Z0-9]+', execExpr1)
+        if r:
+            lhs = r.group(0)[1:]
+            print 'Found key lhs assign', lhs
+            if (1 == 0):
+                inspect = h2o_cmd.runInspect(key=lhs)
+                (missingList, labelList, numRows, numCols) = infoFromInspect(inspect)
+                storeview = h2o_cmd.runStoreView()
+                print '\nstoreview:', dump_json(storeview)
+                if (not (k in storeView['keys'])):
+                    raise Exception('Expected to find %s in %s', (k, storeView['keys']))
+        else:
+            print 'No key lhs assign'
+        if (execResult['num_rows'] or execResult['num_cols']):
+            keys.append(execExpr2)
+    print '\nExpressions that created keys'
+    for k in keys:
+        print k
+    h2o.check_sandbox_for_errors()
