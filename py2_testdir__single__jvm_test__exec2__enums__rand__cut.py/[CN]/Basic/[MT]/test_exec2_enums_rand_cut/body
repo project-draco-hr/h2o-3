@@ -25,19 +25,19 @@ def test_exec2_enums_rand_cut(self):
                 if (c is None):
                     continue
                 else:
-                    e = xFcn('==', xItem(c), xFrame('p', col=i))
+                    e = Fcn('==', Item(c), Frame('p', col=i))
                     cutExprList.append(e)
             cutExpr = None
             for ce in cutExprList:
                 if cutExpr:
-                    cutExpr = xFcn('&', cutExpr, ce)
+                    cutExpr = Fcn('&', cutExpr, ce)
                 else:
                     cutExpr = ce
             print 'cutExpr:', cutExpr
             e = random.sample(eKeys, 2)
             fKey = e[0]
             eKey = e[1]
-            rowExpr = xFrame(hex_key, row=cutExpr)
+            rowExpr = Frame(hex_key, row=cutExpr)
             print 'rowExpr:', rowExpr
             rowExprList.append(rowExpr)
         SEEDPERFILE = random.randint(0, sys.maxint)
@@ -50,10 +50,10 @@ def test_exec2_enums_rand_cut(self):
         inspect = h2o_cmd.runInspect(key=parse_key)
         (missingList, valueList, numRows, numCols) = h2o_cmd.infoFromInspect(inspect)
         if (1 == 1):
-            xAssignE('b', xC(xSeq(1, 2, 3)))
-            xAssignE('a', xCbind(['b' for i in range(colCount)]))
+            Assign('b', Col(Seq(1, 2, 3))).do()
+            Assign('a', Cbind(['b' for i in range(colCount)])).do()
             for eKey in eKeys:
-                xAssignE(eKey, 'a')
+                Assign(eKey, 'a').do()
         xList = []
         eList = []
         fList = []
@@ -65,7 +65,7 @@ def test_exec2_enums_rand_cut(self):
             eKey = e[1]
             if (1 == 1):
                 start = time.time()
-                xAssignE(fKey, random.choice(rowExprList))
+                Assign(fKey, random.choice(rowExprList)).do()
                 elapsed = (time.time() - start)
                 execTime = elapsed
                 print 'exec 2 took', elapsed, 'seconds.'
