@@ -1,16 +1,17 @@
 def __init__(self, function='sum', *operands):
+    super(Fcn, self).__init__()
     operandList = unpackOperands(operands)
     if (operandList is None):
         raise Exception(('Seq operandList is None %s' % operandList))
     print ('Fcn operands: %s' % operandList)
     self.operandList = operandList
-    print ('xFcn %s has %s operands' % (function, len(operands)))
+    print ('Fcn %s has %s operands' % (function, len(operands)))
     if (function in xFcnXlate):
         function = xFcnXlate[function]
     required = legalFunction(function)
     if (required == 0):
         raise Exception(('Fcn legalFunction not found: %s' % function))
-    if ((len(operandList) != required) and (required < 3) and (function != 'cbind')):
+    if (False and (len(operandList) != required) and (required < 3) and (function != 'cbind')):
         raise Exception(('Fcn wrong # of operands: %s %s' % (required, len(operandList))))
     self.operandList = operandList
     self.function = function

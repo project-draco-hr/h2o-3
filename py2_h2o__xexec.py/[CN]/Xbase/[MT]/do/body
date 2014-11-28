@@ -1,11 +1,12 @@
 def do(self, timeoutSecs=30):
-    self.resultExec = None
+    self.execResult = None
     self.result = None
     self.execExpr = str(self)
     if self.debugOnly:
         print 'execExpr:', self.execExpr
-        self.resultExec = {'debugOnly': True, }
+        self.execResult = {'debugOnly': True, }
         self.result = 555
     else:
-        (self.resultExec, self.result) = h2e.exec_expr(execExpr=self.execExpr, timeoutSecs=timeoutSecs)
+        execExpr = (('[%s]' % self.execExpr) if self.funs else self.execExpr)
+        (self.execResult, self.result) = h2e.exec_expr(execExpr=execExpr, doFuns=self.funs, timeoutSecs=timeoutSecs)
     return self.result

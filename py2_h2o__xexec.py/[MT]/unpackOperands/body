@@ -1,14 +1,20 @@
-def unpackOperands(operands):
+def unpackOperands(operands, item=True):
+
+    def uu(v):
+        if item:
+            operandList.append(Item(v))
+        else:
+            operandList.append(v)
     if (operands is None):
         raise Exception(('unpackOperands no operands: %s' % operands))
     operandList = []
     if isinstance(operands, (list, tuple)):
         for v in operands:
             if (not isinstance(v, (list, tuple))):
-                operandList.append(Item(v))
+                uu(v)
             else:
                 for v2 in v:
-                    operandList.append(Item(v2))
+                    uu(v2)
     else:
-        operandList.append(Item(operands))
+        uu(operands)
     return operandList

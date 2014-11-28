@@ -1,14 +1,21 @@
-def __init__(self, function='sums', params='x', exprs='(sum ([ $r1 "null" #0) $TRUE )'):
-    print ('Def params: %s' % params)
-    paramList = unpackOperands(params)
+def __init__(self, function, params, *exprs):
+    super(Def, self).__init__()
+    paramList = unpackOperands(params, item=False)
     if (len(paramList) == 0):
         raise Exception(('Def, no exprs: %s' % exprs))
-    print ('Def exprs: %s' % exprs)
+    print ('Def params: %s' % paramList)
+    for p in paramList:
+        if (not re.match('[a-zA-Z0-9]+$', str(p))):
+            raise Exception(('Def, bad name for parameter: %s' % p))
     exprList = unpackOperands(exprs)
     if (len(exprList) == 0):
         raise Exception(('Def, no exprs: %s' % exprs))
+    print ('Def exprs: %s' % exprList)
     if (not re.match('[a-zA-Z0-9]+$', function)):
-        raise Exception(('Def, bad name for function %s: %s' % function))
+        raise Exception(('Def, bad name for function: %s' % function))
+    self.funs = True
     self.function = function
     self.paramList = paramList
     self.exprList = exprList
+    xFcnUser.add(function)
+    print 'xFcnUser', xFcnUser
