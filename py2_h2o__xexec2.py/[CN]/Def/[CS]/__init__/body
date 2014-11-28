@@ -1,0 +1,14 @@
+def __init__(self, function='sums', params='x', exprs='(sum ([ $r1 "null" #0) $TRUE )'):
+    print ('Def params: %s' % params)
+    paramList = unpackOperands(params)
+    if (len(paramList) == 0):
+        raise Exception(('Def, no exprs: %s' % exprs))
+    print ('Def exprs: %s' % exprs)
+    exprList = unpackOperands(exprs)
+    if (len(exprList) == 0):
+        raise Exception(('Def, no exprs: %s' % exprs))
+    if (not re.match('[a-zA-Z0-9]+$', function)):
+        raise Exception(('Def, bad name for function %s: %s' % function))
+    self.function = function
+    self.paramList = paramList
+    self.exprList = exprList

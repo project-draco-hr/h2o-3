@@ -1,9 +1,9 @@
 def xItem(item):
     print 'xItem:', item
-    if (item is None):
-        raise Exception(("h2o_xexec xItem is 'None': %s" % item))
-    elif isinstance(item, (list, tuple, dict)):
+    if isinstance(item, (list, tuple, dict)):
         raise Exception(("h2o_xexec xItem doesn't take lists, tuples (or dicts) %s" % item))
+    if isinstance(item, basestring):
+        item = xTranslateTextValue(item)
     itemStr = str(item)
     if re.search('[,]', itemStr):
         raise Exception(('h2o_xexec xItem has comma. Bad. %s' % item))
