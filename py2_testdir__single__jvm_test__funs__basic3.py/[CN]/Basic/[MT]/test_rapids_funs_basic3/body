@@ -8,11 +8,11 @@ def test_rapids_funs_basic3(self):
     hexKey = 'r1'
     parseResult = h2i.import_parse(bucket=bucket, path=csvPathname, schema='put', hex_key=hexKey)
     keys = []
-    for trial in range(5):
+    for trial in range(3):
         for execObj in funsList:
             result = execObj.do()
-            a = Assign('junk', Fcn('anon', 'r1'))
-            result = a.do(timeoutSecs=15)
+            a = Assign('junk', Fcn('anon', Frame('r1', col=0)))
+            result = a.do(timeoutSecs=60)
             if (a.execResult['num_rows'] or a.execResult['num_cols']):
                 keys.append(a.execExpr)
     print '\nExpressions that created keys'

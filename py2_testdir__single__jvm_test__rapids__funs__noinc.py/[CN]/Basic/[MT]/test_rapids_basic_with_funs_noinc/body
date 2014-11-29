@@ -12,7 +12,7 @@ def test_rapids_basic_with_funs_noinc(self):
             (execResult, result) = h2e.exec_expr(h2o.nodes[0], execExpr2, resultKey='v2', timeoutSecs=5)
         else:
             execExpr1 = '(+ $v $v)'
-            funs = ('[(def anon { v } %s;;;)]' % execExpr1)
+            funs = ('[(def anon {v} %s;;;)]' % execExpr1)
             (execResult, result) = h2e.exec_expr(h2o.nodes[0], funs, resultKey=None, timeoutSecs=5, doFuns=True)
             execExpr2 = '(= !v2 (+ $v2 #1))'
             (execResult, result) = h2e.exec_expr(h2o.nodes[0], execExpr2, resultKey='v2', timeoutSecs=15)
