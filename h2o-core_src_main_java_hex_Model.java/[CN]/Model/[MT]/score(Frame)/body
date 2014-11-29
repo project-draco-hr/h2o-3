@@ -1,0 +1,16 @@
+{
+  Frame output=null;
+  Key mmkey=null;
+  try {
+    Scope.enter();
+    long start_time=System.currentTimeMillis();
+    Frame adaptFr=new Frame(fr);
+    adaptTestForTrain(adaptFr,true);
+    output=scoreImpl(adaptFr);
+    mmkey=computeModelMetrics(start_time,fr,output)._key;
+    return output;
+  }
+  finally {
+    Scope.exit(output == null ? null : output._key,mmkey);
+  }
+}

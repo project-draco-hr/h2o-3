@@ -1,23 +1,2 @@
 {
-  ArrayList<String> msgs=new ArrayList<>();
-  Vec vvecs[]=new Vec[names.length];
-  int good=0;
-  for (int i=0; i < names.length; i++) {
-    Vec vec=test.vec(names[i]);
-    if (vec == null) {
-      msgs.add("Validation set is missing training column " + names[i]);
-      if (expensive) {
-        vec=test.anyVec().makeCon(missing);
-        vec.setDomain(domains[i]);
-      }
-    }
- else {
-      good++;
-      throw H2O.unimpl();
-    }
-    vvecs[i]=vec;
-  }
-  if (good == 0)   throw new IllegalArgumentException("Validation set has no columns in common with the training set");
-  if (good == names.length)   test.restructure(names,vvecs);
-  return msgs.toArray(new String[msgs.size()]);
 }

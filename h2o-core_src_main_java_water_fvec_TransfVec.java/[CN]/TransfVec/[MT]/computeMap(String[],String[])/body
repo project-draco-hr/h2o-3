@@ -1,0 +1,22 @@
+{
+  if (from == null || from == to || Arrays.equals(from,to)) {
+    _map=ArrayUtils.seq(0,to.length);
+    setDomain(to);
+    return;
+  }
+  HashMap<String,Integer> h=new HashMap<>();
+  for (int i=0; i < to.length; i++)   h.put(to[i],i);
+  _map=new int[from.length];
+  String[] ss=to;
+  int extra=to.length;
+  for (int j=0; j < from.length; j++) {
+    Integer x=h.get(from[j]);
+    if (x != null)     _map[j]=x;
+ else {
+      _map[j]=extra++;
+      ss=Arrays.copyOf(ss,extra);
+      ss[extra - 1]=from[j];
+    }
+  }
+  setDomain(ss);
+}

@@ -1,8 +1,8 @@
 {
   final Errors lasterror=last_scored();
   if (lasterror == null)   return null;
-  ConfusionMatrix cm=lasterror.validation || lasterror.num_folds > 0 ? lasterror.valid_confusion_matrix : lasterror.train_confusion_matrix;
-  if (cm == null || cm.cm == null) {
+  ConfusionMatrix2 cm=lasterror.validation || lasterror.num_folds > 0 ? lasterror.valid_confusion_matrix : lasterror.train_confusion_matrix;
+  if (cm == null) {
     if (lasterror.validation || lasterror.num_folds > 0) {
       return new ConfMat(lasterror.valid_err,lasterror.validAUC != null ? lasterror.validAUC.F1() : 0);
     }
@@ -10,5 +10,5 @@
       return new ConfMat(lasterror.train_err,lasterror.trainAUC != null ? lasterror.trainAUC.F1() : 0);
     }
   }
-  return new ConfusionMatrix2(cm.cm,cm.cm.length - 1);
+  return new ConfusionMatrix2(cm._arr,cm._arr.length - 1);
 }

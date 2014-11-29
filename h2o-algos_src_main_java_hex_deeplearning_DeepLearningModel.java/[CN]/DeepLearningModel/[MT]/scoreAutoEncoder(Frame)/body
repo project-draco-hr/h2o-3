@@ -1,8 +1,6 @@
 {
   final int len=_output._names.length;
-  Frame[] adaptFrms=adapt(frame,false,false);
-  Frame adaptFrm=adaptFrms[0];
-  Frame onlyAdaptFrm=adaptFrms[1];
+  Frame adaptFrm=new Frame(frame);
   adaptFrm.add("Reconstruction.MSE",adaptFrm.anyVec().makeZero());
   new MRTask(){
     @Override public void map(    Chunk chks[]){
@@ -16,7 +14,5 @@
   }
 .doAll(adaptFrm);
   int x=_output._names.length, y=adaptFrm.numCols();
-  final Frame l2=adaptFrm.extractFrame(x,y);
-  onlyAdaptFrm.delete();
-  return l2;
+  return adaptFrm.extractFrame(x,y);
 }
