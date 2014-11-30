@@ -1,0 +1,9 @@
+import unittest, random, sys, time
+sys.path.extend(['.', '..', '../..', 'py'])
+import h2o, h2o_browse as h2b, h2o_exec as h2e, h2o_import as h2i
+from h2o_xexec import Def, Fcn, Assign, Frame, If, Else, IfElse, Return
+print 'Trying a different way, listing Rapids objects, rather than .ast() strings'
+objList = [Assign('e', IfElse(1, 2, IfElse(4, 5, IfElse(7, 8, 9)))), Assign('f', If(1, 2), Else(IfElse(4, 5, IfElse(7, 8, 9)))), Assign('g', If(0, 2), Else(IfElse(0, 5, IfElse(0, 8, 9)))), Def('ms', 'x', [Assign('j', If(0, 2), Else(IfElse(0, 5, IfElse(0, 8, 9))))], [Assign('k', If(0, 12), Else(IfElse(0, 15, IfElse(0, 18, 19))))]), Assign('e', Fcn('ms', 2)), Def('ms', 'x', [Assign('j', If(1, Return(2)), Else(IfElse(0, 5, IfElse(0, 8, 9))))], [Assign('k', If(0, 12), Else(IfElse(0, 15, IfElse(0, 18, 19))))]), Assign('e', Fcn('ms', 2))]
+resultList = [None, None, None, None, 19, None, 2]
+if (__name__ == '__main__'):
+    h2o.unit_main()
