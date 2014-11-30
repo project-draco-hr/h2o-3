@@ -1,13 +1,14 @@
-def __init__(self, lhs='xTemp', rhs='xTemp'):
+def __init__(self, lhs='xTemp', *rhs):
     super(Assign, self).__init__()
     self.lhs = lhs
-    self.rhs = Item(rhs)
+    rhsList = unpackOperands(rhs, parent='Assign rhs')
+    self.rhsList = rhsList
     self.funs = False
     if re.match('\\$', lhs):
         raise Exception(("Assign: lhs shouldn't start with '$' %s" % lhs))
     if re.match('c$', lhs):
-        raise Exception(("Assign: lhs can't be 'c'" % lhs))
+        raise Exception(("Assign: lhs can't be 'c' %s" % lhs))
     if (not re.match('[a-zA-Z0-9_]', lhs)):
         raise Exception(("Assign: Don't like the chars in your lhs %s" % lhs))
     print ('Assign lhs: %s' % self.lhs)
-    print ('Assign rhs: %s' % self.rhs)
+    print ('Assign rhs: %s' % self.rhsList)

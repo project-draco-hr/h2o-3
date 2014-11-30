@@ -1,20 +1,30 @@
-def unpackOperands(operands, item=True):
+def unpackOperands(operands, parent=None, item=True):
+    openIf = False
 
-    def uu(v):
+    def addItem(opr):
+        if (isinstance(opr, Else) and (not openIf)):
+            raise Exception('%s unpackOperands, Else without open If, %s', (parent, opr))
+        if isinstance(opr, If):
+            global openIf
+            openIf = True
         if item:
-            operandList.append(Item(v))
+            operandList.append(Item(opr))
         else:
-            operandList.append(v)
+            operandList.append(opr)
     if (operands is None):
-        raise Exception(('unpackOperands no operands: %s' % operands))
+        raise Exception(('%s unpackOperands no operands: %s' % (parent, operands)))
     operandList = []
     if isinstance(operands, (list, tuple)):
-        for v in operands:
-            if (not isinstance(v, (list, tuple))):
-                uu(v)
+        for opr in operands:
+            if (not isinstance(opr, (list, tuple))):
+                addItem(opr)
             else:
-                for v2 in v:
-                    uu(v2)
+                for opr2 in opr:
+                    addItem(opr2)
     else:
-        uu(operands)
+        addItem(operands)
+    if ((operandList is None) or (len(operandList) == 0)):
+        raise Exception(('%s unpackOperands operandList is None or empty: %s' % (parent, operandList)))
+    if parent:
+        print ('%s: %s' % (parent, map(str, operandList)))
     return operandList
