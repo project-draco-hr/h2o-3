@@ -9,7 +9,7 @@ def test_rapids_vec_fail1(self):
     parseResult = h2i.import_parse(bucket=bucket, path=csvPathname, schema='put', hex_key=hexKey)
     keys = []
     maxx = 29
-    for trial in range(int(1000000.0), int(200000000.0), int(1000000.0)):
+    for trial in range(int(1000000.0), int(100000000.0), int(10000000.0)):
         length = trial
         execExpr = ('(= !v (c {(: #0 #%s)})' % (length - 1))
         start = time.time()
@@ -19,7 +19,7 @@ def test_rapids_vec_fail1(self):
             keys.append(execExpr)
         execExpr = '(= !v (+ $v $v))'
         start = time.time()
-        (execResult, result) = h2e.exec_expr(h2o.nodes[0], execExpr, resultKey=None, timeoutSecs=10)
+        (execResult, result) = h2e.exec_expr(h2o.nodes[0], execExpr, resultKey=None, timeoutSecs=30)
         elapsed2 = (time.time() - start)
         if execResult['num_rows']:
             keys.append(execExpr)
