@@ -23,9 +23,10 @@
   finally {
       if (job != null)       job.remove();
     }
-    double auc=gbm._output._aucdata.AUC();
+    hex.ModelMetrics mm=hex.ModelMetrics.getFromDKV(gbm,parms.valid());
+    double auc=mm._aucdata.AUC();
     Assert.assertTrue(0.80 <= auc && auc < 0.83);
-    ConfusionMatrix2 cmf1=gbm._output._aucdata.CM();
+    ConfusionMatrix2 cmf1=mm._aucdata.CM();
     Assert.assertArrayEquals(ar(ar(311,82),ar(32,75)),cmf1._arr);
   }
   finally {

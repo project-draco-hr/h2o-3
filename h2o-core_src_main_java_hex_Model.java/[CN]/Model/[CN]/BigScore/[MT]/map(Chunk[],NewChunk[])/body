@@ -1,0 +1,12 @@
+{
+  Chunk ys=chks[chks.length - 1];
+  double[] tmp=new double[chks.length];
+  _mb=new ModelMetrics.MetricBuilder(_domain,_domain.length == 2 ? ModelUtils.DEFAULT_THRESHOLDS : new float[]{0.5f});
+  float[] preds=_mb._work;
+  int len=chks[0]._len;
+  for (int row=0; row < len; row++) {
+    float[] p=score0(chks,row,tmp,preds);
+    _mb.perRow(preds,(float)ys.at0(row));
+    for (int c=0; c < _ncols; c++)     cpreds[c].addNum(p[c]);
+  }
+}

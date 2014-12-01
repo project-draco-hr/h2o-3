@@ -3,11 +3,11 @@
   GBMModel gbm=null;
   GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
   try {
-    Frame v, t;
-    parms._train=(t=parse_test_file("smalldata/junit/mixcat_train.csv"))._key;
+    Scope.enter();
+    Frame v;
+    parms._train=(parse_test_file("smalldata/junit/mixcat_train.csv"))._key;
     parms._valid=(v=parse_test_file("smalldata/junit/mixcat_test.csv"))._key;
     parms._response_column="Response";
-    parms._convert_to_enum=true;
     parms._ntrees=1;
     parms._learn_rate=1.0f;
     parms._min_rows=1;
@@ -17,7 +17,7 @@
     Frame res=gbm.score(v);
     int[] ps=new int[(int)v.numRows()];
     for (int i=0; i < ps.length; i++)     ps[i]=(int)res.vecs()[0].at8(i);
-    Assert.assertArrayEquals("",ps,new int[]{0,0,1,1,0,1,2,0,1});
+    Assert.assertArrayEquals("",ps,new int[]{1,1,2,2,1,2,3,1,2});
     res.remove();
   }
   finally {
@@ -25,5 +25,6 @@
     parms._valid.remove();
     if (gbm != null)     gbm.delete();
     if (job != null)     job.remove();
+    Scope.exit();
   }
 }
