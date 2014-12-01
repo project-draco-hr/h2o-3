@@ -1,16 +1,15 @@
-def unpackOperands(operands, parent=None, item=True):
-    openIf = False
+def unpackOperands(operands, parent=None, item=True, lastOpr=None):
+    lastOpr = None
 
     def addItem(opr):
-        if (isinstance(opr, Else) and (not openIf)):
+        global lastOpr
+        if (isinstance(opr, Else) and (not (lastOpr and isinstance(lastOpr, If)))):
             raise Exception('%s unpackOperands, Else without open If, %s', (parent, opr))
-        if isinstance(opr, If):
-            global openIf
-            openIf = True
         if item:
             operandList.append(Item(opr))
         else:
             operandList.append(opr)
+        lastOpr = opr
     if (operands is None):
         raise Exception(('%s unpackOperands no operands: %s' % (parent, operands)))
     operandList = []

@@ -1,0 +1,25 @@
+def __getitem__(self, items):
+
+    def slicer(item):
+        print ('Key item %-15s  %s' % (type(item), item))
+        if (type(item) is int):
+            print 'Key item int', item
+            return Item(item)
+        elif isinstance(item, slice):
+            assert (item.step == None), ('Key assuming step should be None %s' % item.step)
+            return Colon(item.start, item.stop)
+        else:
+            raise (TypeError('Key.__getitem__ item(%s) must be int/slice') % item)
+    if isinstance(items, (list, tuple)):
+        itemsList = list(items)
+        if (len(itemsList) == 0):
+            print ('Key ignoring length 0 items list/tuple) %s' % itemsList)
+        elif (len(itemsList) == 1):
+            return Frame(frame=self.frame, row=slicer(itemsList[0]))
+        elif (len(itemsList) == 2):
+            return Frame(frame=self.frame, row=slicer(itemsList[0]), col=slicer(itemsList[1]))
+        else:
+            raise Exception(('Key itemsList is >2 %s' % itemsList))
+    else:
+        return Frame(frame=self.frame, row=slicer(items), dim=1)
+    return self

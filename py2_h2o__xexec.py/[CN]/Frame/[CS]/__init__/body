@@ -1,11 +1,12 @@
-def __init__(self, frame='xTemp', row=None, col=None):
+def __init__(self, frame='xTemp', row=None, col=None, dim=2):
     super(Frame, self).__init__()
     if re.match('\\$', frame):
         raise Exception(("Frame adds '$': frame ref shouldn't start with '$' %s" % frame))
+    if isinstance(frame, (list, tuple)):
+        raise Exception(("frame doesn't take lists or tuples %s" % frame))
+    if (not isinstance(frame, basestring)):
+        raise Exception(('frame wants to be a string %s' % frame))
     self.frame = frame
-    if (row is None):
-        row = '"null"'
-    if (col is None):
-        col = '"null"'
     self.row = Item(row)
     self.col = Item(col)
+    self.dim = dim
