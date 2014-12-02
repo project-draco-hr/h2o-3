@@ -8,7 +8,10 @@ def test_rapids_ifelse_nested(self):
         for (execObj, expected) in zip(objList, resultList):
             result = execObj.do()
             if (expected is not None):
-                assert (result == expected), '%s %s'(result, expected)
+                print 'result:', result
+                print 'expected:', expected
+                assert (float(result) == expected), '%s %s'(result, expected)
+            print 'execObj:', dump_json(execObj.execResult)
             if (execObj.execResult['num_rows'] or execObj.execResult['num_cols']):
                 keys.append(execObj.execExpr)
     print '\nExpressions that created keys'

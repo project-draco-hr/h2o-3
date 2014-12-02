@@ -1,14 +1,14 @@
-def __init__(self, lhs='xTemp', *rhs):
+def __init__(self, lhs='xTemp', rhs=None, timeoutSecs=30):
     super(Assign, self).__init__()
-    if (not isinstance(lhs, (basestring, Key))):
-        raise Exception(('Assign: lhs not string or Key %s' % lhs))
-    if isinstance(lhs, (Assign, Key)):
+    if isinstance(lhs, (Key, Frame)):
         frame = lhs.frame
-    else:
+    elif isinstance(lhs, basestring):
         frame = lhs
+    else:
+        raise Exception(('Assign: lhs not string/Key/Assign/Frame %s' % lhs))
     self.frame = frame
-    rhsList = unpackOperands(rhs, parent='Assign rhs')
-    self.rhsList = rhsList
+    self.rhs = rhs
+    self.lhs = lhs
     self.funs = False
     if re.match('\\$', frame):
         raise Exception(("Assign: lhs shouldn't start with '$' %s" % frame))
@@ -16,5 +16,5 @@ def __init__(self, lhs='xTemp', *rhs):
         raise Exception(("Assign: lhs can't be 'c' %s" % frame))
     if (not re.match('[a-zA-Z0-9_]', frame)):
         raise Exception(("Assign: Don't like the chars in your lhs %s" % frame))
-    print ('Assign lhs: %s' % self.frame)
-    print ('Assign rhs: %s' % self.rhsList)
+    print ('Assign lhs: %s' % self.lhs)
+    print ('Assign rhs: %s' % self.rhs)
