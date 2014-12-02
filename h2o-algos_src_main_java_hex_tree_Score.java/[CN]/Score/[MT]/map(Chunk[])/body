@@ -9,12 +9,9 @@
   for (int row=0; row < ys._len; row++) {
     if (ys.isNA0(row))     continue;
     if (_oob && chks[oobColIdx].at80(row) != 0)     continue;
-    if (_bldr._parms._valid != null) {
-      _bldr._model.score0(chks,row,tmp,cdists);
-    }
- else {
-      _bldr.score2(chks,cdists,row);
-    }
+    if (_bldr._parms._valid != null)     _bldr._model.score0(chks,row,tmp,cdists);
+ else     _bldr.score2(chks,cdists,row);
+    if (nclass > 1)     cdists[0]=ModelUtils.getPrediction(cdists,row);
     _mb.perRow(cdists,(float)ys.at0(row));
   }
 }
