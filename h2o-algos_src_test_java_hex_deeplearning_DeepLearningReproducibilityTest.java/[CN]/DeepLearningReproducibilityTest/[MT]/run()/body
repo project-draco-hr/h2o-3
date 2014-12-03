@@ -4,9 +4,6 @@
   Frame train=null;
   Frame test=null;
   Frame data=null;
-  Log.info("");
-  Log.info("STARTING.");
-  Log.info("Using seed " + seed);
   Map<Integer,Float> repeatErrs=new TreeMap<>();
   int N=6;
   StringBuilder sb=new StringBuilder();
@@ -22,6 +19,7 @@
         DeepLearningParameters p=new DeepLearningParameters();
         p._train=train._key;
         p._valid=test._key;
+        p._convert_to_enum=true;
         p._destination_key=Key.make();
         p._response_column=train.names()[train.names().length - 1];
         p._ignored_columns=new String[]{"EvapMM","RISK_MM"};
@@ -72,8 +70,10 @@
     Log.info(sb.toString());
     try {
       if (repro) {
-        for (        Float error : repeatErrs.values()) {
-          assertTrue(error.equals(repeatErrs.get(0)));
+        for (        Float error : repeatErrs.values())         assertTrue(error.equals(repeatErrs.get(0)));
+        for (        Frame f : preds) {
+          assertTrue(TestUtil.isBitIdentical(f,preds[0]));
+          throw water.H2O.unimpl();
         }
         repro_error=repeatErrs.get(0);
       }
@@ -90,9 +90,7 @@
         }
         stddev/=N;
         stddev=Math.sqrt(stddev);
-        Log.info("standard deviation: " + stddev);
         assertTrue(stddev < 0.1 / Math.sqrt(N));
-        Log.info("difference to reproducible mode: " + Math.abs(mean - repro_error) / stddev + " standard deviations");
       }
     }
   finally {
