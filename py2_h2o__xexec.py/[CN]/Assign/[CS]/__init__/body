@@ -7,14 +7,9 @@ def __init__(self, lhs='xTemp', rhs=None, timeoutSecs=30):
     else:
         raise Exception(('Assign: lhs not string/Key/Assign/Frame %s' % lhs))
     self.frame = frame
-    self.rhs = rhs
     self.lhs = lhs
+    self.rhs = Item(rhs)
     self.funs = False
-    if re.match('\\$', frame):
-        raise Exception(("Assign: lhs shouldn't start with '$' %s" % frame))
-    if re.match('c$', frame):
-        raise Exception(("Assign: lhs can't be 'c' %s" % frame))
-    if (not re.match('[a-zA-Z0-9_]', frame)):
-        raise Exception(("Assign: Don't like the chars in your lhs %s" % frame))
+    legalKey(frame, 'Assign')
     print ('Assign lhs: %s' % self.lhs)
     print ('Assign rhs: %s' % self.rhs)
