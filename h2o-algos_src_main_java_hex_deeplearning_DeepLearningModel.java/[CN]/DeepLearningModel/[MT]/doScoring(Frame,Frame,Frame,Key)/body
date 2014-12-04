@@ -45,11 +45,12 @@
         final String m=model_info().toString();
         if (m.length() > 0)         Log.info(m);
         final Frame trainPredict=score(ftrain);
-        err.classification=_output.isClassifier();
-        err.num_folds=get_params()._n_folds;
-        err.train_confusion_matrix=new ConfusionMatrix2(ftrain.lastVec(),trainPredict);
-        final int hit_k=Math.min(_output.nclasses(),get_params()._max_hit_ratio_k);
-        throw H2O.unimpl();
+        trainPredict.delete();
+        if (get_params()._variable_importances) {
+          if (!get_params()._quiet_mode)           Log.info("Computing variable importances.");
+          final float[] vi=model_info().computeVariableImportances();
+          err.variable_importances=new VarImp(vi,Arrays.copyOfRange(model_info().data_info().coefNames(),0,vi.length));
+        }
       }
       _timeLastScoreEnd=System.currentTimeMillis();
       err.scoring_time=System.currentTimeMillis() - now;

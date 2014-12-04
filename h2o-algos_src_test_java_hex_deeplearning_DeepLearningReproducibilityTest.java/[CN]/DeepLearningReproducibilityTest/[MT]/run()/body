@@ -9,6 +9,7 @@
   StringBuilder sb=new StringBuilder();
   float repro_error=0;
   for (  boolean repro : new boolean[]{true,false}) {
+    Scope.enter();
     Frame[] preds=new Frame[N];
     for (int repeat=0; repeat < N; ++repeat) {
       try {
@@ -73,7 +74,6 @@
         for (        Float error : repeatErrs.values())         assertTrue(error.equals(repeatErrs.get(0)));
         for (        Frame f : preds) {
           assertTrue(TestUtil.isBitIdentical(f,preds[0]));
-          throw water.H2O.unimpl();
         }
         repro_error=repeatErrs.get(0);
       }
@@ -96,5 +96,6 @@
   finally {
       for (      Frame f : preds)       if (f != null)       f.delete();
     }
+    Scope.exit();
   }
 }
