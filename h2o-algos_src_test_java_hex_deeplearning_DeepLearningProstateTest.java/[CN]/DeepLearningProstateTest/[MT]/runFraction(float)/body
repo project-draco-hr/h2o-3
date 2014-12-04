@@ -36,6 +36,7 @@
                                 count++;
                                 if (fraction < rng.nextFloat())                                 continue;
                                 try {
+                                  Scope.enter();
                                   Log.info("**************************)");
                                   Log.info("Starting test #" + count);
                                   Log.info("**************************)");
@@ -128,8 +129,42 @@
                                     Frame pred=null, pred2=null;
                                     try {
                                       pred=model2.score(valid);
-                                      StringBuilder sb=new StringBuilder();
-                                      throw H2O.unimpl();
+                                      hex.ModelMetrics mm=hex.ModelMetrics.getFromDKV(model2,valid);
+                                      double error=0;
+                                      if (model2._output.nclasses() == 2) {
+                                        assert(resp == 1);
+                                        threshold=mm._aucdata.threshold();
+                                        error=mm._aucdata.err();
+                                        Assert.assertEquals(new ConfusionMatrix2(mm._aucdata.cm()).err(),error,1e-15);
+                                        Assert.assertEquals(mm._cm.err(),error,1e-15);
+                                      }
+                                      if (model2._output.nclasses() > 2)                                       pred.replace(0,pred.vecs()[0].toEnum());
+                                      double CMerrorOrig=new ConfusionMatrix2(valid.vecs()[resp].toEnum(),pred).err();
+                                      pred2=new Frame(Key.make("pred2"),pred.names(),pred.vecs());
+                                      pred2.delete_and_lock(null);
+                                      pred2.unlock(null);
+                                      if (model2._output.nclasses() == 2) {
+                                        String ast="(= ([ $pred2 \"null\" #0) (G ([ $pred2 \"null\" #2) #" + 0.5 + "))";
+                                        Env ev=Exec.exec(ast);
+                                        try {
+                                          pred2=ev.popAry();
+                                        }
+  finally {
+                                          if (ev != null)                                           ev.remove_and_unlock();
+                                        }
+                                        double threshErr=new ConfusionMatrix2(valid.vecs()[1].toEnum(),pred2).err();
+                                        Assert.assertEquals(threshErr,CMerrorOrig,1e-15);
+                                        ast="(= ([ $pred2 \"null\" #0) (G ([ $pred2 \"null\" #2) #" + threshold + "))";
+                                        ev=Exec.exec(ast);
+                                        try {
+                                          pred2=ev.popAry();
+                                        }
+  finally {
+                                          if (ev != null)                                           ev.remove_and_unlock();
+                                        }
+                                        double threshErr2=new ConfusionMatrix2(valid.vecs()[1].toEnum(),pred2).err();
+                                        Assert.assertEquals(threshErr2,error,1e-15);
+                                      }
                                     }
   finally {
                                       if (pred != null)                                       pred.delete();
@@ -159,6 +194,7 @@
                                     tmp_model.delete_best_model();
                                     tmp_model.delete();
                                   }
+                                  Scope.exit();
                                 }
                               }
                             }

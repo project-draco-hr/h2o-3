@@ -46,6 +46,16 @@
         if (m.length() > 0)         Log.info(m);
         final Frame trainPredict=score(ftrain);
         trainPredict.delete();
+        hex.ModelMetrics mm1=hex.ModelMetrics.getFromDKV(this,ftrain);
+        err.trainAUC=mm1._aucdata;
+        err.train_confusion_matrix=mm1._cm;
+        err.train_hitratio=mm1._hr;
+        err.train_mse=mm1._mse;
+        hex.ModelMetrics mm2=hex.ModelMetrics.getFromDKV(this,ftest);
+        err.validAUC=mm1._aucdata;
+        err.valid_confusion_matrix=mm1._cm;
+        err.valid_hitratio=mm1._hr;
+        err.valid_mse=mm1._mse;
         if (get_params()._variable_importances) {
           if (!get_params()._quiet_mode)           Log.info("Computing variable importances.");
           final float[] vi=model_info().computeVariableImportances();
