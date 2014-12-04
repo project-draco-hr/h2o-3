@@ -5,6 +5,12 @@
     if (null != schemas.get(this.schema_name))     throw H2O.fail("Found a duplicate schema name in two different packages: " + schemas.get(this.schema_name) + " and: "+ this.getClass().toString());
     schemas.put(this.schema_name,this.getClass());
     schema_to_iced.put(this.schema_name,_impl_class);
-    iced_to_schema.put(new Pair(_impl_class.getSimpleName(),this.schema_version),this.getClass());
+    if (_impl_class != Iced.class) {
+      Pair versioned=new Pair(_impl_class.getSimpleName(),this.schema_version);
+      if (null != iced_to_schema.get(versioned)) {
+        throw H2O.fail("Found two schemas mapping to the same Iced class with the same version: " + iced_to_schema.get(versioned) + " and: "+ this.getClass().toString()+ " both map to version: "+ schema_version+ " of Iced class: "+ _impl_class);
+      }
+      iced_to_schema.put(versioned,this.getClass());
+    }
   }
 }

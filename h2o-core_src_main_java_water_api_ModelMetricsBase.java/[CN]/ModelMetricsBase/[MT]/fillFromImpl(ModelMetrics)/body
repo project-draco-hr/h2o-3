@@ -1,8 +1,7 @@
 {
   Model m=modelMetrics.model();
   if (m != null)   this.model=(ModelSchema)Schema.schema(this.schema_version,m.getClass());
-  Frame f=modelMetrics.frame();
-  if (f != null)   this.frame=(FrameV2)Schema.schema(this.schema_version,f.getClass());
+  if (null != modelMetrics.frame())   this.frame=new FrameV2().fillFromImpl(modelMetrics.frame());
   new AUCV3();
   new ConfusionMatrixV3();
   if (null != modelMetrics._aucdata)   this.auc=(AUCBase)Schema.schema(this.schema_version,modelMetrics._aucdata);

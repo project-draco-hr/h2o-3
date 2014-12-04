@@ -1,0 +1,21 @@
+{
+  Route route=null;
+  if (null != docs.path && null != docs.http_method) {
+    route=RequestServer.lookup(docs.http_method,docs.path);
+  }
+ else {
+    int i=0;
+    for (    Route r : RequestServer.routes()) {
+      if (i++ == docs.num) {
+        route=r;
+        break;
+      }
+    }
+    docs.routes=new RouteBase[null == route ? 0 : 1];
+    if (null != route) {
+      docs.routes[0]=(RouteBase)Schema.schema(version,Route.class).fillFromImpl(route);
+    }
+  }
+  docs.routes[0].markdown=route.markdown(null).toString();
+  return docs;
+}

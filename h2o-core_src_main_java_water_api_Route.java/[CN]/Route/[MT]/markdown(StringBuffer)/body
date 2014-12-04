@@ -5,8 +5,8 @@
   builder.hline();
   builder.paragraph(_summary);
   try {
-    Handler h=_handler_class.newInstance();
-    Schema s=h.schema(h.min_ver());
+    Class<? extends Schema> clz=Handler.getHandlerMethodSchema(_handler_method);
+    Schema s=Schema.newInstance(clz);
     builder.append(s.markdown(null));
   }
  catch (  Exception e) {

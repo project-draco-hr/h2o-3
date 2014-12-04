@@ -1,0 +1,9 @@
+{
+  Map<String,Class<? extends Schema>> ss=Schema.schemas();
+  docs.schemas=new SchemaMetadataBase[ss.size()];
+  int i=0;
+  for (  Class<? extends Schema> schema_class : ss.values()) {
+    docs.schemas[i++]=(SchemaMetadataBase)Schema.schema(version,SchemaMetadata.class).fillFromImpl(new SchemaMetadata(Schema.schema(schema_class)));
+  }
+  return docs;
+}

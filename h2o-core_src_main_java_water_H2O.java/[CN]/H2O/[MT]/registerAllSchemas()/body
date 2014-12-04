@@ -1,0 +1,9 @@
+{
+  Reflections reflections=null;
+  Set<Class<? extends Schema>> schemas=null;
+  schemas=(new Reflections("water")).getSubTypesOf(Schema.class);
+  for (  Class<? extends Schema> schema_class : schemas)   if (!Modifier.isAbstract(schema_class.getModifiers()))   Schema.register(schema_class);
+  schemas=(new Reflections("hex")).getSubTypesOf(Schema.class);
+  for (  Class<? extends Schema> schema_class : schemas)   if (!Modifier.isAbstract(schema_class.getModifiers()))   Schema.register(schema_class);
+  Log.info("Registered: " + Schema.schemas().size() + " schemas.");
+}

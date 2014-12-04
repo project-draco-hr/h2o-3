@@ -1,16 +1,19 @@
 {
   if (!(min_ver() <= version && version <= max_ver()))   return new HttpErrorV1(new IllegalArgumentException("Version " + version + " is not in range V"+ min_ver()+ "-V"+ max_ver()));
-  S schema=schema(version);
-  if (null == schema)   throw H2O.fail("Failed to find a schema for version: " + version + " in: "+ this.getClass());
-  I defaults=schema.createImpl();
-  schema.fillFromImpl(defaults);
+  Class<? extends Schema> handler_schema_class=getHandlerMethodSchema(route._handler_method);
+  Schema schema=Schema.newInstance(handler_schema_class);
+  if (null == schema)   throw H2O.fail("Failed to instantiate Schema of class: " + handler_schema_class + " for route: "+ route);
+  Class<? extends Iced> iced_class=schema.getImplClass();
+  if (iced_class != Iced.class) {
+    Iced defaults=schema.createImpl();
+    schema.fillFromImpl(defaults);
+  }
   schema=schema.fillFromParms(parms);
   if (null == schema)   throw H2O.fail("fillFromParms returned a null schema for version: " + version + " in: "+ this.getClass()+ " with params: "+ parms);
-  final I i=schema.createAndFillImpl();
   _t_start=System.currentTimeMillis();
   Schema result=null;
   try {
-    result=(Schema)route._handler_method.invoke(this,version,i);
+    result=(Schema)route._handler_method.invoke(this,version,schema);
   }
  catch (  InvocationTargetException ite) {
     Throwable t=ite.getCause();
