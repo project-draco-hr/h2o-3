@@ -1,0 +1,42 @@
+{
+  Frame tst=env.pop0Ary();
+  if (tst.numCols() != 1)   throw new IllegalArgumentException("`test` has " + tst.numCols() + " columns. `test` must have exactly 1 column.");
+  Frame yes=null;
+  double dyes=0;
+  Frame no=null;
+  double dno=0;
+  if (env.isAry())   yes=env.pop0Ary();
+ else   dyes=env.popDbl();
+  if (env.isAry())   no=env.pop0Ary();
+ else   dno=env.popDbl();
+  if (yes != null && no != null) {
+    if (yes.numCols() != no.numCols())     throw new IllegalArgumentException("Column mismatch between `yes` and `no`. `yes` has" + yes.numCols() + "; `no` has "+ no.numCols()+ ".");
+  }
+ else   if (yes != null) {
+    if (yes.numCols() != 1)     throw new IllegalArgumentException("Column mismatch between `yes` and `no`. `yes` has" + yes.numCols() + "; `no` has "+ 1+ ".");
+  }
+ else   if (no != null) {
+    if (no.numCols() != 1)     throw new IllegalArgumentException("Column mismatch between `yes` and `no`. `yes` has" + 1 + "; `no` has "+ no.numCols()+ ".");
+  }
+  Frame a_yes=yes == null ? adaptToTst(dyes,tst) : adaptToTst(yes,tst);
+  Frame a_no=no == null ? adaptToTst(dno,tst) : adaptToTst(no,tst);
+  Frame frtst=(new Frame(tst)).add(a_yes).add(a_no);
+  final int ycols=a_yes.numCols();
+  Frame fr2=new MRTask(){
+    @Override public void map(    Chunk chks[],    NewChunk nchks[]){
+      int rows=chks[0]._len;
+      int cols=chks.length;
+      Chunk pred=chks[0];
+      for (int r=0; r < rows; ++r) {
+        for (int c=(pred.at0(r) != 0 ? 1 : ycols + 1), col=0; c < (pred.at0(r) != 0 ? ycols + 1 : cols); ++c) {
+          if (chks[c].vec().isUUID())           nchks[col++].addUUID(chks[c],r);
+ else           if (chks[c].vec().isString())           nchks[col++].addStr(chks[c].atStr0(new ValueString(),r));
+ else           nchks[col++].addNum(chks[c].at0(r));
+        }
+      }
+    }
+  }
+.doAll(yes == null ? 1 : yes.numCols(),frtst).outputFrame(yes == null ? (new String[]{"C1"}) : yes.names(),null);
+  env.cleanup(yes,no,a_yes,a_no,tst,frtst);
+  env.push(new ValFrame(fr2));
+}
