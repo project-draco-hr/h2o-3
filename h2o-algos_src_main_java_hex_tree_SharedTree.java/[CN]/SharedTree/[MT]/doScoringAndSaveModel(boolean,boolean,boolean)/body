@@ -7,13 +7,16 @@
     _model.update(_key);
     updated=true;
     _timeLastScoreStart=now;
-    Score sc=new Score(this,oob).doIt(build_tree_one_node).report(_model._output._ntrees,null);
+    Score sc=new Score(this,oob).doAll(_parms._valid == null ? train() : valid(),build_tree_one_node);
+    ModelMetrics mm=sc.makeModelMetrics(_model,_parms._valid == null ? _parms.train() : _parms.valid(),_parms._response_column);
     SharedTreeModel.SharedTreeOutput out=_model._output;
-    out._r2=sc.r2();
-    out._cm=sc.cm();
-    out._auc=sc.auc();
-    out._mse_train[out._ntrees]=_parms._valid == null ? sc.mse() : Double.NaN;
-    out._mse_test[out._ntrees]=_parms._valid == null ? Double.NaN : sc.mse();
+    out._mse_train[out._ntrees]=_parms._valid == null ? mm._mse : Double.NaN;
+    out._mse_test[out._ntrees]=_parms._valid == null ? Double.NaN : mm._mse;
+    Log.info("============================================================== ");
+    Log.info("r2 is " + mm.r2() + ", with "+ _model._output._ntrees+ "x"+ _nclass+ " trees (average of "+ (_model._output._treeStats._meanLeaves)+ " nodes)");
+    hex.ConfusionMatrix2 cm=mm._cm;
+    Log.info(cm.toASCII(vresponse().domain()));
+    Log.info((_nclass > 1 ? "Total of " + cm.errCount() + " errors" : "Reported") + " on " + cm.totalRows()+ " rows");
     _timeLastScoreEnd=System.currentTimeMillis();
   }
   if (_parms._importance && _model._output._ntrees > 0) {

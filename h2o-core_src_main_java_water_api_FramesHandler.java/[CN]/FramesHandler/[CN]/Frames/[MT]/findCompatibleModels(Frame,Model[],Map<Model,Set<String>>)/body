@@ -6,13 +6,9 @@
     Set<String> model_cols=entry.getValue();
     if (model_cols.containsAll(frame_column_names)) {
       try {
-        Frame[] outputs=model.adapt(frame,false);
-        Frame adapted=outputs[0];
-        Frame trash=outputs[1];
-        trash.delete();
-        compatible_models.add(model);
+        if (model.adaptTestForTrain(new Frame(frame),false).length == 0)         compatible_models.add(model);
       }
- catch (      Exception e) {
+ catch (      IllegalArgumentException e) {
       }
     }
   }

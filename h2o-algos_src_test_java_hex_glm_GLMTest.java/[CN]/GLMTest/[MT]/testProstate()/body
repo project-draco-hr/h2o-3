@@ -1,21 +1,19 @@
 {
   GLM job=null;
-  Key parsed=Key.make("prostate_parsed");
-  Key modelKey=Key.make("prostate_model");
   GLMModel model=null;
-  Frame fr=parse_test_file(parsed,"smalldata/glm_test/prostate_cat_replaced.csv");
+  Frame fr=parse_test_file("smalldata/glm_test/prostate_cat_replaced.csv");
   Frame score=null;
   try {
+    Scope.enter();
     String[] cfs1=new String[]{"Intercept","AGE","RACE.R2","RACE.R3","DPROS","DCAPS","PSA","VOL","GLEASON"};
     double[] vals=new double[]{-8.14867,-0.01368,0.32337,-0.38028,0.55964,0.49548,0.02794,-0.01104,0.97704};
     GLMParameters params=new GLMParameters(Family.binomial);
     params._response_column="CAPSULE";
     params._ignored_columns=new String[]{"ID"};
-    params._train=parsed;
+    params._train=fr._key;
     params._lambda=new double[]{0};
-    job=new GLM(modelKey,"glm test simple poisson",params);
-    job.trainModel().get();
-    model=DKV.get(modelKey).get();
+    job=new GLM(Key.make("prostate_model"),"glm test simple poisson",params);
+    model=job.trainModel().get();
     HashMap<String,Double> coefs=model.coefficients();
     for (int i=0; i < cfs1.length; ++i)     assertEquals(vals[i],coefs.get(cfs1[i]),1e-4);
     GLMValidation val=model.validation();
@@ -23,13 +21,8 @@
     assertEquals(378.3,val.residualDeviance(),1e-1);
     assertEquals(396.3,val.aic(),1e-1);
     score=model.score(fr);
-    AUC auc=new AUC();
-    auc.predict=score;
-    auc.actual=fr;
-    auc.vactual=fr.vec("CAPSULE");
-    auc.vpredict=score.vec("1");
-    auc.execImpl();
-    AUCData adata=auc.data();
+    hex.ModelMetrics mm=hex.ModelMetrics.getFromDKV(model,fr);
+    AUCData adata=mm._aucdata;
     assertEquals(val.auc(),adata.AUC(),1e-2);
     GLMValidation val2=new GLMValidationTsk(params,model._ymu,rank(model.beta())).doAll(new Vec[]{fr.vec("CAPSULE"),score.vec("1")})._val;
     assertEquals(val.residualDeviance(),val2.residualDeviance(),1e-6);
@@ -40,5 +33,6 @@
     if (model != null)     model.delete();
     if (score != null)     score.delete();
     if (job != null)     job.remove();
+    Scope.exit();
   }
 }

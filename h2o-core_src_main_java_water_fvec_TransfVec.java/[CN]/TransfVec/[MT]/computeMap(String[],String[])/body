@@ -1,0 +1,33 @@
+{
+  if (from == to || Arrays.equals(from,to)) {
+    _map=ArrayUtils.seq(0,to.length);
+    setDomain(to);
+    return;
+  }
+  if (from == null) {
+    int max=Integer.valueOf(to[to.length - 1]) + 1;
+    _map=new int[max];
+    for (int i=0; i < to.length; i++)     _map[Integer.valueOf(to[i])]=i;
+    setDomain(to);
+    return;
+  }
+  _map=new int[from.length];
+  if (to == null) {
+    for (int i=0; i < from.length; i++)     _map[i]=Integer.valueOf(from[i]);
+    return;
+  }
+  HashMap<String,Integer> h=new HashMap<>();
+  for (int i=0; i < to.length; i++)   h.put(to[i],i);
+  String[] ss=to;
+  int extra=to.length;
+  for (int j=0; j < from.length; j++) {
+    Integer x=h.get(from[j]);
+    if (x != null)     _map[j]=x;
+ else {
+      _map[j]=extra++;
+      ss=Arrays.copyOf(ss,extra);
+      ss[extra - 1]=from[j];
+    }
+  }
+  setDomain(ss);
+}
