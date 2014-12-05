@@ -1,0 +1,92 @@
+def test_exec2_enums_rand_cut(self):
+    SYNDATASETS_DIR = h2o.make_syn_dir()
+    n = ROWS
+    tryList = [(n, 10, 9, 'cE', 300)]
+    eKeys = [('e%s' % i) for i in range(10)]
+    trial = 0
+    for (rowCount, iColCount, oColCount, hex_key, timeoutSecs) in tryList:
+        colCount = (iColCount + oColCount)
+        hex_key = 'p'
+        colEnumList = create_col_enum_list(iColCount)
+        rowExprList = []
+        for j in range(CUT_EXPR_CNT):
+            print 'Creating', CUT_EXPR_CNT, 'cut expressions'
+            cutValue = [None for i in range(iColCount)]
+            cols = random.sample(range(iColCount), random.randint(1, iColCount))
+            for c in cols:
+                cel = colEnumList[c]
+                if (1 == 1):
+                    celChoice = str(random.choice(range(len(cel))))
+                else:
+                    celChoice = random.choice(cel)
+                cutValue[c] = celChoice
+            cutExprList = []
+            for (i, c) in enumerate(cutValue):
+                if (c is None):
+                    continue
+                else:
+                    e = Fcn('==', Item(c), Frame('p', col=i))
+                    cutExprList.append(e)
+            cutExpr = None
+            for ce in cutExprList:
+                if cutExpr:
+                    cutExpr = Fcn('&', cutExpr, ce)
+                else:
+                    cutExpr = ce
+            print 'cutExpr:', cutExpr
+            e = random.sample(eKeys, 2)
+            fKey = e[0]
+            eKey = e[1]
+            rowExpr = Frame(hex_key, row=cutExpr)
+            print 'rowExpr:', rowExpr
+            rowExprList.append(rowExpr)
+        SEEDPERFILE = random.randint(0, sys.maxint)
+        csvFilename = (((('syn_enums_' + str(rowCount)) + 'x') + str(colCount)) + '.csv')
+        csvPathname = ((SYNDATASETS_DIR + '/') + csvFilename)
+        print 'Creating random', csvPathname
+        write_syn_dataset(csvPathname, rowCount, iColCount, oColCount, SEEDPERFILE, colEnumList=colEnumList)
+        parseResult = h2i.import_parse(path=csvPathname, schema='put', hex_key=hex_key, timeoutSecs=30)
+        (numRows, numCols, parse_key) = h2o_cmd.infoFromParse(parseResult)
+        inspect = h2o_cmd.runInspect(key=parse_key)
+        (missingList, valueList, numRows, numCols) = h2o_cmd.infoFromInspect(inspect)
+        if (1 == 1):
+            Assign('b', Col(Seq(1, 2, 3))).do()
+            Assign('a', Cbind(['b' for i in range(colCount)])).do()
+            for eKey in eKeys:
+                Assign(eKey, 'a').do()
+        xList = []
+        eList = []
+        fList = []
+        for repeat in range(200):
+            randICol = random.randint(0, (iColCount - 1))
+            randOCol = random.randint(iColCount, ((iColCount + oColCount) - 1))
+            e = random.sample(eKeys, 2)
+            fKey = e[0]
+            eKey = e[1]
+            if (1 == 1):
+                start = time.time()
+                Assign(fKey, random.choice(rowExprList)).do()
+                elapsed = (time.time() - start)
+                execTime = elapsed
+                print 'exec 2 took', elapsed, 'seconds.'
+                inspect = h2o_cmd.runInspect(key=fKey)
+                (missingList, valueList, numRows, numCols) = h2o_cmd.infoFromInspect(inspect)
+            if ((numRows == 0) or (numCols != colCount)):
+                h2p.red_print('Warning: Cut resulted in', numRows, 'rows and', numCols, 'cols. Quantile will abort')
+            quantileTime = 0
+            if (1 == 0):
+                start = time.time()
+                h2o.nodes[0].remove_all_keys()
+                elapsed = (time.time() - start)
+                print 'remove all keys end on ', csvFilename, 'took', elapsed, 'seconds.'
+            trial += 1
+            xList.append(trial)
+            eList.append(execTime)
+            fList.append(quantileTime)
+    if DO_PLOT:
+        xLabel = 'trial'
+        eLabel = 'exec cut time'
+        fLabel = 'quantile time'
+        eListTitle = ''
+        fListTitle = ''
+        h2o_gbm.plotLists(xList, xLabel, eListTitle, eList, eLabel, fListTitle, fList, fLabel)

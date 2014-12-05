@@ -1,0 +1,27 @@
+def __str__(self):
+    item = self.item
+    if isinstance(item, (list, tuple, dict)):
+        raise Exception(("item doesn't take lists, tuples (or dicts) %s" % item))
+    item = translateValue(item)
+    itemStr = str(item)
+    if re.search('[,]', itemStr):
+        raise Exception(('item has comma. Bad. %s' % item))
+    elif (len(itemStr) == 0):
+        raise Exception(('item is len 0 %s' % item))
+    start = itemStr[0]
+    if (start == '!'):
+        raise Exception(('item starts with !. Only for lhs (Assign*). Bad. %s' % item))
+    elif (start == '#'):
+        if (itemStr == '#'):
+            raise Exception(('item is just #. Bad. %s' % item))
+    elif (start == '$'):
+        if (itemStr == '$'):
+            raise Exception(('item is just $. Bad. %s' % item))
+    else:
+        try:
+            junk = float(item)
+            itemStr = ('#%s' % item)
+        except:
+            if re.match('[a-zA-Z0-9]+$', itemStr):
+                itemStr = ('$%s' % item)
+    return itemStr

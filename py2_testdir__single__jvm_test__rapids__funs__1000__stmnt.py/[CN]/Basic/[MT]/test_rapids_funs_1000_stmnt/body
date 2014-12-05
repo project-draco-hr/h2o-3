@@ -1,0 +1,26 @@
+def test_rapids_funs_1000_stmnt(self):
+    DO_FAIL = False
+    if DO_FAIL:
+        bucket = 'home-0xdiag-datasets'
+        csvPathname = 'standard/covtype.data'
+    else:
+        bucket = 'smalldata'
+        csvPathname = 'iris/iris_wheader.csv'
+    hexKey = 'r1'
+    parseResult = h2i.import_parse(bucket=bucket, path=csvPathname, schema='put', hex_key=hexKey)
+    keys = []
+    for trial in range(3):
+        for execObj in funsList:
+            print 'ast length:', len(execObj.ast())
+            result = execObj.do()
+            if DO_FAIL:
+                a = Assign('junk', Fcn('anon', Frame('r1', col=0)))
+            else:
+                a = Assign('junk', Fcn('anon', 'r1'))
+            result = a.do(timeoutSecs=60)
+            if (a.execResult['num_rows'] or a.execResult['num_cols']):
+                keys.append(a.execExpr)
+    print '\nExpressions that created keys'
+    for k in keys:
+        print k
+    h2o.check_sandbox_for_errors()

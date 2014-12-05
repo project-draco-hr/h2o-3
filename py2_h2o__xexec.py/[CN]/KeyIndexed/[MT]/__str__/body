@@ -1,0 +1,16 @@
+def __str__(self):
+    frame = self.frame
+    row = self.row
+    col = self.col
+    if ((row in [None, '"null"']) and (col in [None, '"null"'])):
+        return ('$%s' % frame)
+    if (row is None):
+        row = '"null"'
+    if (col is None):
+        col = '"null"'
+    if (not re.match('\\$', frame)):
+        frame = ('$%s' % self.frame)
+    if (self.dim == 1):
+        return ('([ %s %s %s)' % (frame, row, '#0'))
+    else:
+        return ('([ %s %s %s)' % (frame, row, col))

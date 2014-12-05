@@ -1,0 +1,16 @@
+def write_syn_dataset(csvPathname, rowCount, colCount, SEED):
+    r1 = random.Random(SEED)
+    dsf = open(csvPathname, 'w+')
+    for i in range((rowCount + 1)):
+        rowData = []
+        if (i == 0):
+            for j in range(colCount):
+                r = ('abcdefghijklmnopqrstuvwxyz_' + str((10000 + j)))
+                rowData.append(r)
+        else:
+            for j in range(colCount):
+                r = r1.randint(0, 1)
+                rowData.append(r)
+        rowDataCsv = ','.join(map(str, rowData))
+        dsf.write((rowDataCsv + '\n'))
+    dsf.close()

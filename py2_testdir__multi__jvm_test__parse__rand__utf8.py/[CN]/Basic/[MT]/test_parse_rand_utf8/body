@@ -10,15 +10,10 @@ def test_parse_rand_utf8(self):
         print '\nCreating random', csvPathname
         write_syn_dataset(csvPathname, rowCount, colCount, SEED=SEEDPERFILE)
         parseResult = h2i.import_parse(path=csvPathname, schema='put', checkHeader=0, hex_key=hex_key, timeoutSecs=timeoutSecs, doSummary=False)
-        print "Parse result['destination_key']:", parseResult['destination_key']
-        inspect = h2o_cmd.runInspect(None, parseResult['destination_key'], timeoutSecs=60)
-        print 'inspect:', h2o.dump_json(inspect)
-        numRows = inspect['numRows']
+        print 'parseResult:', dump_json(parseResult)
+        (numRows, numCols, parse_key) = h2o_cmd.infoFromParse(parseResult)
+        inspect = h2o_cmd.runInspect(key=parse_key)
+        (missingList, labelList, numRows, numCols) = h2o_cmd.infoFromInspect(inspect)
+        assert (len(missingList) == 0)
         self.assertEqual(numRows, rowCount, msg=('Wrong numRows: %s %s' % (numRows, rowCount)))
-        numCols = inspect['numCols']
         self.assertEqual(numCols, colCount, msg=('Wrong numCols: %s %s' % (numCols, colCount)))
-        for k in range(colCount):
-            naCnt = inspect['cols'][k]['naCnt']
-            self.assertEqual(0, naCnt, msg=('col %s naCnt %d should be 0' % (k, naCnt)))
-            stype = inspect['cols'][k]['type']
-            self.assertEqual('Enum', stype, msg=('col %s type %s should be Enum' % (k, stype)))

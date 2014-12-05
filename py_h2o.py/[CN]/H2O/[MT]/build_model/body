@@ -1,14 +1,14 @@
 def build_model(self, algo, training_frame, parameters, destination_key=None, timeoutSecs=60, asynchronous=False, **kwargs):
-    assert (algo is not None), '"algo" parameter is null'
-    assert (training_frame is not None), '"training_frame" parameter is null'
-    assert (parameters is not None), '"parameters" parameter is null'
+    assert (algo is not None), 'FAIL: "algo" parameter is null'
+    assert (training_frame is not None), 'FAIL: "training_frame" parameter is null'
+    assert (parameters is not None), 'FAIL: "parameters" parameter is null'
     model_builders = self.model_builders(timeoutSecs=timeoutSecs)
-    assert (model_builders is not None), '/ModelBuilders REST call failed'
-    assert (algo in model_builders['model_builders'])
+    assert (model_builders is not None), 'FAIL: /ModelBuilders REST call failed'
+    assert (algo in model_builders['model_builders']), ((('FAIL: failed to find algo ' + algo) + ' in model_builders list: ') + repr(model_builders))
     builder = model_builders['model_builders'][algo]
     frames = self.frames(key=training_frame)
-    assert (frames is not None), '/Frames/{0} REST call failed'.format(training_frame)
-    assert (frames['frames'][0]['key']['name'] == training_frame), '/Frames/{0} returned Frame {1} rather than Frame {2}'.format(training_frame, frames['frames'][0]['key']['name'], training_frame)
+    assert (frames is not None), 'FAIL: /Frames/{0} REST call failed'.format(training_frame)
+    assert (frames['frames'][0]['key']['name'] == training_frame), 'FAIL: /Frames/{0} returned Frame {1} rather than Frame {2}'.format(training_frame, frames['frames'][0]['key']['name'], training_frame)
     parameters['training_frame'] = training_frame
     if (destination_key is not None):
         parameters['destination_key'] = destination_key

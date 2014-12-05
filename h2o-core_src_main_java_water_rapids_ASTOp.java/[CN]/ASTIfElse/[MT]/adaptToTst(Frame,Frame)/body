@@ -1,0 +1,39 @@
+{
+  Key k=src._key == null ? Key.make() : src._key;
+  if (src._key == null || DKV.get(src._key) == null)   DKV.put(k,new Frame(k,src.names(),src.vecs()));
+  StringBuilder sb=null;
+  if (src.numRows() < tgt.numRows()) {
+    int nrbins=1 + (int)((tgt.numRows() - src.numRows()) / src.numRows());
+    long remainder=tgt.numRows() % src.numRows();
+    sb=new StringBuilder("(rbind ");
+    for (int i=0; i < nrbins; ++i)     sb.append("$").append(k).append((i == (nrbins - 1) && remainder < 0) ? "" : " ");
+    sb.append(remainder > 0 ? "([ $" + k + " (: #0 #"+ (remainder - 1)+ ") \"null\"))" : ")");
+    Log.info("extending frame:" + sb.toString());
+  }
+ else   if (src.numRows() > tgt.numRows()) {
+    long rmax=tgt.numRows() - 1;
+    sb=new StringBuilder("([ $" + k + " (: #0 #"+ rmax+ "))");
+  }
+  if (sb != null) {
+    Env env=null;
+    Frame res;
+    try {
+      env=Exec.exec(sb.toString());
+      res=env.pop0Ary();
+      res.unlock_all();
+    }
+ catch (    Exception e) {
+      throw H2O.fail();
+    }
+ finally {
+      if (env != null)       env.unlock();
+    }
+    Frame ret=tgt.makeCompatible(res);
+    if (env != null)     env.cleanup(ret == res ? null : res,(Frame)DKV.remove(k).get());
+    return ret;
+  }
+  src=DKV.remove(k).get();
+  Frame ret=tgt.makeCompatible(src);
+  if (src != ret)   src.delete();
+  return ret;
+}

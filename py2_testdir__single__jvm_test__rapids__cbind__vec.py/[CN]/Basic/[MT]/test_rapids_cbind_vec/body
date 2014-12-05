@@ -16,12 +16,12 @@ def test_rapids_cbind_vec(self):
         xList = []
         eList = []
         fList = []
-        for trial2 in range(0, 10):
+        for trial2 in range(0, 16):
             col = (2 ** trial2)
             vString = ' '.join(['$v' for x in range(col)])
             execExpr = ('(= !v2 (cbind %s))' % vString)
             start = time.time()
-            (execResult, result) = h2e.exec_expr(h2o.nodes[0], execExpr, resultKey=None, timeoutSecs=10)
+            (execResult, result) = h2e.exec_expr(h2o.nodes[0], execExpr, resultKey=None, timeoutSecs=40)
             elapsed2 = (time.time() - start)
             if execResult['num_rows']:
                 keys.append(execExpr)

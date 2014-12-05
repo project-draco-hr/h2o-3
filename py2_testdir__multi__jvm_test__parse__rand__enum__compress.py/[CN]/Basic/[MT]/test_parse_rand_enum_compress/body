@@ -1,0 +1,40 @@
+def test_parse_rand_enum_compress(self):
+    SYNDATASETS_DIR = h2o.make_syn_dir()
+    if DEBUG:
+        n = 20
+    else:
+        n = 1000000
+    if h2o_args.long_test_case:
+        repeat = 1000
+        scale = 10
+        tryList = [((n * scale), 1, 'cI', 300), ((n * scale), 1, 'cI', 300), ((n * scale), 1, 'cI', 300)]
+    else:
+        repeat = 1
+        scale = 1
+        tryList = [(n, 3, 'cI', 300), (n, 3, 'cI', 300), (n, 3, 'cI', 300)]
+    lastcolsHistory = []
+    enumList = create_enum_list(listSize=ENUMS_NUM)
+    for r in range(repeat):
+        SEED_PER_FILE = random.randint(0, sys.maxint)
+        for (rowCount, colCount, hex_key, timeoutSecs) in tryList:
+            colSepHexString = '2c'
+            colSepChar = colSepHexString.decode('hex')
+            colSepInt = int(colSepHexString, base=16)
+            print 'colSepChar:', colSepChar
+            rowSepHexString = '0a'
+            rowSepChar = rowSepHexString.decode('hex')
+            print 'rowSepChar:', rowSepChar
+            csvFilename = (((('syn_enums_' + str(rowCount)) + 'x') + str(colCount)) + '.csv')
+            csvPathname = ((SYNDATASETS_DIR + '/') + csvFilename)
+            print 'Creating random', csvPathname
+            start = time.time()
+            lastcols = write_syn_dataset(csvPathname, enumList, rowCount, colCount, scale=1, colSepChar=colSepChar, rowSepChar=rowSepChar, SEED=SEED_PER_FILE)
+            elapsed = (time.time() - start)
+            print ('took %s seconds to create %s' % (elapsed, csvPathname))
+            lastcolsHistory.append(lastcols)
+            parseResult = h2i.import_parse(path=csvPathname, schema='put', hex_key=hex_key, checkHeader=0, timeoutSecs=30, sep=colSepInt, doSummary=DO_SUMMARY)
+            print "Parse result['destination_key']:", parseResult['destination_key']
+            inspect = h2o_cmd.runInspect(key=parseResult['destination_key'])
+            (missingValuesList, labelsList, numRows, numCols) = h2o_cmd.infoFromInspect(inspect)
+            self.assertEqual(rowCount, numRows)
+            self.assertEqual(colCount, numCols)

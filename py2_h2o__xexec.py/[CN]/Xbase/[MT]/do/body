@@ -1,0 +1,30 @@
+def do(self, timeoutSecs=30):
+    print ('%s .do() start %s' % (type(self), self))
+    if (not isinstance(self, (Assign, Expr, Def, Key, KeyInit, KeyIndexed, Item, Fcn))):
+        raise Exception((".do() Maybe you're trying to send a wrong instance to h2o? %s %s" % (type(self), self)))
+    if self.execExpr:
+        raise Exception((".do() Appears we already Exec'ed this? %s %s %s" % (self.execExpr, type(self), self)))
+    if self.funs:
+        self.execExpr = ('[%s]' % self)
+    else:
+        self.execExpr = ('%s' % self)
+    if self.execDone:
+        print '%s .do() already done:'(type(self, self.execExpr))
+        return
+    self.execResult = None
+    self.result = None
+    if self.debug:
+        h2p.green_print(('%s .do() debug ast: %s' % (type(self), self.execExpr)))
+        self.execResult = {'debug': True, }
+        self.result = None
+    else:
+        (self.execResult, self.result) = h2e.exec_expr(execExpr=self.execExpr, doFuns=self.funs, timeoutSecs=timeoutSecs)
+        if (self.execResult['key'] is None):
+            print ('Hacking scalar result %s into a key wth name I told h2o! %s' % (self.execResult['scalar'], self.frame))
+            print "FIX! Hacking scalar to int because rapids doesn't like reals?"
+            execExpr = ('(= !%s (c {#%s}))' % (self.frame, int(self.execResult['scalar'])))
+            h2e.exec_expr(execExpr=execExpr)
+    self.lastExecResult = self.execResult.copy()
+    self.lastResult = self.result
+    execDone = True
+    return self.result

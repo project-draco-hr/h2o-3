@@ -1,0 +1,29 @@
+def test_rapids_colons_basic(self):
+    bucket = 'smalldata'
+    csvPathname = 'iris/iris_wheader.csv'
+    hexKey = 'v'
+    parseResult = h2i.import_parse(bucket=bucket, path=csvPathname, schema='put', hex_key=hexKey)
+
+    def doAll(case):
+        keys = []
+        trial = 0
+        for execExpr in exprList:
+            colons = ['#0 #0']
+            for colon in colons:
+                t = ('t%s' % trial)
+                cases = [('(= !%s %s' % (t, execExpr)), ('(= ([ $%s %s) %s)' % (t, colon, execExpr)), ('(= !%s  ([ t%s %s))' % (t, execExpr, colon)), ('(= ([ $%s %s) ([ %s %s))' % (t, colon, execExpr, colon))]
+                for case in cases:
+                    ('(= !%s (c {#0})' % t)
+                    (execResult, result) = h2e.exec_expr(h2o.nodes[0], case, resultKey=None, timeoutSecs=4)
+                    (execResult, result) = h2e.exec_expr(h2o.nodes[0], case, resultKey=None, timeoutSecs=4)
+                    if execResult['key']:
+                        keys.append(execExpr)
+                    trial += 1
+            print '\nExpressions that created keys'
+            for k in keys:
+                print k
+                if re.match('_', k):
+                    raise Exception(("%s I didn't expect any keys with leading underscores." + ("\nDoesn't spencer delete those so I can't read them?" % k)))
+            h2o.check_sandbox_for_errors()
+    for case in range(4):
+        doAll(case)

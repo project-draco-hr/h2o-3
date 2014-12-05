@@ -1,0 +1,15 @@
+def test_rapids_ifelse(self):
+    bucket = 'smalldata'
+    csvPathname = 'iris/iris_wheader.csv'
+    hexKey = 'r1'
+    parseResult = h2i.import_parse(bucket=bucket, path=csvPathname, schema='put', hex_key=hexKey)
+    keys = []
+    for trial in range(2):
+        for execObj in objList:
+            result = execObj.do()
+            if (execObj.execResult['num_rows'] or execObj.execResult['num_cols']):
+                keys.append(execObj.execExpr)
+    print '\nExpressions that created keys'
+    for k in keys:
+        print k
+    h2o.check_sandbox_for_errors()

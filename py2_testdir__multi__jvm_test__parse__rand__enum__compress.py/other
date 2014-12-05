@@ -1,0 +1,50 @@
+import unittest, random, sys, time, codecs
+sys.path.extend(['.', '..', '../..', 'py'])
+import h2o, h2o_cmd, h2o_import as h2i, h2o_args
+DEBUG = False
+UTF8 = True
+UTF8_MULTIBYTE = True
+DO_WITH_INT = False
+ENUMS_NUM = 20000
+ENUMLIST = None
+REPORT_LAST_ENUM_INDICES = False
+DISABLE_ALL_NA = False
+CAUSE_RANDOM_NA = True
+CREATE_RESPONSE_COL = False
+RESPONSE_MODULO = 2
+DO_SUMMARY = False
+NO_NUL = True
+print 'We have a problem starting a line with double quote and not ending it before EOL'
+print 'assume that is unlikely with the distribution being used'
+if UTF8:
+    ordinalChoices = range(30, 256)
+else:
+    ordinalChoices = range(30, 128)
+if UTF8_MULTIBYTE:
+
+    def aSmallSet(a, b):
+        return random.sample(range(a, b), 10)
+    if (1 == 0):
+        ordinalChoicesMulti = range(0, 127)
+        ordinalChoicesMulti += range(128, 159)
+        ordinalChoicesMulti += range(160, 1023)
+        ordinalChoicesMulti += range(1024, 2047)
+        ordinalChoicesMulti += range(2048, 16383)
+        ordinalChoicesMulti += range(16384, 65535)
+        ordinalChoicesMulti += range(65536, 262143)
+        ordinalChoicesMulti += range(262144, 1114111)
+    else:
+        ordinalChoicesMulti = range(30, 127)
+        ordinalChoicesMulti += aSmallSet(128, 159)
+        ordinalChoicesMulti += aSmallSet(160, 1023)
+        ordinalChoicesMulti += aSmallSet(1024, 2047)
+        ordinalChoicesMulti += aSmallSet(2048, 16383)
+        ordinalChoicesMulti += aSmallSet(16384, 65535)
+        ordinalChoicesMulti += aSmallSet(65536, 262143)
+        ordinalChoicesMulti += aSmallSet(262144, 1114111)
+if UTF8:
+    massageUTF8Choices(ordinalChoices)
+if UTF8_MULTIBYTE:
+    massageUTF8Choices(ordinalChoicesMulti)
+if (__name__ == '__main__'):
+    h2o.unit_main()
