@@ -1,15 +1,18 @@
-def __init__(self, lhs='xTemp', rhs=None, timeoutSecs=30):
-    super(Assign, self).__init__()
-    if isinstance(lhs, (Key, Frame)):
-        frame = lhs.frame
-    elif isinstance(lhs, basestring):
+def __init__(self, lhs=None, rhs=None, timeoutSecs=30):
+    print ('Assign enter. lhs %s %s' % (type(lhs), lhs))
+    if (lhs is None):
+        lhs = Key()
+    elif (not isinstance(lhs, (Key, KeyIndexed, basestring))):
+        raise Exception(('Assign: lhs not Key/KeyIndexed/string or None %s %s' % (type(lhs), lhs)))
+    super(Assign, self).__init__(key=lhs)
+    if isinstance(lhs, basestring):
         frame = lhs
     else:
-        raise Exception(('Assign: lhs not string/Key/Assign/Frame %s' % lhs))
+        frame = lhs.frame
+    legalKey(frame, 'Assign')
     self.frame = frame
     self.lhs = lhs
     self.rhs = Item(rhs)
     self.funs = False
-    legalKey(frame, 'Assign')
     print ('Assign lhs: %s' % self.lhs)
     print ('Assign rhs: %s' % self.rhs)

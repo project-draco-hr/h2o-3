@@ -1,2 +1,4 @@
 def __str__(self):
-    return ('(= !%s %s)' % (self.frame, self.rhs))
+    lhsAssign = re.sub('^\\$', '', str(self.lhs))
+    lhsprefix = ('!' if isinstance(self.lhs, (Key, basestring)) else '')
+    return ('(= %s%s %s)' % (lhsprefix, lhsAssign, self.rhs))
