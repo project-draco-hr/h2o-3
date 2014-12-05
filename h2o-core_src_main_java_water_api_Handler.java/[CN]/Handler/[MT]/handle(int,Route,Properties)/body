@@ -1,6 +1,6 @@
 {
   if (!(min_ver() <= version && version <= max_ver()))   return new HttpErrorV1(new IllegalArgumentException("Version " + version + " is not in range V"+ min_ver()+ "-V"+ max_ver()));
-  Class<? extends Schema> handler_schema_class=getHandlerMethodSchema(route._handler_method);
+  Class<? extends Schema> handler_schema_class=getHandlerMethodInputSchema(route._handler_method);
   Schema schema=Schema.newInstance(handler_schema_class);
   if (null == schema)   throw H2O.fail("Failed to instantiate Schema of class: " + handler_schema_class + " for route: "+ route);
   Class<? extends Iced> iced_class=schema.getImplClass();

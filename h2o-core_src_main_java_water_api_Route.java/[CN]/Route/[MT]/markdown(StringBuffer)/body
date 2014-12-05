@@ -5,9 +5,24 @@
   builder.hline();
   builder.paragraph(_summary);
   try {
-    Class<? extends Schema> clz=Handler.getHandlerMethodSchema(_handler_method);
-    Schema s=Schema.newInstance(clz);
-    builder.append(s.markdown(null));
+    builder.heading1("Input schema: ");
+{
+      Class<? extends Schema> clz=Handler.getHandlerMethodInputSchema(_handler_method);
+      Schema s=Schema.newInstance(clz);
+      builder.append(s.markdown(null,true,false));
+    }
+    builder.heading1("Output schema: ");
+{
+      Class<? extends Schema> clz=Handler.getHandlerMethodOutputSchema(_handler_method);
+      if (null != clz) {
+        builder.paragraph("(void)");
+      }
+ else {
+        Schema s=Schema.newInstance(clz);
+        if (null == s)         throw H2O.fail("Call to Schema.newInstance(clz) failed for class: " + clz);
+        builder.append(s.markdown(null,false,true));
+      }
+    }
   }
  catch (  Exception e) {
     throw H2O.fail("Caught exception using reflection on handler method: " + _handler_method + ": "+ e);

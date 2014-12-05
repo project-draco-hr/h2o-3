@@ -1,8 +1,15 @@
 {
+  MarkdownBuilder builder=new MarkdownBuilder();
+  builder.comment("Preview with http://jbt.github.io/markdown-editor");
+  builder.heading1("REST API Routes Table of Contents");
+  builder.hline();
+  builder.tableHeader("HTTP method","URI pattern","Input schema","Output schema","Summary");
   docs.routes=new RouteBase[RequestServer.numRoutes()];
   int i=0;
   for (  Route route : RequestServer.routes()) {
     docs.routes[i++]=(RouteBase)Schema.schema(version,Route.class).fillFromImpl(route);
+    builder.tableRow(route._http_method,route._url_pattern.toString().replace("(?<","{").replace(">.*)","}"),Handler.getHandlerMethodInputSchema(route._handler_method).getSimpleName(),Handler.getHandlerMethodOutputSchema(route._handler_method).getSimpleName(),route._summary);
   }
+  docs.markdown=builder.toString();
   return docs;
 }
