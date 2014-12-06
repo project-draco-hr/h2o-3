@@ -19,8 +19,12 @@ def do(self, timeoutSecs=30):
         self.result = None
     else:
         (self.execResult, self.result) = h2e.exec_expr(execExpr=self.execExpr, doFuns=self.funs, timeoutSecs=timeoutSecs)
+        if (self.execResult['key'] is not None):
+            Xbase.keyWriteHistoryList.append(self.execExpr)
         self.numRows = self.execResult['num_rows']
         self.numCols = self.execResult['num_cols']
+        Xbase.lastExecResult = self.execResult.copy()
+        Xbase.lastResult = self.result
         if (self.execResult['key'] is None):
             scalar = self.execResult['scalar']
             debugprint(('Hacking scalar result %s into a key wth name I told h2o! %s' % (scalar, self.frame)))
@@ -31,10 +35,10 @@ def do(self, timeoutSecs=30):
             else:
                 debugprint(('WARNING: %.do() is creating a zero-row result key, from %s' % type(self)))
                 execExpr = ('(= !%s (is.na (c {#0})))' % self.frame)
-            h2e.exec_expr(execExpr=execExpr)
+            (execResult, result) = h2e.exec_expr(execExpr=execExpr)
+            if (execResult['key'] is not None):
+                Xbase.keyWriteHistoryList.append(self.execExpr)
             self.numRows = self.execResult['num_rows']
             self.numCols = self.execResult['num_cols']
-    self.lastExecResult = self.execResult.copy()
-    self.lastResult = self.result
     self.execDone = True
     return self.result
