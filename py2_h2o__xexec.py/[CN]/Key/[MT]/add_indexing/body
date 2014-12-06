@@ -1,15 +1,15 @@
 def add_indexing(self, items):
 
     def indexer(item):
-        print ('Key item %-15s  %s' % (type(item), item))
+        debugprint(('Key item %-15s  %s' % (type(item), item)))
         if (type(item) is int):
-            print 'Key item int', item
+            debugprint('Key item int', item)
             return Item(item)
         elif isinstance(item, Seq):
-            print 'Key item Seq', Seq
+            debugprint('Key item Seq', Seq)
             return item
         elif isinstance(item, Colon):
-            print 'Key item Colon', Colon
+            debugprint('Key item Colon', Colon)
             return item
         elif isinstance(item, (list, tuple)):
             if (len(item) > 1024):
@@ -27,7 +27,7 @@ def add_indexing(self, items):
     if isinstance(items, (list, tuple)):
         itemsList = list(items)
         if (len(itemsList) == 0):
-            print ('Key ignoring length 0 items list/tuple) %s' % itemsList)
+            debugprint(('Key ignoring length 0 items list/tuple) %s' % itemsList))
         elif (len(itemsList) == 1):
             return KeyIndexed(frame=self.frame, row=indexer(itemsList[0]))
         elif (len(itemsList) == 2):
