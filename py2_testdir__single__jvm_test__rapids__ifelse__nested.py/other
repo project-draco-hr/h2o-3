@@ -1,7 +1,7 @@
 import unittest, random, sys, time
 sys.path.extend(['.', '..', '../..', 'py'])
 import h2o, h2o_browse as h2b, h2o_exec as h2e, h2o_import as h2i
-from h2o_xexec import Def, Fcn, Assign, Frame, If, IfElse, Return
+from h2o_xl import Def, Fcn, Assign, KeyIndexed, If, IfElse, Return
 from h2o_test import dump_json, verboseprint
 print 'Trying a different way, listing Rapids objects, rather than .ast() strings'
 objList = [Assign('e', IfElse(1, 2, IfElse(4, 5, IfElse(7, 8, 9)))), Assign('f', IfElse(1, 2, IfElse(4, 5, IfElse(7, 8, 9)))), Assign('g', IfElse(0, 2, IfElse(0, 5, IfElse(0, 8, 9)))), Def('ms', 'x', [IfElse(0, 2, IfElse(0, 5, IfElse(0, 8, 9))), Assign('k', IfElse(0, 12, IfElse(0, 15, IfElse(0, 18, 19))))]), Assign('e', Fcn('ms', 2)), Def('ms', 'x', [If(0, Return(3)), IfElse(0, 5, IfElse(0, 8, 9)), Assign('k', IfElse(0, 12, IfElse(0, 15, IfElse(0, 18, 19)))), If(1, Return(2))]), Assign('e', Fcn('ms', 2))]

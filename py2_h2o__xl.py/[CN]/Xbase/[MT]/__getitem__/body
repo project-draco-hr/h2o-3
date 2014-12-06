@@ -1,0 +1,13 @@
+def __getitem__(self, items):
+    debugprint(('%s __getitem__ start' % type(self)))
+    if isinstance(self, Key):
+        myKeyIndexed = self.add_indexing(items)
+    else:
+        if (self is None):
+            raise Exception(("Can't index something that doesn't exist yet,                     even on lhs. %s %s" % type(self)))
+        myAssign = Assign(None)
+        result = myAssign.do()
+        myKey = Key(myAssign.frame)
+        myKeyIndexed = myKey.add_indexing(items)
+    debugprint(('%s __getitem__  end' % type(self)))
+    return myKeyIndexed

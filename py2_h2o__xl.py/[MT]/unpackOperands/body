@@ -1,0 +1,24 @@
+def unpackOperands(operands, parent=None, toItem=True):
+
+    def addItem(opr):
+        if toItem:
+            operandList.append(Item(opr))
+        else:
+            operandList.append(opr)
+    if (operands is None):
+        raise Exception(('%s unpackOperands no operands: %s' % (parent, operands)))
+    operandList = []
+    if isinstance(operands, (list, tuple)):
+        for opr in operands:
+            if (not isinstance(opr, (list, tuple))):
+                addItem(opr)
+            else:
+                for opr2 in opr:
+                    addItem(opr2)
+    else:
+        addItem(operands)
+    if ((operandList is None) or (len(operandList) == 0)):
+        raise Exception(('%s unpackOperands operandList is None or empty: %s' % (parent, operandList)))
+    if parent:
+        debugprint(('%s: %s' % (parent, map(str, operandList))))
+    return operandList
