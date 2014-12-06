@@ -1,0 +1,14 @@
+def __ilshift__(self, b):
+    if (not isinstance(self, (Key, KeyIndexed))):
+        debugprint(('WARNING: lhs for <<= needs to be Key/KeyIndexed %s %s' % type(self)))
+        debugprint('coercing lhs to Key')
+        lhs = Key()
+    else:
+        lhs = self
+    debugprint('ilshift Assign start')
+    Assign(lhs, b).do()
+    lhs.ilshiftAssignDone = True
+    newForOld = Key(lhs.frame)
+    newForOld.ilshiftAssignDone = True
+    debugprint('ilshift Assign done')
+    return newForOld
