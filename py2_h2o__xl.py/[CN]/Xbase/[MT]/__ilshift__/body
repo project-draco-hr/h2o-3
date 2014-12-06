@@ -6,9 +6,12 @@ def __ilshift__(self, b):
     else:
         lhs = self
     debugprint('ilshift Assign start')
-    Assign(lhs, b).do()
-    lhs.ilshiftAssignDone = True
-    newForOld = Key(lhs.frame)
-    newForOld.ilshiftAssignDone = True
-    debugprint('ilshift Assign done')
-    return newForOld
+    if (lhs.assignDone or isinstance(self, KeyIndexed)):
+        return lhs
+    else:
+        Assign(lhs, b).do()
+        lhs.assignDone = True
+        newForOld = Key(lhs.frame)
+        newForOld.assignDone = True
+        debugprint('ilshift Assign done')
+        return newForOld

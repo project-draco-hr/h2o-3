@@ -17,11 +17,10 @@ def __str__(self):
     elif (start == '$'):
         if (itemStr == '$'):
             raise Exception(('item is just $. Bad. %s' % item))
+    elif isinstance(item, (int, float)):
+        itemStr = ('#%s' % item)
     else:
-        try:
-            junk = float(item)
-            itemStr = ('#%s' % item)
-        except:
-            if re.match('[a-zA-Z0-9]+$', itemStr):
-                itemStr = ('$%s' % item)
+        itemStr = ('%s' % item)
+        if re.match('[a-zA-Z0-9_]+$', itemStr):
+            itemStr = ('$%s' % item)
     return itemStr
