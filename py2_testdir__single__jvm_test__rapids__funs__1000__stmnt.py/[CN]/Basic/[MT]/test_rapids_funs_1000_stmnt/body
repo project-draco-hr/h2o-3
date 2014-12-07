@@ -11,8 +11,9 @@ def test_rapids_funs_1000_stmnt(self):
     keys = []
     for trial in range(3):
         for execObj in funsList:
-            print 'ast length:', len(execObj.ast())
-            result = execObj.do()
+            freshObj = copy(execObj)
+            print 'ast length:', len(str(freshObj))
+            result = freshObj.do()
             if DO_FAIL:
                 a = Assign('junk', Fcn('anon', KeyIndexed('r1', col=0)))
             else:

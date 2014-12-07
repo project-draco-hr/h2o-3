@@ -34,9 +34,8 @@ def test_xl_basic(self):
     assert (ast == astExpected), ('Actual: %s    Expected: %s' % (ast, astExpected))
     Assign(c[1], (a[2] + b[2]))
     ast = h2o_xl.Xbase.lastExecResult['ast']
-    astExpected = '(= ([ $c1 #1 #1) (+ ([ $a1 #2 #2) ([ $b1 #2 #2)))'
+    astExpected = '(= ([ $c1 #1 #0) (+ ([ $a1 #2 #0) ([ $b1 #2 #0)))'
     assert (ast == astExpected), ('Actual: %s    Expected: %s' % (ast, astExpected))
-    assert (1 == 0)
     assert isinstance(c, Key), type(c)
     inspect = h2o_cmd.runInspect(key=c)
     a = DF('a2')
@@ -44,12 +43,18 @@ def test_xl_basic(self):
     b = DF('b2')
     c = DF('c2')
     inspect = h2o_cmd.runInspect(key=c)
+    a <<= 3
+    b <<= 3
+    c <<= 3
     c[0] <<= (a[0] + b[0])
     assert isinstance(c, Key)
     inspect = h2o_cmd.runInspect(key=c)
     a = DF('a3')
     b = DF('b3')
     c = DF('c3')
+    a <<= 4
+    b <<= 4
+    c <<= 4
     c[0] <<= (a[0] - b[0])
     assert isinstance(c, Key)
     c[0] <<= (a[0] * b[0])
@@ -57,6 +62,9 @@ def test_xl_basic(self):
     a = DF('a4')
     b = DF('b4')
     c = DF('c4')
+    a <<= 5
+    b <<= 5
+    c <<= 5
     c[0] <<= (a[0] - b[0])
     assert isinstance(c, Key)
     inspect = h2o_cmd.runInspect(key=c)

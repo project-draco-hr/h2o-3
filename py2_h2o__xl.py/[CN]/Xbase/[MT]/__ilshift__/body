@@ -5,9 +5,10 @@ def __ilshift__(self, rhs):
         debugprint(('WARNING: lhs for <<= needs to be Key/KeyIndexed %s %s' % (type(self), self)))
         debugprint('coercing lhs to Key')
         lhs = Key()
-    if isinstance(lhs, KeyIndexed):
-        debugprint(('ilshift no-op %s %s' % (type(lhs), lhs)))
-        return self
-    else:
-        debugprint(('ilshift _do_the_assign %s %s' % (lhs, rhs)))
-        return self._do_the_assign(lhs, rhs, 'ilshift')
+    a = self._do_assign(lhs, rhs, 'ilshift')
+    debugprint(('ilshift _do_assign %s %s' % (lhs, rhs)))
+    self.ilshiftDone = True
+    self.assignDone = True
+    a.ilshiftDone = True
+    a.assignDone = True
+    return a

@@ -1,0 +1,15 @@
+def _do_assign(self, lhs, rhs, parent):
+    if (lhs.assignDone and (parent != 'ilshift')):
+        debugprint(('WARNING: %s _do_assign %s lhs already done %s' % (parent, type(self), lhs)))
+    elif (self.assignDone and (parent != 'ilshift')):
+        debugprint(('WARNING: %s _do_assign %s self already done %s' % (parent, type(self), self)))
+    elif isinstance(self, Assign):
+        raise Exception(("%s _do_assign %s is already Assign..shouldn't happen? %s" % (parent, type(self), self)))
+    else:
+        debugprint(('%s _do_assign Assign.do() %s' % (parent, type(self))))
+        a = Assign(lhs=lhs, rhs=rhs)
+        a.assignDone = True
+    debugprint(('%s _do_assign done' % parent))
+    self.assignDone = True
+    lhs.assignDone = True
+    return Key(key=lhs.frame)
