@@ -1,0 +1,26 @@
+def log_download(self, logDir=None, timeoutSecs=30, **kwargs):
+    if (logDir == None):
+        logDir = get_sandbox_name()
+    url = self.url('LogDownload.json')
+    log(('Start ' + url))
+    print '\nDownloading h2o log(s) using:', url
+    r = requests.get(url, timeout=timeoutSecs, **kwargs)
+    if ((not r) or (not r.ok)):
+        raise Exception(('Maybe bad url? no r in log_download %s in %s:' % inspect.stack()[1][3]))
+    z = zipfile.ZipFile(StringIO.StringIO(r.content))
+    print 'z.namelist:', z.namelist()
+    print 'z.printdir:', z.printdir()
+    nameList = z.namelist()
+    h2oLogDir = ((logDir + '/') + nameList.pop(0))
+    print 'h2oLogDir:', h2oLogDir
+    print 'logDir:', logDir
+    z = zipfile.ZipFile(StringIO.StringIO(r.content))
+    z.extractall(logDir)
+    for zname in nameList:
+        resultList = h2o_util.flat_unzip(((logDir + '/') + zname), logDir)
+    print '\nlogDir:', logDir
+    for logfile in resultList:
+        numLines = sum((1 for line in open(logfile)))
+        print logfile, 'Lines:', numLines
+    print 
+    return resultList
