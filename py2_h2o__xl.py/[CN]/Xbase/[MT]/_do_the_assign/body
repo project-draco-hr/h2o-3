@@ -1,0 +1,16 @@
+def _do_the_assign(self, lhs, rhs, parent):
+    if lhs.assignDone:
+        debugprint(('WARNING: %s _do_the_assign %s lhs already done %s' % (parent, type(self), lhs)))
+    elif self.assignDone:
+        debugprint(('WARNING: %s _do_the_assign %s self already done %s' % (parent, type(self), self)))
+    elif isinstance(self, Assign):
+        debugprint(('%s _do_the_assign self.do() %s' % (parent, type(self))))
+        self.do()
+        self.assignDone = True
+    else:
+        debugprint(('%s _do_the_assign Assign.do() %s' % (parent, type(self))))
+        a = Assign(lhs=lhs, rhs=rhs)
+        a.assignDone = True
+    lhs.assignDone = True
+    debugprint(('%s _do_the_assign done' % parent))
+    return Key(key=lhs.frame)

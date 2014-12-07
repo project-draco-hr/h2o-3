@@ -12,7 +12,14 @@ def __init__(self, lhs=None, rhs=None, timeoutSecs=30):
     legalKey(frame, 'Assign')
     self.frame = frame
     self.lhs = lhs
-    self.rhs = Item(rhs)
+    if isinstance(rhs, (list, tuple)):
+        if (len(rhs) > 1024):
+            raise Exception(('Key is trying to index a h2o frame with a really long list (>1024)' + ("Probably don't want that? %s" % rhs)))
+        self.rhs = Col(Seq(rhs))
+    else:
+        self.rhs = Item(rhs)
     self.funs = False
     debugprint(('Assign lhs: %s' % self.lhs))
     debugprint(('Assign rhs: %s' % self.rhs))
+    self.do()
+    return None
