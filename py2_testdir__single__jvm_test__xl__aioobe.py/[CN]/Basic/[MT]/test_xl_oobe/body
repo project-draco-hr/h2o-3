@@ -1,0 +1,25 @@
+def test_xl_oobe(self):
+    a = DF('a1')
+    b = DF('b1')
+    c = DF('c1')
+    assert isinstance(a, DF)
+    assert isinstance(a, Key)
+    assert isinstance(a, Xbase)
+    assert (not isinstance(a, KeyIndexed))
+    assert (not isinstance(a, Fcn))
+    assert (not isinstance(a, Assign))
+    Assign(a, 0)
+    Assign(b, 0)
+    Assign(c, 0)
+    print 'lastExecResult:', dump_json(h2o_xl.Xbase.lastExecResult)
+    assert isinstance(a, Key)
+    assert isinstance(b, Key)
+    assert isinstance(c, Key)
+    print 'Referring to non-existent rows causes a problem (AAIOBE)'
+    Assign(c[1], (a[2] + b[2]))
+    ast = h2o_xl.Xbase.lastExecResult['ast']
+    astExpected = '(= ([ $c1 #1 #1) (+ ([ $a1 #2 #2) ([ $b1 #2 #2)))'
+    assert (ast == astExpected), ('Actual: %s    Expected: %s' % (ast, astExpected))
+    for k in Xbase.keyWriteHistoryList:
+        print k
+    h2o.check_sandbox_for_errors()
