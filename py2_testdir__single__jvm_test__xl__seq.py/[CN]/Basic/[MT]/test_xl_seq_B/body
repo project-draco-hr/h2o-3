@@ -23,9 +23,10 @@ def test_xl_seq_B(self):
     checkAst('(= !b1 (c {#0;#1}))')
     c <<= (0, 1, 2)
     checkAst('(= !c1 (c {#0;#1;#2}))')
-    print "Referring to non-existent rows causes a problem (AAIOBE). Don't do that"
-    c[2] <<= (a[0] + b[1])
-    checkAst('(= ([ $c1 #2 #0) (+ ([ $a1 #0 #0) ([ $b1 #1 #0)))')
+    c <<= (a[0] + b[1])
+    checkAst('(= !c1 (+ ([ $a1 #0 #0) ([ $b1 #1 #0)))')
+    c[0] <<= (a[0] + b[1])
+    checkAst('(= ([ $c1 #0 #0) (+ ([ $a1 #0 #0) ([ $b1 #1 #0)))')
     for k in Xbase.keyWriteHistoryList:
         print k
     h2o.check_sandbox_for_errors()

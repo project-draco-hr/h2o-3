@@ -1,20 +1,19 @@
 def do(self, timeoutSecs=30):
-    debugprint(('%s .do() start %s' % (type(self), self)))
-    if (not isinstance(self, (Assign, Expr, Def, Key, KeyInit, KeyIndexed, Item, Fcn))):
-        raise Exception((".do() Maybe you're trying to send a wrong instance to h2o? %s %s" % type(self)))
+    if (not isinstance(self, (Assign, Expr, Def, Key, KeyInit, KeyIndexed, Item, Fcn, If, IfElse, Return))):
+        raise Exception((".do() Maybe you're trying to send a wrong instance to h2o? %s %s" % (type(self), self)))
     if self.execExpr:
-        raise Exception((".do() Appears we already Exec'ed this? %s %s" % (type(self), self.execExpr)))
-    if self.funs:
-        self.execExpr = ('[%s]' % self)
-    else:
-        self.execExpr = ('%s' % self)
+        raise Exception((((((".do() Appears already .do()'ed this?\n" + "You may need 'do=False' param on an Assign to avoid the default do=True\n") + 'That causes .do() on all Assign inits.\n') + "Also, if you're using function objects multiple times, you should \n") + 'use copy.copy() to copy them to fresh instances, because of internal state in the objects (mutables)..\n') + ("Maybe I'll change this sometime \n    type self: %s \n    self.execExpr: %s" % (type(self), self.execExpr))))
     if self.execDone:
         debugprint('%s .do() already done:'(type(self, self.execExpr)))
         return
     self.execResult = None
     self.result = None
+    if self.funs:
+        self.execExpr = ('[%s]' % self)
+    else:
+        self.execExpr = ('%s' % self)
+    h2p.green_print(('%s .do() ast: %s' % (type(self), self.execExpr)))
     if debugNoH2O:
-        h2p.green_print(('%s .do() debug ast: %s' % (type(self), self.execExpr)))
         self.execResult = {'debug': True, }
         self.result = None
     else:
@@ -25,7 +24,7 @@ def do(self, timeoutSecs=30):
         self.numCols = self.execResult['num_cols']
         Xbase.lastExecResult = self.execResult.copy()
         Xbase.lastResult = self.result
-        if (self.execResult['key'] is None):
+        if ((not self.funs) and (not isinstance(self, (If, IfElse, Return))) and (self.execResult['key'] is None)):
             scalar = self.execResult['scalar']
             debugprint(('Hacking scalar result %s into a key wth name I told h2o! %s' % (scalar, self.frame)))
             debugprint("FIX! Hacking scalar to int because rapids doesn't like reals?")
@@ -41,4 +40,6 @@ def do(self, timeoutSecs=30):
             self.numRows = self.execResult['num_rows']
             self.numCols = self.execResult['num_cols']
     self.execDone = True
+    if isinstance(self, Assign):
+        self.assignDone = True
     return self.result

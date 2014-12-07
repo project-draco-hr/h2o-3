@@ -1,9 +1,7 @@
 def __setitem__(self, items, rhs):
-    if isinstance(self, KeyIndexed):
-        raise Exception(("Shouldn't be setitem indexing KeyIndexed? %s %s" % (type(self), self)))
-    if (isinstance(self, Key) and (not self.assignDone)):
+    if (isinstance(self, (Key, KeyIndexed)) and (not (self.assignDone or self.ilshiftDone))):
         debugprint(('%s __setitem__ completing %s %s' % (type(self), self, rhs)))
         lhs = self.add_indexing(items)
-        self._do_the_assign(lhs, rhs, '__setitem__')
+        self._do_assign(lhs, rhs, '__setitem__')
     debugprint(('%s __setitem__  end' % type(self)))
     return None

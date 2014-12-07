@@ -1,7 +1,8 @@
-def __init__(self, lhs=None, rhs=None, timeoutSecs=30):
+def __init__(self, lhs=None, rhs=None, do=True, timeoutSecs=30):
     debugprint(('Assign enter. lhs %s %s' % (type(lhs), lhs)))
     if (lhs is None):
         lhs = Key()
+        debugprint(('Assign: creating Key for lhs: %s' % lhs))
     elif (not isinstance(lhs, (Key, KeyIndexed, basestring))):
         raise Exception(('Assign: lhs not Key/KeyIndexed/string or None %s %s' % (type(lhs), lhs)))
     super(Assign, self).__init__(lhs)
@@ -21,5 +22,9 @@ def __init__(self, lhs=None, rhs=None, timeoutSecs=30):
     self.funs = False
     debugprint(('Assign lhs: %s' % self.lhs))
     debugprint(('Assign rhs: %s' % self.rhs))
-    self.do()
+    if do:
+        self.do()
+        self.assignDone = True
+        if (not isinstance(lhs, basestring)):
+            lhs.assignDone = True
     return None
