@@ -2,12 +2,16 @@ def __str__(self):
     frame = self.frame
     row = self.row
     col = self.col
-    if ((row in [None, '"null"']) and (col in [None, '"null"'])):
-        return ('$%s' % frame)
+    if (row is not None):
+        assert isinstance(row, (Seq, Colon, Item)), ('KeyIndexed unexpected row type. %s %s' % (type(row), row))
+    if (col is not None):
+        assert isinstance(col, (Seq, Colon, Item)), ('KeyIndexed unexpected col type. %s %s' % (type(col), col))
     if (row is None):
         row = '"null"'
     if (col is None):
         col = '"null"'
+    if ((str(row) == '"null"') and (str(col) == '"null"')):
+        return ('$%s' % frame)
     if (not re.match('\\$', frame)):
         frame = ('$%s' % self.frame)
     if (self.dim == 1):

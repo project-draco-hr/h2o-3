@@ -1,4 +1,4 @@
-def do(self, timeoutSecs=30):
+def do(self, timeoutSecs=30, get=False):
     if (not isinstance(self, (Assign, Expr, Def, Key, KeyInit, KeyIndexed, Item, Fcn, If, IfElse, Return))):
         raise Exception((".do() Maybe you're trying to send a wrong instance to h2o? %s %s" % (type(self), self)))
     if self.execExpr:
@@ -24,16 +24,17 @@ def do(self, timeoutSecs=30):
         self.numCols = self.execResult['num_cols']
         Xbase.lastExecResult = self.execResult.copy()
         Xbase.lastResult = self.result
+        scalar = None
         if ((not self.funs) and (not isinstance(self, (If, IfElse, Return))) and (self.execResult['key'] is None)):
             scalar = self.execResult['scalar']
             debugprint(('Hacking scalar result %s into a key wth name I told h2o! %s' % (scalar, self.frame)))
             debugprint("FIX! Hacking scalar to int because rapids doesn't like reals?")
-            if (scalar is not None):
+            if (scalar is None):
+                debugprint(('WARNING: %.do() is creating a zero-row result key, from %s' % type(self)))
+                execExpr = ('(= !%s (c {#-1}))' % self.frame)
+            else:
                 scalar = int(scalar)
                 execExpr = ('(= !%s (c {#%s}))' % (self.frame, scalar))
-            else:
-                debugprint(('WARNING: %.do() is creating a zero-row result key, from %s' % type(self)))
-                execExpr = ('(= !%s (is.na (c {#0})))' % self.frame)
             (execResult, result) = h2e.exec_expr(execExpr=execExpr)
             if (execResult['key'] is not None):
                 Xbase.keyWriteHistoryList.append(self.execExpr)
@@ -42,4 +43,12 @@ def do(self, timeoutSecs=30):
     self.execDone = True
     if isinstance(self, Assign):
         self.assignDone = True
-    return self.result
+    if get:
+        if scalar:
+            return scalar
+        elif (self.numCols == 1):
+            pass
+        else:
+            raise Exception(('.do() get wants to return a key with >1 col. not supported yet frame: %s numRows: %s numCols %s' % (self.frame, self.numRows, self.NumCols)))
+    else:
+        return None

@@ -1,0 +1,16 @@
+def infoFromSummary(summaryResult):
+    frame = summaryResult['frames'][0]
+    default_pctiles = frame['default_pctiles']
+    checksum = frame['checksum']
+    rows = frame['rows']
+    coJson = frame['columns'][0]
+    assert ((checksum != 0) and (checksum is not None))
+    assert ((rows != 0) and (rows is not None))
+    assert (not frame['isText'])
+    co = OutputObj(coJson, ('infoFromSummary %s' % coJson['label']))
+    coList = [co.base, len(co.bins), len(co.data), co.domain, co.label, co.maxs, co.mean, co.mins, co.missing, co.ninfs, co.pctiles, co.pinfs, co.precision, co.sigma, co.str_data, co.stride, co.type, co.zeros]
+    print "you can look at this attributes in the returned object (which is OutputObj if you assigned to 'co')"
+    for (k, v) in co:
+        print ('co.%s' % k),
+    print 
+    return co

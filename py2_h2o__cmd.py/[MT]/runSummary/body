@@ -15,30 +15,40 @@ def runSummary(node=None, key=None, expected=None, column=None, **kwargs):
         def __iter__(self):
             for (attr, value) in self.__dict__.iteritems():
                 yield (attr, value)
-    from h2o_test import OutputObj
     inspect = runInspect(key=key)
     (missingList, labelList, numRows, numCols) = infoFromInspect(inspect)
     lastChecksum = None
     desiredResult = None
-    for label in labelList:
+    if isinstance(column, (basestring, int)):
+        raise Exception(('column param should be string or integer index %s %s' % (type(column), column)))
+    for (colIndex, label) in enumerate(labelList):
         print ('doing summary on %s' % label)
         summaryResult = node.summary(key=key, column=label)
-        if ((not desiredResult) or (column and (column == label))):
+        if (column is None):
+            thisIsTheColumn = True
+        elif isinstance(column, int):
+            thisIsTheColumn = (column == colIndex)
+        else:
+            thisIsTheColumn = (column == label)
+        if thisIsTheColumn:
             desiredResult = summaryResult
         frame = summaryResult['frames'][0]
         default_pctiles = frame['default_pctiles']
         checksum = frame['checksum']
         rows = frame['rows']
-        columns = frame['columns']
+        coJson = frame['columns'][0]
         assert (rows == numRows)
         assert ((checksum != 0) and (checksum is not None))
         assert ((rows != 0) and (rows is not None))
         assert (not frame['isText'])
         lastChecksum = checksum
-        co = OutputObj(columns[0], ('summary_%s' % label))
+        co = OutputObj(coJson, ('summary %s' % label))
         coList = [co.base, len(co.bins), len(co.data), co.domain, co.label, co.maxs, co.mean, co.mins, co.missing, co.ninfs, co.pctiles, co.pinfs, co.precision, co.sigma, co.str_data, co.stride, co.type, co.zeros]
         for (k, v) in co:
-            print k, v
+            if ((k == 'mins') or (k == 'maxs')):
+                print ('%s[0]' % k), v[0]
+            else:
+                print k, v
         print 'len(co.bins):', len(co.bins)
         print 'co.label:', co.label, 'mean (2 places):', h2o_util.twoDecimals(co.mean)
         print 'co.label:', co.label, 'std dev. (2 places):', h2o_util.twoDecimals(co.sigma)
@@ -68,16 +78,16 @@ def runSummary(node=None, key=None, expected=None, column=None, **kwargs):
             print "Test won't calculate max expected error"
             maxErr = 0
         pt = h2o_util.twoDecimals(pctiles)
-        mx = h2o_util.twoDecimals(co.maxs)
-        mn = h2o_util.twoDecimals(co.mins)
+        mx = h2o_util.twoDecimals(co.maxs[0])
+        mn = h2o_util.twoDecimals(co.mins[0])
         print 'co.label:', co.label, 'co.pctiles (2 places):', pt
         print 'default_pctiles:', default_pctiles
         print 'co.label:', co.label, 'co.maxs: (2 places):', mx
         print 'co.label:', co.label, 'co.mins: (2 places):', mn
         if (pt is None):
-            compareActual = (mn[0], ([None] * 3), mx[0])
+            compareActual = (mn, ([None] * 3), mx)
         else:
-            compareActual = (mn[0], pt[3], pt[5], pt[7], mx[0])
+            compareActual = (mn, pt[3], pt[5], pt[7], mx)
         h2p.green_print('actual min/25/50/75/max co.label:', co.label, '(2 places):', compareActual)
         h2p.green_print('expected min/25/50/75/max co.label:', co.label, '(2 places):', expected)
     return desiredResult

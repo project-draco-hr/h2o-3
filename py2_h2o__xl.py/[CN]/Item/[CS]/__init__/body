@@ -1,2 +1,10 @@
-def __init__(self, item):
-    self.item = item
+def __init__(self, item, listOk=False):
+    if isinstance(item, (list, tuple)):
+        if (not listOk):
+            raise Exception(("Item doesn't take lists, tuples (or dicts) %s, unless listOk. %s" % (item, listOk)))
+        else:
+            if (len(item) > 1024):
+                raise Exception(('Key is trying to index a h2o frame with a really long list (>1024)' + ("Probably don't want that? %s" % item)))
+            self.item = Col(Seq(item))
+    else:
+        self.item = item
