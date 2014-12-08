@@ -1,0 +1,29 @@
+{
+  StringBuilder buf=new StringBuilder();
+  int i=indexRef[0];
+  int length=pattern.length();
+  char c=pattern.charAt(i);
+  if (c == '%' && i + 1 < length && pattern.charAt(i + 1) != '%') {
+    c=pattern.charAt(++i);
+    if ((c == '0' || c == 'E') && i + 1 >= length)     c=pattern.charAt(++i);
+    buf.append('%');
+    buf.append(c);
+  }
+ else {
+    buf.append('\'');
+    buf.append(c);
+    for (i++; i < length; i++) {
+      c=pattern.charAt(i);
+      if (c == '%') {
+        if (i + 1 < length && pattern.charAt(i + 1) == '%')         i++;
+ else {
+          i--;
+          break;
+        }
+      }
+      buf.append(c);
+    }
+  }
+  indexRef[0]=i;
+  return buf.toString();
+}

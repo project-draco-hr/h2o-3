@@ -1,0 +1,161 @@
+{
+  int length=pattern.length();
+  int[] indexRef=new int[1];
+  for (int i=0; i < length; i++) {
+    indexRef[0]=i;
+    String token=parseToken(pattern,indexRef);
+    i=indexRef[0];
+    int tokenLen=token.length();
+    if (tokenLen == 0) {
+      break;
+    }
+    char c=token.charAt(0);
+    if (c == '%' && token.charAt(1) != '%') {
+      c=token.charAt(1);
+switch (c) {
+case 'a':
+        builder.appendDayOfWeekShortText();
+      break;
+case 'A':
+    builder.appendDayOfWeekText();
+  break;
+case 'b':
+case 'h':
+builder.appendMonthOfYearShortText();
+break;
+case 'B':
+builder.appendMonthOfYearText();
+break;
+case 'c':
+builder.appendDayOfWeekShortText();
+builder.appendLiteral(' ');
+builder.appendMonthOfYearShortText();
+builder.appendLiteral(' ');
+builder.appendDayOfMonth(2);
+builder.appendLiteral(' ');
+builder.appendHourOfDay(2);
+builder.appendLiteral(':');
+builder.appendMinuteOfHour(2);
+builder.appendLiteral(':');
+builder.appendSecondOfMinute(2);
+builder.appendLiteral(' ');
+builder.appendYear(4,4);
+break;
+case 'C':
+builder.appendCenturyOfEra(1,2);
+break;
+case 'd':
+builder.appendDayOfMonth(2);
+break;
+case 'D':
+builder.appendMonthOfYear(2);
+builder.appendLiteral('/');
+builder.appendDayOfMonth(2);
+builder.appendLiteral('/');
+builder.appendTwoDigitYear(2019);
+break;
+case 'e':
+builder.appendOptional(DateTimeFormat.forPattern("' '").getParser());
+builder.appendDayOfMonth(2);
+break;
+case 'F':
+builder.appendYear(4,4);
+builder.appendLiteral('-');
+builder.appendMonthOfYear(2);
+builder.appendLiteral('-');
+builder.appendDayOfMonth(2);
+break;
+case 'g':
+case 'G':
+break;
+case 'H':
+builder.appendHourOfDay(2);
+break;
+case 'I':
+builder.appendClockhourOfHalfday(2);
+break;
+case 'j':
+builder.appendDayOfYear(3);
+break;
+case 'k':
+builder.appendOptional(DateTimeFormat.forPattern("' '").getParser());
+builder.appendHourOfDay(2);
+break;
+case 'l':
+builder.appendOptional(DateTimeFormat.forPattern("' '").getParser());
+builder.appendClockhourOfHalfday(2);
+break;
+case 'm':
+builder.appendMonthOfYear(2);
+break;
+case 'M':
+builder.appendMinuteOfHour(2);
+break;
+case 'n':
+break;
+case 'p':
+builder.appendHalfdayOfDayText();
+break;
+case 'r':
+builder.appendClockhourOfHalfday(2);
+builder.appendLiteral(':');
+builder.appendMinuteOfHour(2);
+builder.appendLiteral(':');
+builder.appendSecondOfMinute(2);
+builder.appendLiteral(' ');
+builder.appendHalfdayOfDayText();
+break;
+case 'R':
+builder.appendHourOfDay(2);
+builder.appendLiteral(':');
+builder.appendMinuteOfHour(2);
+break;
+case 'S':
+builder.appendSecondOfMinute(2);
+break;
+case 't':
+break;
+case 'T':
+builder.appendHourOfDay(2);
+builder.appendLiteral(':');
+builder.appendMinuteOfHour(2);
+builder.appendLiteral(':');
+builder.appendSecondOfMinute(2);
+break;
+case 'V':
+break;
+case 'x':
+builder.appendTwoDigitYear(2019);
+builder.appendLiteral('/');
+builder.appendMonthOfYear(2);
+builder.appendLiteral('/');
+builder.appendDayOfMonth(2);
+break;
+case 'y':
+builder.appendTwoDigitYear(2019);
+break;
+case 'Y':
+builder.appendYear(4,4);
+break;
+case 'z':
+builder.appendTimeZoneOffset(null,"z",false,2,2);
+break;
+case 'Z':
+break;
+default :
+builder.appendLiteral('\'');
+builder.appendLiteral(token);
+Log.warn(token + "is not acceptted as a parse token, treating as a literal");
+}
+}
+ else {
+if (c == '\'') {
+String sub=token.substring(1);
+if (sub.length() > 0) {
+builder.appendLiteral(new String(sub));
+}
+}
+ else throw new IllegalArgumentException("Unexpected token encountered parsing format string:" + c);
+}
+}
+}
