@@ -3,7 +3,7 @@
   final DeepLearningModel.DeepLearningParameters params=minfo.get_params();
   final int[] h=params._hidden;
   Neurons[] neurons=new Neurons[h.length + 2];
-  neurons[0]=new Neurons.Input(dinfo.fullN(),dinfo);
+  neurons[0]=new Neurons.Input(minfo.units[0],dinfo);
   for (int i=0; i < h.length + (params._autoencoder ? 1 : 0); i++) {
     int n=params._autoencoder && i == h.length ? minfo.units[0] : h[i];
 switch (params._activation) {
@@ -31,6 +31,9 @@ if (!params._autoencoder) {
 if (minfo._classification) neurons[neurons.length - 1]=new Neurons.Softmax(minfo.units[minfo.units.length - 1]);
  else neurons[neurons.length - 1]=new Neurons.Linear(1);
 }
-for (int i=0; i < neurons.length; i++) neurons[i].init(neurons,i,params,minfo,training);
+for (int i=0; i < neurons.length; i++) {
+neurons[i].init(neurons,i,params,minfo,training);
+neurons[i]._input=neurons[0];
+}
 return neurons;
 }
