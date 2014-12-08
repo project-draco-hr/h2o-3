@@ -1,16 +1,17 @@
 {
   Model m=modelMetrics.model();
-  if (m != null)   this.model=(ModelSchema)Schema.schema(this.schema_version,m.getClass());
-  if (null != modelMetrics.frame())   this.frame=new FrameV2().fillFromImpl(modelMetrics.frame());
-  new AUCV3();
-  new ConfusionMatrixV3();
+  if (m != null) {
+    this.model=(ModelSchema)Schema.schema(this.schema_version,m.getClass()).fillFromImpl(m);
+    this.model_category=m._output.getModelCategory();
+    this.model_checksum=m.checksum();
+  }
+  Frame f=modelMetrics.frame();
+  if (null != f) {
+    this.frame=new FrameV2().fillFromImpl(f);
+    this.frame_checksum=f.checksum();
+  }
   if (null != modelMetrics._aucdata)   this.auc=(AUCBase)Schema.schema(this.schema_version,modelMetrics._aucdata);
   if (null != modelMetrics._cm)   this.cm=(ConfusionMatrixBase)Schema.schema(this.schema_version,modelMetrics._cm);
-  super.fillFromImpl(modelMetrics);
-  if (m != null)   if (Model.class.isAssignableFrom(m.getClass()))   this.model.fillFromImpl(m);
- else   throw H2O.fail("Can't fill a model schema from a non-Model key");
-  if (f != null)   if (Frame.class.isAssignableFrom(f.getClass()))   this.frame.fillFromImpl(f);
- else   throw H2O.fail("Can't fill a frame schema from a non-Frame key");
   if (null != this.model)   this.model.output=null;
   return this;
 }
