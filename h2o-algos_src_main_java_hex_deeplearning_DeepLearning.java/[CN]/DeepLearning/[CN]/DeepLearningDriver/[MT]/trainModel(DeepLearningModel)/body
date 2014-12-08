@@ -49,7 +49,6 @@
     do {
       model.set_model_info(mp._epochs == 0 ? model.model_info() : H2O.CLOUD.size() > 1 && mp._replicate_training_data ? (mp._single_node_mode ? new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model)).doAll(Key.make()).model_info() : new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model)).doAllNodes().model_info()) : new DeepLearningTask(self(),model.model_info(),rowFraction(train,mp,model)).doAll(train).model_info());
       update(model.actual_train_samples_per_iteration);
-      if (!mp._quiet_mode)       Log.info("Progress: " + PrettyPrint.formatPct(progress()));
     }
  while (model.doScoring(train,trainScoreFrame,validScoreFrame,self()));
     if (!isCancelledOrCrashed() && _parms._override_with_best_model && model.actual_best_model_key != null && _parms._n_folds == 0) {
