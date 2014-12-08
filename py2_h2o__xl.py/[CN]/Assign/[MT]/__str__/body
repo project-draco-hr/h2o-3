@@ -1,7 +1,12 @@
 def __str__(self):
-    lhsAssign = re.sub('^\\$', '', str(self.lhs))
-    if (isinstance(self.lhs, (Key, basestring)) and (not isinstance(self.lhs, KeyIndexed))):
-        lhsprefix = '!'
+    if self.assignDisable:
+        print 'Hi kevin1'
+        return ('%s' % self.rhs)
     else:
-        lhsprefix = ''
-    return ('(= %s%s %s)' % (lhsprefix, lhsAssign, self.rhs))
+        print 'Hi kevin2'
+        lhsAssign = re.sub('^\\$', '', str(self.lhs))
+        if (isinstance(self.lhs, (Key, basestring)) and (not isinstance(self.lhs, KeyIndexed))):
+            lhsprefix = '!'
+        else:
+            lhsprefix = ''
+        return ('(= %s%s %s)' % (lhsprefix, lhsAssign, self.rhs))

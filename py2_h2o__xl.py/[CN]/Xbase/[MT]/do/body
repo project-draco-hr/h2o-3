@@ -9,37 +9,67 @@ def do(self, timeoutSecs=30):
     self.execResult = None
     self.result = None
     if self.funs:
-        self.execExpr = ('[%s]' % self)
+        execExpr1 = ('[%s]' % self)
     else:
-        self.execExpr = ('%s' % self)
-    h2p.green_print(('%s .do() ast: %s' % (type(self), self.execExpr)))
+        execExpr1 = ('%s' % self)
+    h2p.green_print(('%s .do() ast: %s' % (type(self), execExpr1)))
+    if (not debugNoH2O):
+        (execResult1, result1) = h2e.exec_expr(execExpr=execExpr1, doFuns=self.funs, timeoutSecs=timeoutSecs)
+        if (execResult1['key'] is not None):
+            Xbase.keyWriteHistoryList.append(execExpr1)
+        self.numRows = execResult1['num_rows']
+        self.numCols = execResult1['num_cols']
+        self.scalar = execResult1['scalar']
+        if (self.funs or isinstance(self, (If, IfElse, Return))):
+            print 'kevin1'
+            returnResult = None
+        elif (execResult1['key'] is None):
+            print 'kevin2'
+            debugprint(('Hacking scalar result %s into a key. %s' % (self.scalar, self.frame)))
+            if (self.scalar is None):
+                debugprint(('WARNING: %.do() is creating a one-row/oneCol result key, for %s' % type(self)))
+                assert ((self.numRows == 0) and (self.numCols == 0)), ('%s %s' % (self.numRows, self.numCols))
+                execExpr2 = astForInit(self.frame)
+            else:
+                print "Hack scalar to int for new key for scalar, because rapids doesn't take reals yet"
+                execExpr2 = ('(= !%s (c {#%s}))' % (self.frame, int(self.scalar)))
+            self.numRows = 1
+            self.numCols = 1
+            (execResult2, result2) = h2e.exec_expr(execExpr=execExpr2)
+            assert (execResult2['key'] is not None)
+            assert (self.numRows == execResult2['num_rows']), ('%s %s' % (self.numRows, execResult2['num_rows']))
+            assert (self.numCols == execResult2['num_cols']), ('%s %s' % (self.numCols, execResult2['num_cols']))
+            Xbase.keyWriteHistoryList.append(execExpr2)
+            returnResult = self.scalar
+        elif (self.numCols == 1):
+            if (self.numRows <= 1024):
+                print 'kevin3'
+                summaryResult = h2o_cmd.runSummary(key=self.frame, column=0, noPrint=True)
+                returnResult = summaryResult['frames'][0]['columns'][0]['data']
+            else:
+                print 'kevin4'
+                raise Exception(('Expr-caused Assign.do() wants to return a key with num_rows>1024\n' + ('Did you really mean it?. frame: %s numRows: %s numCols %s' % (self.frame, self.numRows, self.numCols))))
+        elif ((self.numCols == 0) and (self.numRows == 0)):
+            print 'kevin5'
+            return None
+        elif self.assignDisable:
+            print 'kevin6'
+            if (self.numCols > 1):
+                h2p.red_print(('Expr-caused Assign.do()  wants to return a key with num_cols>1\n' + ('not supported. frame: %s numRows: %s numCols %s' % (self.frame, self.numRows, self.numCols))))
+            returnResult = Key(key=self.frame)
+        else:
+            print 'kevin7'
+            returnResult = Key(key=self.frame)
     if debugNoH2O:
         self.execResult = {'debug': True, }
         self.result = None
     else:
-        (self.execResult, self.result) = h2e.exec_expr(execExpr=self.execExpr, doFuns=self.funs, timeoutSecs=timeoutSecs)
-        if (self.execResult['key'] is not None):
-            Xbase.keyWriteHistoryList.append(self.execExpr)
-        self.numRows = self.execResult['num_rows']
-        self.numCols = self.execResult['num_cols']
-        Xbase.lastExecResult = self.execResult.copy()
-        Xbase.lastResult = self.result
-        if ((not self.funs) and (not isinstance(self, (If, IfElse, Return))) and (self.execResult['key'] is None)):
-            scalar = self.execResult['scalar']
-            debugprint(('Hacking scalar result %s into a key wth name I told h2o! %s' % (scalar, self.frame)))
-            debugprint("FIX! Hacking scalar to int because rapids doesn't like reals?")
-            if (scalar is not None):
-                scalar = int(scalar)
-                execExpr = ('(= !%s (c {#%s}))' % (self.frame, scalar))
-            else:
-                debugprint(('WARNING: %.do() is creating a zero-row result key, from %s' % type(self)))
-                execExpr = ('(= !%s (is.na (c {#0})))' % self.frame)
-            (execResult, result) = h2e.exec_expr(execExpr=execExpr)
-            if (execResult['key'] is not None):
-                Xbase.keyWriteHistoryList.append(self.execExpr)
-            self.numRows = self.execResult['num_rows']
-            self.numCols = self.execResult['num_cols']
+        self.execResult = execResult1
+        self.result = returnResult
+    self.execExpr = execExpr1
+    Xbase.lastExecResult = copy(execResult1)
+    Xbase.lastResult = copy(returnResult)
     self.execDone = True
     if isinstance(self, Assign):
         self.assignDone = True
-    return self.result
+    return

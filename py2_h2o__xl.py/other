@@ -1,13 +1,14 @@
-import h2o_exec as h2e, h2o_print as h2p
+import h2o_exec as h2e, h2o_print as h2p, h2o_cmd
 import re
-debugPrintEnable = True
+from copy import copy
+debugPrintEnable = False
 debugNoH2O = False
 xFcnXlate = {'>': 'g', '>=': 'G', '<': 'l', '<=': 'L', '==': 'n', '!=': 'N', '!': '_', '~': '_', }
 xFcnUser = set()
 xFcnOpBinSet = set(['&&', '||', '+', '-', '*', '/', '**', '%', '&', '|', 'not', 'plus', 'sub', 'mul', 'div', 'pow', 'pow2', 'mod', 'and', 'or', 'lt', 'le', 'gt', 'ge', 'eq', 'ne', 'la', 'lo', 'g', 'G', 'l', 'L', 'n', 'N'])
-xFcnOp1Set = set(['c', '_', 'is.na', 'is.factor', 'any.factor', 'any.na', 'canbecoercedtological', 'nrow', 'ncol', 'length', 'abs', 'sign', 'sqrt', 'ceiling', 'floor', 'log', 'exp', 'scale', 'factor', 'cos', 'sin', 'tan', 'acos', 'asin', 'atan', 'cosh', 'sinh', 'tanh', 'min', 'max', 'sum', 'sd', 'mean', 'match', 'unique', 'xorsum', 'ls'])
+xFcnOp1Set = set(['c', '_', 'is.na', 'is.factor', 'any.factor', 'any.na', 'nrow', 'ncol', 'length', 'abs', 'sign', 'sqrt', 'ceiling', 'floor', 'log', 'exp', 'scale', 'factor', 'cos', 'sin', 'tan', 'acos', 'asin', 'atan', 'cosh', 'sinh', 'tanh', 'min', 'max', 'sum', 'sd', 'mean', 'match', 'unique', 'xorsum', 'ls'])
 xFcnOp2Set = set()
-xFcnOp3Set = set(['cut', 'ddply', 'round', 'signif', 'trun', 'cbind', 'qtile', 'ifelse', 'apply', 'sapply', 'runif', 'seq', 'seq_len', 'rep_len', 'reduce', 'table', 'var'])
+xFcnOp3Set = set(['cut', 'round', 'signif', 'trun', 'quantile', 'runif', 'cbind', 'rbind', 'ifelse', 'apply', 'sapply', 'ddply', 'seq', 'seq_len', 'rep_len', 'reduce', 'table', 'var'])
 if (__name__ == '__main__'):
     debugNoH2O = True
     debugPrintEnable = True

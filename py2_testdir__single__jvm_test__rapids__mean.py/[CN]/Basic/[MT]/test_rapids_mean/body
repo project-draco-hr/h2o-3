@@ -1,0 +1,22 @@
+def test_rapids_mean(self):
+    SYNDATASETS_DIR = h2o.make_syn_dir()
+    tryList = [(1000, 5, 'cA', 200)]
+    for (rowCount, colCount, hex_key, timeoutSecs) in tryList:
+        SEEDPERFILE = random.randint(0, sys.maxint)
+        csvFilename = (((((('syn_' + str(SEEDPERFILE)) + '_') + str(rowCount)) + 'x') + str(colCount)) + '.csv')
+        csvPathname = ((SYNDATASETS_DIR + '/') + csvFilename)
+        print '\nCreating random', csvPathname
+        write_syn_dataset(csvPathname, rowCount, colCount, SEEDPERFILE)
+        parseResult = h2i.import_parse(path=csvPathname, schema='put', hex_key=hex_key, timeoutSecs=timeoutSecs, doSummary=False)
+        inspect = h2o_cmd.runInspect(key=hex_key)
+        (missingList, labelList, numRows, numCols) = h2o_cmd.infoFromInspect(inspect)
+        print ('\n' + csvPathname), '    numRows:', '{:,}'.format(numRows), '    numCols:', '{:,}'.format(numCols)
+        self.assertEqual(numCols, colCount, ('parse created result with the wrong number of cols %s %s' % (numCols, colCount)))
+        self.assertEqual(numRows, rowCount, ('parse created result with the wrong number of rows %s %s' % (numRows, rowCount)))
+        data_key = hex_key
+        data_key2 = (hex_key + '_2')
+        for trial in range(4):
+            result_key = ((data_key + '_') + str(trial))
+            Assign(data_key2, data_key)
+            Assign(result_key, Fcn('mean', KeyIndexed(data_key2, col=0), 0, False))
+            trial += 1

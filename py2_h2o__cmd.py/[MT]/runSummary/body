@@ -1,4 +1,4 @@
-def runSummary(node=None, key=None, expected=None, column=None, **kwargs):
+def runSummary(node=None, key=None, expected=None, column=None, noPrint=False, **kwargs):
     if (not key):
         raise Exception('No key for Summary')
     if (not node):
@@ -15,69 +15,77 @@ def runSummary(node=None, key=None, expected=None, column=None, **kwargs):
         def __iter__(self):
             for (attr, value) in self.__dict__.iteritems():
                 yield (attr, value)
-    from h2o_test import OutputObj
     inspect = runInspect(key=key)
     (missingList, labelList, numRows, numCols) = infoFromInspect(inspect)
-    lastChecksum = None
     desiredResult = None
-    for label in labelList:
+    if (not ((column is None) or isinstance(column, (basestring, int)))):
+        raise Exception(('column param should be string or integer index or None %s %s' % (type(column), column)))
+    for (colIndex, label) in enumerate(labelList):
         print ('doing summary on %s' % label)
         summaryResult = node.summary(key=key, column=label)
-        if ((not desiredResult) or (column and (column == label))):
+        if (column is None):
+            thisIsTheColumn = True
+        elif isinstance(column, int):
+            thisIsTheColumn = (column == colIndex)
+        else:
+            thisIsTheColumn = (column == label)
+        if thisIsTheColumn:
             desiredResult = summaryResult
         frame = summaryResult['frames'][0]
         default_pctiles = frame['default_pctiles']
         checksum = frame['checksum']
         rows = frame['rows']
-        columns = frame['columns']
+        coJson = frame['columns'][0]
         assert (rows == numRows)
         assert ((checksum != 0) and (checksum is not None))
         assert ((rows != 0) and (rows is not None))
         assert (not frame['isText'])
-        lastChecksum = checksum
-        co = OutputObj(columns[0], ('summary_%s' % label))
+        co = OutputObj(coJson, ('summary %s' % label))
         coList = [co.base, len(co.bins), len(co.data), co.domain, co.label, co.maxs, co.mean, co.mins, co.missing, co.ninfs, co.pctiles, co.pinfs, co.precision, co.sigma, co.str_data, co.stride, co.type, co.zeros]
-        for (k, v) in co:
-            print k, v
-        print 'len(co.bins):', len(co.bins)
-        print 'co.label:', co.label, 'mean (2 places):', h2o_util.twoDecimals(co.mean)
-        print 'co.label:', co.label, 'std dev. (2 places):', h2o_util.twoDecimals(co.sigma)
-        print "FIX! hacking the co.pctiles because it's short by two"
-        if co.pctiles:
-            pctiles = (([0] + co.pctiles) + [0])
-        else:
-            pctiles = None
-        if (expected == None):
-            expected = ([0] * 5)
-        if expected[0]:
-            h2o_util.assertApproxEqual(co.mins[0], expected[0], tol=maxDelta, msg='min is not approx. expected')
-        if expected[1]:
-            h2o_util.assertApproxEqual(pctiles[3], expected[1], tol=maxDelta, msg='25th percentile is not approx. expected')
-        if expected[2]:
-            h2o_util.assertApproxEqual(pctiles[5], expected[2], tol=maxDelta, msg='50th percentile (median) is not approx. expected')
-        if expected[3]:
-            h2o_util.assertApproxEqual(pctiles[7], expected[3], tol=maxDelta, msg='75th percentile is not approx. expected')
-        if expected[4]:
-            h2o_util.assertApproxEqual(co.maxs[0], expected[4], tol=maxDelta, msg='max is not approx. expected')
-        MAX_QBINS = 1000
-        if (expected[0] and expected[4]):
-            expectedRange = (expected[4] - expected[0])
-            expectedBin = (expectedRange / (MAX_QBINS - 2))
-            maxErr = expectedBin
-        else:
-            print "Test won't calculate max expected error"
-            maxErr = 0
-        pt = h2o_util.twoDecimals(pctiles)
-        mx = h2o_util.twoDecimals(co.maxs)
-        mn = h2o_util.twoDecimals(co.mins)
-        print 'co.label:', co.label, 'co.pctiles (2 places):', pt
-        print 'default_pctiles:', default_pctiles
-        print 'co.label:', co.label, 'co.maxs: (2 places):', mx
-        print 'co.label:', co.label, 'co.mins: (2 places):', mn
-        if (pt is None):
-            compareActual = (mn[0], ([None] * 3), mx[0])
-        else:
-            compareActual = (mn[0], pt[3], pt[5], pt[7], mx[0])
-        h2p.green_print('actual min/25/50/75/max co.label:', co.label, '(2 places):', compareActual)
-        h2p.green_print('expected min/25/50/75/max co.label:', co.label, '(2 places):', expected)
+        if (not noPrint):
+            for (k, v) in co:
+                if ((k == 'mins') or (k == 'maxs')):
+                    print ('%s[0]' % k), v[0]
+                else:
+                    print k, v
+        if (expected is not None):
+            print 'len(co.bins):', len(co.bins)
+            print 'co.label:', co.label, 'mean (2 places):', h2o_util.twoDecimals(co.mean)
+            print 'co.label:', co.label, 'std dev. (2 places):', h2o_util.twoDecimals(co.sigma)
+            print "FIX! hacking the co.pctiles because it's short by two"
+            if co.pctiles:
+                pctiles = (([0] + co.pctiles) + [0])
+            else:
+                pctiles = None
+            if expected[0]:
+                h2o_util.assertApproxEqual(co.mins[0], expected[0], tol=maxDelta, msg='min is not approx. expected')
+            if expected[1]:
+                h2o_util.assertApproxEqual(pctiles[3], expected[1], tol=maxDelta, msg='25th percentile is not approx. expected')
+            if expected[2]:
+                h2o_util.assertApproxEqual(pctiles[5], expected[2], tol=maxDelta, msg='50th percentile (median) is not approx. expected')
+            if expected[3]:
+                h2o_util.assertApproxEqual(pctiles[7], expected[3], tol=maxDelta, msg='75th percentile is not approx. expected')
+            if expected[4]:
+                h2o_util.assertApproxEqual(co.maxs[0], expected[4], tol=maxDelta, msg='max is not approx. expected')
+            MAX_QBINS = 1000
+            if (expected[0] and expected[4]):
+                expectedRange = (expected[4] - expected[0])
+                expectedBin = (expectedRange / (MAX_QBINS - 2))
+                maxErr = expectedBin
+            else:
+                print "Test won't calculate max expected error"
+                maxErr = 0
+            pt = h2o_util.twoDecimals(pctiles)
+            mx = h2o_util.twoDecimals(co.maxs[0])
+            mn = h2o_util.twoDecimals(co.mins[0])
+            print 'co.label:', co.label, 'co.pctiles (2 places):', pt
+            print 'default_pctiles:', default_pctiles
+            print 'co.label:', co.label, 'co.maxs: (2 places):', mx
+            print 'co.label:', co.label, 'co.mins: (2 places):', mn
+            if (pt is None):
+                compareActual = (mn, ([None] * 3), mx)
+            else:
+                compareActual = (mn, pt[3], pt[5], pt[7], mx)
+            h2p.green_print('actual min/25/50/75/max co.label:', co.label, '(2 places):', compareActual)
+            h2p.green_print('expected min/25/50/75/max co.label:', co.label, '(2 places):', expected)
     return desiredResult
