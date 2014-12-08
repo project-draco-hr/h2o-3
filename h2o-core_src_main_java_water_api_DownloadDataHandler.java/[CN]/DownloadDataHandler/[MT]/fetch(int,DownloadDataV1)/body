@@ -1,7 +1,9 @@
 {
   if (DKV.get(server.key) == null)   throw new IllegalArgumentException(server.key.toString() + " not found.");
   Frame value=server.key.get();
-  server.csv=value.toCSV(true,server.hex_string);
+  InputStream is=value.toCSV(true,server.hex_string);
+  java.util.Scanner scanner=new java.util.Scanner(is).useDelimiter("\\A");
+  server.csv=(scanner.hasNext() ? scanner.next() : "");
   String s=server.key.toString();
   int x=s.length() - 1;
   boolean dot=false;
