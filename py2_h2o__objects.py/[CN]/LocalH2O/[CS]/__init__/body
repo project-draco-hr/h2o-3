@@ -10,6 +10,10 @@ def __init__(self, *args, **kwargs):
         logPrefix = ('local-h2o-' + str(self.node_id))
     else:
         logPrefix = 'local-h2o'
-    cmd = ' '.join(self.get_args())
+    pf = platform.system()
+    print ('System is %s' % pf)
+    cmd = self.get_args()
+    if re.match('win', pf, re.IGNORECASE):
+        cmd = ' '.join(cmd)
     spawn = spawn_cmd(logPrefix, cmd=cmd, capture_output=self.capture_output)
     self.ps = spawn[0]
