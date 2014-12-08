@@ -1,0 +1,35 @@
+def test_xl_ast_assert_Y(self):
+    a = DF('a1')
+    checkAst(astForInit(a))
+    b = DF('b1')
+    checkAst(astForInit(b))
+    c = DF('c1')
+    checkAst(astForInit(c))
+    assert isinstance(a, Key)
+    assert isinstance(b, Key)
+    assert isinstance(c, Key)
+    a <<= 0
+    checkAst('(= !a1 #0)')
+    b <<= 0
+    checkAst('(= !b1 #0)')
+    c <<= 0
+    checkAst('(= !c1 #0)')
+    a <<= [0]
+    checkAst('(= !a1 (c {#0}))')
+    b <<= [0, 1]
+    checkAst('(= !b1 (c {#0;#1}))')
+    c <<= [0, 1, 2]
+    checkAst('(= !c1 (c {#0;#1;#2}))')
+    a <<= (0,)
+    checkAst('(= !a1 (c {#0}))')
+    b <<= (0, 1)
+    checkAst('(= !b1 (c {#0;#1}))')
+    c <<= (0, 1, 2)
+    checkAst('(= !c1 (c {#0;#1;#2}))')
+    c <<= (a[0] + b[1])
+    checkAst('(= !c1 (+ ([ $a1 #0 #0) ([ $b1 #1 #0)))')
+    c[0] <<= (a[0] + b[1])
+    checkAst('(= ([ $c1 #0 #0) (+ ([ $a1 #0 #0) ([ $b1 #1 #0)))')
+    for k in Xbase.keyWriteHistoryList:
+        print k
+    h2o.check_sandbox_for_errors()
