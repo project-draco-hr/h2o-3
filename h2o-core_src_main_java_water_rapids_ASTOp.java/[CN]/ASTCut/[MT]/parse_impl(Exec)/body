@@ -1,5 +1,6 @@
 {
   AST ary=E.parse();
+  if (ary instanceof ASTId)   ary=Env.staticLookup((ASTId)ary);
   String[] cuts;
   try {
     cuts=E.skipWS().peek() == '{' ? E.xpeek('{').parseString('}').split(";") : E.peek() == '#' ? new String[]{Double.toString(((ASTNum)E.parse()).dbl())} : new String[]{E.parseString(E.peekPlus())};
