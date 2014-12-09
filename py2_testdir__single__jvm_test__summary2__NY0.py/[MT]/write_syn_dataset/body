@@ -1,0 +1,15 @@
+def write_syn_dataset(csvPathname, rowCount, colCount, SEED, choices):
+    r1 = random.Random(SEED)
+    dsf = open(csvPathname, 'w+')
+    naCnt = [0 for j in range(colCount)]
+    for i in range(rowCount):
+        rowData = []
+        for j in range(colCount):
+            ri = random.choice(choices)
+            if ((ri == '0') or (ri == ' 0')):
+                naCnt[j] += 1
+            rowData.append(ri)
+        rowDataCsv = ','.join(map(str, rowData))
+        dsf.write((rowDataCsv + '\n'))
+    dsf.close()
+    return naCnt

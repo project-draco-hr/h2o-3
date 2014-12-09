@@ -4,6 +4,7 @@
     H2O.H2O_PORT=H2O.API_PORT + 1;
     try {
       _apiSocket=new ServerSocket(H2O.API_PORT);
+      _apiSocket.setReuseAddress(true);
       _udpSocket=DatagramChannel.open();
       _udpSocket.socket().setReuseAddress(true);
       _udpSocket.socket().bind(new InetSocketAddress(H2O.SELF_ADDRESS,H2O.H2O_PORT));

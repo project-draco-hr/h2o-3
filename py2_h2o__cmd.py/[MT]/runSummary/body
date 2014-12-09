@@ -17,19 +17,21 @@ def runSummary(node=None, key=None, expected=None, column=None, noPrint=False, *
                 yield (attr, value)
     inspect = runInspect(key=key)
     (missingList, labelList, numRows, numCols) = infoFromInspect(inspect)
-    desiredResult = None
     if (not ((column is None) or isinstance(column, (basestring, int)))):
         raise Exception(('column param should be string or integer index or None %s %s' % (type(column), column)))
+    if (column is None):
+        labelsToDo = labelList
+    elif isinstance(column, int):
+        labelsToDo = [labelList[column]]
+    elif isinstance(column, basestring):
+        labelsToDo = [column]
+    else:
+        raise Exception(('wrong type %s for column %s' % (type(column), column)))
+    desiredResult = None
     for (colIndex, label) in enumerate(labelList):
         print ('doing summary on %s' % label)
         summaryResult = node.summary(key=key, column=label)
-        if (column is None):
-            thisIsTheColumn = True
-        elif isinstance(column, int):
-            thisIsTheColumn = (column == colIndex)
-        else:
-            thisIsTheColumn = (column == label)
-        if thisIsTheColumn:
+        if (not desiredResult):
             desiredResult = summaryResult
         frame = summaryResult['frames'][0]
         default_pctiles = frame['default_pctiles']

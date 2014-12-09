@@ -1,0 +1,45 @@
+import unittest, random, sys, time, codecs
+sys.path.extend(['.', '..', '../..', 'py'])
+import h2o, h2o_cmd, h2o_import as h2i
+print 'not using NUL, (0x0), or " at start of line since they cause add/deletes of row count'
+NO_NUL = True
+NO_COMMENT = True
+NO_QUOTE_BEGIN = True
+DEBUG = False
+UTF8 = True
+UTF8_MULTIBYTE = True
+DISABLE_ALL_NA = False
+CAUSE_RANDOM_NA = True
+DO_SUMMARY = False
+print 'We have a problem starting a line with double quote and not ending it before EOL'
+print 'assume that is unlikely with the distribution being used'
+if UTF8:
+    ordinalChoices = range((1 if NO_NUL else 30), 256)
+else:
+    ordinalChoices = range((1 if NO_NUL else 30), 128)
+if UTF8_MULTIBYTE:
+
+    def aSmallSet(a, b):
+        return random.sample(range(a, b), 100)
+    if (1 == 0):
+        ordinalChoicesMulti = range(30, 127)
+        ordinalChoicesMulti += range(128, 159)
+        ordinalChoicesMulti += range(160, 1023)
+        ordinalChoicesMulti += range(1024, 2047)
+        ordinalChoicesMulti += range(2048, 16383)
+        ordinalChoicesMulti += range(16384, 65535)
+        ordinalChoicesMulti += range(65536, 262143)
+        ordinalChoicesMulti += range(262144, 1114111)
+    else:
+        ordinalChoicesMulti = range(30, 127)
+        ordinalChoicesMulti += range(128, 159)
+        ordinalChoicesMulti += aSmallSet(160, 1023)
+        ordinalChoicesMulti += aSmallSet(1024, 2047)
+        ordinalChoicesMulti += aSmallSet(2048, 16383)
+        ordinalChoicesMulti += aSmallSet(16384, 65535)
+        ordinalChoicesMulti += aSmallSet(65536, 262143)
+        ordinalChoicesMulti += aSmallSet(262144, 1114111)
+ordinalChoices.remove(44)
+ordinalChoicesMulti.remove(44)
+if (__name__ == '__main__'):
+    h2o.unit_main()
