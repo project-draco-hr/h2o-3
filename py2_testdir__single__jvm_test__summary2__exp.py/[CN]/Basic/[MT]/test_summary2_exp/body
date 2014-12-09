@@ -8,14 +8,6 @@ def test_summary2_exp(self):
     lenNodes = len(h2o.nodes)
     x = 0
     timeoutSecs = 60
-
-
-    class Column(object):
-
-        def __init__(self, column):
-            assert isinstance(column, dict)
-            for (k, v) in column.iteritems():
-                setattr(self, k, v)
     for (rowCount, colCount, hex_key, rangeMin, rangeMax, expected) in tryList:
         SEEDPERFILE = random.randint(0, sys.maxint)
         x += 1
@@ -38,10 +30,10 @@ def test_summary2_exp(self):
         h2o.verboseprint('Summary2 summaryResult:', h2o.dump_json(summaryResult))
         columns = summaryResult['frames'][0]['columns']
         default_pctiles = summaryResult['frames'][0]['default_pctiles']
-        co = Column(columns[0])
+        co = OutputObj(columns[0], 'summary')
         coList = [co.base, len(co.bins), len(co.data), co.domain, co.label, co.maxs, co.mean, co.mins, co.missing, co.ninfs, co.pctiles, co.pinfs, co.precision, co.sigma, co.str_data, co.stride, co.type, co.zeros]
-        for c in coList:
-            print c
+        for (k, v) in co:
+            print k, v
         print 'len(co.bins):', len(co.bins)
         print 'co.label:', co.label, 'mean (2 places):', h2o_util.twoDecimals(co.mean)
         print 'co.label:', co.label, 'std dev. (2 places):', h2o_util.twoDecimals(co.sigma)
