@@ -1,0 +1,12 @@
+def generate_random_utf8_string(length=1, multi=False, row=0, col=0):
+    cList = []
+    for i in range(length):
+        good = False
+        while (not good):
+            r = random.choice((ordinalChoicesMulti if multi else ordinalChoices))
+            illegal1 = ((NO_COMMENT and (row == 1) and (col == 1) and (i == 0)) and ((r == 64) or (r == 35)))
+            illegal2 = ((NO_QUOTE_BEGIN and (i == 0)) and (r == 34))
+            good = (not (illegal1 or illegal2))
+        c = unichr(r).encode('utf-8')
+        cList.append(c)
+    return ''.join(cList)
