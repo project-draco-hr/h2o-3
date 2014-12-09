@@ -2,8 +2,10 @@
   HashSet<String> conflictingNames=setup.checkDupColumnNames();
   for (  String x : conflictingNames)   throw new IllegalArgumentException("Found duplicate column name " + x);
   long sum=0;
-  for (  Key k : keys) {
+  for (int i=0; i < keys.length; i++) {
+    Key k=keys[i];
     if (dest.equals(k))     throw new IllegalArgumentException("Destination key " + dest + " must be different from all sources");
+    if (delete_on_done)     for (int j=i + 1; j < keys.length; j++)     if (k == keys[j])     throw new IllegalArgumentException("Source key " + k + " appears twice, delete_on_done must be false");
     sum+=getByteVec(k).length();
   }
   long memsz=H2O.CLOUD.memsz();
