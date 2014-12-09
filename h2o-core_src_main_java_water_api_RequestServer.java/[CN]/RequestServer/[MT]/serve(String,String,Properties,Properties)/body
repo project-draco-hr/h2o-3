@@ -8,6 +8,10 @@
   String path=type.requestName(uripath);
   String versioned_path="/" + version + path;
   alwaysLogRequest(path,method,parms);
+  if (method.equals("HEAD") && uri.equals("/")) {
+    Response r=new Response(HTTP_OK,MIME_PLAINTEXT,"");
+    return r;
+  }
   try {
     Route route=lookup(method,versioned_path);
     if (route == null)     return getResource(uri);
