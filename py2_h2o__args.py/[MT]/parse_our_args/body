@@ -26,6 +26,7 @@ def parse_our_args():
     parser.add_argument('-long', '--long_test_case', help='some tests will vary behavior to more, longer cases', action='store_true')
     parser.add_argument('-uc', '--usecloud', nargs='?', const='localhost:54321', type=str, help='ip:port of cloud to send tests to instead of starting clouds.')
     parser.add_argument('-ucs', '--usecloud_size', help='optionally say the size of the usecloud, code will check size is as expected')
+    parser.add_argument('-nt', '--no_timeout', help='disable all timeout checks and exceptions', action='store_true')
     parser.add_argument('unittest_args', nargs='*')
     args = parser.parse_args()
     if args.nocolor:
@@ -33,7 +34,7 @@ def parse_our_args():
     global browse_disable, browse_json, verbose, ip_from_cmd_line, port_from_cmd_line, config_json, debugger
     global random_udp_drop
     global random_seed, beta_features, sleep_at_tear_down, abort_after_import
-    global clone_cloud_json, disable_time_stamp, debug_rest, long_test_case, usecloud, usecloud_size
+    global clone_cloud_json, disable_time_stamp, debug_rest, long_test_case, no_timeout, usecloud, usecloud_size
     browse_disable = (args.browse_disable or (getpass.getuser() == 'jenkins'))
     browse_json = args.browse_json
     verbose = args.verbose
@@ -53,6 +54,7 @@ def parse_our_args():
         disable_time_stamp = False
     debug_rest = args.debug_rest
     long_test_case = args.long_test_case
+    no_timeout = args.no_timeout
     usecloud = args.usecloud
     if (usecloud is None):
         usecloud = os.getenv('USECLOUD')

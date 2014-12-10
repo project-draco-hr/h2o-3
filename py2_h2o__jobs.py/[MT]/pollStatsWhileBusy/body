@@ -45,7 +45,7 @@ def pollStatsWhileBusy(timeoutSecs=300, pollTimeoutSecs=15, retryDelaySecs=5):
         if ((trials % 5) == 0):
             check_sandbox_for_errors()
         time.sleep(retryDelaySecs)
-        if ((time.time() - start) > timeoutSecs):
+        if ((not h2o_args.no_timeout) and ((time.time() - start) > timeoutSecs)):
             raise Exception(('Timeout while polling in pollStatsWhileBusy: %s seconds' % timeoutSecs))
     print ('Did %s polls' % polls)
     statMean = {}
