@@ -13,6 +13,8 @@ def parse_only(node=None, pattern=None, hex_key=None, importKeyList=None, timeou
             key_name = frame['key']['name']
             if fnmatch.fnmatch(key_name, pattern):
                 matchingList.append(key_name)
+    start = time.time()
     parseResult = node.parse(key=matchingList, hex_key=hex_key, timeoutSecs=timeoutSecs, retryDelaySecs=retryDelaySecs, initialDelaySecs=initialDelaySecs, pollTimeoutSecs=pollTimeoutSecs, noise=noise, benchmarkLogging=benchmarkLogging, noPoll=noPoll, **kwargs)
+    print '\nparse took', (time.time() - start), 'seconds'
     parseResult['python_source'] = pattern
     return parseResult

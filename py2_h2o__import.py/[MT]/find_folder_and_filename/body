@@ -10,11 +10,7 @@ def find_folder_and_filename(bucket, pathWithRegex, schema='put', returnFullPath
         bucketPath = os.getcwd()
     elif (h2o_nodes.nodes[0].remoteH2O and (schema != 'put') and (os.environ.get('H2O_REMOTE_BUCKETS_ROOT') or h2o_nodes.nodes[0].h2o_remote_buckets_root)):
         if (((bucket == 'smalldata') or (bucket == 'datasets')) and (schema == 'local')):
-            msg1 = "\nWARNING: you're using remote nodes, and 'smalldata' or 'datasets' git buckets, with schema!=put"
-            msg2 = "\nThose aren't git pull'ed by the test. Since they are user-maintained, not globally-maintained-by-0xdata,"
-            msg3 = '\nthey may be out of date at those remote nodes?'
-            msg4 = '\nGoing to assume we find a path to them locally, and remote path will be the same'
-            h2p.red_print(msg1, msg2, msg3, msg4)
+            h2p.red_print(((("\nWARNING: you're using remote nodes, and 'smalldata' or 'datasets' git buckets, with schema!=put" + "\nThose aren't git pull'ed by the test. Since they are user-maintained, not globally-maintained-by-0xdata,") + '\nthey may be out of date at those remote nodes?') + '\nGoing to assume we find a path to them locally, and remote path will be the same'))
             giveUpAndSearchLocally = True
         else:
             if os.environ.get('H2O_REMOTE_BUCKETS_ROOT'):

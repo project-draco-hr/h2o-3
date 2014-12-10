@@ -3,20 +3,11 @@ def runSummary(node=None, key=None, expected=None, column=None, noPrint=False, *
         raise Exception('No key for Summary')
     if (not node):
         node = h2o_nodes.nodes[0]
-
-
-    class Column(object):
-
-        def __init__(self, column):
-            assert isinstance(column, dict)
-            for (k, v) in column.iteritems():
-                setattr(self, k, v)
-
-        def __iter__(self):
-            for (attr, value) in self.__dict__.iteritems():
-                yield (attr, value)
-    inspect = runInspect(key=key)
-    (missingList, labelList, numRows, numCols) = infoFromInspect(inspect)
+    i = InspectObj(key=key)
+    missingList = i.missingList
+    labelList = i.labelList
+    numRows = i.numRows
+    numCols = i.numCols
     if (not ((column is None) or isinstance(column, (basestring, int)))):
         raise Exception(('column param should be string or integer index or None %s %s' % (type(column), column)))
     if (column is None):
@@ -30,20 +21,9 @@ def runSummary(node=None, key=None, expected=None, column=None, noPrint=False, *
     desiredResult = None
     for (colIndex, label) in enumerate(labelList):
         print ('doing summary on %s' % label)
-        summaryResult = node.summary(key=key, column=label)
+        co = SummaryObj(key=key, column=column)
         if (not desiredResult):
-            desiredResult = summaryResult
-        frame = summaryResult['frames'][0]
-        default_pctiles = frame['default_pctiles']
-        checksum = frame['checksum']
-        rows = frame['rows']
-        coJson = frame['columns'][0]
-        assert (rows == numRows)
-        assert ((checksum != 0) and (checksum is not None))
-        assert ((rows != 0) and (rows is not None))
-        assert (not frame['isText'])
-        co = OutputObj(coJson, ('summary %s' % label))
-        coList = [co.base, len(co.bins), len(co.data), co.domain, co.label, co.maxs, co.mean, co.mins, co.missing, co.ninfs, co.pctiles, co.pinfs, co.precision, co.sigma, co.str_data, co.stride, co.type, co.zeros]
+            desiredResult = co
         if (not noPrint):
             for (k, v) in co:
                 if ((k == 'mins') or (k == 'maxs')):
