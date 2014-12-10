@@ -1,4 +1,4 @@
-def runSummary(node=None, key=None, expected=None, column=None, noPrint=False, **kwargs):
+def runSummary(node=None, key=None, column=None, expected=None, maxDelta=None, noPrint=False, **kwargs):
     if (not key):
         raise Exception('No key for Summary')
     if (not node):
@@ -11,17 +11,20 @@ def runSummary(node=None, key=None, expected=None, column=None, noPrint=False, *
     if (not ((column is None) or isinstance(column, (basestring, int)))):
         raise Exception(('column param should be string or integer index or None %s %s' % (type(column), column)))
     if (column is None):
-        labelsToDo = labelList
+        colNameToDo = labelList
+        colIndexToDo = range(len(labelList))
     elif isinstance(column, int):
-        labelsToDo = [labelList[column]]
+        colNameToDo = [labelList[column]]
+        colIndexToDo = [column]
     elif isinstance(column, basestring):
-        labelsToDo = [column]
+        colNameToDo = [column]
+        colIndexToDo = [labelList.index[column]]
     else:
         raise Exception(('wrong type %s for column %s' % (type(column), column)))
     desiredResult = None
-    for (colIndex, label) in enumerate(labelList):
-        print ('doing summary on %s' % label)
-        co = SummaryObj(key=key, column=column)
+    for (colIndex, colName) in zip(colIndexToDo, colNameToDo):
+        print ('doing summary on %s %s' % (colIndex, colName))
+        co = SummaryObj(key=key, colIndex=colIndex, colName=colName)
         if (not desiredResult):
             desiredResult = co
         if (not noPrint):
@@ -39,6 +42,8 @@ def runSummary(node=None, key=None, expected=None, column=None, noPrint=False, *
                 pctiles = (([0] + co.pctiles) + [0])
             else:
                 pctiles = None
+            if (maxDelta is None):
+                maxDelta = ((co.maxs[0] - co.mins[0]) / 1000)
             if expected[0]:
                 h2o_util.assertApproxEqual(co.mins[0], expected[0], tol=maxDelta, msg='min is not approx. expected')
             if expected[1]:
@@ -61,7 +66,7 @@ def runSummary(node=None, key=None, expected=None, column=None, noPrint=False, *
             mx = h2o_util.twoDecimals(co.maxs[0])
             mn = h2o_util.twoDecimals(co.mins[0])
             print 'co.label:', co.label, 'co.pctiles (2 places):', pt
-            print 'default_pctiles:', default_pctiles
+            print 'co.default_pctiles:', co.default_pctiles
             print 'co.label:', co.label, 'co.maxs: (2 places):', mx
             print 'co.label:', co.label, 'co.mins: (2 places):', mn
             if (pt is None):
