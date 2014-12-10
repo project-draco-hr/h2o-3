@@ -1,7 +1,7 @@
 {
   Model m=modelMetrics.model();
   if (m != null) {
-    this.model=(ModelSchema)Schema.schema(this.__schema_version,m.getClass()).fillFromImpl(m);
+    this.model=new ModelKeyV1(m._key);
     this.model_category=m._output.getModelCategory();
     this.model_checksum=m.checksum();
   }
@@ -12,6 +12,5 @@
   }
   if (null != modelMetrics._aucdata)   this.auc=(AUCBase)Schema.schema(this.__schema_version,modelMetrics._aucdata);
   if (null != modelMetrics._cm)   this.cm=(ConfusionMatrixBase)Schema.schema(this.__schema_version,modelMetrics._cm);
-  if (null != this.model)   this.model.output=null;
   return this;
 }
