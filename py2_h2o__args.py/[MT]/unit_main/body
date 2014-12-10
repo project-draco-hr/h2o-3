@@ -1,25 +1,12 @@
 def unit_main():
-    global g_unit_main_already_called
-    if g_unit_main_already_called:
+    global unit_main_done
+    if unit_main_done:
+        print 'unit_main() already done'
         return
-    g_unit_main_already_called = True
-    parse_our_args()
-    start_unittest_runner = True
-    if False:
-        import traceback
-        frames = traceback.extract_stack()
-        if ('pydevd.py' in frames[0][0]):
-            start_unittest_runner = False
-        for frame in frames:
-            print frame[0]
-            if (('utrunner.py' in frame[0]) or ('/nose/' in frame[0])):
-                start_unittest_runner = False
-    global python_test_name, python_cmd_args, python_cmd_line, python_cmd_ip, python_username
+    unit_main_done = True
+    global python_test_name, python_cmd_args, python_cmd_line
     python_test_name = find_python_test_name()
     python_cmd_args = ' '.join(sys.argv[1:])
     python_cmd_line = ('python %s %s' % (python_test_name, python_cmd_args))
-    python_username = getpass.getuser()
-    python_cmd_ip = get_ip_address(ipFromCmdLine=ip_from_cmd_line)
     print ('\nunit_main. Test: %s    command line: %s' % (python_test_name, python_cmd_line))
-    if start_unittest_runner:
-        unittest.main()
+    unittest.main()
