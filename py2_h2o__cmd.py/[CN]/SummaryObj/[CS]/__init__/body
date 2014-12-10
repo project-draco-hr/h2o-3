@@ -1,0 +1,19 @@
+def __init__(self, key, column, expectedNumRows=None, expectedNumCols=None, expectedLabel=None, expectedType=None, expectedMissing=None, expectedDomain=None, expectedBinsSum=None, noPrint=False, **kwargs):
+    summaryResult = runSummary(key=key, column=column)
+    frame = summaryResult['frames'][0]
+    default_pctiles = frame['default_pctiles']
+    checksum = frame['checksum']
+    rows = frame['rows']
+    assert (column < len(frame['columns'])), ("You're asking for column %s but there are only %s" % (column, len(frame['columns'])))
+    coJson = frame['columns'][column]
+    assert ((checksum != 0) and (checksum is not None))
+    assert ((rows != 0) and (rows is not None))
+    assert (not frame['isText'])
+    super(SummaryObj, self).__init__(coJson, ('Summary for %s' % coJson['label']), noPrint=noPrint)
+    coList = [co.base, len(co.bins), len(co.data), co.domain, co.label, co.maxs, co.mean, co.mins, co.missing, co.ninfs, co.pctiles, co.pinfs, co.precision, co.sigma, co.str_data, co.stride, co.type, co.zeros]
+    print "you can look at this attributes in the returned object (which is OutputObj if you assigned to 'co')"
+    for (k, v) in co:
+        print ('co.%s' % k),
+    print '\nSummaryObj for', co.label, 'for column', column
+    print 'SummaryObj created with:', vars(self)
+    self.check(key, column, expectedNumRows, expectedNumCols, expectedLabel, expectedType, expectedMissing, expectedDomain, expectedBinsSum, noPrint=noPrint, **kwargs)

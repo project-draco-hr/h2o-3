@@ -1,7 +1,4 @@
 def import_only(node=None, schema='local', bucket=None, path=None, timeoutSecs=30, retryDelaySecs=0.1, initialDelaySecs=0, pollTimeoutSecs=180, noise=None, benchmarkLogging=None, noPoll=False, doSummary=True, src_key=None, noPrint=False, importParentDir=True, **kwargs):
-    if (schema == 'put'):
-        h2p.yellow_print(("WARNING: hacking schema='put' to 'local'..h2o-dev doesn't support upload." + "\nMeans multi-machine with 'put' will fail"))
-        schema = 'local'
     if (src_key and (schema != 'put')):
         raise Exception(("can only specify a 'src_key' param for schema='put'. You have %s %s" % (schema, src_key)))
     if (not node):
@@ -33,9 +30,13 @@ def import_only(node=None, schema='local', bucket=None, path=None, timeoutSecs=3
             h2p.blue_print('That path resolves as:', os.path.realpath(filePath))
         if h2o_args.abort_after_import:
             raise Exception("Aborting due to abort_after_import (-aai) argument's effect in import_only()")
+        if (src_key is None):
+            src_key = filename
         key = node.put_file(filePath, key=src_key, timeoutSecs=timeoutSecs)
-        importResult = None
-        return (None, key)
+        a = ('{          "dels": [],          "fails": [],          "files": ["%s"],          "keys": ["%s"],          "path": "%s",          "schema_name": null, "schema_type": null, "schema_version": null        }' % (filename, src_key, filePath))
+        print 'json string:', a
+        importResult = json.loads(a)
+        return (importResult, key)
     if ((schema == 'local') and (not (node.redirect_import_folder_to_s3_path or node.redirect_import_folder_to_s3n_path))):
         (folderPath, pattern) = find_folder_and_filename(bucket, path, schema)
         filePath = os.path.join(folderPath, pattern)
