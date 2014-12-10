@@ -1,6 +1,7 @@
 {
   if (!E.hasNext())   throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
   AST ary=E.parse();
+  if (ary instanceof ASTId)   ary=Env.staticLookup((ASTId)ary);
   if (!(E.skipWS().hasNext()))   throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
   try {
     _digits=(int)((ASTNum)(E.parse())).dbl();

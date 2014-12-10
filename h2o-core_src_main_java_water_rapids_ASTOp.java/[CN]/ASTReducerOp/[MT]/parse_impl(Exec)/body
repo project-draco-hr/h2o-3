@@ -1,25 +1,29 @@
 {
   ArrayList<AST> dblarys=new ArrayList<>();
-  if (!E.hasNext())   throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
   AST ary=E.parse();
+  if (ary instanceof ASTId)   ary=Env.staticLookup((ASTId)ary);
   dblarys.add(ary);
   AST a;
   E.skipWS();
   while (true) {
-    if (!E.skipWS().hasNext())     throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
     a=E.skipWS().parse();
     if (a instanceof ASTId) {
       AST ast=E._env.lookup((ASTId)a);
-      if (ast instanceof ASTFrame) {
+      if (ast instanceof ASTFrame || ast instanceof ASTRaft) {
         dblarys.add(a);
         continue;
       }
  else       break;
     }
-    if (a instanceof ASTNum || a instanceof ASTFrame || a instanceof ASTSlice|| a instanceof ASTBinOp|| a instanceof ASTUniOp|| a instanceof ASTReducerOp)     dblarys.add(a);
+    if (a instanceof ASTNum || a instanceof ASTFrame || a instanceof ASTSlice|| a instanceof ASTBinOp|| a instanceof ASTUniOp|| a instanceof ASTReducerOp|| a instanceof ASTRaft)     dblarys.add(a);
  else     break;
   }
-  a=E._env.lookup((ASTId)a);
+  try {
+    a=E._env.lookup((ASTId)a);
+  }
+ catch (  ClassCastException e) {
+    throw new IllegalArgumentException("Expected the na.rm value to be one of $TRUE, $FALSE, $T, $F");
+  }
   _narm=((ASTNum)a).dbl() == 1;
   ASTReducerOp res=(ASTReducerOp)clone();
   AST[] arys=new AST[_argcnt=dblarys.size()];
