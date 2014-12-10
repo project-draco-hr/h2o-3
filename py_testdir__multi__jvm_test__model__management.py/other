@@ -4,6 +4,7 @@ import h2o, h2o_util
 import os
 import argparse
 import time
+import json
 parser = argparse.ArgumentParser(description='Run basic H2O REST API tests.')
 parser.add_argument('--verbose', '-v', help='verbose output', action='count')
 parser.add_argument('--usecloud', help='ip:port to attach to', default='')
@@ -188,12 +189,14 @@ assert ('model_metrics' in mms), 'FAIL: Failed to find model_metrics in result o
 found_mm = False
 for mm in mms['model_metrics']:
     assert ('model' in mm), ('FAIL: mm does not contain a model element: ' + repr(mm))
-    assert ('key' in mm['model']), ('FAIL: mm[model] does not contain a key: ' + repr(mm))
-    assert ('frame' in mm), ('FAIL: mm does not contain a model element: ' + repr(mm))
+    assert ('name' in mm['model']), ("FAIL: mm[model] isn't a key with a name: " + repr(mm))
+    assert ('type' in mm['model']), ('FAIL: mm[model] does not contain a type: ' + repr(mm))
+    assert ('Key<Model>' == mm['model']['type']), ('FAIL: mm[model] type is not Key<Model>: ' + repr(mm))
+    assert ('frame' in mm), ('FAIL: mm does not contain a frame element: ' + repr(mm))
     assert ('name' in mm['frame']), ('FAIL: mm[frame] does not contain a name: ' + repr(mm))
     assert ('type' in mm['frame']), ('FAIL: mm[frame] does not contain a type: ' + repr(mm))
-    assert ('Key<Frame>' == mm['frame']['type']), ('FAIL: mm[frame] type is not Key[Frame]: ' + repr(mm))
-    model_key = mm['model']['key']
+    assert ('Key<Frame>' == mm['frame']['type']), ('FAIL: mm[frame] type is not Key<Frame>: ' + repr(mm))
+    model_key = mm['model']['name']
     frame_key = mm['frame']['name']
     if ((model_key == 'deeplearning_prostate_binomial') and (frame_key == 'prostate_binomial')):
         found_mm = True
@@ -224,7 +227,7 @@ frames = result['frames']
 frames_dict = h2o_util.list_to_dict(frames, 'key/name')
 assert ('prostate_binomial' in frames_dict), 'FAIL: Failed to find prostate.hex in Frames list.'
 compatible_models = result['compatible_models']
-models_dict = h2o_util.list_to_dict(compatible_models, 'key')
+models_dict = h2o_util.list_to_dict(compatible_models, 'key/name')
 assert ('deeplearning_prostate_binomial' in models_dict), (('FAIL: Failed to find ' + 'deeplearning_prostate_binomial') + ' in compatible models list.')
 assert ('deeplearning_prostate_binomial' in frames[0]['compatible_models']), 'FAIL: failed to find deeplearning_prostate_binomial in compatible_models for prostate.'
 assert ('kmeans_prostate' in frames[0]['compatible_models']), 'FAIL: failed to find kmeans_prostate in compatible_models for prostate.'

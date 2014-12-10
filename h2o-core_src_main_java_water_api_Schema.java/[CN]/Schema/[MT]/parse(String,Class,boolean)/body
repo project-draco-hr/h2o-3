@@ -27,8 +27,12 @@
   }
   if (fclz.equals(Key.class))   if ((s == null || s.length() == 0) && required)   throw new IllegalArgumentException("Missing key");
  else   if (!required && (s == null || s.length() == 0))   return null;
- else   if (!required)   return Key.make(s);
  else   return Key.make(s);
+  if (KeySchema.class.isAssignableFrom(fclz)) {
+    if ((s == null || s.length() == 0) && required)     throw new IllegalArgumentException("Missing key");
+    if (!required && (s == null || s.length() == 0))     return null;
+    return KeySchema.make(fclz,Key.make(s));
+  }
   if (Enum.class.isAssignableFrom(fclz))   return Enum.valueOf(fclz,s);
   if (FrameV2.class.isAssignableFrom(fclz))   if ((s == null || s.length() == 0) && required)   throw new IllegalArgumentException("Missing key");
  else   if (!required && (s == null || s.length() == 0))   return null;
