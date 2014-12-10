@@ -1,17 +1,17 @@
 {
   Model m=modelMetrics.model();
   if (m != null) {
-    this.model=(ModelSchema)Schema.schema(this.schema_version,m.getClass()).fillFromImpl(m);
+    this.model=(ModelSchema)Schema.schema(this.__schema_version,m.getClass()).fillFromImpl(m);
     this.model_category=m._output.getModelCategory();
     this.model_checksum=m.checksum();
   }
   Frame f=modelMetrics.frame();
   if (null != f) {
-    this.frame=new FrameV2().fillFromImpl(f);
+    this.frame=new FrameKeyV1(f._key);
     this.frame_checksum=f.checksum();
   }
-  if (null != modelMetrics._aucdata)   this.auc=(AUCBase)Schema.schema(this.schema_version,modelMetrics._aucdata);
-  if (null != modelMetrics._cm)   this.cm=(ConfusionMatrixBase)Schema.schema(this.schema_version,modelMetrics._cm);
+  if (null != modelMetrics._aucdata)   this.auc=(AUCBase)Schema.schema(this.__schema_version,modelMetrics._aucdata);
+  if (null != modelMetrics._cm)   this.cm=(ConfusionMatrixBase)Schema.schema(this.__schema_version,modelMetrics._cm);
   if (null != this.model)   this.model.output=null;
   return this;
 }

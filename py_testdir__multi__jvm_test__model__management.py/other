@@ -116,7 +116,7 @@ assert (col['bins'][0] == 1), 'FAIL: Failed to find 1 as the first bin for AGE.'
 assert (col['base'] == 43), 'FAIL: Failed to find 43 as the base for AGE.'
 assert (col['stride'] == 1), 'FAIL: Failed to find 1 as the stride for AGE.'
 assert (col['pctiles'][0] == 50.5), 'FAIL: Failed to find 50.5 as the first pctile for AGE.'
-models_to_build = [ModelSpec.for_dataset('kmeans_prostate', 'kmeans', datasets['prostate_clustering'], {'K': 2, }), ModelSpec.for_dataset('glm_prostate_regression', 'glm', datasets['prostate_regression'], {}), ModelSpec.for_dataset('glm_prostate_binomial', 'glm', datasets['prostate_binomial'], {'family': 'binomial', }), ModelSpec.for_dataset('deeplearning_prostate_regression', 'deeplearning', datasets['prostate_regression'], {'epochs': 2, }), ModelSpec.for_dataset('deeplearning_prostate_binomial', 'deeplearning', datasets['prostate_binomial'], {'epochs': 2, 'hidden': '[20, 20]', }), ModelSpec.for_dataset('deeplearning_airlines_binomial', 'deeplearning', datasets['airlines_binomial'], {'epochs': 2, 'hidden': '[10, 10]', }), ModelSpec.for_dataset('deeplearning_iris_multinomial', 'deeplearning', datasets['iris_multinomial'], {'epochs': 2, }), ModelSpec.for_dataset('gbm_prostate_regression', 'gbm', datasets['prostate_regression'], {'ntrees': 5, }), ModelSpec.for_dataset('gbm_prostate_binomial', 'gbm', datasets['prostate_binomial'], {'ntrees': 5, }), ModelSpec.for_dataset('gbm_airlines_binomial', 'gbm', datasets['airlines_binomial'], {'ntrees': 5, }), ModelSpec.for_dataset('gbm_iris_multinomial', 'gbm', datasets['iris_multinomial'], {'ntrees': 5, })]
+models_to_build = [ModelSpec.for_dataset('kmeans_prostate', 'kmeans', datasets['prostate_clustering'], {'K': 2, }), ModelSpec.for_dataset('glm_prostate_regression', 'glm', datasets['prostate_regression'], {}), ModelSpec.for_dataset('glm_prostate_binomial', 'glm', datasets['prostate_binomial'], {'family': 'binomial', }), ModelSpec.for_dataset('deeplearning_prostate_regression', 'deeplearning', datasets['prostate_regression'], {'epochs': 1, }), ModelSpec.for_dataset('deeplearning_prostate_binomial', 'deeplearning', datasets['prostate_binomial'], {'epochs': 1, 'hidden': '[20, 20]', }), ModelSpec.for_dataset('deeplearning_airlines_binomial', 'deeplearning', datasets['airlines_binomial'], {'epochs': 1, 'hidden': '[10, 10]', }), ModelSpec.for_dataset('deeplearning_iris_multinomial', 'deeplearning', datasets['iris_multinomial'], {'epochs': 1, }), ModelSpec.for_dataset('gbm_prostate_regression', 'gbm', datasets['prostate_regression'], {'ntrees': 5, }), ModelSpec.for_dataset('gbm_prostate_binomial', 'gbm', datasets['prostate_binomial'], {'ntrees': 5, }), ModelSpec.for_dataset('gbm_airlines_binomial', 'gbm', datasets['airlines_binomial'], {'ntrees': 5, }), ModelSpec.for_dataset('gbm_iris_multinomial', 'gbm', datasets['iris_multinomial'], {'ntrees': 5, })]
 built_models = {}
 for model_spec in models_to_build:
     model = model_spec.build_and_validate_model(a_node)
@@ -190,10 +190,11 @@ for mm in mms['model_metrics']:
     assert ('model' in mm), ('FAIL: mm does not contain a model element: ' + repr(mm))
     assert ('key' in mm['model']), ('FAIL: mm[model] does not contain a key: ' + repr(mm))
     assert ('frame' in mm), ('FAIL: mm does not contain a model element: ' + repr(mm))
-    assert ('key' in mm['frame']), ('FAIL: mm[frame] does not contain a key: ' + repr(mm))
-    assert ('name' in mm['frame']['key']), ('FAIL: mm[frame][key] does not contain a name: ' + repr(mm))
+    assert ('name' in mm['frame']), ('FAIL: mm[frame] does not contain a name: ' + repr(mm))
+    assert ('type' in mm['frame']), ('FAIL: mm[frame] does not contain a type: ' + repr(mm))
+    assert ('Key<Frame>' == mm['frame']['type']), ('FAIL: mm[frame] type is not Key[Frame]: ' + repr(mm))
     model_key = mm['model']['key']
-    frame_key = mm['frame']['key']['name']
+    frame_key = mm['frame']['name']
     if ((model_key == 'deeplearning_prostate_binomial') and (frame_key == 'prostate_binomial')):
         found_mm = True
 assert found_mm, ((('FAIL: Failed to find ModelMetrics object for model: ' + 'deeplearning_prostate_binomial') + ' and frame: ') + 'prostate_binomial')

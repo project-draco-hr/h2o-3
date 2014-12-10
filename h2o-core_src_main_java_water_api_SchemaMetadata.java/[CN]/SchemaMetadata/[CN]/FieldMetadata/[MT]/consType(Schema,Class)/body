@@ -7,7 +7,13 @@
   if (is_array)   return consType(schema,clz.getComponentType()) + "[]";
   if (Map.class.isAssignableFrom(clz))   return "Map";
   if (List.class.isAssignableFrom(clz))   return "List";
-  if (water.Key.class.isAssignableFrom(clz))   return "Key";
+  if (water.Key.class.isAssignableFrom(clz)) {
+    Log.warn("Raw Key (not KeySchema) in Schema: " + schema.getClass());
+    return "Key";
+  }
+  if (KeySchema.class.isAssignableFrom(clz)) {
+    return "Key<" + KeySchema.getKeyedClassType((Class<? extends KeySchema>)clz) + ">";
+  }
   if (Schema.class.isAssignableFrom(clz)) {
     return Schema.getImplClass((Class<Schema>)clz).getSimpleName();
   }
