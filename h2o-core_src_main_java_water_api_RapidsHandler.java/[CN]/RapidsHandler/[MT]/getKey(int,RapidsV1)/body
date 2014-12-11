@@ -1,7 +1,7 @@
 {
   if (rapids == null)   return null;
   if (rapids.astKey == null)   throw new IllegalArgumentException("No key supplied to getKey.");
-  Raft raf=DKV.getGet(rapids.astKey);
-  rapids.raft_key=raf.get_key();
+  Raft raf=DKV.getGet(rapids.astKey.key());
+  rapids.raft_key=new KeyV1(raf.get_key());
   return rapids;
 }
