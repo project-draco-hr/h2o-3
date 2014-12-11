@@ -1,2 +1,11 @@
 def __getitem__(self, i):
-    return self.vecs[i]
+    if isinstance(i, int):
+        return self.vecs[i]
+    if isinstance(i, str):
+        for v in self.vecs:
+            if (i == v.name):
+                return v
+        raise ValueError((('Name ' + i) + ' not in Frame'))
+    if isinstance(i, slice):
+        return Frame(vecs=self.vecs[i])
+    raise NotImplementedError

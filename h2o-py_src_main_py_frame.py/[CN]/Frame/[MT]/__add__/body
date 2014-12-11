@@ -1,0 +1,14 @@
+def __add__(self, i):
+    if (len(self) == 0):
+        return self
+    if isinstance(i, Frame):
+        if (len(i) != len(self)):
+            raise ValueError(((('Frame len()=' + len(self)) + ' cannot be broadcast across len(i)=') + len(i)))
+        return Frame(vecs=[(x + y) for (x, y) in zip(self.vecs, i.vecs)])
+    if isinstance(i, Vec):
+        if (len(i) != len(self.vecs[0])):
+            raise ValueError(((('Vec len()=' + len(self.vecs[0])) + ' cannot be broadcast across len(i)=') + len(i)))
+        return Frame(vecs=[(x + i) for x in self.vecs])
+    if isinstance(i, int):
+        return Frame(vecs=[(x + i) for x in self.vecs])
+    raise NotImplementedError
