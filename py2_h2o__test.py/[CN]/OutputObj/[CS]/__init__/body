@@ -1,18 +1,12 @@
 def __init__(self, output, name, noPrint=False):
+    super(OutputObj, self).__init__()
     assert isinstance(output, dict), 'top level json given to OutputObj should be dict'
-    for (k1, v1) in output.iteritems():
-        setattr(self, k1, v1)
-        if (1 == 0):
-            if (not isinstance(v1, dict)):
-                setattr(self, k1, v1)
-            else:
-                for (k2, v2) in v1.iteritems():
-                    if isinstance(v2, dict):
-                        print ('Warning: the json object has dict. at 3rd level' + 'Keeping those as json-like dicts. never check at >3')
-                        setattr(k1, k2, v2)
+    aa = json.dumps(output)
+    bb = json.loads(aa, object_hook=AttrDict)
+    self.update(bb)
     self.name = name
     if (not noPrint):
-        for (k, v) in self:
+        for (k, v) in self.iteritems():
             if (k == 'parameters'):
                 print "Not showing 'parameters'"
             elif (k == 'data'):

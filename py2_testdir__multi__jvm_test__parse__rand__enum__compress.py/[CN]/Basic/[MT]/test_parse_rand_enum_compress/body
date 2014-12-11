@@ -33,8 +33,11 @@ def test_parse_rand_enum_compress(self):
             print ('took %s seconds to create %s' % (elapsed, csvPathname))
             lastcolsHistory.append(lastcols)
             parseResult = h2i.import_parse(path=csvPathname, schema='put', hex_key=hex_key, checkHeader=0, timeoutSecs=30, sep=colSepInt, doSummary=DO_SUMMARY)
-            print "Parse result['destination_key']:", parseResult['destination_key']
-            inspect = h2o_cmd.runInspect(key=parseResult['destination_key'])
-            (missingValuesList, labelsList, numRows, numCols) = h2o_cmd.infoFromInspect(inspect)
-            self.assertEqual(rowCount, numRows)
-            self.assertEqual(colCount, numCols)
+            parseResultA = h2i.import_parse(path=csvPathname, schema='put', hex_key=hex_key)
+            pA = h2o_cmd.ParseObj(parseResultA, expectedNumRows=rowCount, expectedNumCols=colCount)
+            print pA.numRows
+            print pA.numCols
+            print pA.parse_key
+            iA = h2o_cmd.InspectObj(pA.parse_key, expectedNumRows=rowCount, expectedNumCols=colCount, expectedMissinglist=[])
+            self.assertEqual(rowCount, iA.numRows)
+            self.assertEqual(colCount, iA.numCols)
