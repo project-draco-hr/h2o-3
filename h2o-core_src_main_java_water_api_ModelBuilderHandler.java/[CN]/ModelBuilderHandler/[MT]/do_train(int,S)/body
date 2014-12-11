@@ -1,0 +1,9 @@
+{
+  B builder=builderSchema.createAndFillImpl();
+  if (builder.error_count() > 0) {
+    S errors=(S)Schema.schema(version,builder).fillFromImpl(builder);
+    return errors;
+  }
+  Job j=builder.trainModel();
+  return new JobsV2().fillFromImpl(new Jobs(j));
+}

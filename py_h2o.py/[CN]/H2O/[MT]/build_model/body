@@ -15,7 +15,7 @@ def build_model(self, algo, training_frame, parameters, destination_key=None, ti
     result = self.__do_json_request(('/2/ModelBuilders.json/' + algo), cmd='post', timeout=timeoutSecs, postData=parameters)
     if asynchronous:
         return result
-    elif ('validation_error_count' in result):
+    elif (('validation_error_count' in result) and (result['validation_error_count'] > 0)):
         return result
     else:
         job = result['jobs'][0]

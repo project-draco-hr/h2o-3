@@ -7,74 +7,74 @@
   ab.arrayHead(titles);
   final long nrows=_fr.numRows();
   formatRow(ab,"","type",new ColOp(){
-    String op(    Col c){
+    String op(    ColV2 c){
       return c.type;
     }
   }
 );
   formatRow(ab,"","min",new ColOp(){
-    String op(    Col c){
+    String op(    ColV2 c){
       return rollUpStr(c,c.missing == nrows ? Double.NaN : c.mins[0]);
     }
   }
 );
   formatRow(ab,"","max",new ColOp(){
-    String op(    Col c){
+    String op(    ColV2 c){
       return rollUpStr(c,c.missing == nrows ? Double.NaN : c.maxs[0]);
     }
   }
 );
   formatRow(ab,"","mean",new ColOp(){
-    String op(    Col c){
+    String op(    ColV2 c){
       return rollUpStr(c,c.missing == nrows ? Double.NaN : c.mean);
     }
   }
 );
   formatRow(ab,"","sigma",new ColOp(){
-    String op(    Col c){
+    String op(    ColV2 c){
       return rollUpStr(c,c.missing == nrows ? Double.NaN : c.sigma);
     }
   }
 );
-  for (  Col c : columns)   if (c.missing > 0) {
+  for (  ColV2 c : columns)   if (c.missing > 0) {
     formatRow(ab,"class='warning'","missing",new ColOp(){
-      String op(      Col c){
+      String op(      ColV2 c){
         return c.missing == 0 ? "" : Long.toString(c.missing);
       }
     }
 );
     break;
   }
-  for (  Col c : columns)   if (c.zeros > 0) {
+  for (  ColV2 c : columns)   if (c.zeros > 0) {
     formatRow(ab,"class='warning'","zeros",new ColOp(){
-      String op(      Col c){
+      String op(      ColV2 c){
         return c.zeros == 0 ? "" : Long.toString(c.zeros);
       }
     }
 );
     break;
   }
-  for (  Col c : columns)   if (c.pinfs > 0) {
+  for (  ColV2 c : columns)   if (c.pinfs > 0) {
     formatRow(ab,"class='warning'","+infins",new ColOp(){
-      String op(      Col c){
+      String op(      ColV2 c){
         return c.pinfs == 0 ? "" : Long.toString(c.pinfs);
       }
     }
 );
     break;
   }
-  for (  Col c : columns)   if (c.ninfs > 0) {
+  for (  ColV2 c : columns)   if (c.ninfs > 0) {
     formatRow(ab,"class='warning'","-infins",new ColOp(){
-      String op(      Col c){
+      String op(      ColV2 c){
         return c.ninfs == 0 ? "" : Long.toString(c.ninfs);
       }
     }
 );
     break;
   }
-  for (  Col c : columns)   if (c.domain != null) {
+  for (  ColV2 c : columns)   if (c.domain != null) {
     formatRow(ab,"class='warning'","levels",new ColOp(){
-      String op(      Col c){
+      String op(      ColV2 c){
         return c.domain == null ? "" : Long.toString(c.domain.length);
       }
     }
@@ -85,7 +85,7 @@
   for (int i=0; i < len; i++) {
     final int row=i;
     formatRow(ab,"",Long.toString(off + row + 1),new ColOp(){
-      String op(      Col c){
+      String op(      ColV2 c){
         return formatCell(c.data == null ? 0 : c.data[row],c.str_data == null ? null : c.str_data[row],c,0);
       }
     }

@@ -17,7 +17,7 @@ def parse(self, key, dest_key=None, timeoutSecs=300, retryDelaySecs=0.2, initial
     h2o_util.check_params_update_kwargs(parse_params, kwargs, 'parse', print_params=H2O.verbose)
     parse_result = self.__do_json_request(jsonRequest='Parse.json', cmd='post', timeout=timeoutSecs, postData=parse_params, **kwargs)
     H2O.verboseprint('Parse result:', h2o_util.dump_json(parse_result))
-    job_key = parse_result['job']['name']
+    job_key = parse_result['job']['key']['name']
     if noPoll:
         return this.jobs(job_key)
     job_json = self.poll_job(job_key, timeoutSecs=timeoutSecs)

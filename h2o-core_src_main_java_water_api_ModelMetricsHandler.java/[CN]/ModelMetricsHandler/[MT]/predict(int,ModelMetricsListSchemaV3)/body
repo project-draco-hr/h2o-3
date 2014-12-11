@@ -1,0 +1,14 @@
+{
+  ModelMetricsList parms=s.createAndFillImpl();
+  Frame predictions=parms.model.score(parms.frame);
+  ModelMetricsListSchemaV3 mm=this.fetch(version,s);
+  if (null == mm)   mm=new ModelMetricsListSchemaV3();
+  if (null == mm.model_metrics || 0 == mm.model_metrics.length) {
+    mm.model_metrics=new ModelMetricsV3[1];
+    mm.model_metrics[0]=new ModelMetricsV3();
+  }
+  Frame persisted=new Frame(Key.make("predictions_" + Key.rand()),predictions.names(),predictions.vecs());
+  DKV.put(persisted);
+  mm.model_metrics[0].predictions=new FrameV2(persisted,0,100);
+  return mm;
+}

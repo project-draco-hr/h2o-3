@@ -1,7 +1,15 @@
 {
   ab.title("ParseSetup");
-  if (null != srcs && srcs.length > 0)   ab.href("Parse",srcs[0].toString(),water.api.ParseV2.link(srcs,hexName,pType,sep,ncols,checkHeader,singleQuotes,columnNames));
- else   ab.href("Parse","unknown",water.api.ParseV2.link(srcs,hexName,pType,sep,ncols,checkHeader,singleQuotes,columnNames));
+  if (null != srcs && srcs.length > 0) {
+    Key[] srcs_key=new Key[srcs.length];
+    for (int i=0; i < srcs.length; i++)     srcs_key[i]=srcs[i].key();
+    ab.href("Parse",srcs[0].toString(),water.api.ParseV2.link(srcs_key,hexName,pType,sep,ncols,checkHeader,singleQuotes,columnNames));
+  }
+ else {
+    Key[] srcs_key=new Key[srcs.length];
+    for (int i=0; i < srcs.length; i++)     srcs_key[i]=srcs[i].key();
+    ab.href("Parse","unknown",water.api.ParseV2.link(srcs_key,hexName,pType,sep,ncols,checkHeader,singleQuotes,columnNames));
+  }
   ab.putA("srcs",srcs);
   ab.putStr("hexName",hexName);
   ab.putEnum("pType",pType);

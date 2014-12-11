@@ -1,0 +1,10 @@
+{
+  Map<String,Class<? extends ModelBuilder>> builders=ModelBuilder.getModelBuilders();
+  m.model_builders=new IcedHashMap<>();
+  for (  Map.Entry<String,Class<? extends ModelBuilder>> entry : builders.entrySet()) {
+    String algo=entry.getKey();
+    ModelBuilder builder=ModelBuilder.createModelBuilder(algo);
+    m.model_builders.put(algo,(ModelBuilderSchema)Schema.schema(2,builder).fillFromImpl(builder));
+  }
+  return m;
+}
