@@ -26,7 +26,7 @@ h2o.H2O.verboseprint(('port' + str(port)))
 pp = pprint.PrettyPrinter(indent=4)
 a_node = h2o.H2O(host, port)
 algos = ['example', 'kmeans', 'deeplearning', 'glm', 'gbm', 'word2vec', 'quantile', 'grep']
-algo_additional_default_params = {'grep': {'regex': '.*', }, 'kmeans': {'K': 2, }, }
+algo_additional_default_params = {'grep': {'regex': '.*', }, 'kmeans': {'k': 2, }, }
 clean_up_after = False
 h2o.H2O.verboseprint('connected to: ', '127.0.0.1', 54321)
 models = a_node.models()
@@ -117,7 +117,7 @@ assert (col['bins'][0] == 1), 'FAIL: Failed to find 1 as the first bin for AGE.'
 assert (col['base'] == 43), 'FAIL: Failed to find 43 as the base for AGE.'
 assert (col['stride'] == 1), 'FAIL: Failed to find 1 as the stride for AGE.'
 assert (col['pctiles'][0] == 50.5), 'FAIL: Failed to find 50.5 as the first pctile for AGE.'
-models_to_build = [ModelSpec.for_dataset('kmeans_prostate', 'kmeans', datasets['prostate_clustering'], {'K': 2, }), ModelSpec.for_dataset('glm_prostate_regression', 'glm', datasets['prostate_regression'], {}), ModelSpec.for_dataset('glm_prostate_binomial', 'glm', datasets['prostate_binomial'], {'family': 'binomial', }), ModelSpec.for_dataset('deeplearning_prostate_regression', 'deeplearning', datasets['prostate_regression'], {'epochs': 1, }), ModelSpec.for_dataset('deeplearning_prostate_binomial', 'deeplearning', datasets['prostate_binomial'], {'epochs': 1, 'hidden': '[20, 20]', }), ModelSpec.for_dataset('deeplearning_airlines_binomial', 'deeplearning', datasets['airlines_binomial'], {'epochs': 1, 'hidden': '[10, 10]', }), ModelSpec.for_dataset('deeplearning_iris_multinomial', 'deeplearning', datasets['iris_multinomial'], {'epochs': 1, }), ModelSpec.for_dataset('gbm_prostate_regression', 'gbm', datasets['prostate_regression'], {'ntrees': 5, }), ModelSpec.for_dataset('gbm_prostate_binomial', 'gbm', datasets['prostate_binomial'], {'ntrees': 5, }), ModelSpec.for_dataset('gbm_airlines_binomial', 'gbm', datasets['airlines_binomial'], {'ntrees': 5, }), ModelSpec.for_dataset('gbm_iris_multinomial', 'gbm', datasets['iris_multinomial'], {'ntrees': 5, })]
+models_to_build = [ModelSpec.for_dataset('kmeans_prostate', 'kmeans', datasets['prostate_clustering'], {'k': 2, }), ModelSpec.for_dataset('glm_prostate_regression', 'glm', datasets['prostate_regression'], {}), ModelSpec.for_dataset('glm_prostate_binomial', 'glm', datasets['prostate_binomial'], {'family': 'binomial', }), ModelSpec.for_dataset('deeplearning_prostate_regression', 'deeplearning', datasets['prostate_regression'], {'epochs': 1, }), ModelSpec.for_dataset('deeplearning_prostate_binomial', 'deeplearning', datasets['prostate_binomial'], {'epochs': 1, 'hidden': '[20, 20]', }), ModelSpec.for_dataset('deeplearning_airlines_binomial', 'deeplearning', datasets['airlines_binomial'], {'epochs': 1, 'hidden': '[10, 10]', }), ModelSpec.for_dataset('deeplearning_iris_multinomial', 'deeplearning', datasets['iris_multinomial'], {'epochs': 1, }), ModelSpec.for_dataset('gbm_prostate_regression', 'gbm', datasets['prostate_regression'], {'ntrees': 5, }), ModelSpec.for_dataset('gbm_prostate_binomial', 'gbm', datasets['prostate_binomial'], {'ntrees': 5, }), ModelSpec.for_dataset('gbm_airlines_binomial', 'gbm', datasets['airlines_binomial'], {'ntrees': 5, }), ModelSpec.for_dataset('gbm_iris_multinomial', 'gbm', datasets['iris_multinomial'], {'ntrees': 5, })]
 built_models = {}
 for model_spec in models_to_build:
     model = model_spec.build_and_validate_model(a_node)
