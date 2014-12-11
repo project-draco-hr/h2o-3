@@ -1,15 +1,11 @@
 def __init__(self, str=None, file=None, vecs=None):
     if (file != None):
         with open(file, 'rb') as csvfile:
-            __reader__ = csv.reader(csvfile)
-            self._vecs = None
-            for row in __reader__:
-                if (self._vecs == None):
-                    self._vecs = []
-                    for name in row:
-                        self._vecs.append(Vec((str + name), []))
-                else:
-                    for (i, data) in enumerate(row):
-                        self._vecs[i].append(data)
+            self._vecs = []
+            for name in csvfile.readline().split(','):
+                self._vecs.append(Vec((str + name.rstrip()), []))
+            for row in csv.reader(csvfile):
+                for (i, data) in enumerate(row):
+                    self._vecs[i].append(data)
     elif (vecs != None):
         self._vecs = vecs
