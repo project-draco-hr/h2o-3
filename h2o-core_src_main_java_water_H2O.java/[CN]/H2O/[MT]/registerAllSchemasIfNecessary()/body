@@ -1,4 +1,6 @@
 {
+  if (schemas_registered)   return;
+  if (!Paxos._cloudLocked)   return;
   Reflections reflections=null;
   new Schema();
   Set<Class<? extends Schema>> schemas=null;
@@ -6,5 +8,6 @@
   for (  Class<? extends Schema> schema_class : schemas)   if (!Modifier.isAbstract(schema_class.getModifiers()))   Schema.register(schema_class);
   schemas=(new Reflections("hex")).getSubTypesOf(Schema.class);
   for (  Class<? extends Schema> schema_class : schemas)   if (!Modifier.isAbstract(schema_class.getModifiers()))   Schema.register(schema_class);
+  schemas_registered=true;
   Log.info("Registered: " + Schema.schemas().size() + " schemas.");
 }
