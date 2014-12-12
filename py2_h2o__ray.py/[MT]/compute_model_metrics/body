@@ -4,7 +4,7 @@ def compute_model_metrics(self, model, frame, timeoutSecs=60, **kwargs):
     assert (frame is not None), '"frame" parameter is null'
     models = self.models(key=model, timeoutSecs=timeoutSecs)
     assert (models is not None), '/Models REST call failed'
-    assert (models['models'][0]['key'] == model), '/Models/{0} returned Model {1} rather than Model {2}'.format(model, models['models'][0]['key']['name'], model)
+    assert (models['models'][0]['key']['name'] == model), '/Models/{0} returned Model {1} rather than Model {2}'.format(model, models['models'][0]['key']['name'], model)
     frames = self.frames(key=frame)
     assert (frames is not None), '/Frames/{0} REST call failed'.format(frame)
     assert (frames['frames'][0]['key']['name'] == frame), '/Frames/{0} returned Frame {1} rather than Frame {2}'.format(frame, frames['frames'][0]['key']['name'], frame)
