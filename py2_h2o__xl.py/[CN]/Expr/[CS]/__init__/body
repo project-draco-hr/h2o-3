@@ -1,2 +1,5 @@
-def __init__(self, expr, timeoutSecs=30):
-    super(Expr, self).__init__(lhs=None, rhs=expr, assignDisable=True, timeoutSecs=timeoutSecs)
+def __init__(self, expr, timeoutSecs=30, noRefCnt=False):
+    super(Expr, self).__init__(lhs=None, rhs=expr, assignDisable=True, timeoutSecs=timeoutSecs, noRefCnt=True)
+    if (not noRefCnt):
+        self.refcntInc(expr)
+        self.assignIfRoot()
