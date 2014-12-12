@@ -1,12 +1,12 @@
-def __init__(self, str=None, file=None, vecs=None):
-    if (file != None):
-        with open(file, 'rb') as csvfile:
+def __init__(self, lead=None, fname=None, vecs=None):
+    if (fname is not None):
+        with open(fname, 'rb') as csvfile:
             self._vecs = []
             for name in csvfile.readline().split(','):
-                self._vecs.append(Vec((str + name.rstrip()), []))
+                self._vecs.append(Vec((lead + name.rstrip()), []))
             for row in csv.reader(csvfile):
                 for (i, data) in enumerate(row):
                     self._vecs[i].append(data)
-        print 'READ: +', len(self), file
-    elif (vecs != None):
+        print 'READ: +', len(self), fname
+    elif (vecs is not None):
         self._vecs = vecs

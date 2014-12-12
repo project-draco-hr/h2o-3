@@ -1,0 +1,21 @@
+def do_it(self):
+    assert (not self._data)
+    if (isinstance(self._left, RX) and (not self._left._data)):
+        self._left.do_it()
+    if (isinstance(self._rite, RX) and (not self._rite._data)):
+        self._rite.do_it()
+    if (self._op == '+'):
+        if isinstance(self._left, (int, float)):
+            (lname, rname) = (str(self._left), self._rite._name)
+            self._data = [(self._left + x) for x in self._rite._data]
+        elif isinstance(self._rite, (int, float)):
+            (lname, rname) = (self._left._name, str(self._rite))
+            self._data = [(x + self._rite) for x in self._left._data]
+        else:
+            (lname, rname) = (self._left._name, self._rite._name)
+            self._data = [(x + y) for (x, y) in zip(self._left._data, self._rite._data)]
+    else:
+        raise NotImplementedError
+    print 'WORK:', self._name, '=', lname, self._op, rname
+    assert self._data
+    return self._data
