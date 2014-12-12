@@ -4,9 +4,12 @@ def test_kmeans_benign(self):
     hex_key = 'benign.hex'
     csvPathname = ((importFolderPath + '/') + csvFilename)
     parseResult = h2i.import_parse(bucket='smalldata', path=csvPathname, hex_key=hex_key, checkHeader=1, timeoutSecs=180, doSummary=False)
-    (numRows, numCols, parse_key) = h2o_cmd.infoFromParse(parseResult)
-    inspectResult = h2o_cmd.runInspect(key=parse_key)
-    (missingList, labelList, numRows, numCols) = h2o_cmd.infoFromInspect(inspectResult)
+    pA = h2o_cmd.ParseObj(parseResult)
+    iA = h2o_cmd.InspectObj(pA.parse_key)
+    parse_key = pA.parse_key
+    numRows = iA.numRows
+    numCols = iA.numCols
+    labelList = iA.labelList
     expected = [([8.86, 2.43, 35.53, 0.31, 13.22, 1.47, 1.33, 20.06, 13.08, 0.53, 2.12, 128.61, 35.33, 1.57], 49, None), ([33.47, 2.29, 50.92, 0.34, 12.82, 1.33, 1.36, 21.43, 13.3, 0.37, 2.52, 125.4, 43.91, 1.79], 87, None), ([27.64, 2.87, 48.11, 0.09, 11.8, 0.98, 1.51, 21.02, 12.53, 0.58, 2.89, 171.27, 42.73, 1.53], 55, None), ([26.0, 2.67, 46.67, 0.0, 13.0, 1.33, 1.67, 21.56, 11.44, 0.22, 2.89, 234.56, 39.22, 1.56], 9, None)]
     allowedDelta = (0.01, 0.01, 0.01, 0.01)
     labelListUsed = list(labelList)
