@@ -1,15 +1,18 @@
 {
-  if (extractVersion(clz.getSimpleName()) > -1) {
-    Schema s=null;
-    try {
-      s=clz.newInstance();
-    }
- catch (    Exception e) {
-      Log.err("Failed to instantiate schema class: " + clz);
-    }
-    if (null != s) {
-      Log.debug("Instantiated: " + clz.getSimpleName());
-      SchemaMetadata ignoreme=new SchemaMetadata(s);
+synchronized (clz) {
+    if (null != schemas.get(clz.getSimpleName()))     return;
+    if (extractVersion(clz.getSimpleName()) > -1) {
+      Schema s=null;
+      try {
+        s=clz.newInstance();
+      }
+ catch (      Exception e) {
+        Log.err("Failed to instantiate schema class: " + clz);
+      }
+      if (null != s) {
+        Log.debug("Instantiated: " + clz.getSimpleName());
+        SchemaMetadata ignoreme=new SchemaMetadata(s);
+      }
     }
   }
 }
