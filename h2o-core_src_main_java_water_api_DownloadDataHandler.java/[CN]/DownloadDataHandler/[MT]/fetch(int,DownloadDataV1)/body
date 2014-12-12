@@ -1,0 +1,16 @@
+{
+  if (DKV.get(server.key.key()) == null)   throw new IllegalArgumentException(server.key.toString() + " not found.");
+  Frame value=server.key.key().get();
+  InputStream is=value.toCSV(true,server.hex_string);
+  java.util.Scanner scanner=new java.util.Scanner(is).useDelimiter("\\A");
+  server.csv=(scanner.hasNext() ? scanner.next() : "");
+  String s=server.key.toString();
+  int x=s.length() - 1;
+  boolean dot=false;
+  for (; x >= 0; x--)   if (!Character.isLetterOrDigit(s.charAt(x)) && s.charAt(x) != '_')   if (s.charAt(x) == '.' && !dot)   dot=true;
+ else   break;
+  String suggested_fname=s.substring(x + 1).replace(".hex",".csv");
+  if (!suggested_fname.endsWith(".csv"))   suggested_fname=suggested_fname + ".csv";
+  server.filename=suggested_fname;
+  return server;
+}

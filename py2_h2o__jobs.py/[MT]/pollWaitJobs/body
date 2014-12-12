@@ -51,7 +51,7 @@ def pollWaitJobs(pattern=None, errorIfCancelled=False, timeoutSecs=60, pollTimeo
         wait = (busy > waitFor)
         if (not wait):
             break
-        if (wait and (waitTime > timeoutSecs)):
+        if ((not h2o_args.no_timeout) and (wait and (waitTime > timeoutSecs))):
             print dump_json(jobs)
             raise Exception("Some queued jobs haven't completed after", timeoutSecs, 'seconds')
         sys.stdout.write('.')

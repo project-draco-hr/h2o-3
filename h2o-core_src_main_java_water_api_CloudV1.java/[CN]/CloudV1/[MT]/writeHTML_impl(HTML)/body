@@ -23,7 +23,7 @@
   int cores=0;
   float gflops_tot=0f;
   float mem_bw_tot=0f;
-  for (  Node n : nodes) {
+  for (  NodeV1 n : nodes) {
     max_ping=Math.max(max_ping,(now - n.last_ping));
     load+=n.sys_load;
     data_tot+=n.total_value_size;
@@ -47,7 +47,7 @@
   }
   float avg_load=load / nodes.length;
   formatRow(ab,"",ab.bold("Summary"),max_ping,avg_load,data_tot,data_cached,data_keys,gc_free,gc_tot,gc_max,disk_free,disk_max,cpu_rpcs,fjthrds,fjqueue,tcps,fds,cores,gflops_tot,mem_bw_tot,"");
-  for (  Node n : nodes)   formatRow(ab,n.healthy ? "" : "class=\"error\"",n.h2o.toString(),now - n.last_ping,n.sys_load,n.total_value_size,n.mem_value_size,n.num_keys,n.free_mem,n.tot_mem,n.max_mem,n.free_disk,n.max_disk,n.rpcs_active,n.fjthrds,n.fjqueue,n.tcps_active,n.open_fds,n.num_cpus,n.gflops,n.mem_bw,n.pid);
+  for (  NodeV1 n : nodes)   formatRow(ab,n.healthy ? "" : "class=\"error\"",n.h2o.toString(),now - n.last_ping,n.sys_load,n.total_value_size,n.mem_value_size,n.num_keys,n.free_mem,n.tot_mem,n.max_mem,n.free_disk,n.max_disk,n.rpcs_active,n.fjthrds,n.fjqueue,n.tcps_active,n.open_fds,n.num_cpus,n.gflops,n.mem_bw,n.pid);
   ab.arrayTail();
   return ab.bodyTail();
 }

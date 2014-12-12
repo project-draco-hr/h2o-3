@@ -3,6 +3,8 @@ sys.path.extend(['.', '..', 'py'])
 import h2o, h2o_util
 import os
 import argparse
+import time
+import json
 parser = argparse.ArgumentParser(description='Run basic H2O REST API tests.')
 parser.add_argument('--verbose', '-v', help='verbose output', action='count')
 parser.add_argument('--usecloud', help='ip:port to attach to', default='')
@@ -24,7 +26,7 @@ h2o.H2O.verboseprint(('port' + str(port)))
 pp = pprint.PrettyPrinter(indent=4)
 a_node = h2o.H2O(host, port)
 algos = ['example', 'kmeans', 'deeplearning', 'glm', 'gbm', 'word2vec', 'quantile', 'grep']
-algo_additional_default_params = {'grep': {'regex': '.*', }, }
+algo_additional_default_params = {'grep': {'regex': '.*', }, 'kmeans': {'k': 2, }, }
 clean_up_after = False
 h2o.H2O.verboseprint('connected to: ', '127.0.0.1', 54321)
 models = a_node.models()
@@ -115,7 +117,7 @@ assert (col['bins'][0] == 1), 'FAIL: Failed to find 1 as the first bin for AGE.'
 assert (col['base'] == 43), 'FAIL: Failed to find 43 as the base for AGE.'
 assert (col['stride'] == 1), 'FAIL: Failed to find 1 as the stride for AGE.'
 assert (col['pctiles'][0] == 50.5), 'FAIL: Failed to find 50.5 as the first pctile for AGE.'
-models_to_build = [ModelSpec.for_dataset('kmeans_prostate', 'kmeans', datasets['prostate_clustering'], {'K': 2, }), ModelSpec.for_dataset('glm_prostate_regression', 'glm', datasets['prostate_regression'], {}), ModelSpec.for_dataset('glm_prostate_binomial', 'glm', datasets['prostate_binomial'], {'family': 'binomial', }), ModelSpec.for_dataset('deeplearning_prostate_regression', 'deeplearning', datasets['prostate_regression'], {}), ModelSpec.for_dataset('deeplearning_prostate_binomial', 'deeplearning', datasets['prostate_binomial'], {'hidden': '[10, 20, 10]', }), ModelSpec.for_dataset('deeplearning_airlines_binomial', 'deeplearning', datasets['airlines_binomial'], {'hidden': '[50, 50]', 'epochs': '1.0', }), ModelSpec.for_dataset('deeplearning_iris_multinomial', 'deeplearning', datasets['iris_multinomial'], {}), ModelSpec.for_dataset('gbm_prostate_regression', 'gbm', datasets['prostate_regression'], {}), ModelSpec.for_dataset('gbm_prostate_binomial', 'gbm', datasets['prostate_binomial'], {}), ModelSpec.for_dataset('gbm_airlines_binomial', 'gbm', datasets['airlines_binomial'], {}), ModelSpec.for_dataset('gbm_iris_multinomial', 'gbm', datasets['iris_multinomial'], {})]
+models_to_build = [ModelSpec.for_dataset('kmeans_prostate', 'kmeans', datasets['prostate_clustering'], {'k': 2, }), ModelSpec.for_dataset('glm_prostate_regression', 'glm', datasets['prostate_regression'], {}), ModelSpec.for_dataset('glm_prostate_binomial', 'glm', datasets['prostate_binomial'], {'family': 'binomial', }), ModelSpec.for_dataset('deeplearning_prostate_regression', 'deeplearning', datasets['prostate_regression'], {'epochs': 1, }), ModelSpec.for_dataset('deeplearning_prostate_binomial', 'deeplearning', datasets['prostate_binomial'], {'epochs': 1, 'hidden': '[20, 20]', }), ModelSpec.for_dataset('deeplearning_airlines_binomial', 'deeplearning', datasets['airlines_binomial'], {'epochs': 1, 'hidden': '[10, 10]', }), ModelSpec.for_dataset('deeplearning_iris_multinomial', 'deeplearning', datasets['iris_multinomial'], {'epochs': 1, }), ModelSpec.for_dataset('gbm_prostate_regression', 'gbm', datasets['prostate_regression'], {'ntrees': 5, }), ModelSpec.for_dataset('gbm_prostate_binomial', 'gbm', datasets['prostate_binomial'], {'ntrees': 5, }), ModelSpec.for_dataset('gbm_airlines_binomial', 'gbm', datasets['airlines_binomial'], {'ntrees': 5, }), ModelSpec.for_dataset('gbm_iris_multinomial', 'gbm', datasets['iris_multinomial'], {'ntrees': 5, })]
 built_models = {}
 for model_spec in models_to_build:
     model = model_spec.build_and_validate_model(a_node)
@@ -178,7 +180,7 @@ if verbose:
 mm = a_node.compute_model_metrics(model='deeplearning_prostate_binomial', frame='prostate_binomial')
 assert (mm is not None), ((('FAIL: Got a null result for scoring: ' + 'deeplearning_prostate_binomial') + ' on: ') + 'prostate_binomial')
 assert ('model_category' in mm), (((('FAIL: ModelMetrics for scoring: ' + 'deeplearning_prostate_binomial') + ' on: ') + 'prostate_binomial') + ' does not contain a model_category.')
-assert ('Binomial' == mm['model_category']), ((((('FAIL: ModelMetrics for scoring: ' + 'deeplearning_prostate_binomial') + ' on: ') + 'prostate_binomial') + ' model_category is not Binomial, it is: ') + mm['model_category'])
+assert ('Binomial' == mm['model_category']), ((((('FAIL: ModelMetrics for scoring: ' + 'deeplearning_prostate_binomial') + ' on: ') + 'prostate_binomial') + ' model_category is not Binomial, it is: ') + str(mm['model_category']))
 assert ('auc' in mm), (((('FAIL: ModelMetrics for scoring: ' + 'deeplearning_prostate_binomial') + ' on: ') + 'prostate_binomial') + ' does not contain an AUC.')
 assert ('cm' in mm), (((('FAIL: ModelMetrics for scoring: ' + 'deeplearning_prostate_binomial') + ' on: ') + 'prostate_binomial') + ' does not contain a CM.')
 h2o.H2O.verboseprint('ModelMetrics for scoring: ', 'deeplearning_prostate_binomial', ' on: ', 'prostate_binomial', ':  ', repr(mm))
@@ -187,12 +189,15 @@ assert ('model_metrics' in mms), 'FAIL: Failed to find model_metrics in result o
 found_mm = False
 for mm in mms['model_metrics']:
     assert ('model' in mm), ('FAIL: mm does not contain a model element: ' + repr(mm))
-    assert ('key' in mm['model']), ('FAIL: mm[model] does not contain a key: ' + repr(mm))
-    assert ('frame' in mm), ('FAIL: mm does not contain a model element: ' + repr(mm))
-    assert ('key' in mm['frame']), ('FAIL: mm[frame] does not contain a key: ' + repr(mm))
-    assert ('name' in mm['frame']['key']), ('FAIL: mm[frame][key] does not contain a name: ' + repr(mm))
-    model_key = mm['model']['key']
-    frame_key = mm['frame']['key']['name']
+    assert ('name' in mm['model']), ("FAIL: mm[model] isn't a key with a name: " + repr(mm))
+    assert ('type' in mm['model']), ('FAIL: mm[model] does not contain a type: ' + repr(mm))
+    assert ('Key<Model>' == mm['model']['type']), ('FAIL: mm[model] type is not Key<Model>: ' + repr(mm))
+    assert ('frame' in mm), ('FAIL: mm does not contain a frame element: ' + repr(mm))
+    assert ('name' in mm['frame']), ('FAIL: mm[frame] does not contain a name: ' + repr(mm))
+    assert ('type' in mm['frame']), ('FAIL: mm[frame] does not contain a type: ' + repr(mm))
+    assert ('Key<Frame>' == mm['frame']['type']), ('FAIL: mm[frame] type is not Key<Frame>: ' + repr(mm))
+    model_key = mm['model']['name']
+    frame_key = mm['frame']['name']
     if ((model_key == 'deeplearning_prostate_binomial') and (frame_key == 'prostate_binomial')):
         found_mm = True
 assert found_mm, ((('FAIL: Failed to find ModelMetrics object for model: ' + 'deeplearning_prostate_binomial') + ' and frame: ') + 'prostate_binomial')
@@ -222,7 +227,7 @@ frames = result['frames']
 frames_dict = h2o_util.list_to_dict(frames, 'key/name')
 assert ('prostate_binomial' in frames_dict), 'FAIL: Failed to find prostate.hex in Frames list.'
 compatible_models = result['compatible_models']
-models_dict = h2o_util.list_to_dict(compatible_models, 'key')
+models_dict = h2o_util.list_to_dict(compatible_models, 'key/name')
 assert ('deeplearning_prostate_binomial' in models_dict), (('FAIL: Failed to find ' + 'deeplearning_prostate_binomial') + ' in compatible models list.')
 assert ('deeplearning_prostate_binomial' in frames[0]['compatible_models']), 'FAIL: failed to find deeplearning_prostate_binomial in compatible_models for prostate.'
 assert ('kmeans_prostate' in frames[0]['compatible_models']), 'FAIL: failed to find kmeans_prostate in compatible_models for prostate.'

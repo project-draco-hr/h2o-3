@@ -2,7 +2,7 @@ def stabilize(self, test_func, error, timeoutSecs=10, retryDelaySecs=0.5):
     "Repeatedly test a function waiting for it to return True.\n\n        Arguments:\n        test_func      -- A function that will be run repeatedly\n        error          -- A function that will be run to produce an error message\n                          it will be called with (node, timeTakenSecs, numberOfRetries)\n                    OR\n                       -- A string that will be interpolated with a dictionary of\n                          { 'timeTakenSecs', 'numberOfRetries' }\n        timeoutSecs    -- How long in seconds to keep trying before declaring a failure\n        retryDelaySecs -- How long to wait between retry attempts\n        "
     start = time.time()
     numberOfRetries = 0
-    while ((time.time() - start) < timeoutSecs):
+    while (h2o_args.no_timeout or ((time.time() - start) < timeoutSecs)):
         if test_func(self, tries=numberOfRetries, timeoutSecs=timeoutSecs):
             break
         time.sleep(retryDelaySecs)

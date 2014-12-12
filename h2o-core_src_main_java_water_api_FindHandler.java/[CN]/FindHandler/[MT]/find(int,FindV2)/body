@@ -1,0 +1,39 @@
+{
+  Frame frame=find.key.createAndFillImpl();
+  if (find.column != null) {
+    Vec vec=frame.vec(find.column);
+    if (vec == null)     throw new IllegalArgumentException("Column " + find.column + " not found in frame "+ find.key);
+    find.key=new FrameV2(new Frame(new String[]{find.column},new Vec[]{vec}));
+  }
+  Vec[] vecs=frame.vecs();
+  double ds[]=new double[vecs.length];
+  for (int i=0; i < vecs.length; i++) {
+    if (vecs[i].isEnum()) {
+      int idx=ArrayUtils.find(vecs[i].domain(),find.match);
+      if (idx == -1 && vecs.length == 1)       throw new IllegalArgumentException("Not one of " + Arrays.toString(vecs[i].domain()));
+      ds[i]=idx;
+    }
+ else     if (vecs[i].isUUID()) {
+      throw H2O.unimpl();
+    }
+ else     if (vecs[i].isString()) {
+      throw H2O.unimpl();
+    }
+ else     if (vecs[i].isTime()) {
+      throw H2O.unimpl();
+    }
+ else {
+      try {
+        ds[i]=find.match == null ? Double.NaN : Double.parseDouble(find.match);
+      }
+ catch (      NumberFormatException e) {
+        if (vecs.length == 1)         throw new IllegalArgumentException("Not a number: " + find.match);
+        ds[i]=Double.longBitsToDouble(0xcafebabe);
+      }
+    }
+  }
+  Find f=new Find(find.row,ds).doAll(frame);
+  find.prev=f._prev;
+  find.next=f._next == Long.MAX_VALUE ? -1 : f._next;
+  return find;
+}

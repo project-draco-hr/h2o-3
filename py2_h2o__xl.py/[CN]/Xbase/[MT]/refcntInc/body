@@ -1,0 +1,11 @@
+def refcntInc(self):
+    self.refcnt += 1
+    if (self.refcnt > 1):
+        print ('INTERESTING: refcnt is > 1: %s %s %s' % (self.refcnt, type(self), self))
+    for a in [self.rhs, self.lhs]:
+        if a:
+            a.refcntInc()
+    if self.function:
+        for operand in self.operandList:
+            if operand:
+                operand.refcntInc()
