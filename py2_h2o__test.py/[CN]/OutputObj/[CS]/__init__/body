@@ -17,7 +17,15 @@ def __init__(self, output, name, noPrint=False):
                 print "Not showing 'model'"
             elif (k == 'columns'):
                 print "Not showing 'columns'"
+            elif (k == '__meta'):
+                print "Not showing '__meta'"
             elif (isinstance(v, list) and (len(v) > 20)):
                 print self.name, k, v
+            elif (not isinstance(v, dict)):
+                print self.name, k, v
             else:
-                print self.name, k, dump_json(v)
+                v2 = v
+                if ('__meta' in v2):
+                    v2 = copy(v)
+                    del v2['__meta']
+                print self.name, k, dump_json(v2)

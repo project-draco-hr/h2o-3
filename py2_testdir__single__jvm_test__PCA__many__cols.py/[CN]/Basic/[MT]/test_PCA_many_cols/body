@@ -1,0 +1,31 @@
+def test_PCA_many_cols(self):
+    SYNDATASETS_DIR = h2o.make_syn_dir()
+    tryList = [(10000, 10, 'cA', 300), (10000, 50, 'cB', 300), (10000, 100, 'cC', 300)]
+    for (rowCount, colCount, hex_key, timeoutSecs) in tryList:
+        print (rowCount, colCount, hex_key, timeoutSecs)
+        SEEDPERFILE = random.randint(0, sys.maxint)
+        csvFilename = (((((('syn_' + 'binary') + '_') + str(rowCount)) + 'x') + str(colCount)) + '.csv')
+        csvPathname = ((SYNDATASETS_DIR + '/') + csvFilename)
+        print 'Creating random', csvPathname
+        write_syn_dataset(csvPathname, rowCount, colCount, SEEDPERFILE)
+        modelKey = 'PCAModelKey'
+        scoreKey = 'PCAScoreKey'
+        parseResult = h2i.import_parse(bucket=None, path=csvPathname, schema='put', hex_key=hex_key, timeoutSecs=timeoutSecs, doSummary=False)
+        (numRows, numCols, parse_key) = h2o_cmd.info_from_parse(parseResult)
+        inspect = h2o_cmd.runInspect(key=parse_key)
+        (missingList, labelList, numRows, numCols) = h2o_cmd.infoFromInspect(inspect)
+        print ('\n' + csvPathname), '    numRows:', '{:,}'.format(numRows), '    numCols:', '{:,}'.format(numCols)
+        for tolerance in [(i / 10.0) for i in range(11)]:
+            parameters = {'tolerance': tolerance, 'standardize': 1, }
+            model_key = 'pca.hex'
+            bmResult = h2o.n0.build_model(algo='pca', destination_key=model_key, training_frame=parse_key, parameters=parameters, timeoutSecs=10)
+            bm = OutputObj(bmResult, 'bm')
+            modelResult = h2o.n0.models(key=model_key)
+            model = OutputObj(modelResult['models'][0]['output'], 'model')
+            cmmResult = h2o.n0.compute_model_metrics(model=model_key, frame=parse_key, timeoutSecs=60)
+            cmm = OutputObj(cmmResult, 'cmm')
+            mmResult = h2o.n0.model_metrics(model=model_key, frame=parse_key, timeoutSecs=60)
+            mm = OutputObj(mmResult['model_metrics'][0], 'mm')
+            prResult = h2o.n0.predict(model=model_key, frame=parse_key, timeoutSecs=60)
+            pr = OutputObj(prResult['model_metrics'][0]['predictions'], 'pr')
+            h2o_cmd.runStoreView()
