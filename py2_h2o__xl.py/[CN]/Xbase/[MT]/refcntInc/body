@@ -1,8 +1,11 @@
-def refcntInc(self):
+def refcntInc(self, *args):
+    if (not isinstance(thing, (Key, KeyIndexed, Fcn, Expr))):
+        return
+    print 'refcntInc for', id(self), type(self), self
     self.refcnt += 1
     if (self.refcnt > 1):
         print ('INTERESTING: refcnt is > 1: %s %s %s' % (self.refcnt, type(self), self))
-    for a in [self.rhs, self.lhs]:
+    for a in args:
         if a:
             a.refcntInc()
     if self.function:
