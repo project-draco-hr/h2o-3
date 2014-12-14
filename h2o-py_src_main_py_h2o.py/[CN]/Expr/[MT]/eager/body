@@ -1,32 +1,9 @@
 def eager(self):
-    if (self._data is not None):
-        return self._data
-    if isinstance(self._left, Expr):
-        self._left.eager()
-    if isinstance(self._rite, Expr):
-        self._rite.eager()
-    if (self._op == '+'):
-        if isinstance(self._left, (int, float)):
-            if isinstance(self._rite, (int, float)):
-                (lname, rname) = (None, None)
-                self._data = (self._left + self._rite)
-            else:
-                (lname, rname) = (str(self._left), self._rite._name)
-                self._data = [(self._left + x) for x in self._rite._data]
-        elif isinstance(self._rite, (int, float)):
-            (lname, rname) = (self._left._name, str(self._rite))
-            self._data = [(x + self._rite) for x in self._left._data]
-        else:
-            (lname, rname) = (self._left._name, self._rite._name)
-            self._data = [(x + y) for (x, y) in zip(self._left._data, self._rite._data)]
-    elif (self._op == 'mean'):
-        (lname, rname) = (self._left._name, None)
-        self._data = (sum(self._left._data) / len(self._left._data))
-    else:
-        raise NotImplementedError
-    if lname:
-        print 'WORK:', self._name, '=', lname, self._op, rname
-    assert self._data
-    self._left = None
-    self._rite = None
+    if (self._data is None):
+        global _CMD
+        assert (not _CMD)
+        _CMD = '{'
+        self._doit()
+        print (_CMD + '}')
+        _CMD = None
     return self._data
