@@ -1,19 +1,14 @@
-def do_it(self):
-    assert (not self._data)
-    if isinstance(self._left, RX):
-        if (not self._left._data):
-            self._left.do_it()
-        if isinstance(self._left._data, (int, float)):
-            self._left = self._left._data
-    if isinstance(self._rite, RX):
-        if (not self._rite._data):
-            self._rite.do_it()
-        if isinstance(self._rite._data, (int, float)):
-            self._rite = self._rite._data
+def eager(self):
+    if (self._data is not None):
+        return self._data
+    if isinstance(self._left, Expr):
+        self._left.eager()
+    if isinstance(self._rite, Expr):
+        self._rite.eager()
     if (self._op == '+'):
         if isinstance(self._left, (int, float)):
             if isinstance(self._rite, (int, float)):
-                lname = None
+                (lname, rname) = (None, None)
                 self._data = (self._left + self._rite)
             else:
                 (lname, rname) = (str(self._left), self._rite._name)
@@ -32,4 +27,6 @@ def do_it(self):
     if lname:
         print 'WORK:', self._name, '=', lname, self._op, rname
     assert self._data
+    self._left = None
+    self._rite = None
     return self._data
