@@ -1,0 +1,17 @@
+def __init__(self, h2o=None, fname=None, vecs=None):
+    if (h2o and fname):
+        rawkey = h2o.ImportFile(fname)
+        setup = h2o.ParseSetup(rawkey)
+        key = h2o.Parse(setup['hexName'], rawkey)
+        print key
+        raise NotImplementedError
+    elif (vecs is not None):
+        vlen = len(vecs[0])
+        for v in vecs:
+            if (not isinstance(v, Vec)):
+                raise ValueError('Not a list of Vecs')
+            if (len(v) != vlen):
+                raise ValueError(((('Vecs not the same size, ' + str(vlen)) + ' vs ') + str(len(v))))
+        self._vecs = vecs
+    else:
+        raise ValueError('Frame made from CSV file or an array of Vecs only')

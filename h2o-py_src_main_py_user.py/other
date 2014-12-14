@@ -1,0 +1,24 @@
+import h2o
+cluster = h2o.Cluster()
+a = h2o.Frame(cluster, fname='smalldata/iris/iris_wheader.csv')[0:4]
+print a[0]._name
+print a[0][2]
+print a['a.sepal_len'][2]
+print (a[0] + 2)
+print (a[0] + a[1])
+print a['a.sepal_len'].mean()
+print sum(a)
+try:
+    print a['a.Sepal_len']
+except ValueError as ex:
+    pass
+b = h2o.Frame('b.', fname='smalldata/iris/iris_wheader.csv')[0:4]
+c = (a + b)
+d = ((c + c) + sum(a))
+e = ((c + a) + 1)
+print e
+print c
+c = None
+print (1 + (a[0] + b[1]).mean())
+c = h2o.Frame(vecs=[h2o.Vec('C1', h2o.Expr([1, 2, 3])), h2o.Vec('C2', h2o.Expr([4, 5, 6]))])
+print c
