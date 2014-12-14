@@ -9,4 +9,12 @@ def __init__(self, lead=None, fname=None, vecs=None):
                     self._vecs[i].append(data)
         print 'READ: +', len(self), fname
     elif (vecs is not None):
+        vlen = len(vecs[0])
+        for v in vecs:
+            if (not isinstance(v, Vec)):
+                raise ValueError('Not a list of Vecs')
+            if (len(v) != vlen):
+                raise ValueError(((('Vecs not the same size, ' + str(vlen)) + ' vs ') + str(len(v))))
         self._vecs = vecs
+    else:
+        raise ValueError('Frame made from CSV file or an array of Vecs only')
