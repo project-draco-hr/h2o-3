@@ -1,0 +1,46 @@
+def test_DL_mnist(self):
+    csvPathname_train = 'laptop/mnist/train.csv.gz'
+    csvPathname_test = 'laptop/mnist/test.csv.gz'
+    hex_key = 'mnist_train.hex'
+    validation_key = 'mnist_test.hex'
+    timeoutSecs = 30
+    parseResult = h2i.import_parse(bucket='bigdata', path=csvPathname_train, hex_key=hex_key, timeoutSecs=timeoutSecs, doSummary=False)
+    pA = h2o_cmd.ParseObj(parseResult)
+    iA = h2o_cmd.InspectObj(pA.parse_key)
+    parse_key = pA.parse_key
+    numRows = iA.numRows
+    numCols = iA.numCols
+    labelList = iA.labelList
+    parseResultV = h2i.import_parse(bucket='bigdata', path=csvPathname_test, hex_key=validation_key, timeoutSecs=timeoutSecs, doSummary=False)
+    pV = h2o_cmd.ParseObj(parseResult)
+    iV = h2o_cmd.InspectObj(pA.parse_key)
+    parse_keyV = pV.parse_key
+    numRowsV = iV.numRows
+    numColsV = iV.numCols
+    labelListV = iV.labelList
+    response = (numCols - 1)
+    identifier = ''.join(random.sample((string.ascii_lowercase + string.digits), 10))
+    model_key = (('deeplearning_' + identifier) + '.hex')
+    parameters = {'validation_frame': validation_key, 'ignored_columns': None, 'score_each_iteration': None, 'response_column': labelList[response], 'do_classification': True, 'balance_classes': None, 'max_after_balance_size': None, 'n_folds': None, 'keep_cross_validation_splits': None, 'checkpoint': None, 'override_with_best_model': None, 'expert_mode': None, 'autoencoder': None, 'use_all_factor_levels': None, 'activation': 'RectifierWithDropout', 'hidden': '[117,131,129]', 'epochs': 2.0, 'train_samples_per_iteration': None, 'target_ratio_comm_to_comp': None, 'seed': None, 'adaptive_rate': False, 'rho': None, 'epsilon': None, 'rate': None, 'rate_annealing': None, 'rate_decay': None, 'momentum_start': 0.5, 'momentum_ramp': 100000, 'momentum_stable': 0.9, 'nesterov_accelerated_gradient': None, 'input_dropout_ratio': 0.2, 'hidden_dropout_ratios': None, 'l1': 1e-05, 'l2': 1e-07, 'max_w2': 15, 'initial_weight_distribution': None, 'initial_weight_scale': None, 'loss': 'CrossEntropy', 'score_interval': None, 'score_training_samples': None, 'score_validation_samples': None, 'score_duty_cycle': None, 'classification_stop': None, 'regression_stop': None, 'quiet_mode': None, 'max_confusion_matrix_size': None, 'max_hit_ratio_k': None, 'balance_classes': None, 'class_sampling_factors': None, 'max_after_balance_size': None, 'score_validation_sampling': None, 'diagnostics': None, 'variable_importances': None, 'fast_mode': None, 'ignore_const_cols': None, 'force_load_balance': None, 'replicate_training_data': None, 'single_node_mode': None, 'shuffle_training_data': None, 'missing_values_handling': None, 'sparse': None, 'col_major': None, 'average_activation': None, 'sparsity_beta': None, }
+    expectedErr = 0.057
+    relTol = 0.2
+    timeoutSecs = 600
+    start = time.time()
+    bmResult = h2o.n0.build_model(algo='deeplearning', destination_key=model_key, training_frame=hex_key, parameters=parameters, timeoutSecs=timeoutSecs)
+    bm = OutputObj(bmResult, 'bm')
+    print 'deep learning took', (time.time() - start), 'seconds'
+    cmmResult = h2o.n0.compute_model_metrics(model=model_key, frame=validation_key, timeoutSecs=60)
+    cmm = OutputObj(cmmResult, 'cmm')
+    mmResult = h2o.n0.model_metrics(model=model_key, frame=validation_key, timeoutSecs=60)
+    mm = OutputObj(mmResult['model_metrics'][0], 'mm')
+    prResult = h2o.n0.predict(model=model_key, frame=validation_key, timeoutSecs=60)
+    pr = OutputObj(prResult['model_metrics'][0]['predictions'], 'pr')
+    h2o_cmd.runStoreView()
+    print ('expected classification error: ' + format(expectedErr))
+    print '==============================='
+    print '==============================='
+    print '==============================='
+    print 'TODO: COMPARE WITH ACTUAL ERROR'
+    print '==============================='
+    print '==============================='
+    print '==============================='

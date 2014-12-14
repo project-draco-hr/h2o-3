@@ -1,0 +1,13 @@
+def __init__(self, key, expectedNumRows=None, expectedNumCols=None, expectedMissingList=None, expectedLabelList=None, noPrint=False, **kwargs):
+    inspectResult = runInspect(key=key)
+    super(InspectObj, self).__init__(inspectResult['frames'][0], 'Inspect', noPrint=noPrint)
+    (self.missingList, self.labelList, self.numRows, self.numCols) = infoFromInspect(inspectResult)
+    if (expectedNumRows is not None):
+        assert (self.numRows == expectedNumRows), ('%s %s' % (self.numRows, expectedNumRows))
+    if (expectedNumCols is not None):
+        assert (self.numCols == expectedNumCols), ('%s %s' % (self.numCols, expectedNumCols))
+    if (expectedMissingList is not None):
+        assert (self.missingList == expectedMissingList), ('%s %s' % (self.MissingList, expectedMissingList))
+    if (expectedLabelList is not None):
+        assert (self.labelList == expectedLabelList), ('%s %s' % (self.labelList, expectedLabelList))
+    print 'InspectObj created for:', key

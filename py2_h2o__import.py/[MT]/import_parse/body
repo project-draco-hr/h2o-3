@@ -1,14 +1,14 @@
 def import_parse(node=None, schema='local', bucket=None, path=None, src_key=None, hex_key=None, timeoutSecs=30, retryDelaySecs=0.1, initialDelaySecs=0, pollTimeoutSecs=180, noise=None, benchmarkLogging=None, noPoll=False, doSummary=True, noPrint=True, importParentDir=True, **kwargs):
-    if (schema == 'put'):
-        h2p.yellow_print(("WARNING: hacking schema='put' to 'local'..h2o-dev doesn't support upload." + "\nMeans multi-machine with 'put' will fail"))
-        schema = 'local'
     if (not node):
         node = h2o_nodes.nodes[0]
     (importResult, importPattern) = import_only(node, schema, bucket, path, timeoutSecs, retryDelaySecs, initialDelaySecs, pollTimeoutSecs, noise, benchmarkLogging, noPoll, doSummary, src_key, noPrint, importParentDir, **kwargs)
     verboseprint('importPattern:', importPattern)
     verboseprint('importResult', dump_json(importResult))
     assert (len(importResult['keys']) >= 1), ('No keys imported, maybe bad bucket %s or path %s' % (bucket, path))
+    start = time.time()
     parseResult = parse_only(node, importPattern, hex_key, importResult['keys'], timeoutSecs, retryDelaySecs, initialDelaySecs, pollTimeoutSecs, noise, benchmarkLogging, noPoll, **kwargs)
+    elapsed = (time.time() - start)
+    print importPattern, 'parsed in', elapsed, 'seconds.', ('%d pct. of timeout' % ((elapsed * 100) / timeoutSecs)), '\n'
     verboseprint('parseResult:', dump_json(parseResult))
     if (doSummary and (not noPoll)):
         check_sandbox_for_errors()

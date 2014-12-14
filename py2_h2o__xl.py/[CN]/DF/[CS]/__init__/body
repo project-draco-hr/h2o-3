@@ -1,4 +1,6 @@
 def __init__(self, key=None, existing=False):
-    super(DF, self).__init__(key)
+    super(DF, self).__init__(key, noRefCnt=True)
     if (not existing):
         KeyInit(self.frame).do()
+    self.refcntInc()
+    self.assignIfRoot()

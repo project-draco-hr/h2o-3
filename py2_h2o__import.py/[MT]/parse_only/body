@@ -4,15 +4,19 @@ def parse_only(node=None, pattern=None, hex_key=None, importKeyList=None, timeou
     matchingList = []
     if importKeyList:
         for key_name in importKeyList:
-            if fnmatch.fnmatch(key_name, pattern):
+            if fnmatch.fnmatch(str(key_name), pattern):
                 matchingList.append(key_name)
     else:
         h2p.yellow_print('WARNING: using frames to look up key names for possible parse regex')
         framesResult = node.frames(timeoutSecs=timeoutSecs)
         for frame in framesResult['frames']:
             key_name = frame['key']['name']
-            if fnmatch.fnmatch(key_name, pattern):
+            if fnmatch.fnmatch(str(key_name), pattern):
                 matchingList.append(key_name)
+    if (len(matchingList) == 0):
+        raise Exception(("Didn't find %s in key list %s or Frames result" % (pattern, importKeyList)))
+    start = time.time()
     parseResult = node.parse(key=matchingList, hex_key=hex_key, timeoutSecs=timeoutSecs, retryDelaySecs=retryDelaySecs, initialDelaySecs=initialDelaySecs, pollTimeoutSecs=pollTimeoutSecs, noise=noise, benchmarkLogging=benchmarkLogging, noPoll=noPoll, **kwargs)
+    print '\nparse took', (time.time() - start), 'seconds'
     parseResult['python_source'] = pattern
     return parseResult

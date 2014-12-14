@@ -1,15 +1,15 @@
 {
   if (off2 == 0)   off2=1;
   if (len2 == 0)   len2=100;
-  key=fr._key;
+  key=new FrameKeyV1(fr._key);
   _fr=fr;
   off=off2 - 1;
   rows=fr.numRows();
   len=(int)Math.min(len2,rows);
   byteSize=fr.byteSize();
-  columns=new Col[fr.numCols()];
+  columns=new ColV2[fr.numCols()];
   Vec[] vecs=fr.vecs();
-  for (int i=0; i < columns.length; i++)   columns[i]=new Col(fr._names[i],vecs[i],off,len);
+  for (int i=0; i < columns.length; i++)   columns[i]=new ColV2(fr._names[i],vecs[i],off,len);
   isText=fr.numCols() == 1 && vecs[0] instanceof ByteVec;
   default_pctiles=Vec.PERCENTILES;
   this.checksum=fr.checksum();

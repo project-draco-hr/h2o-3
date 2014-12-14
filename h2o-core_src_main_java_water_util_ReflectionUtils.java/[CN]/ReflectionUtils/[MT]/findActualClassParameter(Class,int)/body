@@ -8,6 +8,9 @@
  else     if (handler_type_parms[parm] instanceof TypeVariable) {
       iced_class=(Class)((TypeVariable)(handler_type_parms[parm])).getBounds()[parm];
     }
+ else     if (handler_type_parms[parm] instanceof ParameterizedType) {
+      iced_class=(Class)((ParameterizedType)(handler_type_parms[parm])).getRawType();
+    }
  else {
       String msg="Iced parameter for handler: " + clz + " uses a type parameterization scheme that we don't yet handle: "+ handler_type_parms[parm];
       Log.warn(msg);

@@ -1,5 +1,6 @@
 {
   AST ary=E.parse();
+  if (ary instanceof ASTId)   ary=Env.staticLookup((ASTId)ary);
   AST seq=null;
   if (E.skipWS().peek() == '{') {
     String[] ps=E.xpeek('{').parseString('}').split(";");
@@ -11,6 +12,7 @@
     }
   }
  else   seq=E.parse();
+  if (seq != null)   if (seq instanceof ASTId)   seq=Env.staticLookup((ASTId)seq);
   AST a=E._env.lookup((ASTId)E.skipWS().parse());
   _narm=((ASTNum)a).dbl() == 1;
   AST b=E._env.lookup((ASTId)E.skipWS().parse());

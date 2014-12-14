@@ -8,8 +8,13 @@
   String path=type.requestName(uripath);
   String versioned_path="/" + version + path;
   alwaysLogRequest(path,method,parms);
+  if (method.equals("HEAD") && uri.equals("/")) {
+    Response r=new Response(HTTP_OK,MIME_PLAINTEXT,"");
+    return r;
+  }
   try {
     Route route=lookup(method,versioned_path);
+    if (route != null && route._handler_class != CloudHandler.class && route._handler_class != TutorialsHandler.class && route._handler_class != TypeaheadHandler.class)     Schema.registerAllSchemasIfNecessary();
     if (route == null)     return getResource(uri);
  else     if (route._handler_class == water.api.DownloadDataHandler.class) {
       return wrap2(HTTP_OK,handle(type,route,version,parms));

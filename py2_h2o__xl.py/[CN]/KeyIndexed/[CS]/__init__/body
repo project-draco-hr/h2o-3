@@ -1,7 +1,10 @@
-def __init__(self, frame=None, row=0, col=0, dim=2):
-    super(KeyIndexed, self).__init__()
+def __init__(self, frame=None, row=0, col=0, dim=2, noRefCnt=False):
+    super(KeyIndexed, self).__init__(noRefCnt=True)
     legalKey(frame, 'KeyIndexed')
     self.frame = frame
     self.row = Item(row)
     self.col = Item(col)
     self.dim = dim
+    if (not noRefCnt):
+        self.refcntInc()
+        self.assignIfRoot()

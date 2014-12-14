@@ -1,4 +1,4 @@
-def __init__(self, item, listOk=False):
+def __init__(self, item, listOk=False, noRefCnt=False):
     if isinstance(item, (list, tuple)):
         if (not listOk):
             raise Exception(("Item doesn't take lists, tuples (or dicts) %s, unless listOk. %s" % (item, listOk)))
@@ -8,3 +8,6 @@ def __init__(self, item, listOk=False):
             self.item = Col(Seq(item))
     else:
         self.item = item
+        if (not noRefCnt):
+            self.refcntInc()
+            self.assignIfRoot()

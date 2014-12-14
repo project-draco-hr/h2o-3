@@ -9,27 +9,26 @@ def test_parse_time(self):
     for trial in range(20):
         rowData = rand_rowData()
         hex_key = (((csvFilename + '_') + str(trial)) + '.hex')
-        start = time.time()
         parseResultA = h2i.import_parse(path=csvPathname, schema='put', hex_key=hex_key)
-        print '\nA trial #', trial, 'parse end on ', csvFilename, 'took', (time.time() - start), 'seconds'
-        inspect = h2o_cmd.runInspect(key=hex_key)
-        (missingValuesListA, labelListA, numRowsA, numColsA) = h2o_cmd.infoFromInspect(inspect)
-        print 'missingValuesListA', missingValuesListA
-        self.assertEqual(missingValuesListA, [], 'missingValuesList should be empty')
-        self.assertEqual(numColsA, colCount)
-        self.assertEqual(numRowsA, rowCount)
+        print 'A trial #', trial
+        pA = h2o_cmd.ParseObj(parseResultA, expectedNumRows=rowCount, expectedNumCols=colCount)
+        print pA.numRows
+        print pA.numCols
+        print pA.parse_key
+        iA = h2o_cmd.InspectObj(pA.parse_key, expectedNumRows=rowCount, expectedNumCols=colCount, expectedMissinglist=[])
         csvDownloadPathname = (SYNDATASETS_DIR + '/csvDownload.csv')
-        h2o.nodes[0].csv_download(key=hex_key, csvPathname=csvDownloadPathname)
+        h2o.nodes[0].csv_download(key=pA.parse_key, csvPathname=csvDownloadPathname)
         if (1 == 0):
-            h2o.nodes[0].remove_key(hex_key)
-        start = time.time()
+            h2o.nodes[0].remove_key(pA.parse_key)
         parseResultB = h2i.import_parse(path=csvDownloadPathname, schema='put', hex_key=hex_key)
-        print 'B trial #', trial, 'parse end on ', csvFilename, 'took', (time.time() - start), 'seconds'
-        inspect = h2o_cmd.runInspect(key=hex_key)
-        (missingValuesListB, labelListB, numRowsB, numColsB) = h2o_cmd.infoFromInspect(inspect)
-        print 'missingValuesListB', missingValuesListB
-        self.assertEqual(missingValuesListA, missingValuesListB, 'missingValuesList mismatches after re-parse of downloadCsv result')
-        self.assertEqual(numColsA, numColsB, 'numCols mismatches after re-parse of downloadCsv result')
-        self.assertEqual(numRowsA, numRowsB, ('numRowsA: %s numRowsB: %s mismatch after re-parse of downloadCsv result' % (numRowsA, numRowsB)))
+        print 'B trial #', trial
+        pB = h2o_cmd.ParseObj(parseResultB, expectedNumRows=rowCount, expectedNumCols=colCount)
+        print pB.numRows
+        print pB.numCols
+        print pB.parse_key
+        iB = h2o_cmd.InspectObj(pB.parse_key, expectedNumRows=rowCount, expectedNumCols=colCount, expectedMissinglist=[])
+        self.assertEqual(iA.missingList, iB.missingList, 'missingValuesList mismatches after re-parse of downloadCsv result')
+        self.assertEqual(iA.numCols, iB.numCols, 'numCols mismatches after re-parse of downloadCsv result')
+        self.assertEqual(iA.numRows, iB.numRows, ('pA.numRows: %s pB.numRows: %s mismatch after re-parse of downloadCsv result' % (iA.numRows, iB.numRows)))
         print 'H2O writes the internal format (number) out for time.'
         h2o.check_sandbox_for_errors()

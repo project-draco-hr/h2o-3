@@ -1,4 +1,4 @@
-def __init__(self, key=None):
+def __init__(self, key=None, noRefCnt=False):
     if (key is None):
         key = ('knon_' + hex(id(self)))
         debugprint(('Key creating h2o key name for the instance, none provided: %s' % key))
@@ -11,3 +11,6 @@ def __init__(self, key=None):
     super(Key, self).__init__()
     legalKey(frame, 'Key')
     self.frame = frame
+    if (not noRefCnt):
+        self.refcntInc()
+        self.assignIfRoot()

@@ -11,17 +11,17 @@
     double[] means=new double[N];
     for (int i=0; i < N; i++)     means[i]=vecs[i].mean();
     double[] mults=null;
-    if (_parms._normalize) {
+    if (_parms._standardize) {
       mults=new double[N];
       for (int i=0; i < N; i++) {
         double sigma=vecs[i].sigma();
-        mults[i]=normalize(sigma) ? 1.0 / sigma : 1.0;
+        mults[i]=standardize(sigma) ? 1.0 / sigma : 1.0;
       }
     }
     Random rand=water.util.RandomUtils.getRNG(_parms._seed - 1);
     double clusters[][];
     if (_parms._init == Initialization.None) {
-      clusters=model._output._clusters=new double[_parms._K][_train.numCols()];
+      clusters=model._output._clusters=new double[_parms._k][_train.numCols()];
       for (      double[] cluster : clusters)       randomRow(vecs,rand,cluster,means,mults);
     }
  else {
@@ -29,10 +29,10 @@
       randomRow(vecs,rand,clusters[0],means,mults);
       while (model._output._iters < 5) {
         SumSqr sqr=new SumSqr(clusters,means,mults,_ncats).doAll(vecs);
-        Sampler sampler=new Sampler(clusters,means,mults,_ncats,sqr._sqr,_parms._K * 3,_parms._seed).doAll(vecs);
+        Sampler sampler=new Sampler(clusters,means,mults,_ncats,sqr._sqr,_parms._k * 3,_parms._seed).doAll(vecs);
         clusters=ArrayUtils.append(clusters,sampler._sampled);
         if (!isRunning())         return;
-        model._output._clusters=denormalize(clusters,_ncats,means,mults);
+        model._output._clusters=destandardize(clusters,_ncats,means,mults);
         model._output._mse=sqr._sqr / _train.numRows();
         model._output._iters++;
         model.update(_key);
@@ -42,15 +42,15 @@
     model._output._iters=0;
     LOOP:     for (; model._output._iters < _parms._max_iters; model._output._iters++) {
       if (!isRunning())       return;
-      Lloyds task=new Lloyds(clusters,means,mults,_ncats,_parms._K).doAll(vecs);
+      Lloyds task=new Lloyds(clusters,means,mults,_ncats,_parms._k).doAll(vecs);
       max_cats(task._cMeans,task._cats);
       boolean badrow=false;
-      for (int clu=0; clu < _parms._K; clu++) {
+      for (int clu=0; clu < _parms._k; clu++) {
         if (task._rows[clu] == 0) {
           if (badrow) {
             Log.warn("KMeans: Re-running Lloyds to re-init another cluster");
             model._output._iters--;
-            if (_reinit_attempts++ < _parms._K) {
+            if (_reinit_attempts++ < _parms._k) {
               continue LOOP;
             }
  else {
@@ -65,11 +65,11 @@
           badrow=true;
         }
       }
-      model._output._clusters=denormalize(task._cMeans,_ncats,means,mults);
+      model._output._clusters=destandardize(task._cMeans,_ncats,means,mults);
       model._output._rows=task._rows;
       model._output._mses=task._cSqr;
       double ssq=0;
-      for (int i=0; i < _parms._K; i++) {
+      for (int i=0; i < _parms._k; i++) {
         ssq+=model._output._mses[i];
         model._output._mses[i]/=task._rows[i];
       }
@@ -77,14 +77,14 @@
       model.update(_key);
       update(1);
       double sum=0;
-      for (int clu=0; clu < _parms._K; clu++)       sum+=distance(clusters[clu],task._cMeans[clu],_ncats);
+      for (int clu=0; clu < _parms._k; clu++)       sum+=distance(clusters[clu],task._cMeans[clu],_ncats);
       sum/=N;
       Log.info("KMeans: Change in cluster centers=" + sum);
       if (sum < 1e-6)       break;
       clusters=task._cMeans;
       StringBuilder sb=new StringBuilder();
       sb.append("KMeans: iter: ").append(model._output._iters).append(", MSE=").append(model._output._mse);
-      for (int i=0; i < _parms._K; i++)       sb.append(", ").append(task._cSqr[i]).append("/").append(task._rows[i]);
+      for (int i=0; i < _parms._k; i++)       sb.append(", ").append(task._cSqr[i]).append("/").append(task._rows[i]);
       Log.info(sb);
     }
   }

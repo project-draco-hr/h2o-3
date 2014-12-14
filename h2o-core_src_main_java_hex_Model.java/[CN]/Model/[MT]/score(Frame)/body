@@ -1,5 +1,4 @@
 {
-  long start_time=System.currentTimeMillis();
   Frame adaptFr=new Frame(fr);
   Vec sresp=_output.isClassifier() ? fr.vec(_output.responseName()) : null;
   adaptTestForTrain(adaptFr,true);
@@ -10,7 +9,7 @@
   if (cm._arr.length < _parms._max_confusion_matrix_size)   water.util.Log.info(water.util.PrettyPrint.printConfusionMatrix(new StringBuilder(),cm._arr,mdomain,false));
   if (_output.isClassifier()) {
     String sdomain[]=sresp.domain();
-    if (mdomain != sdomain && !Arrays.equals(mdomain,sdomain))     output.replace(0,new TransfVec(sresp.group().addVec(),sresp.get_espc(),sdomain,mresp._key));
+    if (mdomain != sdomain && !Arrays.equals(mdomain,sdomain))     output.replace(0,new EnumWrappedVec(sresp.group().addVec(),sresp.get_espc(),sdomain,mresp._key));
   }
   Vec[] vecs=adaptFr.vecs();
   for (int i=0; i < vecs.length; i++)   if (fr.find(vecs[i]) != -1)   vecs[i]=null;

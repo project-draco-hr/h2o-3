@@ -4,7 +4,14 @@
     Keyed k=(Keyed)o;
     return k._key.toString();
   }
-  if (!o.getClass().isArray())   return o.toString();
+  if (!o.getClass().isArray()) {
+    if (Schema.class.isAssignableFrom(o.getClass())) {
+      return new String(((Schema)o).writeJSON(new AutoBuffer()).buf());
+    }
+ else {
+      return o.toString();
+    }
+  }
   StringBuilder sb=new StringBuilder();
   sb.append("[");
   for (int i=0; i < Array.getLength(o); i++) {

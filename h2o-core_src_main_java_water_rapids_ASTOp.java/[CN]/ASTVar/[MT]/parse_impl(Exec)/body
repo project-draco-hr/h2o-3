@@ -1,10 +1,12 @@
 {
   AST ary=E.parse();
+  if (ary instanceof ASTId)   ary=Env.staticLookup((ASTId)ary);
   AST y=E.skipWS().parse();
   if (y instanceof ASTString && ((ASTString)y)._s.equals("null")) {
     _ynull=true;
     y=ary;
   }
+ else   if (y instanceof ASTId)   y=Env.staticLookup((ASTId)y);
   AST a=E._env.lookup((ASTId)E.skipWS().parse());
   try {
     _narm=((ASTNum)a).dbl() == 1;

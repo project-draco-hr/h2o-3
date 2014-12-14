@@ -1,0 +1,33 @@
+def test_summary2_NY0(self):
+    SYNDATASETS_DIR = h2o.make_syn_dir()
+    choicesList = [('N', 'Y', '0'), ('n', 'y', '0'), ('F', 'T', '0'), ('f', 't', '0'), (' N', ' Y', ' 0'), (' n', ' y', ' 0'), (' F', ' T', ' 0'), (' f', ' t', ' 0')]
+    expectedList = [('N', 'Y', '0'), ('n', 'y', '0'), ('F', 'T', '0'), ('f', 't', '0'), ('N', 'Y', '0'), ('n', 'y', '0'), ('F', 'T', '0'), ('f', 't', '0')]
+    tryList = [(100, 200, 'x.hex', choicesList[4], expectedList[4]), (100, 200, 'x.hex', choicesList[5], expectedList[5]), (100, 200, 'x.hex', choicesList[6], expectedList[6]), (100, 200, 'x.hex', choicesList[7], expectedList[7]), (100, 200, 'x.hex', choicesList[3], expectedList[3]), (1000, 200, 'x.hex', choicesList[2], expectedList[2]), (10000, 200, 'x.hex', choicesList[1], expectedList[1]), (100000, 200, 'x.hex', choicesList[0], expectedList[0])]
+    timeoutSecs = 10
+    trial = 1
+    n = h2o.nodes[0]
+    lenNodes = len(h2o.nodes)
+    x = 0
+    timeoutSecs = 60
+    for (rowCount, colCount, hex_key, choices, expected) in tryList:
+        SEEDPERFILE = random.randint(0, sys.maxint)
+        x += 1
+        csvFilename = (((((('syn_' + 'binary') + '_') + str(rowCount)) + 'x') + str(colCount)) + '.csv')
+        csvPathname = ((SYNDATASETS_DIR + '/') + csvFilename)
+        csvPathnameFull = h2i.find_folder_and_filename(None, csvPathname, returnFullPath=True)
+        print 'Creating random', csvPathname
+        expectedNaCnt = write_syn_dataset(csvPathname, rowCount, colCount, SEEDPERFILE, choices)
+        parseResult = h2i.import_parse(path=csvPathname, schema='put', hex_key=hex_key, timeoutSecs=10, doSummary=False)
+        pA = h2o_cmd.ParseObj(parseResult, expectedNumRows=rowCount, expectedNumCols=colCount)
+        print pA.numRows, pA.numCols, pA.parse_key
+        iA = h2o_cmd.InspectObj(pA.parse_key, expectedNumRows=rowCount, expectedNumCols=colCount, expectedMissinglist=[])
+        print iA.missingList, iA.labelList, iA.numRows, iA.numCols
+        for i in range(colCount):
+            co = h2o_cmd.runSummary(key=hex_key, column=i)
+            print co.label, co.type, co.missing, co.domain, sum(co.bins)
+            print ('\nComparing column %s to expected' % i)
+            self.assertEqual(expectedNaCnt[i], co.missing, ('Column %s Expected %s. missing: %s is incorrect' % (i, expectedNaCnt[i], co.missing)))
+            self.assertEqual((rowCount - expectedNaCnt[i]), sum(co.bins))
+        h2p.green_print('\nDone with trial', trial)
+        trial += 1
+        h2i.delete_keys_at_all_nodes()

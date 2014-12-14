@@ -27,24 +27,32 @@
   }
   if (fclz.equals(Key.class))   if ((s == null || s.length() == 0) && required)   throw new IllegalArgumentException("Missing key");
  else   if (!required && (s == null || s.length() == 0))   return null;
- else   if (!required)   return Key.make(s);
  else   return Key.make(s);
+  if (KeySchema.class.isAssignableFrom(fclz)) {
+    if ((s == null || s.length() == 0) && required)     throw new IllegalArgumentException("Missing key");
+    if (!required && (s == null || s.length() == 0))     return null;
+    return KeySchema.make(fclz,Key.make(s));
+  }
   if (Enum.class.isAssignableFrom(fclz))   return Enum.valueOf(fclz,s);
-  if (Frame.class.isAssignableFrom(fclz))   if ((s == null || s.length() == 0) && required)   throw new IllegalArgumentException("Missing key");
+  if (FrameV2.class.isAssignableFrom(fclz))   if ((s == null || s.length() == 0) && required)   throw new IllegalArgumentException("Missing key");
  else   if (!required && (s == null || s.length() == 0))   return null;
  else {
     Value v=DKV.get(s);
     if (null == v)     return null;
-    if (!v.isFrame())     throw new IllegalArgumentException("Frame argument points to a non-frame object.");
-    return v.get();
+    if (!v.isFrame())     throw new IllegalArgumentException("Frame argument points to a non-Frame object: " + v.get().getClass());
+    return new FrameV2((Frame)v.get());
   }
-  if (Model.class.isAssignableFrom(fclz))   if ((s == null || s.length() == 0) && required)   throw new IllegalArgumentException("Missing key");
+  if (JobV2.class.isAssignableFrom(fclz))   if ((s == null || s.length() == 0) && required)   throw new IllegalArgumentException("Missing key");
  else   if (!required && (s == null || s.length() == 0))   return null;
  else {
     Value v=DKV.get(s);
     if (null == v)     return null;
-    if (!v.isModel())     throw new IllegalArgumentException("Model argument points to a non-model object.");
-    return v.get();
+    if (!v.isJob())     throw new IllegalArgumentException("Job argument points to a non-Job object: " + v.get().getClass());
+    return new JobV2().fillFromImpl((Job)v.get());
   }
+  if (FrameV2.ColSpecifierV2.class.isAssignableFrom(fclz)) {
+    return new FrameV2.ColSpecifierV2(s);
+  }
+  if (ModelSchema.class.isAssignableFrom(fclz))   throw H2O.fail("Can't yet take ModelSchema as input.");
   throw new RuntimeException("Unimplemented schema fill from " + fclz.getSimpleName());
 }

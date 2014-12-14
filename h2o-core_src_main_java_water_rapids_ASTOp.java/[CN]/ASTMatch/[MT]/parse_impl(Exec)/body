@@ -1,6 +1,6 @@
 {
-  if (!E.hasNext())   throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
   AST ary=E.parse();
+  if (ary instanceof ASTId)   ary=Env.staticLookup((ASTId)ary);
   if (!E.skipWS().hasNext())   throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
   _matches=E.peek() == '{' ? E.xpeek('{').parseString('}').split(";") : new String[]{E.parseString(E.peekPlus())};
   for (int i=0; i < _matches.length; ++i)   _matches[i]=_matches[i].replace("\"","").replace("\'","");

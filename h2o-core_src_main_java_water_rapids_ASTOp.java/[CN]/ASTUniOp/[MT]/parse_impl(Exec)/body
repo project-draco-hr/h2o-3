@@ -1,6 +1,7 @@
 {
   if (!E.hasNext())   throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
   AST arg=E.parse();
+  if (arg instanceof ASTId)   arg=Env.staticLookup((ASTId)arg);
   ASTUniOp res=(ASTUniOp)clone();
   res._asts=new AST[]{arg};
   return res;

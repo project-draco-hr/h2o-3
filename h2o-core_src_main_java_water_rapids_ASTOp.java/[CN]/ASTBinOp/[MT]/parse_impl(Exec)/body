@@ -1,8 +1,8 @@
 {
-  if (!E.hasNext())   throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
   AST l=E.parse();
-  if (!E.skipWS().hasNext())   throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
+  if (l instanceof ASTId)   l=Env.staticLookup((ASTId)l);
   AST r=E.parse();
+  if (r instanceof ASTId)   r=Env.staticLookup((ASTId)r);
   ASTBinOp res=(ASTBinOp)clone();
   res._asts=new AST[]{l,r};
   return res;

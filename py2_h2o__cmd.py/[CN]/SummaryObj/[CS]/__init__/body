@@ -1,0 +1,25 @@
+def __init__(self, key, colIndex, colName, expectedNumRows=None, expectedNumCols=None, expectedLabel=None, expectedType=None, expectedMissing=None, expectedDomain=None, expectedBinsSum=None, noPrint=False, timeoutSecs=30, **kwargs):
+    assert (colIndex is not None)
+    assert (colName is not None)
+    summaryResult = h2o_nodes.nodes[0].summary(key=key, column=colName, timeoutSecs=timeoutSecs, **kwargs)
+    frame = summaryResult['frames'][0]
+    default_pctiles = frame['default_pctiles']
+    checksum = frame['checksum']
+    rows = frame['rows']
+    assert (colIndex < len(frame['columns'])), ("You're asking for colIndex %s but there are only %s" % (colIndex, len(frame['columns'])))
+    coJson = frame['columns'][colIndex]
+    assert ((checksum != 0) and (checksum is not None))
+    assert ((rows != 0) and (rows is not None))
+    assert (not frame['isText'])
+    super(SummaryObj, self).__init__(coJson, ('Summary for %s' % colName), noPrint=noPrint)
+    coList = [self.base, len(self.bins), len(self.data), self.domain, self.label, self.maxs, self.mean, self.mins, self.missing, self.ninfs, self.pctiles, self.pinfs, self.precision, self.sigma, self.str_data, self.stride, self.type, self.zeros]
+    assert (self.label == colName), ('%s You must have told me the wrong colName %s for the given colIndex %s' % (self.label, colName, colIndex))
+    print "you can look at this attributes in the returned object (which is OutputObj if you assigned to 'co')"
+    for (k, v) in self:
+        print ('%s' % k),
+    self.default_pctiles = default_pctiles
+    self.checksum = checksum
+    self.rows = rows
+    print '\nSummaryObj for', key, 'for colName', colName, 'colIndex:', colIndex
+    print 'SummaryObj created for:', key
+    self.check(expectedNumRows, expectedNumCols, expectedLabel, expectedType, expectedMissing, expectedDomain, expectedBinsSum, noPrint=noPrint, **kwargs)
