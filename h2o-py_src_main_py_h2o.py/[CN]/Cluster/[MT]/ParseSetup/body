@@ -1,5 +1,7 @@
 def ParseSetup(self, rawkey):
-    j = requests.get((((self.url() + 'ParseSetup.json?srcs=[') + rawkey.encode('utf-8')) + ']')).json()
+    j = requests.get(self.buildURL('ParseSetup', {'srcs': [rawkey], })).json()
     if ('errmsg' in j):
         raise ValueError(j['errmsg'])
+    if (not j['isValid']):
+        raise ValueError('ParseSetup not Valid', j)
     return j
