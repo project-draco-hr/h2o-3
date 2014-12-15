@@ -1,7 +1,5 @@
 def ImportFile(self, path):
-    j = requests.get((self.url() + 'ImportFiles.json'), params={'path': path, }).json()
-    if ('errmsg' in j):
-        raise ValueError(j['errmsg'])
+    j = self.doSafeGet(self.buildURL('ImportFiles', {'path': path, }))
     if j['fails']:
         raise ValueError(((('ImportFiles of ' + path) + ' failed on ') + j['fails']))
     return j['keys'][0]
