@@ -1,0 +1,27 @@
+{
+  DateTimeFormatter offsetFormatter=new DateTimeFormatterBuilder().appendTimeZoneOffset(null,true,2,4).toFormatter();
+  Set<String> idSet=DateTimeZone.getAvailableIDs();
+  Map<String,String> tzMap=new TreeMap();
+  Iterator<String> it=idSet.iterator();
+  String id, cid, offset, key, output;
+  DateTimeZone tz;
+  int i=0;
+  long millis=System.currentTimeMillis();
+  while (it.hasNext()) {
+    id=it.next();
+    tz=DateTimeZone.forID(id);
+    cid=tz.getID();
+    offset=offsetFormatter.withZone(tz).print(tz.getStandardOffset(millis));
+    key=offset + " " + cid;
+    if (id == cid) {
+      if (!tzMap.containsKey(key))       tzMap.put(key,"");
+    }
+ else {
+      if (!tzMap.containsKey(key))       tzMap.put(key,id);
+ else       tzMap.put(key,tzMap.get(key) + ", " + id);
+    }
+  }
+  output="StandardOffset CanonicalID, Aliases\n";
+  for (  Map.Entry<String,String> e : tzMap.entrySet())   output+=e.getKey() + e.getValue() + "\n";
+  return output;
+}

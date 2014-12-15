@@ -41,8 +41,8 @@ def do(self, timeoutSecs=30):
             returnResult = self.scalar
         elif (self.numCols == 1):
             if (self.numRows <= 1024):
-                summaryResult = h2o_cmd.runSummary(key=self.frame, column=0, noPrint=True)
-                returnResult = summaryResult['frames'][0]['columns'][0]['data']
+                co = h2o_cmd.runSummary(key=self.frame, column=0, noPrint=True)
+                returnResult = co.data
             else:
                 raise Exception(('Expr-caused Assign.do() wants to return a key with num_rows>1024\n' + ('Did you really mean it?. frame: %s numRows: %s numCols %s' % (self.frame, self.numRows, self.numCols))))
         elif ((self.numCols == 0) and (self.numRows == 0)):

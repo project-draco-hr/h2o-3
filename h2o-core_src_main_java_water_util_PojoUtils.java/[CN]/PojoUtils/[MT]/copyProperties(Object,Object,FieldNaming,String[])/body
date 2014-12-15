@@ -97,6 +97,12 @@
  else         if (orig_field.getType() == Pattern.class && String.class.isAssignableFrom(dest_field.getType())) {
           dest_field.set(dest,orig_field.get(origin).toString());
         }
+ else         if (dest_field.getType() == FrameV2.ColSpecifierV2.class && String.class.isAssignableFrom(orig_field.getType())) {
+          dest_field.set(dest,new FrameV2.ColSpecifierV2((String)orig_field.get(origin)));
+        }
+ else         if (orig_field.getType() == FrameV2.ColSpecifierV2.class && String.class.isAssignableFrom(dest_field.getType())) {
+          dest_field.set(dest,((FrameV2.ColSpecifierV2)orig_field.get(origin)).column_name);
+        }
  else         if (Enum.class.isAssignableFrom(dest_field.getType()) && String.class.isAssignableFrom(orig_field.getType())) {
           Class<Enum> dest_class=(Class<Enum>)dest_field.getType();
           dest_field.set(dest,Enum.valueOf(dest_class,(String)orig_field.get(origin)));
