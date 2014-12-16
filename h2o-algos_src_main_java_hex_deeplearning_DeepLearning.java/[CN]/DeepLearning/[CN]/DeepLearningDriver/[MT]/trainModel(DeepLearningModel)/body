@@ -48,6 +48,7 @@
     Log.info("Starting to train the Deep Learning model.");
     do {
       model.set_model_info(mp._epochs == 0 ? model.model_info() : H2O.CLOUD.size() > 1 && mp._replicate_training_data ? (mp._single_node_mode ? new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model)).doAll(Key.make()).model_info() : new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model)).doAllNodes().model_info()) : new DeepLearningTask(self(),model.model_info(),rowFraction(train,mp,model)).doAll(train).model_info());
+      model._output.errors=model.last_scored();
       update(model.actual_train_samples_per_iteration);
     }
  while (model.doScoring(trainScoreFrame,validScoreFrame,self()));
