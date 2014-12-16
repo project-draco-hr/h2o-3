@@ -1,4 +1,5 @@
 def test_DL_covtype(self):
+    h2o.nodes[0].remove_all_keys()
     csvPathname_train = 'standard/covtype.data'
     csvPathname_test = 'standard/covtype.data'
     hex_key = 'covtype.hex'
@@ -24,7 +25,7 @@ def test_DL_covtype(self):
     parameters = {'validation_frame': validation_key, 'ignored_columns': None, 'score_each_iteration': None, 'response_column': labelList[response], 'do_classification': True, 'balance_classes': None, 'max_after_balance_size': None, 'n_folds': None, 'keep_cross_validation_splits': None, 'checkpoint': None, 'override_with_best_model': None, 'expert_mode': None, 'autoencoder': None, 'use_all_factor_levels': None, 'activation': 'Tanh', 'hidden': '[100,100,100]', 'epochs': 0.7, 'train_samples_per_iteration': 100000, 'target_ratio_comm_to_comp': None, 'seed': None, 'adaptive_rate': True, 'rho': None, 'epsilon': None, 'rate': None, 'rate_annealing': None, 'rate_decay': None, 'momentum_start': None, 'momentum_ramp': None, 'momentum_stable': None, 'nesterov_accelerated_gradient': None, 'input_dropout_ratio': 0.0, 'hidden_dropout_ratios': None, 'l1': 1e-05, 'l2': 1e-07, 'max_w2': None, 'initial_weight_distribution': None, 'initial_weight_scale': None, 'loss': 'CrossEntropy', 'score_interval': None, 'score_training_samples': None, 'score_validation_samples': None, 'score_duty_cycle': None, 'classification_stop': None, 'regression_stop': None, 'quiet_mode': None, 'max_confusion_matrix_size': None, 'max_hit_ratio_k': None, 'balance_classes': None, 'class_sampling_factors': None, 'max_after_balance_size': None, 'score_validation_sampling': None, 'diagnostics': None, 'variable_importances': None, 'fast_mode': None, 'ignore_const_cols': None, 'force_load_balance': None, 'replicate_training_data': None, 'single_node_mode': None, 'shuffle_training_data': None, 'missing_values_handling': None, 'sparse': None, 'col_major': None, 'average_activation': None, 'sparsity_beta': None, }
     expectedErr = 0.27
     relTol = 0.15
-    timeoutSecs = 60
+    timeoutSecs = 300
     start = time.time()
     bmResult = h2o.n0.build_model(algo='deeplearning', destination_key=model_key, training_frame=hex_key, parameters=parameters, timeoutSecs=timeoutSecs)
     bm = OutputObj(bmResult, 'bm')
