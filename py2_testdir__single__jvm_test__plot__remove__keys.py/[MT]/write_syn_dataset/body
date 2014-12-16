@@ -1,0 +1,13 @@
+def write_syn_dataset(csvPathname, rowCount, colCount, SEEDPERFILE, sel):
+    r = random.Random(SEEDPERFILE)
+    NUM_CASES = h2o_util.fp_format()
+    if (sel and ((sel < 0) or (sel >= NUM_CASES))):
+        raise Exception('sel used to select from possible fp formats is out of range: %s %s', (sel, NUM_CASES))
+    dsf = open(csvPathname, 'w+')
+    for i in range(rowCount):
+        val = r.triangular((-1000000000.0), 1000000000.0, 0)
+        s = h2o_util.fp_format(val, sel=sel)
+        rowData = [s for j in range(colCount)]
+        rowDataCsv = (','.join(rowData) + '\n')
+        dsf.write(rowDataCsv)
+    dsf.close()
