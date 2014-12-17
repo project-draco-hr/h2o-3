@@ -27,7 +27,7 @@
         @Override public void map(        Chunk[] cs,        NewChunk[] ncs){
           Chunk pred=cs[cs.length - 1];
           int rows=cs[0]._len;
-          for (int r=0; r < rows; ++r)           if (pred.at0(r) != 0)           replaceRow(cs,r,d0,s0,cols0);
+          for (int r=0; r < rows; ++r)           if (pred.atd(r) != 0)           replaceRow(cs,r,d0,s0,cols0);
         }
       }
 .doAll(rr);
@@ -52,14 +52,14 @@
               for (int c=0; c < cols0.length; ++c) {
                 int col=(int)cols0[c];
                 if (chks[col].vec().isEnum())                 if (!rhs_ary.vecs()[col].isEnum()) {
-                  chks[col].setNA0(row);
+                  chks[col].setNA(row);
                   continue;
                 }
  else                 if (chks[col].vec().isNumeric())                 if (!rhs_ary.vecs()[col].isNumeric()) {
-                  chks[col].setNA0(row);
+                  chks[col].setNA(row);
                   continue;
                 }
-                chks[col].set0(row,rhs_ary.vecs()[col].at(row_id));
+                chks[col].set(row,rhs_ary.vecs()[col].at(row_id));
               }
             }
           }
@@ -75,7 +75,7 @@
       Frame pred=new MRTask(){
         @Override public void map(        Chunk c,        NewChunk nc){
           for (int r=0; r < c._len; ++r) {
-            double d=c.at0(r);
+            double d=c.atd(r);
             if (d != 0)             nc.addNum(d);
           }
         }
@@ -88,7 +88,7 @@
           Chunk pred=cs[cs.length - 1];
           int rows=cs[0]._len;
           for (int r=0; r < rows; ++r) {
-            long row_id=(long)pred.at0(r) - 1;
+            long row_id=(long)pred.atd(r) - 1;
             replaceRow(cs,r,row_id,cols0,lhs_ary);
           }
         }
