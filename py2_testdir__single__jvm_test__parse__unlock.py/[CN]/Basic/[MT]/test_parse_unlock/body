@@ -1,0 +1,11 @@
+def test_parse_unlock(self):
+    importFolderPath = 'mnist'
+    csvFilelist = [('mnist_training.csv.gz', 600), ('mnist_testing.csv.gz', 600)]
+    trial = 0
+    allDelta = []
+    for (csvFilename, timeoutSecs) in csvFilelist:
+        hex_key = (((csvFilename + '_') + str(trial)) + '.hex')
+        parseResult = h2i.import_parse(bucket='home-0xdiag-datasets', path=((importFolderPath + '/') + csvFilename), schema='put', hex_key=hex_key, timeoutSecs=timeoutSecs, intermediateResults=DO_INTERMEDIATE_RESULTS, noPoll=True)
+        trial += 1
+    h2j.pollWaitJobs()
+    h2o.n0.unlock()
