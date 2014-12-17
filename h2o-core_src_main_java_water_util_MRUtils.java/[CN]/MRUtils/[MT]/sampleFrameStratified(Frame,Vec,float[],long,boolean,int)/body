@@ -9,8 +9,8 @@
     @Override public void map(    Chunk[] cs,    NewChunk[] ncs){
       final Random rng=getDeterRNG(seed + cs[0].cidx());
       for (int r=0; r < cs[0]._len; r++) {
-        if (cs[labelidx].isNA0(r))         continue;
-        final int label=(int)cs[labelidx].at80(r);
+        if (cs[labelidx].isNA(r))         continue;
+        final int label=(int)cs[labelidx].at8(r);
         assert(sampling_ratios.length > label && label >= 0);
         int sampling_reps;
         if (poisson) {
@@ -22,7 +22,7 @@
         }
         for (int i=0; i < ncs.length; i++) {
           for (int j=0; j < sampling_reps; ++j) {
-            ncs[i].addNum(cs[i].at0(r));
+            ncs[i].addNum(cs[i].atd(r));
           }
         }
       }
