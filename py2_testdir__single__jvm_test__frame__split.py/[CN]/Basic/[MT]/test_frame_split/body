@@ -2,7 +2,7 @@ def test_frame_split(self):
     csvFilename = 'covtype.data'
     csvPathname = ('standard/' + csvFilename)
     hex_key = 'covtype.hex'
-    parseResultA = h2i.import_parse(bucket='home-0xdiag-datasets', path=csvPathname, hex_key=hex_key, schema='local', timeoutSecs=20)
+    parseResultA = h2i.import_parse(bucket='home-0xdiag-datasets', path=csvPathname, hex_key=hex_key, timeoutSecs=20)
     pA = h2o_cmd.ParseObj(parseResultA)
     print pA.numRows
     print pA.numCols
@@ -15,7 +15,7 @@ def test_frame_split(self):
     for s in range(20):
         iA = h2o_cmd.InspectObj(splitMe)
         numRows = iA.numRows
-        fsResult = h2o.nodes[0].frame_split(training_frame=splitMe, ratios='[0.5]')
+        fsResult = h2o.n0.frame_split(training_frame=splitMe, ratios='[0.5]')
         fs = OutputObj(fsResult, 'frame_split')
         model_key = fs.jobs[0].dest.name
         modelResult = h2o.n0.models(key=model_key)
