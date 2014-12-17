@@ -2,7 +2,7 @@
   QuantileModel model=null;
   try {
     Scope.enter();
-    _parms.lock_frames(Quantile.this);
+    _parms.read_lock_frames(Quantile.this);
     init(true);
     model=new QuantileModel(dest(),_parms,new QuantileModel.QuantileOutput(Quantile.this));
     model._output._quantiles=new double[train().numCols()][_parms._probs.length];
@@ -32,7 +32,7 @@
   }
  finally {
     if (model != null)     model.unlock(_key);
-    _parms.unlock_frames(Quantile.this);
+    _parms.read_unlock_frames(Quantile.this);
     Scope.exit(model == null ? null : model._key);
     done();
   }
