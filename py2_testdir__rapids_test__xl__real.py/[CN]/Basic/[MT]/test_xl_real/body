@@ -1,0 +1,76 @@
+def test_xl_real(self):
+    bucket = 'smalldata'
+    csvPathname = 'iris/iris_wheader.csv'
+    hexDF = 'v'
+    parseResult = h2i.import_parse(bucket=bucket, path=csvPathname, schema='put', hex_key=hexDF)
+    a = DF('a1')
+    assert isinstance(a, DF)
+    assert isinstance(a, Key)
+    assert isinstance(a, Xbase)
+    assert (not isinstance(a, KeyIndexed))
+    assert (not isinstance(a, Fcn))
+    assert (not isinstance(a, Assign))
+    print 'Does the lastExecResult stash work?', dump_json(h2o_xl.Xbase.lastExecResult)
+    inspect = h2o_cmd.runInspect(key=a)
+    b = DF('b1')
+    assert isinstance(b, DF)
+    inspect = h2o_cmd.runInspect(key=b)
+    Assign(a, [0.0, 1.0, 2.0])
+    assert isinstance(a, Key)
+    b <<= [3.1, 4.1, 5.1]
+    assert isinstance(b, Key)
+    c = DF('c1')
+    c <<= [6.2, 7.2, 8.2]
+    assert isinstance(c, Key)
+    rhs = (a + b)
+    Assign(c, rhs)
+    ast = h2o_xl.Xbase.lastExecResult['ast']
+    astExpected = '(= !c1 (+ $a1 $b1))'
+    assert (ast == astExpected), ('Actual: %s    Expected: %s' % (ast, astExpected))
+    rhs = (a[0] + b[0])
+    Assign(c[0], rhs)
+    ast = h2o_xl.Xbase.lastExecResult['ast']
+    astExpected = '(= ([ $c1 #0 #0) (+ ([ $a1 #0 #0) ([ $b1 #0 #0)))'
+    assert (ast == astExpected), ('Actual: %s    Expected: %s' % (ast, astExpected))
+    Assign(c[1], (a[2] + b[2]))
+    ast = h2o_xl.Xbase.lastExecResult['ast']
+    astExpected = '(= ([ $c1 #1 #0) (+ ([ $a1 #2 #0) ([ $b1 #2 #0)))'
+    assert (ast == astExpected), ('Actual: %s    Expected: %s' % (ast, astExpected))
+    assert isinstance(c, Key), type(c)
+    inspect = h2o_cmd.runInspect(key=c)
+    a = DF('a2')
+    assert isinstance(a, DF)
+    b = DF('b2')
+    c = DF('c2')
+    inspect = h2o_cmd.runInspect(key=c)
+    a <<= 3
+    b <<= 3
+    c <<= 3
+    c[0] <<= (a[0] + b[0])
+    assert isinstance(c, Key)
+    inspect = h2o_cmd.runInspect(key=c)
+    a = DF('a3')
+    b = DF('b3')
+    c = DF('c3')
+    a <<= 4
+    b <<= 4
+    c <<= 4
+    c[0] <<= (a[0] - b[0])
+    assert isinstance(c, Key)
+    c[0] <<= (a[0] * b[0])
+    assert isinstance(c, Key)
+    a = DF('a4')
+    b = DF('b4')
+    c = DF('c4')
+    a <<= 5
+    b <<= 5
+    c <<= 5
+    c[0] <<= (a[0] - b[0])
+    assert isinstance(c, Key)
+    inspect = h2o_cmd.runInspect(key=c)
+    c[0] <<= ((a[0] & b[0]) | a[0])
+    assert isinstance(c, Key)
+    inspect = h2o_cmd.runInspect(key=c)
+    for k in Xbase.keyWriteHistoryList:
+        print k
+    h2o.check_sandbox_for_errors()

@@ -1,12 +1,14 @@
 def refcntInc(self, *args):
-    if (not isinstance(self, (Key, KeyIndexed, Fcn, Expr, Def, DF))):
+    if (not isinstance(self, (Key, KeyIndexed, Fcn, Expr, Def, DF, Col))):
         return
     if isinstance(self, (int, float, list, tuple)):
         return
     self.refcnt += 1
-    h2p.red_print(('refcntInc: %s for' % self.refcnt), id(self), type(self), self)
+    if debugRefPrintEnable:
+        h2p.red_print(('refcntInc: %s for' % self.refcnt), id(self), type(self), self)
     if (self.refcnt > 1):
-        h2o.red_print(('INTERESTING: refcnt is > 1: %s %s %s' % (self.refcnt, type(self), self)))
+        if debugRefPrintEnable:
+            h2o.red_print(('INTERESTING: refcnt is > 1: %s %s %s' % (self.refcnt, type(self), self)))
     for a in args:
         if a:
             if isinstance(a, list):

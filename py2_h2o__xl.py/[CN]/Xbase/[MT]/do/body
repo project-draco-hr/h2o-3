@@ -1,4 +1,5 @@
 def do(self, timeoutSecs=30):
+    print 'enter .do()'
     if (not isinstance(self, (Assign, Expr, Def, Key, KeyInit, KeyIndexed, Item, Fcn, If, IfElse, Return))):
         raise Exception((".do() Maybe you're trying to send a wrong instance to h2o? %s %s" % (type(self), self)))
     if self.execExpr:
@@ -30,11 +31,15 @@ def do(self, timeoutSecs=30):
                 execExpr2 = astForInit(self.frame)
             else:
                 print "Hack scalar to int for new key for scalar, because rapids doesn't take reals yet"
-                execExpr2 = ('(= !%s (c {#%s}))' % (self.frame, int(self.scalar)))
+                if math.isnan(float(self.scalar)):
+                    print ("Rapids returned scalar result that's NaN. Using -1 instead: %s" % self.scalar)
+                    execExpr2 = ('(= !%s (c {#-1}))' % self.frame)
+                else:
+                    execExpr2 = ('(= !%s (c {#%s}))' % (self.frame, int(self.scalar)))
             self.numRows = 1
             self.numCols = 1
             (execResult2, result2) = h2e.exec_expr(execExpr=execExpr2)
-            assert (execResult2['key'] is not None)
+            assert (execResult2['key'] is not None), dump_json(execResult2)
             assert (self.numRows == execResult2['num_rows']), ('%s %s' % (self.numRows, execResult2['num_rows']))
             assert (self.numCols == execResult2['num_cols']), ('%s %s' % (self.numCols, execResult2['num_cols']))
             Xbase.keyWriteHistoryList.append(execExpr2)
