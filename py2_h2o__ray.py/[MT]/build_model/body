@@ -1,4 +1,4 @@
-def build_model(self, algo, training_frame, parameters, destination_key=None, timeoutSecs=60, asynchronous=False, **kwargs):
+def build_model(self, algo, training_frame, parameters, destination_key=None, timeoutSecs=60, noPoll=False, **kwargs):
     '\n    Build a model on the h2o cluster using the given algorithm, training \n    Frame and model parameters.\n    '
     assert (algo is not None), '"algo" parameter is null'
     assert (training_frame is not None), '"training_frame" parameter is null'
@@ -17,11 +17,8 @@ def build_model(self, algo, training_frame, parameters, destination_key=None, ti
     print 'build_model parameters', parameters
     start = time.time()
     result1 = self.do_json_request(('/2/ModelBuilders.json/' + algo), cmd='post', timeout=timeoutSecs, postData=parameters)
-    elapsed = (time.time() - start)
-    print 'ModelBuilders end on ', training_frame, 'took', (time.time() - start), 'seconds'
-    print ('%d pct. of timeout' % ((elapsed / timeoutSecs) * 100))
     verboseprint('build_model result', dump_json(result1))
-    if asynchronous:
+    if noPoll:
         result = result1
     elif ('validation_error_count' in result1):
         h2p.yellow_print('parameter error in model_builders')
@@ -32,6 +29,9 @@ def build_model(self, algo, training_frame, parameters, destination_key=None, ti
         verboseprint(('build_model job_key: ' + repr(job_key)))
         job_result = self.poll_job(job_key, timeoutSecs=timeoutSecs)
         verboseprint(job_result)
+        elapsed = (time.time() - start)
+        print 'ModelBuilders end on ', training_frame, 'took', (time.time() - start), 'seconds'
+        print ('%d pct. of timeout' % ((elapsed / timeoutSecs) * 100))
         if job_result:
             jobs = job_result['jobs'][0]
             description = jobs['description']
