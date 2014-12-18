@@ -4,13 +4,12 @@ def __init__(self, localFName=None, remoteFName=None, vecs=None):
             raise ValueError('No open h2o connection')
         rawkey = H2OCONN.ImportFile(remoteFName)
         setup = H2OCONN.ParseSetup(rawkey)
-        parse = H2OCONN.Parse(setup)
-        hexKey = parse['hex']['name']
+        parse = H2OCONN.Parse(setup, 'PY_TMP')
         cols = parse['columnNames']
-        frames = H2OCONN.Frame(hexKey)
-        rows = frames['frames'][0]['rows']
-        self._vecs = [Vec(str(col), Expr(hexKey, idx, str(col), rows)) for (idx, col) in enumerate(cols)]
-        print 'Imported', remoteFName, 'into cluster as', hexKey, 'with', rows, 'rows and', len(cols), 'cols'
+        rows = parse['rows']
+        veckeys = parse['vecKeys']
+        self._vecs = [Vec(str(col), Expr(op=veckey['name'], length=rows)) for (idx, (col, veckey)) in enumerate(zip(cols, veckeys))]
+        print 'Imported', remoteFName, 'into cluster with', rows, 'rows and', len(cols), 'cols'
     elif localFName:
         with open(localFName, 'rb') as csvfile:
             self._vecs = []

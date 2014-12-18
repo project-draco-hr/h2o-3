@@ -7,6 +7,7 @@ def _doit(self):
         left._doit()
     if isinstance(rite, Expr):
         rite._doit()
+    global _CMD
     if (self._op == '+'):
         if isinstance(left._data, (int, float)):
             if isinstance(rite._data, (int, float)):
@@ -20,20 +21,21 @@ def _doit(self):
             if left.isLocal():
                 self._data = [(x + rite) for x in left._data]
             else:
-                j = H2OCONN.Rapids((((((('(+ ([ $' + str(left._data)) + ' "null" #') + str(left._left)) + ') #') + str(rite)) + ')'))
-                (self._data, left, rite) = (j['key']['name'], 0, '')
+                _CMD += (((('(+ %' + str(left._data)) + ' #') + str(rite)) + ')')
         else:
             (lname, rname) = (left._name, rite._name)
             self._data = [(x + y) for (x, y) in zip(left._data, rite._data)]
+    elif (self._op == '['):
+        (lname, rname) = (left._name, None)
+        if left.isLocal():
+            self._data = left._data[rite._data]
+        else:
+            _CMD += (((('([ %' + str(left._data)) + ' #') + str(rite._data)) + ' #0)')
     elif (self._op == 'mean'):
         (lname, rname) = (left._name, None)
         self._data = (sum(left._data) / len(left._data))
     else:
         raise NotImplementedError
-    if lname:
-        global _CMD
-        _CMD += (((((((self._name + '= ') + lname) + ' ') + self._op) + ' ') + str(rname)) + '; ')
-    assert (self._data is not None)
     self._left = None
     self._rite = None
     return
