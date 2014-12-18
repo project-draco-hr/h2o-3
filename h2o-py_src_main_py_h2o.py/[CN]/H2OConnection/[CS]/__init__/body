@@ -1,0 +1,13 @@
+def __init__(self, ip='localhost', port=54321):
+    assert (isinstance(port, int) and (0 <= port <= 65535))
+    self._ip = ip
+    self._port = port
+    cld = self.connect()
+    ncpus = 0
+    mmax = 0
+    for n in cld['nodes']:
+        ncpus += n['num_cpus']
+        mmax += n['max_mem']
+    print (("Connected to cloud '" + cld['cloud_name']) + "' size"), cld['cloud_size'], 'ncpus', ncpus, 'maxmem', get_human_readable_size(mmax)
+    global H2OCONN
+    H2OCONN = self

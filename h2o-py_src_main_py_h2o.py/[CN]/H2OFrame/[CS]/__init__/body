@@ -1,0 +1,32 @@
+def __init__(self, localFName=None, remoteFName=None, vecs=None):
+    if remoteFName:
+        if (not H2OCONN):
+            raise ValueError('No open h2o connection')
+        rawkey = H2OCONN.ImportFile(remoteFName)
+        setup = H2OCONN.ParseSetup(rawkey)
+        parse = H2OCONN.Parse(setup)
+        hexKey = parse['hex']['name']
+        cols = parse['columnNames']
+        frames = H2OCONN.Frame(hexKey)
+        rows = frames['frames'][0]['rows']
+        self._vecs = [Vec(str(col), Expr(hexKey, idx, str(col), rows)) for (idx, col) in enumerate(cols)]
+        print 'Imported', remoteFName, 'into cluster as', hexKey, 'with', rows, 'rows and', len(cols), 'cols'
+    elif localFName:
+        with open(localFName, 'rb') as csvfile:
+            self._vecs = []
+            for name in csvfile.readline().split(','):
+                self._vecs.append(Vec(name.rstrip(), Expr([])))
+            for row in csv.reader(csvfile):
+                for (i, data) in enumerate(row):
+                    self._vecs[i].append(data)
+        print 'Imported', localFName, 'into local python process'
+    elif (vecs is not None):
+        vlen = len(vecs[0])
+        for v in vecs:
+            if (not isinstance(v, Vec)):
+                raise ValueError('Not a list of Vecs')
+            if (len(v) != vlen):
+                raise ValueError(((('Vecs not the same size, ' + str(vlen)) + ' vs ') + str(len(v))))
+        self._vecs = vecs
+    else:
+        raise ValueError('Frame made from CSV file or an array of Vecs only')
