@@ -1,17 +1,27 @@
 def test_w2v_basic_1(self):
     global SYNDATASETS_DIR
     SYNDATASETS_DIR = h2o.make_syn_dir()
-    n = 100
+    n = 500000
     tryList = [(n, 1, 'cD', 300), (n, 2, 'cE', 300), (n, 3, 'cF', 300), (n, 4, 'cG', 300), (n, 5, 'cH', 300), (n, 6, 'cI', 300), (n, 7, 'cJ', 300), (n, 9, 'cK', 300)]
     for (rowCount, colCount, hex_key, timeoutSecs) in tryList:
         csvPathname = create_file_with_seps(rowCount, colCount)
         parseResult = h2i.import_parse(path=csvPathname, checkHeader=1, delete_on_done=0, timeoutSecs=180, doSummary=False)
         pA = h2o_cmd.ParseObj(parseResult)
         iA = h2o_cmd.InspectObj(pA.parse_key)
+        cA = h2o_test.OutputObj(iA.columns[0], 'inspect_column')
         parse_key = pA.parse_key
         numRows = iA.numRows
         numCols = iA.numCols
         labelList = iA.labelList
+        for i in range(colCount):
+            print cA.type, cA.missing
+            self.assertEqual(0, cA.missing, ('Column %s Expected %s. missing: %s is incorrect' % (i, 0, cA.missing)))
+            self.assertEqual('string', cA.type, ('Column %s Expected %s. type: %s is incorrect' % (i, 0, cA.type)))
+        for i in range(colCount):
+            co = h2o_cmd.runSummary(key=parse_key, column=i)
+            print co.label, co.type, co.missing, co.domain, sum(co.bins)
+            self.assertEqual(0, co.missing, ('Column %s Expected %s. missing: %s is incorrect' % (i, 0, co.missing)))
+            self.assertEqual('String', co.type, ('Column %s Expected %s. type: %s is incorrect' % (i, 0, co.type)))
         labelListUsed = list(labelList)
         numColsUsed = numCols
         for trial in range(1):
