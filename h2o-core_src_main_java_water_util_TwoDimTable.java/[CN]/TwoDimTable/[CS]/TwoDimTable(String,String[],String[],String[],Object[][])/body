@@ -1,4 +1,12 @@
 {
+  if (description == null)   throw new IllegalArgumentException("description is missing.");
+  if (colNames == null)   throw new IllegalArgumentException("colNames are missing.");
+  if (colFormatStrings == null)   throw new IllegalArgumentException("colFormatStrings are missing.");
+  if (rowNames == null)   throw new IllegalArgumentException("rowNames are missing.");
+  if (values == null)   throw new IllegalArgumentException("values are missing.");
+  if (values.length != rowNames.length)   throw new IllegalArgumentException("values must have the same length as rowNames: " + rowNames.length);
+  for (  Object[] v : values)   if (v.length != colNames.length)   throw new IllegalArgumentException("Each entry in values must have the same length as colNames: " + colNames.length);
+  if (colFormatStrings != null && colFormatStrings.length != colNames.length)   throw new IllegalArgumentException("colFormatStrings must have the same length as colNames: " + colNames.length);
   this.description=description;
   this.colNames=colNames;
   this.colFormatStrings=colFormatStrings;
