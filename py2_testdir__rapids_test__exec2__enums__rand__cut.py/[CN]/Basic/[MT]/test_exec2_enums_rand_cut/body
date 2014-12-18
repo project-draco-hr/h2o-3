@@ -9,23 +9,21 @@ def test_exec2_enums_rand_cut(self):
         hex_key = 'p'
         colEnumList = create_col_enum_list(iColCount)
         rowExprList = []
+        print 'Creating', CUT_EXPR_CNT, 'cut expressions'
         for j in range(CUT_EXPR_CNT):
-            print 'Creating', CUT_EXPR_CNT, 'cut expressions'
             cutValue = [None for i in range(iColCount)]
             cols = random.sample(range(iColCount), random.randint(1, iColCount))
             for c in cols:
                 cel = colEnumList[c]
-                if (1 == 1):
-                    celChoice = str(random.choice(range(len(cel))))
-                else:
-                    celChoice = random.choice(cel)
+                celChoice = random.choice(range(len(cel)))
                 cutValue[c] = celChoice
             cutExprList = []
+            pKey = Key('p')
             for (i, c) in enumerate(cutValue):
                 if (c is None):
                     continue
                 else:
-                    e = Fcn('==', Item(c), KeyIndexed('p', col=i))
+                    e = Fcn('==', c, pKey[:, i])
                     cutExprList.append(e)
             cutExpr = None
             for ce in cutExprList:
@@ -37,7 +35,8 @@ def test_exec2_enums_rand_cut(self):
             e = random.sample(eKeys, 2)
             fKey = e[0]
             eKey = e[1]
-            rowExpr = KeyIndexed(hex_key, row=cutExpr)
+            hKey = Key(hex_key)
+            rowExpr = hKey[cutExpr, :]
             print 'rowExpr:', rowExpr
             rowExprList.append(rowExpr)
         SEEDPERFILE = random.randint(0, sys.maxint)
@@ -49,11 +48,10 @@ def test_exec2_enums_rand_cut(self):
         (numRows, numCols, parse_key) = h2o_cmd.infoFromParse(parseResult)
         inspect = h2o_cmd.runInspect(key=parse_key)
         (missingList, valueList, numRows, numCols) = h2o_cmd.infoFromInspect(inspect)
-        if (1 == 1):
-            Assign('b', Col(Seq(1, 2, 3))).do()
-            Assign('a', Cbind(['b' for i in range(colCount)])).do()
-            for eKey in eKeys:
-                Assign(eKey, 'a').do()
+        Assign('b', [1, 2, 3])
+        Assign('a', Cbind(['b' for i in range(colCount)]))
+        for eKey in eKeys:
+            Assign(eKey, 'a')
         xList = []
         eList = []
         fList = []
