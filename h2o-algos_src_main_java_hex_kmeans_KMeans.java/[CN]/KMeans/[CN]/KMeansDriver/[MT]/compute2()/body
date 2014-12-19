@@ -1,7 +1,7 @@
 {
   KMeansModel model=null;
   try {
-    _parms.lock_frames(KMeans.this);
+    _parms.read_lock_frames(KMeans.this);
     init(true);
     model=new KMeansModel(dest(),_parms,new KMeansModel.KMeansOutput(KMeans.this));
     model.delete_and_lock(_key);
@@ -102,7 +102,7 @@
   }
  finally {
     if (model != null)     model.unlock(_key);
-    _parms.unlock_frames(KMeans.this);
+    _parms.read_unlock_frames(KMeans.this);
     done();
   }
   tryComplete();

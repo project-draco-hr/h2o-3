@@ -2,7 +2,7 @@
   GrepModel model=null;
   try {
     Scope.enter();
-    _parms.lock_frames(Grep.this);
+    _parms.read_lock_frames(Grep.this);
     init(true);
     model=new GrepModel(dest(),_parms,new GrepModel.GrepOutput(Grep.this));
     model.delete_and_lock(_key);
@@ -22,7 +22,7 @@
   }
  finally {
     if (model != null)     model.unlock(_key);
-    _parms.unlock_frames(Grep.this);
+    _parms.read_unlock_frames(Grep.this);
     Scope.exit(model == null ? null : model._key);
     done();
   }

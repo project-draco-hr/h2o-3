@@ -16,7 +16,7 @@
     for (    double missing_fraction : new double[]{0,0.1,0.25,0.5,0.75,0.99}) {
       try {
         NFSFileVec nfs=NFSFileVec.make(find_test_file("smalldata/junit/weather.csv"));
-        data=ParseDataset2.parse(Key.make("data.hex"),nfs._key);
+        data=ParseDataset.parse(Key.make("data.hex"),nfs._key);
         FrameSplitter fs=new FrameSplitter(data,new float[]{0.75f});
         H2O.submitTask(fs).join();
         Frame[] train_test=fs.getResult();
