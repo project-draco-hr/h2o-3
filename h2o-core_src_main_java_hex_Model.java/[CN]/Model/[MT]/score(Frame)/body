@@ -6,7 +6,8 @@
   Vec mresp=output.vecs()[0];
   String mdomain[]=mresp.domain();
   ConfusionMatrix2 cm=ModelMetrics.getFromDKV(this,fr)._cm;
-  if (cm._arr.length < _parms._max_confusion_matrix_size)   water.util.Log.info(water.util.PrettyPrint.printConfusionMatrix(new StringBuilder(),cm._arr,mdomain));
+  cm._cm_json=cm.toTable(mdomain);
+  if (cm._arr.length < _parms._max_confusion_matrix_size)   water.util.Log.info(cm._cm_json.toString(1));
   if (_output.isClassifier()) {
     String sdomain[]=sresp.domain();
     if (mdomain != sdomain && !Arrays.equals(mdomain,sdomain))     output.replace(0,new EnumWrappedVec(sresp.group().addVec(),sresp.get_espc(),sdomain,mresp._key));
