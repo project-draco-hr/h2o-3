@@ -31,9 +31,9 @@ def test_kmeans_sphere100(self):
         modelResult = h2o.n0.models(key=model_key)
         elapsed = (time.time() - start)
         print 'kmeans end on ', csvPathname, 'took', elapsed, 'seconds.', ('%d pct. of timeout' % ((elapsed / timeoutSecs) * 100))
-        (tuplesSorted, iters, mse, names) = h2o_kmeans.simpleCheckKMeans(self, modelResult, parameters, numRows, numColsUsed, labelListUsed)
+        km = h2o_kmeans.KMeansObj(modelResult, parameters, numRows, numColsUsed, labelListUsed)
         h2o_cmd.runStoreView()
-        (ids, mses, rows, clusters) = zip(*tuplesSorted)
+        (ids, mses, rows, clusters) = zip(*km.tuplesSorted)
         clustersSorted = sorted(clusters, key=sum)
         centersSorted = sorted(centersList, key=sum)
         kmeansResult = modelResult

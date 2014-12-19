@@ -20,6 +20,6 @@ def test_kmeans_benign(self):
         model_key = 'benign_k.hex'
         kmeansResult = h2o.n0.build_model(algo='kmeans', destination_key=model_key, training_frame=parse_key, parameters=parameters, timeoutSecs=10)
         modelResult = h2o.n0.models(key=model_key)
-        (tuplesSorted, iters, mse, names) = h2o_kmeans.simpleCheckKMeans(self, modelResult, parameters, numRows, numColsUsed, labelListUsed)
+        km = h2o_kmeans.KMeansObj(modelResult, parameters, numRows, numColsUsed, labelListUsed)
         h2o_cmd.runStoreView()
-        (ids, mses, rows, clusters) = zip(*tuplesSorted)
+        (ids, mses, rows, clusters) = zip(*km.tuplesSorted)
