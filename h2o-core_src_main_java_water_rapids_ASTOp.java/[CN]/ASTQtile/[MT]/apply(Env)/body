@@ -25,7 +25,7 @@
   final int MAX_QBINS=1000;
   final boolean MULTIPASS=true;
   final int INTERPOLATION=_type;
-  final Quantiles[] qbins1=new Quantiles.BinTask2(MAX_QBINS,xv.min(),xv.max()).doAll(xv)._qbins;
+  final Quantiles[] qbins1=new Quantiles.BinningTask(MAX_QBINS,xv.min(),xv.max()).doAll(xv)._qbins;
   for (int i=0; i < p.length; i++) {
     double quantile=p[i];
     qbins1[0].finishUp(xv,new double[]{quantile},INTERPOLATION,MULTIPASS);
@@ -33,14 +33,14 @@
       res.set(i,qbins1[0]._pctile[0]);
     }
  else {
-      Quantiles[] qbinsM=new Quantiles.BinTask2(MAX_QBINS,qbins1[0]._newValStart,qbins1[0]._newValEnd).doAll(xv)._qbins;
+      Quantiles[] qbinsM=new Quantiles.BinningTask(MAX_QBINS,qbins1[0]._newValStart,qbins1[0]._newValEnd).doAll(xv)._qbins;
       for (int iteration=2; iteration <= MAX_ITERATIONS; iteration++) {
         qbinsM[0].finishUp(xv,new double[]{quantile},INTERPOLATION,MULTIPASS);
         if (qbinsM[0]._done) {
           res.set(i,qbinsM[0]._pctile[0]);
           break;
         }
-        qbinsM=new Quantiles.BinTask2(MAX_QBINS,qbinsM[0]._newValStart,qbinsM[0]._newValEnd).doAll(xv)._qbins;
+        qbinsM=new Quantiles.BinningTask(MAX_QBINS,qbinsM[0]._newValStart,qbinsM[0]._newValEnd).doAll(xv)._qbins;
       }
     }
   }

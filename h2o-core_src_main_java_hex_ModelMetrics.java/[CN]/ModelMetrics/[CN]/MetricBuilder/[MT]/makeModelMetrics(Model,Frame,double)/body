@@ -1,15 +1,15 @@
 {
   AUCData aucdata;
-  ConfusionMatrix2 cm;
+  ConfusionMatrix cm;
   if (_cms.length > 1) {
-    ConfusionMatrix2[] cms=new ConfusionMatrix2[_cms.length];
-    for (int i=0; i < cms.length; i++)     cms[i]=new ConfusionMatrix2(_cms[i]);
+    ConfusionMatrix[] cms=new ConfusionMatrix[_cms.length];
+    for (int i=0; i < cms.length; i++)     cms[i]=new ConfusionMatrix(_cms[i]);
     aucdata=new AUC(cms,_thresholds,_domain).data();
     cm=aucdata.CM();
   }
  else {
     aucdata=null;
-    cm=new ConfusionMatrix2(_cms[0]);
+    cm=new ConfusionMatrix(_cms[0]);
   }
   double mse=_sumsqe / cm.totalRows();
   HitRatio hr=null;
