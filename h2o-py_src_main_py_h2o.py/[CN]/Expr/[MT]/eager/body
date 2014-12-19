@@ -10,9 +10,6 @@ def eager(self):
     if self.isLocal():
         return self._data
     j = H2OCONN.Rapids(cmd)
-    if j['num_rows']:
-        print j
-        raise NotImplementedError
-    self._data = j['scalar']
+    self._data = (j['head'] if j['num_rows'] else j['scalar'])
     assert (self._data is not None)
     return self._data
