@@ -17,16 +17,16 @@ def test_rapids_vec_fail(self):
         elapsed1 = (time.time() - start)
         if execResult['num_rows']:
             keys.append(execExpr)
-        execExpr = '(= !vint (N $vreal #0))'
+        execExpr = '(= !vint (N %vreal #0))'
         (execResult, result) = h2e.exec_expr(h2o.nodes[0], execExpr, resultKey=None, timeoutSecs=10)
-        execExpr = '(= !v2 (+ $vint <patt>))'
+        execExpr = '(= !v2 (+ %vint <patt>))'
         for j in range(3):
-            execExpr = re.sub('<patt>', '(+ $vint <patt>)', execExpr)
-        execExpr = re.sub('<patt>', '(+ $vint $vint)', execExpr)
+            execExpr = re.sub('<patt>', '(+ %vint <patt>)', execExpr)
+        execExpr = re.sub('<patt>', '(+ %vint %vint)', execExpr)
         start = time.time()
         (execResult, result) = h2e.exec_expr(h2o.nodes[0], execExpr, resultKey=None, timeoutSecs=10)
         elapsed2 = (time.time() - start)
-        execExpr = '(= !v1 (+ $vreal $vreal))'
+        execExpr = '(= !v1 (+ %vreal %vreal))'
         start = time.time()
         (execResult, result) = h2e.exec_expr(h2o.nodes[0], execExpr, resultKey=None, timeoutSecs=10)
         elapsed1 = (time.time() - start)

@@ -7,13 +7,13 @@ def test_rapids_ddply_with_funs(self):
         csvPathname = 'standard/covtype.data'
     hexKey = 'r1'
     parseResult = h2i.import_parse(bucket=bucket, path=csvPathname, schema='put', hex_key=hexKey)
-    execExpr2 = '(= !r2 ([ $r1 "null" {#0;#1;#2;#3}))'
+    execExpr2 = '(= !r2 ([ %r1 "null" {#0;#1;#2;#3}))'
     (execResult, result) = h2e.exec_expr(h2o.nodes[0], execExpr2, doFuns=False, resultKey=None, timeoutSecs=15)
     keys = []
     for execExpr1 in initList:
-        funs = ('[(def anon {v} %s;;(sum $v $TRUE);;;)]' % execExpr1)
+        funs = ('[(def anon {v} %s;;(sum %v %TRUE);;;)]' % execExpr1)
         (execResult, result) = h2e.exec_expr(h2o.nodes[0], funs, doFuns=True, resultKey=None, timeoutSecs=5)
-        execExpr2 = '(= !a h2o.ddply $r2 {#2;#3} $anon)'
+        execExpr2 = '(= !a h2o.ddply %r2 {#2;#3} %anon)'
         (execResult, result) = h2e.exec_expr(h2o.nodes[0], execExpr2, doFuns=False, resultKey=None, timeoutSecs=120)
         r = re.search('![a-zA-Z0-9]+', execExpr1)
         if r:
