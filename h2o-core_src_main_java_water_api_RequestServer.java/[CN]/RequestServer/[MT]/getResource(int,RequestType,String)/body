@@ -1,0 +1,24 @@
+{
+  byte[] bytes=_cache.get(uri);
+  if (bytes == null) {
+    try (InputStream resource=water.init.JarHash.getResource2(uri)){
+      if (resource != null) {
+        try {
+          bytes=toByteArray(resource);
+        }
+ catch (        IOException e) {
+          Log.err(e);
+        }
+      }
+    }
+ catch (    IOException ignore) {
+    }
+  }
+  if (bytes == null || bytes.length == 0)   throw new H2ONotFoundException("Resource " + uri + " not found","Resource " + uri + " not found");
+  String mime=MIME_DEFAULT_BINARY;
+  if (uri.endsWith(".css"))   mime="text/css";
+ else   if (uri.endsWith(".html"))   mime="text/html";
+  Response res=new Response(HTTP_OK,mime,new ByteArrayInputStream(bytes));
+  res.addHeader("Content-Length",Long.toString(bytes.length));
+  return res;
+}
