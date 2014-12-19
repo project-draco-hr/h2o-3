@@ -4,7 +4,7 @@
   long tstart, tstop;
   float tDiff;
   try {
-    _parms.lock_frames(Word2Vec.this);
+    _parms.read_lock_frames(Word2Vec.this);
     init(true);
     model=new Word2VecModel(dest(),_parms,new Word2VecOutput(Word2Vec.this));
     model.delete_and_lock(_key);
@@ -34,7 +34,7 @@
   }
  finally {
     if (model != null)     model.unlock(_key);
-    _parms.unlock_frames(Word2Vec.this);
+    _parms.read_unlock_frames(Word2Vec.this);
     done();
   }
   tryComplete();

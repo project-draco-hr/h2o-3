@@ -3,10 +3,10 @@
   String[][] expectFalse=new String[][]{ar("'Tomass","test","first","line'"),ar("'Tomas''s","test2'","test2",null),ar("last","'line''s","trailing","piece'")};
   Key k=ParserTest.makeByteVec(data);
   ParseSetup gSetupF=ParseSetup.guessSetup(data[0].getBytes(),ParserType.CSV,(byte)',',4,false,-1,null,null);
-  Frame frF=ParseDataset2.parse(Key.make(),new Key[]{k},false,gSetupF);
+  Frame frF=ParseDataset.parse(Key.make(),new Key[]{k},false,gSetupF);
   testParsed(frF,expectFalse);
   String[][] expectTrue=new String[][]{ar("Tomass,test,first,line",null),ar("Tomas''stest2","test2"),ar("last","lines trailing piece")};
   ParseSetup gSetupT=ParseSetup.guessSetup(data[0].getBytes(),ParserType.CSV,(byte)',',2,true,-1,null,null);
-  Frame frT=ParseDataset2.parse(Key.make(),new Key[]{k},true,gSetupT);
+  Frame frT=ParseDataset.parse(Key.make(),new Key[]{k},true,gSetupT);
   frT.delete();
 }

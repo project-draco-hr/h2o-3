@@ -2,7 +2,7 @@
   CoxPHModel model=null;
   try {
     Scope.enter();
-    _parms.lock_frames(CoxPH.this);
+    _parms.read_lock_frames(CoxPH.this);
     init(true);
     applyScoringFrameSideEffects();
     model=new CoxPHModel(dest(),_parms,new CoxPHModel.CoxPHOutput(CoxPH.this));
@@ -54,7 +54,7 @@
     throw t;
   }
  finally {
-    _parms.unlock_frames(CoxPH.this);
+    _parms.read_unlock_frames(CoxPH.this);
     Scope.exit();
     done();
   }

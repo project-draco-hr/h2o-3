@@ -18,7 +18,7 @@
     if (q._multiple_pass == 0)     q._result=Double.NaN;
     double valStart=q._column.min();
     double valEnd=q._column.max();
-    qbins=new Quantiles.BinTask2(q._max_qbins,valStart,valEnd).doAll(q._column)._qbins;
+    qbins=new Quantiles.BinningTask(q._max_qbins,valStart,valEnd).doAll(q._column)._qbins;
     Log.debug("Q_ for approx. valStart: " + valStart + " valEnd: "+ valEnd);
     q._interpolation_type_used=q._interpolation_type;
     q._quantile_requested=quantiles_to_do[0];
@@ -48,7 +48,7 @@
     double valEnd=q._column.max();
     for (int b=0; b < MAX_ITERATIONS; b++) {
       if (!(q._multiple_pass == 2 && b == 0)) {
-        qbins=new Quantiles.BinTask2(q._max_qbins,valStart,valEnd).doAll(q._column)._qbins;
+        qbins=new Quantiles.BinningTask(q._max_qbins,valStart,valEnd).doAll(q._column)._qbins;
       }
       q._iterations=b + 1;
       if (qbins == null)       break;
