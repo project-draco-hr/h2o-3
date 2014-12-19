@@ -33,9 +33,7 @@ def import_only(node=None, schema='local', bucket=None, path=None, timeoutSecs=3
         if (src_key is None):
             src_key = filename
         key = node.put_file(filePath, key=src_key, timeoutSecs=timeoutSecs)
-        a = ('{          "dels": [],          "fails": [],          "files": ["%s"],          "keys": ["%s"],          "path": "%s",          "schema_name": null, "schema_type": null, "schema_version": null        }' % (filename, src_key, filePath))
-        print 'json string:', a
-        importResult = json.loads(a)
+        importResult = json.loads(('{          "dels": [],          "fails": [],          "files": ["%s"],          "keys": ["%s"],          "path": "%s",          "schema_name": null, "schema_type": null, "schema_version": null        }' % (filename, src_key, filePath)))
         return (importResult, key)
     if ((schema == 'local') and (not (node.redirect_import_folder_to_s3_path or node.redirect_import_folder_to_s3n_path))):
         (folderPath, pattern) = find_folder_and_filename(bucket, path, schema)

@@ -1,10 +1,11 @@
 def __del__(self):
-    if (self._data is None):
-        print 'DELE: Expr never evaluated:', self._name
-    if isinstance(self._data, list):
-        global _CMD
-        s = (('DELE: ' + self._name) + '; ')
-        if _CMD:
-            _CMD += s
-        else:
-            print s
+    if (self.isPending() or self.isLocal()):
+        return
+    assert self.isRemote()
+    global _CMD
+    if (_CMD is None):
+        H2OCONN.Remove(self._data)
+    else:
+        s = (((('DELE: ' + self._name) + ' key=') + self._rite) + '; ')
+        _CMD += s
+        raise NotImplementedError

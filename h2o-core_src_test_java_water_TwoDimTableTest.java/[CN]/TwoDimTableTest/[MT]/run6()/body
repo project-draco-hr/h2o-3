@@ -1,0 +1,17 @@
+{
+  TwoDimTable table=new TwoDimTable("All strings",new String[]{"C0","C1","C2","C3"},new String[]{"%s","%s","%s","%s"},new String[]{"R0","R1","R2","R3"},new String[4][],new double[4][]);
+  table.set(3,3,"a33");
+  table.set(0,1,"a01");
+  table.set(1,2,1.2);
+  table.set(0,2,"a02");
+  table.set(3,0,"a30");
+  String ts=table.toString();
+  assertTrue(ts.length() > 0);
+  Log.info(ts);
+  assertTrue(table.get(3,0).equals("a30"));
+  assertTrue(table.get(1,2).equals(1.2));
+  assertTrue(table.get(1,3) == null);
+  String json=new String(table.writeJSON(new AutoBuffer()).buf());
+  assertTrue(json.equals("{\"description\":\"All strings\",\"colNames\":[\"C0\",\"C1\",\"C2\",\"C3\"],\"colFormatStrings\":[\"%s\",\"%s\",\"%s\",\"%s\"],\"rowHeaders\":[\"R0\",\"R1\",\"R2\",\"R3\"],\"strings\":[[null,\"a01\",\"a02\",null],[null,null,null,null],[null,null,null,null],[\"a30\",null,null,\"a33\"]],\"doubles\":[[null,null,null,null],[null,null,1.2,null],[null,null,null,null],[null,null,null,null]]}"));
+  Log.info(json);
+}
