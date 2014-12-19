@@ -135,11 +135,11 @@
                                         assert(resp == 1);
                                         threshold=mm._aucdata.threshold();
                                         error=mm._aucdata.err();
-                                        Assert.assertEquals(new ConfusionMatrix2(mm._aucdata.cm()).err(),error,1e-15);
+                                        Assert.assertEquals(new ConfusionMatrix(mm._aucdata.cm()).err(),error,1e-15);
                                         Assert.assertEquals(mm._cm.err(),error,1e-15);
                                       }
                                       if (model2._output.nclasses() > 2)                                       pred.replace(0,pred.vecs()[0].toEnum());
-                                      double CMerrorOrig=new ConfusionMatrix2(valid.vecs()[resp].toEnum(),pred).err();
+                                      double CMerrorOrig=new ConfusionMatrix(valid.vecs()[resp].toEnum(),pred).err();
                                       pred2=new Frame(Key.make("pred2"),pred.names(),pred.vecs());
                                       pred2.delete_and_lock(null);
                                       pred2.unlock(null);
@@ -152,7 +152,7 @@
   finally {
                                           if (ev != null)                                           ev.remove_and_unlock();
                                         }
-                                        double threshErr=new ConfusionMatrix2(valid.vecs()[1].toEnum(),pred2).err();
+                                        double threshErr=new ConfusionMatrix(valid.vecs()[1].toEnum(),pred2).err();
                                         Assert.assertEquals(threshErr,CMerrorOrig,1e-15);
                                         ast="(= ([ %pred2 \"null\" #0) (G ([ %pred2 \"null\" #2) #" + threshold + "))";
                                         ev=Exec.exec(ast);
@@ -162,7 +162,7 @@
   finally {
                                           if (ev != null)                                           ev.remove_and_unlock();
                                         }
-                                        double threshErr2=new ConfusionMatrix2(valid.vecs()[1].toEnum(),pred2).err();
+                                        double threshErr2=new ConfusionMatrix(valid.vecs()[1].toEnum(),pred2).err();
                                         Assert.assertEquals(threshErr2,error,1e-15);
                                       }
                                     }
