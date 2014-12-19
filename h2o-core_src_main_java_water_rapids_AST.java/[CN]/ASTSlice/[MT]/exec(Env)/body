@@ -3,6 +3,13 @@
   Val cols=env.pop();
   int rows_type=env.peekType();
   Val rows=rows_type == Env.ARY ? env.pop0() : env.pop();
+  if (cols_type == Env.STR) {
+    Frame ary=env.peekAry();
+    int idx=ary.find(((ValStr)cols)._s);
+    if (idx == -1)     throw new IllegalArgumentException("Column name not in frame, " + cols);
+    cols=new ValNum(idx);
+    cols_type=Env.NUM;
+  }
   if (cols_type == Env.NUM && rows_type == Env.NUM) {
     long row=(long)((ValNum)rows)._d;
     int col=(int)((ValNum)cols)._d;

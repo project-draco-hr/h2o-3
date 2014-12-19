@@ -1,9 +1,6 @@
 {
-  try {
-    Lockable.delete(u.key.key());
-  }
- catch (  ClassCastException e) {
-    DKV.remove(u.key.key());
-  }
+  Keyed val=DKV.getGet(u.key.key());
+  if (val instanceof Lockable)   ((Lockable)val).delete();
+ else   val.remove();
   return u;
 }
