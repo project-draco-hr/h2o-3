@@ -1,27 +1,3 @@
 {
-  int pad=2;
-  StringBuilder sb=new StringBuilder();
-  int maxRowNameLen=rowNames[0].length();
-  for (int r=1; r < rowNames.length; ++r) {
-    maxRowNameLen=Math.max(maxRowNameLen,rowNames[r].length());
-  }
-  maxRowNameLen+=pad;
-  int[] colLen=new int[colNames.length];
-  for (int c=0; c < colNames.length; ++c) {
-    colLen[c]=colNames[c].length();
-    for (int r=0; r < rowNames.length; ++r) {
-      colLen[c]=Math.max(colLen[c],String.format(colFormatStrings[c],values[r][c]).length());
-    }
-    colLen[c]+=pad;
-  }
-  sb.append(description).append(":\n");
-  for (int i=0; i < maxRowNameLen; ++i)   sb.append(" ");
-  for (int c=0; c < colNames.length; ++c)   sb.append(String.format("%" + colLen[c] + "s",colNames[c]));
-  sb.append("\n");
-  for (int r=0; r < rowNames.length; ++r) {
-    sb.append(String.format("%" + maxRowNameLen + "s",rowNames[r]));
-    for (int c=0; c < colNames.length; ++c)     sb.append(String.format("%" + colLen[c] + "s",String.format(colFormatStrings[c],values[r][c])));
-    sb.append("\n");
-  }
-  return sb.toString();
+  return toString(2);
 }

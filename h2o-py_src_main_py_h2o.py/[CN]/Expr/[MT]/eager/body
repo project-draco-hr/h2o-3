@@ -1,9 +1,15 @@
 def eager(self):
-    if (self._data is None):
-        global _CMD
-        assert (not _CMD)
-        _CMD = '{'
-        self._doit()
-        print (_CMD + '}')
-        _CMD = None
+    if self.isComputed():
+        return self._data
+    global _CMD
+    assert (not _CMD)
+    _CMD = ''
+    self._doit()
+    cmd = _CMD
+    _CMD = None
+    if self.isLocal():
+        return self._data
+    j = H2OCONN.Rapids(cmd)
+    self._data = (j['head'] if j['num_rows'] else j['scalar'])
+    assert (self._data is not None)
     return self._data
