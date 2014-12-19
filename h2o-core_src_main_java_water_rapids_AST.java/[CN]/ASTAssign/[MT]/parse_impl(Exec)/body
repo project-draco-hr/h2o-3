@@ -1,5 +1,12 @@
 {
-  AST l=E.parse();
+  E.skipWS();
+  AST l;
+  if (E.isSpecial(E.peek())) {
+    boolean putkv=E.peek() == '!';
+    if (putkv)     E._x++;
+    l=new ASTId(putkv ? '!' : '&',E.parseID());
+  }
+ else   l=E.parse();
   if (!E.hasNext())   throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
   AST r=E.skipWS().parse();
   ASTAssign res=(ASTAssign)clone();
