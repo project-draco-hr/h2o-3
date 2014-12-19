@@ -12,7 +12,7 @@ def test_GBM_airlines(self):
         labelList = iA.labelList
         labelListUsed = list(labelList)
         numColsUsed = numCols
-        parameters = {'validation_frame': trainKey, 'ignored_columns': 'CRSDepTime,CRSArrTime,ActualElapsedTime,CRSElapsedTime,AirTime,ArrDelay,DepDelay,TaxiIn,TaxiOut,Cancelled,CancellationCode,Diverted,CarrierDelay,WeatherDelay,NASDelay,SecurityDelay,LateAircraftDelay,IsArrDelayed', 'score_each_iteration': True, 'response_column': response, 'do_classification': True, 'ntrees': 2, 'max_depth': 10, 'min_rows': 3, 'nbins': 40, 'learn_rate': 0.2, 'variable_importance': False, }
+        parameters = {'validation_frame': trainKey, 'ignored_columns': '[CRSDepTime,CRSArrTime,ActualElapsedTime,CRSElapsedTime,AirTime,ArrDelay,DepDelay,TaxiIn,TaxiOut,Cancelled,CancellationCode,Diverted,CarrierDelay,WeatherDelay,NASDelay,SecurityDelay,LateAircraftDelay,IsArrDelayed]', 'score_each_iteration': True, 'response_column': response, 'do_classification': True, 'ntrees': 2, 'max_depth': 10, 'min_rows': 3, 'nbins': 40, 'learn_rate': 0.2, 'variable_importance': False, }
         bmResult = h2o.n0.build_model(algo='gbm', destination_key=model_key, training_frame=parse_key, parameters=parameters, timeoutSecs=60)
         bm = OutputObj(bmResult, 'bm')
         modelResult = h2o.n0.models(key=model_key)
