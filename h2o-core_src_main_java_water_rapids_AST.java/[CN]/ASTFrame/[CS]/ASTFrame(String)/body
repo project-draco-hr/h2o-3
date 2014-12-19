@@ -1,6 +1,7 @@
 {
-  Key<Frame> k=Key.make(key);
-  if (DKV.get(k) == null)   throw H2O.fail("Key " + key + " no longer exists in the KV store!");
+  Key k=Key.make(key);
+  Keyed val=DKV.getGet(k);
+  if (val == null)   throw H2O.fail("Key " + key + " no longer exists in the KV store!");
   _key=key;
-  _fr=k.get();
+  _fr=val instanceof Frame ? (Frame)val : new Frame((Vec)val);
 }

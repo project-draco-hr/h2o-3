@@ -1,5 +1,16 @@
-def __init__(self, op, left=None, rite=None):
+def __init__(self, op, left=None, rite=None, length=None):
     (self._op, self._data) = ((op, None) if isinstance(op, str) else ('rawdata', op))
+    self._name = self._op
+    assert (self.isLocal() or self.isRemote() or self.isPending())
     self._left = (left._expr if isinstance(left, Vec) else left)
     self._rite = (rite._expr if isinstance(rite, Vec) else rite)
-    self._name = self._op
+    assert ((self._left is None) or isinstance(self._left, Expr) or isinstance(self._data, unicode)), self.debug()
+    assert ((self._rite is None) or isinstance(self._rite, Expr) or isinstance(self._data, unicode)), self.debug()
+    if self.isRemote():
+        assert (length is not None)
+        self._len = length
+    elif self.isLocal():
+        self._len = (len(self._data) if isinstance(self._data, list) else 1)
+    else:
+        self._len = len(self._left)
+    assert (self._len is not None)
