@@ -33,7 +33,7 @@
         clusters=ArrayUtils.append(clusters,sampler._sampled);
         if (!isRunning())         return;
         model._output._clusters=destandardize(clusters,_ncats,means,mults);
-        model._output._avgwithinmse=sqr._sqr / _train.numRows();
+        model._output._avgwithinss=sqr._sqr / _train.numRows();
         model._output._iters++;
         model.update(_key);
       }
@@ -74,13 +74,13 @@
         ssq+=model._output._withinmse[i];
         model._output._withinmse[i]/=task._rows[i];
       }
-      model._output._avgwithinmse=ssq / _train.numRows();
-      if (_parms._k == 1)       model._output._avgss=model._output._avgwithinmse;
+      model._output._avgwithinss=ssq / _train.numRows();
+      if (_parms._k == 1)       model._output._avgss=model._output._avgwithinss;
  else {
-        SumSqr totss=new SumSqr(new double[][]{means},means,mults,_ncats).doAll(vecs);
+        SumSqr totss=new SumSqr(new double[1][means.length],means,mults,_ncats).doAll(vecs);
         model._output._avgss=totss._sqr / _train.numRows();
       }
-      model._output._avgbetweenss=model._output._avgss - model._output._avgwithinmse;
+      model._output._avgbetweenss=model._output._avgss - model._output._avgwithinss;
       model.update(_key);
       update(1);
       double sum=0;
@@ -90,7 +90,7 @@
       if (sum < 1e-6)       break;
       clusters=task._cMeans;
       StringBuilder sb=new StringBuilder();
-      sb.append("KMeans: iter: ").append(model._output._iters).append(", MSE=").append(model._output._avgwithinmse);
+      sb.append("KMeans: iter: ").append(model._output._iters).append(", MSE=").append(model._output._avgwithinss);
       for (int i=0; i < _parms._k; i++)       sb.append(", ").append(task._cSqr[i]).append("/").append(task._rows[i]);
       Log.info(sb);
     }
