@@ -14,13 +14,13 @@ def __str__(self):
     elif (start == '#'):
         if (itemStr == '#'):
             raise Exception(('Item is just #. Bad. %s' % item))
-    elif (start == '$'):
-        if (itemStr == '$'):
-            raise Exception(('Item is just $. Bad. %s' % item))
+    elif (start == '%'):
+        if (itemStr == '%'):
+            raise Exception(('Item is just %. Bad. %s' % item))
     elif isinstance(item, (int, float)):
         itemStr = ('#%s' % item)
     else:
         itemStr = ('%s' % item)
         if re.match('[a-zA-Z0-9_]+$', itemStr):
-            itemStr = ('$%s' % item)
+            itemStr = '%{}'.format(item)
     return itemStr
