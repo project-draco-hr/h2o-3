@@ -65,8 +65,10 @@
           badrow=true;
         }
       }
-      model._output._names=_train.names();
       model._output._clusters=destandardize(task._cMeans,_ncats,means,mults);
+      String[] rowHeaders=new String[_parms._k];
+      for (int i=0; i < _parms._k; i++)       rowHeaders[i]=String.valueOf(i + 1);
+      model._output._centers=new TwoDimTable("Cluster centers:",_train.names(),null,rowHeaders,new String[_parms._k][],model._output._clusters);
       model._output._rows=task._rows;
       model._output._withinmse=task._cSqr;
       double ssq=0;
