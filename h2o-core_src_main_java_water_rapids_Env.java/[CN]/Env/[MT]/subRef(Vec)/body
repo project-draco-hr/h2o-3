@@ -1,52 +1,24 @@
 {
   if (v == null)   return false;
-  if (_refcnt.get(v) == null && !_locked.contains(v._key)) {
-    if (_local_locked != null && _local_locked.contains(v._key))     return false;
-    for (    Key kg : _global_frames) {
-      Keyed keyed=DKV.getGet(kg);
-      if (keyed instanceof Frame) {
-        if (Arrays.asList(((Frame)keyed).keys()).contains(v._key))         return false;
-      }
- else       if (keyed instanceof Vec) {
-        if (v._key == keyed._key)         return false;
-      }
-    }
-    removeVec(v,null);
-    return true;
+  Env p=this;
+  boolean g;
+  boolean delete=true;
+  do {
+    if (!checkEnv(p,v))     delete=false;
+    p=p._parent;
+    g=p == null || p.isGlobal();
   }
-  if (_refcnt.get(v) == null) {
-    return false;
-  }
+ while (!g);
+  if (!checkEnv(p == null ? this : p,v))   delete=false;
+  if (_refcnt.get(v) == null)   return false;
   int cnt=_refcnt.get(v)._val - 1;
-  if (cnt <= 0 && !_locked.contains(v._key) && DKV.get(v._key) != null) {
-    for (    Key kg : _global_frames) {
-      if (DKV.get(kg) != null) {
-        Keyed keyed=DKV.getGet(kg);
-        if (keyed instanceof Frame) {
-          if (Arrays.asList(((Frame)keyed).keys()).contains(v._key))           return false;
-        }
- else         if (keyed instanceof Vec) {
-          if (v._key == keyed._key)           return false;
-        }
-      }
-    }
-    if (_local_frames != null) {
-      for (      Key kl : _local_frames) {
-        if (DKV.get(kl) != null && Arrays.asList(((Frame)DKV.get(kl).get()).keys()).contains(v._key)) {
-          return false;
-        }
-        if (_local_locked != null) {
-          if (_local_locked.contains(kl))           return false;
-        }
-      }
-    }
-    removeVec(v,null);
-    extinguishCounts(v);
-    return true;
+  if (cnt > 0) {
+    _refcnt.put(v,new IcedInt(cnt));
   }
  else {
-    if (cnt < 0)     extinguishCounts(v);
- else     _refcnt.put(v,new IcedInt(cnt));
+    extinguishCounts(v);
+    delete=true;
   }
-  return false;
+  if (delete)   removeVec(v,null);
+  return delete;
 }
