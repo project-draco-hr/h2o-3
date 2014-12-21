@@ -36,14 +36,14 @@ def __init__(self, kmeansResult, parameters, numRows, numCols, labels, noPrint=F
         for n in c:
             if math.isnan(float(n)):
                 raise Exception('cluster', i, 'has NaN:', n, 'center:', c)
-    check_sandbox_for_errors()
-    tuples = zip(range(len(clusters)), withinmse, rows, clusters)
-    self.tuplesSorted = sorted(tuples, key=itemgetter(3))
-    (ids, withinmse, rows, clusters) = zip(*self.tuplesSorted)
+    tuples = zip(range(len(clusters)), clusters, rows, withinmse)
+    self.tuplesSorted = sorted(tuples, key=(lambda tup: sum(tup[1])))
     print 'iters:', iters
-    print 'ids:', ids
-    print 'withinmse:', withinmse
-    print 'rows:', rows
+    (ids, clusters, rows, withinmse) = zip(*self.tuplesSorted)
     for (i, c) in enumerate(clusters):
         print ('cluster id %s (2 places):' % ids[i]), h2o_util.twoDecimals(c)
+        print ('rows_per_cluster[%s]: ' % i), rows[i]
+        print ('withinmse[%s]: ' % i), withinmse[i]
+        print ('rows[%s]:' % i), rows[i]
     print 'KMeansObj created for:', '???'
+    check_sandbox_for_errors()
