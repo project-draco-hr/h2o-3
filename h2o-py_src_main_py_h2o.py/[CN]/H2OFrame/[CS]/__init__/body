@@ -1,24 +1,24 @@
-def __init__(self, localFName=None, remoteFName=None, vecs=None):
-    if remoteFName:
+def __init__(self, local_fname=None, remote_fname=None, vecs=None):
+    if remote_fname:
         if (not H2OCONN):
             raise ValueError('No open h2o connection')
-        rawkey = H2OCONN.ImportFile(remoteFName)
+        rawkey = H2OCONN.ImportFile(remote_fname)
         setup = H2OCONN.ParseSetup(rawkey)
         parse = H2OCONN.Parse(setup, py_tmp_key())
         cols = parse['columnNames']
         rows = parse['rows']
         veckeys = parse['vecKeys']
         self._vecs = [Vec(str(col), Expr(op=veckey['name'], length=rows)) for (idx, (col, veckey)) in enumerate(zip(cols, veckeys))]
-        print 'Imported', remoteFName, 'into cluster with', rows, 'rows and', len(cols), 'cols'
-    elif localFName:
-        with open(localFName, 'rb') as csvfile:
+        print 'Imported', remote_fname, 'into cluster with', rows, 'rows and', len(cols), 'cols'
+    elif local_fname:
+        with open(local_fname, 'rb') as csvfile:
             self._vecs = []
             for name in csvfile.readline().split(','):
                 self._vecs.append(Vec(name.rstrip(), Expr([])))
             for row in csv.reader(csvfile):
                 for (i, data) in enumerate(row):
                     self._vecs[i].append(data)
-        print 'Imported', localFName, 'into local python process'
+        print 'Imported', local_fname, 'into local python process'
     elif (vecs is not None):
         vlen = len(vecs[0])
         for v in vecs:
