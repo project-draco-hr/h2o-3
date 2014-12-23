@@ -4,7 +4,9 @@ def _doit(self):
     left = self._left
     rite = self._rite
     global _CMD
-    py_tmp = ((not self._name.startswith('TMP_')) and (self._len > 1))
+    cnt = (sys.getrefcount(self) - 1)
+    print 'refcnt', self._name, (cnt - 4)
+    py_tmp = (cnt == 4)
     if py_tmp:
         self._data = py_tmp_key()
         _CMD += (('(= !' + self._data) + ' ')
