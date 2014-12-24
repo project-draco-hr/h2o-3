@@ -3,12 +3,13 @@
   final ASTOp op=ASTOp.get(_fun);
   Frame fr2=null;
   Frame fr=env.pop0Ary();
+  env.addRef(fr);
   if (_margin == 2) {
     int ncols=fr.numCols();
     double[] row_result=new double[0];
     Vec[] vecs_result=new Vec[0];
     boolean isRow=false;
-    Frame tmp=new Frame(new String[]{fr.names()[0]},new Vec[]{fr.vecs()[0].makeCopy()});
+    Frame tmp=new Frame(new String[]{fr.names()[0]},new Vec[]{fr.vecs()[0]});
     op.exec(env,new ASTFrame(tmp),_fun_args);
     if (env.isNum())     isRow=true;
     if (isRow) {
@@ -20,7 +21,6 @@
       vecs_result=new Vec[ncols];
       Frame v=env.pop0Ary();
       vecs_result[0]=v.anyVec().makeCopy();
-      env.cleanup(v);
     }
     for (int i=1; i < ncols; i++) {
       tmp=new Frame(new String[]{fr.names()[i]},new Vec[]{fr.vecs()[i]});
@@ -30,7 +30,6 @@
         if (env.peekAry().numCols() != 1)         throw new UnsupportedOperationException(err);
         Frame v=env.pop0Ary();
         vecs_result[i]=v.anyVec().makeCopy();
-        env.cleanup(v);
       }
     }
     if (isRow) {
@@ -73,8 +72,6 @@
     fr2=mrt.doAll(outlen,fr).outputFrame(names,null);
   }
  else   if (_margin != 1 && _margin != 2)   throw new IllegalArgumentException("MARGIN limited to 1 (rows) or 2 (cols)");
-  if (op instanceof ASTFunc) {
-    ((ASTFunc)op).trash();
-  }
+  env.subRef(fr);
   env.push(new ValFrame(fr2));
 }

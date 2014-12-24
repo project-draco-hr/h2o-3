@@ -16,14 +16,5 @@ if (_refcnt.get(v)._val == 0) {
 removeVec(v,fs);
 }
 }
-for (String k : _global._frames.keySet()) {
-boolean delete=true;
-if (!_locked.contains(Key.make(k))) {
-Frame f=_global._frames.get(k);
-if (_locked.contains(f._key)) continue;
-for (Vec v : f.vecs()) delete&=subRef(v);
-if (delete) f.delete();
-}
-}
 fs.blockForPending();
 }

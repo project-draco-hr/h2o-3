@@ -1,19 +1,11 @@
 {
   if (v == null)   return false;
-  Env p=this;
-  boolean g;
-  boolean delete=true;
-  do {
-    if (!checkEnv(p,v))     delete=false;
-    p=p._parent;
-    g=p == null || p.isGlobal();
-  }
- while (!g);
-  if (!checkEnv(p == null ? this : p,v))   delete=false;
+  boolean delete;
   if (_refcnt.get(v) == null)   return false;
   int cnt=_refcnt.get(v)._val - 1;
   if (cnt > 0) {
     _refcnt.put(v,new IcedInt(cnt));
+    delete=false;
   }
  else {
     extinguishCounts(v);
