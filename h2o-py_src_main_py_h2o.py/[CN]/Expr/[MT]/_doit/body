@@ -6,7 +6,7 @@ def _doit(self):
     global _CMD
     cnt = (sys.getrefcount(self) - 1)
     print 'refcnt', self._name, (cnt - 4)
-    py_tmp = (cnt == 4)
+    py_tmp = ((cnt != 4) and (self._len > 1))
     if py_tmp:
         self._data = py_tmp_key()
         _CMD += (('(= !' + self._data) + ' ')
