@@ -1,13 +1,8 @@
 {
-  final Key[] frameKeys=KeySnapshot.globalSnapshot().filter(new KeySnapshot.KVFilter(){
-    @Override public boolean filter(    KeySnapshot.KeyInfo k){
-      return k.isSubclassOf(Frame.class);
-    }
-  }
-).keys();
+  final Key[] frameKeys=KeySnapshot.globalKeysOfClass(Frame.class);
   Frame[] frames=new Frame[frameKeys.length];
   for (int i=0; i < frameKeys.length; i++) {
-    Frame frame=getFromDKV(frameKeys[i]);
+    Frame frame=getFromDKV("(none)",frameKeys[i]);
     frames[i]=frame;
   }
   return frames;

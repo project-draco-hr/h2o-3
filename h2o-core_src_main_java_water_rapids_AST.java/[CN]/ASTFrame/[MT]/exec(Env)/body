@@ -1,14 +1,8 @@
 {
   if (_key != null) {
-    if (e._local_locked != null) {
-      e._local_locked.add(Key.make(_key));
-      e._local_frames.add(Key.make(_key));
-    }
- else {
-      e._locked.add(Key.make(_key));
-      e._global_frames.add(Key.make(_key));
-    }
-    if (H2O.containsKey(Key.make(_key)))     e._locked.add(Key.make(_key));
+    e._locked.add(Key.make(_key));
+    if (e.isGlobal())     e._global._frames.put(_key,_fr);
+ else     e._local._frames.put(_key,_fr);
   }
   e.addKeys(_fr);
   e.push(new ValFrame(_fr,!isFrame));

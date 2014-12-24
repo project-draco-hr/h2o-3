@@ -15,7 +15,7 @@
   try {
     Route route=lookup(method,versioned_path);
     if (route != null && route._handler_class != CloudHandler.class && route._handler_class != TutorialsHandler.class && route._handler_class != TypeaheadHandler.class)     Schema.registerAllSchemasIfNecessary();
-    if (route == null)     return getResource(uri);
+    if (route == null)     return getResource(version,type,uri);
  else     if (route._handler_class == water.api.DownloadDataHandler.class) {
       return wrap2(HTTP_OK,handle(type,route,version,parms));
     }
@@ -25,11 +25,18 @@
       return wrap(HTTP_OK,handle(type,route,version,parms),type);
     }
   }
- catch (  Exception e) {
-    StringWriter sw=new StringWriter();
-    e.printStackTrace(new PrintWriter(sw));
-    Log.warn(sw.toString());
-    if (e instanceof IllegalArgumentException)     return wrap(HTTP_BADREQUEST,new HttpErrorV1(400,e.getMessage(),uri),type);
-    return wrap("unimplemented".equals(e.getMessage()) ? HTTP_NOTIMPLEMENTED : HTTP_INTERNALERROR,new HttpErrorV1(e),type);
+ catch (  H2ORuntimeException e) {
+    H2OError error=e.toH2OError(uri);
+    Log.warn(error._dev_msg);
+    Log.warn(error._values.toJsonString());
+    Log.warn((Object[])error._stacktrace);
+    return wrap(error.httpStatusHeader(),new H2OErrorV1().fillFromImpl(error),type);
+  }
+catch (  Exception e) {
+    H2OError error=new H2OError(e,uri);
+    Log.warn(error._dev_msg);
+    Log.warn(error._values.toJsonString());
+    Log.warn((Object[])error._stacktrace);
+    return wrap(error.httpStatusHeader(),new H2OErrorV1().fillFromImpl(error),type);
   }
 }

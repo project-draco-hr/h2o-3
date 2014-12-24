@@ -1,21 +1,16 @@
 {
-  final Key[] frameKeys=KeySnapshot.globalSnapshot().filter(new KeySnapshot.KVFilter(){
-    @Override public boolean filter(    KeySnapshot.KeyInfo k){
-      return k._type == TypeMap.FRAME;
-    }
-  }
-).keys();
-  String err=null;
+  final Key[] keys=KeySnapshot.globalKeysOfClass(Frame.class);
+  ArrayList<String> missing=new ArrayList<>();
   Futures fs=new Futures();
-  for (int i=0; i < frameKeys.length; i++) {
+  for (int i=0; i < keys.length; i++) {
     try {
-      getFromDKV(frameKeys[i]).delete(null,fs);
+      getFromDKV("(none)",keys[i]).delete(null,fs);
     }
  catch (    IllegalArgumentException iae) {
-      err+=iae.getMessage();
+      missing.add(keys[i].toString());
     }
   }
   fs.blockForPending();
-  if (err != null)   throw new IllegalArgumentException(err);
+  if (missing.size() != 0)   throw new H2OKeysNotFoundArgumentException("(none)",missing.toArray(new String[missing.size()]));
   return frames;
 }
