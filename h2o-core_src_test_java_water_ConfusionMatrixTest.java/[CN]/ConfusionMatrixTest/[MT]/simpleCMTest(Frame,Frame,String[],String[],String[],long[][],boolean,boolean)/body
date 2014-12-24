@@ -1,0 +1,32 @@
+{
+  Vec old1=null;
+  Vec old2=null;
+  Vec oldv2=null;
+  try {
+    if (toEnum) {
+      old1=v1.replace(0,v1.vecs()[0].toEnum());
+      old2=v2.replace(0,v2.vecs()[0].toEnum());
+    }
+    oldv2=v2.vecs()[0];
+    String[] warnings=adaptTestForTrain(v1._names,v1.domains(),v2,Double.NaN,true);
+    Assert.assertTrue(Arrays.toString(warnings),warnings.length == 0);
+    ConfusionMatrix cm=buildCM(v1.vecs()[0],v2.vecs()[0]);
+    if (debug) {
+      System.err.println("actual            : " + Arrays.toString(actualDomain));
+      System.err.println("predicted         : " + Arrays.toString(predictedDomain));
+      System.err.println("CM domain         : " + Arrays.toString(cm._domain));
+      System.err.println("expected CM domain: " + Arrays.toString(expectedDomain) + "\n");
+      for (int i=0; i < cm._arr.length; i++)       System.err.println(Arrays.toString(cm._arr[i]));
+      System.err.println("");
+      System.err.println(cm.toASCII());
+    }
+    assertCMEqual(expectedDomain,expectedCM,cm);
+  }
+  finally {
+    if (v1 != null)     v1.delete();
+    if (v2 != null)     v2.delete();
+    if (old1 != null)     old1.remove();
+    if (old2 != null)     old2.remove();
+    if (oldv2 != null)     oldv2.remove();
+  }
+}
