@@ -2,29 +2,29 @@
   assert(Double.isNaN(emptyDouble));
   assert(isEmpty(emptyDouble));
   assert(!isEmpty(Double.NaN));
-  if (description == null)   throw new IllegalArgumentException("description is missing.");
-  if (colNames == null)   throw new IllegalArgumentException("colNames are missing.");
+  if (tableHeader == null)   throw new IllegalArgumentException("tableHeader is missing.");
+  if (colHeaders == null)   throw new IllegalArgumentException("colNames are missing.");
   if (colFormatStrings == null) {
-    colFormatStrings=new String[colNames.length];
+    colFormatStrings=new String[colHeaders.length];
     Arrays.fill(colFormatStrings,"%s");
   }
   if (rowHeaders == null)   throw new IllegalArgumentException("rowHeaders are missing.");
-  if (strings == null)   throw new IllegalArgumentException("string values are missing.");
-  if (strings.length != rowHeaders.length)   throw new IllegalArgumentException("string values must have the same length as rowHeaders: " + rowHeaders.length);
-  if (doubles == null)   throw new IllegalArgumentException("double values are missing.");
-  if (doubles.length != rowHeaders.length)   throw new IllegalArgumentException("double values must have the same length as rowHeaders: " + rowHeaders.length);
-  for (  String[] v : strings) {
-    if (v != null)     if (v.length != colNames.length)     throw new IllegalArgumentException("Each entry in string values must have the same length as colNames: " + colNames.length);
+  if (strCellValues == null)   throw new IllegalArgumentException("string values are missing.");
+  if (strCellValues.length != rowHeaders.length)   throw new IllegalArgumentException("string values must have the same length as rowHeaders: " + rowHeaders.length);
+  if (dblCellValues == null)   throw new IllegalArgumentException("double values are missing.");
+  if (dblCellValues.length != rowHeaders.length)   throw new IllegalArgumentException("double values must have the same length as rowHeaders: " + rowHeaders.length);
+  for (  String[] v : strCellValues) {
+    if (v != null)     if (v.length != colHeaders.length)     throw new IllegalArgumentException("Each entry in string values must have the same length as colNames: " + colHeaders.length);
   }
-  for (  double[] v : doubles) {
-    if (v != null)     if (v.length != colNames.length)     throw new IllegalArgumentException("Each entry in string values must have the same length as colNames: " + colNames.length);
+  for (  double[] v : dblCellValues) {
+    if (v != null)     if (v.length != colHeaders.length)     throw new IllegalArgumentException("Each entry in string values must have the same length as colNames: " + colHeaders.length);
   }
-  if (colFormatStrings.length != colNames.length)   throw new IllegalArgumentException("colFormatStrings must have the same length as colNames: " + colNames.length);
-  this.description=description;
-  this.colNames=colNames;
+  if (colFormatStrings.length != colHeaders.length)   throw new IllegalArgumentException("colFormatStrings must have the same length as colNames: " + colHeaders.length);
+  this.tableHeader=tableHeader;
+  this.colHeaders=colHeaders;
   this.colFormatStrings=colFormatStrings;
   this.rowHeaders=rowHeaders;
-  this.strings=strings;
-  this.doubles=doubles;
+  this.strCellValues=strCellValues;
+  this.dblCellValues=dblCellValues;
   checkConsistency();
 }

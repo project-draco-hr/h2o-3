@@ -5,36 +5,36 @@
     if (rowHeaders[r] != null)     maxRowNameLen=Math.max(maxRowNameLen,rowHeaders[r].length());
   }
   if (maxRowNameLen != 0)   maxRowNameLen+=pad;
-  int[] colLen=new int[colNames.length];
-  for (int c=0; c < colNames.length; ++c) {
-    colLen[c]=colNames[c].length();
+  int[] colLen=new int[colHeaders.length];
+  for (int c=0; c < colHeaders.length; ++c) {
+    colLen[c]=colHeaders[c].length();
     for (int r=0; r < rowHeaders.length; ++r) {
-      if (strings[r] != null && strings[r][c] != null)       colLen[c]=Math.max(colLen[c],String.format(colFormatStrings[c],strings[r][c]).length());
- else       if (doubles[r] != null && !isEmpty(doubles[r][c])) {
+      if (strCellValues[r] != null && strCellValues[r][c] != null)       colLen[c]=Math.max(colLen[c],String.format(colFormatStrings[c],strCellValues[r][c]).length());
+ else       if (dblCellValues[r] != null && !isEmpty(dblCellValues[r][c])) {
         if (colFormatStrings[c].equals("%d")) {
-          colLen[c]=Math.max(colLen[c],String.format("%" + colLen[c] + "s",String.format(colFormatStrings[c],(int)(double)doubles[r][c])).length());
+          colLen[c]=Math.max(colLen[c],String.format("%" + colLen[c] + "s",String.format(colFormatStrings[c],(int)(double)dblCellValues[r][c])).length());
         }
  else {
-          colLen[c]=Math.max(colLen[c],String.format("%" + colLen[c] + "s",String.format(colFormatStrings[c],doubles[r][c])).length());
+          colLen[c]=Math.max(colLen[c],String.format("%" + colLen[c] + "s",String.format(colFormatStrings[c],dblCellValues[r][c])).length());
         }
       }
     }
     colLen[c]+=pad;
   }
-  sb.append(description).append(":\n");
+  sb.append(tableHeader).append(":\n");
   for (int i=0; i < maxRowNameLen; ++i)   sb.append(" ");
-  for (int c=0; c < colNames.length; ++c)   sb.append(String.format("%" + colLen[c] + "s",colNames[c]));
+  for (int c=0; c < colHeaders.length; ++c)   sb.append(String.format("%" + colLen[c] + "s",colHeaders[c]));
   sb.append("\n");
   for (int r=0; r < rowHeaders.length; ++r) {
     if (rowHeaders[r] != null)     sb.append(String.format("%" + maxRowNameLen + "s",rowHeaders[r]));
-    for (int c=0; c < colNames.length; ++c) {
-      if (strings[r] != null && strings[r][c] != null)       sb.append(String.format("%" + colLen[c] + "s",String.format(colFormatStrings[c],strings[r][c])));
- else       if (doubles[r] != null && !isEmpty(doubles[r][c])) {
+    for (int c=0; c < colHeaders.length; ++c) {
+      if (strCellValues[r] != null && strCellValues[r][c] != null)       sb.append(String.format("%" + colLen[c] + "s",String.format(colFormatStrings[c],strCellValues[r][c])));
+ else       if (dblCellValues[r] != null && !isEmpty(dblCellValues[r][c])) {
         if (colFormatStrings[c].equals("%d")) {
-          sb.append(String.format("%" + colLen[c] + "s",String.format(colFormatStrings[c],(int)(double)doubles[r][c])));
+          sb.append(String.format("%" + colLen[c] + "s",String.format(colFormatStrings[c],(int)(double)dblCellValues[r][c])));
         }
  else {
-          sb.append(String.format("%" + colLen[c] + "s",String.format(colFormatStrings[c],doubles[r][c])));
+          sb.append(String.format("%" + colLen[c] + "s",String.format(colFormatStrings[c],dblCellValues[r][c])));
         }
       }
  else {

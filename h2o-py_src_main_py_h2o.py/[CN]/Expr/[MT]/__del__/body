@@ -6,6 +6,9 @@ def __del__(self):
     if (_CMD is None):
         H2OCONN.Remove(self._data)
     else:
-        s = (((('DELE: ' + self._name) + ' key=') + self._rite) + '; ')
-        _CMD += s
-        raise NotImplementedError
+        s = ((' (del %' + self._data) + ' #0)')
+        global _TMPS
+        if (_TMPS is None):
+            print 'Lost deletes: ', s
+        else:
+            _TMPS += s
