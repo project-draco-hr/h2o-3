@@ -1,13 +1,13 @@
 {
-  _sums=new double[_clusters.length][chunks.length];
-  _counts=new int[_clusters.length];
+  _sums=new double[_centers.length][chunks.length];
+  _counts=new int[_centers.length];
   for (int row=0; row < chunks[0]._len; row++) {
     int nearest=-1;
     double minSqr=Double.MAX_VALUE;
-    for (int cluster=0; cluster < _clusters.length; cluster++) {
+    for (int cluster=0; cluster < _centers.length; cluster++) {
       double sqr=0;
       for (int column=0; column < chunks.length; column++) {
-        double delta=chunks[column].at0(row) - _clusters[cluster][column];
+        double delta=chunks[column].at0(row) - _centers[cluster][column];
         sqr+=delta * delta;
       }
       if (sqr < minSqr) {
@@ -19,5 +19,5 @@
     for (int column=0; column < chunks.length; column++)     _sums[nearest][column]+=chunks[column].at0(row);
     _counts[nearest]++;
   }
-  _clusters=null;
+  _centers=null;
 }

@@ -12,18 +12,18 @@ def __init__(self, kmeansResult, parameters, numRows, numCols, labels, noPrint=F
     domains = self.domains
     names = self.names
     ncats = self.ncats
-    clusters = self.clusters
+    centers = self.centers
     withinmse = self.withinmse
     avgss = self.avgss
     if numRows:
         assert (numRows == sum(rows))
     if ('k' in parameters):
         k = parameters['k']
-        assert (len(clusters) == k)
+        assert (len(centers) == k)
         assert (len(rows) == k)
     if numCols:
         assert (len(names) == numCols), ('Need to pass correct numCols after ignored columns decrement %s %s' % (len(names), numCols))
-        for c in clusters:
+        for c in centers:
             assert (len(c) == numCols), ('%s %s' % (len(c), numCols))
     if labels:
         assert (len(labels) == numCols), ('Need to pass correct labels and numCols after ignored columns removal %s %s' % (len(labels), numCols))
@@ -32,15 +32,15 @@ def __init__(self, kmeansResult, parameters, numRows, numCols, labels, noPrint=F
     if ('max_iters' in parameters):
         max_iters = parameters['max_iters']
         assert (max_iters >= iters)
-    for (i, c) in enumerate(clusters):
+    for (i, c) in enumerate(centers):
         for n in c:
             if math.isnan(float(n)):
                 raise Exception('cluster', i, 'has NaN:', n, 'center:', c)
-    tuples = zip(range(len(clusters)), clusters, rows, withinmse)
+    tuples = zip(range(len(centers)), centers, rows, withinmse)
     self.tuplesSorted = sorted(tuples, key=(lambda tup: sum(tup[1])))
     print 'iters:', iters
-    (ids, clusters, rows, withinmse) = zip(*self.tuplesSorted)
-    for (i, c) in enumerate(clusters):
+    (ids, centers, rows, withinmse) = zip(*self.tuplesSorted)
+    for (i, c) in enumerate(centers):
         print ('cluster id %s (2 places):' % ids[i]), h2o_util.twoDecimals(c)
         print ('rows_per_cluster[%s]: ' % i), rows[i]
         print ('withinmse[%s]: ' % i), withinmse[i]
