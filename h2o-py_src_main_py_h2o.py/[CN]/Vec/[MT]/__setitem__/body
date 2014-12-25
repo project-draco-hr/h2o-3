@@ -1,0 +1,9 @@
+def __setitem__(self, b, c):
+    if (len(b) != len(self)):
+        raise ValueError(((('Vec len()=' + len(self)) + ' cannot be broadcast across len(b)=') + len(b)))
+    if (c and (len(c) != 1) and (len(c) != len(self))):
+        raise ValueError(((('Vec len()=' + len(self)) + ' cannot be broadcast across len(c)=') + len(c)))
+    if isinstance(b, Vec):
+        self._expr = Expr('=', Expr('[', self._expr, b), c)
+        return self
+    raise NotImplementedError

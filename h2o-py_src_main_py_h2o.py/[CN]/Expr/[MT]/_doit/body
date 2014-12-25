@@ -1,16 +1,14 @@
 def _doit(self):
     if self.isComputed():
         return
-    left = self._left
-    rite = self._rite
     global _CMD
     cnt = (sys.getrefcount(self) - 1)
-    print 'refcnt', self._name, (cnt - 4)
     py_tmp = ((cnt != 4) and (self._len > 1))
     if py_tmp:
         self._data = py_tmp_key()
         _CMD += (('(= !' + self._data) + ' ')
     _CMD += (('(' + self._op) + ' ')
+    left = self._left
     if left:
         if left.isPending():
             left._doit()
@@ -21,6 +19,7 @@ def _doit(self):
         else:
             pass
     _CMD += ' '
+    rite = self._rite
     if rite:
         if rite.isPending():
             rite._doit()
@@ -30,6 +29,7 @@ def _doit(self):
             _CMD += ('%' + str(rite._data))
         else:
             pass
+    print 'CRUNK', self._op
     if (self._op == '+'):
         if isinstance(left._data, (int, float)):
             if isinstance(rite._data, (int, float)):
@@ -69,6 +69,11 @@ def _doit(self):
             self._data = (sum(left._data) / len(left._data))
         else:
             _CMD += ' #0 %TRUE'
+    elif (self._op == '='):
+        if left.isLocal():
+            raise NotImplementedError
+        else:
+            raise NotImplementedError
     else:
         raise NotImplementedError
     _CMD += ')'

@@ -30,8 +30,8 @@
     Object colSelect=select(ary.numCols(),cols,env,true);
     Object rowSelect=select(ary.numRows(),rows,env,false);
     Frame fr2=ary.deepSlice(rowSelect,colSelect);
-    if (colSelect instanceof Frame)     for (    Vec v : ((Frame)colSelect).vecs())     Keyed.remove(v._key);
-    if (rowSelect instanceof Frame)     for (    Vec v : ((Frame)rowSelect).vecs())     Keyed.remove(v._key);
+    if (colSelect instanceof Frame)     for (    Vec v : ((Frame)colSelect).vecs())     env.subVec(v);
+    if (rowSelect instanceof Frame)     for (    Vec v : ((Frame)rowSelect).vecs())     env.subVec(v);
     if (fr2 == null)     fr2=new Frame();
     env.pop();
     env.push(new ValFrame(fr2));
