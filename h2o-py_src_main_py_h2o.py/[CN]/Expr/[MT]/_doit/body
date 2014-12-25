@@ -63,7 +63,7 @@ def _doit(self):
         if left.isLocal():
             self._data = left._data[rite._data]
         else:
-            _CMD += ' #0'
+            _CMD += ' "null"'
     elif (self._op == 'mean'):
         if left.isLocal():
             self._data = (sum(left._data) / len(left._data))
@@ -72,8 +72,8 @@ def _doit(self):
     elif (self._op == '='):
         if left.isLocal():
             raise NotImplementedError
-        else:
-            raise NotImplementedError
+        elif (rite is None):
+            _CMD += '#NaN'
     else:
         raise NotImplementedError
     _CMD += ')'
