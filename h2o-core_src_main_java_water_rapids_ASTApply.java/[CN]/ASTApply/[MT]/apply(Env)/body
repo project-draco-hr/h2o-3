@@ -2,7 +2,7 @@
   String err="Result of function produced more than a single column!";
   final ASTOp op=ASTOp.get(_fun);
   Frame fr2=null;
-  Frame fr=env.pop0Ary();
+  Frame fr=env.popAry();
   env.addRef(fr);
   if (_margin == 2) {
     int ncols=fr.numCols();
@@ -19,7 +19,7 @@
  else {
       if (env.peekAry().numCols() != 1)       throw new UnsupportedOperationException(err);
       vecs_result=new Vec[ncols];
-      Frame v=env.pop0Ary();
+      Frame v=env.popAry();
       vecs_result[0]=v.anyVec().makeCopy();
     }
     for (int i=1; i < ncols; i++) {
@@ -28,7 +28,7 @@
       if (isRow)       row_result[i]=env.popDbl();
  else {
         if (env.peekAry().numCols() != 1)         throw new UnsupportedOperationException(err);
-        Frame v=env.pop0Ary();
+        Frame v=env.popAry();
         vecs_result[i]=v.anyVec().makeCopy();
       }
     }
@@ -73,5 +73,5 @@
   }
  else   if (_margin != 1 && _margin != 2)   throw new IllegalArgumentException("MARGIN limited to 1 (rows) or 2 (cols)");
   env.subRef(fr);
-  env.push(new ValFrame(fr2));
+  env.pushAry(fr2);
 }

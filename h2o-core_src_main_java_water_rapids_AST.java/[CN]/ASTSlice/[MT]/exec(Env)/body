@@ -2,7 +2,7 @@
   int cols_type=env.peekType();
   Val cols=env.pop();
   int rows_type=env.peekType();
-  Val rows=rows_type == Env.ARY ? env.pop0() : env.pop();
+  Val rows=env.pop();
   if (cols_type == Env.STR) {
     Frame ary=env.peekAry();
     int idx=ary.find(((ValStr)cols)._s);
@@ -33,7 +33,6 @@
     if (colSelect instanceof Frame)     for (    Vec v : ((Frame)colSelect).vecs())     Keyed.remove(v._key);
     if (rowSelect instanceof Frame)     for (    Vec v : ((Frame)rowSelect).vecs())     Keyed.remove(v._key);
     if (fr2 == null)     fr2=new Frame();
-    env.pop();
-    env.push(new ValFrame(fr2));
+    env.poppush(1,new ValFrame(fr2));
   }
 }

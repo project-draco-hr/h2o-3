@@ -1,15 +1,12 @@
 {
   if (env.isNum()) {
-    env.pop();
-    env.push(new ValNum(Double.NaN));
+    env.poppush(1,new ValNum(Double.NaN));
   }
  else {
     Frame fr=env.peekAry();
     if (fr.vecs().length > 1)     throw new IllegalArgumentException("sd does not apply to multiple cols.");
     if (fr.vecs()[0].isEnum())     throw new IllegalArgumentException("sd only applies to numeric vector.");
     double sig=Math.sqrt(ASTVar.getVar(fr.anyVec(),_narm));
-    if (env.isAry())     env.pop();
- else     env.pop();
-    env.push(new ValNum(sig));
+    env.poppush(1,new ValNum(sig));
   }
 }
