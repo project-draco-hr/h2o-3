@@ -7,13 +7,13 @@
     model.delete_and_lock(_key);
     model._output._ncats=_ncats;
     Vec vecs[]=_train.vecs();
-    final int N=vecs.length;
-    double[] means=new double[N];
-    for (int i=0; i < N; i++)     means[i]=vecs[i].mean();
+    final int nvecs=vecs.length;
+    double[] means=new double[nvecs];
+    for (int i=0; i < nvecs; i++)     means[i]=vecs[i].mean();
     double[] mults=null;
     if (_parms._standardize) {
-      mults=new double[N];
-      for (int i=0; i < N; i++) {
+      mults=new double[nvecs];
+      for (int i=0; i < nvecs; i++) {
         double sigma=vecs[i].sigma();
         mults[i]=standardize(sigma) ? 1.0 / sigma : 1.0;
       }
@@ -21,11 +21,11 @@
     Random rand=water.util.RandomUtils.getRNG(_parms._seed - 1);
     double centers[][];
     if (_parms._init == Initialization.None) {
-      centers=model._output._centers=new double[_parms._k][_train.numCols()];
+      centers=new double[_parms._k][_train.numCols()];
       for (      double[] center : centers)       randomRow(vecs,rand,center,means,mults);
     }
  else {
-      centers=new double[1][vecs.length];
+      centers=new double[1][nvecs];
       randomRow(vecs,rand,centers[0],means,mults);
       while (model._output._iters < 5) {
         SumSqr sqr=new SumSqr(centers,means,mults,_ncats).doAll(vecs);
@@ -39,9 +39,11 @@
       }
       centers=recluster(centers,rand);
     }
-    model._output._iters=0;
-    LOOP:     for (; model._output._iters < _parms._max_iters; model._output._iters++) {
+    model._output._iters=-1;
+    double average_change=Double.POSITIVE_INFINITY;
+    LOOP:     do {
       if (!isRunning())       return;
+      model._output._iters++;
       Lloyds task=new Lloyds(centers,means,mults,_ncats,_parms._k).doAll(vecs);
       max_cats(task._cMeans,task._cats);
       boolean badrow=false;
@@ -65,7 +67,7 @@
           badrow=true;
         }
       }
-      model._output._centers=destandardize(task._cMeans,_ncats,means,mults);
+      model._output._centers=destandardize(centers,_ncats,means,mults);
       model._output._size=task._size;
       model._output._withinmse=task._cSqr;
       double ssq=0;
@@ -82,17 +84,17 @@
       model._output._avgbetweenss=model._output._avgss - model._output._avgwithinss;
       model.update(_key);
       update(1);
-      double sum=0;
-      for (int clu=0; clu < _parms._k; clu++)       sum+=distance(centers[clu],task._cMeans[clu],_ncats);
-      sum/=N;
-      Log.info("KMeans: Change in cluster centers=" + sum);
-      if (sum < 1e-6)       break;
-      centers=task._cMeans;
       StringBuilder sb=new StringBuilder();
       sb.append("KMeans: iter: ").append(model._output._iters).append(", MSE=").append(model._output._avgwithinss);
       for (int i=0; i < _parms._k; i++)       sb.append(", ").append(task._cSqr[i]).append("/").append(task._size[i]);
       Log.info(sb);
+      average_change=0;
+      for (int clu=0; clu < _parms._k; clu++)       average_change+=distance(centers[clu],task._cMeans[clu],_ncats);
+      average_change/=_parms._k;
+      Log.info("KMeans: Average change in cluster centers=" + average_change);
+      centers=task._cMeans;
     }
+ while ((model._output._iters < _parms._max_iters) && (average_change > TOLERANCE));
   }
  catch (  Throwable t) {
     t.printStackTrace();
