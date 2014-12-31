@@ -46,7 +46,7 @@
       max_cats(task._cMeans,task._cats);
       boolean badrow=false;
       for (int clu=0; clu < _parms._k; clu++) {
-        if (task._rows[clu] == 0) {
+        if (task._size[clu] == 0) {
           if (badrow) {
             Log.warn("KMeans: Re-running Lloyds to re-init another cluster");
             model._output._iters--;
@@ -61,18 +61,18 @@
           long row=task._worst_row;
           Log.warn("KMeans: Re-initializing cluster " + clu + " to row "+ row);
           data(centers[clu]=task._cMeans[clu],vecs,row,means,mults);
-          task._rows[clu]=1;
+          task._size[clu]=1;
           badrow=true;
         }
       }
       model._output._names=_train.names();
       model._output._centers=destandardize(task._cMeans,_ncats,means,mults);
-      model._output._rows=task._rows;
+      model._output._size=task._size;
       model._output._withinmse=task._cSqr;
       double ssq=0;
       for (int i=0; i < _parms._k; i++) {
         ssq+=model._output._withinmse[i];
-        model._output._withinmse[i]/=task._rows[i];
+        model._output._withinmse[i]/=task._size[i];
       }
       model._output._avgwithinss=ssq / _train.numRows();
       if (_parms._k == 1)       model._output._avgss=model._output._avgwithinss;
@@ -91,7 +91,7 @@
       centers=task._cMeans;
       StringBuilder sb=new StringBuilder();
       sb.append("KMeans: iter: ").append(model._output._iters).append(", MSE=").append(model._output._avgwithinss);
-      for (int i=0; i < _parms._k; i++)       sb.append(", ").append(task._cSqr[i]).append("/").append(task._rows[i]);
+      for (int i=0; i < _parms._k; i++)       sb.append(", ").append(task._cSqr[i]).append("/").append(task._size[i]);
       Log.info(sb);
     }
   }
