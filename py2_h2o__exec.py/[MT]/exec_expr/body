@@ -11,7 +11,7 @@ def exec_expr(node=None, execExpr=None, resultKey=None, timeoutSecs=10, ignoreH2
     resultExec = h2o_cmd.runExec(node, timeoutSecs=timeoutSecs, ignoreH2oError=ignoreH2oError, **kwargs)
     verboseprint('exec took', (time.time() - start), 'seconds')
     print 'exec:', dump_json(resultExec)
-    if (((resultExec['num_cols'] != 0) or (resultExec['num_rows'] != 0)) and ('key' in resultExec) and resultExec['key']):
+    if ((resultExec['num_rows'] != 0) and ('key' in resultExec) and resultExec['key']):
         if ('name' not in resultExec['key']):
             raise Exception(("'name' not in 'key'" % dump_json(resultExec)))
         resultKey = resultExec['key']['name']
@@ -21,16 +21,18 @@ def exec_expr(node=None, execExpr=None, resultKey=None, timeoutSecs=10, ignoreH2
             print 'Frame return'
             if (resultKey is None):
                 raise Exception(('\nWhy is key.name null when it looks like a frame result? %s' % dump_json(resultExec)))
-            if (1 == 0):
-                kwargs = {'ast': resultKey, }
-                resultExec = h2o_cmd.runExec(node, timeoutSecs=timeoutSecs, ignoreH2oError=ignoreH2oError, **kwargs)
-                print 'exec key result:', dump_json(resultExec)
             if (resultKey[0] == '_'):
                 print ("WARNING: key/name in result, but leading '_' means it's deleted, so can't view. %s" % resultKey)
                 result = None
             else:
                 inspect = h2o_cmd.runInspect(key=resultKey)
+                rows = inspect['frames'][0]['rows']
+                if (rows == 0):
+                    raise Exception(("Inspect of resultKey %s has zero rows %s But resultExec didn't have zero rows %s" % (resultKey, resultExec['num_rows'], rows)))
                 result = inspect['frames'][0]['columns'][0]['mins'][0]
+    elif ((resultExec['num_rows'] == 0) and ('key' in resultExec) and resultExec['key']):
+        print 'zero row key return'
+        result = None
     elif (('funstr' in resultExec) and resultExec['funstr']):
         print 'function return'
         result = resultExec['funstr']

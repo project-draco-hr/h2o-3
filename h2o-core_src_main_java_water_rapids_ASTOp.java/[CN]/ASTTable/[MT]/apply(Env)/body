@@ -1,7 +1,7 @@
 {
-  Frame two=env.peekType() == Env.NULL ? null : env.pop0Ary();
+  Frame two=env.peekType() == Env.NULL ? null : env.popAry();
   if (two == null)   env.pop();
-  Frame one=env.pop0Ary();
+  Frame one=env.popAry();
   if (two != null)   if (two.numCols() != 1 || one.numCols() != 1)   throw new IllegalArgumentException("`table` supports at *most* two vectors");
  else   if (one.numCols() < 1 || one.numCols() > 2)   throw new IllegalArgumentException("`table` supports at *most* two vectors and at least one vector.");
   Frame fr;
@@ -41,5 +41,5 @@
     }
   }
   Frame fr2=new Frame(colnames,vecs);
-  env.push(new ValFrame(fr2));
+  env.pushAry(fr2);
 }

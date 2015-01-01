@@ -1,6 +1,6 @@
 {
   if (env.isAry()) {
-    final Frame fr=env.pop0Ary();
+    final Frame fr=env.popAry();
     if (fr.numCols() == 1) {
       Vec v=Vec.makeRepSeq((long)_length,fr.numRows());
       new MRTask(){
@@ -11,14 +11,14 @@
 .doAll(v);
       v.setDomain(fr.anyVec().domain());
       Frame f=new Frame(new String[]{"C1"},new Vec[]{v});
-      env.push(new ValFrame(f));
+      env.pushAry(f);
     }
  else {
       String[] col_names=new String[(int)_length];
       for (int i=0; i < col_names.length; ++i)       col_names[i]="C" + (i + 1);
       Frame f=new Frame(col_names,new Vec[(int)_length]);
       for (int i=0; i < f.numCols(); ++i)       f.add(Frame.defaultColName(f.numCols()),fr.vec(i % fr.numCols()));
-      env.push(new ValFrame(f));
+      env.pushAry(f);
     }
   }
  else {
@@ -27,11 +27,11 @@
     if (env.isStr()) {
       Frame fr=new Frame(new String[]{"C1"},new Vec[]{Vec.makeCon(0,len)});
       fr.anyVec().setDomain(new String[]{env.popStr()});
-      env.push(new ValFrame(fr));
+      env.pushAry(fr);
     }
  else     if (env.isNum()) {
       Frame fr=new Frame(new String[]{"C1"},new Vec[]{Vec.makeCon(env.popDbl(),len)});
-      env.push(new ValFrame(fr));
+      env.pushAry(fr);
     }
  else     throw new IllegalArgumentException("Unkown input. Type: " + env.peekType() + " Stack: "+ env.toString());
   }

@@ -1,47 +1,58 @@
 {
-  StringBuilder sb=new StringBuilder();
-  int maxRowNameLen=rowHeaders[0] == null ? 0 : rowHeaders[0].length();
-  for (int r=1; r < rowHeaders.length; ++r) {
-    if (rowHeaders[r] != null)     maxRowNameLen=Math.max(maxRowNameLen,rowHeaders[r].length());
-  }
-  if (maxRowNameLen != 0)   maxRowNameLen+=pad;
-  int[] colLen=new int[colHeaders.length];
-  for (int c=0; c < colHeaders.length; ++c) {
-    colLen[c]=colHeaders[c].length();
-    for (int r=0; r < rowHeaders.length; ++r) {
-      if (strCellValues[r] != null && strCellValues[r][c] != null)       colLen[c]=Math.max(colLen[c],String.format(colFormatStrings[c],strCellValues[r][c]).length());
- else       if (dblCellValues[r] != null && !isEmpty(dblCellValues[r][c])) {
-        if (colFormatStrings[c].equals("%d")) {
-          colLen[c]=Math.max(colLen[c],String.format("%" + colLen[c] + "s",String.format(colFormatStrings[c],(int)dblCellValues[r][c])).length());
-        }
- else {
-          colLen[c]=Math.max(colLen[c],String.format("%" + colLen[c] + "s",String.format(colFormatStrings[c],dblCellValues[r][c])).length());
-        }
+  if (pad < 0)   throw new IllegalArgumentException("pad must be a non-negative integer");
+  final int rowDim=getRowDim();
+  final int colDim=getColDim();
+  final String[][] cellStrings=new String[rowDim + 1][colDim + 1];
+  for (  String[] row : cellStrings)   Arrays.fill(row,"");
+  for (int r=0; r < rowDim; ++r)   cellStrings[r + 1][0]=rowHeaders[r];
+  for (int c=0; c < colDim; ++c)   cellStrings[0][c + 1]=colHeaders[c];
+  for (int c=0; c < colDim; ++c) {
+    final String formatString=colFormats[c];
+switch (colTypes[c]) {
+case "double":
+      for (int r=0; r < rowDim; ++r) {
+        final String cell=cellValues[r][c];
+        if (!cell.equals(""))         cellStrings[r + 1][c + 1]=String.format(formatString,new Double(cell));
       }
-    }
-    colLen[c]+=pad;
+    break;
+case "float":
+  for (int r=0; r < rowDim; ++r) {
+    final String cell=cellValues[r][c];
+    if (!cell.equals(""))     cellStrings[r + 1][c + 1]=String.format(formatString,new Float(cell));
   }
-  sb.append(tableHeader).append(":\n");
-  for (int i=0; i < maxRowNameLen; ++i)   sb.append(" ");
-  for (int c=0; c < colHeaders.length; ++c)   sb.append(String.format("%" + colLen[c] + "s",colHeaders[c]));
-  sb.append("\n");
-  for (int r=0; r < rowHeaders.length; ++r) {
-    if (rowHeaders[r] != null)     sb.append(String.format("%" + maxRowNameLen + "s",rowHeaders[r]));
-    for (int c=0; c < colHeaders.length; ++c) {
-      if (strCellValues[r] != null && strCellValues[r][c] != null)       sb.append(String.format("%" + colLen[c] + "s",String.format(colFormatStrings[c],strCellValues[r][c])));
- else       if (dblCellValues[r] != null && !isEmpty(dblCellValues[r][c])) {
-        if (colFormatStrings[c].equals("%d")) {
-          sb.append(String.format("%" + colLen[c] + "s",String.format(colFormatStrings[c],(int)dblCellValues[r][c])));
-        }
- else {
-          sb.append(String.format("%" + colLen[c] + "s",String.format(colFormatStrings[c],dblCellValues[r][c])));
-        }
-      }
- else {
-        sb.append(String.format("%" + colLen[c] + "s",""));
-      }
-    }
-    sb.append("\n");
-  }
-  return sb.toString();
+break;
+case "integer":
+for (int r=0; r < rowDim; ++r) {
+final String cell=cellValues[r][c];
+if (!cell.equals("")) cellStrings[r + 1][c + 1]=String.format(formatString,new Integer(cell));
+}
+break;
+case "long":
+for (int r=0; r < rowDim; ++r) {
+final String cell=cellValues[r][c];
+if (!cell.equals("")) cellStrings[r + 1][c + 1]=String.format(formatString,new Long(cell));
+}
+break;
+default :
+for (int r=0; r < rowDim; ++r) cellStrings[r + 1][c + 1]=cellValues[r][c];
+break;
+}
+}
+final int[] colLen=new int[colDim + 1];
+for (int c=0; c <= colDim; ++c) for (int r=0; r <= rowDim; ++r) colLen[c]=Math.max(colLen[c],cellStrings[r][c].length());
+final StringBuilder sb=new StringBuilder();
+if (tableHeader.length() > 0) {
+sb.append(tableHeader);
+sb.append(":\n");
+}
+for (int r=0; r <= rowDim; ++r) {
+int len=colLen[0];
+if (len > 0) sb.append(String.format("%" + colLen[0] + "s",cellStrings[r][0]));
+for (int c=1; c <= colDim; ++c) {
+len=colLen[c];
+if (len > 0) sb.append(String.format("%" + (len + pad) + "s",cellStrings[r][c]));
+}
+sb.append("\n");
+}
+return sb.toString();
 }

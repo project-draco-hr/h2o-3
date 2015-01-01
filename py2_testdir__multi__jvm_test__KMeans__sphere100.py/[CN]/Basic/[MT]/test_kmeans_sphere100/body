@@ -27,32 +27,9 @@ def test_kmeans_sphere100(self):
         timeoutSecs = 100
         model_key = 'sphere100_k.hex'
         kmeansResult = h2o.n0.build_model(algo='kmeans', destination_key=model_key, training_frame=parse_key, parameters=parameters, timeoutSecs=timeoutSecs)
-        start = time.time()
         modelResult = h2o.n0.models(key=model_key)
-        elapsed = (time.time() - start)
-        print 'kmeans end on ', csvPathname, 'took', elapsed, 'seconds.', ('%d pct. of timeout' % ((elapsed / timeoutSecs) * 100))
         km = h2o_kmeans.KMeansObj(modelResult, parameters, numRows, numColsUsed, labelListUsed)
-        h2o_cmd.runStoreView()
-        (ids, mses, rows, clusters) = zip(*km.tuplesSorted)
-        clustersSorted = sorted(clusters, key=sum)
-        centersSorted = sorted(centersList, key=sum)
-        kmeansResult = modelResult
-        print '\ntrial #', trial, 'h2o result, centers (sorted by key=sum)'
-        cf = '{0:6.2f}'
-        for c in clustersSorted:
-            print ' '.join(map(cf.format, c))
-        print '\ngenerated centers (sorted by key=sum)'
-        for c in centersSorted:
-            print ' '.join(map(cf.format, c))
-        for (i, center) in enumerate(centersSorted):
-            a = center
-            b = clustersSorted[i]
-            print '\nexpected:', a
-            print 'h2o:', b
-            aStr = ','.join(map(str, a))
-            bStr = ','.join(map(str, b))
-            iStr = str(i)
-            for (i, v) in enumerate(a):
-                emsg = (((((((aStr + ' != ') + bStr) + '. Sorted cluster center ') + iStr) + ' axis ') + str(i)) + ' not correct.')
-                self.assertAlmostEqual(a[i], b[i], delta=ALLOWED_CENTER_DELTA, msg=emsg)
+        expected = [(None, c, None, None) for c in centersList]
+        expected.sort(key=(lambda tup: sum(tup[1])))
+        h2o_kmeans.compareResultsToExpected(km.tuplesSorted, expected, allowedDelta=[0.01, 0.01, 0.01])
         print 'Trial #', trial, 'completed'

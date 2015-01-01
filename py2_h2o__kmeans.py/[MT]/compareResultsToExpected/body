@@ -1,20 +1,25 @@
-def compareResultsToExpected(self, tupleResultList, expected=None, allowedDelta=None, allowError=False, allowRowError=False, trial=0):
-    from operator import itemgetter
-    tupleResultList.sort(key=itemgetter(0))
+def compareResultsToExpected(tupleResultList, expected=None, allowedDelta=None, allowError=False, allowRowError=False):
+    tupleResultList.sort(key=(lambda tup: sum(tup[1])))
     if (expected is not None):
-        expected.sort(key=itemgetter(0))
-        print ('\nTrial #%d Expected:' % trial)
+        expected.sort(key=(lambda tup: sum(tup[1])))
+        print '\nExpected:'
         for e in expected:
             print e
-    print ('\nTrial #%d Actual:' % trial)
+    print '\nActual:'
     for t in tupleResultList:
         print t, ','
     if ((expected is not None) and (not allowError)):
-        for (i, (expCenter, expRows, expError)) in enumerate(expected):
-            (actCenter, actRows, actError) = tupleResultList[i]
+        for (i, (expCid, expCenter, expRows, expError)) in enumerate(expected):
+            (actCid, actCenter, actRows, actError) = tupleResultList[i]
             for (a, b) in zip(expCenter, actCenter):
                 absAllowedDelta = abs((allowedDelta[0] * a))
-                self.assertAlmostEqual(a, b, delta=absAllowedDelta, msg=('Trial %d Center value expected: %s actual: %s delta > %s' % (trial, a, b, absAllowedDelta)))
-            if (not allowRowError):
+                absAllowedDelta = max(absAllowedDelta, allowedDelta[0])
+                h2o_util.assertApproxEqual(a, b, tol=absAllowedDelta, msg=('Center value expected: %s actual: %s delta > %s' % (a, b, absAllowedDelta)))
+            if ((not allowRowError) and expRows):
                 absAllowedDelta = abs((allowedDelta[1] * expRows))
-                self.assertAlmostEqual(expRows, actRows, delta=absAllowedDelta, msg=('Trial %d Rows expected: %s actual: %s delta > %s' % (trial, expRows, actRows, absAllowedDelta)))
+                absAllowedDelta = max(absAllowedDelta, allowedDelta[1])
+                h2o_util.assertApproxEqual(expRows, actRows, tol=absAllowedDelta, msg=('Rows expected: %s actual: %s delta > %s' % (expRows, actRows, absAllowedDelta)))
+            if ((not allowRowError) and expError):
+                absAllowedDelta = abs((allowedDelta[2] * expError))
+                absAllowedDelta = max(absAllowedDelta, allowedDelta[2])
+                h2o_util.assertApproxEqual(expRows, actRows, tol=absAllowedDelta, msg=('Error expected: %s actual: %s delta > %s' % (expError, actError, absAllowedDelta)))

@@ -3,13 +3,16 @@ def test_rapids_ifelse(self):
     csvPathname = 'iris/iris_wheader.csv'
     hexKey = 'r1'
     parseResult = h2i.import_parse(bucket=bucket, path=csvPathname, schema='put', hex_key=hexKey)
+    r = Key('r1')
     keys = []
     for trial in range(2):
-        for execObj in objList:
-            freshObj = copy(execObj)
-            result = freshObj.do()
-            if (freshObj.execResult['num_rows'] or freshObj.execResult['num_cols']):
-                keys.append(freshObj.execExpr)
+        for execExpr in exprList:
+            exec execExpr
+            result = Xbase.lastResult
+            execResult = Xbase.lastExecResult
+            print dump_json(execResult)
+            if (execResult['num_rows'] or execResult['num_cols']):
+                keys.append(execExpr)
     print '\nExpressions that created keys'
     for k in keys:
         print k
