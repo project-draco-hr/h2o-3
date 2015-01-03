@@ -1,11 +1,12 @@
 def _doit(self):
     if self.isComputed():
         return
+    assign_vec = (self._left._left if ((self._op == '=') and (self._left._op == '[')) else None)
     global _CMD
     cnt = (sys.getrefcount(self) - 1)
-    py_tmp = ((cnt != 4) and (self._len > 1))
+    py_tmp = ((cnt != 4) and (self._len > 1) and (not assign_vec))
     if py_tmp:
-        self._data = py_tmp_key()
+        self._data = _py_tmp_key()
         _CMD += (('(= !' + self._data) + ' ')
     _CMD += (('(' + self._op) + ' ')
     left = self._left
@@ -80,4 +81,9 @@ def _doit(self):
         _CMD += ')'
     self._left = None
     self._rite = None
+    if assign_vec:
+        if (assign_vec._op != 'rawdata'):
+            raise NotImplementedError
+        self._left = assign_vec
+        self._data = assign_vec._data
     return

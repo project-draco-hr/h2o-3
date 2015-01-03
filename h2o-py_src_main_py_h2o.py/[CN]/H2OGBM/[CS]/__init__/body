@@ -15,12 +15,16 @@ def __init__(self, dataset, x, ntrees=50, shrinkage=0.1, interaction_depth=5, di
         raise ValueError('interaction_depth must be at least 1')
     self.interaction_depth = interaction_depth
     self.distribution = distribution
-    fr = py_tmp_key()
+    fr = _py_tmp_key()
     cbind = (('(= !' + fr) + ' (cbind ')
     for vec in dataset._vecs:
         cbind += (('%' + vec._expr.eager()) + ' ')
     cbind += '))'
     H2OCONN.Rapids(cbind)
+    colnames = (((('(colnames= %' + fr) + ' {(: #0 #') + str((len(dataset._vecs) - 1))) + ')} {')
+    for vec in dataset._vecs:
+        colnames += (vec._name + ';')
+    colnames = (colnames[:(-1)] + '})')
+    H2OCONN.Rapids(colnames)
     j = H2OCONN.GBM(distribution, shrinkage, ntrees, interaction_depth, x, fr)
     H2OCONN.Remove(fr)
-    print j
