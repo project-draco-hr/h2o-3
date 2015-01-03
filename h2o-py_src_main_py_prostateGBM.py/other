@@ -5,8 +5,9 @@ cluster = H2OConnection()
 df = H2OFrame(remote_fname='smalldata/logreg/prostate.csv')
 train = df.drop('ID')
 print train.describe()
-vol = df['VOL']
+vol = train['VOL']
 vol[(vol == 0)] = None
+train['CAPSULE'] = train['CAPSULE'].asfactor()
 print train.describe()
 gbm = H2OGBM(dataset=train, x='CAPSULE', ntrees=50, shrinkage=0.1)
 print gbm._model

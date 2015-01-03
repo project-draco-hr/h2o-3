@@ -7,11 +7,12 @@
   }
   Frame fr=new Frame(new String[0],new Vec[0]);
   for (int i=0; i < argcnt; i++) {
-    Frame f=env.popAry();
+    Frame f=env.peekAryAt(i - argcnt + 1);
     Frame ff=f.deepSlice(null,null);
     Frame new_frame=fr.makeCompatible(ff);
     if (f.numCols() == 1)     fr.add(f.names()[0],new_frame.anyVec());
  else     fr.add(new_frame);
   }
+  env.pop(argcnt);
   env.pushAry(fr);
 }
