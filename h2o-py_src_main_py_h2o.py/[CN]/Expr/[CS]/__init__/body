@@ -1,7 +1,7 @@
 def __init__(self, op, left=None, rite=None, length=None):
     (self._op, self._data) = ((op, None) if isinstance(op, str) else ('rawdata', op))
     self._name = self._op
-    assert (self.isLocal() or self.isRemote() or self.isPending())
+    assert (self.isLocal() or self.isRemote() or self.isPending()), (str(self._name) + str(self._data))
     self._left = (left._expr if isinstance(left, Vec) else left)
     self._rite = (rite._expr if isinstance(rite, Vec) else rite)
     assert ((self._left is None) or isinstance(self._left, Expr) or isinstance(self._data, unicode)), self.debug()
@@ -14,3 +14,4 @@ def __init__(self, op, left=None, rite=None, length=None):
     else:
         self._len = (length if length else len(self._left))
     assert (self._len is not None)
+    self._summary = None

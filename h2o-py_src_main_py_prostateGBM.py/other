@@ -1,7 +1,15 @@
 from h2o import H2OConnection
 from h2o import H2OFrame
+from h2o import H2OGBM
 cluster = H2OConnection()
 df = H2OFrame(remote_fname='smalldata/logreg/prostate.csv')
+print df.describe()
 train = df.drop('ID')
+vol = train['VOL']
+vol[(vol == 0)] = None
+gle = train['GLEASON']
+gle[(gle == 0)] = None
+train['CAPSULE'] = train['CAPSULE'].asfactor()
 print train.describe()
-print train[(df['VOL'] == 0)].show()
+gbm = H2OGBM(dataset=train, x='CAPSULE', ntrees=50, shrinkage=0.1)
+print gbm._model
