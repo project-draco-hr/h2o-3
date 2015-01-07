@@ -12,6 +12,10 @@
     Response r=new Response(HTTP_OK,MIME_PLAINTEXT,"");
     return r;
   }
+  if (uri.endsWith("/DownloadLogs")) {
+    maybeLogRequest(path,versioned_path,"",parms);
+    return downloadLogs();
+  }
   try {
     Route route=lookup(method,versioned_path);
     if (route != null && route._handler_class != CloudHandler.class && route._handler_class != TutorialsHandler.class && route._handler_class != TypeaheadHandler.class)     Schema.registerAllSchemasIfNecessary();

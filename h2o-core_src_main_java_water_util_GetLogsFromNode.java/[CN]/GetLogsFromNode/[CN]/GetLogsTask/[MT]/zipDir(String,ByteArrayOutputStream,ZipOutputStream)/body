@@ -1,0 +1,37 @@
+{
+  try {
+    File zipDir=new File(dir2zip);
+    String[] dirList=zipDir.list();
+    byte[] readBuffer=new byte[4096];
+    int bytesIn=0;
+    for (int i=0; i < dirList.length; i++) {
+      File f=new File(zipDir,dirList[i]);
+      if (f.isDirectory()) {
+        String filePath=f.getPath();
+        zipDir(filePath,baos,zos);
+        continue;
+      }
+      FileInputStream fis=new FileInputStream(f);
+      ZipEntry anEntry=new ZipEntry(f.getPath());
+      anEntry.setTime(f.lastModified());
+      zos.putNextEntry(anEntry);
+      boolean stopEarlyBecauseTooMuchData=false;
+      while ((bytesIn=fis.read(readBuffer)) != -1) {
+        zos.write(readBuffer,0,bytesIn);
+        if (baos.size() > MAX_SIZE) {
+          stopEarlyBecauseTooMuchData=true;
+          break;
+        }
+      }
+      fis.close();
+      zos.closeEntry();
+      if (stopEarlyBecauseTooMuchData) {
+        Log.warn("GetLogsTask stopEarlyBecauseTooMuchData");
+        break;
+      }
+    }
+  }
+ catch (  Exception e) {
+    Log.warn(e);
+  }
+}
