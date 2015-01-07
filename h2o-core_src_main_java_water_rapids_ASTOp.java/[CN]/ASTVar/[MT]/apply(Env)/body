@@ -29,12 +29,7 @@
           ss+=(fr.vecs()[r].at(0) - xmean) * (y.vecs()[r].at(0) - ymean);
         }
       }
-      if (env.isAry())       env.cleanup(env.popAry());
- else       env.pop();
-      if (env.isAry())       env.cleanup(env.popAry());
- else       env.pop();
-      env.pop();
-      env.push(new ValNum(ss == Double.NaN ? ss : ss / divideby));
+      env.poppush(3,new ValNum(ss == Double.NaN ? ss : ss / divideby));
     }
  else {
       final double[][] covars=new double[y.numCols()][fr.numCols()];
@@ -52,15 +47,9 @@
       }
       for (int c=0; c < y.numCols(); c++)       for (int r=0; r < fr.numCols(); r++) {
         covars[c][r]=tsks[c][r].getResult()._ss / (fr.numRows() - 1);
-        env.cleanup(frs[c][r]);
         frs[c][r]=null;
       }
-      if (env.isAry())       env.cleanup(env.popAry());
- else       env.pop();
-      if (env.isAry())       env.cleanup(env.popAry());
- else       env.pop();
-      env.pop();
-      if (covars.length == 1 && covars[0].length == 1)       env.push(new ValNum(covars[0][0]));
+      if (covars.length == 1 && covars[0].length == 1)       env.poppush(3,new ValNum(covars[0][0]));
  else {
         Key keys[]=Vec.VectorGroup.VG_LEN1.addVecs(covars.length);
         Vec[] vecs=new Vec[covars.length];
@@ -71,7 +60,7 @@
           c.close(0,null);
           vecs[i]=v.close(null);
         }
-        env.push(new ValFrame(new Frame(colnames,vecs)));
+        env.poppush(3,new ValFrame(new Frame(colnames,vecs)));
       }
     }
   }

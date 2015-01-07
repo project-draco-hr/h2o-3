@@ -1,7 +1,7 @@
 {
   final String format=_format;
   if (format.isEmpty())   throw new IllegalArgumentException("as.Date requires a non-empty format string");
-  Frame fr=env.pop0Ary();
+  Frame fr=env.popAry();
   if (fr.vecs().length != 1 || !fr.vecs()[0].isEnum())   throw new IllegalArgumentException("as.Date requires a single column of factors");
   Frame fr2=new MRTask(){
     @Override public void map(    Chunk chks[],    NewChunk nchks[]){
@@ -21,6 +21,5 @@
     }
   }
 .doAll(fr.numCols(),fr).outputFrame(fr._names,null);
-  env.cleanup(fr);
-  env.push(new ValFrame(fr2));
+  env.pushAry(fr2);
 }

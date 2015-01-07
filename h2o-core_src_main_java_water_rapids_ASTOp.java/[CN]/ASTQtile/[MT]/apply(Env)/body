@@ -1,7 +1,7 @@
 {
-  final Frame probs=_probs == null ? env.pop0Ary() : null;
+  final Frame probs=_probs == null ? env.popAry() : null;
   if (probs != null && probs.numCols() != 1)   throw new IllegalArgumentException("Probs must be a single vector.");
-  Frame x=env.pop0Ary();
+  Frame x=env.popAry();
   if (x.numCols() != 1)   throw new IllegalArgumentException("Must specify a single column in quantile. Got: " + x.numCols() + " columns.");
   Vec xv=x.anyVec();
   if (xv.isEnum()) {
@@ -51,6 +51,5 @@
   Futures f=res.postWrite(new Futures());
   f.blockForPending();
   Frame fr=new Frame(new String[]{"P","Q"},new Vec[]{p_names,res});
-  env.cleanup(probs,x);
-  env.push(new ValFrame(fr));
+  env.pushAry(fr);
 }

@@ -1,13 +1,14 @@
 {
-  Frame tst=env.pop0Ary();
+  if (!env.isAry())   throw new IllegalArgumentException("`test` argument must be a frame: ifelse(`test`, `yes`, `no`)");
+  Frame tst=env.popAry();
   if (tst.numCols() != 1)   throw new IllegalArgumentException("`test` has " + tst.numCols() + " columns. `test` must have exactly 1 column.");
   Frame yes=null;
   double dyes=0;
   Frame no=null;
   double dno=0;
-  if (env.isAry())   yes=env.pop0Ary();
+  if (env.isAry())   yes=env.popAry();
  else   dyes=env.popDbl();
-  if (env.isAry())   no=env.pop0Ary();
+  if (env.isAry())   no=env.popAry();
  else   dno=env.popDbl();
   if (yes != null && no != null) {
     if (yes.numCols() != no.numCols())     throw new IllegalArgumentException("Column mismatch between `yes` and `no`. `yes` has" + yes.numCols() + "; `no` has "+ no.numCols()+ ".");
@@ -37,6 +38,5 @@
     }
   }
 .doAll(yes == null ? 1 : yes.numCols(),frtst).outputFrame(yes == null ? (new String[]{"C1"}) : yes.names(),null);
-  env.cleanup(yes,no,a_yes,a_no,tst,frtst);
-  env.push(new ValFrame(fr2));
+  env.pushAry(fr2);
 }

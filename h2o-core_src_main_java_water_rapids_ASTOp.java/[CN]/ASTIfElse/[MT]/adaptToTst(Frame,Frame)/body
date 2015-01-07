@@ -19,7 +19,7 @@
     Frame res;
     try {
       env=Exec.exec(sb.toString());
-      res=env.pop0Ary();
+      res=env.popAry();
       res.unlock_all();
     }
  catch (    Exception e) {
@@ -29,7 +29,6 @@
       if (env != null)       env.unlock();
     }
     Frame ret=tgt.makeCompatible(res);
-    if (env != null)     env.cleanup(ret == res ? null : res,(Frame)DKV.remove(k).get());
     return ret;
   }
   src=DKV.remove(k).get();

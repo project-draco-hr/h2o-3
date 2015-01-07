@@ -1,0 +1,32 @@
+def test_exec2_sum(self):
+    print 'Replicating covtype.data by 2x for results comparison to 1x'
+    filename1x = 'covtype.data'
+    pathname1x = h2i.find_folder_and_filename('home-0xdiag-datasets', 'standard/covtype.data', returnFullPath=True)
+    filename2x = 'covtype_2x.data'
+    pathname2x = ((SYNDATASETS_DIR + '/') + filename2x)
+    h2o_util.file_cat(pathname1x, pathname1x, pathname2x)
+    csvAll = [(pathname1x, 'cA', 5, 1), (pathname2x, 'cB', 5, 2), (pathname2x, 'cC', 5, 2)]
+    lenNodes = len(h2o.nodes)
+    firstDone = False
+    for (csvPathname, hex_key, timeoutSecs, resultMult) in csvAll:
+        parseResultA = h2i.import_parse(path=csvPathname, schema='put', hex_key=hex_key)
+        pA = h2o_cmd.ParseObj(parseResultA)
+        print pA.numRows
+        print pA.numCols
+        print pA.parse_key
+        iA = h2o_cmd.InspectObj(pA.parse_key)
+        k = Key(hex_key)
+        colResultList = []
+        for i in range(pA.numCols):
+            result = Expr(Fcn('sum', k[:, i], True)).result
+            colResultList.append(result)
+        print '\ncolResultList', colResultList
+        if (not firstDone):
+            colResultList0 = list(colResultList)
+            good = [float(x) for x in colResultList0]
+            firstDone = True
+        else:
+            print '\n', colResultList0, '\n', colResultList
+            compare = [(float(x) / resultMult) for x in colResultList]
+            print '\n', good, '\n', compare
+            self.assertEqual(good, compare, 'compare is not equal to good (first try * resultMult)')

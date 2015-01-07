@@ -2,7 +2,7 @@
   final int digits=_digits;
   if (digits < 0)   throw new IllegalArgumentException("Error in signif: argument digits must be a non-negative integer");
   if (env.isAry()) {
-    Frame fr=env.pop0Ary();
+    Frame fr=env.popAry();
     for (int i=0; i < fr.vecs().length; i++) {
       if (fr.vecs()[i].isEnum())       throw new IllegalArgumentException("Non-numeric column " + String.valueOf(i + 1) + " in data frame");
     }
@@ -17,8 +17,7 @@
       }
     }
 .doAll(fr.numCols(),fr).outputFrame(fr.names(),fr.domains());
-    env.cleanup(fr);
-    env.push(new ValFrame(fr2));
+    env.pushAry(fr2);
   }
  else   env.push(new ValNum(signifDigits(env.popDbl(),digits)));
 }

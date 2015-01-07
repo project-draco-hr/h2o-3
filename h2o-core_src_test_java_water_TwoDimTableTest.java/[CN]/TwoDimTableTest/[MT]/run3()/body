@@ -1,9 +1,9 @@
 {
-  TwoDimTable table=new TwoDimTable("My foo bar table",new String[]{"DoubleValue","S2","My Terrible Percent Value"},new String[]{"%f","%s","%f"},new String[]{"First row","R2","Row #3","Last row is here:"},new String[][]{new String[]{null,"One",null},new String[]{null,null,null},new String[]{null,"Three",null},new String[]{null,"FooBar",null}},new double[][]{new double[]{1.123,emptyDouble,3200034.00001},new double[]{123.34,emptyDouble,1.0},new double[]{emptyDouble,emptyDouble,3234.00001},new double[]{3.33420923423423,emptyDouble,3.40234234}});
+  TwoDimTable table=new TwoDimTable("My foo bar table",new String[]{"First row","R2","Row #3","Last row is here:"},new String[]{"DoubleValue","S2","My Terrible Percent Value"},new String[]{"double","string","double"},new String[]{"%f","%s","%f"},new String[][]{new String[]{null,"One",null},new String[]{null,null,null},new String[]{null,"Three",null},new String[]{null,"FooBar",null}},new double[][]{new double[]{1.123,emptyDouble,3200034.00001},new double[]{123.34,emptyDouble,1.0},new double[]{emptyDouble,emptyDouble,3234.00001},new double[]{3.33420923423423,emptyDouble,3.40234234}});
   String ts=table.toString();
   assertTrue(ts.length() > 0);
   Log.info(ts);
   String json=new String(table.writeJSON(new AutoBuffer()).buf());
-  assertTrue(json.equals("{\"description\":\"My foo bar table\",\"colNames\":[\"DoubleValue\",\"S2\",\"My Terrible Percent Value\"],\"colFormatStrings\":[\"%f\",\"%s\",\"%f\"],\"rowHeaders\":[\"First row\",\"R2\",\"Row #3\",\"Last row is here:\"],\"strings\":[[null,\"One\",null],[null,null,null],[null,\"Three\",null],[null,\"FooBar\",null]],\"doubles\":[[1.123,null,3200034.00001],[123.34,null,1.0],[null,null,3234.00001],[3.33420923423423,null,3.40234234]]}"));
+  assertTrue(json.equals("{\"tableHeader\":\"My foo bar table\",\"rowHeaders\":[\"First row\",\"R2\",\"Row #3\",\"Last row is here:\"],\"colHeaders\":[\"DoubleValue\",\"S2\",\"My Terrible Percent Value\"],\"colTypes\":[\"double\",\"string\",\"double\"],\"colFormats\":[\"%f\",\"%s\",\"%f\"],\"cellValues\":[[\"0x1.1f7ced916872bp0\",\"One\",\"0x1.86a11000053e3p21\"],[\"0x1.ed5c28f5c28f6p6\",\"\",\"0x1.0p0\"],[\"\",\"Three\",\"0x1.94400014f8b59p11\"],[\"0x1.aac75e4187531p1\",\"FooBar\",\"0x1.b37ff42c0c4d7p1\"]]}"));
   Log.info(json);
 }

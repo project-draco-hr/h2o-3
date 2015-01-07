@@ -1,9 +1,9 @@
 {
-  TwoDimTable table=new TwoDimTable("All strings",new String[]{"S1","S2","S3","S4"},new String[]{"%s","%s","%s","%s"},new String[]{"R1","R2","R3","R4"},new String[][]{new String[]{"a","b","c","d"},new String[]{"a","b","c","d"},new String[]{"a",null,"c","d"},new String[]{"a","b","c",null}},new double[4][]);
+  TwoDimTable table=new TwoDimTable("All strings",new String[]{"R1","R2","R3","R4"},new String[]{"S1","S2","S3","S4"},new String[]{"string","string","string","string"},new String[]{"%s","%s","%s","%s"},new String[][]{new String[]{"a","b","c","d"},new String[]{"a","b","c","d"},new String[]{"a",null,"c","d"},new String[]{"a","b","c",null}},new double[4][]);
   String ts=table.toString();
   assertTrue(ts.length() > 0);
   Log.info(ts);
   String json=new String(table.writeJSON(new AutoBuffer()).buf());
-  assertTrue(json.equals("{\"description\":\"All strings\",\"colNames\":[\"S1\",\"S2\",\"S3\",\"S4\"],\"colFormatStrings\":[\"%s\",\"%s\",\"%s\",\"%s\"],\"rowHeaders\":[\"R1\",\"R2\",\"R3\",\"R4\"],\"strings\":[[\"a\",\"b\",\"c\",\"d\"],[\"a\",\"b\",\"c\",\"d\"],[\"a\",null,\"c\",\"d\"],[\"a\",\"b\",\"c\",null]],\"doubles\":[[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null]]}"));
+  assertTrue(json.equals("{\"tableHeader\":\"All strings\",\"rowHeaders\":[\"R1\",\"R2\",\"R3\",\"R4\"],\"colHeaders\":[\"S1\",\"S2\",\"S3\",\"S4\"],\"colTypes\":[\"string\",\"string\",\"string\",\"string\"],\"colFormats\":[\"%s\",\"%s\",\"%s\",\"%s\"],\"cellValues\":[[\"a\",\"b\",\"c\",\"d\"],[\"a\",\"b\",\"c\",\"d\"],[\"a\",\"\",\"c\",\"d\"],[\"a\",\"b\",\"c\",\"\"]]}"));
   Log.info(json);
 }

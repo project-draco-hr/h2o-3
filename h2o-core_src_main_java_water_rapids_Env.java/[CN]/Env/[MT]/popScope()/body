@@ -2,12 +2,13 @@
   _local.clear();
   Futures fs=new Futures();
   for (  String k : _local._frames.keySet()) {
+    boolean delete=true;
     if (isAry()) {
       if (peekAry()._key != null && peekAry()._key == _local._frames.get(k)._key)       continue;
     }
     Frame f=_local._frames.get(k);
-    for (    Vec v : f.vecs())     removeVec(v,fs);
-    f.delete();
+    for (    Vec v : f.vecs())     delete&=subRef(v);
+    if (delete)     f.delete();
   }
   _local._frames.clear();
   if (!isGlobal()) {

@@ -1,0 +1,5 @@
+def GBM(self, distribution, shrinkage, ntrees, interaction_depth, x, dataset):
+    p = {'loss': distribution, 'learn_rate': shrinkage, 'ntrees': ntrees, 'max_depth': interaction_depth, 'variable_importance': False, 'response_column': x, 'training_frame': dataset, }
+    j = self._doJob(self._doSafeGet(self.buildURL('GBM', p)))
+    j = self._doSafeGet(self.buildURL(('3/Models/' + j['dest']['name']), {}))
+    return j['models'][0]

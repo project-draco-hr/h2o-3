@@ -1,0 +1,42 @@
+{
+  this(tableHeader,rowHeaders,colHeaders,colTypes,colFormats);
+  assert(Double.isNaN(emptyDouble));
+  assert(isEmpty(emptyDouble));
+  assert(!isEmpty(Double.NaN));
+  final int rowDim=rowHeaders.length;
+  final int colDim=colHeaders.length;
+  for (int c=0; c < colDim; ++c) {
+    if (colTypes[c].equalsIgnoreCase("string")) {
+      for (      String[] vec : strCellValues) {
+        if (vec == null)         throw new IllegalArgumentException("Null string in strCellValues");
+        if (vec.length != colDim)         throw new IllegalArgumentException("Each row in strCellValues must have the same length as colHeaders");
+      }
+      break;
+    }
+  }
+  for (int c=0; c < colDim; ++c) {
+    if (!colTypes[c].equalsIgnoreCase("string")) {
+      for (      double[] vec : dblCellValues) {
+        if (vec.length != colDim)         throw new IllegalArgumentException("Each row in dblCellValues must have the same length as colHeaders");
+      }
+      break;
+    }
+  }
+  for (int r=0; r < rowDim; ++r) {
+    for (int c=0; c < colDim; ++c) {
+      if (strCellValues[r] != null && strCellValues[r][c] != null && dblCellValues[r] != null && !isEmpty(dblCellValues[r][c]))       throw new IllegalArgumentException("Cannot provide both a String and a Double at row " + r + " and column "+ c+ ".");
+    }
+  }
+  for (int c=0; c < colDim; ++c) {
+switch (colTypes[c]) {
+case "double":
+case "float":
+case "integer":
+case "long":
+      for (int r=0; r < rowDim; ++r)       set(r,c,dblCellValues[r][c]);
+    break;
+default :
+  for (int r=0; r < rowDim; ++r)   set(r,c,strCellValues[r][c]);
+}
+}
+}

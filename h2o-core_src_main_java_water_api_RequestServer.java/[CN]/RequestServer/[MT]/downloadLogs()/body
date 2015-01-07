@@ -1,0 +1,36 @@
+{
+  Log.info("\nCollecting logs.");
+  H2ONode[] members=H2O.CLOUD.members();
+  byte[][] perNodeZipByteArray=new byte[members.length][];
+  for (int i=0; i < members.length; i++) {
+    byte[] bytes;
+    try {
+      boolean healthy=(System.currentTimeMillis() - members[i]._last_heard_from) < HeartBeatThread.TIMEOUT;
+      if (healthy) {
+        GetLogsFromNode g=new GetLogsFromNode();
+        g.nodeidx=0;
+        g.doIt();
+        bytes=g.bytes;
+      }
+ else {
+        bytes="Node not healthy".getBytes();
+      }
+    }
+ catch (    Exception e) {
+      bytes=e.toString().getBytes();
+    }
+    perNodeZipByteArray[i]=bytes;
+  }
+  String outputFileStem=getOutputLogStem();
+  byte[] finalZipByteArray;
+  try {
+    finalZipByteArray=zipLogs(perNodeZipByteArray,outputFileStem);
+  }
+ catch (  Exception e) {
+    finalZipByteArray=e.toString().getBytes();
+  }
+  NanoHTTPD.Response res=new Response(NanoHTTPD.HTTP_OK,NanoHTTPD.MIME_DEFAULT_BINARY,new ByteArrayInputStream(finalZipByteArray));
+  res.addHeader("Content-Length",Long.toString(finalZipByteArray.length));
+  res.addHeader("Content-Disposition","attachment; filename=" + outputFileStem + ".zip");
+  return res;
+}

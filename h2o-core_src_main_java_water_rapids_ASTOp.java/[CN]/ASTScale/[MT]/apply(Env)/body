@@ -1,5 +1,5 @@
 {
-  Frame fr=env.pop0Ary();
+  Frame fr=env.popAry();
   for (int i=0; i < fr.numCols(); ++i)   if (fr.vecs()[i].isEnum())   throw new IllegalArgumentException(("All columns must be numeric."));
   if (!(_centers == null) && _centers.length != fr.numCols())   throw new IllegalArgumentException("`centers` must be logical or have length equal to the number of columns in the dataset.");
   if (!(_scales == null) && _scales.length != fr.numCols())   throw new IllegalArgumentException("`scales` must be logical or have length equal to the number of columns in the dataset.");
@@ -9,7 +9,7 @@
   final boolean use_rms=!use_mean && _scale;
   final double[] scales=_scales;
   if (!_center && !_scale && (_centers == null)&& (_scales == null)) {
-    env.push0Ary(fr);
+    env.pushAry(fr);
     return;
   }
   boolean doCenter=use_mean || _centers != null;
@@ -53,5 +53,5 @@
     }
 .doAll(centered.numCols(),centered).outputFrame(centered.names(),centered.domains());
   }
-  env.push(new ValFrame(scaled));
+  env.pushAry(scaled);
 }

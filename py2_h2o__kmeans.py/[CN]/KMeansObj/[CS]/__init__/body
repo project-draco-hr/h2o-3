@@ -6,24 +6,24 @@ def __init__(self, kmeansResult, parameters, numRows, numCols, labels, noPrint=F
     print self.avgbetweenss
     if ('python_elapsed' in kmeansResult):
         self.python_elapsed = kmeansResult['python_elapsed']
-    rows = self.rows
+    size = self.size
     model_category = self.model_category
     iters = self.iters
     domains = self.domains
     names = self.names
     ncats = self.ncats
-    clusters = self.clusters
+    centers = self.centers
     withinmse = self.withinmse
     avgss = self.avgss
     if numRows:
-        assert (numRows == sum(rows))
+        assert (numRows == sum(size))
     if ('k' in parameters):
         k = parameters['k']
-        assert (len(clusters) == k)
-        assert (len(rows) == k)
+        assert (len(centers) == k)
+        assert (len(size) == k)
     if numCols:
         assert (len(names) == numCols), ('Need to pass correct numCols after ignored columns decrement %s %s' % (len(names), numCols))
-        for c in clusters:
+        for c in centers:
             assert (len(c) == numCols), ('%s %s' % (len(c), numCols))
     if labels:
         assert (len(labels) == numCols), ('Need to pass correct labels and numCols after ignored columns removal %s %s' % (len(labels), numCols))
@@ -32,18 +32,18 @@ def __init__(self, kmeansResult, parameters, numRows, numCols, labels, noPrint=F
     if ('max_iters' in parameters):
         max_iters = parameters['max_iters']
         assert (max_iters >= iters)
-    for (i, c) in enumerate(clusters):
+    for (i, c) in enumerate(centers):
         for n in c:
             if math.isnan(float(n)):
                 raise Exception('cluster', i, 'has NaN:', n, 'center:', c)
-    check_sandbox_for_errors()
-    tuples = zip(range(len(clusters)), withinmse, rows, clusters)
-    self.tuplesSorted = sorted(tuples, key=itemgetter(3))
-    (ids, withinmse, rows, clusters) = zip(*self.tuplesSorted)
+    tuples = zip(range(len(centers)), centers, size, withinmse)
+    self.tuplesSorted = sorted(tuples, key=(lambda tup: sum(tup[1])))
     print 'iters:', iters
-    print 'ids:', ids
-    print 'withinmse:', withinmse
-    print 'rows:', rows
-    for (i, c) in enumerate(clusters):
+    (ids, centers, size, withinmse) = zip(*self.tuplesSorted)
+    for (i, c) in enumerate(centers):
         print ('cluster id %s (2 places):' % ids[i]), h2o_util.twoDecimals(c)
+        print ('rows_per_cluster[%s]: ' % i), size[i]
+        print ('withinmse[%s]: ' % i), withinmse[i]
+        print ('size[%s]:' % i), size[i]
     print 'KMeansObj created for:', '???'
+    check_sandbox_for_errors()

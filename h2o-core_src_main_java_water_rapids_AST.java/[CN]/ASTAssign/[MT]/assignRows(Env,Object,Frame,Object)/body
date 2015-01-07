@@ -17,7 +17,7 @@
         }
       }
 .doAll(lhs_ary);
-      e.push0(new ValFrame(lhs_ary));
+      e.push(new ValFrame(lhs_ary));
       return;
     }
  else     if (rows instanceof Frame) {
@@ -31,14 +31,13 @@
         }
       }
 .doAll(rr);
-      e.cleanup(rr,(Frame)rows);
-      e.push0(new ValFrame(lhs_ary));
+      e.push(new ValFrame(lhs_ary));
       return;
     }
  else     throw new IllegalArgumentException("Invalid row selection. (note: RHS was a constant)");
   }
  else {
-    final Frame rhs_ary=e.pop0Ary();
+    final Frame rhs_ary=e.popAry();
     if ((cols == null && rhs_ary.numCols() != lhs_ary.numCols()) || (cols != null && rhs_ary.numCols() != ((long[])cols).length))     throw new IllegalArgumentException("Right-hand frame has does not match the number of columns required in the assignment to the left-hand side.");
     if (rhs_ary.numRows() > lhs_ary.numRows())     throw new IllegalArgumentException("Right-hand side frame has more rows than the left-hand side.");
     if (rows instanceof long[]) {
@@ -66,8 +65,7 @@
         }
       }
 .doAll(lhs_ary);
-      e.cleanup(rhs_ary);
-      e.push0(new ValFrame(lhs_ary));
+      e.push(new ValFrame(lhs_ary));
       return;
     }
  else     if (rows instanceof Frame) {
@@ -94,8 +92,7 @@
         }
       }
 .doAll(rr);
-      e.cleanup(pred,rr,(Frame)rows);
-      e.push0(new ValFrame(lhs_ary));
+      e.push(new ValFrame(lhs_ary));
       return;
     }
  else     throw new IllegalArgumentException("Invalid row selection. (note: RHS was Frame");
