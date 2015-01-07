@@ -10,8 +10,7 @@
     _idxs=new long[]{(long)((ASTNum)a).dbl()};
   }
  else   throw new IllegalArgumentException("Bad AST: Expected a span, series, or number for the column indices.");
-  _names=E.skipWS().peek() == '{' ? E.xpeek('{').parseString('}').replaceAll("\"","").split(";") : null;
-  if (_names == null)   throw new IllegalArgumentException("Bad AST: Expected names to not be null.");
+  _names=E.skipWS().peek() == '{' ? E.xpeek('{').parseString('}').replaceAll("\"","").split(";") : new String[]{E.parseString(E.peekPlus())};
   if (_names.length != _idxs.length)   throw new IllegalArgumentException("Mismatch! Number of columns to change (" + (_idxs.length) + ") does not match number of names given ("+ (_names.length)+ ").");
   ASTSetColNames res=(ASTSetColNames)clone();
   res._asts=new AST[]{ary};
