@@ -1,23 +1,14 @@
 {
   if (null == o)   return null;
-  if (water.Keyed.class.isAssignableFrom(o.getClass())) {
-    Keyed k=(Keyed)o;
-    return k._key.toString();
+  Class clz=o.getClass();
+  if (water.Iced.class.isAssignableFrom(clz))   return (Iced)o;
+  if (clz.isArray()) {
+    return null;
   }
-  if (!o.getClass().isArray()) {
-    if (Schema.class.isAssignableFrom(o.getClass())) {
-      return new String(((Schema)o).writeJSON(new AutoBuffer()).buf());
-    }
- else {
-      return o.toString();
-    }
-  }
-  StringBuilder sb=new StringBuilder();
-  sb.append("[");
-  for (int i=0; i < Array.getLength(o); i++) {
-    if (i > 0)     sb.append(", ");
-    sb.append(consValue(Array.get(o,i)));
-  }
-  sb.append("]");
-  return sb.toString();
+  if (clz.isPrimitive())   return new IcedWrapper(o);
+  if (o instanceof Number)   return new IcedWrapper(o);
+  if (o instanceof Boolean)   return new IcedWrapper(o);
+  if (o instanceof String)   return new IcedWrapper(o);
+  if (o instanceof Enum)   return new IcedWrapper(o);
+  throw new H2OIllegalArgumentException("o","consValue",o);
 }
