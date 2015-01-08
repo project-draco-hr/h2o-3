@@ -3,6 +3,7 @@
   try {
     _parms.read_lock_frames(KMeans.this);
     init(true);
+    if (error_count() > 0)     throw new IllegalArgumentException("Found validation errors: " + validationErrors());
     model=new KMeansModel(dest(),_parms,new KMeansModel.KMeansOutput(KMeans.this));
     model.delete_and_lock(_key);
     model._output._ncats=_ncats;
