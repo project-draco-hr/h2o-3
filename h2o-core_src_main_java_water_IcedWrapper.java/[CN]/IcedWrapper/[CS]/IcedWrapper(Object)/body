@@ -1,40 +1,97 @@
 {
   if (null == o) {
     this.t=null;
+    return;
   }
- else   if (o instanceof Byte) {
-    i=(byte)o;
-    t=Byte.class;
-  }
- else   if (o instanceof Integer) {
-    i=(int)o;
-    t=Integer.class;
-  }
- else   if (o instanceof Long) {
-    l=(long)o;
-    t=Long.class;
-  }
- else   if (o instanceof Float) {
-    f=(float)o;
-    t=Float.class;
-  }
- else   if (o instanceof Double) {
-    d=(double)o;
-    t=Double.class;
-  }
- else   if (o instanceof Boolean) {
-    b=(boolean)o;
-    t=Boolean.class;
-  }
- else   if (o instanceof String) {
-    s=(String)o;
-    t=String.class;
-  }
- else   if (o instanceof Enum) {
-    e=((Enum)o).toString();
-    t=Enum.class;
+  this.is_array=o.getClass().isArray();
+  if (is_array) {
+    Class clz=o.getClass().getComponentType();
+    if (clz == Byte.class) {
+      t=Byte.TYPE;
+    }
+ else     if (clz == Byte.TYPE) {
+      t=Byte.TYPE;
+    }
+ else     if (clz == Integer.class) {
+      t=Integer.TYPE;
+      i_ar=ArrayUtils.toPrimitive((Integer[])o);
+    }
+ else     if (clz == Integer.TYPE) {
+      t=Integer.TYPE;
+      i_ar=(int[])o;
+    }
+ else     if (clz == Long.class) {
+      t=Long.TYPE;
+      l_ar=ArrayUtils.toPrimitive((Long[])o);
+    }
+ else     if (clz == Long.TYPE) {
+      t=Long.TYPE;
+      l_ar=(long[])o;
+    }
+ else     if (clz == Float.class) {
+      t=Float.TYPE;
+      f_ar=ArrayUtils.toPrimitive((Float[])o);
+    }
+ else     if (clz == Float.TYPE) {
+      t=Float.TYPE;
+      f_ar=(float[])o;
+    }
+ else     if (clz == Double.class) {
+      t=Double.TYPE;
+      d_ar=ArrayUtils.toPrimitive((Double[])o);
+    }
+ else     if (clz == Double.TYPE) {
+      t=Double.TYPE;
+      d_ar=(double[])o;
+    }
+ else     if (clz == Boolean.class) {
+      t=Boolean.TYPE;
+    }
+ else     if (clz == Boolean.TYPE) {
+      t=Boolean.TYPE;
+    }
+ else     if (clz == String.class) {
+      t=String.class;
+      s_ar=(String[])o;
+    }
+ else     if (clz == Enum.class) {
+      t=Enum.class;
+      e_ar=(String[])o;
+    }
   }
  else {
-    throw new H2OIllegalArgumentException("o","IcedWrapper",o);
+    if (o instanceof Byte) {
+      i=(byte)o;
+      t=Byte.TYPE;
+    }
+ else     if (o instanceof Integer) {
+      i=(int)o;
+      t=Integer.TYPE;
+    }
+ else     if (o instanceof Long) {
+      l=(long)o;
+      t=Long.TYPE;
+    }
+ else     if (o instanceof Float) {
+      f=(float)o;
+      t=Float.TYPE;
+    }
+ else     if (o instanceof Double) {
+      d=(double)o;
+      t=Double.TYPE;
+    }
+ else     if (o instanceof Boolean) {
+      b=(boolean)o;
+      t=Boolean.TYPE;
+    }
+ else     if (o instanceof String) {
+      s=(String)o;
+      t=String.class;
+    }
+ else     if (o instanceof Enum) {
+      e=((Enum)o).toString();
+      t=Enum.class;
+    }
   }
+  if (null == t)   throw new H2OIllegalArgumentException("o","IcedWrapper",o);
 }
