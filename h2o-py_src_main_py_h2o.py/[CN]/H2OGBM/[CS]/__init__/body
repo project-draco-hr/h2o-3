@@ -1,4 +1,4 @@
-def __init__(self, dataset, x, ntrees=50, shrinkage=0.1, interaction_depth=5, distribution='AUTO'):
+def __init__(self, dataset, x, ntrees=50, shrinkage=0.1, interaction_depth=5, distribution='AUTO', validation_dataset=None):
     if (not isinstance(dataset, H2OFrame)):
         raise ValueError(('dataset must be a H2OFrame not ' + str(type(dataset))))
     self.dataset = dataset
@@ -15,16 +15,8 @@ def __init__(self, dataset, x, ntrees=50, shrinkage=0.1, interaction_depth=5, di
         raise ValueError('interaction_depth must be at least 1')
     self.interaction_depth = interaction_depth
     self.distribution = distribution
-    fr = _py_tmp_key()
-    cbind = (('(= !' + fr) + ' (cbind ')
-    for vec in dataset._vecs:
-        cbind += (('%' + vec._expr.eager()) + ' ')
-    cbind += '))'
-    H2OCONN.Rapids(cbind)
-    colnames = (((('(colnames= %' + fr) + ' {(: #0 #') + str((len(dataset._vecs) - 1))) + ')} {')
-    for vec in dataset._vecs:
-        colnames += (vec._name + ';')
-    colnames = (colnames[:(-1)] + '})')
-    H2OCONN.Rapids(colnames)
-    self._model = H2OCONN.GBM(distribution, shrinkage, ntrees, interaction_depth, x, fr)
+    fr = _send_frame(dataset)
+    if validation_dataset:
+        vfr = _send_frame(validation_dataset)
+    self._model = H2OCONN.GBM(distribution, shrinkage, ntrees, interaction_depth, x, fr, vfr)
     H2OCONN.Remove(fr)
