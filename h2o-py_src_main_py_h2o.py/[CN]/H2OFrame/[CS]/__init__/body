@@ -20,11 +20,11 @@ def __init__(self, local_fname=None, remote_fname=None, vecs=None):
                     self._vecs[i].append(data)
         print 'Imported', local_fname, 'into local python process'
     elif (vecs is not None):
-        vlen = len(vecs[0])
+        vlen = vecs[0].__len__()
         for v in vecs:
             if (not isinstance(v, Vec)):
                 raise ValueError('Not a list of Vecs')
-            if (len(v) != vlen):
+            if (v.__len__() != vlen):
                 raise ValueError(((('Vecs not the same size, ' + str(vlen)) + ' vs ') + str(len(v))))
         self._vecs = vecs
     else:

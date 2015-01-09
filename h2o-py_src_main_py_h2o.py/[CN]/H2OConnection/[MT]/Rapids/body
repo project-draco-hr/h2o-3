@@ -1,2 +1,5 @@
 def Rapids(self, expr):
-    return self._doSafeGet(self.buildURL('Rapids', {'ast': urllib.quote(expr), }))
+    j = self._doSafeGet(self.buildURL('Rapids', {'ast': urllib.quote(expr), }))
+    if (('error' in j) and j['error']):
+        raise ValueError(j['error'])
+    return j
