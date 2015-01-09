@@ -1,0 +1,8 @@
+def __lt__(self, i):
+    if isinstance(i, Vec):
+        if (len(i) != len(self)):
+            raise ValueError(((('Vec len()=' + len(self)) + ' cannot be broadcast across len(i)=') + len(i)))
+        return Vec(((self._name + '<') + i._name), Expr('<', self, i))
+    if isinstance(i, (int, float)):
+        return Vec(((self._name + '<') + str(i)), Expr('<', self, Expr(i)))
+    raise NotImplementedError

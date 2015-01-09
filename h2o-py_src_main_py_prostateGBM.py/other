@@ -4,13 +4,17 @@ from h2o import H2OGBM
 cluster = H2OConnection()
 df = H2OFrame(remote_fname='smalldata/logreg/prostate.csv')
 print df.describe()
-train = df.drop('ID')
-vol = train['VOL']
+del df['ID']
+vol = df['VOL']
 vol[(vol == 0)] = None
-gle = train['GLEASON']
+gle = df['GLEASON']
 gle[(gle == 0)] = None
-train['CAPSULE'] = train['CAPSULE'].asfactor()
+df['CAPSULE'] = df['CAPSULE'].asfactor()
+r = vol.runif()
+train = df[(r < 0.8)]
+test = df[(r >= 0.8)]
 print train.describe()
-gbm = H2OGBM(dataset=train, x='CAPSULE', ntrees=50, learn_rate=0.1)
+print test.describe()
+gbm = H2OGBM(dataset=train, x='CAPSULE', validation_dataset=test, ntrees=50, max_depth=5, learn_rate=0.1)
 print gbm._model
 print gbm.metrics()
