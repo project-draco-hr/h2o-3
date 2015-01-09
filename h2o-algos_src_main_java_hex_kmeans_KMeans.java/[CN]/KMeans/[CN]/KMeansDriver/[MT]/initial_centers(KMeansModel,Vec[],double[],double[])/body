@@ -1,0 +1,39 @@
+{
+  Random rand=water.util.RandomUtils.getRNG(_parms._seed - 1);
+  double centers[][];
+  if (null != _parms._user_points) {
+    int numCenters=_parms._k;
+    int numCols=_parms._user_points.get().numCols();
+    centers=new double[numCenters][numCols];
+    Vec[] centersVecs=_parms._user_points.get().vecs();
+    for (int r=0; r < numCenters; r++) {
+      for (int c=0; c < numCols; c++) {
+        centers[r][c]=centersVecs[c].at(r);
+        centers[r][c]=data(centers[r][c],c,means,mults,vecs[c].cardinality());
+      }
+    }
+  }
+ else {
+    if (_parms._init == Initialization.Random) {
+      centers=new double[_parms._k][_train.numCols()];
+      for (      double[] center : centers)       randomRow(vecs,rand,center,means,mults);
+    }
+ else {
+      centers=new double[1][vecs.length];
+      randomRow(vecs,rand,centers[0],means,mults);
+      while (model._output._iters < 5) {
+        SumSqr sqr=new SumSqr(centers,means,mults,_ncats).doAll(vecs);
+        Sampler sampler=new Sampler(centers,means,mults,_ncats,sqr._sqr,_parms._k * 3,_parms._seed).doAll(vecs);
+        centers=ArrayUtils.append(centers,sampler._sampled);
+        if (!isRunning())         return null;
+        model._output._centers=destandardize(centers,_ncats,means,mults);
+        model._output._avgwithinss=sqr._sqr / _train.numRows();
+        model._output._iters++;
+        model.update(_key);
+      }
+      centers=recluster(centers,rand);
+      model._output._iters=-1;
+    }
+  }
+  return centers;
+}
