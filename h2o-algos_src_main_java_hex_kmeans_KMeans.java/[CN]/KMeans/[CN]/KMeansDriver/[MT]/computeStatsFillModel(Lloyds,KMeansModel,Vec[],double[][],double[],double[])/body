@@ -15,10 +15,8 @@
   model._output._avgwithinss=ssq / _train.numRows();
   if (_parms._k == 1)   model._output._avgss=model._output._avgwithinss;
  else {
-    double[][] orig=new double[1][means.length];
-    if (!_parms._standardize)     orig[0]=means;
-    SumSqr totss=new SumSqr(orig,means,mults,_ncats).doAll(vecs);
-    model._output._avgss=totss._sqr / _train.numRows();
+    TotSS totss=new TotSS(means,mults).doAll(vecs);
+    model._output._avgss=totss._tss / _train.numRows();
   }
   model._output._avgbetweenss=model._output._avgss - model._output._avgwithinss;
   return task._cMeans;
