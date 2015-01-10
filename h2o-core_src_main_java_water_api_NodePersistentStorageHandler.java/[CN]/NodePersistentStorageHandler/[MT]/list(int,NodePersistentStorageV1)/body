@@ -1,11 +1,15 @@
 {
   NodePersistentStorage nps=H2O.getNPS();
   NodePersistentStorageEntry[] entries=nps.list(s.category);
-  String[] arr=new String[entries.length];
+  s.entries=new NodePersistentStorageV1.NodePersistentStorageEntryV1[entries.length];
   int i=0;
-  s.names=arr;
   for (  NodePersistentStorageEntry entry : entries) {
-    s.names[i]=entry._name;
+    NodePersistentStorageV1.NodePersistentStorageEntryV1 e=new NodePersistentStorageV1.NodePersistentStorageEntryV1();
+    e.category=entry._category;
+    e.name=entry._name;
+    e.size=entry._size;
+    e.timestamp_millis=entry._timestamp_millis;
+    s.entries[i]=e;
     i++;
   }
   return s;
