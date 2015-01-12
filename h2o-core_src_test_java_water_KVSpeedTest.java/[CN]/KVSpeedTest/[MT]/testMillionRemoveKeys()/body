@@ -1,0 +1,29 @@
+{
+  long start;
+  start=System.currentTimeMillis();
+  new MRTask(){
+    @Override protected void setupLocal(){
+      long start=System.currentTimeMillis();
+      for (int i=0; i < NKEYS; i++) {
+        String s="Q" + i;
+        Key k=Key.make(s);
+        if (k.home())         DKV.put(k,new Value(k,s),_fs);
+ else         i--;
+      }
+      System.out.println("PUT1 " + H2O.SELF + " "+ NKEYS / (System.currentTimeMillis() - start));
+    }
+  }
+.doAllNodes();
+  System.out.println("PUTALL " + NCLOUD * NKEYS / (System.currentTimeMillis() - start));
+  start=System.currentTimeMillis();
+  new MRTask(){
+    @Override protected void setupLocal(){
+      long start=System.currentTimeMillis();
+      for (int i=0; i < NKEYS; i++)       DKV.prefetch(Key.make("Q" + i + 1));
+      for (int i=0; i < NKEYS; i++)       DKV.get(Key.make("Q" + i + 1));
+      System.out.println("GET1 " + H2O.SELF + " "+ NKEYS / (System.currentTimeMillis() - start));
+    }
+  }
+.doAllNodes();
+  System.out.println("GETALL " + NCLOUD * NKEYS / (System.currentTimeMillis() - start));
+}
