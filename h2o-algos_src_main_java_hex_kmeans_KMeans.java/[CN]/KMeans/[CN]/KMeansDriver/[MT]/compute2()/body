@@ -7,114 +7,22 @@
     model=new KMeansModel(dest(),_parms,new KMeansModel.KMeansOutput(KMeans.this));
     model.delete_and_lock(_key);
     model._output._ncats=_ncats;
-    Vec vecs[]=_train.vecs();
-    final int nvecs=vecs.length;
-    double[] means=new double[nvecs];
-    for (int i=0; i < nvecs; i++)     means[i]=vecs[i].mean();
-    double[] mults=null;
-    if (_parms._standardize) {
-      mults=new double[nvecs];
-      for (int i=0; i < nvecs; i++) {
-        double sigma=vecs[i].sigma();
-        mults[i]=standardize(sigma) ? 1.0 / sigma : 1.0;
-      }
-    }
-    Random rand=water.util.RandomUtils.getRNG(_parms._seed - 1);
-    double centers[][];
-    if (null != _parms._user_points) {
-      int numCenters=_parms._k;
-      int numCols=_parms._user_points.get().numCols();
-      centers=new double[numCenters][numCols];
-      Vec[] centersVecs=_parms._user_points.get().vecs();
-      for (int r=0; r < numCenters; r++) {
-        for (int c=0; c < numCols; c++) {
-          centers[r][c]=centersVecs[c].at(r);
-          centers[r][c]=data(centers[r][c],c,means,mults,vecs[c].cardinality());
-        }
-      }
-    }
- else {
-      if (_parms._init == Initialization.Random) {
-        centers=new double[_parms._k][_train.numCols()];
-        for (        double[] center : centers)         randomRow(vecs,rand,center,means,mults);
-      }
- else {
-        centers=new double[1][nvecs];
-        randomRow(vecs,rand,centers[0],means,mults);
-        while (model._output._iters < 5) {
-          SumSqr sqr=new SumSqr(centers,means,mults,_ncats).doAll(vecs);
-          Sampler sampler=new Sampler(centers,means,mults,_ncats,sqr._sqr,_parms._k * 3,_parms._seed).doAll(vecs);
-          centers=ArrayUtils.append(centers,sampler._sampled);
-          if (!isRunning())           return;
-          model._output._centers=destandardize(centers,_ncats,means,mults);
-          model._output._avgwithinss=sqr._sqr / _train.numRows();
-          model._output._iters++;
-          model.update(_key);
-        }
-        centers=recluster(centers,rand);
-      }
-    }
-    model._output._iters=-1;
-    double average_change=Double.POSITIVE_INFINITY;
-    LOOP:     do {
-      if (!isRunning())       return;
-      model._output._iters++;
+    final Vec vecs[]=_train.vecs();
+    final double[] means=prepMeans(vecs);
+    final double[] mults=prepMults(vecs);
+    double[][] centers=initial_centers(model,vecs,means,mults);
+    if (centers == null)     return;
+    double[][] oldCenters=null;
+    while (!isDone(model,centers,oldCenters)) {
       Lloyds task=new Lloyds(centers,means,mults,_ncats,_parms._k).doAll(vecs);
       max_cats(task._cMeans,task._cats);
-      boolean badrow=false;
-      for (int clu=0; clu < _parms._k; clu++) {
-        if (task._size[clu] == 0) {
-          if (badrow) {
-            Log.warn("KMeans: Re-running Lloyds to re-init another cluster");
-            model._output._iters--;
-            if (_reinit_attempts++ < _parms._k) {
-              continue LOOP;
-            }
- else {
-              _reinit_attempts=0;
-              break;
-            }
-          }
-          long row=task._worst_row;
-          Log.warn("KMeans: Re-initializing cluster " + clu + " to row "+ row);
-          data(centers[clu]=task._cMeans[clu],vecs,row,means,mults);
-          task._size[clu]=1;
-          badrow=true;
-        }
-      }
-      model._output._centers=destandardize(centers,_ncats,means,mults);
-      String[] rowHeaders=new String[_parms._k];
-      for (int i=0; i < _parms._k; i++)       rowHeaders[i]=String.valueOf(i + 1);
-      String[] colTypes=new String[_train.numCols()];
-      Arrays.fill(colTypes,"double");
-      model._output._centers2d=new TwoDimTable("Cluster means",rowHeaders,_train.names(),colTypes,null,new String[_parms._k][],model._output._centers);
-      model._output._size=task._size;
-      model._output._withinmse=task._cSqr;
-      double ssq=0;
-      for (int i=0; i < _parms._k; i++) {
-        ssq+=model._output._withinmse[i];
-        model._output._withinmse[i]/=task._size[i];
-      }
-      model._output._avgwithinss=ssq / _train.numRows();
-      if (_parms._k == 1)       model._output._avgss=model._output._avgwithinss;
- else {
-        SumSqr totss=new SumSqr(new double[1][means.length],means,mults,_ncats).doAll(vecs);
-        model._output._avgss=totss._sqr / _train.numRows();
-      }
-      model._output._avgbetweenss=model._output._avgss - model._output._avgwithinss;
+      if (cleanupBadClusters(task,vecs,centers,means,mults))       continue;
+      oldCenters=centers;
+      centers=computeStatsFillModel(task,model,vecs,centers,means,mults);
+      model._output._iters++;
       model.update(_key);
       update(1);
-      StringBuilder sb=new StringBuilder();
-      sb.append("KMeans: iter: ").append(model._output._iters).append(", MSE=").append(model._output._avgwithinss);
-      for (int i=0; i < _parms._k; i++)       sb.append(", ").append(task._cSqr[i]).append("/").append(task._size[i]);
-      Log.info(sb);
-      average_change=0;
-      for (int clu=0; clu < _parms._k; clu++)       average_change+=distance(centers[clu],task._cMeans[clu],_ncats);
-      average_change/=_parms._k;
-      Log.info("KMeans: Average change in cluster centers=" + average_change);
-      centers=task._cMeans;
     }
- while ((model._output._iters < _parms._max_iters) && (average_change > TOLERANCE));
   }
  catch (  Throwable t) {
     t.printStackTrace();
