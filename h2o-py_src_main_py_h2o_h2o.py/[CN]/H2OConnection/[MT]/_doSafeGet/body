@@ -1,0 +1,9 @@
+def _doSafeGet(self, url):
+    r = requests.get(url)
+    j = r.json()
+    if ('errmsg' in j):
+        raise ValueError(j['errmsg'])
+    if ('http_status' in j):
+        if ((j['http_status'] == 404) or (j['http_status'] == 500)):
+            raise ValueError(j['msg'])
+    return j

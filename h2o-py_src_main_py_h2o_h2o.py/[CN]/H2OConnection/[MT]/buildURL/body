@@ -1,0 +1,15 @@
+def buildURL(self, base, params):
+    s = ((self.url() + base) + '.json')
+    sep = '?'
+    for (k, v) in params.items():
+        s += ((sep + k) + '=')
+        if isinstance(v, list):
+            sep2 = '['
+            for l in v:
+                s += (sep2 + str(l).encode('utf-8'))
+                sep2 = ','
+            s += ']'
+        else:
+            s += str(v).encode('utf-8')
+        sep = '&'
+    return s

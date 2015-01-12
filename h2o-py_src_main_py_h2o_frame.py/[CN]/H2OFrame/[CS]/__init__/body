@@ -1,0 +1,35 @@
+def __init__(self, local_fname=None, remote_fname=None, vecs=None):
+    '\n        Create a new H2OFrame object by passing a file path or a list of H2OVecs.\n\n        If `remote_fname` is not None, then a REST call will be made to import the\n        data specified at the location `remote_fname`.\n\n        If `local_fname` is not None, then the data is not imported into the H2O cluster\n        at the time of object creation.\n\n        :param local_fname: A local path to a data source. Data is python-process-local.\n        :param remote_fname: A remote path to a data source. Data is cluster-local.\n        :param vecs: A list of H2OVec objects.\n        :return: An instance of an H2OFrame object.\n        '
+    self.local_fname = local_fname
+    self.remote_fname = remote_fname
+    self._vecs = None
+    if remote_fname:
+        if (not H2OCONN):
+            raise ValueError('No open h2o connection')
+        rawkey = H2OCONN.ImportFile(remote_fname)
+        setup = H2OCONN.ParseSetup(rawkey)
+        parse = H2OCONN.Parse(setup, H2OFrame._py_tmp_key())
+        cols = parse['columnNames']
+        rows = parse['rows']
+        veckeys = parse['vecKeys']
+        self._vecs = H2OVec.new_vecs(zip(cols, veckeys), rows)
+        print 'Imported', remote_fname, 'into cluster with', rows, 'rows and', len(cols), 'cols'
+    elif local_fname:
+        with open(local_fname, 'rb') as csvfile:
+            self._vecs = []
+            for name in csvfile.readline().split(','):
+                self._vecs.append(H2OVec(name.rstrip(), Expr([])))
+            for row in csv.reader(csvfile):
+                for (i, data) in enumerate(row):
+                    self._vecs[i].append(data)
+        print 'Imported', local_fname, 'into local python process'
+    elif (vecs is not None):
+        vlen = len(vecs[0])
+        for v in vecs:
+            if (not isinstance(v, H2OVec)):
+                raise ValueError('Not a list of Vecs')
+            if (len(v) != vlen):
+                raise ValueError(((('Vecs not the same size: ' + str(vlen)) + ' != ') + str(len(v))))
+        self._vecs = vecs
+    else:
+        raise ValueError('Frame made from CSV file or an array of Vecs only')

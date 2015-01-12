@@ -1,0 +1,11 @@
+def __add__(self, i):
+    '\n        Basic binary addition.\n\n        Supports H2OVec + H2OVec and H2OVec + int\n\n        :param i: A Vec or a float\n        :return: A new H2OVec.\n        '
+    if isinstance(i, H2OVec):
+        if (len(i) != len(self)):
+            raise ValueError(((('len(self)=' + len(self)) + ' cannot be broadcast across len(i)=') + len(i)))
+        return H2OVec(((self._name + '+') + i._name), Expr('+', self, i))
+    if isinstance(i, (int, float)):
+        if (i == 0):
+            return self
+        return H2OVec(((self._name + '+') + str(i)), Expr('+', self, Expr(i)))
+    raise NotImplementedError
