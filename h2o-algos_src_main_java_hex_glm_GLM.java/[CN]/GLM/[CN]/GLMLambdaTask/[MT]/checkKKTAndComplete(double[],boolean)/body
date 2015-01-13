@@ -33,12 +33,9 @@
  else         if (subgrad[c] < -err)         err=-subgrad[c];
         int[] failedCols=new int[64];
         int fcnt=0;
-        double grad_eps=GLM_GRAD_EPS;
-        for (        int c : _activeCols)         if (subgrad[c] > grad_eps)         grad_eps=subgrad[c];
- else         if (subgrad[c] < -grad_eps)         grad_eps=-subgrad[c];
         for (int i=0; i < grad.length - 1; ++i) {
           if (Arrays.binarySearch(_activeCols,i) >= 0)           continue;
-          if (subgrad[i] > grad_eps || -subgrad[i] > grad_eps) {
+          if (subgrad[i] > err || -subgrad[i] > err) {
             if (fcnt == failedCols.length)             failedCols=Arrays.copyOf(failedCols,failedCols.length << 1);
             failedCols[fcnt++]=i;
           }
@@ -48,10 +45,8 @@
           _activeCols=Arrays.copyOf(_activeCols,_activeCols.length + fcnt);
           for (int i=0; i < fcnt; ++i)           _activeCols[n + i]=failedCols[i];
           Arrays.sort(_activeCols);
-          LogInfo(fcnt + " variables failed KKT conditions check! Adding them to the model and continuing computation.(grad_eps = " + grad_eps+ ", activeCols = "+ (_activeCols.length > 100 ? "lost" : Arrays.toString(_activeCols)));
+          LogInfo(fcnt + " variables failed KKT conditions check! Adding them to the model and continuing computation.(grad_eps = " + err+ ", activeCols = "+ (_activeCols.length > 100 ? "lost" : Arrays.toString(_activeCols)));
           _activeData=_taskInfo._dinfo.filterExpandedColumns(_activeCols);
-          getCompleter().addToPendingCount(1);
-          new GLMIterationTask(_jobKey,_activeData,_taskInfo._params,true,true,true,contractVec(glmt2._beta,_activeCols),_taskInfo._ymu,1.0 / _taskInfo._nobs,_taskInfo._thresholds,new Iteration(getCompleter())).asyncExec(_activeData._adaptedFrame);
           return;
         }
       }
