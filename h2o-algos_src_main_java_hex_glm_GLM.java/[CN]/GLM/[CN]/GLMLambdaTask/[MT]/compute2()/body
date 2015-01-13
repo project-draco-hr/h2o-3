@@ -8,5 +8,18 @@
   if (n > _taskInfo._params._max_active_predictors)   throw new TooManyPredictorsException();
   double[] beta=contractVec(_taskInfo._beta,_activeCols);
   _lastResult=new IterationInfo(_taskInfo._iter,beta,contractVec(_taskInfo._gradient,_activeCols),_taskInfo._objval);
-  new GLMIterationTask(_jobKey,_activeData,_taskInfo._params,true,false,false,beta,_taskInfo._ymu,1.0 / _taskInfo._nobs,_taskInfo._thresholds,new Iteration(this)).asyncExec(_activeData._adaptedFrame);
+  boolean LBFGS=_forceLBFGS;
+  if (LBFGS) {
+    if (_taskInfo._params._alpha[0] > 0 || _activeCols != null)     throw H2O.unimpl();
+    GLM.GLMGradientSolver solver=new GLM.GLMGradientSolver(_taskInfo._params,_activeData,1e-5,_taskInfo._ymu,_taskInfo._nobs);
+    L_BFGS.Result r=L_BFGS.solve(_activeData.fullN() + 1,solver,new L_BFGS_Params());
+    GLM.GLMGradientInfo ginfo=(GLM.GLMGradientInfo)r.ginfo;
+    double[] newBeta=r.coefs;
+    _taskInfo._beta=newBeta;
+    _taskInfo._gradient=ginfo._gradient;
+    _taskInfo._iter=(_iter+=r.iter);
+    setSubmodel(newBeta,ginfo._val,this);
+    tryComplete();
+  }
+ else   new GLMIterationTask(_jobKey,_activeData,_taskInfo._params,true,false,false,beta,_taskInfo._ymu,1.0 / _taskInfo._nobs,_taskInfo._thresholds,new Iteration(this)).asyncExec(_activeData._adaptedFrame);
 }
