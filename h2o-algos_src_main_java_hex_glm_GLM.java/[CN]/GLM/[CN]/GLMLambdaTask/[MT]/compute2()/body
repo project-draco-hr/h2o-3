@@ -11,8 +11,13 @@
   boolean LBFGS=_forceLBFGS;
   if (LBFGS) {
     if (_taskInfo._params._alpha[0] > 0 || _activeCols != null)     throw H2O.unimpl();
-    GLM.GLMGradientSolver solver=new GLM.GLMGradientSolver(_taskInfo._params,_activeData,1e-5,_taskInfo._ymu,_taskInfo._nobs);
-    L_BFGS.Result r=L_BFGS.solve(_activeData.fullN() + 1,solver,new L_BFGS_Params());
+    Log.info("current lambda = " + _currentLambda);
+    GLM.GLMGradientSolver solver=new GLM.GLMGradientSolver(_taskInfo._params,_activeData,_currentLambda,_taskInfo._ymu,_taskInfo._nobs);
+    if (beta == null) {
+      beta=MemoryManager.malloc8d(_activeData.fullN() + 1);
+      beta[beta.length - 1]=_taskInfo._params.link(_taskInfo._ymu);
+    }
+    L_BFGS.Result r=L_BFGS.solve(solver,new L_BFGS_Params(),beta);
     GLM.GLMGradientInfo ginfo=(GLM.GLMGradientInfo)r.ginfo;
     double[] newBeta=r.coefs;
     _taskInfo._beta=newBeta;
