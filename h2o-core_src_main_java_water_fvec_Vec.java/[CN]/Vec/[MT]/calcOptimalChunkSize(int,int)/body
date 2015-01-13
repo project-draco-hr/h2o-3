@@ -1,0 +1,21 @@
+{
+  int localParseSize=totalSize / H2O.getCloudSize();
+  int chunkSize=localParseSize / (Runtime.getRuntime().availableProcessors() * 4);
+  if (chunkSize <= (1 << 15)) {
+    water.util.Log.info("super small " + DFLT_CHUNK_SIZE);
+    return DFLT_CHUNK_SIZE;
+  }
+  chunkSize=1 << MathUtils.log2(chunkSize);
+  if (chunkSize < DFLT_CHUNK_SIZE) {
+    water.util.Log.info("small " + chunkSize);
+    return chunkSize;
+  }
+  chunkSize=localParseSize * numCols / (1 << 22);
+  if (chunkSize > DFLT_CHUNK_SIZE) {
+    chunkSize=1 << MathUtils.log2(chunkSize);
+    water.util.Log.info("big " + chunkSize);
+    if (chunkSize > (1 << 30))     return (1 << 30);
+    return chunkSize;
+  }
+  return DFLT_CHUNK_SIZE;
+}
