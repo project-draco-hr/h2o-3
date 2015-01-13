@@ -1,20 +1,9 @@
 {
-  if (null != model) {
-    Value v=DKV.get(this.model);
-    if (null == v)     throw new IllegalArgumentException("Model key not found: " + model);
-    mml.model=v.get();
-  }
-  if (null != frame) {
-    Value v=DKV.get(this.frame);
-    if (null == v)     throw new IllegalArgumentException("Frame key not found: " + frame);
-    mml.frame=v.get();
-  }
+  mml._model=DKV.getGet(this.model);
+  mml._frame=DKV.getGet(this.frame);
   if (null != model_metrics) {
-    mml.model_metrics=new ModelMetrics[model_metrics.length];
-    int i=0;
-    for (    ModelMetricsBase mmb : this.model_metrics) {
-      mml.model_metrics[i++]=mmb.createImpl();
-    }
+    mml._model_metrics=new ModelMetrics[model_metrics.length];
+    for (int i=0; i < model_metrics.length; i++)     mml._model_metrics[i++]=model_metrics[i].createImpl();
   }
   return mml;
 }

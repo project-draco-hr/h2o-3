@@ -1,16 +1,16 @@
 {
   if (_parms._loss == GBMModel.GBMParameters.Family.bernoulli) {
-    fs[1]=1.0f / (float)(1f + Math.exp(chk_tree(chks,0).at0(row)));
+    fs[1]=1.0f / (float)(1f + Math.exp(chk_tree(chks,0).atd(row)));
     fs[2]=1f - fs[1];
     return fs[1] + fs[2];
   }
-  if (_nclass == 1)   return fs[0]=(float)chk_tree(chks,0).at0(row);
+  if (_nclass == 1)   return fs[0]=(float)chk_tree(chks,0).atd(row);
   if (_nclass == 2) {
-    fs[1]=(float)Math.exp(chk_tree(chks,0).at0(row));
+    fs[1]=(float)Math.exp(chk_tree(chks,0).atd(row));
     fs[2]=1.0f / fs[1];
     return fs[1] + fs[2];
   }
   float sum=0;
-  for (int k=0; k < _nclass; k++)   sum+=(fs[k + 1]=(float)Math.exp(chk_tree(chks,k).at0(row)));
+  for (int k=0; k < _nclass; k++)   sum+=(fs[k + 1]=(float)Math.exp(chk_tree(chks,k).atd(row)));
   return sum;
 }

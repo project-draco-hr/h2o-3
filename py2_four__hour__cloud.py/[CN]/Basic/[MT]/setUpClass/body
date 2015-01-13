@@ -1,0 +1,9 @@
+@classmethod
+def setUpClass(cls):
+    global SEED, localhost
+    SEED = h2o.setup_random_seed()
+    localhost = False
+    if localhost:
+        h2o.init(3, create_json=True, java_heap_GB=4, delete_keys_at_teardown=True)
+    else:
+        h2o.init(create_json=True, delete_keys_at_teardown=True)

@@ -5,5 +5,9 @@ def _doSafeGet(self, url):
         raise ValueError(j['errmsg'])
     if ('http_status' in j):
         if ((j['http_status'] == 404) or (j['http_status'] == 500)):
-            raise ValueError(j['msg'])
+            if j['msg']:
+                raise ValueError(j['msg'])
+            if ('stacktrace' in j):
+                raise ValueError(j['stacktrace'])
+            raise ValueError(j)
     return j
