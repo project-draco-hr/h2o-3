@@ -1,25 +1,25 @@
 {
   double currentLambda=lambdas[_lambdaId];
-  if (_params._n_folds > 1) {
+  if (_parms._n_folds > 1) {
     ParallelTasks<GLMLambdaTask> t=(ParallelTasks<GLMLambdaTask>)h2OCountedCompleter;
     for (int i=0; i < t._tasks.length; ++i)     _state[i]=t._tasks[i]._taskInfo;
   }
   if (++_lambdaId < _maxLambda) {
     getCompleter().addToPendingCount(1);
     double nextLambda=lambdas[_lambdaId];
-    if (_params._n_folds > 1) {
+    if (_parms._n_folds > 1) {
       GLMLambdaTask[] tasks=new GLMLambdaTask[_state.length];
-      H2OCountedCompleter cmp=new LambdaSearchIteration((H2OCountedCompleter)getCompleter());
+      H2OCountedCompleter cmp=new LambdaSearchIteration((H2OCountedCompleter)getCompleter(),_forceLBFGS);
       cmp.addToPendingCount(tasks.length - 1);
       for (int i=0; i < tasks.length; ++i) {
         _state[i]._lastLambda=currentLambda;
-        tasks[i]=new GLMLambdaTask(cmp,_jobKey,_progressKey,_state[i],nextLambda);
+        tasks[i]=new GLMLambdaTask(cmp,_key,_progressKey,_state[i],nextLambda,false);
       }
-      new ParallelTasks(new LambdaSearchIteration((H2OCountedCompleter)getCompleter()),tasks).fork();
+      new ParallelTasks(new LambdaSearchIteration((H2OCountedCompleter)getCompleter(),_forceLBFGS),tasks).fork();
     }
  else {
       _state[0]._lastLambda=currentLambda;
-      new GLMLambdaTask(new LambdaSearchIteration((H2OCountedCompleter)getCompleter()),_jobKey,_progressKey,_state[0],nextLambda).fork();
+      new GLMLambdaTask(new LambdaSearchIteration((H2OCountedCompleter)getCompleter(),_forceLBFGS),_key,_progressKey,_state[0],nextLambda,_forceLBFGS).fork();
     }
   }
 }
