@@ -4,9 +4,9 @@ def send_frame(dataset):
     fr = H2OFrame._py_tmp_key()
     cbind = (('(= !' + fr) + ' (cbind %')
     cbind += (' %'.join([vec.get_expr().eager() for vec in dataset.get_vecs()]) + '))')
-    H2OCONN.Rapids(cbind)
+    h2o.rapids(cbind)
     colnames = (((('(colnames= %' + fr) + ' {(: #0 #') + str((len(dataset) - 1))) + ')} {')
     cnames = ';'.join([vec.name() for vec in dataset.get_vecs()])
     colnames += (cnames + '})')
-    H2OCONN.Rapids(colnames)
+    h2o.rapids(colnames)
     return fr

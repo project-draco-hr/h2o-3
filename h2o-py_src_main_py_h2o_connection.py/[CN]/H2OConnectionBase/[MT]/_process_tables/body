@@ -1,0 +1,13 @@
+@staticmethod
+def _process_tables(x=None):
+    if x:
+        elts = ['tableHeader', 'rowHeaders', 'colHeaders', 'colTypes', 'colFormats', 'cellValues']
+        if isinstance(x, dict):
+            have_table = all([(True if (i in elts) else False) for i in x.keys()])
+            if ((len(x) == len(elts)) and have_table):
+                tbl = x['cellValues']
+                x = tbl
+        else:
+            for k in x:
+                x[k] = H2OConnectionBase._process_tables(x[k])
+    return x

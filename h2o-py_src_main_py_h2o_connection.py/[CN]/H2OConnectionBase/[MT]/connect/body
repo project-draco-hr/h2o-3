@@ -1,0 +1,10 @@
+@staticmethod
+def connect(size=1):
+    '\n        Does not actually "connect", instead simply tests that the cluster can be reached,\n        is of a certain size, and is taking basic status commands.\n        :param size: The number of H2O instances in the cloud.\n        :return: The JSON response from a "stable" cluster.\n        '
+    while True:
+        cld = H2OConnectionBase._do_safe_get_json(url_suffix='Cloud')
+        if (not cld['cloud_healthy']):
+            raise ValueError('Cluster reports unhealthy status', cld)
+        if ((cld['cloud_size'] >= size) and cld['consensus']):
+            return cld
+        time.sleep(0.1)
