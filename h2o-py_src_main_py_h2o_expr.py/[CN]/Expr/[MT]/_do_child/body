@@ -1,0 +1,15 @@
+def _do_child(self, left=True):
+    child = (self.left() if left else self.rite())
+    assert ((child is None) or isinstance(child, Expr))
+    global __CMD__
+    if child:
+        if child.is_pending():
+            child.do_it()
+        elif isinstance(child.data(), (int, float)):
+            __CMD__ += ('#' + str(child.data()))
+        elif isinstance(child.data(), unicode):
+            __CMD__ += ('%' + str(child.data()))
+        else:
+            pass
+    __CMD__ += ' '
+    return child

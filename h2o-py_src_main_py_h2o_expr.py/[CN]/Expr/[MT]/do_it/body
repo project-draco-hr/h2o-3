@@ -1,0 +1,75 @@
+def do_it(self):
+    '\n        External API for eager; called by all top-level demanders (e.g. print)\n        This may trigger (recursive) big-data evaluation.\n        :return: None\n        '
+    if self.is_computed():
+        return
+    assign_vec = (self.left().left() if ((self._op == '=') and (self.left().op() == '[')) else None)
+    global __CMD__
+    cnt = (sys.getrefcount(self) - 1)
+    py_tmp = ((cnt != 4) and (self._len > 1) and (not assign_vec))
+    if py_tmp:
+        self._data = H2OFrame.py_tmp_key()
+        __CMD__ += (('(= !' + self._data) + ' ')
+    __CMD__ += (('(' + self._op) + ' ')
+    left = self._do_child(True)
+    rite = self._do_child(False)
+    if (self.op() == '+'):
+        if isinstance(left.data(), (int, float)):
+            if isinstance(rite.data(), (int, float)):
+                self._data = (left + rite)
+            elif rite.is_local():
+                self._data = [(left + x) for x in rite.data()]
+            else:
+                pass
+        elif isinstance(rite.data(), (int, float)):
+            if left.is_local():
+                self._data = [(x + rite) for x in left.data()]
+            else:
+                pass
+        elif (left.is_local() and rite.is_local()):
+            self._data = [(x + y) for (x, y) in zip(left.data(), rite.data())]
+        elif ((left.is_remote() or (left.data() is None)) and (rite.is_remote() or (rite.data() is None))):
+            pass
+        else:
+            raise NotImplementedError
+    elif (self._op == '=='):
+        if isinstance(left.data(), (int, float)):
+            raise NotImplementedError
+        elif isinstance(rite._data, (int, float)):
+            if left.is_local():
+                self._data = [(x == rite.data()) for x in left.data()]
+            else:
+                pass
+        else:
+            raise NotImplementedError
+    elif (self._op == '['):
+        if left.is_local():
+            self._data = left.data()[rite.data()]
+        else:
+            __CMD__ += ' "null"'
+    elif (self._op == '='):
+        if left.is_local():
+            raise NotImplementedError
+        elif (rite is None):
+            __CMD__ += '#NaN'
+    elif (self._op == 'mean'):
+        if left.is_local():
+            self._data = (sum(left.data()) / len(left.data()))
+        else:
+            __CMD__ += ' #0 %TRUE'
+    elif (self._op == 'as.factor'):
+        if left.is_local():
+            self._data = map(str, left.data())
+        else:
+            pass
+    else:
+        raise NotImplementedError
+    __CMD__ += ')'
+    if py_tmp:
+        __CMD__ += ')'
+    self._left = None
+    self._rite = None
+    if assign_vec:
+        if (assign_vec.op() != 'rawdata'):
+            raise NotImplementedError
+        self._left = assign_vec
+        self._data = assign_vec.data()

@@ -1,0 +1,26 @@
+def summary(self):
+    self.eager()
+    if self.is_local():
+        x = self._data[0]
+        t = ('int' if isinstance(x, int) else ('enum' if isinstance(x, str) else 'real'))
+        mins = [min(self._data)]
+        maxs = [max(self._data)]
+        n = len(self._data)
+        mean = ((sum(self._data) / n) if (t != 'enum') else None)
+        ssq = 0
+        zeros = 0
+        missing = 0
+        for x in self._data:
+            if (t != 'enum'):
+                ssq += ((x - mean) * (x - mean))
+            if (x == 0):
+                zeros += 1
+            if ((x is None) or ((t != 'enum') and isnan(x))):
+                missing += 1
+        stddev = (sqrt((ssq / (n - 1))) if (t != 'enum') else None)
+        return {'type': t, 'mins': mins, 'maxs': maxs, 'mean': mean, 'sigma': stddev, 'zeros': zeros, 'missing': missing, }
+    if self._summary:
+        return self._summary
+    j = h2o.frame(self._data)
+    self._summary = j['frames'][0]['columns'][0]
+    return self._summary
