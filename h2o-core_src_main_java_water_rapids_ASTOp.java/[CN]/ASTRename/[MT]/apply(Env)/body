@@ -1,11 +1,6 @@
 {
   Frame fr=e.popAry();
-  Futures fs=new Futures();
-  Frame ff=DKV.remove(fr._key,fs).get();
-  fs.blockForPending();
-  Frame fr2=new Frame(Key.make(_newname),ff.names(),ff.vecs());
-  Futures fs2=new Futures();
-  DKV.put(Key.make(_newname),fr2,fs2);
-  fs2.blockForPending();
+  Frame fr2=new Frame(Key.make(_newname),fr.names(),fr.deepSlice(null,null).vecs());
+  DKV.put(Key.make(_newname),fr2);
   e.pushAry(fr2);
 }
