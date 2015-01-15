@@ -10,7 +10,7 @@ def _attempt_rest(url='', method='GET', post_body=None, file_upload_info=None, p
         except requests.HTTPError as e2:
             http_result['http_error'] = True
             http_result['http_error_message'] = e2.message
-    elif (not file_upload_info):
+    elif file_upload_info:
         if (not (method == 'POST')):
             raise ValueError(('Recieved file upload info and expected method to be POST. Got: ' + method))
         try:
@@ -23,7 +23,7 @@ def _attempt_rest(url='', method='GET', post_body=None, file_upload_info=None, p
             http_result['http_error_message'] = e2.message
     elif (method == 'POST'):
         try:
-            http_result['http_payload'] = requests.post(url, params=params, **kwargs)
+            http_result['http_payload'] = requests.post(url, params=post_body, **kwargs)
         except requests.ConnectionError as e:
             http_result['http_error'] = True
             http_result['http_error_message'] = e.message

@@ -1,0 +1,22 @@
+import h2o
+cluster = h2o.connect()
+a = h2o.H2OFrame(remote_fname='smalldata/iris/iris_wheader.csv')[0:4]
+print a[0].name()
+print a[0][2].show()
+print a['sepal_len'][2].show()
+print (a[0] + 2).show()
+print (a[0] + a[1]).show()
+print sum(a).show()
+print a['sepal_len'].mean().show()
+try:
+    print a['Sepal_len']
+except ValueError as ex:
+    pass
+b = h2o.H2OFrame(remote_fname='smalldata/iris/iris_wheader.csv')[0:4]
+c = (a + b)
+d = ((c + c) + sum(a))
+e = ((c + a) + 1)
+print e.show()
+print c.show()
+c = None
+print (1 + (a[0] + b[1]).mean())

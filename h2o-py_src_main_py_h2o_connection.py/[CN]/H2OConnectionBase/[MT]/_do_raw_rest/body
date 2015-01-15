@@ -11,7 +11,7 @@ def _do_raw_rest(url_suffix=None, params=None, method=None, file_upload_info=Non
             parts[k] += ','.join([str(l).encode('utf-8') for l in params[k]])
             parts[k] += ']'
         else:
-            parts[k] = str(params[k].encode('utf-8'))
+            parts[k] = str(params[k]).encode('utf-8')
     query_string = '&'.join([('%s=%s' % (k, v)) for (k, v) in parts.items()])
     post_body = ''
     if (not file_upload_info):
@@ -29,5 +29,5 @@ def _do_raw_rest(url_suffix=None, params=None, method=None, file_upload_info=Non
     end_time_seconds = time.time()
     elapsed_time_seconds = (end_time_seconds - begin_time_seconds)
     elapsed_time_millis = (elapsed_time_seconds * 1000)
-    print ('Time to perform REST call (millis): ' + elapsed_time_millis)
+    print ('Time to perform REST call (millis): ' + str(elapsed_time_millis))
     return http_result
