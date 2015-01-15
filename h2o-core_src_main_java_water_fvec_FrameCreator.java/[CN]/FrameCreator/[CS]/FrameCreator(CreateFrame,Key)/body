@@ -2,7 +2,7 @@
   super(null);
   _job=job;
   _createFrame=createFrame;
-  int[] idx=ArrayUtils.seq(1,_createFrame.cols + 1);
+  int[] idx=_createFrame.has_response ? ArrayUtils.seq(1,_createFrame.cols + 1) : ArrayUtils.seq(0,_createFrame.cols);
   int[] shuffled_idx=new int[idx.length];
   ArrayUtils.shuffleArray(idx,idx.length,shuffled_idx,_createFrame.seed,0);
   int catcols=(int)(_createFrame.categorical_fraction * _createFrame.cols);
@@ -18,13 +18,18 @@
   _real_cols=Arrays.copyOfRange(shuffled_idx,catcols + intcols,catcols + intcols + realcols);
   _bin_cols=Arrays.copyOfRange(shuffled_idx,catcols + intcols + realcols,catcols + intcols + realcols+ bincols);
   if (_createFrame.randomize) {
-    assert(_createFrame.response_factors >= 1);
-    _domain=new String[_createFrame.cols + 1][];
-    _domain[0]=_createFrame.response_factors == 1 ? null : new String[_createFrame.response_factors];
-    if (_domain[0] != null) {
-      for (int i=0; i < _domain[0].length; ++i) {
-        _domain[0][i]="resp." + i;
+    if (_createFrame.has_response) {
+      assert(_createFrame.response_factors >= 1);
+      _domain=new String[_createFrame.cols + 1][];
+      _domain[0]=_createFrame.response_factors == 1 ? null : new String[_createFrame.response_factors];
+      if (_domain[0] != null) {
+        for (int i=0; i < _domain[0].length; ++i) {
+          _domain[0][i]="resp." + i;
+        }
       }
+    }
+ else {
+      _domain=new String[_createFrame.cols][];
     }
     for (    int c : _cat_cols) {
       _domain[c]=new String[_createFrame.factors];
