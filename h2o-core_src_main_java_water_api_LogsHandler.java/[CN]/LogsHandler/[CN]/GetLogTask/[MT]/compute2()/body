@@ -1,0 +1,29 @@
+{
+  String logPathFilename;
+  try {
+    logPathFilename=Log.getLogDir() + File.separator + filename;
+    File f=new File(logPathFilename);
+    if (!f.exists()) {
+      throw new IllegalArgumentException("File does not exist");
+    }
+    if (!f.canRead()) {
+      throw new IllegalArgumentException("File is not readable");
+    }
+    BufferedReader reader=new BufferedReader(new FileReader(f));
+    String line;
+    StringBuilder sb=new StringBuilder();
+    line=reader.readLine();
+    while (line != null) {
+      sb.append(line);
+      sb.append("\n");
+      line=reader.readLine();
+    }
+    reader.close();
+    log=sb.toString();
+    success=true;
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+  tryComplete();
+}
