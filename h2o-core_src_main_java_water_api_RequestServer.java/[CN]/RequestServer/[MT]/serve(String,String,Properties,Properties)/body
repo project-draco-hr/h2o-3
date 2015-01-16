@@ -38,6 +38,9 @@
   }
 catch (  Exception e) {
     H2OError error=new H2OError(e,uri);
+    if (e instanceof IllegalArgumentException)     error._http_status=HttpResponseStatus.BAD_REQUEST.getCode();
+ else     if (e instanceof FileNotFoundException)     error._http_status=HttpResponseStatus.BAD_REQUEST.getCode();
+ else     if (e instanceof MalformedURLException)     error._http_status=HttpResponseStatus.BAD_REQUEST.getCode();
     Log.warn(error._dev_msg);
     Log.warn(error._values.toJsonString());
     Log.warn((Object[])error._stacktrace);
