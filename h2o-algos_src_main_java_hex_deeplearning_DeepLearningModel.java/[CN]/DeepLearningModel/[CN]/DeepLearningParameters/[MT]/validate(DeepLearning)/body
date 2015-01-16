@@ -2,6 +2,9 @@
   boolean classification=dl.isClassifier();
   if (_hidden == null || _hidden.length == 0)   dl.error("_hidden","There must be at least one hidden layer.");
   for (  int h : _hidden)   if (h == 0)   dl.error("_hidden","Hidden layer size must be >0.");
+  if (!_expert_mode) {
+    for (    String s : expert_options)     dl.hide(s,"Only in expert mode.");
+  }
   if (!_autoencoder) {
     if (_valid == null)     dl.hide("_score_validation_samples","score_validation_samples requires a validation frame.");
     if (classification) {
