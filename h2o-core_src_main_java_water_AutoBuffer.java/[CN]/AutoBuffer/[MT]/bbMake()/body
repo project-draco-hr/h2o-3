@@ -14,11 +14,12 @@
     try {
       bb=ByteBuffer.allocateDirect(BBSIZE).order(ByteOrder.nativeOrder());
       bbstats(BBMAKE);
+      if ((BBMAKE.get() & 511) == 511)       new Error().printStackTrace();
       return bb;
     }
  catch (    OutOfMemoryError oome) {
       if (!"Direct buffer memory".equals(oome.getMessage()))       throw oome;
-      System.out.println("Sleeping & retrying");
+      System.out.println("OOM DBB - Sleeping & retrying");
       try {
         Thread.sleep(100);
       }
