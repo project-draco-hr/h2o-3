@@ -1,7 +1,13 @@
 def validate_model_builder_result(result, original_params, model_name):
     " \n    Validate that a model build result has no parameter validation errors, \n    and that it has a Job with a Key.  Note that model build will return a\n    Job if successful, and a ModelBuilder with errors if it's not.\n    "
+    error = False
     if (('validation_error_count' in result) and (result['validation_error_count'] > 0)):
-        print 'Parameters validation error for model: ', model_name
+        print 'FAIL: Parameters validation error for model: ', model_name
+        error = True
+    if (result['__http_response']['status_code'] != requests.codes.ok):
+        error = True
+        print ('FAIL: expected 200 OK from a good validation request, got: ' + str(result['__http_response']['status_code']))
+    if error:
         print 'Input parameters: '
         pp.pprint(original_params)
         print 'Returned result: '
