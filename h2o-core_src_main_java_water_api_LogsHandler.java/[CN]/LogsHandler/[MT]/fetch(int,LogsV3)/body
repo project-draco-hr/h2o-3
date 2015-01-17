@@ -1,0 +1,26 @@
+{
+  int nodeidx=s.nodeidx;
+  if (nodeidx == -1) {
+    nodeidx=H2O.SELF.index();
+  }
+  if ((nodeidx < 0) || (nodeidx >= H2O.CLOUD.size())) {
+    throw new IllegalArgumentException("node does not exist");
+  }
+  String filename=s.filename;
+  if (filename != null) {
+    if (filename.contains(File.separator)) {
+      throw new IllegalArgumentException("filename may not contain File.separator character");
+    }
+  }
+  H2ONode node=H2O.CLOUD._memary[nodeidx];
+  GetLogTask t=new GetLogTask();
+  t.filename=filename;
+  Log.trace("GetLogTask starting to node " + nodeidx + "...");
+  new RPC<>(node,t).call().get();
+  Log.trace("GetLogTask completed to node " + nodeidx);
+  if (!t.success) {
+    throw new RuntimeException("GetLogTask failed");
+  }
+  s.log=t.log;
+  return s;
+}
