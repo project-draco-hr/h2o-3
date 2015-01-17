@@ -1,0 +1,15 @@
+{
+  if (!DEBUG)   return bb;
+  if ((ai.incrementAndGet() & 255) != 255)   return bb;
+  long now=System.currentTimeMillis();
+  if (now < HWM)   return bb;
+  HWM=now + 1000;
+  water.util.SB sb=new water.util.SB();
+  sb.p("BB").p(this == BBP_BIG ? 1 : 0).p(" make=").p(_made.get()).p(" free=").p(_freed.get()).p(" cache=").p(_cached.get()).p(" size=").p(_bbs.size()).nl();
+  for (int i=0; i < H2O.MAX_PRIORITY; i++) {
+    int x=H2O.getWrkQueueSize(i);
+    if (x > 0)     sb.p('Q').p(i).p('=').p(x).p(' ');
+  }
+  Log.warn(sb.nl().toString());
+  return bb;
+}

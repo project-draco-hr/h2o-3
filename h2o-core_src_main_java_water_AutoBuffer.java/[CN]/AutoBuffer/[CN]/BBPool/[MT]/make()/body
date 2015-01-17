@@ -2,19 +2,15 @@
   while (true) {
     ByteBuffer bb;
     try {
-      bb=BBS.pollFirst(0,TimeUnit.SECONDS);
+      bb=_bbs.pollFirst(0,TimeUnit.SECONDS);
     }
  catch (    InterruptedException e) {
       throw Log.throwErr(e);
     }
-    if (bb != null) {
-      bbstats(BBCACHE);
-      return bb;
-    }
+    if (bb != null)     return stats(_cached,bb);
     try {
-      bb=ByteBuffer.allocateDirect(BBSIZE).order(ByteOrder.nativeOrder());
-      bbstats(BBMAKE);
-      return bb;
+      bb=ByteBuffer.allocateDirect(_size).order(ByteOrder.nativeOrder());
+      return stats(_made,bb);
     }
  catch (    OutOfMemoryError oome) {
       if (!"Direct buffer memory".equals(oome.getMessage()))       throw oome;
