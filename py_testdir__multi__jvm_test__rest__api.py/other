@@ -5,6 +5,7 @@ import os
 import argparse
 import time
 import json
+import requests
 parser = argparse.ArgumentParser(description='Run basic H2O REST API tests.')
 parser.add_argument('--verbose', '-v', help='verbose output', action='count')
 parser.add_argument('--usecloud', help='ip:port to attach to', default='')
@@ -213,6 +214,7 @@ if verbose:
 dl_prostate_bad_parameters = {'response_column': 'CAPSULE', 'hidden': '[10, 20, 10]', 'input_dropout_ratio': 27, }
 parameters_validation = a_node.build_model(algo='deeplearning', destination_key='deeplearning_prostate_binomial_bad', training_frame='prostate_binomial', parameters=dl_prostate_bad_parameters, timeoutSecs=240)
 validate_validation_messages(parameters_validation, ['input_dropout_ratio'])
+assert (parameters_validation['__http_response']['status_code'] == requests.codes.bad_request), ('FAIL: expected 400 Bad Request from a bad build request, got: ' + str(parameters_validation['__http_response']['status_code']))
 if verbose:
     print 'Done trying to build DeepLearning model with bad parameters.'
 mm = a_node.compute_model_metrics(model='deeplearning_prostate_binomial', frame='prostate_binomial')

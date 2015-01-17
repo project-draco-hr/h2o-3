@@ -21,12 +21,12 @@
     if (route != null && route._handler_class != CloudHandler.class && route._handler_class != TutorialsHandler.class && route._handler_class != TypeaheadHandler.class)     Schema.registerAllSchemasIfNecessary();
     if (route == null)     return getResource(version,type,uri);
  else     if (route._handler_class == water.api.DownloadDataHandler.class) {
-      return wrap2(HTTP_OK,handle(type,route,version,parms));
+      return wrapDownloadData(HTTP_OK,handle(type,route,version,parms));
     }
  else {
       capturePathParms(parms,versioned_path,route);
       maybeLogRequest(path,versioned_path,route._url_pattern.pattern(),parms);
-      return wrap(HTTP_OK,handle(type,route,version,parms),type);
+      return wrap(handle(type,route,version,parms),type);
     }
   }
  catch (  H2OAbstractRuntimeException e) {
@@ -34,13 +34,16 @@
     Log.warn(error._dev_msg);
     Log.warn(error._values.toJsonString());
     Log.warn((Object[])error._stacktrace);
-    return wrap(error.httpStatusHeader(),new H2OErrorV1().fillFromImpl(error),type);
+    return wrap(new H2OErrorV1().fillFromImpl(error),type);
   }
 catch (  Exception e) {
     H2OError error=new H2OError(e,uri);
+    if (e instanceof IllegalArgumentException)     error._http_status=HttpResponseStatus.BAD_REQUEST.getCode();
+ else     if (e instanceof FileNotFoundException)     error._http_status=HttpResponseStatus.BAD_REQUEST.getCode();
+ else     if (e instanceof MalformedURLException)     error._http_status=HttpResponseStatus.BAD_REQUEST.getCode();
     Log.warn(error._dev_msg);
     Log.warn(error._values.toJsonString());
     Log.warn((Object[])error._stacktrace);
-    return wrap(error.httpStatusHeader(),new H2OErrorV1().fillFromImpl(error),type);
+    return wrap(new H2OErrorV1().fillFromImpl(error),type);
   }
 }

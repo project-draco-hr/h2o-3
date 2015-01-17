@@ -2,6 +2,7 @@
   B builder=builderSchema.createAndFillImpl();
   if (builder.error_count() > 0) {
     S errors=(S)Schema.schema(version,builder).fillFromImpl(builder);
+    errors.setHttpStatus(HttpResponseStatus.BAD_REQUEST.getCode());
     return errors;
   }
   Job j=builder.trainModel();
