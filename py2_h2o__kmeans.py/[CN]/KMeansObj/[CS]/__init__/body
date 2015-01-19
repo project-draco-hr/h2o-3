@@ -1,9 +1,9 @@
 def __init__(self, kmeansResult, parameters, numRows, numCols, labels, noPrint=False, **kwargs):
     super(KMeansObj, self).__init__(kmeansResult['models'][0]['output'], 'KMeans', noPrint=noPrint)
-    print self.withinmse
-    print self.avgss
-    print self.avgwithinss
-    print self.avgbetweenss
+    print self.within_mse
+    print self.avg_ss
+    print self.avg_within_ss
+    print self.avg_between_ss
     if ('python_elapsed' in kmeansResult):
         self.python_elapsed = kmeansResult['python_elapsed']
     size = self.size
@@ -13,8 +13,8 @@ def __init__(self, kmeansResult, parameters, numRows, numCols, labels, noPrint=F
     names = self.names
     ncats = self.ncats
     centers = self.centers
-    withinmse = self.withinmse
-    avgss = self.avgss
+    within_mse = self.within_mse
+    avg_ss = self.avg_ss
     if numRows:
         assert (numRows == sum(size))
     if ('k' in parameters):
@@ -36,14 +36,14 @@ def __init__(self, kmeansResult, parameters, numRows, numCols, labels, noPrint=F
         for n in c:
             if math.isnan(float(n)):
                 raise Exception('cluster', i, 'has NaN:', n, 'center:', c)
-    tuples = zip(range(len(centers)), centers, size, withinmse)
+    tuples = zip(range(len(centers)), centers, size, within_mse)
     self.tuplesSorted = sorted(tuples, key=(lambda tup: sum(tup[1])))
     print 'iters:', iters
-    (ids, centers, size, withinmse) = zip(*self.tuplesSorted)
+    (ids, centers, size, within_mse) = zip(*self.tuplesSorted)
     for (i, c) in enumerate(centers):
         print ('cluster id %s (2 places):' % ids[i]), h2o_util.twoDecimals(c)
         print ('rows_per_cluster[%s]: ' % i), size[i]
-        print ('withinmse[%s]: ' % i), withinmse[i]
+        print ('within_mse[%s]: ' % i), within_mse[i]
         print ('size[%s]:' % i), size[i]
     print 'KMeansObj created for:', '???'
     check_sandbox_for_errors()
