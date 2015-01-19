@@ -6,7 +6,7 @@
     if (error_count() > 0)     throw new IllegalArgumentException("Found validation errors: " + validationErrors());
     model=new KMeansModel(dest(),_parms,new KMeansModel.KMeansOutput(KMeans.this));
     model.delete_and_lock(_key);
-    model._output._ncats=_ncats;
+    model._output._categorical_column_count=_ncats;
     final Vec vecs[]=_train.vecs();
     final double[] means=prepMeans(vecs);
     final double[] mults=prepMults(vecs);
@@ -19,7 +19,7 @@
       if (cleanupBadClusters(task,vecs,centers,means,mults))       continue;
       oldCenters=centers;
       centers=computeStatsFillModel(task,model,vecs,centers,means,mults);
-      model._output._iters++;
+      model._output._iterations++;
       model.update(_key);
       update(1);
     }
