@@ -1,0 +1,8 @@
+{
+  if (_idxs.length + gnz._idxs.length > _maxsz)   throw new RuntimeException("too many nonzeros! found at least " + (_idxs.length + gnz._idxs.length) + " nonzeros.");
+  int[] idxs=MemoryManager.malloc4(_idxs.length + gnz._idxs.length);
+  double[] vals=MemoryManager.malloc8d(_vals.length + gnz._vals.length);
+  ArrayUtils.sortedMerge(_idxs,_vals,gnz._idxs,gnz._vals,idxs,vals);
+  _idxs=idxs;
+  _vals=vals;
+}
