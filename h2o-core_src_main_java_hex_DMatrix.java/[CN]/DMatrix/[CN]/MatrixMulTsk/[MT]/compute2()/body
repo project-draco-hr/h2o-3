@@ -1,0 +1,10 @@
+{
+  _z=new Frame(_x.anyVec().makeZeros(_y.numCols()));
+  int total_cores=H2O.CLOUD.size() * H2O.NUMCPUS;
+  int chunksPerCol=_y.anyVec().nChunks();
+  int maxP=256 * total_cores / chunksPerCol;
+  Log.info("maxP = " + maxP);
+  _cntr=new AtomicInteger(maxP - 1);
+  addToPendingCount(2 * _y.numCols() - 1);
+  for (int i=0; i < Math.min(_y.numCols(),maxP); ++i)   forkVecTask(i);
+}
