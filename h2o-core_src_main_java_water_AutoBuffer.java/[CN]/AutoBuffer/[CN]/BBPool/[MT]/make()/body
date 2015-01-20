@@ -1,0 +1,25 @@
+{
+  while (true) {
+    ByteBuffer bb;
+    try {
+      bb=_bbs.pollFirst(0,TimeUnit.SECONDS);
+    }
+ catch (    InterruptedException e) {
+      throw Log.throwErr(e);
+    }
+    if (bb != null)     return stats(_cached,bb);
+    try {
+      bb=ByteBuffer.allocateDirect(_size).order(ByteOrder.nativeOrder());
+      return stats(_made,bb);
+    }
+ catch (    OutOfMemoryError oome) {
+      if (!"Direct buffer memory".equals(oome.getMessage()))       throw oome;
+      System.out.println("OOM DBB - Sleeping & retrying");
+      try {
+        Thread.sleep(100);
+      }
+ catch (      InterruptedException ignore) {
+      }
+    }
+  }
+}
