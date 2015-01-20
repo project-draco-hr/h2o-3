@@ -3,6 +3,5 @@ def parse(setup, h2o_name):
     p = {'delete_on_done': True, 'blocking': True, 'removeFrame': True, 'hex': h2o_name, 'ncols': None, 'sep': None, 'columnNames': None, 'pType': None, 'checkHeader': None, 'singleQuotes': None, }
     p.update({k: v for (k, v) in setup.iteritems() if (k in p)})
     p['srcs'] = [src['name'] for src in setup['srcs']]
-    j = H2OJob(h2oConn.do_safe_post_json(url_suffix='Parse', params=p))
-    j.poll()
+    j = H2OJob(h2oConn.do_safe_post_json(url_suffix='Parse', params=p)).poll()
     return j.jobs

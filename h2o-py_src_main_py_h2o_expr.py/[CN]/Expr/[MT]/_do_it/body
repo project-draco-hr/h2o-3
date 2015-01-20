@@ -1,4 +1,4 @@
-def do_it(self):
+def _do_it(self):
     '\n        External API for eager; called by all top-level demanders (e.g. print)\n        This may trigger (recursive) big-data evaluation.\n        :return: None\n        '
     if self.is_computed():
         return
@@ -41,6 +41,26 @@ def do_it(self):
                 pass
         else:
             raise NotImplementedError
+    elif (self._op == '<'):
+        if isinstance(left.data(), (int, float)):
+            raise NotImplementedError
+        elif isinstance(rite.data(), (int, float)):
+            if left.is_local():
+                self._data = [(x < rite.data()) for x in left.data()]
+            else:
+                pass
+        else:
+            raise NotImplementedError
+    elif (self._op == '>='):
+        if isinstance(left.data(), (int, float)):
+            raise NotImplementedError
+        elif isinstance(rite.data(), (int, float)):
+            if left.is_local():
+                self._data = [(x >= rite.data()) for x in left.data()]
+            else:
+                pass
+        else:
+            raise NotImplementedError
     elif (self._op == '['):
         if left.is_local():
             self._data = left.data()[rite.data()]
@@ -57,6 +77,11 @@ def do_it(self):
         else:
             __CMD__ += ' #0 %TRUE'
     elif (self._op == 'as.factor'):
+        if left.is_local():
+            self._data = map(str, left.data())
+        else:
+            pass
+    elif (self._op == 'h2o.runif'):
         if left.is_local():
             self._data = map(str, left.data())
         else:

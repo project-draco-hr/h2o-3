@@ -1,0 +1,6 @@
+def runif(self, seed=None):
+    '\n        :param seed: A random seed. If None, then one will be generated.\n        :return: A new H2OVec filled with doubles sampled uniformly from [0,1).\n        '
+    if (not seed):
+        import random
+        seed = random.randint(123456789, 999999999)
+    return H2OVec('runif', Expr('h2o.runif', self.get_expr(), Expr(seed)))
