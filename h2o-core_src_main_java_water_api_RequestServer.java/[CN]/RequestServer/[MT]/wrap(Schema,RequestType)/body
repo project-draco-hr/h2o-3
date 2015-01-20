@@ -1,0 +1,19 @@
+{
+  String http_response_header=H2OError.httpStatusHeader(HttpResponseStatus.OK.getCode());
+  if (s instanceof SpecifiesHttpResponseCode)   http_response_header=H2OError.httpStatusHeader(((SpecifiesHttpResponseCode)s).httpStatus());
+switch (type) {
+case json:
+    return new Response(http_response_header,MIME_JSON,s.toJsonString());
+case xml:
+case java:
+  throw H2O.unimpl();
+case html:
+{
+  RString html=new RString(_htmlTemplate);
+  html.replace("CONTENTS",s.writeHTML(new water.util.DocGen.HTML()).toString());
+  return new Response(http_response_header,MIME_HTML,html.toString());
+}
+default :
+throw H2O.fail("Unknown type to wrap(): " + type);
+}
+}

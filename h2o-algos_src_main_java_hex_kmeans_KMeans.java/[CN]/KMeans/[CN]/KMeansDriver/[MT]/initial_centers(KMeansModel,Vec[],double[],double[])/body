@@ -21,18 +21,18 @@
  else {
       centers=new double[1][vecs.length];
       randomRow(vecs,rand,centers[0],means,mults);
-      while (model._output._iters < 5) {
+      while (model._output._iterations < 5) {
         SumSqr sqr=new SumSqr(centers,means,mults,_ncats).doAll(vecs);
         Sampler sampler=new Sampler(centers,means,mults,_ncats,sqr._sqr,_parms._k * 3,_parms._seed).doAll(vecs);
         centers=ArrayUtils.append(centers,sampler._sampled);
         if (!isRunning())         return null;
-        model._output._centersraw=destandardize(centers,_ncats,means,mults);
-        model._output._avgwithinss=sqr._sqr / _train.numRows();
-        model._output._iters++;
+        model._output._centers_raw=destandardize(centers,_ncats,means,mults);
+        model._output._avg_within_ss=sqr._sqr / _train.numRows();
+        model._output._iterations++;
         model.update(_key);
       }
       centers=recluster(centers,rand);
-      model._output._iters=-1;
+      model._output._iterations=-1;
     }
   }
   return centers;

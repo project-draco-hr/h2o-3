@@ -1,0 +1,18 @@
+{
+  Chunk zChunk=chks[chks.length - 1];
+  double[] res=MemoryManager.malloc8d(chks[0]._len);
+  for (int i=0; i < _y.length; ++i) {
+    final double yVal=_y[i];
+    final Chunk xChunk=chks[i];
+    for (int k=xChunk.nextNZ(-1); k < res.length; k=xChunk.nextNZ(k))     try {
+      res[k]+=yVal * xChunk.atd(k);
+    }
+ catch (    Throwable t) {
+      t.printStackTrace();
+      throw new RuntimeException(t);
+    }
+  }
+  Chunk modChunk=new NewChunk(res).setSparseRatio(2).compress();
+  if (_progressKey != null)   new UpdateProgress(modChunk.getBytes().length,modChunk.frozenType()).fork(_progressKey);
+  DKV.put(zChunk.vec().chunkKey(zChunk.cidx()),modChunk,_fs);
+}
