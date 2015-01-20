@@ -1,0 +1,21 @@
+{
+  old.chunkCnts=old.chunkCnts.clone();
+  int j=-1;
+  for (int i=0; i < old.chunkTypes.length; ++i) {
+    if (_chunkType == old.chunkTypes[i]) {
+      j=i;
+      break;
+    }
+  }
+  if (j == -1) {
+    old.chunkTypes=Arrays.copyOf(old.chunkTypes,old.chunkTypes.length + 1);
+    old.chunkCnts=Arrays.copyOf(old.chunkCnts,old.chunkCnts.length + 1);
+    old.chunkTypes[old.chunkTypes.length - 1]=_chunkType;
+    j=old.chunkTypes.length - 1;
+  }
+  old.chunksDone++;
+  old.chunkCnts[j]++;
+  old.lastUpdateAt=System.currentTimeMillis();
+  old.size+=_chunkSz;
+  return old;
+}

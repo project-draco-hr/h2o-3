@@ -1,6 +1,9 @@
 {
   _start_time=System.currentTimeMillis();
-  if (_currentLambda > _taskInfo._lambdaMax)   return;
+  if (_currentLambda > _taskInfo._lambdaMax) {
+    tryComplete();
+    return;
+  }
   _iter=_taskInfo._iter;
   LogInfo("starting computation of lambda = " + _currentLambda + ", previous lambda = "+ _taskInfo._lastLambda);
   int[] activeCols=activeCols(_currentLambda,_taskInfo._lastLambda,_taskInfo._gradient);
@@ -11,9 +14,14 @@
   boolean LBFGS=_forceLBFGS;
   if (LBFGS) {
     if (_taskInfo._params._alpha[0] > 0 || _activeCols != null)     throw H2O.unimpl();
-    GLM.GLMGradientSolver solver=new GLM.GLMGradientSolver(_taskInfo._params,_activeData,1e-5,_taskInfo._ymu,_taskInfo._nobs);
-    L_BFGS.Result r=L_BFGS.solve(_activeData.fullN() + 1,solver,new L_BFGS_Params());
-    GLM.GLMGradientInfo ginfo=(GLM.GLMGradientInfo)r.ginfo;
+    Log.info("current lambda = " + _currentLambda);
+    GLMGradientSolver solver=new GLMGradientSolver(_taskInfo._params,_activeData,_currentLambda,_taskInfo._ymu,_taskInfo._nobs);
+    if (beta == null) {
+      beta=MemoryManager.malloc8d(_activeData.fullN() + 1);
+      beta[beta.length - 1]=_taskInfo._params.link(_taskInfo._ymu);
+    }
+    L_BFGS.Result r=L_BFGS.solve(solver,new L_BFGS_Params(),beta);
+    GLMGradientInfo ginfo=(GLMGradientInfo)r.ginfo;
     double[] newBeta=r.coefs;
     _taskInfo._beta=newBeta;
     _taskInfo._gradient=ginfo._gradient;

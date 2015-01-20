@@ -42,11 +42,15 @@
         }
         if (fcnt > 0) {
           final int n=_activeCols.length;
+          int[] oldCols=_activeCols;
           _activeCols=Arrays.copyOf(_activeCols,_activeCols.length + fcnt);
           for (int i=0; i < fcnt; ++i)           _activeCols[n + i]=failedCols[i];
+          if (_lastResult != null)           _lastResult=new IterationInfo(_lastResult._iter,resizeVec(_lastResult._beta,_activeCols,oldCols,_taskInfo._dinfo.fullN() + 1),resizeVec(_lastResult._grad,_activeCols,oldCols,_taskInfo._dinfo.fullN() + 1),_lastResult._objval);
           Arrays.sort(_activeCols);
           LogInfo(fcnt + " variables failed KKT conditions check! Adding them to the model and continuing computation.(grad_eps = " + err+ ", activeCols = "+ (_activeCols.length > 100 ? "lost" : Arrays.toString(_activeCols)));
           _activeData=_taskInfo._dinfo.filterExpandedColumns(_activeCols);
+          getCompleter().addToPendingCount(1);
+          new GLMIterationTask(_jobKey,_activeData,_taskInfo._params,true,true,true,contractVec(glmt2._beta,_activeCols),_taskInfo._ymu,1.0 / _taskInfo._nobs,_taskInfo._thresholds,new Iteration(getCompleter())).asyncExec(_activeData._adaptedFrame);
           return;
         }
       }
