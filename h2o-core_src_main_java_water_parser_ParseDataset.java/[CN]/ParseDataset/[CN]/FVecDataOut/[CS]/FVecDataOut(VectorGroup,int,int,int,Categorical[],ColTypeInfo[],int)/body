@@ -1,5 +1,9 @@
 {
-  _ctypes=ctypes == null ? MemoryManager.malloc1(ncols) : ctypes;
+  if (ctypes != null)   _ctypes=ctypes;
+ else {
+    _ctypes=new ColTypeInfo[ncols];
+    for (int i=0; i < _ctypes.length; i++)     _ctypes[i]=new ColTypeInfo();
+  }
   _vecs=new AppendableVec[ncols];
   _nvs=new NewChunk[ncols];
   _enums=enums;
