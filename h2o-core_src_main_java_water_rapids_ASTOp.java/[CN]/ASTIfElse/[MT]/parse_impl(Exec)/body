@@ -1,6 +1,17 @@
 {
   AST tst=E.parse();
   if (tst instanceof ASTId)   tst=Env.staticLookup((ASTId)tst);
+  if (tst instanceof ASTId) {
+    try {
+      double d=((ASTNum)E._env.lookup((ASTId)tst))._d;
+      if (d == 0 || d == 1) {
+        tst=new ASTFrame(new Frame(Key.make(),null,new Vec[]{Vec.makeCon(d,1)}));
+      }
+    }
+ catch (    ClassCastException e) {
+      throw new IllegalArgumentException("`test` must be a frame or TRUE/FALSE");
+    }
+  }
   AST yes=E.skipWS().parse();
   if (yes instanceof ASTId)   yes=Env.staticLookup((ASTId)yes);
   AST no=E.skipWS().parse();
