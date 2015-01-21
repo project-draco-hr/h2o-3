@@ -2,8 +2,7 @@
   if (null == http_method || null == uri)   return null;
   for (  Route r : _routes.values())   if (r._url_pattern.matcher(uri).matches())   if (http_method.equals(r._http_method))   return r;
   for (  Route r : _fallbacks.values())   if (r._url_pattern.matcher(uri).matches())   if (http_method.equals(r._http_method))   return r;
-  if (null == version_pattern)   version_pattern=Pattern.compile("^/(\\d+)/(.*)");
-  Matcher m=version_pattern.matcher(uri);
+  Matcher m=getVersionPattern().matcher(uri);
   if (!m.matches())   return null;
   int version=Integer.valueOf(m.group(1));
   if (version == Route.MIN_VERSION)   return null;

@@ -1,10 +1,25 @@
 {
   Thread.currentThread().setPriority(Thread.MAX_PRIORITY - 1);
-  int version=parseVersion(uri);
-  int idx=version >> 16;
-  version&=0xFFFF;
-  String uripath=uri.substring(idx);
-  RequestType type=RequestType.requestType(uripath);
+  if (uri.startsWith("/LATEST")) {
+    if (-1 == Schema.getLatestVersion()) {
+      uri="/" + Schema.getHighestSupportedVersion() + uri.substring("/latest".length());
+    }
+ else {
+      uri="/" + Schema.getLatestVersion() + uri.substring("/latest".length());
+    }
+  }
+  RequestType type=RequestType.requestType(uri);
+  Matcher m=getVersionPattern().matcher(uri);
+  if (!m.matches()) {
+    H2ONotFoundArgumentException e=new H2ONotFoundArgumentException("Route " + uri + " not found","Route " + uri + " not found");
+    H2OError error=e.toH2OError(uri);
+    Log.warn(error._dev_msg);
+    Log.warn(error._values.toJsonString());
+    Log.warn((Object[])error._stacktrace);
+    return wrap(new H2OErrorV1().fillFromImpl(error),type);
+  }
+  int version=Integer.valueOf(m.group(1));
+  String uripath="/" + m.group(2);
   String path=type.requestName(uripath);
   String versioned_path="/" + version + path;
   alwaysLogRequest(path,method,parms);
