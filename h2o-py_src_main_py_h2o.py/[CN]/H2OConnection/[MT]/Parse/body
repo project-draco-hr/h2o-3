@@ -1,8 +1,19 @@
 def Parse(self, setup, hexname):
     p = {'delete_on_done': True, 'blocking': True, 'removeFrame': True, 'hex': hexname, }
-    for key in ['ncols', 'sep', 'columnNames', 'pType', 'checkHeader', 'singleQuotes']:
+    for key in ['ncols', 'sep', 'pType', 'checkHeader', 'singleQuotes']:
         p[key] = setup[key]
-    p['srcs'] = [src['name'] for src in setup['srcs']]
+    p['srcs'] = '['
+    for src in setup['srcs']:
+        if (len(p['srcs']) > 1):
+            p['srcs'] += ','
+        p['srcs'] += (('"' + src['name']) + '"')
+    p['srcs'] += ']'
+    p['columnNames'] = '['
+    for columnName in setup['columnNames']:
+        if (len(p['columnNames']) > 1):
+            p['columnNames'] += ','
+        p['columnNames'] += (('"' + columnName) + '"')
+    p['columnNames'] += ']'
     j = self._doSafeGet(self.buildURL('Parse', p))
     if (j['job']['status'] != 'DONE'):
         raise ValueError(('Parse status expected to be DONE, instead is ' + j['job']['status']))
