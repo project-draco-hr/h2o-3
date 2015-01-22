@@ -12,7 +12,7 @@
     final long model_size=model.model_info().size();
     if (!_parms._quiet_mode)     Log.info("Number of model parameters (weights/biases): " + String.format("%,d",model_size));
     train=tra_fr;
-    if (mp._force_load_balance)     train=reBalance(train,mp._replicate_training_data);
+    if (mp._force_load_balance)     train=reBalance(train,mp._replicate_training_data,mp._train.toString() + "." + model._key.toString()+ ".train");
     if (model._output.isClassifier() && mp._balance_classes) {
       float[] trainSamplingFactors=new float[train.lastVec().domain().length];
       if (mp._class_sampling_factors != null) {
@@ -34,7 +34,7 @@
  else {
         validScoreFrame=sampleFrame(val_fr,mp._score_validation_samples,mp._seed + 1);
       }
-      if (mp._force_load_balance)       validScoreFrame=reBalance(validScoreFrame,false);
+      if (mp._force_load_balance)       validScoreFrame=reBalance(validScoreFrame,false,mp._valid.toString() + "." + model._key.toString()+ ".valid");
       if (!_parms._quiet_mode)       Log.info("Number of chunks of the validation data: " + validScoreFrame.anyVec().nChunks());
     }
     model.actual_train_samples_per_iteration=computeTrainSamplesPerIteration(mp,train.numRows(),model);
