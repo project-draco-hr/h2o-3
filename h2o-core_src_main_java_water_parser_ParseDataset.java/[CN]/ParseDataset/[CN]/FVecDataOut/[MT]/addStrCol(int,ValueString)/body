@@ -1,18 +1,18 @@
 {
   if (colIdx < _nvs.length) {
-    if (_ctypes[colIdx] == NCOL) {
+    if (_ctypes[colIdx]._type == ColType.NUM) {
       addInvalidCol(colIdx);
       return;
     }
-    if (_ctypes[colIdx] == UCOL && ParseTime.attemptTimeParse(str) > 0)     _ctypes[colIdx]=TCOL;
-    if (_ctypes[colIdx] == UCOL) {
+    if (_ctypes[colIdx]._type == ColType.UNKNOWN && ParseTime.attemptTimeParse(str) > 0)     _ctypes[colIdx]._type=ColType.TIME;
+    if (_ctypes[colIdx]._type == ColType.UNKNOWN) {
       int old=str.get_off();
       ParseTime.attemptUUIDParse0(str);
       ParseTime.attemptUUIDParse1(str);
-      if (str.get_off() != -1)       _ctypes[colIdx]=ICOL;
+      if (str.get_off() != -1)       _ctypes[colIdx]._type=ColType.UUID;
       str.setOff(old);
     }
-    if (_ctypes[colIdx] == TCOL) {
+    if (_ctypes[colIdx]._type == ColType.TIME) {
       long l=ParseTime.attemptTimeParse(str);
       if (l == Long.MIN_VALUE)       addInvalidCol(colIdx);
  else {
@@ -22,7 +22,7 @@
         _nvs[_col]._timCnt[time_pat]++;
       }
     }
- else     if (_ctypes[colIdx] == ICOL) {
+ else     if (_ctypes[colIdx]._type == ColType.UUID) {
       long lo=ParseTime.attemptUUIDParse0(str);
       long hi=ParseTime.attemptUUIDParse1(str);
       if (str.get_off() == -1) {
@@ -31,17 +31,17 @@
       }
       if (colIdx < _nCols)       _nvs[_col=colIdx].addUUID(lo,hi);
     }
- else     if (_ctypes[colIdx] == SCOL) {
+ else     if (_ctypes[colIdx]._type == ColType.STR) {
       _nvs[_col=colIdx].addStr(str);
     }
  else {
       if (!_enums[colIdx].isMapFull()) {
         int id=_enums[_col=colIdx].addKey(str);
-        if (_ctypes[colIdx] == UCOL && id > 1)         _ctypes[colIdx]=ECOL;
+        if (_ctypes[colIdx]._type == ColType.UNKNOWN && id > 1)         _ctypes[colIdx]._type=ColType.ENUM;
         _nvs[colIdx].addEnum(id);
       }
  else {
-        _ctypes[_col=colIdx]=SCOL;
+        _ctypes[_col=colIdx]._type=ColType.STR;
         enumCol2StrCol(colIdx);
         _nvs[colIdx].addStr(str);
       }

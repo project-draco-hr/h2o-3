@@ -3,8 +3,9 @@
   final int chunkStartIdx=_fileChunkOffsets[_lo];
   byte[] zips=vec.getFirstBytes();
   ZipUtil.Compression cpr=ZipUtil.guessCompressionMethod(zips);
-  byte[] bits=ZipUtil.unzipBytes(zips,cpr);
+  byte[] bits=ZipUtil.unzipBytes(zips,cpr,_setup._chunkSize);
   ParseSetup localSetup=_setup.guessSetup(bits,0);
+  localSetup._chunkSize=_setup._chunkSize;
   if (!localSetup._isValid) {
     _errors=localSetup._errors;
     chunksAreLocal(vec,chunkStartIdx,key);

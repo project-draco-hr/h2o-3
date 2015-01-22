@@ -1,0 +1,16 @@
+{
+  if (ctypes != null)   _ctypes=ctypes;
+ else {
+    _ctypes=new ColTypeInfo[ncols];
+    for (int i=0; i < _ctypes.length; i++)     _ctypes[i]=new ColTypeInfo();
+  }
+  _vecs=new AppendableVec[ncols];
+  _nvs=new NewChunk[ncols];
+  _enums=enums;
+  _nCols=ncols;
+  _cidx=cidx;
+  _vg=vg;
+  _vecIdStart=vecIdStart;
+  _chunkSize=chunkSize;
+  for (int i=0; i < ncols; ++i)   _nvs[i]=(_vecs[i]=new AppendableVec(vg.vecKey(vecIdStart + i),chunkSize)).chunkForChunkIdx(_cidx);
+}
