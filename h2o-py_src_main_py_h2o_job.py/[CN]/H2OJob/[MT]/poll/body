@@ -1,11 +1,14 @@
 def poll(self):
     sleep = 0.1
-    while self._is_running():
+    running = True
+    while running:
         H2OJob._update_progress(self.progress)
         time.sleep(sleep)
         if (sleep < 1.0):
             sleep += 0.1
         self._refresh_job_view()
+        running = self._is_running()
+    H2OJob._update_progress(self.progress)
     if self._is_failed():
         if (self.status == 'CANCELLED'):
             raise EnvironmentError('Job with key {} was cancelled by the user.'.format(self.job_key))

@@ -1,0 +1,39 @@
+import h2o
+h2o.init(ip='localhost', port=54321)
+a = h2o.H2OFrame(remote_fname='smalldata/iris/iris_wheader.csv')[0:4]
+print a[0].name()
+print a[0][2].show()
+print a['sepal_len'][2].show()
+print (a[0] + 2).show()
+print (a[0] + a[1]).show()
+print sum(a).show()
+print a['sepal_len'].mean().show()
+try:
+    print a['Sepal_len']
+except ValueError as ex:
+    pass
+b = h2o.H2OFrame(remote_fname='smalldata/iris/iris_wheader.csv')[0:4]
+c = (a + b)
+d = ((c + c) + sum(a))
+e = ((c + a) + 1)
+print e.show()
+print c.show()
+c = None
+print (1 + (a[0] + b[1]).mean())
+from h2o import H2O_GBM
+my_gbm = H2O_GBM()
+my_gbm.x = [0, 1, 2, 3]
+my_gbm.y = 4
+my_gbm.training_frame = a
+my_gbm.ntrees = 50
+my_gbm.max_depth = 5
+my_gbm.fit()
+from h2o.model.h2o_gbm_builder import GBMBuilder
+my_gbm2 = GBMBuilder()
+my_gbm2.x = [0, 1, 2, 3]
+my_gbm2.y = 4
+my_gbm2.training_frame = a
+my_gbm2.validation_frame = a
+my_gbm2.ntrees = 50
+my_gbm2.max_depth = 5
+my_gbm2.fit()

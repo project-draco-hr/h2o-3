@@ -12,4 +12,19 @@ def __getitem__(self, i):
         if (len(i) != len(self._vecs[0])):
             raise ValueError(((('len(vec)=' + len(self._vecs[0])) + ' cannot be broadcast across len(i)=') + len(i)))
         return H2OFrame(vecs=[x.row_select(i) for x in self._vecs])
+    if isinstance(i, list):
+        vecs = []
+        for it in i:
+            if isinstance(it, int):
+                vecs += [self._vecs[it]]
+                continue
+            if isinstance(it, str):
+                has_vec = False
+                for v in self._vecs:
+                    if (it == v.name()):
+                        has_vec = True
+                        vecs += [v]
+                if (not has_vec):
+                    raise ValueError((('Name ' + it) + ' not in Frame'))
+        return H2OFrame(vecs=vecs)
     raise NotImplementedError
