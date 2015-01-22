@@ -1,17 +1,29 @@
 {
   Thread.currentThread().setPriority(Thread.MAX_PRIORITY - 1);
-  int version=parseVersion(uri);
-  int idx=version >> 16;
-  version&=0xFFFF;
-  String uripath=uri.substring(idx);
-  RequestType type=RequestType.requestType(uripath);
-  String path=type.requestName(uripath);
-  String versioned_path="/" + version + path;
-  alwaysLogRequest(path,method,parms);
-  if (method.equals("HEAD") && uri.equals("/")) {
+  if (uri.startsWith("/LATEST")) {
+    if (-1 == Schema.getLatestVersion()) {
+      uri="/" + Schema.getHighestSupportedVersion() + uri.substring("/latest".length());
+    }
+ else {
+      uri="/" + Schema.getLatestVersion() + uri.substring("/latest".length());
+    }
+  }
+  RequestType type=RequestType.requestType(uri);
+  if (uri.equals("/") && method.equals("HEAD")) {
     Response r=new Response(HTTP_OK,MIME_PLAINTEXT,"");
     return r;
   }
+  String versioned_path=uri;
+  String path=uri;
+  int version=1;
+  Matcher m=getVersionPattern().matcher(uri);
+  if (m.matches()) {
+    version=Integer.valueOf(m.group(1));
+    String uripath="/" + m.group(2);
+    path=type.requestName(uripath);
+    versioned_path="/" + version + path;
+  }
+  alwaysLogRequest(versioned_path,method,parms);
   if (uri.endsWith("/Logs/download")) {
     maybeLogRequest(method,path,versioned_path,"",parms);
     return downloadLogs();
@@ -19,7 +31,14 @@
   try {
     Route route=lookup(method,versioned_path);
     if (route != null && route._handler_class != CloudHandler.class && route._handler_class != TutorialsHandler.class && route._handler_class != TypeaheadHandler.class)     Schema.registerAllSchemasIfNecessary();
-    if (route == null)     return getResource(version,type,uri);
+    if (route == null) {
+      if (method.equals("GET")) {
+        return getResource(type,uri);
+      }
+ else {
+        return response404(method + " " + uri,type);
+      }
+    }
  else     if (route._handler_class == water.api.DownloadDataHandler.class) {
       return wrapDownloadData(HTTP_OK,handle(type,route,version,parms));
     }
