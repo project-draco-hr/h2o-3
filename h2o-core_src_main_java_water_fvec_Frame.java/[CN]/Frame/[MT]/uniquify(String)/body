@@ -1,10 +1,20 @@
 {
   String n=name;
-  int cnt=0, again;
+  int lastName=0;
+  if (name.length() > 0 && name.charAt(0) == 'C')   lastName=pint(name);
+  if (_lastNameBig) {
+    String last=_names[_names.length - 1];
+    if (last.charAt(0) == 'C' && lastName == pint(last) + 1)     return name;
+  }
+  int cnt=0, again, max=0;
   do {
     again=cnt;
-    for (    String s : _names)     if (n.equals(s))     n=name + (cnt++);
+    for (    String s : _names) {
+      if (lastName > 0 && s.charAt(0) == 'C')       max=Math.max(max,pint(s));
+      if (n.equals(s))       n=name + (cnt++);
+    }
   }
  while (again != cnt);
+  if (lastName == max + 1)   _lastNameBig=true;
   return n;
 }
