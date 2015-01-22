@@ -15,7 +15,7 @@
 switch (cpr) {
 case NONE:
       if (localSetup._pType._parallelParseSupported) {
-        DParse dp=new DParse(_vg,localSetup,_vecIdStart,chunkStartIdx,this,key);
+        DParse dp=new DParse(_vg,localSetup,_vecIdStart,chunkStartIdx,this,key,vec.nChunks());
         addToPendingCount(1);
         dp.setCompleter(this);
         dp.asyncExec(vec);
@@ -23,7 +23,7 @@ case NONE:
       }
  else {
         InputStream bvs=vec.openStream(_job_key);
-        _dout=streamParse(bvs,localSetup,_vecIdStart,chunkStartIdx,bvs);
+        _dout[_lo]=streamParse(bvs,localSetup,makeDout(localSetup,chunkStartIdx,vec.nChunks()),bvs);
         chunksAreLocal(vec,chunkStartIdx,key);
       }
     break;
@@ -32,7 +32,7 @@ case ZIP:
     InputStream bvs=vec.openStream(_job_key);
     ZipInputStream zis=new ZipInputStream(bvs);
     ZipEntry ze=zis.getNextEntry();
-    if (ze != null && !ze.isDirectory())     _dout=streamParse(zis,localSetup,_vecIdStart,chunkStartIdx,bvs);
+    if (ze != null && !ze.isDirectory())     _dout[_lo]=streamParse(zis,localSetup,makeDout(localSetup,chunkStartIdx,vec.nChunks()),bvs);
  else     zis.close();
     chunksAreLocal(vec,chunkStartIdx,key);
     break;
@@ -40,7 +40,7 @@ case ZIP:
 case GZIP:
 {
   InputStream bvs=vec.openStream(_job_key);
-  _dout=streamParse(new GZIPInputStream(bvs),localSetup,_vecIdStart,chunkStartIdx,bvs);
+  _dout[_lo]=streamParse(new GZIPInputStream(bvs),localSetup,makeDout(localSetup,chunkStartIdx,vec.nChunks()),bvs);
   chunksAreLocal(vec,chunkStartIdx,key);
   break;
 }
