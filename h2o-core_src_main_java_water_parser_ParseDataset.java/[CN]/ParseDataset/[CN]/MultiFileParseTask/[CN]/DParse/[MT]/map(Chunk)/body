@@ -1,4 +1,6 @@
 {
+  AppendableVec[] avs=new AppendableVec[_setup._ncols];
+  for (int i=0; i < avs.length; ++i)   avs[i]=new AppendableVec(_vg.vecKey(_vecIdStart + i),_setup._chunkSize,_espc,_startChunkIdx);
   Categorical[] enums=enums(_eKey,_setup._ncols);
   FVecDataIn din=new FVecDataIn(in);
   FVecDataOut dout;
@@ -6,15 +8,15 @@
 switch (_setup._pType) {
 case CSV:
     p=new CsvParser(_setup);
-  dout=new FVecDataOut(_vg,_startChunkIdx + in.cidx(),_setup._ncols,_vecIdStart,enums,null);
+  dout=new FVecDataOut(_vg,_startChunkIdx + in.cidx(),enums,null,_setup._chunkSize,avs);
 break;
 case ARFF:
 p=new CsvParser(_setup);
-dout=new FVecDataOut(_vg,_startChunkIdx + in.cidx(),_setup._ncols,_vecIdStart,enums,_setup._ctypes);
+dout=new FVecDataOut(_vg,_startChunkIdx + in.cidx(),enums,_setup._ctypes,_setup._chunkSize,avs);
 break;
 case SVMLight:
 p=new SVMLightParser(_setup);
-dout=new SVMLightFVecDataOut(_vg,_startChunkIdx + in.cidx(),enums);
+dout=new SVMLightFVecDataOut(_vg,_vecIdStart,in.cidx() + _startChunkIdx,enums,_setup._chunkSize,avs);
 break;
 default :
 throw H2O.unimpl();
