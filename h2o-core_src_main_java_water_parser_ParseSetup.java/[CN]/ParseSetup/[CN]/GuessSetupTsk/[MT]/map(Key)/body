@@ -1,0 +1,10 @@
+{
+  byte[] bits=ZipUtil.getFirstUnzippedBytes(ParseDataset.getByteVec(key));
+  if (bits.length > 0) {
+    _empty=false;
+    _failedSetup=new IcedArrayList<Key>();
+    _conflicts=new IcedArrayList<Key>();
+    _gSetup=ParseSetup.guessSetup(bits,_userSetup);
+    if (_gSetup == null || !_gSetup._isValid)     _failedSetup.add(key);
+  }
+}
