@@ -1,2 +1,20 @@
 {
+  long ratio=_numer / (_denom + 1);
+synchronized (_bbs) {
+    if (ratio < 100 || _bbs.size() < _goal) {
+      bb.clear();
+      _bbs.add(bb);
+    }
+ else     _freed++;
+    long now=System.nanoTime();
+    if (now - _lastGoal > 1000000000L) {
+      _lastGoal=now;
+      if (ratio > 110)       _goal=Math.max(4 * H2O.NUMCPUS,(long)(_goal * 0.99));
+      long denom=(long)(0.99 * _denom);
+      if (denom > 10) {
+        _numer=(long)(0.99 * _numer);
+        _denom=denom;
+      }
+    }
+  }
 }

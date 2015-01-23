@@ -1,25 +1,102 @@
 {
+  final int PAR=100;
+  final int NKEY=100000;
+  final int WARMKEY=100000;
   H2O.H2OCountedCompleter foo=H2O.submitTask(new H2O.H2OCountedCompleter(){
+    final Key[][] keys=new Key[PAR][NKEY];
+    final Value[][] vals=new Value[PAR][NKEY];
     @Override public void compute2(){
-      long start=System.currentTimeMillis();
-      final int PAR=100;
-      final int NKEY=100000;
+      long now, start=System.currentTimeMillis();
       ArrayList<RecursiveAction> rs=new ArrayList<>();
       for (int i=0; i < PAR; ++i) {
         final int fi=i;
         rs.add(new RecursiveAction(){
           @Override public void compute(){
+            for (int j=0; j < NKEY; j++)             keys[fi][j]=Key.make("Q" + (fi * NKEY + j));
+          }
+        }
+);
+      }
+      ForkJoinTask.invokeAll(rs);
+      now=System.currentTimeMillis();
+      System.out.println("create msec=" + (now - start) + ", msec/op="+ ((double)(now - start)) / PAR / NKEY);
+      start=now;
+      for (int X=0; X < 4; X++) {
+        for (int i=0; i < PAR; ++i) {
+          final int fi=i;
+          rs.add(new RecursiveAction(){
+            @Override public void compute(){
+              for (int j=0; j < WARMKEY; j++) {
+                Key k=keys[fi][j];
+                H2O.putIfMatch(k,vals[fi][j]=new Value(k,""),null);
+              }
+            }
+          }
+);
+        }
+        ForkJoinTask.invokeAll(rs);
+        for (int i=0; i < PAR; ++i) {
+          final int fi=i;
+          rs.set(fi,new RecursiveAction(){
+            @Override public void compute(){
+              for (int j=0; j < WARMKEY; j++)               H2O.putIfMatch(keys[fi][j],null,vals[fi][j]);
+            }
+          }
+);
+        }
+        ForkJoinTask.invokeAll(rs);
+        now=System.currentTimeMillis();
+        System.out.println("warmup msec=" + (now - start) + ", msec/op="+ ((double)(now - start)) / PAR / WARMKEY);
+        try {
+          Thread.sleep(1000);
+        }
+ catch (        InterruptedException ie) {
+        }
+        start=System.currentTimeMillis();
+      }
+      System.out.println("Starting insert work");
+      for (int i=0; i < PAR; ++i) {
+        final int fi=i;
+        rs.add(new RecursiveAction(){
+          @Override public void compute(){
+            for (int j=0; j < NKEY; j++)             vals[fi][j]=new Value(keys[fi][j],"");
+          }
+        }
+);
+      }
+      ForkJoinTask.invokeAll(rs);
+      now=System.currentTimeMillis();
+      System.out.println("Values msec=" + (now - start) + ", msec/op="+ ((double)(now - start)) / PAR / NKEY);
+      start=now;
+      for (int i=0; i < PAR; ++i) {
+        final int fi=i;
+        rs.add(new RecursiveAction(){
+          @Override public void compute(){
             for (int j=0; j < NKEY; j++) {
-              Key k=Key.make("Q" + (fi * NKEY + j));
-              H2O.putIfMatch(k,new Value(k,k),null);
+              Key k=keys[fi][j];
+              H2O.putIfMatch(k,vals[fi][j],null);
             }
           }
         }
 );
       }
       ForkJoinTask.invokeAll(rs);
-      long end=System.currentTimeMillis();
-      System.out.println("msec=" + (end - start) + ", msec/op="+ ((double)(end - start)) / PAR / NKEY);
+      now=System.currentTimeMillis();
+      System.out.println("insert msec=" + (now - start) + ", msec/op="+ ((double)(now - start)) / PAR / NKEY);
+      start=now;
+      for (int i=0; i < PAR; ++i) {
+        final int fi=i;
+        rs.set(fi,new RecursiveAction(){
+          @Override public void compute(){
+            for (int j=0; j < NKEY; j++)             H2O.putIfMatch(keys[fi][j],null,vals[fi][j]);
+          }
+        }
+);
+      }
+      ForkJoinTask.invokeAll(rs);
+      now=System.currentTimeMillis();
+      System.out.println("remove msec=" + (now - start) + ", msec/op="+ ((double)(now - start)) / PAR / NKEY);
+      start=now;
       tryComplete();
     }
   }
