@@ -29,7 +29,7 @@ a_node = h2o.H2O(host, port)
 algos = ['example', 'kmeans', 'deeplearning', 'glm', 'gbm', 'word2vec', 'quantile', 'grep', 'splitframe']
 algo_additional_default_params = {'grep': {'regex': '.*', }, 'kmeans': {'k': 2, }, }
 clean_up_after = False
-h2o.H2O.verboseprint('connected to: ', '127.0.0.1', 54321)
+h2o.H2O.verboseprint('connected to: ', str(host), ':', str(port))
 models = a_node.models()
 if h2o.H2O.verbose:
     print 'Models: '
@@ -42,6 +42,29 @@ frames = a_node.frames(len=5)
 if h2o.H2O.verbose:
     print 'Frames: '
     pp.pprint(frames)
+print 'Testing /Metadata/schemas. . .'
+schemas = a_node.schemas(timeoutSecs=240)
+assert ('schemas' in schemas), ("FAIL: failed to find 'schemas' field in output of /Metadata/schemas: " + repr(schemas))
+assert (type(schemas['schemas']) is list), ("'schemas' field in output of /Metadata/schemas is not a list: " + repr(schemas))
+assert (len(schemas['schemas']) > 0), ("'schemas' field in output of /Metadata/schemas is empty: " + repr(schemas))
+if verboser:
+    print 'Schemas: '
+    pp.pprint(schemas)
+print 'Testing /Metadata/schemas/FrameV2. . .'
+schemas = a_node.schema(schemaname='FrameV2', timeoutSecs=240)
+assert ('schemas' in schemas), ("FAIL: failed to find 'schemas' field in output of /Metadata/schemas/FrameV2: " + repr(schemas))
+assert (type(schemas['schemas']) is list), ("'schemas' field in output of /Metadata/schemas/FrameV2 is not a list: " + repr(schemas))
+assert (len(schemas['schemas']) == 1), ("'schemas' field in output of /Metadata/schemas/FrameV2 has an unexpected length: " + repr(schemas))
+if verboser:
+    print 'Schemas: '
+    pp.pprint(schemas)
+url_prefix = ((('http://' + host) + ':') + str(port))
+urls = {'': 'Analytics', '/': 'Analytics', '/index.html': 'Analytics', '/flow/index.html': 'modal', '/LATEST/Cloud.html': 'Ready', }
+for (suffix, expected_word) in urls.iteritems():
+    url = (url_prefix + suffix)
+    h2o.H2O.verboseprint((('Testing ' + url) + '. . .'))
+    r = requests.get(url)
+    assert r.text.find(expected_word), ((("FAIL: didn't find '" + expected_word) + "' in: ") + url)
 if verbose:
     print 'Testing /ModelBuilders. . .'
 model_builders = a_node.model_builders(timeoutSecs=240)
@@ -272,5 +295,21 @@ assert ('deeplearning_prostate_binomial' in models_dict), ((('FAIL: Failed to fi
 assert ('deeplearning_prostate_binomial' in frames[0]['compatible_models']), 'FAIL: failed to find deeplearning_prostate_binomial in compatible_models for prostate.'
 assert ('kmeans_prostate' in frames[0]['compatible_models']), 'FAIL: failed to find kmeans_prostate in compatible_models for prostate.'
 h2o.H2O.verboseprint('/Frames/prosate.hex?find_compatible_models=true: ', repr(result))
+print 'Testing /Metadata/schemas again. . .'
+schemas = a_node.schemas(timeoutSecs=240)
+assert ('schemas' in schemas), ("FAIL: failed to find 'schemas' field in output of /Metadata/schemas: " + repr(schemas))
+assert (type(schemas['schemas']) is list), ("'schemas' field in output of /Metadata/schemas is not a list: " + repr(schemas))
+assert (len(schemas['schemas']) > 0), ("'schemas' field in output of /Metadata/schemas is empty: " + repr(schemas))
+if verboser:
+    print 'Schemas: '
+    pp.pprint(schemas)
+print 'Testing /Metadata/schemas/FrameV2 again. . .'
+schemas = a_node.schema(schemaname='FrameV2', timeoutSecs=240)
+assert ('schemas' in schemas), ("FAIL: failed to find 'schemas' field in output of /Metadata/schemas/FrameV2: " + repr(schemas))
+assert (type(schemas['schemas']) is list), ("'schemas' field in output of /Metadata/schemas/FrameV2 is not a list: " + repr(schemas))
+assert (len(schemas['schemas']) == 1), ("'schemas' field in output of /Metadata/schemas/FrameV2 has an unexpected length: " + repr(schemas))
+if verboser:
+    print 'Schemas: '
+    pp.pprint(schemas)
 if clean_up_after:
     cleanup(models=[dl_airlines_model_name, 'deeplearning_prostate_binomial', 'kmeans_prostate'], frames=['prostate_binomial', 'airlines_binomial'])
