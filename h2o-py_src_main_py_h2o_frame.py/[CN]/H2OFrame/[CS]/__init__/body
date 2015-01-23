@@ -1,8 +1,28 @@
-def __init__(self, local_fname=None, remote_fname=None, vecs=None):
-    '\n        Create a new H2OFrame object by passing a file path or a list of H2OVecs.\n\n        If `remote_fname` is not None, then a REST call will be made to import the\n        data specified at the location `remote_fname`.\n\n        If `local_fname` is not None, then the data is not imported into the H2O cluster\n        at the time of object creation.\n\n        :param local_fname: A local path to a data source. Data is python-process-local.\n        :param remote_fname: A remote path to a data source. Data is cluster-local.\n        :param vecs: A list of H2OVec objects.\n        :return: An instance of an H2OFrame object.\n        '
+def __init__(self, python_obj=None, local_fname=None, remote_fname=None, vecs=None):
+    '\n        Create a new H2OFrame object by passing a file path or a list of H2OVecs.\n\n        If `remote_fname` is not None, then a REST call will be made to import the\n        data specified at the location `remote_fname`.\n\n        If `local_fname` is not None, then the data is not imported into the H2O cluster\n        at the time of object creation.\n\n        If `python_obj` is not None, then an attempt to upload the python object to H2O\n        will be made. A valid python object has type `list`, `dict`, or `numpy.array`.\n\n        For more information on the structure of the input for the various native python\n        data types ("native" meaning non-H2O), please see the general documentation for\n        this object.\n\n        :param python_obj: A "native" python object - numpy array, Pandas DataFrame, list.\n        :param local_fname: A local path to a data source. Data is python-process-local.\n        :param remote_fname: A remote path to a data source. Data is cluster-local.\n        :param vecs: A list of H2OVec objects.\n        :return: An instance of an H2OFrame object.\n        '
     self.local_fname = local_fname
     self.remote_fname = remote_fname
     self._vecs = None
+    if python_obj:
+        if isinstance(python_obj, list):
+            lol = any((isinstance(l, list) for l in python_obj))
+            lol_all = False
+            if lol:
+                lol_all = all((isinstance(l, list) for l in python_obj))
+            if (not lol_all):
+                raise ValueError('`python_obj` is a mixture of nested lists and other types.')
+            if lol:
+                cols = max([len(l) for l in python_obj])
+                header = H2OFrame._gen_header(cols)
+            else:
+                cols = len(python_obj)
+                header = H2OFrame._gen_header(cols)
+            return
+        elif isinstance(python_obj, numpy.array):
+            return
+        elif isinstance(python_obj, dict):
+            return
+        raise ValueError('Object must be a python list of numbers or a numpy array')
     if remote_fname:
         rawkey = h2o.import_file(remote_fname)
         setup = h2o.parse_setup(rawkey)
