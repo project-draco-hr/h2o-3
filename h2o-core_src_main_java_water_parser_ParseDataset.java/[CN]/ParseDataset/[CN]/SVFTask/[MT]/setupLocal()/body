@@ -1,0 +1,29 @@
+{
+  Vec v0=_f.anyVec();
+  ArrayList<RecursiveAction> rs=new ArrayList<RecursiveAction>();
+  for (int i=0; i < v0.nChunks(); ++i) {
+    if (!v0.chunkKey(i).home())     continue;
+    final int fi=i;
+    rs.add(new RecursiveAction(){
+      @Override protected void compute(){
+        int nlines=0;
+        for (        Vec vec : _f.vecs()) {
+          Value val=H2O.get(vec.chunkKey(fi));
+          if (val != null) {
+            nlines=((Chunk)val.get())._len;
+            break;
+          }
+        }
+        final int fnlines=nlines;
+        for (int j=0; j < _f.numCols(); ++j) {
+          Vec vec=_f.vec(j);
+          Key k=vec.chunkKey(fi);
+          Value val=H2O.get(k);
+          if (val == null)           H2O.putIfMatch(k,new Value(k,new C0DChunk(0,fnlines)),null);
+        }
+      }
+    }
+);
+  }
+  ForkJoinTask.invokeAll(rs);
+}

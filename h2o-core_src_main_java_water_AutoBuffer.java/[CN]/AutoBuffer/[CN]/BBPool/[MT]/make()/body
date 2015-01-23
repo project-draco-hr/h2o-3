@@ -1,16 +1,24 @@
 {
   while (true) {
-    ByteBuffer bb;
-    try {
-      bb=_bbs.pollFirst(0,TimeUnit.SECONDS);
+    ByteBuffer bb=null;
+synchronized (_bbs) {
+      int sz=_bbs.size();
+      if (sz > 0) {
+        bb=_bbs.remove(sz - 1);
+        _cached++;
+        _numer++;
+      }
     }
- catch (    InterruptedException e) {
-      throw Log.throwErr(e);
-    }
-    if (bb != null)     return stats(_cached,bb);
+    if (bb != null)     return stats(bb);
     try {
       bb=ByteBuffer.allocateDirect(_size).order(ByteOrder.nativeOrder());
-      return stats(_made,bb);
+synchronized (this) {
+        _made++;
+        _denom++;
+        _goal=Math.max(_goal,_made - _freed);
+        _lastGoal=System.nanoTime();
+      }
+      return stats(bb);
     }
  catch (    OutOfMemoryError oome) {
       if (!"Direct buffer memory".equals(oome.getMessage()))       throw oome;
