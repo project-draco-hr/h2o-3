@@ -4,25 +4,8 @@ def __init__(self, python_obj=None, local_fname=None, remote_fname=None, vecs=No
     self.remote_fname = remote_fname
     self._vecs = None
     if python_obj:
-        if isinstance(python_obj, list):
-            lol = any((isinstance(l, list) for l in python_obj))
-            lol_all = False
-            if lol:
-                lol_all = all((isinstance(l, list) for l in python_obj))
-            if (not lol_all):
-                raise ValueError('`python_obj` is a mixture of nested lists and other types.')
-            if lol:
-                cols = max([len(l) for l in python_obj])
-                header = H2OFrame._gen_header(cols)
-            else:
-                cols = len(python_obj)
-                header = H2OFrame._gen_header(cols)
-            return
-        elif isinstance(python_obj, numpy.array):
-            return
-        elif isinstance(python_obj, dict):
-            return
-        raise ValueError('Object must be a python list of numbers or a numpy array')
+        self._upload_python_object(python_obj)
+        return
     if remote_fname:
         rawkey = h2o.import_file(remote_fname)
         setup = h2o.parse_setup(rawkey)

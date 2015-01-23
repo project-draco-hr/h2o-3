@@ -1,0 +1,20 @@
+def _upload_python_object(self, python_obj):
+    '\n        Properly handle native python data types. For a discussion of the rules and\n        permissible data types please refer to the main documentation for H2OFrame.\n\n        :param python_obj: A tuple, list, dict, collections.OrderedDict, or numpy.array\n        :return: None\n        '
+    if isinstance(python_obj, (list, tuple)):
+        lol = any((isinstance(l, (list, tuple)) for l in python_obj))
+        if lol:
+            H2OFrame._check_lists_of_lists(python_obj)
+            cols = max([len(l) for l in python_obj])
+            header = H2OFrame._gen_header(cols)
+        else:
+            cols = len(python_obj)
+            header = H2OFrame._gen_header(cols)
+        return
+    elif isinstance(python_obj, dict):
+        return
+    elif isinstance(python_obj, collections.OrderedDict):
+        return
+    elif isinstance(python_obj, numpy.array):
+        return
+    else:
+        raise ValueError(('`python_obj` must be a tuple, list, dict, collections.OrderedDict, or a numpy.array. Got: ' + type(python_obj)))
