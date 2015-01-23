@@ -1,0 +1,17 @@
+{
+  Map<Model,Set<String>> all_models_cols=Frames.fetchModelCols(all_models);
+  List<Model> compatible_models=new ArrayList<Model>();
+  Set<String> frame_column_names=new HashSet(Arrays.asList(frame._names));
+  for (  Map.Entry<Model,Set<String>> entry : all_models_cols.entrySet()) {
+    Model model=entry.getKey();
+    Set<String> model_cols=entry.getValue();
+    if (frame_column_names.containsAll(model_cols)) {
+      try {
+        if (model.adaptTestForTrain(new Frame(frame),false).length == 0)         compatible_models.add(model);
+      }
+ catch (      IllegalArgumentException e) {
+      }
+    }
+  }
+  return compatible_models.toArray(new Model[0]);
+}

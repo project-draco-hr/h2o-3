@@ -5,13 +5,36 @@ def __do_json_request(self, jsonRequest=None, fullUrl=None, timeout=10, params=N
     else:
         url = self.__url(jsonRequest)
     if (params is not None):
-        params2 = params.copy()
-        for k in params2:
-            if (params2[k] is None):
+        params_serialized = params.copy()
+        for k in params_serialized:
+            if (params_serialized[k] is None):
                 del params[k]
         paramsStr = ('?' + '&'.join([('%s=%s' % (k, v)) for (k, v) in params.items()]))
     else:
         paramsStr = ''
+    if (postData is not None):
+        munged_postData = {}
+        for (k, v) in postData.iteritems():
+            if (type(v) is list):
+                if (len(v) == 0):
+                    munged_postData[k] = '[]'
+                else:
+                    first = True
+                    array_str = '['
+                    for val in v:
+                        if (not first):
+                            array_str += ', '
+                        if isinstance(val, basestring):
+                            array_str += (("'" + str(val)) + "'")
+                        else:
+                            array_str += str(val)
+                        first = False
+                    array_str += ']'
+                    munged_postData[k] = array_str
+            else:
+                munged_postData[k] = v
+    else:
+        munged_postData = postData
     if extraComment:
         log((('Start ' + url) + paramsStr), comment=extraComment)
     else:
@@ -27,7 +50,7 @@ def __do_json_request(self, jsonRequest=None, fullUrl=None, timeout=10, params=N
     log_rest((url + paramsStr))
     try:
         if ('post' == cmd):
-            r = requests.post(url, timeout=timeout, params=params, data=postData, **kwargs)
+            r = requests.post(url, timeout=timeout, params=params, data=munged_postData, **kwargs)
         elif ('delete' == cmd):
             r = requests.delete(url, timeout=timeout, params=params, **kwargs)
         elif ('get' == cmd):

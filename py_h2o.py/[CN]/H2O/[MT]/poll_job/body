@@ -4,7 +4,7 @@ def poll_job(self, job_key, timeoutSecs=10, retryDelaySecs=0.5, **kwargs):
     start_time = time.time()
     while True:
         H2O.verboseprint((('Polling for job: ' + job_key) + '. . .'))
-        result = self.__do_json_request(('2/Jobs.json/' + job_key), timeout=timeoutSecs, params=params_dict)
+        result = self.__do_json_request(('/2/Jobs.json/' + job_key), timeout=timeoutSecs, params=params_dict)
         status = result['jobs'][0]['status']
         if ((status == 'DONE') or (status == 'CANCELLED') or (status == 'FAILED')):
             H2O.verboseprint((((('Job ' + status) + ': ') + job_key) + '.'))
