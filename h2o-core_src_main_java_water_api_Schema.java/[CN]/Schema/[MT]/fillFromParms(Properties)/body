@@ -10,17 +10,19 @@
  while (Iced.class.isAssignableFrom(clz.getSuperclass()));
   }
  catch (  SecurityException e) {
-    throw new RuntimeException("Exception accessing fields: " + e);
+    throw H2O.fail("Exception accessing fields: " + e);
   }
   for (  String key : parms.stringPropertyNames()) {
     try {
       Field f=fields.get(key);
-      if (null == f)       throw new IllegalArgumentException("Unknown argument (not found): " + key);
+      if (null == f) {
+        throw new H2OIllegalArgumentException(key,"fillFromParms",this.getClass().getSimpleName());
+      }
       int mods=f.getModifiers();
-      if (Modifier.isTransient(mods) || Modifier.isStatic(mods))       throw new IllegalArgumentException("Unknown argument (transient or static): " + key);
+      if (Modifier.isTransient(mods) || Modifier.isStatic(mods))       throw H2O.fail("Unknown argument (transient or static): " + key);
       API api=(API)f.getAnnotations()[0];
-      if (api.direction() == API.Direction.OUTPUT)       throw new IllegalArgumentException("Attempting to set output field: " + key);
-      Object parse_result=parse(parms.getProperty(key),f.getType(),api.required());
+      if (api.direction() == API.Direction.OUTPUT)       throw H2O.fail("Attempting to set output field: " + key);
+      Object parse_result=parse(key,parms.getProperty(key),f.getType(),api.required());
       if (parse_result != null && f.getType().isArray() && parse_result.getClass().isArray() && (f.getType().getComponentType() != parse_result.getClass().getComponentType())) {
         if (parse_result.getClass().getComponentType() == int.class && f.getType().getComponentType() == Integer.class) {
           int[] from=(int[])parse_result;
@@ -49,10 +51,10 @@
       }
     }
  catch (    ArrayIndexOutOfBoundsException aioobe) {
-      throw new RuntimeException("Broken internal schema; missing API annotation for field: " + key);
+      throw H2O.fail("Broken internal schema; missing API annotation for field: " + key);
     }
 catch (    IllegalAccessException iae) {
-      throw new RuntimeException("Broken internal schema; field cannot be private nor final: " + key);
+      throw H2O.fail("Broken internal schema; field cannot be private nor final: " + key);
     }
   }
   for (  Field f : fields.values()) {
@@ -61,11 +63,16 @@ catch (    IllegalAccessException iae) {
     try {
       API api=(API)f.getAnnotations()[0];
       if (api.required()) {
-        if (parms.getProperty(f.getName()) == null)         throw new IllegalArgumentException("Required field " + f.getName() + " not specified");
+        if (parms.getProperty(f.getName()) == null) {
+          IcedHashMap<String,Object> values=new IcedHashMap<>();
+          values.put("schema",this.getClass().getSimpleName());
+          values.put("argument",f.getName());
+          throw new H2OIllegalArgumentException("Required field " + f.getName() + " not specified","Required field " + f.getName() + " not specified for schema class: "+ this.getClass(),values);
+        }
       }
     }
  catch (    ArrayIndexOutOfBoundsException e) {
-      throw new IllegalArgumentException("Missing annotation for API field: " + f.getName());
+      throw H2O.fail("Missing annotation for API field: " + f.getName());
     }
   }
   return (S)this;
