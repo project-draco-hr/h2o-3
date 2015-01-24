@@ -1,3 +1,63 @@
 {
-  return (_dropNA20Cols ? 17 : 1) * train().checksum() * (_valid == null ? 17 : valid().checksum())* (null == _ignored_columns ? 23 : Arrays.hashCode(_ignored_columns));
+  long xs=1;
+  int count=0;
+  for (  Field f : Weaver.getWovenFields(this.getClass())) {
+    final long P=MathUtils.PRIMES[count % MathUtils.PRIMES.length];
+    Class<?> c=f.getType();
+    if (c.isArray()) {
+      f.setAccessible(true);
+      try {
+        if (f.get(this) != null) {
+          if (c.getComponentType() == Integer.TYPE) {
+            int[] arr=(int[])f.get(this);
+            xs*=(0xDECAF + P * Arrays.hashCode(arr));
+          }
+ else           if (c.getComponentType() == Float.TYPE) {
+            float[] arr=(float[])f.get(this);
+            xs*=(0xDECAF + P * Arrays.hashCode(arr));
+          }
+ else           if (c.getComponentType() == Double.TYPE) {
+            double[] arr=(double[])f.get(this);
+            xs*=(0xDECAF + P * Arrays.hashCode(arr));
+          }
+ else           if (c.getComponentType() == Long.TYPE) {
+            long[] arr=(long[])f.get(this);
+            xs*=(0xDECAF + P * Arrays.hashCode(arr));
+          }
+ else {
+            Object[] arr=(Object[])f.get(this);
+            xs*=(0xDECAF + P * Arrays.deepHashCode(arr));
+          }
+        }
+ else {
+          xs*=(0xDECAF + P);
+        }
+      }
+ catch (      IllegalAccessException e) {
+        e.printStackTrace();
+      }
+catch (      ClassCastException t) {
+        throw H2O.unimpl();
+      }
+    }
+ else {
+      try {
+        if (f.get(this) != null) {
+          xs*=(0x1337 + P * (f.get(this)).hashCode());
+        }
+ else {
+          xs*=(0x1337 + P);
+        }
+      }
+ catch (      IllegalAccessException e) {
+        e.printStackTrace();
+      }
+catch (      Throwable t) {
+        t.printStackTrace();
+      }
+    }
+    count++;
+  }
+  xs*=train().checksum() * (_valid == null ? 17 : valid().checksum());
+  return xs;
 }
