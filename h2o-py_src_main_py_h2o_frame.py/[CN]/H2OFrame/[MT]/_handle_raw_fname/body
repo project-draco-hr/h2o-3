@@ -1,8 +1,11 @@
-def _handle_raw_fname(self, raw_fname):
+def _handle_raw_fname(self, raw_fname, column_names=None):
     '\n        Handle result of upload_file\n        :param raw_fname: A raw key\n        :return: Part of the H2OFrame constructor.\n        '
     setup = h2o.parse_setup(raw_fname)
-    parse = h2o.parse(setup, H2OFrame.py_tmp_key())
-    cols = parse['columnNames']
+    parse = h2o.parse(setup, H2OFrame.py_tmp_key(), first_line_is_header=1)
+    if (column_names and (not parse['columnNames'])):
+        cols = column_names
+    else:
+        cols = parse['columnNames']
     rows = parse['rows']
     veckeys = parse['vecKeys']
     self._vecs = H2OVec.new_vecs(zip(cols, veckeys), rows)

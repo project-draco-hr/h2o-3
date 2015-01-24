@@ -9,4 +9,6 @@ def _handle_python_dicts(python_obj):
         if isinstance(v, (tuple, list)):
             if H2OFrame._is_list_of_lists(v):
                 raise ValueError('Values in the dictionary must be flattened!')
-    return (header, python_obj)
+    rows = map(list, itertools.izip_longest(*python_obj.values()))
+    data_to_write = [dict(zip(header, row)) for row in rows]
+    return (header, data_to_write)
