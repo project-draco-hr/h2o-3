@@ -29,42 +29,42 @@
       if (String.class == afclz || KeySchema.class.isAssignableFrom(afclz)) {
         String stripped=splits[i].trim();
         if (stripped.length() >= 2)         stripped=stripped.substring(1,stripped.length() - 1);
-        a[i]=(E)parse(stripped,afclz,required);
+        a[i]=(E)parse(field_name,stripped,afclz,required);
       }
  else {
-        a[i]=(E)parse(splits[i].trim(),afclz,required);
+        a[i]=(E)parse(field_name,splits[i].trim(),afclz,required);
       }
     }
     return a;
   }
-  if (fclz.equals(Key.class))   if ((s == null || s.length() == 0) && required)   throw new IllegalArgumentException("Missing key");
+  if (fclz.equals(Key.class))   if ((s == null || s.length() == 0) && required)   throw new H2OKeyNotFoundArgumentException(field_name,s);
  else   if (!required && (s == null || s.length() == 0))   return null;
  else   return Key.make(s.startsWith("\"") ? s.substring(1,s.length() - 1) : s);
   if (KeySchema.class.isAssignableFrom(fclz)) {
-    if ((s == null || s.length() == 0) && required)     throw new IllegalArgumentException("Missing key");
+    if ((s == null || s.length() == 0) && required)     throw new H2OKeyNotFoundArgumentException(field_name,s);
     if (!required && (s == null || s.length() == 0))     return null;
     return KeySchema.make(fclz,Key.make(s.startsWith("\"") ? s.substring(1,s.length() - 1) : s));
   }
   if (Enum.class.isAssignableFrom(fclz))   return Enum.valueOf(fclz,s);
-  if (FrameV2.class.isAssignableFrom(fclz))   if ((s == null || s.length() == 0) && required)   throw new IllegalArgumentException("Missing key");
+  if (FrameV2.class.isAssignableFrom(fclz))   if ((s == null || s.length() == 0) && required)   throw new H2OKeyNotFoundArgumentException(field_name,s);
  else   if (!required && (s == null || s.length() == 0))   return null;
  else {
     Value v=DKV.get(s);
     if (null == v)     return null;
-    if (!v.isFrame())     throw new IllegalArgumentException("Frame argument points to a non-Frame object: " + v.get().getClass());
+    if (!v.isFrame())     throw H2OIllegalArgumentException.wrongKeyType(field_name,s,"Frame",v.get().getClass());
     return new FrameV2((Frame)v.get());
   }
-  if (JobV2.class.isAssignableFrom(fclz))   if ((s == null || s.length() == 0) && required)   throw new IllegalArgumentException("Missing key");
+  if (JobV2.class.isAssignableFrom(fclz))   if ((s == null || s.length() == 0) && required)   throw new H2OKeyNotFoundArgumentException(s);
  else   if (!required && (s == null || s.length() == 0))   return null;
  else {
     Value v=DKV.get(s);
     if (null == v)     return null;
-    if (!v.isJob())     throw new IllegalArgumentException("Job argument points to a non-Job object: " + v.get().getClass());
+    if (!v.isJob())     throw H2OIllegalArgumentException.wrongKeyType(field_name,s,"Job",v.get().getClass());
     return new JobV2().fillFromImpl((Job)v.get());
   }
   if (FrameV2.ColSpecifierV2.class.isAssignableFrom(fclz)) {
     return new FrameV2.ColSpecifierV2(s);
   }
   if (ModelSchema.class.isAssignableFrom(fclz))   throw H2O.fail("Can't yet take ModelSchema as input.");
-  throw new RuntimeException("Unimplemented schema fill from " + fclz.getSimpleName());
+  throw H2O.fail("Unimplemented schema fill from " + fclz.getSimpleName());
 }
