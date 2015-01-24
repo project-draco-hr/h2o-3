@@ -3,18 +3,21 @@
   if (dout == null)   return this;
   _nCols=Math.max(_nCols,dout._nCols);
   _nChunks+=dout._nChunks;
-  if (dout._vecs.length > _vecs.length) {
-    AppendableVec[] v=_vecs;
-    _vecs=dout._vecs;
-    dout._vecs=v;
-  }
-  for (int i=0; i < dout._vecs.length; ++i) {
-    if (_vecs[i].isString() && !dout._vecs[i].isString())     dout.enumCol2StrCol(i);
- else     if (!_vecs[i].isString() && dout._vecs[i].isString()) {
-      enumCol2StrCol(i);
-      _ctypes[i]._type=ColType.STR;
+  if (dout != null && _vecs != dout._vecs) {
+    if (dout._vecs.length > _vecs.length) {
+      AppendableVec[] v=_vecs;
+      _vecs=dout._vecs;
+      for (int i=1; i < _vecs.length; ++i)       _vecs[i]._espc=_vecs[0]._espc;
+      dout._vecs=v;
     }
-    _vecs[i].reduce(dout._vecs[i]);
+    for (int i=0; i < dout._vecs.length; ++i) {
+      if (_vecs[i].isString() && !dout._vecs[i].isString())       dout.enumCol2StrCol(i);
+ else       if (!_vecs[i].isString() && dout._vecs[i].isString()) {
+        enumCol2StrCol(i);
+        _ctypes[i]._type=ColType.STR;
+      }
+      _vecs[i].reduce(dout._vecs[i]);
+    }
   }
   return this;
 }
