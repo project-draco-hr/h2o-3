@@ -1,20 +1,25 @@
 def _upload_python_object(self, python_obj):
     '\n        Properly handle native python data types. For a discussion of the rules and\n        permissible data types please refer to the main documentation for H2OFrame.\n\n        :param python_obj: A tuple, list, dict, collections.OrderedDict, or numpy.array\n        :return: None\n        '
+    tmp_file_path = tempfile.mkstemp(suffix='.csv')[1]
+    tmp_file = open(tmp_file_path, 'wb')
+    header = None
+    data_to_write = None
     if isinstance(python_obj, (list, tuple)):
-        lol = any((isinstance(l, (list, tuple)) for l in python_obj))
-        if lol:
-            H2OFrame._check_lists_of_lists(python_obj)
-            cols = max([len(l) for l in python_obj])
-            header = H2OFrame._gen_header(cols)
-        else:
-            cols = len(python_obj)
-            header = H2OFrame._gen_header(cols)
-        return
-    elif isinstance(python_obj, dict):
-        return
-    elif isinstance(python_obj, collections.OrderedDict):
-        return
+        (header, data_to_write) = H2OFrame._handle_python_lists(python_obj)
+    elif isinstance(python_obj, (dict, collections.OrderedDict)):
+        (header, data_to_write) = H2OFrame._handle_python_dicts(python_obj)
     elif isinstance(python_obj, numpy.array):
-        return
+        (header, data_to_write) = H2OFrame._handle_numpy_array(python_obj)
     else:
         raise ValueError(('`python_obj` must be a tuple, list, dict, collections.OrderedDict, or a numpy.array. Got: ' + type(python_obj)))
+    if ((header is None) or (data_to_write is None)):
+        raise ValueError('No data to write')
+    csv_writer = csv.DictWriter(tmp_file, fieldnames=header, restval=None, dialect='excel', extrasaction='ignore', delimiter=',')
+    csv_writer.writeheader()
+    csv_writer.writerows(data_to_write)
+    tmp_file.close()
+    fui = {'file': os.path.abspath(tmp_file_path), }
+    dest_key = H2OFrame.py_tmp_key()
+    p = {'destination_key': H2OFrame.py_tmp_key(), }
+    h2oConn.do_safe_post_json(url_suffix='PostFile', params=p, file_upload_info=fui)
+    self._handle_raw_fname(dest_key)

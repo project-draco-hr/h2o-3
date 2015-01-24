@@ -3,10 +3,10 @@ def send_frame(dataset):
     '\n        Send a frame description to H2O, returns a key.\n        :param dataset: An H2OFrame object\n        :return: A key\n        '
     fr = H2OFrame.py_tmp_key()
     cbind = (('(= !' + fr) + ' (cbind %')
-    cbind += (' %'.join([vec.get_expr().eager() for vec in dataset.get_vecs()]) + '))')
+    cbind += (' %'.join([vec.get_expr().eager() for vec in dataset.vecs()]) + '))')
     h2o.rapids(cbind)
     colnames = (((('(colnames= %' + fr) + ' {(: #0 #') + str((len(dataset) - 1))) + ')} {')
-    cnames = ';'.join([vec.name() for vec in dataset.get_vecs()])
+    cnames = ';'.join([vec.name() for vec in dataset.vecs()])
     colnames += (cnames + '})')
     h2o.rapids(colnames)
     return fr

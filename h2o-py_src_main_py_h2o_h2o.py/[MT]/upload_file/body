@@ -1,0 +1,7 @@
+def upload_file(path, destination_key=''):
+    '\n    Upload a dataset at the path given from the local machine to the H2O cluster.\n    :param path:    A path specifying the location of the data to upload.\n    :param destination_key: The name of the H2O Frame in the H2O Cluster.\n    :return:    A new H2OFrame\n    '
+    fui = {'file': os.path.abspath(path), }
+    dest_key = (H2OFrame.py_tmp_key() if (destination_key == '') else destination_key)
+    p = {'destination_key': dest_key, }
+    h2oConn.do_safe_post_json(url_suffix='PostFile', params=p, file_upload_info=fui)
+    return H2OFrame(raw_fname=dest_key)

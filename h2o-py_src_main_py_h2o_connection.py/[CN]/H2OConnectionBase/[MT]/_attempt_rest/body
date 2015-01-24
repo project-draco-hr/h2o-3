@@ -14,7 +14,8 @@ def _attempt_rest(url='', method='GET', post_body=None, file_upload_info=None, p
         if (not (method == 'POST')):
             raise ValueError(('Recieved file upload info and expected method to be POST. Got: ' + method))
         try:
-            http_result['http_payload'] = requests.post(url, params=params, **kwargs)
+            files = {file_upload_info['file']: open(file_upload_info['file'], 'rb'), }
+            http_result['http_payload'] = requests.post(url, files=files, **kwargs)
         except requests.ConnectionError as e:
             http_result['http_error'] = True
             http_result['http_error_message'] = e.message

@@ -1,7 +1,8 @@
 def parse(setup, h2o_name):
     '\n    Trigger a parse; blocking; removeFrame just keep the Vec keys.\n    :param setup: The result of calling parse_setup\n    :param h2o_name: The name of the H2O Frame on the back end.\n    :return: Return a new parsed object\n    '
     p = {'delete_on_done': True, 'blocking': True, 'removeFrame': True, 'hex': h2o_name, 'ncols': None, 'sep': None, 'columnNames': None, 'pType': None, 'checkHeader': None, 'singleQuotes': None, }
+    setup['columnNames'] = [_quoted(name) for name in setup['columnNames']]
     p.update({k: v for (k, v) in setup.iteritems() if (k in p)})
-    p['srcs'] = [src['name'] for src in setup['srcs']]
+    p['srcs'] = [_quoted(src['name']) for src in setup['srcs']]
     j = H2OJob(h2oConn.do_safe_post_json(url_suffix='Parse', params=p)).poll()
     return j.jobs
