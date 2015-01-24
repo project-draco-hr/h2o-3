@@ -18,8 +18,4 @@ def _upload_python_object(self, python_obj):
     csv_writer.writeheader()
     csv_writer.writerows(data_to_write)
     tmp_file.close()
-    fui = {'file': os.path.abspath(tmp_file_path), }
-    dest_key = H2OFrame.py_tmp_key()
-    p = {'destination_key': H2OFrame.py_tmp_key(), }
-    h2oConn.do_safe_post_json(url_suffix='PostFile', params=p, file_upload_info=fui)
-    self._handle_raw_fname(dest_key)
+    self._upload_raw_data(tmp_file_path)

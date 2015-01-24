@@ -1,3 +1,12 @@
 @staticmethod
 def _handle_python_dicts(python_obj):
-    return (None, None)
+    header = python_obj.keys()
+    is_valid = all([re.match('^[a-zA-Z_][a-zA-Z0-9_.]*$', col) for col in header])
+    if (not is_valid):
+        raise ValueError('Did not get a valid set of column names! Must match theregular expression: ^[a-zA-Z_][a-zA-Z0-9_.]*$ ')
+    for k in python_obj:
+        v = python_obj[k]
+        if isinstance(v, (tuple, list)):
+            if H2OFrame._is_list_of_lists(v):
+                raise ValueError('Values in the dictionary must be flattened!')
+    return (header, python_obj)
