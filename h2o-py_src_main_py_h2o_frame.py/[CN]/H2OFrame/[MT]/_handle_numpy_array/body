@@ -1,4 +1,7 @@
 @staticmethod
 def _handle_numpy_array(python_obj):
     header = H2OFrame._gen_header(python_obj.shape[1])
-    return (header, dict(zip(header, python_obj.tolist())))
+    as_list = python_obj.tolist()
+    lol = H2OFrame._is_list_of_lists(as_list)
+    data_to_write = ([dict(zip(header, row)) for row in as_list] if lol else [dict(zip(header, as_list))])
+    return (header, data_to_write)
