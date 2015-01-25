@@ -1,7 +1,4 @@
 {
-  _checksum=0;
-  long start=c._start;
-  long l=81985529216486895L;
   _size=c.byteSize();
   _mins=new double[5];
   Arrays.fill(_mins,Double.MAX_VALUE);
@@ -11,6 +8,46 @@
   boolean isString=c._vec.isString();
   ValueString vs=new ValueString();
   if (isString)   _isInt=false;
+  long checksum=0;
+  long start=c._start;
+  long l=81985529216486895L;
+  double min=c.min(), max=c.max();
+  if (min == max) {
+    double d=min;
+    _checksum=(c.hasFloat() ? Double.doubleToRawLongBits(d) : (long)d) * c._len;
+    Arrays.fill(_mins,d);
+    Arrays.fill(_maxs,d);
+    if (d == Double.POSITIVE_INFINITY)     _pinfs++;
+ else     if (d == Double.NEGATIVE_INFINITY)     _ninfs++;
+ else {
+      if (d != 0)       _nzCnt=c._len;
+      _mean=d;
+      _rows=c._len;
+    }
+    _isInt=((long)d) == d;
+    _sigma=0;
+    return this;
+  }
+  if (min == 0 && max == 1) {
+    int zs=c._len - c.sparseLen();
+    int nans=0;
+    for (int i=c.nextNZ(-1); i < c._len; i=c.nextNZ(i))     if (c.isNA(i))     nans++;
+ else     if (c.at8(i) == 0)     zs++;
+    int os=c._len - zs - nans;
+    _nzCnt=os;
+    for (int i=0; i < Math.min(_mins.length,zs); i++) {
+      min(0);
+      max(0);
+    }
+    for (int i=0; i < Math.min(_mins.length,os); i++) {
+      min(1);
+      max(1);
+    }
+    _rows=zs + os;
+    _mean=(double)os / _rows;
+    _sigma=zs * (0.0 - _mean) * (0.0 - _mean) + os * (1.0 - _mean) * (1.0 - _mean);
+    return this;
+  }
   for (int i=c.nextNZ(-1); i < c._len; i=c.nextNZ(i)) {
     if (c.isNA(i)) {
       _naCnt++;
@@ -38,8 +75,9 @@
         if (_isInt && ((long)d) != d)         _isInt=false;
       }
     }
-    if (l != 0)     _checksum^=(17 * (start + i)) ^ 23 * l;
+    if (l != 0)     checksum^=(17 * (start + i)) ^ 23 * l;
   }
+  _checksum=checksum;
   if (c.isSparse()) {
     int zeros=c._len - c.sparseLen();
     for (int i=0; i < Math.min(_mins.length,zeros); i++) {
@@ -53,9 +91,12 @@
   }
  else   if (!Double.isNaN(_mean) && _rows > 0) {
     _mean=_mean / _rows;
-    for (int i=0; i < c._len; i++) {
-      if (!c.isNA(i)) {
-        double d=c.atd(i) - _mean;
+    int zeros=c._len - c.sparseLen();
+    _sigma+=_mean * _mean * zeros;
+    for (int i=c.nextNZ(-1); i < c._len; i=c.nextNZ(i)) {
+      double d=c.atd(i);
+      if (!Double.isNaN(d)) {
+        d-=_mean;
         _sigma+=d * d;
       }
     }
