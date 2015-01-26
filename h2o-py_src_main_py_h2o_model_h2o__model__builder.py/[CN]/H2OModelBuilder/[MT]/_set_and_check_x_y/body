@@ -1,4 +1,6 @@
 def _set_and_check_x_y(self, x, y):
+    ret_x = x
+    ret_y = y
     if ((not x) or (not y)):
         if (not self._parameters['x']):
             raise ValueError('No fit can be made, missing feature variables.')
@@ -6,4 +8,6 @@ def _set_and_check_x_y(self, x, y):
             self._parameters['x'] = x
         if y:
             self._parameters['y'] = y
-    return (self._parameters['x'], self._parameters['y'])
+        ret_x = self._parameters['x']
+        ret_y = (None if ('y' not in self._parameters.keys()) else self._parameters['y'])
+    return (ret_x, ret_y)
