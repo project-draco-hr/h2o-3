@@ -5,7 +5,8 @@ def fit(self, x=None, y=None, validation_frame=None):
     dataset = self._check_training_frame(x)
     (x, y) = H2OModelBuilder._indexed_columns_to_named_columns(x, y, dataset)
     self._set_ignored_columns(x, y, dataset)
-    self._set_response_column(y)
+    if y:
+        self._set_response_column(y)
     self._set_training_frame(dataset)
     self._set_validation_frame(validation_frame)
     model_params = self._fold_default_params_with_user_params()
