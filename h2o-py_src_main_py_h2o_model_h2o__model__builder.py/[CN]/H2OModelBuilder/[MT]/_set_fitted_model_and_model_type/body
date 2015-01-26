@@ -1,5 +1,14 @@
 def _set_fitted_model_and_model_type(self, destination_key):
     url_suffix = ('Models/' + destination_key)
     model = h2oConn.do_safe_get_json(url_suffix=url_suffix)['models'][0]
-    self._fitted_model = model['output']
-    self._model_type = self._model_type.format(self._fitted_model['model_category'])
+    self._model_type = self._model_type.format(model['output']['model_category'])
+    if (self._model_type == self.BINOMIAL):
+        self._fitted_model = H2OBinomialModel(model['output'])
+    elif (self._model_type == self.MULTINOMIAL):
+        self._fitted_model = H2OMultinomialModel(model['output'])
+    elif (self._model_type == self.CLUSTERING):
+        self._fitted_model = H2OClusteringModel(model['output'])
+    elif (self._model_type == self.REGRESSION):
+        self._fitted_model = H2ORegressionModel(model['output'])
+    else:
+        raise H2OUnknownModelError(("Don't know what to do with model type: " + self._model_type))
