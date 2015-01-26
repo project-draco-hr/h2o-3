@@ -1,9 +1,10 @@
 def _set_validation_frame(self, validation_frame):
-    validation_passed_to_fit = False
-    if validation_frame:
-        validation_frame = self._parameters['validation']
-        validation_passed_to_fit = True
-    if validation_frame:
+    if (validation_frame or ('validation' in self._parameters.keys())):
+        validation_passed_to_fit = False
+        if validation_frame:
+            self._parameters['validation'] = validation_frame
+            validation_passed_to_fit = True
+        validation_frame = self._parameters['validation_frame']
         message = ('Validation passed to ' + ('fit' if validation_passed_to_fit else 'model builder'))
         if (not isinstance(validation_frame, H2OFrame)):
             raise ValueError(((message + ' must be of type H2OFrame. Got: ') + str(type(validation_frame))))

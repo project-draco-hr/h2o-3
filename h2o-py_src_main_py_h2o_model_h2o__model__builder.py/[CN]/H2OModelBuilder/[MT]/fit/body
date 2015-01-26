@@ -1,6 +1,6 @@
 def fit(self, x=None, y=None, validation_frame=None):
     '\n        Fit the model to the inputs x, y\n        :param x: A list[] of 0-based indices or column names.\n        :param y: A 0-based index or a column name\n        :return: Returns self (a fitted model).\n        '
-    self._update()
+    saved_parameters = self._update()
     (x, y) = self._set_and_check_x_y(x, y)
     dataset = self._check_training_frame(x)
     (x, y) = H2OModelBuilder._indexed_columns_to_named_columns(x, y, dataset)
@@ -16,4 +16,5 @@ def fit(self, x=None, y=None, validation_frame=None):
     h2o.remove(self._parameters['training_frame'])
     if (self._parameters['validation_frame'] is not None):
         h2o.remove(self._parameters['validation_frame'])
+    self._parameters = saved_parameters
     return self
