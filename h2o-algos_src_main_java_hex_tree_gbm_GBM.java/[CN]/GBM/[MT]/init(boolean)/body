@@ -1,9 +1,33 @@
 {
-  super.init(expensive);
-  if (!(0. < _parms._learn_rate && _parms._learn_rate <= 1.0))   error("_learn_rate","learn_rate must be between 0 and 1");
-  if (_parms._loss == GBMModel.GBMParameters.Family.bernoulli) {
-    if (_nclass != 2)     error("_loss","Bernoulli requires the response to be a 2-class categorical");
-    double mean=_response.mean();
-    _initialPrediction=Math.log(mean / (1.0f - mean));
+  if (_parms._loss == GBMModel.GBMParameters.Family.AUTO) {
+    if (null != _response && _response.isInt()) {
+      long[] domain=new Vec.CollectDomain().doAll(_response).domain();
+      if (domain.length == 2) {
+        _parms._convert_to_enum=true;
+      }
+    }
+    super.init(expensive);
   }
+ else   if (_parms._loss == GBMModel.GBMParameters.Family.bernoulli || _parms._loss == GBMModel.GBMParameters.Family.multinomial) {
+    _parms._convert_to_enum=true;
+    super.init(true);
+    if (_parms._loss == GBMModel.GBMParameters.Family.bernoulli) {
+      if (_nclass != 2) {
+        error("_loss","Bernoulli requires the response to be a 2-class categorical");
+      }
+      double mean=_response.mean();
+      _initialPrediction=Math.log(mean / (1.0f - mean));
+    }
+  }
+ else   if (_parms._loss == GBMModel.GBMParameters.Family.gaussian) {
+    _parms._convert_to_enum=false;
+    super.init(expensive);
+    if (_nclass != 1) {
+      error("_loss","Gaussian requires the response to be numeric");
+    }
+  }
+ else {
+    error("_loss","Loss must be specified");
+  }
+  if (!(0. < _parms._learn_rate && _parms._learn_rate <= 1.0))   error("_learn_rate","learn_rate must be between 0 and 1");
 }

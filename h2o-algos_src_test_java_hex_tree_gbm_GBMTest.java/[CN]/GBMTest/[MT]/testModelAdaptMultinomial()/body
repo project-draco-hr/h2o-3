@@ -1,0 +1,30 @@
+{
+  GBM job=null;
+  GBMModel gbm=null;
+  GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
+  try {
+    Scope.enter();
+    Frame v;
+    parms._train=(parse_test_file("smalldata/junit/mixcat_train.csv"))._key;
+    parms._valid=(v=parse_test_file("smalldata/junit/mixcat_test.csv"))._key;
+    parms._response_column="Response";
+    parms._ntrees=1;
+    parms._learn_rate=1.0f;
+    parms._min_rows=1;
+    parms._loss=Family.multinomial;
+    job=new GBM(parms);
+    gbm=job.trainModel().get();
+    Frame res=gbm.score(v);
+    int[] ps=new int[(int)v.numRows()];
+    for (int i=0; i < ps.length; i++)     ps[i]=(int)res.vecs()[0].at8(i);
+    Assert.assertArrayEquals("",ps,new int[]{1,1,2,2,1,2,3,1,2});
+    res.remove();
+  }
+  finally {
+    parms._train.remove();
+    parms._valid.remove();
+    if (gbm != null)     gbm.delete();
+    if (job != null)     job.remove();
+    Scope.exit();
+  }
+}
