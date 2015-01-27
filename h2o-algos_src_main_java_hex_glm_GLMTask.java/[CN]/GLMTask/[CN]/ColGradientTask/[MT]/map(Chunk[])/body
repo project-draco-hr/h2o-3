@@ -27,22 +27,30 @@
       for (int j=0; j < eta.length; ++j)       eta[j][r]+=_beta[j][off];
     }
   }
-  for (int i=_dinfo._cats; i < nxs; ++i) {
-    Chunk c=chks[i];
-    for (int r=0; r < c._len; ++r) {
+  final int numStart=_dinfo.numStart();
+  if (_dinfo._normMul != null && _dinfo._normSub != null) {
+    for (int j=0; j < eta.length; ++j) {
+      double off=0;
+      for (int i=0; i < _dinfo._nums; ++i)       off-=_beta[j][numStart + i] * _dinfo._normSub[i] * _dinfo._normMul[i];
+      for (int r=0; r < chks[0]._len; ++r)       eta[j][r]+=off;
+    }
+  }
+  for (int i=0; i < _dinfo._nums; ++i) {
+    Chunk c=chks[i + _dinfo._cats];
+    for (int r=c.nextNZ(-1); r < c._len; r=c.nextNZ(r)) {
       if (skp[r] || c.isNA(r)) {
         skp[r]=true;
         continue;
       }
       double d=c.atd(r);
-      if (_dinfo._normMul != null)       d=(d - _dinfo._normSub[i - _dinfo._cats]) * _dinfo._normMul[i - _dinfo._cats];
-      int numStart=_dinfo.numStart() - _dinfo._cats;
+      if (_dinfo._normMul != null)       d*=_dinfo._normMul[i];
       for (int j=0; j < eta.length; ++j)       eta[j][r]+=_beta[j][numStart + i] * d;
     }
   }
+  double[] eta_sums=MemoryManager.malloc8d(eta.length);
   for (int r=0; r < chks[0]._len; ++r) {
     if (skp[r] || responseChunk.isNA(r))     continue;
-    double off=_dinfo._offset ? offsetChunk.atd(r) : 0;
+    double off=(_dinfo._offset ? offsetChunk.atd(r) : 0);
     double y=responseChunk.atd(r);
     for (int j=0; j < eta.length; ++j) {
       double offset=off + (_dinfo._intercept ? _beta[j][_beta[j].length - 1] : 0);
@@ -51,8 +59,12 @@
       double var=_params.variance(mu);
       if (var < 1e-6)       var=1e-6;
       eta[j][r]=(mu - y) / (var * _params.linkDeriv(mu));
-      if (_dinfo._intercept)       _gradient[j][_gradient[j].length - 1]+=eta[j][r];
+      eta_sums[j]+=eta[j][r];
     }
+  }
+  for (int j=0; j < _gradient.length; ++j) {
+    if (_dinfo._intercept)     _gradient[j][_gradient[j].length - 1]=eta_sums[j];
+    if (_dinfo._normMul != null && _dinfo._normSub != null)     for (int i=0; i < _dinfo._nums; ++i)     _gradient[j][numStart + i]=-_dinfo._normSub[i] * _dinfo._normMul[i] * eta_sums[j];
   }
   for (int i=0; i < _dinfo._cats; ++i) {
     Chunk c=chks[i];
@@ -66,16 +78,12 @@
       for (int j=0; j < eta.length; ++j)       _gradient[j][off]+=eta[j][r];
     }
   }
-  for (int i=_dinfo._cats; i < nxs; ++i) {
-    Chunk c=chks[i];
-    for (int r=0; r < c._len; ++r) {
-      if (skp[r] || c.isNA(r)) {
-        skp[r]=true;
-        continue;
-      }
+  for (int i=0; i < _dinfo._nums; ++i) {
+    Chunk c=chks[i + _dinfo._cats];
+    for (int r=c.nextNZ(-1); r < c._len; r=c.nextNZ(r)) {
+      if (skp[r] || c.isNA(r))       continue;
       double d=c.atd(r);
-      if (_dinfo._normMul != null)       d=(d - _dinfo._normSub[i - _dinfo._cats]) * _dinfo._normMul[i - _dinfo._cats];
-      int numStart=_dinfo.numStart() - _dinfo._cats;
+      if (_dinfo._normMul != null)       d=d * _dinfo._normMul[i];
       for (int j=0; j < eta.length; ++j)       _gradient[j][numStart + i]+=eta[j][r] * d;
     }
   }
