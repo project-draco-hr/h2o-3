@@ -24,7 +24,7 @@
       final boolean printme=!get_params()._quiet_mode;
       _timeLastScoreStart=now;
       if (get_params()._diagnostics)       model_info().computeStats();
-      Errors err=new Errors();
+      DeepLearningScoring err=new DeepLearningScoring();
       err.training_time_ms=run_time;
       err.epoch_counter=epoch_counter;
       err.training_samples=model_info().get_processed_total();
@@ -53,6 +53,7 @@
         err.train_err=mm1._cm.err();
         err.train_hitratio=mm1._hr;
         err.train_mse=mm1._mse;
+        _output.trainMetrics=mm1;
         if (ftest != null) {
           Frame validPred=score(ftest);
           validPred.delete();
@@ -63,6 +64,7 @@
             err.valid_err=mm2._cm.err();
             err.valid_hitratio=mm2._hr;
             err.valid_mse=mm2._mse;
+            _output.validMetrics=mm2;
           }
         }
         if (get_params()._variable_importances) {
@@ -74,10 +76,10 @@
       _timeLastScoreEnd=System.currentTimeMillis();
       err.scoring_time=System.currentTimeMillis() - now;
       if (errors == null) {
-        errors=new Errors[]{err};
+        errors=new DeepLearningScoring[]{err};
       }
  else {
-        Errors[] err2=new Errors[errors.length + 1];
+        DeepLearningScoring[] err2=new DeepLearningScoring[errors.length + 1];
         System.arraycopy(errors,0,err2,0,errors.length);
         err2[err2.length - 1]=err;
         errors=err2;
