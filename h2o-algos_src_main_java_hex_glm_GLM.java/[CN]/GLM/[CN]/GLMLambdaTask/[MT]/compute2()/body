@@ -21,9 +21,10 @@
       beta[beta.length - 1]=_taskInfo._params.link(_taskInfo._ymu);
     }
     long t1=System.currentTimeMillis();
-    L_BFGS_Params lParms=new L_BFGS_Params();
-    final int workInc=WORK_TOTAL / _taskInfo._params._lambda.length / lParms._maxIter;
-    L_BFGS.Result r=L_BFGS.solve(solver,lParms,beta,new History(20,beta.length),new ProgressMonitor(){
+    if (_taskInfo._lbfgs == null)     _taskInfo._lbfgs=new L_BFGS();
+    GradientInfo gOld=_taskInfo._gOld == null ? solver.getGradient(beta) : adjustL2(_taskInfo._gOld,beta,_currentLambda - _taskInfo._lastLambda);
+    final int workInc=WORK_TOTAL / _taskInfo._params._lambda.length / _taskInfo._lbfgs.maxIter();
+    L_BFGS.Result r=_taskInfo._lbfgs.solve(solver,beta,gOld,new ProgressMonitor(){
       @Override public boolean progress(      GradientInfo ginfo){
         update(workInc,_jobKey);
         return Job.isRunning(_jobKey);
@@ -31,11 +32,10 @@
     }
 );
     long t2=System.currentTimeMillis();
-    Log.info("LBFGS done in " + r.iter + " iterations and "+ ((t2 - t1) / 1000)+ " seconds, objval = "+ r.ginfo._objVal+ ", gradient norm = "+ MathUtils.l2norm2(r.ginfo._gradient));
-    GradientInfo ginfo=r.ginfo;
+    Log.info("L_BFGS done after " + r.iter + " iterations and "+ ((t2 - t1) / 1000)+ " seconds, objval = "+ r.ginfo._objVal+ ", penalty = "+ (_currentLambda * .5 * ArrayUtils.l2norm2(beta,true))+ ",  gradient norm2 = "+ (MathUtils.l2norm2(gOld._gradient)));
+    _taskInfo._gOld=r.ginfo;
     double[] newBeta=r.coefs;
     _taskInfo._beta=newBeta;
-    _taskInfo._gradient=ginfo._gradient;
     _taskInfo._iter=(_iter+=r.iter);
     setSubmodel(newBeta,null,this);
     tryComplete();

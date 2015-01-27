@@ -1,0 +1,20 @@
+{
+  double[] alpha=MemoryManager.malloc8d(_hist._m);
+  double[] q=gradient.clone();
+  for (int i=1; i <= Math.min(iter,_hist._m); ++i) {
+    alpha[i - 1]=_hist.rho(iter - i) * ArrayUtils.innerProduct(_hist.getS(iter - i),q);
+    MathUtils.wadd(q,_hist.getY(iter - i),-alpha[i - 1]);
+  }
+  if (iter > 0) {
+    final double[] s=_hist.getS(iter - 1);
+    final double[] y=_hist.getY(iter - 1);
+    double Hk0=ArrayUtils.innerProduct(s,y) / ArrayUtils.innerProduct(y,y);
+    ArrayUtils.mult(q,Hk0);
+  }
+  for (int i=Math.min(iter,_hist._m); i > 0; --i) {
+    double beta=_hist.rho(iter - i) * ArrayUtils.innerProduct(_hist.getY(iter - i),q);
+    MathUtils.wadd(q,_hist.getS(iter - i),alpha[i - 1] - beta);
+  }
+  ArrayUtils.mult(q,-1);
+  return q;
+}
