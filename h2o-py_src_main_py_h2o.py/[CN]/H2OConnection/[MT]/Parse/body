@@ -3,7 +3,7 @@ def Parse(self, setup, hexname):
     for key in ['ncols', 'sep', 'columnNames', 'pType', 'checkHeader', 'singleQuotes']:
         p[key] = setup[key]
     p['srcs'] = [src['name'] for src in setup['srcs']]
-    j = self._doSafeGet(self.buildURL('Parse', p))
+    j = self._doSafePost(self.buildURL('LATEST/Parse'), p)
     if (j['job']['status'] != 'DONE'):
         raise ValueError(('Parse status expected to be DONE, instead is ' + j['job']['status']))
     if (j['job']['progress'] != 1.0):

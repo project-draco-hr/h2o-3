@@ -3,6 +3,6 @@ def doModel(self, model, x, train_frame, test_frame=None, **kwargs):
     kwargs['training_frame'] = train_frame
     if test_frame:
         kwargs['validation_frame'] = test_frame
-    j = self._doJob(self._doSafeGet(self.buildURL(model, kwargs)))
+    j = self._doJob(self._doSafeGet(self.buildURL(('LATEST/' + model), kwargs)))
     j = self._doSafeGet(self.buildURL(('3/Models/' + j['dest']['name']), {}))
     return j['models'][0]
