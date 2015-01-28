@@ -2,7 +2,12 @@
   super(b);
   String[] cnames=dinfo.coefNames();
   String[] pnames=dinfo._adaptedFrame.names();
+  String[] colTypes=new String[cnames.length + 1];
+  String[] colFormat=new String[cnames.length + 1];
+  Arrays.fill(colTypes,"double");
+  Arrays.fill(colFormat,"%5f");
   _coefficient_names=Arrays.copyOf(cnames,cnames.length + 1);
   _coefficient_names[cnames.length]="Intercept";
+  _coefficients_table=new TwoDimTable("Best Lambda",new String[]{"Coefficients","Norm Coefficients"},_coefficient_names,colTypes,colFormat);
   _binomial=binomial;
 }
