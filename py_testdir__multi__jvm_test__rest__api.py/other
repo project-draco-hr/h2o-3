@@ -42,7 +42,8 @@ frames = a_node.frames(len=5)
 if h2o.H2O.verbose:
     print 'Frames: '
     pp.pprint(frames)
-print 'Testing /Metadata/schemas. . .'
+if verbose:
+    print 'Testing /Metadata/schemas. . .'
 schemas = a_node.schemas(timeoutSecs=240)
 assert ('schemas' in schemas), ("FAIL: failed to find 'schemas' field in output of /Metadata/schemas: " + repr(schemas))
 assert (type(schemas['schemas']) is list), ("'schemas' field in output of /Metadata/schemas is not a list: " + repr(schemas))
@@ -50,7 +51,8 @@ assert (len(schemas['schemas']) > 0), ("'schemas' field in output of /Metadata/s
 if verboser:
     print 'Schemas: '
     pp.pprint(schemas)
-print 'Testing /Metadata/schemas/FrameV2. . .'
+if verbose:
+    print 'Testing /Metadata/schemas/FrameV2. . .'
 schemas = a_node.schema(schemaname='FrameV2', timeoutSecs=240)
 assert ('schemas' in schemas), ("FAIL: failed to find 'schemas' field in output of /Metadata/schemas/FrameV2: " + repr(schemas))
 assert (type(schemas['schemas']) is list), ("'schemas' field in output of /Metadata/schemas/FrameV2 is not a list: " + repr(schemas))
@@ -299,7 +301,8 @@ assert ('deeplearning_prostate_binomial' in models_dict), ((('FAIL: Failed to fi
 assert ('deeplearning_prostate_binomial' in frames[0]['compatible_models']), 'FAIL: failed to find deeplearning_prostate_binomial in compatible_models for prostate.'
 assert ('kmeans_prostate' in frames[0]['compatible_models']), 'FAIL: failed to find kmeans_prostate in compatible_models for prostate.'
 h2o.H2O.verboseprint('/Frames/prosate.hex?find_compatible_models=true: ', repr(result))
-print 'Testing /Metadata/schemas again. . .'
+if verbose:
+    print 'Testing /Metadata/schemas again. . .'
 schemas = a_node.schemas(timeoutSecs=240)
 assert ('schemas' in schemas), ("FAIL: failed to find 'schemas' field in output of /Metadata/schemas: " + repr(schemas))
 assert (type(schemas['schemas']) is list), ("'schemas' field in output of /Metadata/schemas is not a list: " + repr(schemas))
@@ -307,7 +310,8 @@ assert (len(schemas['schemas']) > 0), ("'schemas' field in output of /Metadata/s
 if verboser:
     print 'Schemas: '
     pp.pprint(schemas)
-print 'Testing /Metadata/schemas/FrameV2 again. . .'
+if verbose:
+    print 'Testing /Metadata/schemas/FrameV2 again. . .'
 schemas = a_node.schema(schemaname='FrameV2', timeoutSecs=240)
 assert ('schemas' in schemas), ("FAIL: failed to find 'schemas' field in output of /Metadata/schemas/FrameV2: " + repr(schemas))
 assert (type(schemas['schemas']) is list), ("'schemas' field in output of /Metadata/schemas/FrameV2 is not a list: " + repr(schemas))
