@@ -1,5 +1,10 @@
 def show(self):
-    s = ''
-    for vec in self._vecs:
-        s += vec.show()
-    return s
+    if (len(self) == 1):
+        to_show = [[v] for v in self._vecs[0].show(noprint=True)]
+        print tabulate.tabulate(to_show, headers=self.names())
+    else:
+        vecs = [vec.show(noprint=True) for vec in self]
+        vecs.insert(0, range(1, (len(vecs[0]) + 1), 1))
+        print (('Showing the first ' + str(len(vecs[0]))) + ' rows:')
+        print tabulate.tabulate(zip(*vecs), headers=(['Row ID'] + self.names()))
+        print 

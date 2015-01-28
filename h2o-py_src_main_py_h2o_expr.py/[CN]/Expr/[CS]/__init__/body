@@ -7,6 +7,8 @@ def __init__(self, op, left=None, rite=None, length=None):
     self._name = None
     self._summary = None
     self._len = None
+    self._vecname = ''
+    self._isslice = False
     (self._op, self._data) = ((op, None) if isinstance(op, str) else ('rawdata', op))
     self._name = self._op
     assert self._is_valid(), (str(self._name) + str(self._data))
@@ -19,6 +21,10 @@ def __init__(self, op, left=None, rite=None, length=None):
         self._len = length
     elif self.is_local():
         self._len = (len(self._data) if isinstance(self._data, list) else 1)
+    elif self.is_slice():
+        self._len = (self._data.stop - self._data.start)
     else:
         self._len = (length if length else len(self._left))
     assert (self._len is not None)
+    if (left and isinstance(left, frame.H2OVec)):
+        self._vecname = left.name()

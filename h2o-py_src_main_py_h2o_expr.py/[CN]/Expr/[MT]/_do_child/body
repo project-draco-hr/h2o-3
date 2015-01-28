@@ -9,6 +9,9 @@ def _do_child(self, left=True):
             __CMD__ += ('#' + str(child.data()))
         elif isinstance(child.data(), unicode):
             __CMD__ += ('%' + str(child.data()))
+        elif isinstance(child.data(), slice):
+            __CMD__ += (((('(: #' + str(child.data().start)) + ' #') + str((child.data().stop - 1))) + ')')
+            child._data = None
         else:
             pass
     __CMD__ += ' '
