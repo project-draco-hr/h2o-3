@@ -4,5 +4,5 @@ def do_safe_rest(url_suffix=None, params=None, method=None, file_upload_info=Non
     if res['http_error']:
         raise EnvironmentError('h2o-py encountered an unexpected HTTP error:\n {}'.format(res['http_error_message']))
     elif (res['http_status_code'] != 200):
-        raise EnvironmentError('h2o-py got an unexpected HTTP status code:\n {} {} (url = {})'.format(res['http_status_code'], res['http_status_message'], res['url']))
+        raise EnvironmentError('h2o-py got an unexpected HTTP status code:\n {} {} (method = {}; url = {})'.format(res['http_status_code'], res['http_status_message'], method, res['url']))
     return res['http_payload']

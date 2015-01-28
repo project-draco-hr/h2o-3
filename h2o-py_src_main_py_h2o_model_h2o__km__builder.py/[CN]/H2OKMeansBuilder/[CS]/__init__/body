@@ -1,11 +1,5 @@
 def __init__(self, x=None, k=5, training_frame=None, key=None, max_iterations=1000, standardize=True, init=('Furthest', 'Random', 'PlusPlus'), seed=None):
     '\n        Instantiate a KMeansBuilder.\n        :param x: Columns to use for clustering (may be indices or strings).\n        :param k: Number of clusters (must be between 1 and 1e7 inclusive).\n        :param training_frame: An object of type H2OFrame.\n        :param key: The output name of the model.\n        :param max_iterations: The maximum number of iterations allowed\n                               (must be between 0 and 1e6 inclusive).\n        :param standardize: Whether data should be standardized before clustering.\n        :param init: How to select initial set of cluster points. Random for random\n                     initialization, Furthest for initialization at furthest point from\n                     successive centers, and PlusPlus for k-means++.\n        :param seed: A random seed.\n        :return: A new KMeansBuilder.\n        '
-    super(H2OKMeansBuilder, self).__init__(locals(), 'kmeans', training_frame)
-    self.x = x
-    self.k = k
-    self.training_frame = training_frame
-    self.max_iterations = max_iterations
-    self.standardize = standardize
+    super(H2OKMeansBuilder, self).__init__(locals(), self.SELF, training_frame)
+    self.__dict__.update(locals())
     self.init = ('Random' if isinstance(init, tuple) else init)
-    self.seed = seed
-    self.validation_frame = None
