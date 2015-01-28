@@ -11,7 +11,8 @@ def fit(self, x=None, y=None, validation_frame=None):
     self._set_validation_frame(validation_frame)
     model_params = self._fold_default_params_with_user_params()
     url_suffix = ('ModelBuilders/' + self._algo)
-    j = H2OJob(h2oConn.do_safe_post_json(url_suffix=url_suffix, params=model_params)).poll()
+    job_type = (self._algo + ' Model Build')
+    j = H2OJob(h2oConn.do_safe_post_json(url_suffix=url_suffix, params=model_params), job_type=job_type).poll()
     self._set_fitted_model_and_model_type(j.destination_key)
     h2o.remove(self._parameters['training_frame'])
     if (('validation_frame' in self._parameters) and (self._parameters['validation_frame'] is not None)):
