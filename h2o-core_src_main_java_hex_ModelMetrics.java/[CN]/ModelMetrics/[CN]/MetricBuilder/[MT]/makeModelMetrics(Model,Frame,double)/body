@@ -13,5 +13,17 @@
   }
   double mse=_sumsqe / cm.totalRows();
   HitRatio hr=null;
-  return m._output.addModelMetrics(new ModelMetrics(m,f,aucdata,cm,hr,sigma,mse));
+switch (m._output.getModelCategory()) {
+case Binomial:
+    return m._output.addModelMetrics(new ModelMetricsBinomial(m,f,aucdata,cm,hr));
+case Multinomial:
+  return m._output.addModelMetrics(new ModelMetricsMultinomial(m,f,cm,hr));
+case Regression:
+return m._output.addModelMetrics(new ModelMetricsRegression(m,f,sigma,mse));
+case Clustering:
+return m._output.addModelMetrics(new ModelMetricsClustering(m,f,null));
+case AutoEncoder:
+return m._output.addModelMetrics(new ModelMetricsAutoEncoder(m,f,mse));
+}
+throw H2O.unimpl();
 }

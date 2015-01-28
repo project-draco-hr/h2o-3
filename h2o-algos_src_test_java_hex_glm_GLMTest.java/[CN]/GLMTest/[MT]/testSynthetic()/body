@@ -18,8 +18,8 @@
     GLMValidation val=model.validation();
     assertEquals(1,val.auc,1e-2);
     score=model.score(fr);
-    hex.ModelMetrics mm=hex.ModelMetrics.getFromDKV(model,fr);
-    AUCData adata=mm._aucdata;
+    hex.ModelMetricsBinomial mm=hex.ModelMetricsBinomial.getFromDKV(model,fr);
+    AUCData adata=((ModelMetricsBinomial)mm)._aucdata;
     assertEquals(val.auc(),adata.AUC(),1e-2);
   }
   finally {

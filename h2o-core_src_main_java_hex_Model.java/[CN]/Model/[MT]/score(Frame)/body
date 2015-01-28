@@ -5,14 +5,19 @@
   Frame output=scoreImpl(fr,adaptFr);
   Vec predicted=output.vecs()[0];
   String mdomain[]=predicted.domain();
-  if (_output.isClassifier())   assert(mdomain != null);
-  ConfusionMatrix cm=ModelMetrics.getFromDKV(this,fr)._cm;
-  if (cm._domain != null) {
-    assert(java.util.Arrays.deepEquals(cm._domain,mdomain));
-    cm._cmTable=cm.toTable();
-    if (cm._arr.length < _parms._max_confusion_matrix_size)     water.util.Log.info(cm._cmTable.toString(1));
-  }
   if (_output.isClassifier()) {
+    assert(mdomain != null);
+    ModelMetrics mm=ModelMetrics.getFromDKV(this,fr);
+    ModelCategory model_cat=this._output.getModelCategory();
+    ConfusionMatrix cm=mm.cm();
+    if (model_cat == ModelCategory.Binomial)     cm=((ModelMetricsBinomial)mm)._cm;
+ else     if (model_cat == ModelCategory.Multinomial)     cm=((ModelMetricsMultinomial)mm)._cm;
+ else     if (model_cat == ModelCategory.Regression)     cm=((ModelMetricsRegression)mm).cm();
+    if (cm.domain != null) {
+      assert(java.util.Arrays.deepEquals(cm.domain,mdomain));
+      cm.table=cm.toTable();
+      if (cm.confusion_matrix.length < _parms._max_confusion_matrix_size)       water.util.Log.info(cm.table.toString(1));
+    }
     String sdomain[]=actual.domain();
     if (sdomain != null && mdomain != sdomain && !Arrays.equals(mdomain,sdomain))     output.replace(0,new EnumWrappedVec(actual.group().addVec(),actual.get_espc(),sdomain,predicted._key));
   }

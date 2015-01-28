@@ -15,18 +15,29 @@
   if (LBFGS) {
     if (_taskInfo._params._alpha[0] > 0 || _activeCols != null)     throw H2O.unimpl();
     Log.info("current lambda = " + _currentLambda);
-    GLMGradientSolver solver=new GLMGradientSolver(_taskInfo._params,_activeData,_currentLambda,_taskInfo._ymu,_taskInfo._nobs);
+    GradientSolver solver=(_activeData._adaptedFrame.numCols() >= 100 || isSparse(_activeData._adaptedFrame)) ? new GLMColBasedGradientSolver(_taskInfo._params,_activeData,_currentLambda,_taskInfo._ymu,_taskInfo._nobs) : new GLMGradientSolver(_taskInfo._params,_activeData,_currentLambda,_taskInfo._ymu,_taskInfo._nobs);
     if (beta == null) {
       beta=MemoryManager.malloc8d(_activeData.fullN() + 1);
       beta[beta.length - 1]=_taskInfo._params.link(_taskInfo._ymu);
     }
-    L_BFGS.Result r=L_BFGS.solve(solver,new L_BFGS_Params(),beta);
-    GLMGradientInfo ginfo=(GLMGradientInfo)r.ginfo;
+    long t1=System.currentTimeMillis();
+    if (_taskInfo._lbfgs == null)     _taskInfo._lbfgs=new L_BFGS();
+    GradientInfo gOld=_taskInfo._gOld == null ? solver.getGradient(beta) : adjustL2(_taskInfo._gOld,beta,_currentLambda - _taskInfo._lastLambda);
+    final int workInc=WORK_TOTAL / _taskInfo._params._lambda.length / _taskInfo._lbfgs.maxIter();
+    L_BFGS.Result r=_taskInfo._lbfgs.solve(solver,beta,gOld,new ProgressMonitor(){
+      @Override public boolean progress(      GradientInfo ginfo){
+        update(workInc,_jobKey);
+        return Job.isRunning(_jobKey);
+      }
+    }
+);
+    long t2=System.currentTimeMillis();
+    Log.info("L_BFGS (k = " + _taskInfo._lbfgs.k() + ") done after "+ r.iter+ " iterations and "+ ((t2 - t1) / 1000)+ " seconds, objval = "+ r.ginfo._objVal+ ", penalty = "+ (_currentLambda * .5 * ArrayUtils.l2norm2(beta,true))+ ",  gradient norm2 = "+ (MathUtils.l2norm2(r.ginfo._gradient)));
+    _taskInfo._gOld=r.ginfo;
     double[] newBeta=r.coefs;
     _taskInfo._beta=newBeta;
-    _taskInfo._gradient=ginfo._gradient;
     _taskInfo._iter=(_iter+=r.iter);
-    setSubmodel(newBeta,ginfo._val,this);
+    setSubmodel(newBeta,null,this);
     tryComplete();
   }
  else   new GLMIterationTask(_jobKey,_activeData,_taskInfo._params,true,false,false,beta,_taskInfo._ymu,1.0 / _taskInfo._nobs,_taskInfo._thresholds,new Iteration(this)).asyncExec(_activeData._adaptedFrame);
