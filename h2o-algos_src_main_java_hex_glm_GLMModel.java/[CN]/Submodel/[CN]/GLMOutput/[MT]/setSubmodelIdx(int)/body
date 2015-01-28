@@ -4,5 +4,9 @@
   if (_global_beta == null)   _global_beta=MemoryManager.malloc8d(this._coefficient_names.length);
  else   Arrays.fill(_global_beta,0);
   int j=0;
-  for (  int i : _submodels[l].idxs)   _global_beta[i]=_submodels[l].beta[j++];
+  for (  int i : _submodels[l].idxs) {
+    _global_beta[i]=_submodels[l].beta[j];
+    _coefficients_table.set(0,i,_submodels[l].beta[j]);
+    _coefficients_table.set(1,i,_submodels[l].beta[j++]);
+  }
 }
