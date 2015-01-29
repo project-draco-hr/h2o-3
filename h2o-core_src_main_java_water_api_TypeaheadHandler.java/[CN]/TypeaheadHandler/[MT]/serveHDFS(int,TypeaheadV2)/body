@@ -1,6 +1,9 @@
 {
   Configuration conf=PersistHdfs.CONF;
   String filter=t.src;
+  if (S3N_BARE_BUCKET.matcher(filter).matches()) {
+    filter+="/";
+  }
   ArrayList<String> array=new ArrayList<>();
   try {
     Path p=new Path(filter);
