@@ -1,0 +1,19 @@
+def show(self, noprint=False):
+    '\n        Evaluate and print.\n        :return:\n        '
+    self.eager()
+    if noprint:
+        if isinstance(self._data, unicode):
+            j = h2o.frame(self._data)
+            data = j['frames'][0]['columns'][0]['data'][0:10]
+            return data
+        return self._data
+    else:
+        if isinstance(self._data, unicode):
+            j = h2o.frame(self._data)
+            data = j['frames'][0]['columns'][0]['data'][0:10]
+        else:
+            data = [self._data]
+        header = (((self._vecname + ' (first ') + str(len(data))) + ' row(s))')
+        rows = range(1, (len(data) + 1), 1)
+        print tabulate.tabulate(zip(rows, data), headers=['Row ID', header])
+        print 

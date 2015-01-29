@@ -1,0 +1,8 @@
+@staticmethod
+def do_safe_rest(url_suffix=None, params=None, method=None, file_upload_info=None, **kwargs):
+    res = H2OConnectionBase._do_rest(url_suffix=url_suffix, params=params, method=method, file_upload_info=file_upload_info, **kwargs)
+    if res['http_error']:
+        raise EnvironmentError('h2o-py encountered an unexpected HTTP error:\n {}'.format(res['http_error_message']))
+    elif (res['http_status_code'] != 200):
+        raise EnvironmentError('h2o-py got an unexpected HTTP status code:\n {} {} (method = {}; url = {})'.format(res['http_status_code'], res['http_status_message'], method, res['url']))
+    return res['http_payload']

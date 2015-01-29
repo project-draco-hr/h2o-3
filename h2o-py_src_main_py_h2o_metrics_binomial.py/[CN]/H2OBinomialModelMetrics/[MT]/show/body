@@ -1,0 +1,16 @@
+def show(self, criterion=None, threshold=None):
+    if (threshold is not None):
+        raise ValueError('Unimplemented, threshold specification is not available.')
+    if (criterion is None):
+        criterion = self.theCriteria.MAXF1
+    if (criterion not in self.theCriteria.crits()):
+        raise ValueError(((('Invalid criterion. Must be one of: ' + self.theCriteria.crits()) + '. Got: ') + criterion))
+    auc_data_for_crit = self.auc_data.criteria[criterion]
+    print 
+    print ('Overall AUC (independent of criterion): ' + str(self.auc_data.AUC))
+    print ('Overall Gini (independent of criterion): ' + str(self.auc_data.Gini))
+    print 
+    print ((('Threshold for ' + criterion) + ': ') + str(auc_data_for_crit['threshold']))
+    print ((('Value of ' + criterion) + ': ') + str(auc_data_for_crit['value']))
+    print (('Confusion Matrix for ' + criterion) + ': ')
+    auc_data_for_crit['cm'].show()

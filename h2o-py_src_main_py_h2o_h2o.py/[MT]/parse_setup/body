@@ -1,0 +1,7 @@
+def parse_setup(rawkey):
+    '\n    Unable to use \'requests.params=\' syntax because it flattens array parameters,\n    but ParseSetup really expects a real array of Keys.\n    :param rawkey:\n    :return: A ParseSetup "object"\n    '
+    raw_key = _quoted(rawkey)
+    j = h2oConn.do_safe_post_json(url_suffix='ParseSetup', params={'srcs': [raw_key], })
+    if (not j['isValid']):
+        raise ValueError('ParseSetup not Valid', j)
+    return j

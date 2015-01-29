@@ -1,0 +1,13 @@
+@staticmethod
+def __make__(ip='localhost', port=54321):
+    '\n        Instantiate the package handle to the H2O cluster.\n        :param ip: An IP address, default is "localhost"\n        :param port: A port, default is 54321\n        :return: None\n        '
+    global __H2OCONN__
+    assert (isinstance(port, int) and (0 <= port <= sys.maxint))
+    __H2OCONN__._ip = ip
+    __H2OCONN__._port = port
+    cld = H2OConnectionBase.connect()
+    ncpus = sum([n['num_cpus'] for n in cld['nodes']])
+    mmax = sum([n['max_mem'] for n in cld['nodes']])
+    print (("Connected to cloud '" + cld['cloud_name']) + "' size"), cld['cloud_size'], 'ncpus', ncpus, 'maxmem', H2OConnectionBase._get_human_readable_size(mmax)
+    __H2OCONN__._session_id = H2OConnectionBase.get_session_id()
+    return None

@@ -1,0 +1,23 @@
+def eager(self):
+    '\n        This forces a top-level execution, as needed, and produces a top-level result\n        locally. Frames are returned and truncated to the standard preview response\n        provided by rapids - 100 rows X 200 cols.\n        :return: A key pointing to the big data object\n        '
+    if self.is_computed():
+        return self._data
+    global __CMD__, __TMPS__
+    assert ((not __CMD__) and (not __TMPS__))
+    __CMD__ = ''
+    __TMPS__ = ''
+    self._do_it()
+    cmd = __CMD__
+    tmps = __TMPS__
+    __CMD__ = None
+    __TMPS__ = None
+    if self.is_local():
+        return self.data()
+    if tmps:
+        cmd = ((('(, ' + cmd) + tmps) + ')')
+    j = h2o.rapids(cmd)
+    if isinstance(self._data, unicode):
+        pass
+    else:
+        self._data = (j['head'] if j['num_rows'] else j['scalar'])
+    return self._data

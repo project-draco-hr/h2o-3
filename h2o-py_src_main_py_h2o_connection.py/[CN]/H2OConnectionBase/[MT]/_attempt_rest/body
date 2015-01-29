@@ -1,0 +1,48 @@
+@staticmethod
+def _attempt_rest(url='', method='GET', post_body=None, file_upload_info=None, params=None, **kwargs):
+    http_result = {'url': url, 'post_body': post_body, 'http_error': False, 'http_error_message': '', 'http_status_code': (-1), 'http_status_message': '', 'http_payload': None, }
+    if (method == 'GET'):
+        try:
+            http_result['http_payload'] = requests.get(url, **kwargs)
+        except requests.ConnectionError as e:
+            http_result['http_error'] = True
+            http_result['http_error_message'] = e.message
+        except requests.HTTPError as e2:
+            http_result['http_error'] = True
+            http_result['http_error_message'] = e2.message
+    elif file_upload_info:
+        if (not (method == 'POST')):
+            raise ValueError(('Recieved file upload info and expected method to be POST. Got: ' + method))
+        try:
+            files = {file_upload_info['file']: open(file_upload_info['file'], 'rb'), }
+            http_result['http_payload'] = requests.post(url, files=files, **kwargs)
+        except requests.ConnectionError as e:
+            http_result['http_error'] = True
+            http_result['http_error_message'] = e.message
+        except requests.HTTPError as e2:
+            http_result['http_error'] = True
+            http_result['http_error_message'] = e2.message
+    elif (method == 'POST'):
+        try:
+            http_result['http_payload'] = requests.post(url, params=post_body, **kwargs)
+        except requests.ConnectionError as e:
+            http_result['http_error'] = True
+            http_result['http_error_message'] = e.message
+        except requests.HTTPError as e2:
+            http_result['http_error'] = True
+            http_result['http_error_message'] = e2.message
+    elif (method == 'DELETE'):
+        try:
+            http_result['http_payload'] = requests.delete(url, **kwargs)
+        except requests.ConnectionError as e:
+            http_result['http_error'] = True
+            http_result['http_error_message'] = e.message
+        except requests.HTTPError as e2:
+            http_result['http_error'] = True
+            http_result['http_error_message'] = e2.message
+    else:
+        raise ValueError(('Unkown HTTP method ' + method))
+    if (not http_result['http_error']):
+        http_result['http_status_code'] = http_result['http_payload'].status_code
+        http_result['http_status_message'] = http_result['http_payload'].reason
+    return http_result

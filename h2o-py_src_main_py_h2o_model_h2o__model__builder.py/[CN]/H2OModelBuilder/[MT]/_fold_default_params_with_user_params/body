@@ -1,0 +1,17 @@
+def _fold_default_params_with_user_params(self):
+    '\n        Fold together the user parameters with the default parameters\n        :return: A single dictionary of parameters\n        '
+    url_suffix = ('ModelBuilders/' + self._algo)
+    builders_response = h2oConn.do_safe_get_json(url_suffix=url_suffix)
+    model_params_raw = builders_response['model_builders'][self._algo]['parameters']
+    model_params_default = {n['name']: n['default_value'] for n in model_params_raw}
+    params_to_fill = [k for k in self._parameters.keys() if (k in model_params_default)]
+    for k in params_to_fill:
+        model_params_default[k] = self._parameters[k]
+    keys_to_pop = []
+    for k in model_params_default:
+        if (model_params_default[k] is None):
+            keys_to_pop += [k]
+    if (len(keys_to_pop) > 0):
+        for k in keys_to_pop:
+            model_params_default.pop(k, None)
+    return model_params_default
