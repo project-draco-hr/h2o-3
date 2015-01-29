@@ -1,0 +1,20 @@
+def start_clouds(self):
+    '\n        Start all H2O clouds.\n\n        @return: none\n        '
+    if self.terminated:
+        return
+    if self.use_cloud:
+        return
+    print ''
+    print 'Starting clouds...'
+    print ''
+    for cloud in self.clouds:
+        if self.terminated:
+            return
+        cloud.start()
+    print ''
+    print 'Waiting for H2O nodes to come up...'
+    print ''
+    for cloud in self.clouds:
+        if self.terminated:
+            return
+        cloud.wait_for_cloud_to_be_up()
