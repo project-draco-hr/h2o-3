@@ -1,0 +1,43 @@
+def user(ip, port):
+    h2o.init(ip=ip, port=port)
+    a = h2o.import_frame(path='smalldata/iris/iris_wheader.csv')[0:4]
+    a.head()
+    print a[0].name()
+    a[0][2].show()
+    a['sepal_len'][2].show()
+    (a[0] + 2).show()
+    (a[0] + a[1]).show()
+    sum(a).show()
+    a['sepal_len'].mean().show()
+    print 
+    print 'Rows 50 through 77 in the `sepal_len` column'
+    a['sepal_len'][50:78].show()
+    print 
+    a['sepal_len'].show()
+    a.show()
+    colmeans = [v.mean().eager() for v in a]
+    print 'The column means: '
+    print colmeans
+    print 
+    try:
+        print a['Sepal_len']
+    except ValueError as ex:
+        pass
+    b = h2o.import_frame(path='smalldata/iris/iris_wheader.csv')[0:4]
+    c = (a + b)
+    d = ((c + c) + sum(a))
+    e = ((c + a) + 1)
+    e.show()
+    c.show()
+    c = None
+    print (1 + (a[0] + b[1]).mean())
+    import collections
+    c = h2o.H2OFrame(python_obj=collections.OrderedDict({'A': [1, 2, 3], 'B': [4, 5, 6], }))
+    c.show()
+    c.describe()
+    c.head()
+    c[0].show()
+    c[0][1].show()
+    c[0][0:2].show()
+    sliced = a[0][0:51]
+    sliced.show()
