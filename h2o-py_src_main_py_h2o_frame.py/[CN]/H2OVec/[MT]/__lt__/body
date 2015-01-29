@@ -2,8 +2,8 @@ def __lt__(self, i):
     if isinstance(i, H2OVec):
         if (len(i) != len(self)):
             raise ValueError(((('len(self)=' + len(self)) + ' cannot be broadcast across len(i)=') + len(i)))
-        return H2OVec(((self.name() + '<') + i.name()), Expr('<', self, i))
+        return H2OVec(self.name(), Expr('<', self, i))
     elif isinstance(i, (int, float)):
-        return H2OVec(((self.name() + '<') + str(i)), Expr('<', self, Expr(i)))
+        return H2OVec(self.name(), Expr('<', self, Expr(i)))
     else:
         raise NotImplementedError

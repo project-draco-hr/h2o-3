@@ -3,7 +3,7 @@ def __eq__(self, i):
     if isinstance(i, H2OVec):
         if (len(i) != len(self)):
             raise ValueError(((('len(self)=' + len(self)) + ' cannot be broadcast across len(i)=') + len(i)))
-        return H2OVec(((self._name + '==') + i._name), Expr('==', self, i))
+        return H2OVec(self.name(), Expr('==', self, i))
     if isinstance(i, (int, float)):
-        return H2OVec(((self._name + '==') + str(i)), Expr('==', self, Expr(i)))
+        return H2OVec(self.name(), Expr('==', self, Expr(i)))
     raise NotImplementedError
