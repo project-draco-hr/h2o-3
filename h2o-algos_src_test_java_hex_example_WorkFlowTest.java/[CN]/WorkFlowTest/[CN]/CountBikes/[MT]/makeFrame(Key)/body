@@ -1,0 +1,39 @@
+{
+  final int ncols=5;
+  AppendableVec[] avecs=new AppendableVec[ncols];
+  NewChunk ncs[]=new NewChunk[ncols];
+  Key keys[]=Vec.VectorGroup.VG_LEN1.addVecs(ncols);
+  for (int c=0; c < avecs.length; c++)   avecs[c]=new AppendableVec(keys[c]);
+  Futures fs=new Futures();
+  int chunknum=0;
+  for (int mon=0; mon < 12; mon++) {
+    for (int day=0; day < 7; day++) {
+      for (int hr=0; hr < 24; hr++) {
+        for (int sid=0; sid < _num_sid; sid++) {
+          int bikecnt=_bikes[idx(mon,day,hr,sid)];
+          if (bikecnt == 0)           continue;
+          if (ncs[0] == null)           for (int c=0; c < ncols; c++)           ncs[c]=new NewChunk(avecs[c],chunknum);
+          ncs[0].addNum(mon);
+          ncs[1].addNum(day);
+          ncs[2].addNum(hr);
+          ncs[3].addNum(sid);
+          ncs[4].addNum(bikecnt);
+        }
+      }
+      if (ncs[0] != null) {
+        for (int c=0; c < ncols; c++)         ncs[c].close(chunknum,fs);
+        chunknum++;
+        ncs[0]=null;
+      }
+    }
+  }
+  Vec[] vecs=new Vec[ncols];
+  for (int c=0; c < avecs.length; c++) {
+    vecs[c]=avecs[c].close(fs);
+    if (c < _fr.numCols())     vecs[c].setDomain(_fr.vecs()[c].domain());
+  }
+  fs.blockForPending();
+  Frame fr=new Frame(key,new String[]{"Month","Day","Hour","Station","bikes"},vecs);
+  DKV.put(fr);
+  return fr;
+}
