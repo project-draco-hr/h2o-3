@@ -1,39 +1,38 @@
 {
-  final int ncols=5;
+  final int ncols=4;
   AppendableVec[] avecs=new AppendableVec[ncols];
   NewChunk ncs[]=new NewChunk[ncols];
   Key keys[]=Vec.VectorGroup.VG_LEN1.addVecs(ncols);
   for (int c=0; c < avecs.length; c++)   avecs[c]=new AppendableVec(keys[c]);
   Futures fs=new Futures();
   int chunknum=0;
-  for (int mon=0; mon < 12; mon++) {
-    for (int day=0; day < 7; day++) {
-      for (int hr=0; hr < 24; hr++) {
-        for (int sid=0; sid < _num_sid; sid++) {
-          int bikecnt=_bikes[idx(mon,day,hr,sid)];
-          if (bikecnt == 0)           continue;
-          if (ncs[0] == null)           for (int c=0; c < ncols; c++)           ncs[c]=new NewChunk(avecs[c],chunknum);
-          ncs[0].addNum(mon);
-          ncs[1].addNum(day);
-          ncs[2].addNum(hr);
-          ncs[3].addNum(sid);
-          ncs[4].addNum(bikecnt);
-        }
-      }
-      if (ncs[0] != null) {
-        for (int c=0; c < ncols; c++)         ncs[c].close(chunknum,fs);
-        chunknum++;
-        ncs[0]=null;
-      }
+  MutableDateTime mdt=new MutableDateTime();
+  for (int day=_day0; day < _last_day; day++) {
+    for (int sid=0; sid < _num_sid; sid++) {
+      int bikecnt=_bikes[idx(day,sid)];
+      if (bikecnt == 0)       continue;
+      if (ncs[0] == null)       for (int c=0; c < ncols; c++)       ncs[c]=new NewChunk(avecs[c],chunknum);
+      ncs[0].addNum(sid);
+      ncs[1].addNum(bikecnt);
+      long msec=day * (1000L * 60 * 60* 24);
+      mdt.setMillis(msec);
+      ncs[2].addNum(mdt.getMonthOfYear() - 1);
+      ncs[3].addNum(mdt.getDayOfWeek() - 1);
+    }
+    if (ncs[0] != null) {
+      for (int c=0; c < ncols; c++)       ncs[c].close(chunknum,fs);
+      chunknum++;
+      ncs[0]=null;
     }
   }
   Vec[] vecs=new Vec[ncols];
-  for (int c=0; c < avecs.length; c++) {
-    vecs[c]=avecs[c].close(fs);
-    if (c < _fr.numCols())     vecs[c].setDomain(_fr.vecs()[c].domain());
-  }
+  for (int c=0; c < avecs.length; c++)   vecs[c]=avecs[c].close(fs);
+  vecs[0].setDomain(_fr.vec(1).domain());
+  vecs[1].setDomain(null);
+  vecs[2].setDomain(new String[]{"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"});
+  vecs[3].setDomain(new String[]{"Mon","Tue","Wed","Thu","Fri","Sat","Sun"});
   fs.blockForPending();
-  Frame fr=new Frame(key,new String[]{"Month","Day","Hour","Station","bikes"},vecs);
+  Frame fr=new Frame(key,new String[]{"Station","bikes","Month","DayOfWeek"},vecs);
   DKV.put(fr);
   return fr;
 }
