@@ -8,7 +8,9 @@
     if (trainAUC != null)     sb.append(", AUC: " + String.format("%.4f",100 * trainAUC.AUC) + "%");
   }
   if (validation || num_folds > 0) {
-    sb.append("\nValidation data metrics" + (num_folds > 0 ? (" (using " + num_folds + "-fold cross-validation):") : ":"));
+    if (num_folds > 0) {
+      sb.append("\nDoing " + num_folds + "-fold cross-validation:");
+    }
     sb.append("\nValidation MSE: " + valid_mse + "\n");
     sb.append("Validation R^2: " + valid_r2 + "\n");
     if (classification) {
