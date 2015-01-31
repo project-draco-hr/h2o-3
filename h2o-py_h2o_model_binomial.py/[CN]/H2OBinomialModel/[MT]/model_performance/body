@@ -6,6 +6,6 @@ def model_performance(self, test_data=None):
         raise ValueError(('`test_data` must be of type H2OFrame. Got: ' + type(test_data)))
     fr_key = H2OFrame.send_frame(test_data)
     url_suffix = ((('ModelMetrics/models/' + self._key) + '/frames/') + fr_key)
-    res = h2oConn.do_safe_post_json(url_suffix=url_suffix)
+    res = H2OConnection.post_json(url_suffix=url_suffix)
     raw_metrics = res['model_metrics'][0]
     return H2OBinomialModelMetrics(raw_metrics)
