@@ -1,0 +1,18 @@
+@staticmethod
+def _process_tables(x=None):
+    elts = ['tableHeader', 'rowHeaders', 'colHeaders', 'colTypes', 'colFormats', 'cellValues']
+    if x:
+        if isinstance(x, dict):
+            have_table = all([(True if (i in elts) else False) for i in x.keys()])
+            have_table &= (len(x) == len(elts))
+            if have_table:
+                tbl = x['cellValues']
+                tbl = H2OTwoDimTable(x['rowHeaders'], x['colHeaders'], x['colTypes'], x['tableHeader'], x['cellValues'], x['colFormats'])
+                x = tbl
+            else:
+                for k in x:
+                    x[k] = H2OConnection._process_tables(x[k])
+        if isinstance(x, list):
+            for it in range(len(x)):
+                x[it] = H2OConnection._process_tables(x[it])
+    return x

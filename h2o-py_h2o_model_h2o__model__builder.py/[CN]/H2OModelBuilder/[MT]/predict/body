@@ -4,7 +4,7 @@ def predict(self, test_data=None, **kwargs):
         raise ValueError('Must specify test data')
     test_data_key = H2OFrame.send_frame(test_data)
     url_suffix = ((('Predictions/models/' + self._model_key) + '/frames/') + test_data_key)
-    j = h2oConn.do_safe_post_json(url_suffix=url_suffix)
+    j = H2OConnection.post_json(url_suffix=url_suffix)
     prediction_frame_key = j['model_metrics'][0]['predictions']['key']['name']
     pred_frame_meta = h2o.frame(prediction_frame_key)['frames'][0]
     veckeys = pred_frame_meta['veckeys']
