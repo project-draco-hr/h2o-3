@@ -1,0 +1,32 @@
+def _do_raw_rest(self, url_suffix=None, params=None, method=None, file_upload_info=None, **kwargs):
+    if (not params):
+        params = {}
+    url = H2OConnection._calc_base_url(url_suffix)
+    parts = {}
+    for k in params:
+        if isinstance(params[k], list):
+            parts[k] = '['
+            parts[k] += ','.join([str(l).encode('utf-8') for l in params[k]])
+            parts[k] += ']'
+        else:
+            parts[k] = str(params[k]).encode('utf-8')
+    query_string = '&'.join([('%s=%s' % (k, v)) for (k, v) in parts.items()])
+    post_body = ''
+    if (not file_upload_info):
+        if (method == 'POST'):
+            post_body = query_string
+        elif (query_string != ''):
+            url = '{}?{}'.format(url, query_string)
+    else:
+        if (not (method == 'POST')):
+            raise ValueError(('Received file upload info and expected method to be POST. Got: ' + str(method)))
+        if (query_string != ''):
+            url = '{}?{}'.format(url, query_string)
+    begin_time_seconds = time.time()
+    http_result = self._attempt_rest(url, method, post_body, file_upload_info, params=params, **kwargs)
+    end_time_seconds = time.time()
+    elapsed_time_seconds = (end_time_seconds - begin_time_seconds)
+    elapsed_time_millis = (elapsed_time_seconds * 1000)
+    if (not http_result.ok):
+        raise EnvironmentError('h2o-py got an unexpected HTTP status code:\n {} {} (method = {}; url = {})'.format(http_result.status_code, http_result.reason, method, res['url']))
+    return http_result

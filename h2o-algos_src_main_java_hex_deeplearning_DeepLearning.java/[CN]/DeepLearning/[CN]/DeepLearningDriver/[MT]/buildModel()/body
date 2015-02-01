@@ -2,7 +2,7 @@
   Scope.enter();
   DeepLearningModel cp=null;
   if (_parms._checkpoint == null) {
-    cp=new DeepLearningModel(dest(),_parms,new DeepLearningModel.DeepLearningOutput(DeepLearning.this),_train,_valid);
+    cp=new DeepLearningModel(dest(),_parms,new DeepLearningModel.DeepLearningModelOutput(DeepLearning.this),_train,_valid);
     cp.model_info().initializeMembers();
   }
  else {
@@ -33,7 +33,6 @@
       Object B=_parms;
       for (      Field fA : A.getClass().getDeclaredFields()) {
         if (ArrayUtils.contains(cp_modifiable,fA.getName())) {
-          if (!_parms._expert_mode && ArrayUtils.contains(cp.get_params().expert_options,fA.getName()))           continue;
           for (          Field fB : B.getClass().getDeclaredFields()) {
             if (fA.equals(fB)) {
               try {

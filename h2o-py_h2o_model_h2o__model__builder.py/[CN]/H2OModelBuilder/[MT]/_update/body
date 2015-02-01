@@ -1,0 +1,9 @@
+def _update(self):
+    o = self
+    a = [n for n in dir(o) if ((not callable(getattr(o, n))) and (not n.startswith('_')))]
+    self._parameters = dict(zip(a, [getattr(o, i) for i in a]))
+    for key in self._parameters:
+        if isinstance(self._parameters[key], float):
+            if isinf(self._parameters[key]):
+                self._parameters[key] = sys.maxint
+    return self._parameters

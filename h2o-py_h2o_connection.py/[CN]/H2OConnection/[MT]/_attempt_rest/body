@@ -1,0 +1,18 @@
+def _attempt_rest(self, url, method, post_body, file_upload_info, params, **kwargs):
+    try:
+        if (method == 'GET'):
+            return requests.get(url, **kwargs)
+        elif file_upload_info:
+            if (not (method == 'POST')):
+                raise ValueError(('Recieved file upload info and expected method to be POST. Got: ' + method))
+            files = {file_upload_info['file']: open(file_upload_info['file'], 'rb'), }
+            return requests.post(url, files=files, **kwargs)
+        elif (method == 'POST'):
+            return requests.post(url, params=post_body, **kwargs)
+        elif (method == 'DELETE'):
+            return requests.delete(url, **kwargs)
+        else:
+            raise ValueError(('Unknown HTTP method ' + method))
+    except requests.ConnectionError as e:
+        raise EnvironmentError('h2o-py encountered an unexpected HTTP error:\n {}'.format(e.message))
+    return http_result
