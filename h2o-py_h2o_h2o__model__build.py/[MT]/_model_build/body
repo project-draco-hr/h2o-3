@@ -1,0 +1,15 @@
+def _model_build(x, y, validation_x, validation_y, algo_url, **kwargs):
+    if (not x):
+        raise ValueError('Missing features')
+    x = _check_frame(x, y)
+    if validation_x:
+        validation_x = _check_frame(validation_x, validation_y)
+    train_key = x._send_frame()
+    if validation_x:
+        valid_key = validation_x._send_frame()
+    job = H2OJob(H2OConnection.post_json(url_suffix=('ModelBuilders/' + algo_url), **kwargs), job_type=(algo_url + ' Model Build')).poll()
+    print job
+    h2o.remove(train_key)
+    if validation_x:
+        h2o.remove(valid_key)
+    raise NotImplementedError

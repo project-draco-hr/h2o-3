@@ -1,0 +1,6 @@
+def __getitem__(self, i):
+    '\n    Basic index/sliced lookup\n    :param i: An Expr or an H2OVec\n    :return: A new Expr object corresponding to the input query\n    '
+    if isinstance(i, H2OVec):
+        return self.row_select(i)
+    e = Expr(i)
+    return Expr('[', self, e, length=len(e))

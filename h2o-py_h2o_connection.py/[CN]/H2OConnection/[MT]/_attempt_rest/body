@@ -1,16 +1,14 @@
-def _attempt_rest(self, url, method, post_body, file_upload_info, params, **kwargs):
+def _attempt_rest(self, url, method, post_body, file_upload_info):
     try:
         if (method == 'GET'):
-            return requests.get(url, **kwargs)
+            return requests.get(url)
         elif file_upload_info:
-            if (not (method == 'POST')):
-                raise ValueError(('Recieved file upload info and expected method to be POST. Got: ' + method))
             files = {file_upload_info['file']: open(file_upload_info['file'], 'rb'), }
-            return requests.post(url, files=files, **kwargs)
+            return requests.post(url, files=files)
         elif (method == 'POST'):
-            return requests.post(url, params=post_body, **kwargs)
+            return requests.post(url, params=post_body)
         elif (method == 'DELETE'):
-            return requests.delete(url, **kwargs)
+            return requests.delete(url)
         else:
             raise ValueError(('Unknown HTTP method ' + method))
     except requests.ConnectionError as e:

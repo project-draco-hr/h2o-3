@@ -11,9 +11,8 @@ def poll(self):
         running = self._is_running()
     self._update_progress()
     print 
-    if self._is_failed():
-        if (self.status == 'CANCELLED'):
-            raise EnvironmentError('Job with key {} was cancelled by the user.'.format(self.job_key))
-        if (self.status == 'FAILED'):
-            raise EnvironmentError('Job with key {} failed with an exception.'.format(self.job_key))
+    if (self.status == 'CANCELLED'):
+        raise EnvironmentError('Job with key {} was cancelled by the user.'.format(self.job_key))
+    if (self.status == 'FAILED'):
+        raise EnvironmentError('Job with key {} failed with an exception.'.format(self.job_key))
     return self

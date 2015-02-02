@@ -1,5 +1,5 @@
-def prostateGBM(ip, port):
-    h2o.init(ip, port)
+def prostateGBM(**kwargs):
+    h2o.init(kwargs)
     df = h2o.import_frame(path='smalldata/logreg/prostate.csv')
     print df.describe()
     train = df.drop('ID')
@@ -10,18 +10,7 @@ def prostateGBM(ip, port):
     train['CAPSULE'] = train['CAPSULE'].asfactor()
     print train.describe()
     from h2o import H2OGBM
-    my_gbm = H2OGBM()
-    my_gbm.training_frame = train
-    my_gbm.y = 'CAPSULE'
-    my_gbm.x = range(1, train.ncol(), 1)
-    my_gbm.ntrees = 50
-    my_gbm.learn_rate = 0.1
-    my_gbm.fit()
-    my_gbm.show()
-    my_gbm_metrics = my_gbm.model_performance(train)
-    my_gbm_metrics.show()
-    from h2o.model.h2o_gbm_builder import H2OGBMBuilder
-    my_gbm2 = H2OGBMBuilder(training_frame=train, y='CAPSULE', x=range(1, train.ncol(), 1), ntrees=50, learn_rate=0.1).fit()
+    my_gbm2 = gbm(y=train['CAPSULE'], x=range(1, train.ncol(), 1), ntrees=50, learn_rate=0.1)
     my_gbm2.show()
     my_gbm_metrics2 = my_gbm2.model_performance(train)
     my_gbm_metrics2.show()

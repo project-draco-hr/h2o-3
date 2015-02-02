@@ -1,0 +1,9 @@
+def __eq__(self, i):
+    "\n    Perform the '==' operation.\n    :param i: An H2OVec or a number.\n    :return: A new H2OVec.\n    "
+    if isinstance(i, H2OVec):
+        if (len(i) != len(self)):
+            raise ValueError(((('len(self)=' + len(self)) + ' cannot be broadcast across len(i)=') + len(i)))
+        return H2OVec(self._name, Expr('==', self, i))
+    if isinstance(i, (int, float)):
+        return H2OVec(self._name, Expr('==', self, Expr(i)))
+    raise NotImplementedError
