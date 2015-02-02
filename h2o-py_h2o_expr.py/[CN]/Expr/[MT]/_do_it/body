@@ -1,11 +1,11 @@
 def _do_it(self):
-    '\n        External API for eager; called by all top-level demanders (e.g. print)\n        This may trigger (recursive) big-data evaluation.\n        :return: None\n        '
+    '\n    External API for eager; called by all top-level demanders (e.g. print)\n    This may trigger (recursive) big-data evaluation.\n    :return: None\n    '
     if self.is_computed():
         return
     assign_vec = (self.left().left() if ((self._op == '=') and (self.left().op() == '[')) else None)
-    global __CMD__
     cnt = (sys.getrefcount(self) - 1)
     py_tmp = ((cnt != 4) and (self._len > 1) and (not assign_vec))
+    global __CMD__
     if py_tmp:
         self._data = frame.H2OFrame.py_tmp_key()
         __CMD__ += (('(= !' + self._data) + ' ')
