@@ -1,13 +1,12 @@
 {
   ModelMetricsList parms=s.createAndFillImpl();
-  Frame predictions=parms._model.score(parms._frame);
+  if (null == parms._destination_key)   parms._destination_key="predictions_" + parms._model._key.toString() + "_on_"+ parms._frame._key.toString();
+  Frame predictions=parms._model.score(parms._frame,parms._destination_key);
   ModelMetricsListSchemaV3 mm=this.fetch(version,s);
   if (null == mm)   mm=new ModelMetricsListSchemaV3();
   if (null == mm.model_metrics || 0 == mm.model_metrics.length) {
     Log.warn("Score() did not return a ModelMetrics for model: " + s.model + " on frame: "+ s.frame);
   }
-  Frame persisted=new Frame(Key.make("predictions_" + Key.rand()),predictions.names(),predictions.vecs());
-  DKV.put(persisted);
-  mm.model_metrics[0].predictions=new FrameV2(persisted,0,100);
+  mm.model_metrics[0].predictions=new FrameV2(predictions,0,100);
   return mm;
 }
