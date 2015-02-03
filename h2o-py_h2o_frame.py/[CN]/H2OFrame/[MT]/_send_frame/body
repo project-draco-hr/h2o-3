@@ -2,7 +2,7 @@ def _send_frame(self):
     '\n    Send a frame description to H2O, returns a key.\n    :return: A key\n    '
     fr = H2OFrame.py_tmp_key()
     cbind = (('(= !' + fr) + ' (cbind %')
-    cbind += (' %'.join([vec.get_expr().eager() for vec in self.vecs()]) + '))')
+    cbind += (' %'.join([vec._expr.eager() for vec in self.vecs()]) + '))')
     h2o.rapids(cbind)
     colnames = (((('(colnames= %' + fr) + ' {(: #0 #') + str((len(self) - 1))) + ')} {')
     cnames = ';'.join([vec.name() for vec in self.vecs()])

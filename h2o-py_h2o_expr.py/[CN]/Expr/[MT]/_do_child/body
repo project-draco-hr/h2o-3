@@ -1,16 +1,16 @@
 def _do_child(self, left=True):
-    child = (self.left() if left else self.rite())
+    child = (self._left if left else self._rite)
     assert ((child is None) or isinstance(child, Expr))
     global __CMD__
     if child:
         if child.is_pending():
             child._do_it()
-        elif isinstance(child.data(), (int, float)):
-            __CMD__ += ('#' + str(child.data()))
-        elif isinstance(child.data(), unicode):
-            __CMD__ += ('%' + str(child.data()))
-        elif isinstance(child.data(), slice):
-            __CMD__ += (((('(: #' + str(child.data().start)) + ' #') + str((child.data().stop - 1))) + ')')
+        elif isinstance(child._data, (int, float)):
+            __CMD__ += ('#' + str(child._data))
+        elif isinstance(child._data, unicode):
+            __CMD__ += ('%' + str(child._data))
+        elif isinstance(child._data, slice):
+            __CMD__ += (((('(: #' + str(child._data.start)) + ' #') + str((child._data.stop - 1))) + ')')
             child._data = None
         else:
             pass
