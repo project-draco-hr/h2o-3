@@ -28,7 +28,7 @@ h2o.H2O.verboseprint(('host: ' + str(host)))
 h2o.H2O.verboseprint(('port' + str(port)))
 pp = pprint.PrettyPrinter(indent=4)
 a_node = h2o.H2O(host, port)
-algos = ['example', 'kmeans', 'deeplearning', 'glm', 'gbm', 'word2vec', 'quantile', 'grep', 'splitframe']
+algos = ['example', 'kmeans', 'deeplearning', 'glm', 'gbm', 'word2vec', 'quantile', 'grep']
 algo_additional_default_params = {'grep': {'regex': '.*', }, 'kmeans': {'k': 2, }, }
 clean_up_after = False
 h2o.H2O.verboseprint('connected to: ', str(host), ':', str(port))
@@ -272,8 +272,9 @@ for mm in mms['model_metrics']:
     if ((model_key == 'deeplearning_prostate_binomial') and (frame_key == 'prostate_binomial')):
         found_mm = True
 assert found_mm, ((('FAIL: Failed to find ModelMetrics object for model: ' + 'deeplearning_prostate_binomial') + ' and frame: ') + 'prostate_binomial')
-p = a_node.predict(model='deeplearning_prostate_binomial', frame='prostate_binomial')
+p = a_node.predict(model='deeplearning_prostate_binomial', frame='prostate_binomial', destination_key='deeplearning_prostate_binomial_predictions')
 validate_predictions(p, 'deeplearning_prostate_binomial', 'prostate_binomial', 380)
+validate_frame_exists('deeplearning_prostate_binomial_predictions')
 h2o.H2O.verboseprint('Predictions for scoring: ', 'deeplearning_prostate_binomial', ' on: ', 'prostate_binomial', ':  ', repr(p))
 p = a_node.predict(model='deeplearning_prostate_regression', frame='prostate_binomial')
 validate_predictions(p, 'deeplearning_prostate_regression', 'prostate_binomial', 380)
