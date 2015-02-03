@@ -7,4 +7,4 @@ def model_performance(self, test_data):
     fr_key = H2OFrame.send_frame(test_data)
     res = H2OConnection.post_json(((('ModelMetrics/models/' + self._key) + '/frames/') + fr_key))
     raw_metrics = res['model_metrics'][0]
-    return H2OBinomialModelMetrics(raw_metrics)
+    return self._metrics_class(raw_metrics)

@@ -9,14 +9,7 @@ def deepLearningDemo(ip, port):
     test_data['Angaus'] = test_data['Angaus'].asfactor()
     print test_data.describe()
     test_data.head()
-    gbm = H2OGBM(training_frame=train_data, validation_frame=test_data, y='Angaus', x=[name for name in train_data.names() if (name != 'Angaus')], ntrees=100)
-    gbm.fit()
+    gbm = h2o.gbm(x=train_data[1:], y=train_data['Angaus'], validation_x=test_data[1:], validation_y=test_data['Angaus'], ntrees=100)
     gbm.show()
-    dl = H2ODeeplearning()
-    dl.training_frame = train_data
-    dl.x = [name for name in train_data.names() if (name != 'Angaus')]
-    dl.y = 'Angaus'
-    dl.epochs = 1000
-    dl.hidden = [20, 20, 20]
-    dl.fit()
+    dl = h2o.deeplearning(x=train_data[1:], y=train_data['Angaus'], validation_x=test_data[1:], validation_y=test_data['Angaus'], epochs=1000, hidden=[20, 20, 20])
     dl.show()
