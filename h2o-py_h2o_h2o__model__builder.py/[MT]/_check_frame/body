@@ -1,4 +1,4 @@
-def _check_frame(x, y):
+def _check_frame(x, y, response):
     if (not isinstance(x, H2OFrame)):
         if (not isinstance(x, list)):
             raise ValueError(('`x` must be an H2OFrame or a list of H2OVecs. Got: ' + str(type(x))))
@@ -9,5 +9,5 @@ def _check_frame(x, y):
         for v in x._vecs:
             if (y._name == v._name):
                 raise ValueError((('Found response ' + y._name) + ' in training `x` data'))
-        x['$$response'] = y
+        x[response._name] = y
     return x

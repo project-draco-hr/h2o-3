@@ -1,0 +1,10 @@
+def model_performance(self, test_data):
+    '\n    Generate model metrics for this model on test_data.\n    :param test_data: Data set for which model metrics shall be computed against.\n    :return: An object of class H2OModelMetrics.\n    '
+    if (not test_data):
+        raise ValueError('Missing`test_data`.')
+    if (not isinstance(test_data, H2OFrame)):
+        raise ValueError(('`test_data` must be of type H2OFrame.  Got: ' + type(test_data)))
+    fr_key = H2OFrame.send_frame(test_data)
+    res = H2OConnection.post_json(((('ModelMetrics/models/' + self._key) + '/frames/') + fr_key))
+    raw_metrics = res['model_metrics'][0]
+    return H2OBinomialModelMetrics(raw_metrics)
