@@ -1,9 +1,12 @@
 def _len_check(self, x):
     if (not x):
-        return
+        return self
     if isinstance(x, H2OFrame):
         x = x._vecs[0]
+    if isinstance(x, Expr):
+        raise ValueError('Mixing Vec and Expr')
     if (not isinstance(x, H2OVec)):
-        return
+        return self
     if (len(self) != len(x)):
         raise ValueError(((('H2OVec length mismatch: ' + len(self)) + ' vs ') + len(x)))
+    return self
