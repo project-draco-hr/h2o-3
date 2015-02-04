@@ -1,4 +1,8 @@
 {
   Key cckey=chunkKey(cidx);
-  if (DKV.get(cckey) != null)   DKV.remove(cckey);
+  if (DKV.get(cckey) != null) {
+    Futures fs=new Futures();
+    DKV.remove(cckey,fs);
+    fs.blockForPending();
+  }
 }
