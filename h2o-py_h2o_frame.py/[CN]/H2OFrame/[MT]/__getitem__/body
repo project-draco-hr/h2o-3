@@ -6,8 +6,7 @@ def __getitem__(self, i):
     if isinstance(i, slice):
         return H2OFrame(vecs=self._vecs[i])
     if isinstance(i, H2OVec):
-        if (len(i) != len(self._vecs[0])):
-            raise ValueError(((('len(vec)=' + len(self._vecs[0])) + ' cannot be broadcast across len(i)=') + len(i)))
+        self._len_check(i)
         return H2OFrame(vecs=[x.row_select(i) for x in self._vecs])
     if isinstance(i, list):
         vecs = []

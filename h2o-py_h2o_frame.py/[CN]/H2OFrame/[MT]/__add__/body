@@ -1,13 +1,10 @@
 def __add__(self, i):
     if (len(self) == 0):
         return self
+    self._len_check(i)
     if isinstance(i, H2OFrame):
-        if (len(i) != len(self)):
-            raise ValueError(((('ncol(self)' + len(self)) + ' cannot be broadcast across len(i)=') + len(i)))
         return H2OFrame(vecs=[(x + y) for (x, y) in zip(self._vecs, i.vecs())])
     if isinstance(i, H2OVec):
-        if (len(i) != len(self._vecs[0])):
-            raise ValueError(((('nrow(self)' + len(self._vecs[0])) + ' cannot be broadcast across len(i)=') + len(i)))
         return H2OFrame(vecs=[(x + i) for x in self._vecs])
     if isinstance(i, int):
         return H2OFrame(vecs=[(x + i) for x in self._vecs])
