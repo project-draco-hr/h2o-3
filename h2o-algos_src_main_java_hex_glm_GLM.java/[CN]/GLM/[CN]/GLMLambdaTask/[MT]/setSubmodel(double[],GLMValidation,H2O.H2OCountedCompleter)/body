@@ -5,7 +5,7 @@
     fullBeta[fullBeta.length - 1]=_taskInfo._params.linkInv(_taskInfo._ymu);
   }
   final double[] newBetaDeNorm;
-  if (_taskInfo._dinfo._predictor_transform == FrameTask.DataInfo.TransformType.STANDARDIZE) {
+  if (_taskInfo._dinfo._predictor_transform == DataInfo.TransformType.STANDARDIZE) {
     newBetaDeNorm=fullBeta.clone();
     double norm=0.0;
     final int numoff=_taskInfo._dinfo.numStart();
@@ -17,6 +17,6 @@
     newBetaDeNorm[newBetaDeNorm.length - 1]-=norm;
   }
  else   newBetaDeNorm=null;
-  GLMModel.setSubmodel(cmp,_taskInfo._dstKey,_currentLambda,newBetaDeNorm == null ? fullBeta : newBetaDeNorm,newBetaDeNorm == null ? null : fullBeta,(_iter + 1),System.currentTimeMillis() - _start_time,_taskInfo._dinfo.fullN() >= sparseCoefThreshold,val);
+  GLMModel.setSubmodel(cmp,_taskInfo._dstKey,_currentL2Pen,newBetaDeNorm == null ? fullBeta : newBetaDeNorm,newBetaDeNorm == null ? null : fullBeta,(_iter + 1),System.currentTimeMillis() - _start_time,_taskInfo._dinfo.fullN() >= sparseCoefThreshold,val);
   return fullBeta;
 }

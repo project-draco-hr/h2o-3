@@ -1,0 +1,19 @@
+{
+  Row row=_dinfo.newDenseRow();
+  for (int rid=0; rid < chks[0]._len; ++rid) {
+    row=_dinfo.extractDenseRow(chks,rid,row);
+    for (int i=0; i < _beta.length; ++i) {
+      double[] g=_gradient[i];
+      double[] b=_beta[i];
+      double eta=row.innerProduct(b);
+      double mu=_params.linkInv(eta);
+      double var=_params.variance(mu);
+      if (var < 1e-6)       var=1e-6;
+      double gval=(mu - row.response(0)) / (var * _params.linkDeriv(mu));
+      for (      int c : row.binIds)       g[c]+=gval;
+      int off=_dinfo.numStart();
+      for (int j=0; j < _dinfo._nums; ++i)       g[j + off]+=row.numVals[i] * gval;
+      if (_dinfo._intercept)       g[g.length - 1]+=gval;
+    }
+  }
+}
