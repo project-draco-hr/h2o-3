@@ -5,7 +5,7 @@ def send_frame(self):
     cbind += (' %'.join([vec._expr.eager() for vec in self.vecs()]) + '))')
     h2o.rapids(cbind)
     colnames = (((('(colnames= %' + fr) + ' {(: #0 #') + str((len(self) - 1))) + ')} {')
-    cnames = ';'.join([vec.name() for vec in self.vecs()])
+    cnames = ';'.join([vec._name for vec in self.vecs()])
     colnames += (cnames + '})')
     h2o.rapids(colnames)
     return fr

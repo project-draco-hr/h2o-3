@@ -1,0 +1,9 @@
+def ddply(self, cols, fun):
+    colnums = [self._find_idx(name) for name in cols]
+    rapids_series = (('{' + ';'.join(colnums)) + '}')
+    key = self.send_frame()
+    x = '(ddply %{} {} {})'.format(key, rapids_series, fun)
+    print x
+    h2o.rapids(x)
+    h2o.remove(key)
+    raise NotImplementedError
