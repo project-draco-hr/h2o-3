@@ -1,15 +1,11 @@
 {
-  if (other._empty)   return;
+  if (other._empty || other == null)   return;
   if (_gblSetup == null || !_gblSetup._isValid) {
     _empty=false;
     _gblSetup=other._gblSetup;
-    if (_gblSetup == null)     System.out.println("haha");
+    assert(_gblSetup != null);
   }
-  if (_gblSetup._pType == ParserType.ARFF && other._gblSetup._pType == ParserType.CSV)   other._gblSetup._pType=ParserType.ARFF;
-  if (_gblSetup._pType == ParserType.CSV && other._gblSetup._pType == ParserType.ARFF)   _gblSetup._pType=ParserType.ARFF;
   if (other._gblSetup._isValid && !_gblSetup.isCompatible(other._gblSetup)) {
-  }
- else   if (other._gblSetup._isValid) {
     if (other._gblSetup._columnNames != null) {
       if (_gblSetup._columnNames == null) {
         _gblSetup._columnNames=other._gblSetup._columnNames;
@@ -18,6 +14,23 @@
         for (int i=0; i < _gblSetup._columnNames.length; i++) {
           if (_gblSetup._columnNames[i].equals(other._gblSetup._columnNames[i]))           Log.warn("Column names do not match between files");
         }
+      }
+    }
+  }
+ else   if (other._gblSetup._isValid) {
+    if (_gblSetup._pType == ParserType.CSV && other._gblSetup._pType == ParserType.ARFF)     _gblSetup._pType=ParserType.ARFF;
+    if (other._gblSetup._columnNames != null) {
+      if (_gblSetup._columnNames == null) {
+        _gblSetup._columnNames=other._gblSetup._columnNames;
+      }
+ else {
+        for (int i=0; i < _gblSetup._columnNames.length; i++) {
+          if (_gblSetup._columnNames[i].equals(other._gblSetup._columnNames[i]))           Log.warn("Column names do not match between files");
+        }
+      }
+      if (_gblSetup._ctypes == null)       _gblSetup._ctypes=other._gblSetup._ctypes;
+ else       if (other._gblSetup._ctypes != null) {
+        for (int i=0; i < _gblSetup._ctypes.length; ++i)         _gblSetup._ctypes[i].merge(other._gblSetup._ctypes[i]);
       }
     }
     if (_gblSetup._data.length < Parser.InspectDataOut.MAX_PREVIEW_LINES) {
