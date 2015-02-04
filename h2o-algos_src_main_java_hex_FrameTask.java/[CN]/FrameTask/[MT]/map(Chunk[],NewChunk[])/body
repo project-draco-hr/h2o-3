@@ -21,43 +21,18 @@
     ArrayUtils.shuffleArray(shuf_map,new Random().nextLong());
   }
   long num_processed_rows=0;
+  DataInfo.Row row=_dinfo.newDenseRow();
   for (int rrr=0; rrr < repeats; ++rrr) {
     OUTER:     for (int rr=start; rr < end; ++rr) {
       final int r=shuf_map != null ? (int)shuf_map[rr - start] : rr;
       final long lr=r + chunks[0].start();
       if ((_dinfo._nfolds > 0 && (lr % _dinfo._nfolds) == _dinfo._foldId) || (skip_rng != null && skip_rng.nextFloat() > fraction))       continue;
       ++num_processed_rows;
-      for (      Chunk c : chunks)       if (skipMissing() && c.isNA(r))       continue OUTER;
-      int i=0, ncats=0;
-      for (; i < _dinfo._cats; ++i) {
-        int c;
-        if (chunks[i].isNA(r)) {
-          cats[ncats++]=(_dinfo._catOffsets[i + 1] - 1);
-        }
- else {
-          c=(int)chunks[i].at8(r);
-          if (_dinfo._catLvls != null) {
-            c=Arrays.binarySearch(_dinfo._catLvls[i],c);
-            if (c >= 0)             cats[ncats++]=c + _dinfo._catOffsets[i];
-          }
- else           if (_dinfo._useAllFactorLevels)           cats[ncats++]=c + _dinfo._catOffsets[i];
- else           if (c != 0)           cats[ncats++]=c + _dinfo._catOffsets[i] - 1;
-        }
+      if (_dinfo.extractDenseRow(chunks,r,row).good) {
+        long seed=offset + rrr * (end - start) + r;
+        if (outputs != null && outputs.length > 0)         processRow(seed,row,outputs);
+ else         processRow(seed,row);
       }
-      final int n=chunks.length - _dinfo._responses;
-      for (; i < n; ++i) {
-        double d=chunks[i].atd(r);
-        if (_dinfo._normMul != null)         d=(d - _dinfo._normSub[i - _dinfo._cats]) * _dinfo._normMul[i - _dinfo._cats];
-        nums[i - _dinfo._cats]=d;
-      }
-      for (i=0; i < _dinfo._responses; ++i) {
-        response[i]=chunks[chunks.length - _dinfo._responses + i].atd(r);
-        if (_dinfo._normRespMul != null)         response[i]=(response[i] - _dinfo._normRespSub[i]) * _dinfo._normRespMul[i];
-        if (Double.isNaN(response[i]))         continue OUTER;
-      }
-      long seed=offset + rrr * (end - start) + r;
-      if (outputs != null && outputs.length > 0)       processRow(seed,nums,ncats,cats,response,outputs);
- else       processRow(seed,nums,ncats,cats,response);
     }
   }
   chunkDone(num_processed_rows);
