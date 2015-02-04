@@ -2,7 +2,10 @@
   List<String> colHeaders=new ArrayList<>();
   List<String> colTypes=new ArrayList<>();
   List<String> colFormat=new ArrayList<>();
-  colHeaders.add("Training Time");
+  colHeaders.add("Time");
+  colTypes.add("string");
+  colFormat.add("%s");
+  colHeaders.add("Training Duration");
   colTypes.add("string");
   colFormat.add("%s");
   colHeaders.add("Training Epochs");
@@ -65,6 +68,8 @@
     final DeepLearningScoring e=errors[i];
     int row=i;
     int col=0;
+    DateTimeFormatter fmt=DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    table.set(row,col++,fmt.print(start_time + e.training_time_ms));
     table.set(row,col++,PrettyPrint.msecs(e.training_time_ms,true));
     table.set(row,col++,e.epoch_counter);
     table.set(row,col++,e.training_samples);
