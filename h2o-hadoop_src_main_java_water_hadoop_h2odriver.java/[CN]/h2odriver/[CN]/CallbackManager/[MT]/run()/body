@@ -10,12 +10,20 @@
       t.setCallbackManager(this);
       t.start();
     }
- catch (    Exception e) {
-      System.out.println("Exception occurred in CallbackManager");
-      System.out.println(e.toString());
-      if (e.getMessage() != null) {
-        System.out.println(e.getMessage());
+ catch (    SocketException e) {
+      if (getShutdownRequested()) {
+        _ss=null;
+        return;
       }
+ else {
+        System.out.println("Exception occurred in CallbackManager");
+        System.out.println("ERROR: " + (e.getMessage() != null ? e.getMessage() : "(null)"));
+        e.printStackTrace();
+      }
+    }
+catch (    Exception e) {
+      System.out.println("Exception occurred in CallbackManager");
+      System.out.println("ERROR: " + (e.getMessage() != null ? e.getMessage() : "(null)"));
       e.printStackTrace();
     }
   }
