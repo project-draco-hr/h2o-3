@@ -1,0 +1,29 @@
+def _model_build(x, y, validation_x, validation_y, algo_url, kwargs):
+    if (not x):
+        raise ValueError('Missing features')
+    x = _check_frame(x, y, y)
+    if validation_x:
+        validation_x = _check_frame(validation_x, validation_y, y)
+    train_key = x.send_frame()
+    kwargs['training_frame'] = train_key
+    if validation_x:
+        valid_key = validation_x.send_frame()
+        kwargs['validation_frame'] = valid_key
+    if y:
+        kwargs['response_column'] = y._name
+    job = H2OJob(H2OConnection.post_json(('ModelBuilders/' + algo_url), **kwargs), job_type=(algo_url + ' Model Build')).poll()
+    model_json = H2OConnection.get_json(('Models/' + job.dest_key))['models'][0]
+    model_type = model_json['output']['model_category']
+    if (model_type == 'Binomial'):
+        from model.binomial import H2OBinomialModel
+        model = H2OBinomialModel(job.dest_key, model_json)
+    elif (model_type == 'Clustering'):
+        from model.clustering import H2OClusteringModel
+        model = H2OClusteringModel(job.dest_key, model_json)
+    else:
+        print model_type
+        raise NotImplementedError
+    h2o.remove(train_key)
+    if validation_x:
+        h2o.remove(valid_key)
+    return model

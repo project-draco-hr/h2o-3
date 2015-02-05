@@ -1,0 +1,15 @@
+def __init__(self, ip='localhost', port=54321, size=1):
+    '\n    Instantiate the package handle to the H2O cluster.\n    :param ip: An IP address, default is "localhost"\n    :param port: A port, default is 54321\n    :return: None\n    '
+    if (not (isinstance(port, int) and (0 <= port <= sys.maxint))):
+        raise ValueError(('Port out of range, ' + port))
+    global __H2OCONN__
+    self._ip = ip
+    self._port = port
+    self._session_id = None
+    self._rest_version = __H2O_REST_API_VERSION__
+    __H2OCONN__ = self
+    cld = self._connect(size)
+    self._session_id = self.get_session_id()
+    ncpus = sum([n['num_cpus'] for n in cld['nodes']])
+    mmax = sum([n['max_mem'] for n in cld['nodes']])
+    print (("Connected to cloud '" + cld['cloud_name']) + "' size"), cld['cloud_size'], 'ncpus', ncpus, 'maxmem', get_human_readable_size(mmax), 'session_id', self._session_id

@@ -1,0 +1,33 @@
+def _do_raw_rest(self, url_suffix, method, file_upload_info, **kwargs):
+    if (not url_suffix):
+        raise ValueError('No url suffix supplied.')
+    url = 'http://{}:{}/{}/{}'.format(self._ip, self._port, self._rest_version, (url_suffix + '.json'))
+    query_string = ''
+    for (k, v) in kwargs.iteritems():
+        if isinstance(v, list):
+            x = '['
+            x += ','.join([str(l).encode('utf-8') for l in v])
+            x += ']'
+        else:
+            x = str(v).encode('utf-8')
+        query_string += (((k + '=') + x) + '&')
+    query_string = query_string[:(-1)]
+    post_body = ''
+    if (not file_upload_info):
+        if (method == 'POST'):
+            post_body = query_string
+        elif (query_string != ''):
+            url = '{}?{}'.format(url, query_string)
+    else:
+        if (not (method == 'POST')):
+            raise ValueError(('Received file upload info and expected method to be POST. Got: ' + str(method)))
+        if (query_string != ''):
+            url = '{}?{}'.format(url, query_string)
+    begin_time_seconds = time.time()
+    http_result = self._attempt_rest(url, method, post_body, file_upload_info)
+    end_time_seconds = time.time()
+    elapsed_time_seconds = (end_time_seconds - begin_time_seconds)
+    elapsed_time_millis = (elapsed_time_seconds * 1000)
+    if (not http_result.ok):
+        raise EnvironmentError('h2o-py got an unexpected HTTP status code:\n {} {} (method = {}; url = {})'.format(http_result.status_code, http_result.reason, method, url))
+    return http_result

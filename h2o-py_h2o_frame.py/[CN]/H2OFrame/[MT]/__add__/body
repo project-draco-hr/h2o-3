@@ -1,0 +1,11 @@
+def __add__(self, i):
+    if (len(self) == 0):
+        return self
+    self._len_check(i)
+    if isinstance(i, H2OFrame):
+        return H2OFrame(vecs=[(x + y) for (x, y) in zip(self._vecs, i.vecs())])
+    if isinstance(i, H2OVec):
+        return H2OFrame(vecs=[(x + i) for x in self._vecs])
+    if isinstance(i, int):
+        return H2OFrame(vecs=[(x + i) for x in self._vecs])
+    raise NotImplementedError

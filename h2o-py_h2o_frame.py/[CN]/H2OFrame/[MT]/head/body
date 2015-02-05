@@ -1,0 +1,15 @@
+def head(self, rows=10, cols=200, **kwargs):
+    nrows = min(self.nrow(), rows)
+    ncols = min(self.ncol(), cols)
+    colnames = self.names()[0:ncols]
+    fr = H2OFrame.py_tmp_key()
+    cbind = (('(= !' + fr) + ' (cbind %')
+    cbind += (' %'.join([vec._expr.eager() for vec in self]) + '))')
+    res = h2o.rapids(cbind)
+    h2o.remove(fr)
+    head_rows = [range(1, (nrows + 1), 1)]
+    head_rows += [rows[0:nrows] for rows in res['head'][0:ncols]]
+    head = zip(*head_rows)
+    print 'First', str(nrows), 'rows and first', str(ncols), 'columns: '
+    print tabulate.tabulate(head, headers=(['Row ID'] + colnames))
+    print 

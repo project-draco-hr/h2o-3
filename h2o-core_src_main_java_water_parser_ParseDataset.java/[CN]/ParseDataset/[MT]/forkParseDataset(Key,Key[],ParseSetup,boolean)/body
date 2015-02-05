@@ -10,15 +10,17 @@
   }
   Vec update;
   Iced ice;
+  Futures fs=new Futures();
   Log.info("Parse chunk size " + setup._chunkSize);
   for (int i=0; i < keys.length; ++i) {
     ice=DKV.getGet(keys[i]);
     update=(ice instanceof Vec) ? (Vec)ice : ((Frame)ice).vec(0);
     if (update instanceof FileVec) {
       ((FileVec)update).setChunkSize(setup._chunkSize);
-      DKV.put(update._key,update);
+      DKV.put(update._key,update,fs);
     }
   }
+  fs.blockForPending();
   long memsz=H2O.CLOUD.memsz();
   if (totalParseSize > memsz * 4)   throw new IllegalArgumentException("Total input file size of " + PrettyPrint.bytes(totalParseSize) + " is much larger than total cluster memory of "+ PrettyPrint.bytes(memsz)+ ", please use either a larger cluster or smaller data.");
   ParseDataset job=new ParseDataset(dest);

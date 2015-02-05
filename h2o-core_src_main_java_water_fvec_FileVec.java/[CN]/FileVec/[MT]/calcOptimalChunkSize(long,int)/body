@@ -5,7 +5,7 @@
     return DFLT_CHUNK_SIZE;
   }
   chunkSize=1 << MathUtils.log2(chunkSize);
-  if (chunkSize < DFLT_CHUNK_SIZE) {
+  if (chunkSize < DFLT_CHUNK_SIZE && (localParseSize / chunkSize) * numCols < (1 << 21)) {
     return chunkSize;
   }
   long tmp=(localParseSize * numCols / (1 << 21));

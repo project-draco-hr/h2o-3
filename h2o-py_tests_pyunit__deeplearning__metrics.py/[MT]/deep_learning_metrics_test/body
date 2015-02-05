@@ -1,0 +1,19 @@
+def deep_learning_metrics_test(ip, port):
+    h2o.init(ip, port)
+    df = h2o.import_frame(path='smalldata/logreg/prostate.csv')
+    del df['ID']
+    df['CAPSULE'] = df['CAPSULE'].asfactor()
+    vol = df['VOL']
+    vol[(vol == 0)] = None
+    r = vol.runif()
+    train = df[(r < 0.8)]
+    test = df[(r >= 0.8)]
+    train.describe()
+    train.head()
+    test.describe()
+    test.head()
+    print 'Train a Deeplearning model: '
+    dl = h2o.deeplearning(x=train[1:], y=train['CAPSULE'], epochs=100, hidden=[10, 10, 10])
+    print 'Binomial Model Metrics: '
+    print 
+    dl.model_performance(test).show()

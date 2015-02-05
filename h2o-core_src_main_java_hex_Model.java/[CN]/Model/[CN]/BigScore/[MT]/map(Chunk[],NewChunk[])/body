@@ -1,30 +1,16 @@
 {
-  Chunk ys=chks[chks.length - 1];
   double[] tmp=new double[_output.nfeatures()];
-switch (_output.getModelCategory()) {
-case Binomial:
-    _mb=new ModelMetricsBinomial.MetricBuilderBinomial(_domain,ModelUtils.DEFAULT_THRESHOLDS);
-  break;
-case Multinomial:
-_mb=new ModelMetricsMultinomial.MetricBuilderMultinomial(_domain,new float[]{0.5f});
-break;
-case Regression:
-_mb=new ModelMetricsRegression.MetricBuilderRegression(_domain);
-break;
-case Clustering:
-_mb=new ModelMetricsClustering.MetricBuilderClustering(_domain);
-break;
-case AutoEncoder:
-_mb=new ModelMetricsAutoEncoder.MetricBuilderAutoEncoder(_domain);
-break;
-default :
-throw H2O.unimpl();
-}
-float[] preds=_mb._work;
-int len=chks[0]._len;
-for (int row=0; row < len; row++) {
-float[] p=score0(chks,row,tmp,preds);
-_mb.perRow(preds,(float)ys.atd(row));
-for (int c=0; c < _ncols; c++) cpreds[c].addNum(p[c]);
-}
+  _mb=Model.this.makeMetricBuilder(_domain);
+  int startcol=(_mb instanceof ModelMetricsSupervised.MetricBuilderSupervised ? chks.length - 1 : 0);
+  float[] preds=_mb._work;
+  int len=chks[0]._len;
+  for (int row=0; row < len; row++) {
+    float[] p=score0(chks,row,tmp,preds);
+    float[] actual=new float[chks.length - startcol];
+    for (int c=startcol; c < chks.length; c++) {
+      actual[c - startcol]=(float)chks[c].atd(row);
+    }
+    _mb.perRow(preds,actual,Model.this);
+    for (int c=0; c < _npredcols; c++)     cpreds[c].addNum(p[c]);
+  }
 }

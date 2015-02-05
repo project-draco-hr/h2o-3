@@ -1,0 +1,14 @@
+def predict(self, test_data):
+    '\n    Predict on a dataset.\n    :param test_data: Data to be predicted on.\n    :return: A new H2OFrame filled with predictions.\n    '
+    if (not test_data):
+        raise ValueError('Must specify test data')
+    test_data_key = H2OFrame.send_frame(test_data)
+    j = H2OConnection.post_json(((('Predictions/models/' + self._key) + '/frames/') + test_data_key))
+    prediction_frame_key = j['model_metrics'][0]['predictions']['key']['name']
+    pred_frame_meta = h2o.frame(prediction_frame_key)['frames'][0]
+    veckeys = pred_frame_meta['veckeys']
+    rows = pred_frame_meta['rows']
+    cols = [col['label'] for col in pred_frame_meta['columns']]
+    vecs = H2OVec.new_vecs(zip(cols, veckeys), rows)
+    h2o.remove(test_data_key)
+    return H2OFrame(vecs=vecs)

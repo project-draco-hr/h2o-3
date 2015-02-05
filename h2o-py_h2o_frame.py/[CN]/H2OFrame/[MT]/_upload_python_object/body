@@ -1,0 +1,11 @@
+def _upload_python_object(self, python_obj):
+    '\n    Properly handle native python data types. For a discussion of the rules and\n    permissible data types please refer to the main documentation for H2OFrame.\n\n    :param python_obj: A tuple, list, dict, collections.OrderedDict\n    :return: None\n    '
+    if isinstance(python_obj, (list, tuple)):
+        (header, data_to_write) = H2OFrame._handle_python_lists(python_obj)
+    elif isinstance(python_obj, (dict, collections.OrderedDict)):
+        (header, data_to_write) = H2OFrame._handle_python_dicts(python_obj)
+    else:
+        raise ValueError(('`python_obj` must be a tuple, list, dict, collections.OrderedDict. Got: ' + type(python_obj)))
+    if ((header is None) or (data_to_write is None)):
+        raise ValueError('No data to write')
+    self._write_python_data_to_file_and_upload(header, data_to_write)
