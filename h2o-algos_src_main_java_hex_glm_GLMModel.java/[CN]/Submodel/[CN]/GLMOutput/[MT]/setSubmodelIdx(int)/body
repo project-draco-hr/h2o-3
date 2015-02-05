@@ -27,15 +27,15 @@
     if (_submodels[l].norm_beta != null)     _coefficients_table.set(1,i,_submodels[l].norm_beta[j++]);
  else     j++;
   }
-  if (_submodels[l].norm_beta == null)   _variable_importance=null;
+  if (_submodels[l].norm_beta == null)   _coefficients_magnitude=null;
  else {
     j=0;
     String[] coef_names=new String[_coefficients_table.getColDim() - 1];
-    double[] rel_imp=new double[_coefficients_table.getColDim() - 1];
+    double[] coef_scaled=new double[_coefficients_table.getColDim() - 1];
     for (int i=0; i < _submodels[l].idxs.length - 1; i++) {
       coef_names[j]=_coefficients_table.getColHeaders()[j];
-      rel_imp[_submodels[l].idxs[i]]=Math.abs(_submodels[l].norm_beta[j++]);
+      coef_scaled[_submodels[l].idxs[i]]=Math.abs(_submodels[l].norm_beta[j++]);
     }
-    _variable_importance=calcVarImp(rel_imp,coef_names);
+    _coefficients_magnitude=ModelMetrics.calcVarImp(coef_scaled,coef_names,"Normalized Coefficient Magnitudes",new String[]{"Magnitude","Scaled","Percentage"});
   }
 }
