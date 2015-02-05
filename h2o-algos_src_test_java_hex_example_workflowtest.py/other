@@ -4,14 +4,18 @@ small_test = ['bigdata/laptop/citibike-nyc/2013-10.csv']
 big_test = ['bigdata/laptop/citibike-nyc/2013-07.csv', 'bigdata/laptop/citibike-nyc/2013-08.csv', 'bigdata/laptop/citibike-nyc/2013-09.csv', 'bigdata/laptop/citibike-nyc/2013-10.csv', 'bigdata/laptop/citibike-nyc/2013-11.csv', 'bigdata/laptop/citibike-nyc/2013-12.csv', 'bigdata/laptop/citibike-nyc/2014-01.csv', 'bigdata/laptop/citibike-nyc/2014-02.csv', 'bigdata/laptop/citibike-nyc/2014-03.csv', 'bigdata/laptop/citibike-nyc/2014-04.csv', 'bigdata/laptop/citibike-nyc/2014-05.csv', 'bigdata/laptop/citibike-nyc/2014-06.csv', 'bigdata/laptop/citibike-nyc/2014-07.csv', 'bigdata/laptop/citibike-nyc/2014-08.csv']
 data = h2o.import_frame(path=big_test)
 startime = data['starttime']
-data['Days'] = (startime / (((1000 * 60) * 60) * 24)).floor()
+secsPerDay = (((1000 * 60) * 60) * 24)
+data['Days'] = (startime / secsPerDay).floor()
 data.describe()
-bph = h2o.ddply(data, ['Days', 'start station name'], '(%nrow)')
+ddplycols = ['Days', 'start station name']
+bph = h2o.ddply(data[ddplycols], ddplycols, '(%nrow)')
 bph['C1']._name = 'bikes'
-bph.describe()
 bph['bikes'].quantile().show()
+secs = (bph['Days'] * secsPerDay)
+bph['Month'] = secs.month()
+bph['DayOfWeek'] = secs.dayOfWeek()
+bph.describe()
 r = bph['Days'].runif()
-r.show()
 train = bph[(r < 0.6)]
 test = bph[((0.6 <= r) & (r < 0.9))]
 hold = bph[(0.9 <= r)]
