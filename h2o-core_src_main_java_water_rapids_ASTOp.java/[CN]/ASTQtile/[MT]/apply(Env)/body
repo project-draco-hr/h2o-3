@@ -19,8 +19,6 @@
   String[] names=new String[p.length];
   for (int i=0; i < names.length; ++i)   names[i]=Double.toString(p[i]) + "%";
   Vec res=Vec.makeZero(p.length);
-  Vec p_names=Vec.makeSeq(res.length());
-  p_names.setDomain(names);
   final int MAX_ITERATIONS=16;
   final int MAX_QBINS=1000;
   final boolean MULTIPASS=true;
@@ -45,11 +43,7 @@
     }
   }
   res.chunkForChunkIdx(0).close(0,null);
-  p_names.chunkForChunkIdx(0).close(0,null);
-  Futures pf=p_names.postWrite(new Futures());
-  pf.blockForPending();
-  Futures f=res.postWrite(new Futures());
-  f.blockForPending();
-  Frame fr=new Frame(new String[]{"P","Q"},new Vec[]{p_names,res});
+  res.postWrite(new Futures()).blockForPending();
+  Frame fr=new Frame(new String[]{"Quantiles"},new Vec[]{res});
   env.pushAry(fr);
 }
