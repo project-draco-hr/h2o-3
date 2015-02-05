@@ -8,8 +8,14 @@
     done();
   }
  catch (  Throwable t) {
-    failed(t);
-    throw t;
+    Job thisJob=DKV.getGet(_key);
+    if (thisJob._state == JobState.CANCELLED) {
+      Log.info("Job cancelled by user.");
+    }
+ else {
+      failed(t);
+      throw t;
+    }
   }
  finally {
     _parms.read_unlock_frames(DeepLearning.this);

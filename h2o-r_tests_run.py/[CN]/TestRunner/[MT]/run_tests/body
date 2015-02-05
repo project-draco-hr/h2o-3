@@ -1,4 +1,4 @@
-def run_tests(self):
+def run_tests(self, nopass):
     '\n        Run all tests.\n\n        @return: none\n        '
     if self.terminated:
         return
@@ -61,7 +61,7 @@ def run_tests(self):
         completed_test = self._wait_for_one_test_to_complete()
         if self.terminated:
             return
-        self._report_test_result(completed_test)
+        self._report_test_result(completed_test, nopass)
         ip_of_completed_test = completed_test.get_ip()
         port_of_completed_test = completed_test.get_port()
         self._start_next_test_on_ip_port(ip_of_completed_test, port_of_completed_test)
@@ -71,4 +71,4 @@ def run_tests(self):
         completed_test = self._wait_for_one_test_to_complete()
         if self.terminated:
             return
-        self._report_test_result(completed_test)
+        self._report_test_result(completed_test, nopass)
