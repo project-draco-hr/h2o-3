@@ -57,7 +57,7 @@
           ModelMetricsMultinomial mm=(ModelMetricsMultinomial)(mm1);
           err.train_confusion_matrix=mm._cm;
           err.train_err=mm._cm.err();
-          err.train_hitratio=mm._hr;
+          err.train_hitratio=mm._hit_ratios;
         }
         err.train_mse=mm1._mse;
         err.train_r2=mm1.r2();
@@ -77,7 +77,7 @@
               ModelMetricsMultinomial mm=(ModelMetricsMultinomial)(mm2);
               err.valid_confusion_matrix=mm._cm;
               err.valid_err=mm._cm.err();
-              err.valid_hitratio=mm._hr;
+              err.valid_hitratio=mm._hit_ratios;
             }
             err.valid_mse=mm2._mse;
             err.valid_r2=mm2.r2();
@@ -110,7 +110,7 @@
           _bestError=error();
           putMeAsBestModel(actual_best_model_key);
         }
-        for (        String s : toString().split("\n"))         Log.info(s);
+        if (keep_running)         for (        String s : toString().split("\n"))         Log.info(s);
         if (printme)         Log.info("Time taken for scoring and diagnostics: " + PrettyPrint.msecs(err.scoring_time,true));
       }
     }
@@ -125,7 +125,7 @@
     update(job_key);
   }
  catch (  Exception ex) {
-    return false;
+    throw new RuntimeException(ex);
   }
   return keep_running;
 }

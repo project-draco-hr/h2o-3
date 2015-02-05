@@ -12,9 +12,10 @@ def __getitem__(self, i):
         vecs = []
         for it in i:
             if isinstance(it, int):
-                vecs += self._vecs[it]
-                continue
-            if isinstance(it, str):
-                vecs += self._find(it)
+                vecs.append(self._vecs[it])
+            elif isinstance(it, str):
+                vecs.append(self._find(it))
+            else:
+                raise NotImplementedError
         return H2OFrame(vecs=vecs)
     raise NotImplementedError

@@ -9,4 +9,15 @@
     _coefficients_table.set(0,i,_submodels[l].beta[j]);
     _coefficients_table.set(1,i,_submodels[l].beta[j++]);
   }
+  if (_submodels[l].norm_beta == null)   _variable_importance=null;
+ else {
+    j=0;
+    String[] coef_names=new String[_coefficient_names.length - 1];
+    double[] rel_imp=new double[_coefficient_names.length - 1];
+    for (int i=0; i < _submodels[l].idxs.length - 1; i++) {
+      coef_names[j]=_coefficient_names[j];
+      rel_imp[_submodels[l].idxs[i]]=Math.abs(_submodels[l].norm_beta[j++]);
+    }
+    _variable_importance=calcVarImp(rel_imp,coef_names);
+  }
 }
