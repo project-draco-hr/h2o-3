@@ -3,7 +3,7 @@
     row.good=false;
     return row;
   }
-  int numStart=numStart();
+  int nbins=0;
   for (int i=0; i < _cats; ++i) {
     int c;
     if (chunks[i].isNA(rid)) {
@@ -11,14 +11,15 @@
     }
  else {
       c=getCategoricalId(i,(int)chunks[i].at8(rid));
-      if (c >= 0)       row.binIds[row.nBins++]=c;
+      if (c >= 0)       row.binIds[nbins++]=c;
     }
   }
-  final int n=chunks.length - _responses;
+  row.nBins=nbins;
+  final int n=_nums;
   for (int i=0; i < n; ++i) {
-    double d=chunks[i].atd(rid);
-    if (_normMul != null)     d=(d - _normSub[i - _cats]) * _normMul[i - _cats];
-    row.numVals[i + numStart]=d;
+    double d=chunks[_cats + i].atd(rid);
+    if (_normMul != null)     d=(d - _normSub[i]) * _normMul[i];
+    row.numVals[i]=d;
   }
   for (int i=0; i < _responses; ++i) {
     row.response[i]=chunks[chunks.length - _responses + i].atd(rid);

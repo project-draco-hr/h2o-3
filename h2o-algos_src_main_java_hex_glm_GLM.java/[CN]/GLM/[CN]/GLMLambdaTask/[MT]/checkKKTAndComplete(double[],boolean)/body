@@ -12,21 +12,21 @@
       return "checkKKTAndComplete.Callback, completer = " + getCompleter() == null ? "null" : getCompleter().toString();
     }
     @Override public void callback(    final GLMIterationTask glmt2){
-      final double[] grad=glmt2.gradient(_taskInfo._params._alpha[0],_currentL2Pen);
+      final double[] grad=glmt2._ginfo._gradient;
       if (ArrayUtils.hasNaNsOrInfs(grad)) {
         if (!failedLineSearch) {
           LogInfo("Check KKT got NaNs. Invoking line search");
           _taskInfo._params._higher_accuracy=true;
           getCompleter().addToPendingCount(1);
-          new GLMGradientTask(_activeData,_taskInfo._params,_currentL2Pen,ArrayUtils.generateLineSearchVecs(_lastResult._beta,contractVec(fullBeta,_activeCols),NUM_LINE_SEARCH_STEPS,LINE_SEARCH_STEP),1.0 / _taskInfo._nobs,new LineSearchIteration(getCompleter(),ArrayUtils.subtract(newBeta,_lastResult._beta))).asyncExec(_activeData._adaptedFrame);
+          new GLMGradientTask(_activeData,_taskInfo._params,_currentLambda * (1 - _taskInfo._params._alpha[0]),ArrayUtils.generateLineSearchVecs(_lastResult._beta,contractVec(fullBeta,_activeCols),NUM_LINE_SEARCH_STEPS,LINE_SEARCH_STEP),1.0 / _taskInfo._nobs,new LineSearchIteration(getCompleter(),ArrayUtils.subtract(newBeta,_lastResult._beta))).asyncExec(_activeData._adaptedFrame);
           return;
         }
  else {
-          LogInfo("got NaNs/Infs in gradient at lambda " + _currentL2Pen);
+          LogInfo("got NaNs/Infs in gradient at lambda " + _currentLambda);
         }
       }
       double[] subgrad=grad.clone();
-      ADMMSolver.subgrad(_taskInfo._params._alpha[0],_currentL2Pen,fullBeta,subgrad);
+      ADMMSolver.subgrad(_taskInfo._params._alpha[0],_currentLambda,fullBeta,subgrad);
       double err=GLM_GRAD_EPS;
       if (!failedLineSearch && _activeCols != null) {
         for (        int c : _activeCols)         if (subgrad[c] > err)         err=subgrad[c];
@@ -55,7 +55,7 @@
         }
       }
       _taskInfo._beta=glmt2._beta;
-      _taskInfo._gradient=glmt2.gradient(_taskInfo._params._alpha[0],_taskInfo._lastLambda);
+      _taskInfo._ginfo=glmt2._ginfo;
       _taskInfo._iter=_iter;
       int diff=MAX_ITERATIONS_PER_LAMBDA - _iter + _taskInfo._iter;
       if (diff > 0)       new Job.ProgressUpdate(diff).fork(_progressKey);
