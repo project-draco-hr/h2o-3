@@ -1,0 +1,106 @@
+{
+  assert(size_limit >= 10);
+  List<String> colHeaders=new ArrayList<>();
+  List<String> colTypes=new ArrayList<>();
+  List<String> colFormat=new ArrayList<>();
+  colHeaders.add("Time");
+  colTypes.add("string");
+  colFormat.add("%s");
+  colHeaders.add("Training Duration");
+  colTypes.add("string");
+  colFormat.add("%s");
+  colHeaders.add("Training Epochs");
+  colTypes.add("double");
+  colFormat.add("%g");
+  colHeaders.add("Training Samples");
+  colTypes.add("long");
+  colFormat.add("%,d");
+  colHeaders.add("Training MSE");
+  colTypes.add("double");
+  colFormat.add("%g");
+  colHeaders.add("Training R^2");
+  colTypes.add("double");
+  colFormat.add("%g");
+  if (_output.getModelCategory() == ModelCategory.Binomial) {
+    colHeaders.add("Training AUC");
+    colTypes.add("double");
+    colFormat.add("%g");
+  }
+  if (_output.getModelCategory() == ModelCategory.Binomial || _output.getModelCategory() == ModelCategory.Multinomial) {
+    colHeaders.add("Training Classification Error");
+    colTypes.add("double");
+    colFormat.add("%g");
+  }
+  if (get_params()._valid != null) {
+    colHeaders.add("Validation MSE");
+    colTypes.add("double");
+    colFormat.add("%g");
+    colHeaders.add("Validation R^2");
+    colTypes.add("double");
+    colFormat.add("%g");
+    if (_output.getModelCategory() == ModelCategory.Binomial) {
+      colHeaders.add("Validation AUC");
+      colTypes.add("double");
+      colFormat.add("%g");
+    }
+    if (_output.isClassifier()) {
+      colHeaders.add("Validation Classification Error");
+      colTypes.add("double");
+      colFormat.add("%g");
+    }
+  }
+ else   if (get_params()._n_folds > 0) {
+    colHeaders.add("Cross-Validation MSE");
+    colTypes.add("double");
+    colFormat.add("%g");
+    if (_output.getModelCategory() == ModelCategory.Binomial) {
+      colHeaders.add("Cross-Validation AUC");
+      colTypes.add("double");
+      colFormat.add("%g");
+    }
+    if (_output.isClassifier()) {
+      colHeaders.add("Cross-Validation Classification Error");
+      colTypes.add("double");
+      colFormat.add("%g");
+    }
+  }
+  List<Integer> which=new ArrayList<>();
+  if (errors.length > size_limit) {
+    which.add(0);
+    which.add(errors.length - 1);
+    final float step=(float)(errors.length - which.size()) / (size_limit - which.size());
+    for (float i=5; i < errors.length - 5; i+=step) {
+      if (which.size() < size_limit)       which.add((int)i);
+    }
+  }
+  final int rows=Math.min(size_limit,errors.length);
+  TwoDimTable table=new TwoDimTable("Scoring History",new String[rows],colHeaders.toArray(new String[0]),colTypes.toArray(new String[0]),colFormat.toArray(new String[0]));
+  int row=0;
+  for (int i=0; i < errors.length; i++) {
+    if (errors.length > size_limit && !which.contains(new Integer(i)))     continue;
+    final DeepLearningScoring e=errors[i];
+    int col=0;
+    assert(row < table.getRowDim());
+    assert(col < table.getColDim());
+    DateTimeFormatter fmt=DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    table.set(row,col++,fmt.print(start_time + e.training_time_ms));
+    table.set(row,col++,PrettyPrint.msecs(e.training_time_ms,true));
+    table.set(row,col++,e.epoch_counter);
+    table.set(row,col++,e.training_samples);
+    table.set(row,col++,e.train_mse);
+    table.set(row,col++,e.train_r2);
+    if (_output.getModelCategory() == ModelCategory.Binomial)     table.set(row,col++,e.trainAUC != null ? e.trainAUC.AUC() : Double.NaN);
+    if (_output.isClassifier())     table.set(row,col++,e.train_err);
+    if (get_params()._valid != null) {
+      table.set(row,col++,e.valid_mse);
+      table.set(row,col++,e.valid_r2);
+      if (_output.getModelCategory() == ModelCategory.Binomial)       table.set(row,col++,e.validAUC != null ? e.validAUC.AUC() : Double.NaN);
+      if (_output.isClassifier())       table.set(row,col++,e.valid_err);
+    }
+ else     if (get_params()._n_folds > 0) {
+      throw H2O.unimpl();
+    }
+    row++;
+  }
+  return table;
+}
