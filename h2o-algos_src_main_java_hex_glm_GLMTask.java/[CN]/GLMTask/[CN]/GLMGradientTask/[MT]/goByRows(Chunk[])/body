@@ -1,18 +1,17 @@
 {
   Row row=_dinfo.newDenseRow();
-  _skip=MemoryManager.mallocZ(chks[0]._len);
   double[] g=_gradient;
   double[] b=_beta;
   for (int rid=0; rid < chks[0]._len; ++rid) {
     row=_dinfo.extractDenseRow(chks,rid,row);
-    if (_skip[rid]=!row.good)     continue;
+    if (!row.good)     continue;
     double eta=row.innerProduct(b);
     double mu=_params.linkInv(eta);
     _objVal+=_params.deviance(row.response(0),mu);
     double var=_params.variance(mu);
     if (var < 1e-6)     var=1e-6;
     double gval=(mu - row.response(0)) / (var * _params.linkDeriv(mu));
-    for (    int c : row.binIds)     g[c]+=gval;
+    for (int i=0; i < row.nBins; ++i)     g[row.binIds[i]]+=gval;
     int off=_dinfo.numStart();
     for (int j=0; j < _dinfo._nums; ++j)     g[j + off]+=row.numVals[j] * gval;
     if (_dinfo._intercept)     g[g.length - 1]+=gval;

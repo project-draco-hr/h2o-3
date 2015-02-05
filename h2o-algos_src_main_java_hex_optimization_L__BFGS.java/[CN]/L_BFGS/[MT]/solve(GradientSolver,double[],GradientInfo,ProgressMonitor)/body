@@ -6,21 +6,18 @@
     double[] pk=_hist.getSearchDirection(ginfo._gradient);
     double[] objs=gslvr.lineSearch(beta,pk);
     double step=gslvr.step();
-    double t=1;
-    for (int i=0; i < objs.length; ++i) {
-      if (!needLineSearch(t,ginfo._objVal,objs[i],pk,ginfo._gradient)) {
-        ArrayUtils.mult(pk,t);
-        ArrayUtils.add(beta,pk);
-        ginfo=gslvr.getGradient(beta);
-        _hist.update(pk,ginfo._gradient,ginfo._gradient);
-        ArrayUtils.add(beta,pk);
-        continue _MAIN;
-      }
-      t*=step;
+    LineSearchSol ls=doLineSearch(objs,ginfo,pk,1,step);
+    if (ls != null) {
+      ArrayUtils.mult(pk,ls.step);
+      ArrayUtils.add(beta,pk);
+      ginfo=gslvr.getGradient(beta);
+      _hist.update(pk,ginfo._gradient,ginfo._gradient);
+      ArrayUtils.add(beta,pk);
+      continue _MAIN;
     }
     --iter;
     break;
   }
-  Log.info("L_BFGS done after " + iter + " iterations, objval = "+ ginfo._objVal+ ", gradient norm2 = "+ MathUtils.l2norm2(ginfo._gradient)+ ",  converged = "+ (MathUtils.l2norm2(ginfo._gradient) <= _gradEps));
+  Log.info("L_BFGS done after " + iter + " iterations, objval = "+ ginfo._objVal+ ", gradient norm2 = "+ MathUtils.l2norm2(ginfo._gradient));
   return new Result(iter,beta,ginfo);
 }

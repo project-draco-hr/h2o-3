@@ -1,4 +1,5 @@
 {
+  Chunk responseChunk=chks[chks.length - 1];
   boolean[] skip=MemoryManager.mallocZ(chks[0]._len);
   double[][] eta=new double[_nSteps][];
   for (int i=0; i < eta.length; ++i)   eta[i]=MemoryManager.malloc8d(chks[0]._len);
@@ -34,4 +35,14 @@
     }
   }
   _objVals=MemoryManager.malloc8d(_nSteps);
+  for (int r=0; r < chks[0]._len; ++r) {
+    if (skip[r] || responseChunk.isNA(r))     continue;
+    double off=0;
+    double y=responseChunk.atd(r);
+    for (int i=0; i < eta.length; ++i) {
+      double offset=off + (_dinfo._intercept ? beta(i,_beta.length - 1) : 0);
+      double mu=_params.linkInv(eta[i][r] + offset);
+      _objVals[i]+=_params.deviance(y,mu);
+    }
+  }
 }
