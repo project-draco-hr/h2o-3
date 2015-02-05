@@ -1,0 +1,15 @@
+def ddply(self, cols, fun):
+    colnums = [str(self._find_idx(name)) for name in cols]
+    rapids_series = (('{' + ';'.join(colnums)) + '}')
+    key = self.send_frame()
+    tmp_key = H2OFrame.py_tmp_key()
+    expr = '(= !{} (h2o.ddply %{} {} {}))'.format(tmp_key, key, rapids_series, fun)
+    h2o.rapids(expr)
+    h2o.remove(key)
+    j = h2o.frame(tmp_key)
+    fr = j['frames'][0]
+    rows = fr['rows']
+    veckeys = fr['veckeys']
+    cols = fr['columns']
+    colnames = [col['label'] for col in cols]
+    return H2OFrame(vecs=H2OVec.new_vecs(zip(colnames, veckeys), rows))
