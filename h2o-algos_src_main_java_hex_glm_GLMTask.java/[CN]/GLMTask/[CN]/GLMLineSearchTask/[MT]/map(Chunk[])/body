@@ -1,6 +1,7 @@
 {
-  double[] eta=MemoryManager.malloc8d(chks[0]._len);
-  double[] b=_beta;
+  boolean[] skip=MemoryManager.mallocZ(chks[0]._len);
+  double[][] eta=new double[_nSteps][];
+  for (int i=0; i < eta.length; ++i)   eta[i]=MemoryManager.malloc8d(chks[0]._len);
   for (int i=0; i < _dinfo._cats; ++i) {
     Chunk c=chks[i];
     for (int r=0; r < c._len; ++r) {
@@ -9,14 +10,16 @@
         continue;
       }
       int off=_dinfo.getCategoricalId(i,(int)c.at8(r));
-      if (off != -1)       eta[r]+=b[off];
+      if (off != -1)       for (int j=0; j < eta.length; ++j)       eta[j][r]+=beta(j,off);
     }
   }
   final int numStart=_dinfo.numStart();
   if (_dinfo._normMul != null && _dinfo._normSub != null) {
-    double off=0;
-    for (int i=0; i < _dinfo._nums; ++i)     off-=b[numStart + i] * _dinfo._normSub[i] * _dinfo._normMul[i];
-    for (int r=0; r < chks[0]._len; ++r)     eta[r]+=off;
+    for (int j=0; j < eta.length; ++j) {
+      double off=0;
+      for (int i=0; i < _dinfo._nums; ++i)       off-=beta(j,numStart + i) * _dinfo._normSub[i] * _dinfo._normMul[i];
+      for (int r=0; r < chks[0]._len; ++r)       eta[j][r]+=off;
+    }
   }
   for (int i=0; i < _dinfo._nums; ++i) {
     Chunk c=chks[i + _dinfo._cats];
@@ -27,8 +30,8 @@
       }
       double d=c.atd(r);
       if (_dinfo._normMul != null)       d*=_dinfo._normMul[i];
-      eta[r]+=b[numStart + i] * d;
+      for (int j=0; j < eta.length; ++j)       eta[j][r]+=beta(j,numStart + i) * d;
     }
   }
-  return eta;
+  _objVals=MemoryManager.malloc8d(_nSteps);
 }

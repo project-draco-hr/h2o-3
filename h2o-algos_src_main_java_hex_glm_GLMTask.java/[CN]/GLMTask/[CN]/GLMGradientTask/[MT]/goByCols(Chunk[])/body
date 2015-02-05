@@ -1,7 +1,9 @@
 {
   int numStart=_dinfo.numStart();
   boolean[] skp=MemoryManager.mallocZ(chks[0]._len);
-  double[][] eta=computeEtaByCols(chks,skp);
+  double[] eta=computeEtaByCols(chks,skp);
+  double[] b=_beta;
+  double[] g=_gradient;
   Chunk offsetChunk=null;
   int nxs=chks.length - 1;
   if (_dinfo._offset) {
@@ -9,34 +11,27 @@
     offsetChunk=chks[nxs];
   }
   Chunk responseChunk=chks[nxs];
-  double[] obj=MemoryManager.malloc8d(_beta.length);
-  double[] eta_sums=MemoryManager.malloc8d(eta.length);
+  double eta_sum=0;
   for (int r=0; r < chks[0]._len; ++r) {
     if (skp[r] || responseChunk.isNA(r))     continue;
     double off=(_dinfo._offset ? offsetChunk.atd(r) : 0);
     double y=responseChunk.atd(r);
-    for (int j=0; j < eta.length; ++j) {
-      double offset=off + (_dinfo._intercept ? _beta[j][_beta[j].length - 1] : 0);
-      double mu=_params.linkInv(eta[j][r] + offset);
-      obj[j]+=_params.deviance(y,mu);
-      double var=_params.variance(mu);
-      if (var < 1e-6)       var=1e-6;
-      eta[j][r]=(mu - y) / (var * _params.linkDeriv(mu));
-      eta_sums[j]+=eta[j][r];
-    }
+    double offset=off + (_dinfo._intercept ? b[b.length - 1] : 0);
+    double mu=_params.linkInv(eta[r] + offset);
+    _objVal+=_params.deviance(y,mu);
+    double var=_params.variance(mu);
+    if (var < 1e-6)     var=1e-6;
+    eta[r]=(mu - y) / (var * _params.linkDeriv(mu));
+    eta_sum+=eta[r];
   }
-  _gradient=new double[_beta.length][];
-  for (int i=0; i < _gradient.length; ++i)   _gradient[i]=MemoryManager.malloc8d(_beta[i].length);
-  for (int j=0; j < _gradient.length; ++j) {
-    if (_dinfo._intercept)     _gradient[j][_gradient[j].length - 1]=eta_sums[j];
-    if (_dinfo._normMul != null && _dinfo._normSub != null)     for (int i=0; i < _dinfo._nums; ++i)     _gradient[j][numStart + i]=-_dinfo._normSub[i] * _dinfo._normMul[i] * eta_sums[j];
-  }
+  if (_dinfo._intercept)   g[g.length - 1]=eta_sum;
+  if (_dinfo._normMul != null && _dinfo._normSub != null)   for (int i=0; i < _dinfo._nums; ++i)   g[numStart + i]=-_dinfo._normSub[i] * _dinfo._normMul[i] * eta_sum;
   for (int i=0; i < _dinfo._cats; ++i) {
     Chunk c=chks[i];
     for (int r=0; r < c._len; ++r) {
       if (skp[r])       continue;
       int off=_dinfo.getCategoricalId(i,(int)chks[i].at8(r));
-      if (off != -1)       for (int j=0; j < eta.length; ++j)       _gradient[j][off]+=eta[j][r];
+      if (off != -1)       g[off]+=eta[r];
     }
   }
   for (int i=0; i < _dinfo._nums; ++i) {
@@ -45,12 +40,8 @@
       if (skp[r] || c.isNA(r))       continue;
       double d=c.atd(r);
       if (_dinfo._normMul != null)       d=d * _dinfo._normMul[i];
-      for (int j=0; j < eta.length; ++j)       _gradient[j][numStart + i]+=eta[j][r] * d;
+      g[numStart + i]+=eta[r] * d;
     }
   }
-  for (int i=0; i < _beta.length; ++i) {
-    obj[i]*=_reg;
-    for (int j=0; j < _beta[i].length; ++j)     _gradient[i][j]*=_reg;
-  }
-  _objVals=obj;
+  _skip=skp;
 }

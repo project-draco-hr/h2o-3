@@ -1,14 +1,13 @@
 {
-  Chunk filterChunk=chunks[chunks.length - 1];
   boolean[] skip=MemoryManager.mallocZ(chunks[0]._len);
   for (int i=0; i < chunks.length - 1; ++i) {
     for (int r=chunks[i].nextNZ(-1); r < chunks[i]._len; r=chunks[i].nextNZ(r)) {
       skip[r]|=chunks[i].isNA(r);
     }
   }
-  Chunk response=chunks[chunks.length - 2];
+  Chunk response=chunks[chunks.length - 1];
   for (int r=0; r < response._len; ++r) {
-    if (filterChunk.at8(r) == 0)     continue;
+    if (skip[r])     continue;
     if (!skip[r] && !response.isNA(r)) {
       double d=response.atd(r);
       _ymu+=d;
@@ -18,5 +17,4 @@
     }
   }
   _ymu/=_nobs;
-  for (int i=0; i < skip.length; ++i)   filterChunk.set(i,skip[i] ? 0 : 1);
 }
