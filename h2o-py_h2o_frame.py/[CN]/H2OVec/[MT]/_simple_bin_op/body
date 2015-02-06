@@ -3,4 +3,6 @@ def _simple_bin_op(self, i, op):
         return H2OVec(self._name, Expr(op, self._len_check(i), i))
     if isinstance(i, (int, float)):
         return H2OVec(self._name, Expr(op, self, Expr(i)))
+    if isinstance(i, Expr):
+        return H2OVec(self._name, Expr(op, self, i))
     raise NotImplementedError
