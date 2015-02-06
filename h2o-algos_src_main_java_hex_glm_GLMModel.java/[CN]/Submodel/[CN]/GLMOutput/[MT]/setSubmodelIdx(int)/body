@@ -1,23 +1,41 @@
 {
   _best_lambda_idx=l;
-  _threshold=_submodels[l].validation == null ? 0.5f : _submodels[l].validation.best_threshold;
-  if (_global_beta == null)   _global_beta=MemoryManager.malloc8d(this._coefficient_names.length);
+  if (_submodels[l].validation == null) {
+    _threshold=0.5f;
+    _residual_deviance=Double.NaN;
+    _null_deviance=Double.NaN;
+    _residual_degrees_of_freedom=Double.NaN;
+    _null_degrees_of_freedom=Double.NaN;
+    _aic=Double.NaN;
+    _auc=Double.NaN;
+  }
+ else {
+    _threshold=_submodels[l].validation.best_threshold;
+    _residual_deviance=_submodels[l].validation.residualDeviance();
+    _null_deviance=_submodels[l].validation.nullDeviance();
+    _residual_degrees_of_freedom=_submodels[l].validation.resDOF();
+    _null_degrees_of_freedom=_submodels[l].validation.nullDOF();
+    _aic=_submodels[l].validation.aic();
+    _auc=_submodels[l].validation.auc();
+  }
+  if (_global_beta == null)   _global_beta=MemoryManager.malloc8d(this._coefficients_table.getColDim());
  else   Arrays.fill(_global_beta,0);
   int j=0;
   for (  int i : _submodels[l].idxs) {
     _global_beta[i]=_submodels[l].beta[j];
     _coefficients_table.set(0,i,_submodels[l].beta[j]);
-    _coefficients_table.set(1,i,_submodels[l].beta[j++]);
+    if (_submodels[l].norm_beta != null)     _coefficients_table.set(1,i,_submodels[l].norm_beta[j++]);
+ else     j++;
   }
-  if (_submodels[l].norm_beta == null)   _variable_importance=null;
+  if (_submodels[l].norm_beta == null)   _coefficients_magnitude=null;
  else {
     j=0;
-    String[] coef_names=new String[_coefficient_names.length - 1];
-    double[] rel_imp=new double[_coefficient_names.length - 1];
+    String[] coef_names=new String[_coefficients_table.getColDim() - 1];
+    double[] coef_scaled=new double[_coefficients_table.getColDim() - 1];
     for (int i=0; i < _submodels[l].idxs.length - 1; i++) {
-      coef_names[j]=_coefficient_names[j];
-      rel_imp[_submodels[l].idxs[i]]=Math.abs(_submodels[l].norm_beta[j++]);
+      coef_names[j]=_coefficients_table.getColHeaders()[j];
+      coef_scaled[_submodels[l].idxs[i]]=Math.abs(_submodels[l].norm_beta[j++]);
     }
-    _variable_importance=calcVarImp(rel_imp,coef_names);
+    _coefficients_magnitude=ModelMetrics.calcVarImp(coef_scaled,coef_names,"Normalized Coefficient Magnitudes",new String[]{"Magnitude","Scaled","Percentage"});
   }
 }

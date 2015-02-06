@@ -1,6 +1,10 @@
 {
   ctrlc.setComplete();
-  Runtime.getRuntime().removeShutdownHook(ctrlc);
+  try {
+    Runtime.getRuntime().removeShutdownHook(ctrlc);
+  }
+ catch (  IllegalStateException ignore) {
+  }
   ctrlc=null;
   try {
     setShutdownRequested();
