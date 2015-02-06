@@ -1,5 +1,8 @@
 {
-  Job job=safeGetJob(s);
-  job.cancel();
-  return s;
+  Job j=DKV.getGet(c.key.key.key());
+  if (j == null) {
+    throw new IllegalArgumentException("No job with key " + c.key.key.key());
+  }
+  j.cancel();
+  return c;
 }

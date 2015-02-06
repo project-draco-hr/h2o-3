@@ -1,8 +1,12 @@
 {
-  Job job=safeGetJob(s);
+  Key key=s.key.key.key();
+  Value val=DKV.get(key);
+  if (null == val)   throw new IllegalArgumentException("Job is missing");
+  Iced ice=val.get();
+  if (!(ice instanceof Job))   throw new IllegalArgumentException("Must be a Job not a " + ice.getClass());
   Jobs jobs=new Jobs();
   jobs._jobs=new Job[1];
-  jobs._jobs[0]=job;
+  jobs._jobs[0]=(Job)ice;
   s.jobs=new JobV2[0];
   return s.fillFromImpl(jobs);
 }
