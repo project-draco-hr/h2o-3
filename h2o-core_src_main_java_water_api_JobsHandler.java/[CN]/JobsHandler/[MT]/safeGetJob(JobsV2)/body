@@ -1,0 +1,11 @@
+{
+  if (null == s.key)   throw new H2ONotFoundArgumentException("No job with key: null","No job with key: null");
+  if (null == s.key.key)   throw new H2ONotFoundArgumentException("No job with key: " + s.key,"No job with key: " + s.key);
+  if (null == s.key.key.key())   throw new H2ONotFoundArgumentException("No job with key: " + s.key.key,"No job with key: " + s.key.key);
+  Key key=s.key.key.key();
+  Value val=DKV.get(key);
+  if (null == val)   throw new H2ONotFoundArgumentException("No job with key: " + key,"No job with key: " + key);
+  Iced ice=val.get();
+  if (!(ice instanceof Job))   throw new H2OIllegalArgumentException("Found a non-Job object when given a Job key: " + s.key,"Found a non-Job object when given a Job key: " + s.key + "; got a: "+ ice.getClass());
+  return (Job)ice;
+}
