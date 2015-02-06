@@ -18,6 +18,11 @@
     if (update instanceof FileVec) {
       ((FileVec)update).setChunkSize(setup._chunkSize);
       DKV.put(update._key,update,fs);
+      fs.blockForPending();
+      if (ice instanceof Frame) {
+        ((Frame)ice).reloadVecs();
+        DKV.put(((Frame)ice)._key,ice,fs);
+      }
     }
   }
   fs.blockForPending();
