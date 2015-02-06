@@ -7,7 +7,13 @@
   for (int i=0; i < _cats; ++i) {
     int c;
     if (chunks[i].isNA(rid)) {
-      row.binIds[row.nBins++]=_catOffsets[i + 1] - 1;
+      try {
+        row.binIds[nbins++]=_catOffsets[i + 1] - 1;
+      }
+ catch (      Throwable t) {
+        t.printStackTrace();
+        throw new RuntimeException(t);
+      }
     }
  else {
       c=getCategoricalId(i,(int)chunks[i].at8(rid));
