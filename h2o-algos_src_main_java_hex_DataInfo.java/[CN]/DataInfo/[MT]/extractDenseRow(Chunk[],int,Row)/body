@@ -1,0 +1,33 @@
+{
+  if (_skipMissing)   for (  Chunk c : chunks)   if (c.isNA(rid)) {
+    row.good=false;
+    return row;
+  }
+  int nbins=0;
+  for (int i=0; i < _cats; ++i) {
+    if (chunks[i].isNA(rid)) {
+      row.binIds[nbins++]=_catOffsets[i + 1] - 1;
+    }
+ else {
+      int c=getCategoricalId(i,(int)chunks[i].at8(rid));
+      if (c >= 0)       row.binIds[nbins++]=c;
+    }
+  }
+  row.nBins=nbins;
+  final int n=_nums;
+  for (int i=0; i < n; ++i) {
+    double d=chunks[_cats + i].atd(rid);
+    if (_normMul != null)     d=(d - _normSub[i]) * _normMul[i];
+    row.numVals[i]=d;
+  }
+  for (int i=0; i < _responses; ++i) {
+    row.response[i]=chunks[chunks.length - _responses + i].atd(rid);
+    if (_normRespMul != null)     row.response[i]=(row.response[i] - _normRespSub[i]) * _normRespMul[i];
+    if (Double.isNaN(row.response[i])) {
+      row.good=false;
+      return row;
+    }
+  }
+  row.good=true;
+  return row;
+}
