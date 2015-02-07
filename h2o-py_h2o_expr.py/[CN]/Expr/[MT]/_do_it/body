@@ -9,78 +9,81 @@ def _do_it(self):
     if py_tmp:
         self._data = frame.H2OFrame.py_tmp_key()
         __CMD__ += (('(= !' + self._data) + ' ')
-    __CMD__ += (('(' + self._op) + ' ')
-    left = self._do_child(True)
-    rite = self._do_child(False)
-    try:
-        if (self._op in ['+', '&', '-', '*', '/', '==', '<', '>=']):
-            if isinstance(left._data, (int, float)):
-                if isinstance(rite._data, (int, float)):
-                    self._data = eval((('left ' + self._op) + ' rite'))
-                elif rite.is_local():
-                    self._data = eval((('[left ' + self._op) + ' x for x in rite._data]'))
-                else:
-                    pass
-            elif isinstance(rite._data, (int, float)):
-                if left.is_local():
-                    self._data = eval((('[x' + self._op) + ' rite for x in left._data]'))
-                else:
-                    pass
-            elif (left.is_local() and rite.is_local()):
-                self._data = eval((('[x ' + self._op) + ' y for x, y in zip(left._data, rite._data)]'))
-            elif ((left.is_remote() or (left._data is None)) and (rite.is_remote() or (rite._data is None))):
-                pass
-            else:
-                raise NotImplementedError
-        elif (self._op == '['):
-            if left.is_local():
-                self._data = left._data[rite._data]
-            else:
-                __CMD__ += ' "null"'
-        elif (self._op == '='):
-            if left.is_local():
-                raise NotImplementedError
-            elif (rite is None):
-                __CMD__ += '#NaN'
-        elif (self._op == 'floor'):
-            if left.is_local():
-                self._data = [floor(x) for x in left._data]
+    if (self._op != ','):
+        __CMD__ += (('(' + self._op) + ' ')
+    left = self._do_child(self._left)
+    rite = self._do_child(self._rite)
+    if (self._op in ['+', '&', '-', '*', '/', '==', '<', '>', '>=', '<=']):
+        if isinstance(left._data, (int, float)):
+            if isinstance(rite._data, (int, float)):
+                self._data = eval((('left ' + self._op) + ' rite'))
+            elif rite.is_local():
+                self._data = eval((('[left ' + self._op) + ' x for x in rite._data]'))
             else:
                 pass
-        elif (self._op == 'month'):
+        elif isinstance(rite._data, (int, float)):
             if left.is_local():
-                raise NotImplementedError
+                self._data = eval((('[x' + self._op) + ' rite for x in left._data]'))
             else:
                 pass
-        elif (self._op == 'dayOfWeek'):
-            if left.is_local():
-                raise NotImplementedError
-            else:
-                pass
-        elif (self._op == 'mean'):
-            if left.is_local():
-                self._data = (sum(left._data) / len(left._data))
-            else:
-                __CMD__ += ' #0 %TRUE'
-        elif (self._op in ['as.factor', 'h2o.runif']):
-            if left.is_local():
-                self._data = map(str, left._data)
-            else:
-                pass
-        elif (self._op == 'quantile'):
-            if left.is_local():
-                raise NotImplementedError
-            else:
-                rapids_series = (('{' + ';'.join([str(x) for x in rite._data])) + '}')
-                __CMD__ += (rapids_series + ' %FALSE #7')
+        elif (left.is_local() and rite.is_local()):
+            self._data = eval((('[x ' + self._op) + ' y for x, y in zip(left._data, rite._data)]'))
+        elif ((left.is_remote() or (left._data is None)) and (rite.is_remote() or (rite._data is None))):
+            pass
         else:
-            raise NotImplementedError(self._op)
-    except NotImplementedError:
-        global __TMPS__
-        __CMD__ = None
-        __TMPS__ = None
-        raise NotImplementedError
-    __CMD__ += ')'
+            raise NotImplementedError
+    elif (self._op == '['):
+        if left.is_local():
+            self._data = left._data[rite._data]
+        else:
+            __CMD__ += ' "null"'
+    elif (self._op == '='):
+        if left.is_local():
+            raise NotImplementedError
+        elif (rite is None):
+            __CMD__ += '#NaN'
+    elif (self._op == 'floor'):
+        if left.is_local():
+            self._data = [floor(x) for x in left._data]
+        else:
+            pass
+    elif (self._op == 'month'):
+        if left.is_local():
+            raise NotImplementedError
+        else:
+            pass
+    elif (self._op == 'dayOfWeek'):
+        if left.is_local():
+            raise NotImplementedError
+        else:
+            pass
+    elif (self._op == 'mean'):
+        if left.is_local():
+            self._data = (sum(left._data) / len(left._data))
+        else:
+            __CMD__ += ' #0 %TRUE'
+    elif (self._op in ['as.factor', 'h2o.runif']):
+        if left.is_local():
+            self._data = map(str, left._data)
+        else:
+            pass
+    elif (self._op == 'quantile'):
+        if left.is_local():
+            raise NotImplementedError
+        else:
+            rapids_series = (('{' + ';'.join([str(x) for x in rite._data])) + '}')
+            __CMD__ += (rapids_series + ' %FALSE #7')
+    elif (self._op == 'mktime'):
+        if left.is_local():
+            raise NotImplementedError
+        else:
+            pass
+    elif (self._op == ','):
+        pass
+    else:
+        raise NotImplementedError(self._op)
+    if (self._op != ','):
+        __CMD__ += ')'
     if py_tmp:
         __CMD__ += ')'
     self._left = None
