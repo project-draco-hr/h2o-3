@@ -1,17 +1,21 @@
 @staticmethod
 def _parse_values(values, types):
-    for (k, v) in enumerate(values):
-        for (j, val) in enumerate(v):
-            if (types[j] == 'integer'):
-                if (isinstance(val, unicode) and (val == '')):
-                    values[k][j] = float('nan')
+    for (col_index, column) in enumerate(values):
+        for (row_index, row_value) in enumerate(column):
+            if (types[col_index] == 'integer'):
+                if (isinstance(row_value, unicode) and (row_value == '')):
+                    values[col_index][row_index] = ''
+                elif (row_value is None):
+                    values[col_index][row_index] = ''
                 else:
-                    values[k][j] = int(float.fromhex(val))
-            elif ((types[j] == 'double') or (types[j] == 'float') or (types[j] == 'long')):
-                if (isinstance(val, unicode) and (val == '')):
-                    values[k][j] = float('nan')
+                    values[col_index][row_index] = int(float.fromhex(row_value))
+            elif ((types[col_index] == 'double') or (types[col_index] == 'float') or (types[col_index] == 'long')):
+                if (isinstance(row_value, unicode) and (row_value == '')):
+                    values[col_index][row_index] = ''
+                elif (row_value is None):
+                    values[col_index][row_index] = ''
                 else:
-                    values[k][j] = float.fromhex(val)
+                    values[col_index][row_index] = float.fromhex(row_value)
             else:
                 continue
-    return values
+    return zip(*values)
