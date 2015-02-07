@@ -16,21 +16,17 @@
       double step=1;
       for (int i=0; i < res.length; ++i) {
         double x=beta[0] + pk[0] * step;
-        double y=beta[0] + pk[0] * step;
+        double y=beta[1] + pk[1] * step;
         double xx=x * x;
         res[i]=(a - x) * (a - x) + b * (y - xx) * (y - xx);
-        step*=.75;
+        step*=_step;
       }
       return res;
     }
   }
 ;
   int fails=0;
-  int N=1000;
-  for (int i=0; i < N; ++i) {
-    L_BFGS lbfgs=new L_BFGS().setGradEps(1e-12);
-    L_BFGS.Result r=lbfgs.solve(gs,L_BFGS.startCoefs(2,987654321));
-    if (Math.abs(r.ginfo._objVal) > 1e-4)     ++fails;
-  }
-  assertTrue("too many fails " + fails,fails < 5);
+  L_BFGS lbfgs=new L_BFGS().setGradEps(1e-12);
+  L_BFGS.Result r=lbfgs.solve(gs,L_BFGS.startCoefs(2,987654321));
+  assertTrue("LBFGS failed to solve Rosenbrock function optimization",r.ginfo._objVal < 1e-4);
 }
