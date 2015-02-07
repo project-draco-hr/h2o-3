@@ -22,7 +22,7 @@
           for (          boolean shuffle : new boolean[]{true,false}) {
             for (            boolean balance_classes : new boolean[]{true,false}) {
               for (              int resp : responses[i]) {
-                boolean classification=!(i == 0 && resp == 2);
+                boolean classification=false;
                 for (                ClassSamplingMethod csm : new ClassSamplingMethod[]{ClassSamplingMethod.Stratified,ClassSamplingMethod.Uniform}) {
                   for (                  int scoretraining : new int[]{200,20,0}) {
                     for (                    int scorevalidation : new int[]{200,20,0}) {
@@ -55,7 +55,6 @@
                                     p._train=frame._key;
                                     p._response_column=frame._names[resp];
                                     p._valid=valid == null ? null : valid._key;
-                                    p._convert_to_enum=classification;
                                     p._hidden=hidden;
                                     p._override_with_best_model=override_with_best_model;
                                     p._epochs=epochs;
@@ -100,7 +99,6 @@
                                   p._n_folds=0;
                                   p._valid=valid == null ? null : valid._key;
                                   p._response_column=frame._names[resp];
-                                  p._convert_to_enum=classification;
                                   p._override_with_best_model=override_with_best_model;
                                   p._epochs=epochs;
                                   p._seed=seed;
