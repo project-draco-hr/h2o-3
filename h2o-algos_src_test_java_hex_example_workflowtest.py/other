@@ -2,7 +2,7 @@ import h2o
 h2o.init()
 small_test = ['bigdata/laptop/citibike-nyc/2013-10.csv']
 big_test = ['bigdata/laptop/citibike-nyc/2013-07.csv', 'bigdata/laptop/citibike-nyc/2013-08.csv', 'bigdata/laptop/citibike-nyc/2013-09.csv', 'bigdata/laptop/citibike-nyc/2013-10.csv', 'bigdata/laptop/citibike-nyc/2013-11.csv', 'bigdata/laptop/citibike-nyc/2013-12.csv', 'bigdata/laptop/citibike-nyc/2014-01.csv', 'bigdata/laptop/citibike-nyc/2014-02.csv', 'bigdata/laptop/citibike-nyc/2014-03.csv', 'bigdata/laptop/citibike-nyc/2014-04.csv', 'bigdata/laptop/citibike-nyc/2014-05.csv', 'bigdata/laptop/citibike-nyc/2014-06.csv', 'bigdata/laptop/citibike-nyc/2014-07.csv', 'bigdata/laptop/citibike-nyc/2014-08.csv']
-data = h2o.import_frame(path=big_test)
+data = h2o.import_frame(path=small_test)
 startime = data['starttime']
 secsPerDay = (((1000 * 60) * 60) * 24)
 data['Days'] = (startime / secsPerDay).floor()
@@ -31,3 +31,15 @@ train_r2_glm = glm.model_performance(train).r2()
 test_r2_glm = glm.model_performance(test).r2()
 hold_r2_glm = glm.model_performance(hold).r2()
 print 'GLM R2 TRAIN=', train_r2_glm, ', R2 TEST=', test_r2_glm, ', R2 HOLDOUT=', hold_r2_glm
+wthr1 = h2o.import_frame(path=['bigdata/laptop/citibike-nyc/31081_New_York_City__Hourly_2013.csv', 'bigdata/laptop/citibike-nyc/31081_New_York_City__Hourly_2014.csv'])
+wthr1.describe()
+wthr2 = wthr1[('Year Local', 'Month Local', 'Day Local', 'Hour Local', 'Dew Point (C)', 'Humidity Fraction', 'Precipitation One Hour (mm)', 'Snow Depth (cm)', 'Temperature (C)', 'Weather Code 1/ Description')]
+wthr2.describe()
+wthr3 = wthr2[((7 <= wthr2['Hour Local']) & (wthr2['Hour Local'] <= 19))]
+wthr3.describe()
+wthr3['msec'] = h2o.H2OVec.mktime(year=wthr3['Year Local'], month=(wthr3['Month Local'] - 1), day=(wthr3['Day Local'] - 1), hour=wthr3['Hour Local'])
+secsPerDay = (((1000 * 60) * 60) * 24)
+wthr3['Days'] = (wthr3['msec'] / secsPerDay).floor()
+wthr3.describe()
+wthr4 = wthr3.drop('Year Local').drop('Month Local').drop('Day Local').drop('Hour Local').drop('msec')
+wthr4.describe()

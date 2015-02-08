@@ -17,11 +17,13 @@
       try {
         NFSFileVec nfs=NFSFileVec.make(find_test_file("smalldata/junit/weather.csv"));
         data=ParseDataset.parse(Key.make("data.hex"),nfs._key);
-        FrameSplitter fs=new FrameSplitter(data,new float[]{0.75f});
-        H2O.submitTask(fs).join();
+        Log.info("FrameSplitting");
+        FrameSplitter fs=new FrameSplitter(data,new double[]{0.75f});
+        H2O.submitTask(fs);
         Frame[] train_test=fs.getResult();
         train=train_test[0];
         test=train_test[1];
+        Log.info("Done...");
         if (missing_fraction > 0) {
           Frame frtmp=new Frame(null,train.names(),train.vecs());
           frtmp.remove(frtmp.numCols() - 1);

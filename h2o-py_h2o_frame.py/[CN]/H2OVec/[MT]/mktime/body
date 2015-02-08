@@ -1,0 +1,15 @@
+@staticmethod
+def mktime(year=1970, month=0, day=0, hour=0, minute=0, second=0, msec=0):
+    '\n    All units are zero-based (including months and days).  Missing year is 1970.\n    :return: Returns msec since the Epoch.\n    '
+    xlen = 1
+    e = None
+    for x in [msec, second, minute, hour, day, month, year]:
+        (l, x) = ((1, Expr(x)) if isinstance(x, int) else (len(x), x))
+        if (xlen != l):
+            if (xlen == 1):
+                xlen = l
+            else:
+                raise ValueError(((('length of ' + str(x)) + ' not compatible with ') + xlen))
+        e = Expr(',', x, e)
+    e2 = Expr('mktime', e, None, xlen)
+    return (e2 if (xlen == 1) else H2OVec('mktime', e2))

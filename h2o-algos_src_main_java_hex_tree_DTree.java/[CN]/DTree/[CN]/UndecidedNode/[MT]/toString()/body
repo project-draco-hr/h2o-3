@@ -6,7 +6,6 @@
   sb.append("Nid# ").append(_nid).append(", ");
   printLine(sb).append("\n");
   if (_hs == null)   return sb.append("_hs==null").toString();
-  final int ncols=_hs.length;
   for (  DHistogram hs : _hs)   if (hs != null)   p(sb,hs._name + String.format(", %4.1f-%4.1f",hs._min,hs._maxEx),colW).append(colPad);
   sb.append('\n');
   for (  DHistogram hs : _hs) {
@@ -19,10 +18,9 @@
   }
   sb.append('\n');
   int nbins=0;
-  for (int j=0; j < ncols; j++)   if (_hs[j] != null && _hs[j].nbins() > nbins)   nbins=_hs[j].nbins();
+  for (  DHistogram hs : _hs)   if (hs != null && hs.nbins() > nbins)   nbins=hs.nbins();
   for (int i=0; i < nbins; i++) {
-    for (int j=0; j < ncols; j++) {
-      DHistogram h=_hs[j];
+    for (    DHistogram h : _hs) {
       if (h == null)       continue;
       if (i < h.nbins() && h._bins != null) {
         p(sb,h.bins(i),cntW).append('/');

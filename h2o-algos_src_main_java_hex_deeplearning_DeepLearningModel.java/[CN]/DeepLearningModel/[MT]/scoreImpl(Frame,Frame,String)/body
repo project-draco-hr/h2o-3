@@ -24,6 +24,11 @@
 .doAll(adaptFrm);
     int x=_output._names.length, y=adaptFrm.numCols();
     Frame f=adaptFrm.extractFrame(x,y);
+    if (destination_key != null) {
+      Key k=Key.make(destination_key);
+      f=new Frame(k,f.names(),f.vecs());
+      DKV.put(k,f);
+    }
     return f;
   }
 }

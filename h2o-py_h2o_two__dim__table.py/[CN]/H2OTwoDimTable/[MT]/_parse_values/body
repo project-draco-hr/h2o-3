@@ -1,17 +1,11 @@
 @staticmethod
 def _parse_values(values, types):
-    for (k, v) in enumerate(values):
-        for (j, val) in enumerate(v):
-            if (types[j] == 'integer'):
-                if (isinstance(val, unicode) and (val == '')):
-                    values[k][j] = float('nan')
-                else:
-                    values[k][j] = int(float.fromhex(val))
-            elif ((types[j] == 'double') or (types[j] == 'float') or (types[j] == 'long')):
-                if (isinstance(val, unicode) and (val == '')):
-                    values[k][j] = float('nan')
-                else:
-                    values[k][j] = float.fromhex(val)
+    for (col_index, column) in enumerate(values):
+        for (row_index, row_value) in enumerate(column):
+            if (types[col_index] == 'integer'):
+                values[col_index][row_index] = ('' if (not row_value) else int(float.fromhex(row_value)))
+            elif ((types[col_index] == 'double') or (types[col_index] == 'float') or (types[col_index] == 'long')):
+                values[col_index][row_index] = ('' if (not row_value) else float.fromhex(row_value))
             else:
                 continue
-    return values
+    return zip(*values)

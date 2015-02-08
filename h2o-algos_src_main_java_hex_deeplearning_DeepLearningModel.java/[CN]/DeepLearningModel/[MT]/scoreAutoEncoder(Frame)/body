@@ -1,4 +1,5 @@
 {
+  if (!get_params()._autoencoder)   throw new H2OIllegalArgumentException("Only for AutoEncoder Deep Learning model.","");
   final int len=_output._names.length;
   Frame adaptFrm=new Frame(frame);
   Vec v0=adaptFrm.anyVec().makeZero();
@@ -17,5 +18,7 @@
   }
 .doAll(adaptFrm);
   Scope.exit();
-  return adaptFrm.extractFrame(len,adaptFrm.numCols());
+  Frame res=adaptFrm.extractFrame(len,adaptFrm.numCols());
+  makeMetricBuilder(null).makeModelMetrics(this,res,Double.NaN);
+  return res;
 }

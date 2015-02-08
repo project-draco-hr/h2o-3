@@ -1,0 +1,41 @@
+{
+  if (layer < 0 || layer >= model_info().get_params()._hidden.length)   throw new H2OIllegalArgumentException("hidden layer (index) to extract must be between " + 0 + " and "+ (model_info().get_params()._hidden.length - 1),"");
+  final int len=_output.nfeatures();
+  Vec resp=null;
+  if (isSupervised()) {
+    int ridx=frame.find(_output.responseName());
+    if (ridx != -1) {
+      frame=new Frame(frame);
+      resp=frame.vecs()[ridx];
+      frame.remove(ridx);
+    }
+  }
+  Frame adaptFrm=new Frame(frame);
+  final int features=model_info().get_params()._hidden[layer];
+  Vec[] vecs=adaptFrm.anyVec().makeZeros(features);
+  Scope.enter();
+  adaptTestForTrain(adaptFrm,true);
+  for (int j=0; j < features; ++j) {
+    adaptFrm.add("DF.C" + (j + 1),vecs[j]);
+  }
+  new MRTask(){
+    @Override public void map(    Chunk chks[]){
+      double tmp[]=new double[len];
+      float df[]=new float[features];
+      final Neurons[] neurons=DeepLearningTask.makeNeuronsForTesting(model_info);
+      for (int row=0; row < chks[0]._len; row++) {
+        for (int i=0; i < len; i++)         tmp[i]=chks[i].atd(row);
+        ((Neurons.Input)neurons[0]).setInput(-1,tmp);
+        DeepLearningTask.step(-1,neurons,model_info,false,null);
+        float[] out=neurons[layer + 1]._a.raw();
+        for (int c=0; c < df.length; c++)         chks[_output._names.length + c].set(row,out[c]);
+      }
+    }
+  }
+.doAll(adaptFrm);
+  int x=_output._names.length, y=adaptFrm.numCols();
+  Frame ret=adaptFrm.extractFrame(x,y);
+  if (resp != null)   ret.prepend(_output.responseName(),resp);
+  Scope.exit();
+  return ret;
+}
