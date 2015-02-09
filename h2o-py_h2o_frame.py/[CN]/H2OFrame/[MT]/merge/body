@@ -1,0 +1,11 @@
+def merge(self, other, allLeft=False, allRight=False):
+    '\n    Merge two datasets based on common column names\n    :param other: Other dataset to merge.  Must have at least one column in common with self\n    :param allLeft:  If true, include all rows from the left/self frame\n    :param allRight: If true, include all rows from the right/other frame\n    :return: Original self frame enhanced with merged columns and rows\n    '
+    for v0 in self._vecs:
+        for v1 in other._vecs:
+            if (v0._name == v1._name):
+                break
+        if (v0._name == v1._name):
+            break
+    else:
+        raise ValueError('frames must have some columns in common to merge on')
+    return H2OVec(self._name, Expr('merge', self._expr, other._expr))
