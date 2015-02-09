@@ -1,0 +1,14 @@
+import h2o
+h2o.init()
+df1 = h2o.import_frame(path=['bigdata/laptop/citibike-nyc/31081_New_York_City__Hourly_2013.csv', 'bigdata/laptop/citibike-nyc/31081_New_York_City__Hourly_2014.csv'])
+df1.describe()
+df2 = df1[('Year Local', 'Month Local', 'Day Local', 'Hour Local', 'Dew Point (C)', 'Humidity Fraction', 'Precipitation One Hour (mm)', 'Snow Depth (cm)', 'Temperature (C)', 'Weather Code 1/ Description')]
+df2.describe()
+df3 = df2[((7 <= df2['Hour Local']) & (df2['Hour Local'] <= 19))]
+df3.describe()
+df3['msec'] = h2o.H2OVec.mktime(year=df3['Year Local'], month=(df3['Month Local'] - 1), day=(df3['Day Local'] - 1), hour=df3['Hour Local'])
+secsPerDay = (((1000 * 60) * 60) * 24)
+df3['Epoch Day'] = (df3['msec'] / secsPerDay).floor()
+df3.describe()
+df4 = df3.drop('Year Local').drop('Month Local').drop('Day Local').drop('Hour Local').drop('msec')
+df4.describe()

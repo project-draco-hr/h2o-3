@@ -10,11 +10,12 @@
     params._ignored_columns=new String[]{"ID"};
     params._train=fr._key;
     params._lambda=new double[]{0};
+    params._standardize=false;
     job=new GLM(Key.make("glm_model"),"glm test simple poisson",params);
     model=job.trainModel().get();
-    assertEquals(model.validation().auc(),1,1e-4);
     double[] beta=model.beta();
-    for (    double d : beta)     assertTrue(Math.abs(d) < 16);
+    System.out.println("beta = " + Arrays.toString(beta));
+    assertEquals(model.validation().auc(),1,1e-4);
     GLMValidation val=model.validation();
     assertEquals(1,val.auc,1e-2);
     score=model.score(fr);
