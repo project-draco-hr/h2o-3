@@ -1,0 +1,8 @@
+def _simple_bin_rop(self, i, op):
+    if isinstance(i, H2OVec):
+        return H2OVec(self._name, Expr(op, i, self._len_check(i)))
+    if isinstance(i, (int, float)):
+        return H2OVec(self._name, Expr(op, Expr(i), self))
+    if isinstance(i, Expr):
+        return H2OVec(self._name, Expr(op, i, self))
+    raise NotImplementedError

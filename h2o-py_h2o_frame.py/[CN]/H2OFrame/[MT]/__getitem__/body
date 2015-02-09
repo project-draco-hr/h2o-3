@@ -8,7 +8,7 @@ def __getitem__(self, i):
     if isinstance(i, H2OVec):
         self._len_check(i)
         return H2OFrame(vecs=[x.row_select(i) for x in self._vecs])
-    if isinstance(i, list):
+    if isinstance(i, (list, tuple)):
         vecs = []
         for it in i:
             if isinstance(it, int):
@@ -18,4 +18,4 @@ def __getitem__(self, i):
             else:
                 raise NotImplementedError
         return H2OFrame(vecs=vecs)
-    raise NotImplementedError
+    raise NotImplementedError(('Slicing by unknown type: ' + str(type(i))))

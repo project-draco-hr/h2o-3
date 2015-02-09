@@ -18,22 +18,22 @@
     _aic=_submodels[l].validation.aic();
     _auc=_submodels[l].validation.auc();
   }
-  if (_global_beta == null)   _global_beta=MemoryManager.malloc8d(this._coefficients_table.getColDim());
+  if (_global_beta == null)   _global_beta=MemoryManager.malloc8d(this._coefficients_table.getRowDim());
  else   Arrays.fill(_global_beta,0);
   int j=0;
   for (  int i : _submodels[l].idxs) {
     _global_beta[i]=_submodels[l].beta[j];
-    _coefficients_table.set(0,i,_submodels[l].beta[j]);
-    if (_submodels[l].norm_beta != null)     _coefficients_table.set(1,i,_submodels[l].norm_beta[j++]);
+    _coefficients_table.set(i,0,_submodels[l].beta[j]);
+    if (_submodels[l].norm_beta != null)     _coefficients_table.set(i,1,_submodels[l].norm_beta[j++]);
  else     j++;
   }
   if (_submodels[l].norm_beta == null)   _coefficients_magnitude=null;
  else {
     j=0;
-    String[] coef_names=new String[_coefficients_table.getColDim() - 1];
-    double[] coef_scaled=new double[_coefficients_table.getColDim() - 1];
+    String[] coef_names=new String[_coefficients_table.getRowDim() - 1];
+    double[] coef_scaled=new double[_coefficients_table.getRowDim() - 1];
     for (int i=0; i < _submodels[l].idxs.length - 1; i++) {
-      coef_names[j]=_coefficients_table.getColHeaders()[j];
+      coef_names[j]=_coefficients_table.getRowHeaders()[j];
       coef_scaled[_submodels[l].idxs[i]]=Math.abs(_submodels[l].norm_beta[j++]);
     }
     _coefficients_magnitude=ModelMetrics.calcVarImp(coef_scaled,coef_names,"Normalized Coefficient Magnitudes",new String[]{"Magnitude","Scaled","Percentage"});

@@ -1,19 +1,16 @@
 {
-  if (t._nobs[0] != 0) {
-    if (_nobs[0] == 0) {
-      _ymu=t._ymu;
-      _nobs=t._nobs;
-      _ymin=t._ymin;
-      _ymax=t._ymax;
-    }
- else {
-      for (int i=0; i < _nfolds + 1; ++i) {
-        if (_nobs[i] + t._nobs[i] == 0)         continue;
-        _ymu[i]=_ymu[i] * ((double)_nobs[i] / (_nobs[i] + t._nobs[i])) + t._ymu[i] * t._nobs[i] / (_nobs[i] + t._nobs[i]);
-        _nobs[i]+=t._nobs[i];
-        if (t._ymax[i] > _ymax[i])         _ymax[i]=t._ymax[i];
-        if (t._ymin[i] < _ymin[i])         _ymin[i]=t._ymin[i];
-      }
-    }
+  if (_nobs > 0 && ymt._nobs > 0) {
+    double a=_nobs / (_nobs + ymt._nobs);
+    double b=ymt._nobs / (_nobs + ymt._nobs);
+    _ymu=_ymu * a + ymt._ymu * b;
+    _nobs+=ymt._nobs;
+    if (_yMin > ymt._yMin)     _yMin=ymt._yMin;
+    if (_yMax < ymt._yMax)     _yMax=ymt._yMax;
+  }
+ else   if (_nobs == 0) {
+    _ymu=ymt._ymu;
+    _nobs=ymt._nobs;
+    _yMin=ymt._yMin;
+    _yMax=ymt._yMax;
   }
 }

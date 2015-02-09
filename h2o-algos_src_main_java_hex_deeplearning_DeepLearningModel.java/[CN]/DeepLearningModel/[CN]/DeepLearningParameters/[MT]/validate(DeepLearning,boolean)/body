@@ -120,6 +120,10 @@
       }
     }
   }
+ else {
+    if (_autoencoder && _loss != Loss.MeanSquare)     dl.error("_loss","Must use MeanSquare loss function for auto-encoder.");
+ else     if (!classification && _loss == Loss.CrossEntropy)     dl.error("_loss","Cannot use CrossEntropy loss function for regression.");
+  }
   if (_score_training_samples < 0) {
     dl.error("_score_training_samples","Number of training samples for scoring must be >= 0 (0 for all).");
   }
@@ -134,8 +138,6 @@
       if (_average_activation <= 0)       dl.error("_average_activation","Rectifier average activation must be positive.");
     }
   }
-  if (_autoencoder && _loss != Loss.MeanSquare)   dl.error("_loss","Must use MeanSquare loss function for auto-encoder.");
- else   if (!classification && _loss == Loss.CrossEntropy)   dl.error("_loss","Cannot use CrossEntropy loss function for regression.");
   if (!_autoencoder && _sparsity_beta != 0)   dl.info("_sparsity_beta","Sparsity beta can only be used for autoencoder.");
   if (_autoencoder && _valid != null)   dl.error("_validation_frame","Cannot specify a validation dataset for auto-encoder.");
   if (_autoencoder && _activation == Activation.Maxout)   dl.error("_activation","Maxout activation is not supported for auto-encoder.");

@@ -1,0 +1,49 @@
+{
+  Chunk responseChunk=chks[chks.length - 1];
+  boolean[] skip=MemoryManager.mallocZ(chks[0]._len);
+  double[][] eta=new double[_nSteps][];
+  for (int i=0; i < eta.length; ++i)   eta[i]=MemoryManager.malloc8d(chks[0]._len);
+  for (int i=0; i < _dinfo._cats; ++i) {
+    Chunk c=chks[i];
+    for (int r=0; r < c._len; ++r) {
+      if (skip[r] || c.isNA(r)) {
+        skip[r]=true;
+        continue;
+      }
+      int off=_dinfo.getCategoricalId(i,(int)c.at8(r));
+      if (off != -1)       for (int j=0; j < eta.length; ++j)       eta[j][r]+=beta(j,off);
+    }
+  }
+  final int numStart=_dinfo.numStart();
+  if (_dinfo._normMul != null && _dinfo._normSub != null) {
+    for (int j=0; j < eta.length; ++j) {
+      double off=0;
+      for (int i=0; i < _dinfo._nums; ++i)       off-=beta(j,numStart + i) * _dinfo._normSub[i] * _dinfo._normMul[i];
+      for (int r=0; r < chks[0]._len; ++r)       eta[j][r]+=off;
+    }
+  }
+  for (int i=0; i < _dinfo._nums; ++i) {
+    Chunk c=chks[i + _dinfo._cats];
+    for (int r=c.nextNZ(-1); r < c._len; r=c.nextNZ(r)) {
+      if (skip[r] || c.isNA(r)) {
+        skip[r]=true;
+        continue;
+      }
+      double d=c.atd(r);
+      if (_dinfo._normMul != null)       d*=_dinfo._normMul[i];
+      for (int j=0; j < eta.length; ++j)       eta[j][r]+=beta(j,numStart + i) * d;
+    }
+  }
+  _objVals=MemoryManager.malloc8d(_nSteps);
+  for (int r=0; r < chks[0]._len; ++r) {
+    if (skip[r] || responseChunk.isNA(r))     continue;
+    double off=0;
+    double y=responseChunk.atd(r);
+    for (int i=0; i < eta.length; ++i) {
+      double offset=off + (_dinfo._intercept ? beta(i,_beta.length - 1) : 0);
+      double mu=_params.linkInv(eta[i][r] + offset);
+      _objVals[i]+=_params.deviance(y,mu);
+    }
+  }
+  for (int i=0; i < _objVals.length; ++i)   _objVals[i]*=_reg;
+}
