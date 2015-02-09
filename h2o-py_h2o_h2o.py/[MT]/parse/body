@@ -6,6 +6,9 @@ def parse(setup, h2o_name, first_line_is_header=((-1), 0, 1)):
     if setup['columnNames']:
         setup['columnNames'] = [_quoted(name) for name in setup['columnNames']]
         p['columnNames'] = None
+    if setup['columnTypes']:
+        setup['columnTypes'] = [_quoted(name) for name in setup['columnTypes']]
+        p['columnTypes'] = None
     p.update({k: v for (k, v) in setup.iteritems() if (k in p)})
     p['checkHeader'] = first_line_is_header
     p['srcs'] = [_quoted(src['name']) for src in setup['srcs']]

@@ -1,5 +1,6 @@
 {
   if ((_pType != other._pType) && !(_pType == ParserType.ARFF && other._pType == ParserType.CSV) && !(_pType == ParserType.CSV && other._pType == ParserType.ARFF))   return false;
-  if (_pType == ParserType.CSV && (_sep != other._sep || _ncols != other._ncols))   return false;
+  if (_sep != other._sep && (other._sep != AUTO_SEP || _sep != AUTO_SEP))   return false;
+  if (_ncols != other._ncols && (other._ncols > 0 && _ncols > 0))   return false;
   return true;
 }

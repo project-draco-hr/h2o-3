@@ -1,0 +1,18 @@
+{
+  if (colIdx < _nstrings.length) {
+    if (ParseTime.attemptTimeParse(str) != Long.MIN_VALUE) {
+      ++_ndates[colIdx];
+      return;
+    }
+    int old=str.get_off();
+    ParseTime.attemptUUIDParse0(str);
+    ParseTime.attemptUUIDParse1(str);
+    if (str.get_off() != -1) {
+      ++_nUUID[colIdx];
+      return;
+    }
+    str.setOff(old);
+    ++_nstrings[colIdx];
+    _domains[colIdx].add(str.toString());
+  }
+}
