@@ -8,20 +8,20 @@ secsPerDay = (((1000 * 60) * 60) * 24)
 data['Days'] = (startime / secsPerDay).floor()
 data.describe()
 ddplycols = ['Days', 'start station name']
-bph = h2o.ddply(data[ddplycols], ddplycols, '(%nrow)')
-bph['C1']._name = 'bikes'
-bph['bikes'].quantile().show()
-secs = (bph['Days'] * secsPerDay)
-bph['Month'] = secs.month()
-bph['DayOfWeek'] = secs.dayOfWeek()
-bph.describe()
-r = bph['Days'].runif()
-train = bph[(r < 0.6)]
-test = bph[((0.6 <= r) & (r < 0.9))]
-hold = bph[(0.9 <= r)]
+bpd = h2o.ddply(data[ddplycols], ddplycols, '(%nrow)')
+bpd['C1']._name = 'bikes'
+bpd['bikes'].quantile().show()
+secs = (bpd['Days'] * secsPerDay)
+bpd['Month'] = secs.month()
+bpd['DayOfWeek'] = secs.dayOfWeek()
+bpd.describe()
+r = bpd['Days'].runif()
+train = bpd[(r < 0.6)]
+test = bpd[((0.6 <= r) & (r < 0.9))]
+hold = bpd[(0.9 <= r)]
 train.describe()
 test.describe()
-gbm = h2o.gbm(x=train.drop('bikes'), y=train['bikes'], validation_x=test.drop('bikes'), validation_y=test['bikes'], ntrees=500, max_depth=6, min_rows=10, nbins=20, learn_rate=0.1)
+gbm = h2o.gbm(x=train.drop('bikes'), y=train['bikes'], validation_x=test.drop('bikes'), validation_y=test['bikes'], ntrees=50, max_depth=6, min_rows=10, nbins=20, learn_rate=0.1)
 glm = h2o.glm(x=train.drop('bikes'), y=train['bikes'], validation_x=test.drop('bikes'), validation_y=test['bikes'])
 train_r2_gbm = gbm.model_performance(train).r2()
 test_r2_gbm = gbm.model_performance(test).r2()
@@ -43,3 +43,5 @@ wthr3['Days'] = (wthr3['msec'] / secsPerDay).floor()
 wthr3.describe()
 wthr4 = wthr3.drop('Year Local').drop('Month Local').drop('Day Local').drop('Hour Local').drop('msec')
 wthr4.describe()
+bpd.merge(wthr4, allLeft=true, allRight=false)
+bpd.describe()
