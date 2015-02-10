@@ -2,19 +2,20 @@
   ColTypeInfo[] res=new ColTypeInfo[_ncols];
   for (int i=0; i < _ncols; ++i) {
     res[i]=new ColTypeInfo();
-    if (((_nnums[i] + _nzeros[i]) > (_nlines / 2)) || (_domains[i].size() <= 1 && _nnums[i] + _nstrings[i] + _nzeros[i] - _nlines <= 1)) {
+    int nonemptyLines=_nlines - _nempty[i];
+    if (((_nnums[i] + _nzeros[i]) > (nonemptyLines / 2)) || (_domains[i].size() <= 1 && (_nnums[i] + _nstrings[i] + _nzeros[i]) >= (nonemptyLines - 1))) {
       res[i]._type=ColType.NUM;
       continue;
     }
-    if ((_ndates[i] > _nlines / 2) || (_domains[i].size() <= 1 && _ndates[i] + _nstrings[i] - _nlines <= 1)) {
+    if ((_ndates[i] > (nonemptyLines / 2)) || (_domains[i].size() <= 1 && _ndates[i] + _nstrings[i] >= (nonemptyLines - 1))) {
       res[i]._type=ColType.TIME;
       continue;
     }
-    if ((_nUUID[i] > 0) || (_domains[i].size() <= 1 && _nUUID[i] + _nstrings[i] - _nlines <= 1)) {
-      res[i]._type=ColType.TIME;
+    if ((_nUUID[i] > 0) || (_domains[i].size() <= 1 && _nUUID[i] + _nstrings[i] >= (nonemptyLines - 1))) {
+      res[i]._type=ColType.UUID;
       continue;
     }
-    if (_nzeros[i] > 0 && (Math.abs(_nzeros[i] + _nstrings[i] - _nlines) <= 1) && (_domains[i].size() <= 0.98 * _nstrings[i])) {
+    if (_nzeros[i] > 0 && (_nzeros[i] + _nstrings[i] >= (nonemptyLines - 1)) && (_domains[i].size() <= 0.98 * _nstrings[i])) {
       res[i]._naStr=new ValueString("0");
       res[i]._type=ColType.ENUM;
       res[i]._strongGuess=true;
@@ -26,6 +27,7 @@
     }
     if (_domains[i].size() >= 0.98 * _nstrings[i]) {
       res[i]._type=ColType.STR;
+      continue;
     }
     res[i]._type=ColType.UNKNOWN;
   }
