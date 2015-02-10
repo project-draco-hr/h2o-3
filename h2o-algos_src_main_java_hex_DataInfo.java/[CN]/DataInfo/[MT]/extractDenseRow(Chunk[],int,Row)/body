@@ -1,6 +1,6 @@
 {
   if (_skipMissing)   for (  Chunk c : chunks)   if (c.isNA(rid)) {
-    row.good=false;
+    row.bad=true;
     return row;
   }
   int nbins=0;
@@ -24,10 +24,9 @@
     row.response[i]=chunks[chunks.length - _responses + i].atd(rid);
     if (_normRespMul != null)     row.response[i]=(row.response[i] - _normRespSub[i]) * _normRespMul[i];
     if (Double.isNaN(row.response[i])) {
-      row.good=false;
+      row.bad=true;
       return row;
     }
   }
-  row.good=true;
   return row;
 }
