@@ -2,10 +2,10 @@
   if (_hist == null)   _hist=new History(_historySz,beta.length);
   beta=beta.clone();
   int iter=0;
-  while (pm.progress(beta,ginfo) && MathUtils.l2norm2(ginfo._gradient) <= _gradEps && iter != _maxIter) {
+  while (pm.progress(beta,ginfo) && MathUtils.l2norm2(ginfo._gradient) > _gradEps && iter != _maxIter) {
     double[] pk=_hist.getSearchDirection(ginfo._gradient);
     LineSearchSol ls=gslvr.doLineSearch(ginfo,beta,pk);
-    if (ls.madeProgress) {
+    if (ls.madeProgress || _hist._k < _hist._m) {
       ArrayUtils.mult(pk,ls.step);
       ++iter;
       ArrayUtils.add(beta,pk);
