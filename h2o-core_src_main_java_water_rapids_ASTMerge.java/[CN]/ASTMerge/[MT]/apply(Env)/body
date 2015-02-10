@@ -4,19 +4,22 @@
   Frame r=env.popAry();
   System.out.println(r);
   System.out.println(_allLeft + " " + _allRite);
-  int len=0;
+  int ncols=0;
   for (int i=0; i < l._names.length; i++) {
     int idx=r.find(l._names[i]);
     if (idx != -1) {
-      l.swap(i,len);
-      r.swap(idx,len);
-      len++;
+      l.swap(i,ncols);
+      r.swap(idx,ncols);
+      ncols++;
     }
   }
-  if (len == 0)   throw new IllegalArgumentException("Frames must have at least one column in common to merge them");
+  if (ncols == 0)   throw new IllegalArgumentException("Frames must have at least one column in common to merge them");
   long lsize=0, rsize=0;
-  for (int i=len; i < l.numCols(); i++)   lsize+=l.vecs()[i].byteSize();
-  for (int i=len; i < r.numCols(); i++)   rsize+=r.vecs()[i].byteSize();
-  Frame repl=lsize < rsize ? l : r;
+  for (int i=ncols; i < l.numCols(); i++)   lsize+=l.vecs()[i].byteSize();
+  for (int i=ncols; i < r.numCols(); i++)   rsize+=r.vecs()[i].byteSize();
+  Frame small=lsize < rsize ? l : r;
+  Frame large=lsize < rsize ? r : l;
+  Key uniq=new MergeSet(ncols,small).doAllNodes()._uniq;
+  new DoJoin(ncols,uniq).doAll(small.numCols() - ncols,large);
   throw H2O.unimpl();
 }
