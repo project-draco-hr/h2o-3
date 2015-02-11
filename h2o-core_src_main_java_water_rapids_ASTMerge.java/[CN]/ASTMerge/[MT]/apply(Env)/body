@@ -1,9 +1,6 @@
 {
   Frame l=env.popAry();
-  System.out.println(l);
   Frame r=env.popAry();
-  System.out.println(r);
-  System.out.println(_allLeft + " " + _allRite);
   int ncols=0;
   for (int i=0; i < l._names.length; i++) {
     int idx=r.find(l._names[i]);
@@ -40,5 +37,6 @@
   String[][] domains=Arrays.copyOfRange(small.domains(),ncols,small._names.length - ncols + 1);
   Frame res=new DoJoin(ncols,uniq,enum_maps,_allLeft).doAll(small.numCols() - ncols,large).outputFrame(names,domains);
   Frame res2=large.add(res);
+  System.out.println(res2);
   env.push(new ValFrame(res2));
 }
