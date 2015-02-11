@@ -10,6 +10,10 @@
     if (idx != -1) {
       l.swap(i,ncols);
       r.swap(idx,ncols);
+      Vec lv=l.vecs()[ncols];
+      Vec rv=r.vecs()[ncols];
+      if (lv.get_type() != rv.get_type())       throw new IllegalArgumentException("Merging columns must be the same type, column " + l._names[ncols] + " found types "+ lv.get_type_str()+ " and "+ rv.get_type_str());
+      if (lv.isString())       throw new IllegalArgumentException("Cannot merge Strings; flip toEnum first");
       ncols++;
     }
   }
@@ -19,7 +23,22 @@
   for (int i=ncols; i < r.numCols(); i++)   rsize+=r.vecs()[i].byteSize();
   Frame small=lsize < rsize ? l : r;
   Frame large=lsize < rsize ? r : l;
-  Key uniq=new MergeSet(ncols,small).doAllNodes()._uniq;
-  new DoJoin(ncols,uniq).doAll(small.numCols() - ncols,large);
-  throw H2O.unimpl();
+  int[][] enum_maps=new int[ncols][];
+  int[][] id_maps=new int[ncols][];
+  for (int i=0; i < ncols; i++) {
+    Vec lv=large.vecs()[i];
+    if (lv.isEnum()) {
+      EnumWrappedVec ewv=new EnumWrappedVec(lv.domain(),small.vecs()[i].domain());
+      int[] ids=enum_maps[i]=ewv.enum_map();
+      DKV.remove(ewv._key);
+      id_maps[i]=new int[ids.length];
+      for (int j=0; j < ids.length; j++)       id_maps[i][j]=j;
+    }
+  }
+  Key uniq=new MergeSet(ncols,id_maps,small).doAllNodes()._uniq;
+  String[] names=Arrays.copyOfRange(small._names,ncols,small._names.length - ncols + 1);
+  String[][] domains=Arrays.copyOfRange(small.domains(),ncols,small._names.length - ncols + 1);
+  Frame res=new DoJoin(ncols,uniq,enum_maps,_allLeft).doAll(small.numCols() - ncols,large).outputFrame(names,domains);
+  Frame res2=large.add(res);
+  env.push(new ValFrame(res2));
 }
