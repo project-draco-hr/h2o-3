@@ -36,6 +36,9 @@
     }
   }
   Key uniq=new MergeSet(ncols,id_maps,small).doAllNodes()._uniq;
-  new DoJoin(ncols,uniq,enum_maps).doAll(small.numCols() - ncols,large);
-  throw H2O.unimpl();
+  String[] names=Arrays.copyOfRange(small._names,ncols,small._names.length - ncols + 1);
+  String[][] domains=Arrays.copyOfRange(small.domains(),ncols,small._names.length - ncols + 1);
+  Frame res=new DoJoin(ncols,uniq,enum_maps,_allLeft).doAll(small.numCols() - ncols,large).outputFrame(names,domains);
+  Frame res2=large.add(res);
+  env.push(new ValFrame(res2));
 }
