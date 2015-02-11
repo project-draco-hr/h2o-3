@@ -6,10 +6,13 @@
     if (error_count() > 0)     throw new IllegalArgumentException("Found validation errors: " + validationErrors());
     model=new GLRMModel(dest(),_parms,new GLRMModel.GLRMOutput(GLRM.this));
     model.delete_and_lock(_key);
+    double[][] yt=new double[_train.numCols()][_parms._num_pc];
+    for (int i=0; i < yt.length; i++)     Arrays.fill(yt[i],0);
     GramTask gtsk=new GramTask(_xkey,xinfo).doAll(xinfo._adaptedFrame);
     if (_parms._lambda > 0)     gtsk._gram.addDiag(_parms._lambda);
     Cholesky chol=gtsk._gram.cholesky(null);
-    MultTask mtsk=new MultTask(_xkey,xinfo,_key,dinfo).doAll(xinfo._adaptedFrame,dinfo._adaptedFrame);
+    yt=new MulTask(_dkey,dinfo).doAll(dinfo._adaptedFrame)._prod;
+    for (int i=0; i < yt.length; i++)     chol.solve(yt[i]);
   }
  catch (  Throwable t) {
     Job thisJob=DKV.getGet(_key);
