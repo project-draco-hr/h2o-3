@@ -2,5 +2,9 @@
   super.init(expensive);
   if (_train.numCols() < 2)   error("_train","_train must have more than one column");
   if (_parms._num_pc > _train.numCols())   error("_num_pc","_num_pc cannot be greater than the number of columns in _train");
-  if (_parms._lambda < 0)   error("_lambda","lambda must be a non-negative number");
+  if (_parms._gamma < 0)   error("_gamma","lambda must be a non-negative number");
+  Vec[] vecs=_train.vecs();
+  for (int i=0; i < vecs.length; i++) {
+    if (!vecs[i].isNumeric())     throw H2O.unimpl();
+  }
 }

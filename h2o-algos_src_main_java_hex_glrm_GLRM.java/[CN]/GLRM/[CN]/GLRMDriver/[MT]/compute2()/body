@@ -1,5 +1,10 @@
 {
+  Frame x;
   GLRMModel model=null;
+  DataInfo dinfo, xinfo, axinfo, ayinfo;
+  Key xkey=Key.make();
+  Key axkey=Key.make();
+  Key aykey=Key.make();
   try {
     _parms.read_lock_frames(GLRM.this);
     init(true);
@@ -8,11 +13,40 @@
     model.delete_and_lock(_key);
     double[][] yt=new double[_train.numCols()][_parms._num_pc];
     for (int i=0; i < yt.length; i++)     Arrays.fill(yt[i],0);
-    GramTask gtsk=new GramTask(_xkey,xinfo).doAll(xinfo._adaptedFrame);
-    if (_parms._lambda > 0)     gtsk._gram.addDiag(_parms._lambda);
-    Cholesky chol=gtsk._gram.cholesky(null);
-    yt=new MulTask(_dkey,dinfo).doAll(dinfo._adaptedFrame)._prod;
-    for (int i=0; i < yt.length; i++)     chol.solve(yt[i]);
+    double[][] ygram=new double[_parms._num_pc][_parms._num_pc];
+    for (int i=0; i < yt.length; i++) {
+      for (int j=0; j < yt[i].length; j++) {
+        for (int k=0; k < yt[i].length; k++)         ygram[k][j]+=yt[i][j] * yt[i][k];
+      }
+    }
+    double[] diag=new double[_parms._num_pc];
+    if (_parms._gamma > 0) {
+      for (int i=0; i < ygram.length; i++) {
+        ygram[i][i]+=_parms._gamma;
+        diag[i]=ygram[i][i];
+      }
+    }
+    Cholesky yychol=new Cholesky(ygram,diag);
+    dinfo=new DataInfo(_train._key,_train,null,0,false,DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true);
+    BMulTask mtsk=new BMulTask(self(),dinfo,_parms._num_pc,yt).doAll(_parms._num_pc,dinfo._adaptedFrame);
+    Frame ay=mtsk.outputFrame(aykey,null,null);
+    DKV.put(ay);
+    ayinfo=new DataInfo(ay._key,ay,null,0,false,DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true);
+    CholTask ctsk=new CholTask(self(),ayinfo,yychol,_parms._num_pc).doAll(_parms._num_pc,ayinfo._adaptedFrame);
+    x=ctsk.outputFrame(xkey,null,null);
+    DKV.put(x);
+    xinfo=new DataInfo(x._key,x,null,0,false,DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true);
+    GramTask xgram=new GramTask(xkey,xinfo).doAll(xinfo._adaptedFrame);
+    if (_parms._gamma > 0)     xgram._gram.addDiag(_parms._gamma);
+    Cholesky xxchol=xgram._gram.cholesky(null);
+    Vec[] vecs=new Vec[_train.numCols() + _parms._num_pc];
+    for (int i=0; i < _train.numCols(); i++)     vecs[i]=_train.vec(i);
+    for (int i=_train.numCols(); i < vecs.length; i++)     vecs[i]=x.vec(i);
+    Frame ax=new Frame(axkey,null,vecs);
+    axinfo=new DataInfo(ax._key,ax,null,0,false,DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true);
+    DKV.put(dinfo._key,dinfo);
+    yt=new SMulTask(_train.numCols(),_parms._num_pc).doAll(axinfo._adaptedFrame)._prod;
+    for (int i=0; i < yt.length; i++)     xxchol.solve(yt[i]);
   }
  catch (  Throwable t) {
     Job thisJob=DKV.getGet(_key);
