@@ -1,7 +1,7 @@
 {
 switch (pType) {
 case CSV:
-    return CsvParser.CSVguessSetup(bits,sep,ncols,singleQuotes,checkHeader,columnNames);
+    return CsvParser.guessSetup(bits,sep,ncols,singleQuotes,checkHeader,columnNames);
 case SVMLight:
   return SVMLightParser.guessSetup(bits);
 case XLS:
@@ -9,14 +9,14 @@ return XlsParser.guessSetup(bits);
 case ARFF:
 return ARFFParser.guessSetup(bits,sep,ncols,singleQuotes,checkHeader,columnNames);
 case AUTO:
-for (ParserType pType2 : guessTypeOrder) {
+for (ParserType pTypeGuess : guessFileTypeOrder) {
 try {
-ParseSetup ps=guessSetup(bits,pType2,sep,ncols,singleQuotes,checkHeader,columnNames,domains);
+ParseSetup ps=guessSetup(bits,pTypeGuess,sep,ncols,singleQuotes,checkHeader,columnNames,domains);
 if (ps != null && ps._isValid) return ps;
 }
  catch (Throwable ignore) {
 }
 }
 }
-return new ParseSetup(false,0,0,new String[]{"Cannot determine file type"},pType,sep,ncols,singleQuotes,columnNames,domains,null,checkHeader,null);
+return new ParseSetup(false,0,0,new String[]{"Cannot determine file type"},pType,sep,ncols,singleQuotes,columnNames,domains,null,checkHeader,null,FileVec.DFLT_CHUNK_SIZE);
 }

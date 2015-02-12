@@ -1,0 +1,19 @@
+{
+  long start=System.currentTimeMillis();
+  System.out.print("Loading " + hex + "...");
+  try {
+    Key keys[]=new Key[fnames.length];
+    for (int i=0; i < fnames.length; i++) {
+      File f=new File(fnames[i]);
+      if (!f.exists()) {
+        System.out.println("File " + fnames[i] + " missing, aborting test");
+        return null;
+      }
+      keys[i]=NFSFileVec.make(f)._key;
+    }
+    return ParseDataset.parse(Key.make(hex),keys);
+  }
+  finally {
+    System.out.println("loaded in " + (System.currentTimeMillis() - start) / 1000.0 + "secs");
+  }
+}

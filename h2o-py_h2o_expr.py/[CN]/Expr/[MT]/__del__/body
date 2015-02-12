@@ -1,0 +1,14 @@
+def __del__(self):
+    if (self.is_pending() or self.is_local()):
+        return
+    assert self.is_remote(), "Data wasn't remote. Hrm..."
+    global __CMD__
+    if (__CMD__ is None):
+        h2o.remove(self._data)
+    else:
+        s = ((' (del %' + self._data) + ' #0)')
+        global __TMPS__
+        if (__TMPS__ is None):
+            print 'Lost deletes: ', s
+        else:
+            __TMPS__ += s

@@ -1,0 +1,34 @@
+def __init__(self, cm, domains=None):
+    if (not cm):
+        raise ValueError('Missing data, `cm_raw` is None')
+    if (not isinstance(cm, list)):
+        raise ValueError(('`cm` is not a list. Got: ' + type(cm)))
+    nclass = len(cm)
+    class_errs = ([0] * nclass)
+    class_sums = ([0] * nclass)
+    class_err_strings = ([0] * nclass)
+    cell_values = ([([0] * (1 + nclass))] * (1 + nclass))
+    totals = [sum(c) for c in cm]
+    for i in range(nclass):
+        class_errs[i] = sum([v[i] for v in (cm[:i] + cm[(i + 1):])])
+        class_sums[i] = sum([v[i] for v in cm])
+        class_err_strings[i] = ((((' (' + str(class_errs[i])) + '/') + str(class_sums[i])) + ')')
+        class_err = (float('nan') if (class_sums[i] == 0) else round((float(class_errs[i]) / float(class_sums[i])), self.ROUND))
+        class_err_strings[i] = (str(class_err) + class_err_strings[i])
+        cell_values[i] = ([v[i] for v in cm] + [class_err_strings[i]])
+    class_errs += [sum(class_errs)]
+    totals += [sum(class_sums)]
+    class_err_strings += [((((' (' + str(class_errs[(-1)])) + '/') + str(totals[(-1)])) + ')')]
+    class_err = (float('nan') if (totals[(-1)] == 0) else round((float(class_errs[(-1)]) / float(totals[(-1)])), self.ROUND))
+    class_err_strings[(-1)] = (str(class_err) + class_err_strings[(-1)])
+    cell_values[(-1)] = (totals[0:(-1)] + [class_err_strings[(-1)]])
+    table_header = 'Confusion Matrix (Act/Pred)'
+    if domains:
+        row_header = domains
+        col_header = domains
+    else:
+        row_header = [str(i) for i in range(nclass)]
+        col_header = [str(i) for i in range(nclass)]
+    row_header += ['Totals']
+    col_header += ['Error']
+    self.table = H2OTwoDimTable(row_header, col_header, None, table_header, None, None, cell_values)

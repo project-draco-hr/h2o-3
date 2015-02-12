@@ -3,15 +3,17 @@
   final int nclass=_bldr._nclass;
   String[] domain=_bldr.vresponse().domain();
   final int oobColIdx=_bldr.idx_oobt();
-  _mb=new ModelMetrics.MetricBuilder(domain,nclass == 2 ? ModelUtils.DEFAULT_THRESHOLDS : new float[]{0.5f});
+  _mb=_bldr._model.makeMetricBuilder(domain);
   final float[] cdists=_mb._work;
   final double[] tmp=_bldr._parms._valid != null ? new double[_bldr._ncols] : null;
+  float[] val=new float[1];
   for (int row=0; row < ys._len; row++) {
     if (ys.isNA(row))     continue;
     if (_oob && chks[oobColIdx].at8(row) != 0)     continue;
     if (_bldr._parms._valid != null)     _bldr._model.score0(chks,row,tmp,cdists);
  else     _bldr.score2(chks,cdists,row);
     if (nclass > 1)     cdists[0]=ModelUtils.getPrediction(cdists,row);
-    _mb.perRow(cdists,(float)ys.atd(row));
+    val[0]=(float)ys.atd(row);
+    _mb.perRow(cdists,val,_bldr._model);
   }
 }

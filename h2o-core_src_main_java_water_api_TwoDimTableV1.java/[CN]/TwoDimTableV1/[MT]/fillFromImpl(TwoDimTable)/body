@@ -1,0 +1,32 @@
+{
+  name=t.getTableHeader();
+  final int cols=t.getColDim() + 1;
+  final int rows=t.getRowDim();
+  rowcount=rows;
+  columns=new ColumnSpecsV1[cols];
+  columns[0]=new ColumnSpecsV1();
+  columns[0].name=t.getColHeaderForRowHeaders();
+  columns[0].type="string";
+  columns[0].format="%s";
+  columns[0].description=null;
+  for (int c=1; c < cols; ++c) {
+    columns[c]=new ColumnSpecsV1();
+    columns[c].name=t.getColHeaders()[c - 1];
+    columns[c].type=t.getColTypes()[c - 1];
+    columns[c].format=t.getColFormats()[c - 1];
+    columns[c].description=null;
+  }
+  data=new String[cols][rows];
+  data[0]=new String[t.getRowDim()];
+  for (int r=0; r < t.getRowDim(); ++r) {
+    data[0][r]=t.getRowHeaders()[r];
+  }
+  String[][] cellValues=t.getCellValues();
+  for (int c=1; c < cols; ++c) {
+    data[c]=new String[rows];
+    for (int r=0; r < rows; ++r) {
+      data[c][r]=cellValues[r][c - 1];
+    }
+  }
+  return this;
+}

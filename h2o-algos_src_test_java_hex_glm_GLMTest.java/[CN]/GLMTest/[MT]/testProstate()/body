@@ -12,6 +12,7 @@
     params._ignored_columns=new String[]{"ID"};
     params._train=fr._key;
     params._lambda=new double[]{0};
+    params._standardize=false;
     job=new GLM(Key.make("prostate_model"),"glm test simple poisson",params);
     model=job.trainModel().get();
     HashMap<String,Double> coefs=model.coefficients();
@@ -22,7 +23,7 @@
     assertEquals(396.3,val.aic(),1e-1);
     score=model.score(fr);
     hex.ModelMetricsBinomial mm=hex.ModelMetricsBinomial.getFromDKV(model,fr);
-    AUCData adata=((ModelMetricsBinomial)mm)._aucdata;
+    AUCData adata=mm._aucdata;
     assertEquals(val.auc(),adata.AUC(),1e-2);
     GLMValidation val2=new GLMValidationTsk(params,model._ymu,rank(model.beta())).doAll(new Vec[]{fr.vec("CAPSULE"),score.vec("1")})._val;
     assertEquals(val.residualDeviance(),val2.residualDeviance(),1e-6);

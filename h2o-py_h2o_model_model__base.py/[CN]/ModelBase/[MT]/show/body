@@ -1,0 +1,14 @@
+def show(self):
+    '\n    Print innards of model, without regards to type\n    :return: None\n    '
+    model = self._model_json['output']
+    sub = [k for k in model.keys() if ((k in model['help'].keys()) and (not k.startswith('_')) and (k != 'help'))]
+    val = [[model[k]] for k in sub if (not isinstance(model[k], H2OTwoDimTable))]
+    lab = [(model['help'][k] + ':') for k in sub if (k != 'help')]
+    two_dim_tables = [model[k] for k in sub if isinstance(model[k], H2OTwoDimTable)]
+    for i in range(len(val)):
+        val[i].insert(0, lab[i])
+    print 
+    print 'Model Details:'
+    print 
+    for v in two_dim_tables:
+        v.show()

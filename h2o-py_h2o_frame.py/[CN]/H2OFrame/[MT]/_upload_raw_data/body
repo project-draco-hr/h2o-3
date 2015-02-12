@@ -1,0 +1,5 @@
+def _upload_raw_data(self, tmp_file_path, column_names):
+    fui = {'file': os.path.abspath(tmp_file_path), }
+    dest_key = H2OFrame.py_tmp_key()
+    H2OConnection.post_json('PostFile', fui, destination_key=dest_key)
+    self._handle_text_key(dest_key, column_names)

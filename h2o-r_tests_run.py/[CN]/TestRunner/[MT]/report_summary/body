@@ -1,4 +1,4 @@
-def report_summary(self):
+def report_summary(self, nopass):
     '\n        Report some summary information when the tests have finished running.\n\n        @return: none\n        '
     passed = 0
     nopass_but_tolerate = 0
@@ -10,11 +10,11 @@ def report_summary(self):
         if test.get_passed():
             passed += 1
         else:
-            if test.get_nopass():
+            if test.get_nopass(nopass):
                 nopass_but_tolerate += 1
             if test.get_completed():
                 failed += 1
-                if (not test.get_nopass()):
+                if (not test.get_nopass(nopass)):
                     true_fail_list.append(test.test_name)
             else:
                 notrun += 1
@@ -38,6 +38,7 @@ def report_summary(self):
     self._log(('Did not pass:         ' + str(failed)))
     self._log(('Did not complete:     ' + str(notrun)))
     self._log(('Tolerated NOPASS:     ' + str(nopass_but_tolerate)))
+    self._log(('NOPASS tests skipped: ' + str(self.nopass_counter)))
     self._log('')
     self._log(('Total time:           %.2f sec' % delta_seconds))
     if (run > 0):

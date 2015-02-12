@@ -1,0 +1,10 @@
+def _simple_bin_op(self, i, op):
+    if isinstance(i, H2OVec):
+        return H2OVec(self._name, Expr(op, self._len_check(i), i))
+    if isinstance(i, (int, float)):
+        return H2OVec(self._name, Expr(op, self, Expr(i)))
+    if isinstance(i, Expr):
+        return H2OVec(self._name, Expr(op, self, i))
+    if ((op == '==') and (i is None)):
+        return H2OVec(self._name, Expr('is.na', self._expr, None))
+    raise NotImplementedError

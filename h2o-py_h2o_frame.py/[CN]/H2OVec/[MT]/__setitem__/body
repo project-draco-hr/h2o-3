@@ -1,0 +1,8 @@
+def __setitem__(self, b, c):
+    '\n    Update-in-place of a Vec.\n    This interface currently only supports whole vector replacement.\n\n    If `c` has length 1, then it\'s assumed that `c` represents a constant vector\n    of its current value.\n\n    :param b: An H2OVec for selecting rows to update in-place.\n    :param c: The "new" values that will write over the values stipulated by `b`.\n    :return: void\n    '
+    self._len_check(c)
+    if isinstance(b, H2OVec):
+        self._len_check(b)
+        self._expr = Expr('=', Expr('[', self._expr, b), (None if (c is None) else Expr(c)))
+    else:
+        raise NotImplementedError('Only vector replacement is currently supported.')

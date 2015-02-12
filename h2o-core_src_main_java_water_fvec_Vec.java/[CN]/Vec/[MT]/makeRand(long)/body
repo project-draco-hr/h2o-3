@@ -1,0 +1,11 @@
+{
+  Vec randVec=makeZero();
+  new MRTask(){
+    @Override public void map(    Chunk c){
+      Random rng=new Random(seed * c.cidx());
+      for (int i=0; i < c._len; ++i)       c.set(i,rng.nextFloat());
+    }
+  }
+.doAll(randVec);
+  return randVec;
+}

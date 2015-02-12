@@ -2,7 +2,7 @@
   Scope.enter();
   DeepLearningModel cp=null;
   if (_parms._checkpoint == null) {
-    cp=new DeepLearningModel(dest(),_parms,new DeepLearningModel.DeepLearningOutput(DeepLearning.this),_train,_valid);
+    cp=new DeepLearningModel(dest(),_parms,new DeepLearningModel.DeepLearningModelOutput(DeepLearning.this),_train,_valid);
     cp.model_info().initializeMembers();
   }
  else {
@@ -25,7 +25,7 @@
     _parms._epochs+=previous.epoch_counter;
     Log.info("Adding " + String.format("%.3f",previous.epoch_counter) + " epochs from the checkpointed model.");
     try {
-      final DataInfo dinfo=new DataInfo(Key.make(),_train,_valid,_parms._autoencoder ? 0 : 1,_parms._autoencoder || _parms._use_all_factor_levels,_parms._autoencoder ? DataInfo.TransformType.NORMALIZE : DataInfo.TransformType.STANDARDIZE,isClassifier() ? DataInfo.TransformType.NONE : DataInfo.TransformType.STANDARDIZE);
+      final DataInfo dinfo=new DataInfo(Key.make(),_train,_valid,_parms._autoencoder ? 0 : 1,_parms._autoencoder || _parms._use_all_factor_levels,_parms._autoencoder ? DataInfo.TransformType.NORMALIZE : DataInfo.TransformType.STANDARDIZE,isClassifier() ? DataInfo.TransformType.NONE : DataInfo.TransformType.STANDARDIZE,_parms._missing_values_handling == MissingValuesHandling.Skip);
       DKV.put(dinfo._key,dinfo);
       cp=new DeepLearningModel(dest(),previous,false,dinfo);
       cp.write_lock(self());
@@ -33,7 +33,6 @@
       Object B=_parms;
       for (      Field fA : A.getClass().getDeclaredFields()) {
         if (ArrayUtils.contains(cp_modifiable,fA.getName())) {
-          if (!_parms._expert_mode && ArrayUtils.contains(cp.get_params().expert_options,fA.getName()))           continue;
           for (          Field fB : B.getClass().getDeclaredFields()) {
             if (fA.equals(fB)) {
               try {

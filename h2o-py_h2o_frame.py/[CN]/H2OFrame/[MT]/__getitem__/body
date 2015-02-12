@@ -1,0 +1,21 @@
+def __getitem__(self, i):
+    if isinstance(i, int):
+        return self._vecs[i]
+    if isinstance(i, str):
+        return self._find(i)
+    if isinstance(i, slice):
+        return H2OFrame(vecs=self._vecs[i])
+    if isinstance(i, H2OVec):
+        self._len_check(i)
+        return H2OFrame(vecs=[x.row_select(i) for x in self._vecs])
+    if isinstance(i, (list, tuple)):
+        vecs = []
+        for it in i:
+            if isinstance(it, int):
+                vecs.append(self._vecs[it])
+            elif isinstance(it, str):
+                vecs.append(self._find(it))
+            else:
+                raise NotImplementedError
+        return H2OFrame(vecs=vecs)
+    raise NotImplementedError(('Slicing by unknown type: ' + str(type(i))))

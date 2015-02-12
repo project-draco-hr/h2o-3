@@ -1,4 +1,4 @@
-def _report_test_result(self, test):
+def _report_test_result(self, test, nopass):
     port = test.get_port()
     now = time.time()
     duration = (now - test.start_seconds)
@@ -11,5 +11,5 @@ def _report_test_result(self, test):
         f = self._get_failed_filehandle_for_appending()
         f.write((test.get_test_dir_file_name() + '\n'))
         f.close()
-        if (not test.get_nopass()):
+        if (not test.get_nopass(nopass)):
             shutil.copy(test.get_output_dir_file_name(), self.failed_output_dir)

@@ -25,17 +25,22 @@
     Log.info("Total time :" + ((float)(tstop - tstart)) / 1000f);
     Log.info("Finished training the Word2Vec model.");
     model.buildModelOutput();
+    done();
   }
  catch (  Throwable t) {
-    Log.info("Word2Vec model building was cancelled.");
-    t.printStackTrace();
-    cancel2(t);
-    throw t;
+    Job thisJob=DKV.getGet(_key);
+    if (thisJob._state == JobState.CANCELLED) {
+      Log.info("Job cancelled by user.");
+    }
+ else {
+      t.printStackTrace();
+      failed(t);
+      throw t;
+    }
   }
  finally {
     if (model != null)     model.unlock(_key);
     _parms.read_unlock_frames(Word2Vec.this);
-    done();
   }
   tryComplete();
 }

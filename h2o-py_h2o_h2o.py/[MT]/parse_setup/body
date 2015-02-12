@@ -1,0 +1,8 @@
+def parse_setup(rawkey):
+    '\n  :param A collection of imported file keys\n  :return: A ParseSetup "object"\n  '
+    if isinstance(rawkey, unicode):
+        rawkey = [rawkey]
+    j = H2OConnection.post_json(url_suffix='ParseSetup', srcs=[_quoted(key) for key in rawkey])
+    if (not j['isValid']):
+        raise ValueError('ParseSetup not Valid', j)
+    return j

@@ -1,0 +1,22 @@
+def __setitem__(self, b, c):
+    "\n    Replace a column in an H2OFrame.\n    :param b: A 0-based index or a column name.\n    :param c: The vector that 'b' is replaced with.\n    :return: Returns this H2OFrame.\n    "
+    ncols = len(self._vecs)
+    if isinstance(b, str):
+        for i in xrange(ncols):
+            if (b == self._vecs[i]._name):
+                break
+        else:
+            i = ncols
+    elif isinstance(b, int):
+        if ((b < 0) or (b > self.__len__())):
+            raise ValueError(((('Index out of range: 0 <= ' + b) + ' < ') + self.__len__()))
+        i = b
+        b = self._vecs[i]._name
+    else:
+        raise NotImplementedError
+    self._len_check(c)
+    c._name = b
+    if (i >= ncols):
+        self._vecs.append(c)
+    else:
+        self._vecs[i] = c

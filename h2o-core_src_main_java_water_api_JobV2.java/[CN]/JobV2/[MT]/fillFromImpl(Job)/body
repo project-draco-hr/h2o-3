@@ -4,9 +4,12 @@
   key=new JobKeyV1(job._key);
   description=job._description;
   progress=job.progress();
+  progress_msg=job.progress_msg();
   status=job._state.toString();
   msec=(job.isStopped() ? job._end_time : System.currentTimeMillis()) - job._start_time;
-  dest=KeySchema.make(job.dest());
+  Key dest_key=job.dest();
+  Class<? extends Keyed> dest_class=ReflectionUtils.findActualClassParameter(job.getClass(),0);
+  dest=KeyV1.forKeyedClass(dest_class,dest_key);
   exception=job._exception;
   return (S)this;
 }

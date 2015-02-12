@@ -1,5 +1,5 @@
 {
-  ParseSetup setup=new ParseSetup(true,0,0,null,parse.pType,parse.sep,parse.ncols,parse.singleQuotes,parse.columnNames,parse.domains,null,parse.checkHeader,null);
+  ParseSetup setup=new ParseSetup(true,0,0,null,parse.pType,parse.sep,parse.ncols,parse.singleQuotes,parse.columnNames,parse.domains,null,parse.checkHeader,Parser.ColTypeInfo.fromStrings(parse.columnTypes),parse.chunkSize);
   Key[] srcs=new Key[parse.srcs.length];
   for (int i=0; i < parse.srcs.length; i++)   srcs[i]=parse.srcs[i].key();
   parse.job=(JobV2)Schema.schema(version,Job.class).fillFromImpl(ParseDataset.parse(parse.hex.key(),srcs,parse.delete_on_done,setup,parse.blocking));
@@ -8,11 +8,9 @@
     parse.rows=fr.numRows();
     if (parse.removeFrame) {
       Key[] keys=fr.keys();
-      parse.vecKeys=null;
       if (keys != null && keys.length > 0) {
-        VecKeyV1[] vecKeys=new VecKeyV1[keys.length];
-        for (int i=0; i < keys.length; i++)         vecKeys[i]=new VecKeyV1(keys[i]);
-        parse.vecKeys=vecKeys;
+        parse.vecKeys=new VecKeyV1[keys.length];
+        for (int i=0; i < keys.length; i++)         parse.vecKeys[i]=new VecKeyV1(keys[i]);
       }
       fr.restructure(new String[0],new Vec[0]);
       fr.delete();

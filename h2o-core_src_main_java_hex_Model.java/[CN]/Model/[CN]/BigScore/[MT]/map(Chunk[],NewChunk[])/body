@@ -1,12 +1,16 @@
 {
-  Chunk ys=chks[chks.length - 1];
   double[] tmp=new double[_output.nfeatures()];
-  _mb=new ModelMetrics.MetricBuilder(_domain,_output.nclasses() == 2 ? ModelUtils.DEFAULT_THRESHOLDS : new float[]{0.5f});
+  _mb=Model.this.makeMetricBuilder(_domain);
+  int startcol=(_mb instanceof ModelMetricsSupervised.MetricBuilderSupervised ? chks.length - 1 : 0);
   float[] preds=_mb._work;
   int len=chks[0]._len;
   for (int row=0; row < len; row++) {
     float[] p=score0(chks,row,tmp,preds);
-    _mb.perRow(preds,(float)ys.atd(row));
-    for (int c=0; c < _ncols; c++)     cpreds[c].addNum(p[c]);
+    float[] actual=new float[chks.length - startcol];
+    for (int c=startcol; c < chks.length; c++) {
+      actual[c - startcol]=(float)chks[c].atd(row);
+    }
+    _mb.perRow(preds,actual,Model.this);
+    for (int c=0; c < _npredcols; c++)     cpreds[c].addNum(p[c]);
   }
 }
