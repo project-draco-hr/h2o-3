@@ -25,9 +25,6 @@
     hex.ModelMetricsBinomial mm=hex.ModelMetricsBinomial.getFromDKV(model,fr);
     AUCData adata=mm._aucdata;
     assertEquals(val.auc(),adata.AUC(),1e-2);
-    GLMValidation val2=new GLMValidationTsk(params,model._ymu,rank(model.beta())).doAll(new Vec[]{fr.vec("CAPSULE"),score.vec("1")})._val;
-    assertEquals(val.residualDeviance(),val2.residualDeviance(),1e-6);
-    assertEquals(val.nullDeviance(),val2.nullDeviance(),1e-6);
   }
   finally {
     fr.delete();
