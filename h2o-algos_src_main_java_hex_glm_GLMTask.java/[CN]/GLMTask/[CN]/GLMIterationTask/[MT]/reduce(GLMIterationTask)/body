@@ -1,11 +1,10 @@
 {
   if (_jobKey == null || Job.isRunning(_jobKey)) {
     ArrayUtils.add(_xy,git._xy);
-    if (_computeGram)     _gram.add(git._gram);
+    _gram.add(git._gram);
     _yy+=git._yy;
     _nobs+=git._nobs;
     if (_validate)     _val.add(git._val);
-    if (_computeGradient)     ArrayUtils.add(_ginfo._gradient,git._ginfo._gradient);
     if (_validate && _glm._family == Family.binomial) {
       _newThresholds[0]=ArrayUtils.join(_newThresholds[0],git._newThresholds[0]);
       _newThresholds[1]=ArrayUtils.join(_newThresholds[1],git._newThresholds[1]);
@@ -18,6 +17,7 @@
       }
       if (_newThresholds[1].length > N_THRESHOLDS)       _newThresholds[1]=Arrays.copyOf(_newThresholds[1],N_THRESHOLDS);
     }
+    _objVal+=git._objVal;
     super.reduce(git);
   }
 }

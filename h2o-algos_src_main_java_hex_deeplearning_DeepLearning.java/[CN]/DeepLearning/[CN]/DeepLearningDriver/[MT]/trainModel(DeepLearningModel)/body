@@ -5,6 +5,7 @@
     if (model == null) {
       model=DKV.get(dest()).get();
     }
+    new ProgressUpdate("Setting up training data...").fork(_progressKey);
     model.write_lock(self());
     final DeepLearningModel.DeepLearningParameters mp=model._parms;
     Frame tra_fr=new Frame(mp.train()._key,_train.names(),_train.vecs());
@@ -12,8 +13,12 @@
     final long model_size=model.model_info().size();
     if (!_parms._quiet_mode)     Log.info("Number of model parameters (weights/biases): " + String.format("%,d",model_size));
     train=tra_fr;
-    if (mp._force_load_balance)     train=reBalance(train,mp._replicate_training_data,mp._train.toString() + "." + model._key.toString()+ ".train");
+    if (mp._force_load_balance) {
+      new ProgressUpdate("Load balancing training data...").fork(_progressKey);
+      train=reBalance(train,mp._replicate_training_data,mp._train.toString() + "." + model._key.toString()+ ".train");
+    }
     if (model._output.isClassifier() && mp._balance_classes) {
+      new ProgressUpdate("Balancing class distribution of training data...").fork(_progressKey);
       float[] trainSamplingFactors=new float[train.lastVec().domain().length];
       if (mp._class_sampling_factors != null) {
         if (mp._class_sampling_factors.length != train.lastVec().domain().length)         throw new IllegalArgumentException("class_sampling_factors must have " + train.lastVec().domain().length + " elements");
@@ -29,12 +34,17 @@
     if (val_fr != null) {
       model.validation_rows=val_fr.numRows();
       if (model._output.isClassifier() && mp._balance_classes && mp._score_validation_sampling == DeepLearningModel.DeepLearningParameters.ClassSamplingMethod.Stratified) {
+        new ProgressUpdate("Sampling validation data (stratified)...").fork(_progressKey);
         validScoreFrame=sampleFrameStratified(val_fr,val_fr.lastVec(),null,mp._score_validation_samples > 0 ? mp._score_validation_samples : val_fr.numRows(),mp._seed + 1,false,false);
       }
  else {
+        new ProgressUpdate("Sampling validation data...").fork(_progressKey);
         validScoreFrame=sampleFrame(val_fr,mp._score_validation_samples,mp._seed + 1);
       }
-      if (mp._force_load_balance)       validScoreFrame=reBalance(validScoreFrame,false,mp._valid.toString() + "." + model._key.toString()+ ".valid");
+      if (mp._force_load_balance) {
+        new ProgressUpdate("Balancing class distribution of validation data...").fork(_progressKey);
+        validScoreFrame=reBalance(validScoreFrame,false,mp._valid.toString() + "." + model._key.toString()+ ".valid");
+      }
       if (!_parms._quiet_mode)       Log.info("Number of chunks of the validation data: " + validScoreFrame.anyVec().nChunks());
     }
     model.actual_train_samples_per_iteration=computeTrainSamplesPerIteration(mp,train.numRows(),model);
@@ -44,14 +54,18 @@
     }
     model._timeLastScoreEnter=System.currentTimeMillis();
     if (!mp._quiet_mode)     Log.info("Initial model:\n" + model.model_info());
-    if (_parms._autoencoder)     model.doScoring(trainScoreFrame,validScoreFrame,self());
+    if (_parms._autoencoder) {
+      new ProgressUpdate("Scoring null model of autoencoder...").fork(_progressKey);
+      model.doScoring(trainScoreFrame,validScoreFrame,self(),null);
+    }
     model.update(self());
     Log.info("Starting to train the Deep Learning model.");
     do {
+      new ProgressUpdate("Training...").fork(_progressKey);
       model.set_model_info(mp._epochs == 0 ? model.model_info() : H2O.CLOUD.size() > 1 && mp._replicate_training_data ? (mp._single_node_mode ? new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model)).doAll(Key.make()).model_info() : new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model)).doAllNodes().model_info()) : new DeepLearningTask(self(),model.model_info(),rowFraction(train,mp,model)).doAll(train).model_info());
       update(model.actual_train_samples_per_iteration);
     }
- while (model.doScoring(trainScoreFrame,validScoreFrame,self()));
+ while (model.doScoring(trainScoreFrame,validScoreFrame,self(),_progressKey));
     if (!isCancelledOrCrashed() && _parms._override_with_best_model && model.actual_best_model_key != null && _parms._n_folds == 0) {
       DeepLearningModel best_model=DKV.getGet(model.actual_best_model_key);
       if (best_model != null && best_model.error() < model.error() && Arrays.equals(best_model.model_info().units,model.model_info().units)) {
@@ -61,7 +75,7 @@
         mi.set_processed_local(model.model_info().get_processed_local());
         model.set_model_info(mi);
         model.update(self());
-        model.doScoring(trainScoreFrame,validScoreFrame,self());
+        model.doScoring(trainScoreFrame,validScoreFrame,self(),_progressKey);
         assert(best_model.error() == model.error());
       }
     }

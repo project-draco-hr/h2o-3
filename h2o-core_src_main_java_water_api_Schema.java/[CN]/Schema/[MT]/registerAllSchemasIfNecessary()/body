@@ -2,9 +2,12 @@
   if (schemas_registered)   return;
   Reflections reflections=null;
   new Schema();
-  for (  Class<? extends Schema> schema_class : (new Reflections("water")).getSubTypesOf(Schema.class))   if (!Modifier.isAbstract(schema_class.getModifiers()))   Schema.register(schema_class);
-  for (  Class<? extends Schema> schema_class : (new Reflections("hex")).getSubTypesOf(Schema.class))   if (!Modifier.isAbstract(schema_class.getModifiers()))   Schema.register(schema_class);
-  for (  Class<? extends Schema> schema_class : (new Reflections("")).getSubTypesOf(Schema.class))   if (!Modifier.isAbstract(schema_class.getModifiers()))   Schema.register(schema_class);
+  Class<? extends Schema> clzs[]=new Class[]{Schema.class,ModelSchema.class,ModelOutputSchema.class,ModelParametersSchema.class};
+  for (  Class<? extends Schema> clz : clzs) {
+    for (    Class<? extends Schema> schema_class : (new Reflections("water")).getSubTypesOf(clz))     if (!Modifier.isAbstract(schema_class.getModifiers()))     Schema.register(schema_class);
+    for (    Class<? extends Schema> schema_class : (new Reflections("hex")).getSubTypesOf(clz))     if (!Modifier.isAbstract(schema_class.getModifiers()))     Schema.register(schema_class);
+    for (    Class<? extends Schema> schema_class : (new Reflections("")).getSubTypesOf(clz))     if (!Modifier.isAbstract(schema_class.getModifiers()))     Schema.register(schema_class);
+  }
   schemas_registered=true;
   Log.info("Registered: " + Schema.schemas().size() + " schemas.");
 }

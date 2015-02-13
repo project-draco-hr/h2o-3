@@ -33,6 +33,11 @@
     }
   }
 ;
+  int work_total=_parms._solver == Solver.L_BFGS ? dinfo.fullN() : _parms._max_iter;
+  if (_parms._lambda_search) {
+    work_total*=5;
+    _parms._max_iter*=5;
+  }
   start(cmp,WORK_TOTAL);
   H2O.submitTask(new GLMDriver(cmp,dinfo));
   return this;
