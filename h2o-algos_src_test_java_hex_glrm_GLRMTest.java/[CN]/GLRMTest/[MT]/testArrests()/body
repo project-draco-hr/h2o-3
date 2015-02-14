@@ -1,0 +1,25 @@
+{
+  GLRM job=null;
+  GLRMModel model=null;
+  Frame fr=null;
+  try {
+    Key ksrc=Key.make("arrests.hex");
+    fr=parse_test_file(ksrc,"smalldata/pca_test/USArrests.csv");
+    GLRMModel.GLRMParameters parms=new GLRMModel.GLRMParameters();
+    parms._train=fr._key;
+    parms._k=4;
+    parms._gamma=0;
+    parms._standardize=true;
+    try {
+      job=new GLRM(parms);
+      model=job.trainModel().get();
+    }
+  finally {
+      if (job != null)       job.remove();
+    }
+  }
+  finally {
+    if (fr != null)     fr.delete();
+    if (model != null)     model.delete();
+  }
+}
