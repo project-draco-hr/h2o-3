@@ -1,0 +1,16 @@
+{
+  boolean any=false;
+  for (int i=0; i < f.vecs().length; i++) {
+    if (filter(f.vecs()[i])) {
+      if (any)       msg+=", ";
+      any=true;
+      msg+=f._names[i];
+      f.remove(i);
+      i--;
+    }
+  }
+  if (any) {
+    warn("_train",msg);
+    if (expensive)     Log.info(msg);
+  }
+}
