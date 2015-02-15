@@ -3,26 +3,32 @@
   storeCount=new AtomicLong();
   deleteCount=new AtomicLong();
   loadCount=new AtomicLong();
+  if (iceRoot == null) {
+    Log.err("ice_root must be specified.  Exiting.");
+    H2O.exit(1);
+  }
   Persist ice=null;
-  URI uri=iceRoot;
-  if (uri != null) {
-    boolean windowsPath=uri.toString().matches("^[a-zA-Z]:.*");
-    if (windowsPath) {
-      ice=new PersistFS(new File(uri.toString()));
-    }
- else     if ((uri.getScheme() == null) || Schemes.FILE.equals(uri.getScheme())) {
-      ice=new PersistFS(new File(uri.getPath()));
-    }
- else     if (Schemes.HDFS.equals(uri.getScheme())) {
-      ice=new PersistHdfs(uri);
-    }
-    I[Value.ICE]=ice;
-    I[Value.NFS]=new PersistNFS();
-    try {
-      I[Value.HDFS]=new PersistHdfs();
-      I[Value.S3]=new PersistS3();
-    }
- catch (    NoClassDefFoundError e) {
-    }
+  boolean windowsPath=iceRoot.toString().matches("^[a-zA-Z]:.*");
+  if (windowsPath) {
+    ice=new PersistFS(new File(iceRoot.toString()));
+  }
+ else   if ((iceRoot.getScheme() == null) || Schemes.FILE.equals(iceRoot.getScheme())) {
+    ice=new PersistFS(new File(iceRoot.getPath()));
+  }
+ else   if (Schemes.HDFS.equals(iceRoot.getScheme())) {
+    Log.err("HDFS ice_root not yet supported.  Exiting.");
+    H2O.exit(1);
+  }
+  I[Value.ICE]=ice;
+  I[Value.NFS]=new PersistNFS();
+  try {
+    I[Value.HDFS]=new PersistHdfs();
+  }
+ catch (  NoClassDefFoundError ignore) {
+  }
+  try {
+    I[Value.S3]=new PersistS3();
+  }
+ catch (  NoClassDefFoundError ignore) {
   }
 }
