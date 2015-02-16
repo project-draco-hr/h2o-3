@@ -14,8 +14,8 @@ def __init__(self, op, left=None, rite=None, length=None):
     assert self._is_valid(), (str(self._name) + str(self._data))
     self._left = (left._expr if isinstance(left, frame.H2OVec) else left)
     self._rite = (rite._expr if isinstance(rite, frame.H2OVec) else rite)
-    assert ((self._left is None) or self._is_valid(self._left)), self.debug()
-    assert ((self._rite is None) or self._is_valid(self._rite)), self.debug()
+    assert ((self._left is None) or self._left._is_valid()), self._left.debug()
+    assert ((self._rite is None) or self._rite._is_valid()), self._rite.debug()
     if self.is_remote():
         assert (length is not None)
         self._len = length

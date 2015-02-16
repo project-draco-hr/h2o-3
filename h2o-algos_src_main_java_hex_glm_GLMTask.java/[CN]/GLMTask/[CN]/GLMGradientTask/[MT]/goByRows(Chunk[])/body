@@ -7,7 +7,8 @@
     if (row.bad)     continue;
     double eta=row.innerProduct(b);
     double mu=_params.linkInv(eta);
-    _objVal+=_params.deviance(row.response(0),mu);
+    if (_validate)     _val.add(row.response(0),eta,mu);
+    _objVal+=_params.likelihood(row.response(0),eta,mu);
     double var=_params.variance(mu);
     if (var < 1e-6)     var=1e-6;
     double gval=(mu - row.response(0)) / (var * _params.linkDeriv(mu));

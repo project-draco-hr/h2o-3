@@ -2,7 +2,11 @@
   _row=row;
   _enum_maps=enum_maps;
   long hash=0;
-  for (int i=0; i < ncols; i++)   hash+=enum_maps[i] == null ? Double.doubleToLongBits(_chks[i].atd(row)) : enum_maps[i][(int)(_chks[i].at8(row))];
+  for (int i=0; i < ncols; i++) {
+    if (_chks[i].isNA(_row))     continue;
+    long l=_chks[i].at8(_row);
+    hash+=enum_maps[i] == null ? l : enum_maps[i][(int)l];
+  }
   _hash=(int)(hash ^ (hash >> 32));
   return this;
 }

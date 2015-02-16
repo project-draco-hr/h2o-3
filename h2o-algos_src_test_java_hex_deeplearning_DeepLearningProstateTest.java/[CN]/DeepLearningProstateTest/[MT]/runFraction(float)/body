@@ -18,7 +18,7 @@
     Frame vframe=ParseDataset.parse(Key.make(),vnfs._key);
     try {
       for (      boolean replicate : new boolean[]{true,false}) {
-        for (        boolean load_balance : new boolean[]{true,false}) {
+        for (        boolean load_balance : new boolean[]{false}) {
           for (          boolean shuffle : new boolean[]{true,false}) {
             for (            boolean balance_classes : new boolean[]{true,false}) {
               for (              int resp : responses[i]) {
@@ -85,6 +85,7 @@
  finally {
                                       dl.remove();
                                     }
+                                    Log.info("Trained for " + model1.epoch_counter + " epochs.");
                                     assert(((p._train_samples_per_iteration <= 0 || p._train_samples_per_iteration >= frame.numRows()) && model1.epoch_counter > epochs) || Math.abs(model1.epoch_counter - epochs) / epochs < 0.20);
                                     if (n_folds != 0) {
                                       throw H2O.unimpl();

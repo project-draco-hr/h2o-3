@@ -1,9 +1,6 @@
 {
   Frame l=env.popAry();
-  System.out.println(l);
   Frame r=env.popAry();
-  System.out.println(r);
-  System.out.println(_allLeft + " " + _allRite);
   int ncols=0;
   for (int i=0; i < l._names.length; i++) {
     int idx=r.find(l._names[i]);
@@ -14,6 +11,7 @@
       Vec rv=r.vecs()[ncols];
       if (lv.get_type() != rv.get_type())       throw new IllegalArgumentException("Merging columns must be the same type, column " + l._names[ncols] + " found types "+ lv.get_type_str()+ " and "+ rv.get_type_str());
       if (lv.isString())       throw new IllegalArgumentException("Cannot merge Strings; flip toEnum first");
+      if (lv.isNumeric() && !lv.isInt())       throw new IllegalArgumentException("Equality tests on doubles rarely work, please round to integers only before merging");
       ncols++;
     }
   }
@@ -40,5 +38,6 @@
   String[][] domains=Arrays.copyOfRange(small.domains(),ncols,small._names.length - ncols + 1);
   Frame res=new DoJoin(ncols,uniq,enum_maps,_allLeft).doAll(small.numCols() - ncols,large).outputFrame(names,domains);
   Frame res2=large.add(res);
+  System.out.println(res2);
   env.push(new ValFrame(res2));
 }

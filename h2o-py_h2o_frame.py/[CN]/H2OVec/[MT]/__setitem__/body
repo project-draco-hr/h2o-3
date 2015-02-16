@@ -3,6 +3,6 @@ def __setitem__(self, b, c):
     self._len_check(c)
     if isinstance(b, H2OVec):
         self._len_check(b)
-        self._expr = Expr('=', Expr('[', self._expr, b), c)
+        self._expr = Expr('=', Expr('[', self._expr, b), (None if (c is None) else Expr(c)))
     else:
         raise NotImplementedError('Only vector replacement is currently supported.')

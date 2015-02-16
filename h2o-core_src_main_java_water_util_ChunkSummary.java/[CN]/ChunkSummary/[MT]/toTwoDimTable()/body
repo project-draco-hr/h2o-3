@@ -1,0 +1,23 @@
+{
+  final String tableHeader="Internal FluidVec compression/distribution summary";
+  int rows=0;
+  for (int j=0; j < chunkTypes.length; ++j)   if (chunk_counts != null && chunk_counts[j] > 0)   rows++;
+  final String[] rowHeaders=new String[rows];
+  final String[] colHeaders=new String[]{"Chunk Type","Count","Count Percentage","Size","Size Percentage"};
+  final String[] colTypes=new String[]{"string","integer","float","string","float"};
+  final String[] colFormats=new String[]{"%8s","%10d","%10.3f %%","%10s","%10.3f %%"};
+  final String colHeaderForRowHeaders="";
+  TwoDimTable table=new TwoDimTable(tableHeader,rowHeaders,colHeaders,colTypes,colFormats,colHeaderForRowHeaders);
+  int row=0;
+  for (int j=0; j < chunkTypes.length; ++j) {
+    if (chunk_counts != null && chunk_counts[j] > 0) {
+      table.set(row,0,chunkTypes[j]);
+      table.set(row,1,chunk_counts[j]);
+      table.set(row,2,(float)chunk_counts[j] / total_chunk_count * 100.);
+      table.set(row,3,display(chunk_byte_sizes[j]));
+      table.set(row,4,(float)chunk_byte_sizes[j] / total_chunk_byte_size * 100.);
+      row++;
+    }
+  }
+  return table;
+}
