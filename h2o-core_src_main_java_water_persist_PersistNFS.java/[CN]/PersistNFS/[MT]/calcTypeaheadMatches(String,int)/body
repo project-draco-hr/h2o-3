@@ -1,9 +1,9 @@
 {
   File base=null;
   String filterPrefix="";
-  if (t.limit == 0)   t.limit--;
-  if (!t.src.isEmpty()) {
-    File file=new File(t.src);
+  if (limit == 0)   limit--;
+  if (!filter.isEmpty()) {
+    File file=new File(filter);
     if (file.isDirectory()) {
       base=file;
     }
@@ -19,9 +19,8 @@
     for (    File file : files) {
       if (file.isHidden())       continue;
       if (file.getName().toLowerCase().startsWith(filterPrefix))       array.add(file.getPath());
-      if (array.size() == t.limit)       break;
+      if (array.size() == limit)       break;
     }
-    t.matches=array.toArray(new String[array.size()]);
   }
-  return t;
+  return array;
 }
