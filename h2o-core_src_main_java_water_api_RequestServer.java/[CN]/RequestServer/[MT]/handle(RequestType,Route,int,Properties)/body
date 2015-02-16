@@ -6,7 +6,8 @@ case json:
 case xml:
 {
       Class<Handler> clz=(Class<Handler>)route._handler_class;
-      Handler h=clz.newInstance();
+      HandlerFactory handlerFactory=route._handler_factory;
+      Handler h=handlerFactory.create(clz);
       return h.handle(version,route,parms);
     }
 case query:
