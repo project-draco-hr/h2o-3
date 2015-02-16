@@ -1,10 +1,9 @@
 {
   Configuration conf=PersistHdfs.CONF;
-  String filter=t.src;
   if (S3N_BARE_BUCKET.matcher(filter).matches()) {
     filter+="/";
   }
-  ArrayList<String> array=new ArrayList<>();
+  ArrayList<String> array=new ArrayList<String>();
   try {
     Path p=new Path(filter);
     Path expand=p;
@@ -15,13 +14,12 @@
       if (fp.toString().startsWith(p.toString())) {
         array.add(fp.toString());
       }
-      if (array.size() == t.limit)       break;
+      if (array.size() == limit)       break;
     }
   }
  catch (  Throwable xe) {
     xe.printStackTrace();
     Log.debug(xe);
   }
-  t.matches=array.toArray(new String[array.size()]);
-  return t;
+  return array;
 }

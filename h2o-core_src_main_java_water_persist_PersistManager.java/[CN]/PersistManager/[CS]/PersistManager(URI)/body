@@ -22,9 +22,11 @@
   I[Value.ICE]=ice;
   I[Value.NFS]=new PersistNFS();
   try {
-    I[Value.HDFS]=new PersistHdfs();
+    Class klass=Class.forName("water.persist.PersistHdfs");
+    java.lang.reflect.Constructor constructor=klass.getConstructor();
+    I[Value.HDFS]=(Persist)constructor.newInstance(iceRoot);
   }
- catch (  NoClassDefFoundError ignore) {
+ catch (  Exception ignore) {
   }
   try {
     I[Value.S3]=new PersistS3();
