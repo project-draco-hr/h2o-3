@@ -1,12 +1,10 @@
 {
-  long size=f.getLen();
-  String fname=f.getPath().toString();
-  Key k=Key.make(fname);
+  Key k=Key.make(path);
   Key k2=Vec.newKey(k);
   new Frame(k).delete_and_lock(null);
   Vec v=new HDFSFileVec(k2,size);
   DKV.put(k2,v,fs);
-  Frame fr=new Frame(k,new String[]{fname},new Vec[]{v});
+  Frame fr=new Frame(k,new String[]{path},new Vec[]{v});
   fr.update(null);
   fr.unlock(null);
   return k;
