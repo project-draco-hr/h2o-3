@@ -2,21 +2,18 @@
   if (_hist == null)   _hist=new History(_historySz,beta.length);
   beta=beta.clone();
   int iter=0;
-  _MAIN:   while (pm.progress(ginfo) && MathUtils.l2norm2(ginfo._gradient) > _gradEps && (iter != _maxIter)) {
+  while (pm.progress(beta,ginfo) && MathUtils.l2norm2(ginfo._gradient) > _gradEps && iter != _maxIter) {
     double[] pk=_hist.getSearchDirection(ginfo._gradient);
-    double[] objs=gslvr.lineSearch(beta,pk);
-    double step=gslvr.step();
-    LineSearchSol ls=doLineSearch(objs,ginfo,pk,1,step);
-    if (ls != null) {
-      ++iter;
+    LineSearchSol ls=gslvr.doLineSearch(ginfo,beta,pk);
+    if (ls.madeProgress || _hist._k < _hist._m) {
       ArrayUtils.mult(pk,ls.step);
+      ++iter;
       ArrayUtils.add(beta,pk);
       GradientInfo newGinfo=gslvr.getGradient(beta);
       _hist.update(pk,newGinfo._gradient,ginfo._gradient);
       ginfo=newGinfo;
-      continue _MAIN;
     }
-    break;
+ else     break;
   }
   Log.info("L_BFGS done after " + iter + " iterations, objval = "+ ginfo._objVal+ ", gradient norm2 = "+ MathUtils.l2norm2(ginfo._gradient));
   return new Result(iter,beta,ginfo);

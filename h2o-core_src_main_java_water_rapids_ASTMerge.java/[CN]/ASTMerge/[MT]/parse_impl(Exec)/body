@@ -1,0 +1,25 @@
+{
+  AST left=E.parse();
+  if (left instanceof ASTId)   left=Env.staticLookup((ASTId)left);
+  AST rite=E.parse();
+  if (rite instanceof ASTId)   rite=Env.staticLookup((ASTId)rite);
+  AST a=E.skipWS().parse();
+  if (a instanceof ASTId)   a=E._env.lookup((ASTId)a);
+  try {
+    _allLeft=((ASTNum)a).dbl() == 1;
+  }
+ catch (  ClassCastException e) {
+    throw new IllegalArgumentException("Argument `allLeft` expected to be a boolean.");
+  }
+  a=E.skipWS().parse();
+  if (a instanceof ASTId)   a=E._env.lookup((ASTId)a);
+  try {
+    _allRite=((ASTNum)a).dbl() == 1;
+  }
+ catch (  ClassCastException e) {
+    throw new IllegalArgumentException("Argument `allRite` expected to be a boolean.");
+  }
+  ASTMerge res=(ASTMerge)clone();
+  res._asts=new AST[]{left,rite};
+  return res;
+}

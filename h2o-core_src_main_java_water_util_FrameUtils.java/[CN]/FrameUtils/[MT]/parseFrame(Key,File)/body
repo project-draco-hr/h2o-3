@@ -1,6 +1,12 @@
 {
-  if (!file.exists())   throw new FileNotFoundException("File not found " + file);
-  if (okey == null)   okey=Key.make(file.getName());
-  NFSFileVec nfs=NFSFileVec.make(file);
-  return ParseDataset.parse(okey,nfs._key);
+  if (files == null || files.length == 0) {
+    throw new IllegalArgumentException("List of files is empty!");
+  }
+  for (  File f : files) {
+    if (!f.exists())     throw new FileNotFoundException("File not found " + f);
+  }
+  if (okey == null)   okey=Key.make(files[0].getName());
+  Key[] inKeys=new Key[files.length];
+  for (int i=0; i < files.length; i++)   inKeys[i]=NFSFileVec.make(files[i])._key;
+  return ParseDataset.parse(okey,inKeys);
 }

@@ -12,6 +12,7 @@
     params._ignored_columns=new String[]{"name"};
     params._train=parsed;
     params._lambda=new double[]{0};
+    params._alpha=new double[]{0};
     job=new GLM(modelKey,"glm test simple poisson",params);
     job.trainModel().get();
     model=DKV.get(modelKey).get();
@@ -22,9 +23,6 @@
     double[] vls2=new double[]{8.992e-03,1.818e-04,-1.125e-04,1.505e-06,-1.284e-06,4.510e-04,-7.254e-05};
     score=model.score(fr);
     GLMValidation val=model.validation();
-    GLMValidation val2=new GLMValidationTsk(params,model._ymu,rank(model.beta())).doAll(new Vec[]{fr.vec("power (hp)"),score.vec("predict")})._val;
-    assertEquals(val.residualDeviance(),val2.residualDeviance(),1e-5);
-    assertEquals(val.nullDeviance(),val2.nullDeviance(),1e-6);
     score.delete();
     model.delete();
     job.remove();
@@ -33,6 +31,7 @@
     params._ignored_columns=new String[]{"name"};
     params._train=parsed;
     params._lambda=new double[]{0};
+    params._beta_epsilon=1e-5;
     job=new GLM(modelKey,"glm test simple poisson",params);
     job.trainModel().get();
     model=DKV.get(modelKey).get();
@@ -40,9 +39,6 @@
     for (int i=0; i < cfs1.length; ++i)     assertEquals(vls2[i],coefs.get(cfs1[i]),1e-4);
     score=model.score(fr);
     val=model.validation();
-    val2=new GLMValidationTsk(params,model._ymu,rank(model.beta())).doAll(new Vec[]{fr.vec("power (hp)"),score.vec("predict")})._val;
-    assertEquals(val.residualDeviance(),val2.residualDeviance(),1e-6);
-    assertEquals(val.nullDeviance(),val2.nullDeviance(),1e-6);
     model.delete();
     job.remove();
     double[] vls3=new double[]{166.95862,-0.00531,-2.46690,0.12635,0.02159,-4.66995,-0.85724};

@@ -42,8 +42,7 @@
     for (int i=0; i < eta.length; ++i) {
       double offset=off + (_dinfo._intercept ? beta(i,_beta.length - 1) : 0);
       double mu=_params.linkInv(eta[i][r] + offset);
-      _objVals[i]+=_params.deviance(y,mu);
+      _objVals[i]+=_params.likelihood(y,eta[i][r] + offset,mu);
     }
   }
-  for (int i=0; i < _objVals.length; ++i)   _objVals[i]*=_reg;
 }

@@ -1,0 +1,9 @@
+def _handle_text_key(self, text_key, column_names):
+    '\n    Handle result of upload_file\n    :param test_key: A key pointing to raw text to be parsed\n    :return: Part of the H2OFrame constructor.\n    '
+    setup = h2o.parse_setup(text_key)
+    parse = h2o.parse(setup, H2OFrame.py_tmp_key(), first_line_is_header=1)
+    cols = (column_names if (column_names and (not parse['columnNames'])) else parse['columnNames'])
+    rows = parse['rows']
+    veckeys = parse['vecKeys']
+    self._vecs = H2OVec.new_vecs(zip(cols, veckeys), rows)
+    print 'Uploaded', text_key, 'into cluster with', rows, 'rows and', len(cols), 'cols'

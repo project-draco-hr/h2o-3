@@ -1,11 +1,14 @@
-@staticmethod
-def _parse_values(values, types):
+def _parse_values(self, values, types):
+    if (self.col_header[0] is None):
+        self.col_header = self.col_header[1:]
+        types = types[1:]
+        values = values[1:]
     for (col_index, column) in enumerate(values):
         for (row_index, row_value) in enumerate(column):
             if (types[col_index] == 'integer'):
-                values[col_index][row_index] = ('' if (not row_value) else int(float.fromhex(row_value)))
+                values[col_index][row_index] = ('' if (not row_value) else int(float(row_value)))
             elif (types[col_index] in ['double', 'float', 'long']):
-                values[col_index][row_index] = ('' if (not row_value) else float.fromhex(row_value))
+                values[col_index][row_index] = ('' if (not row_value) else float(row_value))
             else:
                 continue
     return zip(*values)

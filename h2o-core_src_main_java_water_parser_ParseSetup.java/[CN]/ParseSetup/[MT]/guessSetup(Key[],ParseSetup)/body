@@ -1,2 +1,12 @@
 {
+  GuessSetupTsk t=new GuessSetupTsk(userSetup);
+  t.doAll(fkeys).getResult();
+  Iced ice=DKV.getGet(fkeys[0]);
+  if (ice instanceof Frame && ((Frame)ice).vec(0) instanceof UploadFileVec) {
+    t._gblSetup._chunkSize=FileVec.DFLT_CHUNK_SIZE;
+  }
+ else {
+    t._gblSetup._chunkSize=FileVec.calcOptimalChunkSize(t._totalParseSize,t._gblSetup._ncols);
+  }
+  return t._gblSetup;
 }

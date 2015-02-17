@@ -9,12 +9,12 @@
     @Override public void compute2(){
     }
     @Override public void onCompletion(    CountedCompleter cc){
-      done();
       _parms.read_unlock_frames(GLM.this);
       if (_clean_enums) {
         train().lastVec().remove();
         if (valid() != null)         valid().lastVec().remove();
       }
+      done();
     }
     @Override public boolean onExceptionalCompletion(    Throwable ex,    CountedCompleter cc){
       if (!_gotException.getAndSet(true)) {
@@ -33,7 +33,8 @@
     }
   }
 ;
-  start(cmp,WORK_TOTAL);
+  if (_parms._lambda_search)   _parms._max_iter*=5;
+  start(cmp,_parms._max_iter);
   H2O.submitTask(new GLMDriver(cmp,dinfo));
   return this;
 }
