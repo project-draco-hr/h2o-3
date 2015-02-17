@@ -23,9 +23,9 @@
     path=type.requestName(uripath);
     versioned_path="/" + version + path;
   }
-  alwaysLogRequest(versioned_path,method,parms);
+  alwaysLogRequest(uri,method,parms);
   if (uri.endsWith("/Logs/download")) {
-    maybeLogRequest(method,path,versioned_path,"",parms);
+    maybeLogRequest(method,uri,"",parms);
     return downloadLogs();
   }
   try {
@@ -44,7 +44,7 @@
     }
  else {
       capturePathParms(parms,versioned_path,route);
-      maybeLogRequest(method,path,versioned_path,route._url_pattern.pattern(),parms);
+      maybeLogRequest(method,uri,route._url_pattern.pattern(),parms);
       return wrap(handle(type,route,version,parms),type);
     }
   }
