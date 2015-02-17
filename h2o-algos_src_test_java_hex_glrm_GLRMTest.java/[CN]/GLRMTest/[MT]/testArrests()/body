@@ -10,6 +10,7 @@
     parms._k=4;
     parms._gamma=0;
     parms._standardize=true;
+    parms._max_iterations=1;
     try {
       job=new GLRM(parms);
       model=job.trainModel().get();
@@ -20,6 +21,9 @@
   }
   finally {
     if (fr != null)     fr.delete();
-    if (model != null)     model.delete();
+    if (model != null) {
+      DKV.remove(model._parms._loading_key);
+      model.delete();
+    }
   }
 }
