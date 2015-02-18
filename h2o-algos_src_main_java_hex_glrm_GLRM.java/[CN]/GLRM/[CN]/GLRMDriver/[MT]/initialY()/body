@@ -12,15 +12,13 @@
   parms._standardize=_parms._standardize;
   KMeansModel km=null;
   KMeans job=null;
-  double[][] centers=null;
   try {
     job=new KMeans(parms);
     km=job.trainModel().get();
-    centers=km._output._centers_raw.clone();
   }
   finally {
     if (job != null)     job.remove();
     if (km != null)     km.remove();
   }
-  return centers;
+  return km._output._centers_raw;
 }
