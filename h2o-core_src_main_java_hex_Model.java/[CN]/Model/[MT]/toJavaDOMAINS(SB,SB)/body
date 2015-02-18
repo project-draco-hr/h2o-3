@@ -1,0 +1,17 @@
+{
+  sb.nl();
+  sb.ii(1);
+  sb.i().p("// Column domains. The last array contains domain of response column.").nl();
+  sb.i().p("public static final String[][] DOMAINS = new String[][] {").nl();
+  for (int i=0; i < _output._domains.length; i++) {
+    String[] dom=_output._domains[i];
+    String colInfoClazz="ColInfo_" + i;
+    sb.i(1).p("/* ").p(_output._names[i]).p(" */ ");
+    sb.p(colInfoClazz).p(".VALUES");
+    if (i != _output._domains.length - 1)     sb.p(',');
+    sb.nl();
+    fileContextSB.i().p("// The class representing column ").p(_output._names[i]).nl();
+    JCodeGen.toClassWithArray(fileContextSB,null,colInfoClazz,dom);
+  }
+  return sb.i().p("};").nl().di(1);
+}
