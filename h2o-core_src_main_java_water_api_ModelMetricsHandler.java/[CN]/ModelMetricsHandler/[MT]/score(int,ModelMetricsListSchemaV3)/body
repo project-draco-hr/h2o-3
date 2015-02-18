@@ -1,6 +1,7 @@
 {
   ModelMetricsList parms=s.createAndFillImpl();
-  parms._model.score(parms._frame,parms._destination_key);
+  Frame fr=parms._model.score(parms._frame,parms._destination_key);
+  DKV.remove(fr._key);
   ModelMetricsListSchemaV3 mm=this.fetch(version,s);
   if (null == mm)   mm=new ModelMetricsListSchemaV3();
   if (null == mm.model_metrics || 0 == mm.model_metrics.length) {
