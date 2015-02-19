@@ -1,9 +1,9 @@
 {
   GramTask xgram=new GramTask(self(),xinfo).doAll(xinfo._adaptedFrame);
-  if (_parms._gamma > 0)   xgram._gram.addDiag(_parms._gamma);
   Cholesky xxchol=xgram._gram.cholesky(null);
   xxchol.setSPD(true);
-  Matrix x_r=new Matrix(ArrayUtils.transpose(xxchol.getL()));
+  Matrix x_r=new Matrix(xxchol.getL()).transpose();
+  x_r=x_r.times(Math.sqrt(_train.numRows()));
   QRDecomposition yt_qr=new QRDecomposition(new Matrix(model._output._archetypes_raw));
   Matrix yt_r=yt_qr.getR();
   Matrix rrmul=x_r.times(yt_r.transpose());
@@ -26,6 +26,11 @@
     prop_var[i]=sval[i] / tot_var;
     cum_var[i]=i == 0 ? prop_var[0] : cum_var[i - 1] + prop_var[i];
   }
-  model._output._prop_variance=prop_var;
-  model._output._cum_variance=cum_var;
+  String[] colTypes=new String[_parms._k];
+  String[] colFormats=new String[_parms._k];
+  String[] colHeaders=new String[_parms._k];
+  Arrays.fill(colTypes,"double");
+  Arrays.fill(colFormats,"%5f");
+  for (int i=0; i < _parms._k; i++)   colHeaders[i]="PC" + String.valueOf(i + 1);
+  model._output._pc_importance=new TwoDimTable("Importance of components",new String[]{"Standard deviation","Proportion of Variance","Cumulative Proportion"},colHeaders,colTypes,colFormats,"",new String[3][],new double[][]{sdev,prop_var,cum_var});
 }
