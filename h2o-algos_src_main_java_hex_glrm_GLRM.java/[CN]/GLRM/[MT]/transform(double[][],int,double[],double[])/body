@@ -1,0 +1,12 @@
+{
+  int K=centers.length;
+  int N=centers[0].length;
+  double[][] value=new double[K][N];
+  double[] means=normSub == null ? MemoryManager.malloc8d(N) : normSub;
+  double[] mults=normSub == null ? MemoryManager.malloc8d(N) : normSub;
+  for (int clu=0; clu < K; clu++) {
+    System.arraycopy(centers[clu],0,value[clu],0,N);
+    for (int col=ncats; col < N; col++)     value[clu][col]=(value[clu][col] - means[col]) * mults[col];
+  }
+  return value;
+}

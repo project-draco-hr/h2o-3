@@ -12,18 +12,19 @@
   model._output._eigenvectors=eigvec.transpose().getArray();
   double[] sval=rrsvd.getSingularValues();
   double[] sdev=new double[sval.length];
+  double[] pcvar=new double[sval.length];
   double tot_var=0;
-  double dfcorr=_train.numRows() / (_train.numRows() - 1.0);
+  double dfcorr=1.0 / Math.sqrt(_train.numRows() - 1.0);
   for (int i=0; i < sval.length; i++) {
-    sval[i]=dfcorr * sval[i];
-    sdev[i]=Math.sqrt(sval[i]);
-    tot_var+=sval[i];
+    sdev[i]=dfcorr * sval[i];
+    pcvar[i]=sdev[i] * sdev[i];
+    tot_var+=pcvar[i];
   }
   model._output._std_deviation=sdev;
   double[] prop_var=new double[sval.length];
   double[] cum_var=new double[sval.length];
   for (int i=0; i < sval.length; i++) {
-    prop_var[i]=sval[i] / tot_var;
+    prop_var[i]=pcvar[i] / tot_var;
     cum_var[i]=i == 0 ? prop_var[0] : cum_var[i - 1] + prop_var[i];
   }
   String[] colTypes=new String[_parms._k];
