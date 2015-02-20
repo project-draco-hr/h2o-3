@@ -1,0 +1,13 @@
+{
+  int attempts=0;
+  double addedL2=0;
+  CholeskyDecomposition chol=new CholeskyDecomposition(new Matrix(gram));
+  while (!chol.isSPD() && attempts < max_attempts) {
+    if (addedL2 == 0)     addedL2=1e-5;
+ else     addedL2*=10;
+    ++attempts;
+    addDiag(gram,addedL2);
+    chol=new CholeskyDecomposition(new Matrix(gram));
+  }
+  return chol;
+}

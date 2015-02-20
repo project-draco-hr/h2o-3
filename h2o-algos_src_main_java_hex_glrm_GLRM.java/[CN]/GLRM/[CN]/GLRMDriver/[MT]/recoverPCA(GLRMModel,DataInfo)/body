@@ -1,7 +1,6 @@
 {
   GramTask xgram=new GramTask(self(),xinfo).doAll(xinfo._adaptedFrame);
-  Cholesky xxchol=xgram._gram.cholesky(null);
-  xxchol.setSPD(true);
+  Cholesky xxchol=regularizedCholesky(xgram._gram);
   Matrix x_r=new Matrix(xxchol.getL()).transpose();
   x_r=x_r.times(Math.sqrt(_train.numRows()));
   QRDecomposition yt_qr=new QRDecomposition(new Matrix(model._output._archetypes_raw));
