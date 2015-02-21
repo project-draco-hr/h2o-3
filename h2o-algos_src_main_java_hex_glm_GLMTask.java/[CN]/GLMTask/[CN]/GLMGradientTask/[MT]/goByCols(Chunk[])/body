@@ -18,7 +18,8 @@
     double y=responseChunk.atd(r);
     double offset=off + (_dinfo._intercept ? b[b.length - 1] : 0);
     double mu=_params.linkInv(eta[r] + offset);
-    _objVal+=_params.deviance(y,mu);
+    if (_validate)     _val.add(y,eta[r] + offset,mu);
+    _objVal+=_params.likelihood(y,eta[r],mu);
     double var=_params.variance(mu);
     if (var < 1e-6)     var=1e-6;
     eta[r]=(mu - y) / (var * _params.linkDeriv(mu));

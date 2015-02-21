@@ -12,9 +12,8 @@ def merge(self, other, allLeft=False, allRite=False):
     rkey = other.send_frame()
     tmp_key = H2OFrame.py_tmp_key()
     expr = '(= !{} (merge %{} %{} %{} %{}))'.format(tmp_key, lkey, rkey, ('TRUE' if allLeft else 'FALSE'), ('TRUE' if allRite else 'FALSE'))
-    h2o.rapids(expr)
-    h2o.remove(lkey)
-    h2o.remove(rkey)
+    expr2 = (((((('(, ' + expr) + ' (del %') + lkey) + ' #0) (del %') + rkey) + ' #0) )')
+    h2o.rapids(expr2)
     j = h2o.frame(tmp_key)
     fr = j['frames'][0]
     rows = fr['rows']

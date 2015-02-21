@@ -5,4 +5,6 @@ def _simple_bin_op(self, i, op):
         return H2OVec(self._name, Expr(op, self, Expr(i)))
     if isinstance(i, Expr):
         return H2OVec(self._name, Expr(op, self, i))
+    if ((op == '==') and (i is None)):
+        return H2OVec(self._name, Expr('is.na', self._expr, None))
     raise NotImplementedError

@@ -14,7 +14,6 @@
     params._train=fr._key;
     params._response_column=fr._names[1];
     params._lambda=new double[]{0};
-    params._higher_accuracy=true;
     params._standardize=false;
     job=new GLM(modelKey,"glm test simple poisson",params);
     job.trainModel().get();
@@ -29,8 +28,8 @@
     params2._train=fr._key;
     params2._response_column=fr._names[1];
     params2._lambda=new double[]{0};
-    params2._higher_accuracy=true;
     params2._standardize=false;
+    params2._beta_epsilon=1e-5;
     job=new GLM(modelKey,"glm test simple poisson",params2);
     model=job.trainModel().get();
     assertEquals(0.3396,model.beta()[1],1e-4);

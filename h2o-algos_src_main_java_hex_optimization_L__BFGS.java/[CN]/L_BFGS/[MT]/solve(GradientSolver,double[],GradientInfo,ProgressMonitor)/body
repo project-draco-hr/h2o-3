@@ -2,18 +2,43 @@
   if (_hist == null)   _hist=new History(_historySz,beta.length);
   beta=beta.clone();
   int iter=0;
+  boolean doLineSearch=true;
+  int ls_switch=0;
   while (pm.progress(beta,ginfo) && MathUtils.l2norm2(ginfo._gradient) > _gradEps && iter != _maxIter) {
     double[] pk=_hist.getSearchDirection(ginfo._gradient);
-    LineSearchSol ls=gslvr.doLineSearch(ginfo,beta,pk);
-    if (ls.madeProgress || _hist._k < _hist._m) {
-      ArrayUtils.mult(pk,ls.step);
-      ++iter;
-      ArrayUtils.add(beta,pk);
-      GradientInfo newGinfo=gslvr.getGradient(beta);
-      _hist.update(pk,newGinfo._gradient,ginfo._gradient);
-      ginfo=newGinfo;
+    if (doLineSearch) {
+      LineSearchSol ls=gslvr.doLineSearch(ginfo,beta,pk,gslvr._stepDec);
+      if (ls.step == 1) {
+        if (++ls_switch == 2) {
+          ls_switch=0;
+          doLineSearch=false;
+        }
+      }
+ else {
+        ls_switch=0;
+      }
+      if (ls.madeProgress || _hist._k < _hist._m) {
+        ArrayUtils.wadd(beta,pk,ls.step);
+      }
+ else       break;
     }
- else     break;
+ else     ArrayUtils.add(beta,pk);
+    GradientInfo newGinfo=gslvr.getGradient(beta);
+    if (!doLineSearch)     if (!admissibleStep(1,ginfo._objVal,newGinfo._objVal,pk,ginfo._gradient)) {
+      if (++ls_switch == 2) {
+        doLineSearch=true;
+        ls_switch=0;
+      }
+      if (ginfo._objVal < newGinfo._objVal && (newGinfo._objVal - ginfo._objVal > .001 * ginfo._objVal)) {
+        doLineSearch=true;
+        ArrayUtils.subtract(beta,pk,beta);
+        continue;
+      }
+    }
+ else     ls_switch=0;
+    ++iter;
+    _hist.update(pk,newGinfo._gradient,ginfo._gradient);
+    ginfo=newGinfo;
   }
   Log.info("L_BFGS done after " + iter + " iterations, objval = "+ ginfo._objVal+ ", gradient norm2 = "+ MathUtils.l2norm2(ginfo._gradient));
   return new Result(iter,beta,ginfo);

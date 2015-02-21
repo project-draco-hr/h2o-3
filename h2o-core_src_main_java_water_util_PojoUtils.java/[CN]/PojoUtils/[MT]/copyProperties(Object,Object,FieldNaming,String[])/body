@@ -76,19 +76,19 @@
           Value v=DKV.get((Key)orig_field.get(origin));
           dest_field.set(dest,(null == v ? null : v.get()));
         }
- else         if (KeySchema.class.isAssignableFrom(dest_field.getType()) && Keyed.class.isAssignableFrom(orig_field.getType())) {
-          dest_field.set(dest,KeySchema.make(((Class<? extends KeySchema>)dest_field.getType()),((Keyed)orig_field.get(origin))._key));
+ else         if (KeyV1.class.isAssignableFrom(dest_field.getType()) && Keyed.class.isAssignableFrom(orig_field.getType())) {
+          dest_field.set(dest,KeyV1.make(((Class<? extends KeyV1>)dest_field.getType()),((Keyed)orig_field.get(origin))._key));
         }
- else         if (KeySchema.class.isAssignableFrom(orig_field.getType()) && Keyed.class.isAssignableFrom(dest_field.getType())) {
-          KeySchema k=(KeySchema)orig_field.get(origin);
+ else         if (KeyV1.class.isAssignableFrom(orig_field.getType()) && Keyed.class.isAssignableFrom(dest_field.getType())) {
+          KeyV1 k=(KeyV1)orig_field.get(origin);
           Value v=DKV.get(Key.make(k.name));
           dest_field.set(dest,(null == v ? null : v.get()));
         }
- else         if (KeySchema.class.isAssignableFrom(dest_field.getType()) && Key.class.isAssignableFrom(orig_field.getType())) {
-          dest_field.set(dest,KeySchema.make(((Class<? extends KeySchema>)dest_field.getType()),(Key)orig_field.get(origin)));
+ else         if (KeyV1.class.isAssignableFrom(dest_field.getType()) && Key.class.isAssignableFrom(orig_field.getType())) {
+          dest_field.set(dest,KeyV1.make(((Class<? extends KeyV1>)dest_field.getType()),(Key)orig_field.get(origin)));
         }
- else         if (KeySchema.class.isAssignableFrom(orig_field.getType()) && Key.class.isAssignableFrom(dest_field.getType())) {
-          KeySchema k=(KeySchema)orig_field.get(origin);
+ else         if (KeyV1.class.isAssignableFrom(orig_field.getType()) && Key.class.isAssignableFrom(dest_field.getType())) {
+          KeyV1 k=(KeyV1)orig_field.get(origin);
           dest_field.set(dest,(null == k.name ? null : Key.make(k.name)));
         }
  else         if (dest_field.getType() == Pattern.class && String.class.isAssignableFrom(orig_field.getType())) {

@@ -1,4 +1,9 @@
 {
-  _objVal+=.5 * _currentLambda * ArrayUtils.l2norm2(_beta,_dinfo._intercept);
-  for (int j=0; j < _beta.length - (_dinfo._intercept ? 1 : 0); ++j)   _gradient[j]+=_currentLambda * _beta[j];
+  _objVal=_objVal * _reg + .5 * _currentLambda * ArrayUtils.l2norm2(_beta,_dinfo._intercept);
+  if (_validate) {
+    _val.computeAIC();
+    _val.computeAUC();
+  }
+  for (int j=0; j < _beta.length - (_dinfo._intercept ? 1 : 0); ++j)   _gradient[j]=_gradient[j] * _reg + _currentLambda * _beta[j];
+  if (_dinfo._intercept)   _gradient[_gradient.length - 1]*=_reg;
 }

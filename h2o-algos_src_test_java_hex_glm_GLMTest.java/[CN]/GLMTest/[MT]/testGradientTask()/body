@@ -19,13 +19,9 @@
     double[] beta=MemoryManager.malloc8d(dinfo.fullN() + 1);
     Random rnd=new Random(987654321);
     for (int i=0; i < beta.length; ++i)     beta[i]=1 - 2 * rnd.nextDouble();
-    GLMIterationTask glmt=new GLMTask.GLMIterationTask(null,dinfo,params,false,true,true,beta,ymu,1,ModelUtils.DEFAULT_THRESHOLDS,null).doAll(dinfo._adaptedFrame);
     GLMGradientTask grtCol=new GLMGradientTask(dinfo,params,params._lambda[0],beta,1).forceColAccess().doAll(dinfo._adaptedFrame);
     GLMGradientTask grtRow=new GLMGradientTask(dinfo,params,params._lambda[0],beta,1).forceRowAccess().doAll(dinfo._adaptedFrame);
-    for (int i=0; i < beta.length; ++i) {
-      assertEquals("gradients differ",grtRow._gradient[i],grtCol._gradient[i],1e-4);
-      assertEquals("gradients differ",glmt._ginfo._gradient[i],grtRow._gradient[i],1e-4);
-    }
+    for (int i=0; i < beta.length; ++i)     assertEquals("gradients differ",grtRow._gradient[i],grtCol._gradient[i],1e-4);
     params=new GLMParameters(Family.gaussian,Family.gaussian.defaultLink,new double[]{0},new double[]{0});
     params._use_all_factor_levels=false;
     dinfo.remove();
@@ -34,13 +30,9 @@
     beta=MemoryManager.malloc8d(dinfo.fullN() + 1);
     rnd=new Random(1987654321);
     for (int i=0; i < beta.length; ++i)     beta[i]=1 - 2 * rnd.nextDouble();
-    glmt=new GLMTask.GLMIterationTask(null,dinfo,params,false,true,true,beta,ymu,1,ModelUtils.DEFAULT_THRESHOLDS,null).doAll(dinfo._adaptedFrame);
     grtCol=new GLMGradientTask(dinfo,params,params._lambda[0],beta,1).forceColAccess().doAll(dinfo._adaptedFrame);
     grtRow=new GLMGradientTask(dinfo,params,params._lambda[0],beta,1).forceRowAccess().doAll(dinfo._adaptedFrame);
-    for (int i=0; i < beta.length; ++i) {
-      assertEquals("gradients differ: " + Arrays.toString(grtRow._gradient) + " != "+ Arrays.toString(grtCol._gradient),grtRow._gradient[i],grtCol._gradient[i],1e-4);
-      assertEquals("gradients differ: " + Arrays.toString(glmt._ginfo._gradient) + " != "+ Arrays.toString(grtRow._gradient),glmt._ginfo._gradient[i],grtRow._gradient[i],1e-4);
-    }
+    for (int i=0; i < beta.length; ++i)     assertEquals("gradients differ: " + Arrays.toString(grtRow._gradient) + " != "+ Arrays.toString(grtCol._gradient),grtRow._gradient[i],grtCol._gradient[i],1e-4);
     dinfo.remove();
     fr=parse_test_file(parsed,"smalldata/junit/cars.csv");
     params=new GLMParameters(Family.poisson,Family.poisson.defaultLink,new double[]{0},new double[]{0});
@@ -53,13 +45,9 @@
     beta=MemoryManager.malloc8d(dinfo.fullN() + 1);
     rnd=new Random(987654321);
     for (int i=0; i < beta.length; ++i)     beta[i]=1 - 2 * rnd.nextDouble();
-    glmt=new GLMTask.GLMIterationTask(null,dinfo,params,false,true,true,beta,ymu,1,ModelUtils.DEFAULT_THRESHOLDS,null).doAll(dinfo._adaptedFrame);
     grtCol=new GLMGradientTask(dinfo,params,params._lambda[0],beta,1).forceColAccess().doAll(dinfo._adaptedFrame);
     grtRow=new GLMGradientTask(dinfo,params,params._lambda[0],beta,1).forceRowAccess().doAll(dinfo._adaptedFrame);
-    for (int i=0; i < beta.length; ++i) {
-      assertEquals("gradients differ: " + Arrays.toString(grtRow._gradient) + " != "+ Arrays.toString(grtCol._gradient),grtRow._gradient[i],grtCol._gradient[i],1e-4);
-      assertEquals("gradients differ: " + Arrays.toString(glmt._ginfo._gradient) + " != "+ Arrays.toString(grtRow._gradient),glmt._ginfo._gradient[i],grtRow._gradient[i],1e-4);
-    }
+    for (int i=0; i < beta.length; ++i)     assertEquals("gradients differ: " + Arrays.toString(grtRow._gradient) + " != "+ Arrays.toString(grtCol._gradient),grtRow._gradient[i],grtCol._gradient[i],1e-4);
     dinfo.remove();
   }
   finally {
