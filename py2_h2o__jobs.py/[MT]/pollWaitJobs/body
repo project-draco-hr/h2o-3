@@ -8,39 +8,38 @@ def pollWaitJobs(pattern=None, errorIfCancelled=False, timeoutSecs=60, pollTimeo
         jobs = a['jobs']
         busy = 0
         for j in jobs:
-            cancelled = (j['cancelled'] or (j['result'].get('val', None) == 'CANCELLED'))
+            cancelled = (j['status'] == 'CANCELLED')
             description = j['description']
-            destination_key = j['destination_key']
-            end_time = j['end_time']
             key = j['key']
+            jobKey = key['name']
+            jobKeyType = key['type']
             progress = j['progress']
-            result = j['result']
+            progress_msg = j['progress_msg']
             start_time = j['start_time']
-            if (('exception' in result) and result['exception']):
+            end_time = j.get('end_time', None)
+            dest = j['dest']
+            description = j['description']
+            msec = j.get('msec', None)
+            if (('exception' in j) and j['exception']):
                 check_sandbox_for_errors()
                 msg = ("ERROR: pollWaitJobs found a job with a exception result when it shouldn't have:\n %s" % dump_json(j))
                 raise Exception(msg)
-            if result:
-                if (('val' in result) and (result['val'] == 'OK')):
-                    pass
-                else:
-                    print ('non-empty result: %s for %s' % (result, key))
             if (errorIfCancelled and cancelled):
                 check_sandbox_for_errors()
                 print ("ERROR: not stopping, but: pollWaitJobs found a cancelled job when it shouldn't have:\n %s" % dump_json(j))
                 print 'Continuing so maybe a json response will give more info'
-            elif ((end_time == '') and (not cancelled)):
+            elif (j['status'] != 'DONE'):
                 if (not pattern):
-                    print 'time:', time.strftime('%I:%M:%S'), 'progress:', progress, destination_key
+                    print 'time:', time.strftime('%I:%M:%S'), 'progress:', progress, dest
                     verboseprint('description:', description, 'end_time:', end_time)
                     busy += 1
                     verboseprint(('pollWaitJobs: found a busy job, now: %s' % busy))
-                elif ((pattern in key) or (pattern in destination_key) or (pattern in description)):
+                elif ((pattern in key) or (pattern in dest) or (pattern in description)):
                     busy += 1
                     verboseprint(('pollWaitJobs: found a pattern-matched busy job, now %s' % busy))
-                    print 'time:', time.strftime('%I:%M:%S'), 'progress:', progress, destination_key
+                    print 'time:', time.strftime('%I:%M:%S'), 'progress:', progress, dest
                 elif (key not in ignoredJobs):
-                    jobMsg = ('%s %s %s' % (key, description, destination_key))
+                    jobMsg = ('%s %s %s' % (key, description, dest))
                     verboseprint((" %s job in progress but we're ignoring it. Doesn't match pattern." % jobMsg))
                     ignoredJobs.add(key)
         if stallForNJobs:
@@ -63,6 +62,6 @@ def pollWaitJobs(pattern=None, errorIfCancelled=False, timeoutSecs=60, pollTimeo
         check_sandbox_for_errors()
     patternKeys = []
     for j in jobs:
-        if (pattern and (pattern in j['destination_key'])):
-            patternKeys.append(j['destination_key'])
+        if (pattern and (pattern in j['dest'])):
+            patternKeys.append(j['dest'])
     return patternKeys
