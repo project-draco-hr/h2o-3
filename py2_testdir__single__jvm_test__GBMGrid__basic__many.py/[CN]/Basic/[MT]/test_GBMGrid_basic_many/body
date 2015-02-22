@@ -12,17 +12,17 @@ def test_GBMGrid_basic_many(self):
     labelList = iA.labelList
     labelListUsed = list(labelList)
     numColsUsed = numCols
-    parameters = {'validation_frame': train_key, 'ignored_columns': '[ID]', 'score_each_iteration': True, 'response_column': 'CAPSULE', 'do_classification': (1 if DO_CLASSIFICATION else 0), 'ntrees': '8, 10', 'max_depth': '8, 9', 'min_rows': '1, 2', 'nbins': 40, 'learn_rate': '.1, .2', }
+    parameters = {'validation_frame': train_key, 'ignored_columns': "['ID']", 'score_each_iteration': True, 'response_column': 'CAPSULE', 'do_classification': (1 if DO_CLASSIFICATION else 0), 'ntrees': 8, 'max_depth': 8, 'min_rows': 1, 'nbins': 40, 'learn_rate': 0.1, }
     jobs = []
     start = time.time()
     totalGBMGridJobs = 0
     for i in range(5):
         modelKey = ('GBMGrid_prostate_%s', i)
-        bmResult = h2o.n0.build_model(algo='gbm', destination_key=model_key, training_frame=parse_key, parameters=parameters, timeoutSecs=60)
+        bmResult = h2o.n0.build_model(algo='gbm', destination_key=modelKey, training_frame=parse_key, parameters=parameters, timeoutSecs=60)
         bm = OutputObj(bmResult, 'bm')
         print 'GBMResult:', h2o.dump_json(bm)
-        job_key = bm.job_key
-        model_key = bm.destination_key
+        job_key = bm.jobs[0].key.name
+        model_key = bm.jobs[0].dest.name
         jobs.append((job_key, model_key))
         totalGBMGridJobs += 1
     h2o_jobs.pollWaitJobs(timeoutSecs=300)
