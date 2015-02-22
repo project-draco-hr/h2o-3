@@ -4,7 +4,7 @@ def parse(self, key, hex_key=None, timeoutSecs=300, retryDelaySecs=0.2, initialD
     if (not isinstance(key, basestring)):
         if (not key):
             raise Exception(('key seems to be bad in parse. Should be list or string. %s' % key))
-        srcs = (("['" + ','.join(key)) + "']")
+        srcs = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), key))) + ']')
     else:
         srcs = (("['" + key) + "']")
     params_dict['srcs'] = srcs
