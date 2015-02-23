@@ -7,7 +7,15 @@ def test_parse_covtype(self):
         import_result = a_node.import_files(path=csvPathname)
         k = import_result['keys'][0]
         frames_result = a_node.frames(key=k, len=5, timeoutSecs=timeoutSecs)
-        parse_result = a_node.parse(key=k, timeoutSecs=timeoutSecs)
+        parse_result = a_node.parse(key=k, timeoutSecs=timeoutSecs, chunkSize=(4194304 * 4))
+        iA = h2o_cmd.InspectObj(pA.parse_key, expectedNumRows=rowCount, expectedNumCols=colCount, expectedMissinglist=[])
+        print iA.missingList, iA.labelList, iA.numRows, iA.numCols
+        for i in range(55):
+            print 'Summary on column', i
+            co = h2o_cmd.runSummary(key=hex_key, column=i)
+            coList = [co.base, len(co.bins), len(co.data), co.domain, co.label, co.maxs, co.mean, co.mins, co.missing, co.ninfs, co.pctiles, co.pinfs, co.precision, co.sigma, co.str_data, co.stride, co.type, co.zeros]
+            for (k, v) in co:
+                print k, v
         k = parse_result['frames'][0]['key']['name']
         frames_result = a_node.frames(key=k, len=5)
         parseKeyIndexedCheck(frames_result, multiplyExpected)
