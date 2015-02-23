@@ -1,6 +1,6 @@
 {
+  Scope.enter();
   try {
-    Scope.enter();
     File file=find_test_file("bigdata/laptop/mnist/train.csv.gz");
     if (file != null) {
       NFSFileVec trainfv=NFSFileVec.make(file);
@@ -17,6 +17,7 @@
       p._adaptive_rate=false;
       p._replicate_training_data=false;
       p._shuffle_training_data=false;
+      p._override_with_best_model=false;
       p._score_interval=20;
       p._score_training_samples=10;
       DeepLearning dl=new DeepLearning(p);
@@ -38,7 +39,6 @@
           model.delete_best_model();
           model.delete();
         }
-        Scope.exit();
       }
     }
  else {
@@ -48,5 +48,8 @@
  catch (  Throwable t) {
     t.printStackTrace();
     throw new RuntimeException(t);
+  }
+ finally {
+    Scope.exit();
   }
 }
