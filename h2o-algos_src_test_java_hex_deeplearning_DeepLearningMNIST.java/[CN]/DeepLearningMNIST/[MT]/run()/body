@@ -23,6 +23,9 @@
       DeepLearningModel model=null;
       try {
         model=dl.trainModel().get();
+        if (model != null) {
+          Assert.assertTrue(1000. * model.model_info().get_processed_total() / model.run_time > 20);
+        }
       }
  catch (      Throwable t) {
         t.printStackTrace();
@@ -31,7 +34,6 @@
  finally {
         dl.remove();
         if (model != null) {
-          Assert.assertTrue(1000. * model.model_info().get_processed_total() / model.run_time > 50);
           model.delete_xval_models();
           model.delete_best_model();
           model.delete();
