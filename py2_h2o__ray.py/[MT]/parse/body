@@ -1,6 +1,6 @@
-def parse(self, key, hex_key=None, timeoutSecs=300, retryDelaySecs=0.2, initialDelaySecs=None, pollTimeoutSecs=180, noise=None, benchmarkLogging=None, noPoll=False, intermediateResults=False, **kwargs):
+def parse(self, key, hex_key=None, columnTypeDict=None, timeoutSecs=300, retryDelaySecs=0.2, initialDelaySecs=None, pollTimeoutSecs=180, noise=None, benchmarkLogging=None, noPoll=False, intermediateResults=False, **kwargs):
     '\n    Parse an imported raw file or files into a Frame.\n    '
-    params_dict = {'srcs': None, 'hex': hex_key, 'pType': None, 'sep': None, 'ncols': None, 'checkHeader': None, 'singleQuotes': None, 'columnNames': None, 'chunkSize': None, 'delete_on_done': None, 'blocking': None, }
+    params_dict = {'srcs': None, 'hex': hex_key, 'pType': None, 'sep': None, 'ncols': None, 'checkHeader': None, 'singleQuotes': None, 'columnNames': None, 'columnTypes': None, 'chunkSize': None, 'delete_on_done': None, 'blocking': None, }
     if (not isinstance(key, basestring)):
         if (not key):
             raise Exception(('key seems to be bad in parse. Should be list or string. %s' % key))
@@ -13,21 +13,25 @@ def parse(self, key, hex_key=None, timeoutSecs=300, retryDelaySecs=0.2, initialD
     setup_result = self.do_json_request(jsonRequest='2/ParseSetup.json', cmd='post', timeout=timeoutSecs, postData=params_setup)
     h2o_sandbox.check_sandbox_for_errors()
     verboseprint('ParseSetup result:', dump_json(setup_result))
+    if setup_result['srcs']:
+        srcsStr = (('[' + ','.join([("'%s'" % src['name']) for src in setup_result['srcs']])) + ']')
+    else:
+        srcsStr = None
+    if setup_result['columnNames']:
+        columnNamesStr = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), setup_result['columnNames']))) + ']')
+    else:
+        columnNamesStr = None
     columnTypes = setup_result['columnTypes']
     assert (columnTypes is not None), ('%s %s' % ('columnTypes:', columnTypes))
-    if setup_result['srcs']:
-        setupSrcs = (('[' + ','.join([src['name'] for src in setup_result['srcs']])) + ']')
-    else:
-        setupSrcs = None
-    if setup_result['columnNames']:
-        asciiColumnNames = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), setup_result['columnNames']))) + ']')
-    else:
-        asciiColumnNames = None
-    if setup_result['columnTypes']:
-        asciiColumnTypes = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), setup_result['columnTypes']))) + ']')
-    else:
-        asciiColumnTypes = None
-    parse_params = {'srcs': setupSrcs, 'hex': setup_result['hexName'], 'pType': setup_result['pType'], 'sep': setup_result['sep'], 'ncols': setup_result['ncols'], 'checkHeader': setup_result['checkHeader'], 'singleQuotes': setup_result['singleQuotes'], 'columnNames': asciiColumnNames, 'columnTypes': asciiColumnTypes, 'chunkSize': setup_result['chunkSize'], 'delete_on_done': params_dict['delete_on_done'], 'blocking': params_dict['blocking'], }
+    ct = setup_result['columnTypes']
+    if columnTypeDict:
+        for (k, v) in columnTypeDict.iteritems():
+            if ((k >= 0) and (k < len(ct))):
+                ct[k] = v
+            else:
+                raise Exception(('bad col index %s in columnTypeDict param %s' % (k, columnTypeDict)))
+    columnTypesStr = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), ct))) + ']')
+    parse_params = {'srcs': srcsStr, 'hex': setup_result['hexName'], 'pType': setup_result['pType'], 'sep': setup_result['sep'], 'ncols': setup_result['ncols'], 'checkHeader': setup_result['checkHeader'], 'singleQuotes': setup_result['singleQuotes'], 'columnNames': columnNamesStr, 'columnTypes': columnTypesStr, 'chunkSize': setup_result['chunkSize'], 'delete_on_done': params_dict['delete_on_done'], 'blocking': params_dict['blocking'], }
     tooManyColNamesToPrint = (setup_result['columnNames'] and (len(setup_result['columnNames']) > 2000))
     if tooManyColNamesToPrint:
         h2p.yellow_print('Not printing the parameters to Parse because the columnNames are too lengthy.')
