@@ -78,13 +78,15 @@ def __do_json_request(self, jsonRequest=None, fullUrl=None, timeout=10, params=N
             log_rest('r is None')
         else:
             log_rest(('HTTP status code: ' + str(r.status_code)))
-            if hasattr(r, 'text'):
-                if (r.text is None):
-                    log_rest('r.text is None')
+            log_text = False
+            if log_text:
+                if hasattr(r, 'text'):
+                    if (r.text is None):
+                        log_rest('r.text is None')
+                    else:
+                        log_rest(r.text)
                 else:
-                    log_rest(r.text)
-            else:
-                log_rest('r does not have attr text')
+                    log_rest('r does not have attr text')
     except Exception as e:
         print 'Caught exception from result logging: ', e, '; result: ', repr(r)
     if (raiseIfNon200 and (not r)):
