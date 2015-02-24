@@ -1,0 +1,23 @@
+def test_GLM2_hastie_shuffle(self):
+    csvFilename = '1mx10_hastie_10_2.data.gz'
+    bucket = 'home-0xdiag-datasets'
+    csvPathname = (('standard' + '/') + csvFilename)
+    fullPathname = h2i.find_folder_and_filename(bucket, csvPathname, returnFullPath=True)
+    glm_doit(self, csvFilename, bucket, csvPathname, timeoutSecs=30)
+    filename1x = 'hastie_1x.data'
+    pathname1x = ((SYNDATASETS_DIR + '/') + filename1x)
+    h2o_util.file_gunzip(fullPathname, pathname1x)
+    filename1xShuf = 'hastie_1x.data_shuf'
+    pathname1xShuf = ((SYNDATASETS_DIR + '/') + filename1xShuf)
+    h2o_util.file_shuffle(pathname1x, pathname1xShuf)
+    filename2x = 'hastie_2x.data'
+    pathname2x = ((SYNDATASETS_DIR + '/') + filename2x)
+    h2o_util.file_cat(pathname1xShuf, pathname1xShuf, pathname2x)
+    filename2xShuf = 'hastie_2x.data_shuf'
+    pathname2xShuf = ((SYNDATASETS_DIR + '/') + filename2xShuf)
+    h2o_util.file_shuffle(pathname2x, pathname2xShuf)
+    glm_doit(self, filename2xShuf, None, pathname2xShuf, timeoutSecs=45)
+    filename4x = 'hastie_4x.data'
+    pathname4x = ((SYNDATASETS_DIR + '/') + filename4x)
+    h2o_util.file_cat(pathname2xShuf, pathname2xShuf, pathname4x)
+    glm_doit(self, filename4x, None, pathname4x, timeoutSecs=120)
