@@ -1,5 +1,6 @@
 {
   if (_parms._loss == GBMModel.GBMParameters.Family.AUTO) {
+    _parms._convert_to_enum=false;
     if (null != _response && _response.isInt()) {
       long[] domain=new Vec.CollectDomain().doAll(_response).domain();
       if (domain.length == 2) {
@@ -12,19 +13,17 @@
     _parms._convert_to_enum=true;
     super.init(true);
     if (_parms._loss == GBMModel.GBMParameters.Family.bernoulli) {
-      if (_nclass != 2) {
-        error("_loss","Bernoulli requires the response to be a 2-class categorical");
+      if (_nclass != 2)       error("_loss","Bernoulli requires the response to be a 2-class categorical");
+ else       if (_response != null) {
+        double mean=_response.mean();
+        _initialPrediction=Math.log(mean / (1.0f - mean));
       }
-      double mean=_response.mean();
-      _initialPrediction=Math.log(mean / (1.0f - mean));
     }
   }
  else   if (_parms._loss == GBMModel.GBMParameters.Family.gaussian) {
     _parms._convert_to_enum=false;
     super.init(expensive);
-    if (_nclass != 1) {
-      error("_loss","Gaussian requires the response to be numeric");
-    }
+    if (_nclass != 1)     error("_loss","Gaussian requires the response to be numeric");
   }
  else {
     error("_loss","Loss must be specified");

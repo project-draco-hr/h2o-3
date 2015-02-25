@@ -52,18 +52,19 @@
       Log.warn("Enabling training data shuffling, because all nodes train on the full dataset (replicated training data).");
       mp._shuffle_training_data=true;
     }
-    model._timeLastScoreEnter=System.currentTimeMillis();
-    if (!mp._quiet_mode)     Log.info("Initial model:\n" + model.model_info());
+    if (!mp._quiet_mode && mp._diagnostics)     Log.info("Initial model:\n" + model.model_info());
     if (_parms._autoencoder) {
       new ProgressUpdate("Scoring null model of autoencoder...").fork(_progressKey);
       model.doScoring(trainScoreFrame,validScoreFrame,self(),null);
     }
     model.update(self());
+    model._timeLastScoreEnter=System.currentTimeMillis();
     Log.info("Starting to train the Deep Learning model.");
     do {
       final String speed=(model.run_time != 0 ? (" at " + model.model_info().get_processed_total() * 1000 / model.run_time + " samples/s...") : "...");
       final String etl=model.run_time == 0 ? "" : " Estimated time left: " + PrettyPrint.msecs((long)(model.run_time * (1. - progress()) / progress()),true);
       new ProgressUpdate("Training" + speed + etl).fork(_progressKey);
+      if (!_parms._quiet_mode)       Log.info("Training (MapReduce step)...");
       model.set_model_info(mp._epochs == 0 ? model.model_info() : H2O.CLOUD.size() > 1 && mp._replicate_training_data ? (mp._single_node_mode ? new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model)).doAll(Key.make()).model_info() : new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model)).doAllNodes().model_info()) : new DeepLearningTask(self(),model.model_info(),rowFraction(train,mp,model)).doAll(train).model_info());
       update(model.actual_train_samples_per_iteration);
     }
