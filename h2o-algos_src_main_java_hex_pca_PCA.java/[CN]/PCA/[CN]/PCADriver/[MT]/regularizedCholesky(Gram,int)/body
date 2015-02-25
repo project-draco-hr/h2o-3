@@ -1,0 +1,14 @@
+{
+  int attempts=0;
+  double addedL2=0;
+  Cholesky chol=gram.cholesky(null);
+  while (!chol.isSPD() && attempts < max_attempts) {
+    if (addedL2 == 0)     addedL2=1e-5;
+ else     addedL2*=10;
+    ++attempts;
+    gram.addDiag(addedL2);
+    gram.cholesky(chol);
+  }
+  if (!chol.isSPD())   throw new NonSPDMatrixException(gram);
+  return chol;
+}
