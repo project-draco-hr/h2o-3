@@ -24,11 +24,21 @@
     versioned_path="/" + version + path;
   }
   alwaysLogRequest(uri,method,parms);
-  if (uri.endsWith("/Logs/download")) {
-    maybeLogRequest(method,uri,"",parms);
-    return downloadLogs();
-  }
   try {
+    if (method.equals("GET") && uri.endsWith("/Logs/download")) {
+      maybeLogRequest(method,uri,"",parms);
+      return downloadLogs();
+    }
+    if (method.equals("GET")) {
+      Pattern p2=Pattern.compile(".*/NodePersistentStorage.bin/([^/]+)/([^/]+)");
+      Matcher m2=p2.matcher(uri);
+      boolean b2=m2.matches();
+      if (b2) {
+        String categoryName=m2.group(1);
+        String keyName=m2.group(2);
+        return downloadNps(categoryName,keyName);
+      }
+    }
     Route route=lookup(method,versioned_path);
     if (route == null) {
       if (method.equals("GET")) {
