@@ -1,0 +1,15 @@
+def write_syn_dataset(csvPathname, rowCount, colCount, zero, SEED):
+    r1 = random.Random(SEED)
+    dsf = open(csvPathname, 'w+')
+    for i in range(rowCount):
+        rowDataStr = []
+        for j in range(colCount):
+            ri1 = int(r1.triangular(0, 2, 0.75))
+            if (ri1 == 1):
+                ri1 = 'NA'
+            else:
+                ri1 = zero
+            rowDataStr.append(ri1)
+        rowDataCsv = ','.join(rowDataStr)
+        dsf.write((rowDataCsv + '\n'))
+    dsf.close()

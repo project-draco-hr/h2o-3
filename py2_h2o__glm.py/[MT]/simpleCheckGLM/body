@@ -1,17 +1,29 @@
 def simpleCheckGLM(self, model, parameters, labelList, labelListUsed, allowFailWarning=False, allowZeroCoeff=False, prettyPrint=False, noPrint=False, maxExpectedIterations=None, doNormalized=False):
     warnings = ''
-    intercept = model.global_beta[(-1)]
-    interceptName = model.coefficient_names[(-1)]
-    coeffs = model.global_beta[:(-1)]
-    coeffs_names = model.coefficient_names[:(-1)]
-    assert (len(coeffs) == (len(model.coefficient_names) - 1))
-    assert (len(coeffs) == len(labelListUsed)), ('%s %s' % (coeffs, labelListUsed))
-    assert (len(model.names) == (len(labelListUsed) + 1)), ('%s %s' % (model.names, labelList))
-    assert (model.threshold != 0)
+    rank = model.rank
+    binomial = model.binomial
+    residual_deviance = model.residual_deviance
+    threshold = model.threshold
+    auc = model.auc
+    best_lambda_idx = model.best_lambda_idx
+    model_category = model.model_category
+    name = model.name
+    residual_degrees_of_freedom = model.residual_degrees_of_freedom
+    coefficients_magnitude = model.coefficients_magnitude
+    null_deviance = model.null_deviance
+    null_degrees_of_freedom = model.null_degrees_of_freedom
+    domains = model.domains
+    aic = model.aic
+    names = model.names
+    coeffs_names = model.coefficients_table.data[0]
+    coeffs = map(float, model.coefficients_table.data[1])
+    intercept = coeffs[(-1)]
+    interceptName = coeffs_names[(-1)]
+    assert (len(coeffs) == len(coeffs_names)), ('%s %s' % (len(coeffs), len(coeffs_names)))
     print 'len(coeffs)', len(coeffs)
     print 'coeffs:', coeffs
     if ((interceptName != 'Intercept') or (abs(intercept) < 1e-26)):
-        raise Exception(("'Intercept' should be last in coefficient_names and global_beta %s %s" % (interceptName, intercept)))
+        raise Exception(("'Intercept' should be last in coeffs_names %s %s" % (interceptName, intercept)))
     y = parameters['response_column']
     cString = '\n'
     for (i, c) in enumerate(coeffs_names):

@@ -12,7 +12,9 @@ def __init__(self, kmeansResult, parameters, numRows, numCols, labels, noPrint=F
     domains = self.domains
     names = self.names
     categorical_column_count = self.categorical_column_count
-    centers = self.centers
+    centers_data = self.centers.data
+    centersStr = [list(x) for x in zip(*centers_data[1:])]
+    centers = [map(float, c) for c in centersStr]
     within_mse = self.within_mse
     avg_ss = self.avg_ss
     if numRows:
@@ -22,7 +24,7 @@ def __init__(self, kmeansResult, parameters, numRows, numCols, labels, noPrint=F
         assert (len(centers) == k)
         assert (len(size) == k)
     if numCols:
-        assert (len(names) == numCols), ('Need to pass correct numCols after ignored columns decrement %s %s' % (len(names), numCols))
+        assert (len(names) == numCols), ('Need to pass correct numCols after ignored columns decrement %s %s %s' % (len(names), numCols, names))
         for c in centers:
             assert (len(c) == numCols), ('%s %s' % (len(c), numCols))
     if labels:

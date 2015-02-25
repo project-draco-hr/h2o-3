@@ -18,7 +18,7 @@
     Frame vframe=ParseDataset.parse(Key.make(),vnfs._key);
     try {
       for (      boolean replicate : new boolean[]{true,false}) {
-        for (        boolean load_balance : new boolean[]{false}) {
+        for (        boolean load_balance : new boolean[]{true,false}) {
           for (          boolean shuffle : new boolean[]{true,false}) {
             for (            boolean balance_classes : new boolean[]{true,false}) {
               for (              int resp : responses[i]) {
@@ -121,8 +121,8 @@
                                   }
                                   model2=DKV.get(dest).get();
                                   if (model2.actual_best_model_key != null) {
-                                    final DeepLearningModel best_model=DKV.get(model2.actual_best_model_key).get();
                                     if (override_with_best_model) {
+                                      final DeepLearningModel best_model=DKV.get(model2.actual_best_model_key).get();
                                       Assert.assertEquals(best_model.error(),model2.error(),0);
                                     }
                                   }

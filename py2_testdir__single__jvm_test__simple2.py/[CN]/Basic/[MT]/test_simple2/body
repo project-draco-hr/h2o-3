@@ -1,5 +1,5 @@
 def test_simple2(self):
-    csvPathname = find_file('bigdata/laptop/poker-hand-testing.data')
+    csvPathname = find_file('smalldata/logreg/prostate.csv')
     import_result = h2o.n0.import_files(path=csvPathname)
     k = import_result['keys'][0]
     frames_result = h2o.n0.frames(key=k)
@@ -20,8 +20,8 @@ def test_simple2(self):
     parse_result = h2o.n0.parse(key=k, intermediateResults=DO_INTERMEDIATE_RESULTS)
     frame = parse_result['frames'][0]
     hex_key = frame['key']['name']
-    colCount = 11
-    rowCount = 1000000
+    colCount = 9
+    rowCount = 380
     start = time.time()
     inspect = h2o_cmd.runInspect(None, hex_key)
     print 'Inspect:', hex_key, 'took', (time.time() - start), 'seconds'

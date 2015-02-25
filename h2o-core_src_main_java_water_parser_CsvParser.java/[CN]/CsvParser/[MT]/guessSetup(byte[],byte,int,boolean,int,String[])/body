@@ -77,12 +77,13 @@
   ParseSetup resSetup=new ParseSetup(true,ilines,labels != null ? 1 : 0,err,ParserType.CSV,sep,ncols,singleQuotes,labels,null,data,checkHeader,null);
   InputStream is=new ByteArrayInputStream(bits);
   CsvParser p=new CsvParser(resSetup);
-  TypeGuesserDataOut dout=new TypeGuesserDataOut(resSetup._ncols);
+  InspectDataOut dout=new InspectDataOut(resSetup._ncols);
   try {
     p.streamParse(is,dout);
     resSetup._ctypes=dout.guessTypes();
   }
  catch (  Throwable e) {
+    throw new RuntimeException(e);
   }
   return resSetup;
 }
