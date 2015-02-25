@@ -1,7 +1,7 @@
 def test_summary2_exp(self):
     SYNDATASETS_DIR = h2o.make_syn_dir()
     LAMBD = random.uniform(0.005, 0.5)
-    tryList = [(5, 1, 'x.hex', 1, 20000, ['C1', None, None, None, None, None])]
+    tryList = [(5, 1, 'x.hex', 1, 20000, ['C1', None, None, None, None, None]), (10, 1, 'x.hex', 1, 20000, ['C1', None, None, None, None, None]), (100, 1, 'x.hex', 1, 20000, ['C1', None, None, None, None, None]), (1000, 1, 'x.hex', (-5000), 0, ['C1', None, None, None, None, None]), (10000, 1, 'x.hex', (-100000), 100000, ['C1', None, None, None, None, None]), (100000, 1, 'x.hex', (-1), 1, ['C1', None, None, None, None, None]), (1000000, 1, 'A.hex', 1, 100, ['C1', None, None, None, None, None])]
     timeoutSecs = 10
     trial = 1
     n = h2o.nodes[0]
@@ -37,4 +37,4 @@ def test_summary2_exp(self):
         scipyCol = 0
         print 'maxErr', maxErr
         if ((co.label != '') and expected[scipyCol]):
-            h2o_summ.quantile_comparisons(csvPathnameFull, skipHeader=False, col=scipyCol, datatype='float', quantile=(0.5 if DO_MEDIAN else 0.999), h2oSummary2=co.pctiles[(5 if DO_MEDIAN else 10)], h2oSummary2MaxErr=maxErr)
+            h2o_summ.quantile_comparisons(csvPathnameFull, skipHeader=False, col=scipyCol, datatype='float', quantile=(0.5 if DO_MEDIAN else 0.99), h2oSummary2=co.pctiles[(4 if DO_MEDIAN else 9)], h2oSummary2MaxErr=maxErr)
