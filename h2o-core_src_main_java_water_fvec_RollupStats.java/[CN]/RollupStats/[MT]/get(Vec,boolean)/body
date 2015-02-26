@@ -2,8 +2,14 @@
   final Key rskey=vec.rollupStatsKey();
   RollupStats rs=DKV.getGet(rskey);
   while (rs == null || (!rs.isReady() || (computeHisto && !rs.hasHisto()))) {
-    if (rs != null && rs.isMutating())     throw new IllegalArgumentException("Can not compute rollup stats while vec is being modified.");
-    RPC.call(rskey.home_node(),new ComputeRollupsTask(vec,computeHisto)).get();
+    if (rs != null && rs.isMutating())     throw new IllegalArgumentException("Can not compute rollup stats while vec is being modified. (1)");
+    try {
+      RPC.call(rskey.home_node(),new ComputeRollupsTask(vec,computeHisto)).get();
+    }
+ catch (    Throwable t) {
+      System.err.println("Remote rollups failed with an exception, wrapping and rethrowing: " + t);
+      throw new RuntimeException(t);
+    }
     rs=DKV.getGet(rskey);
   }
   return rs;

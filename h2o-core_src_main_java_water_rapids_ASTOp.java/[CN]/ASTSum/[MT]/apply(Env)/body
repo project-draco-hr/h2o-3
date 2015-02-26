@@ -1,0 +1,11 @@
+{
+  double sum=_init;
+  int argcnt=_argcnt;
+  for (int i=0; i < argcnt; i++)   if (env.isNum())   sum=op(sum,env.popDbl());
+ else {
+    Frame fr=env.popAry();
+    for (    Vec v : fr.vecs())     if (v.isEnum() || v.isUUID() || v.isString())     throw new IllegalArgumentException("`" + opStr() + "`"+ " only defined on a data frame with all numeric variables");
+    sum+=_narm ? new NaRmRedSum().doAll(fr)._d : new RedSum().doAll(fr)._d;
+  }
+  env.push(new ValNum(sum));
+}
