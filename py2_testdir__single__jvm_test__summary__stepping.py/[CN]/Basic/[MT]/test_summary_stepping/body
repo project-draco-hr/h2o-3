@@ -1,0 +1,38 @@
+def test_summary_stepping(self):
+    SYNDATASETS_DIR = h2o.make_syn_dir()
+    tryList = [(5, 1, 'x.hex', 1, 20000, ['C1', None, None, None, None, None]), (5, 1, 'x.hex', 1, 20000, ['C1', None, None, None, None, None]), (5, 1, 'x.hex', 1, 20000, ['C1', None, None, None, None, None]), (5, 1, 'x.hex', (-5000), 0, ['C1', None, None, None, None, None]), (5, 1, 'x.hex', 4900, 5000, ['C1', None, None, None, None, None]), (5, 1, 'x.hex', (-5000), (-4900), ['C1', None, None, None, None, None]), (5, 1, 'x.hex', (-100000), 100000, ['C1', None, None, None, None, None]), (5, 1, 'x.hex', (-1), 1, ['C1', None, None, None, None, None]), (5, 1, 'x.hex', 1, 100, ['C1', None, None, None, None, None])]
+    timeoutSecs = 10
+    trial = 1
+    n = h2o.nodes[0]
+    lenNodes = len(h2o.nodes)
+    x = 0
+    timeoutSecs = 60
+    for (rowCount, colCount, hex_key, rangeMin, rangeMax, expected) in tryList:
+        SEEDPERFILE = random.randint(0, sys.maxint)
+        x += 1
+        csvFilename = (((((('syn_' + 'binary') + '_') + str(rowCount)) + 'x') + str(colCount)) + '.csv')
+        csvPathname = ((SYNDATASETS_DIR + '/') + csvFilename)
+        print 'Creating random', csvPathname
+        (expectedMin, expectedMax) = write_syn_dataset(csvPathname, rowCount, colCount, rangeMin, rangeMax, SEED=SEEDPERFILE)
+        print 'expectedMin:', expectedMin, 'expectedMax:', expectedMax
+        maxErr = (((expectedMax - expectedMin) / 1000) * 1.05)
+        expected[1] = expectedMin
+        expected[5] = expectedMax
+        csvPathnameFull = h2i.find_folder_and_filename(None, csvPathname, returnFullPath=True)
+        parseResult = h2i.import_parse(path=csvPathname, schema='put', hex_key=hex_key, timeoutSecs=30, doSummary=False)
+        pA = h2o_cmd.ParseObj(parseResult, expectedNumRows=rowCount, expectedNumCols=colCount)
+        print pA.numRows, pA.numCols, pA.parse_key
+        iA = h2o_cmd.InspectObj(pA.parse_key, expectedNumRows=rowCount, expectedNumCols=colCount, expectedMissinglist=[])
+        print iA.missingList, iA.labelList, iA.numRows, iA.numCols
+        assert (len(expected) == 6)
+        co = h2o_cmd.runSummary(key=hex_key, column=0, expected=expected[1:], maxDelta=maxErr)
+        print co.label, co.type, co.missing, co.domain, sum(co.bins)
+        coList = [co.base, len(co.bins), len(co.data), co.domain, co.label, co.maxs, co.mean, co.mins, co.missing, co.ninfs, co.pctiles, co.pinfs, co.precision, co.sigma, co.str_data, co.stride, co.type, co.zeros]
+        for (k, v) in co:
+            print k, v
+        trial += 1
+        h2o.nodes[0].remove_all_keys()
+        scipyCol = 0
+        print 'maxErr', maxErr
+        if ((co.label != '') and expected[scipyCol]):
+            h2o_summ.quantile_comparisons(csvPathnameFull, skipHeader=False, col=scipyCol, datatype='float', quantile=(0.5 if DO_MEDIAN else 0.99), h2oSummary2=co.pctiles[(5 if DO_MEDIAN else 9)], h2oSummary2MaxErr=maxErr)
