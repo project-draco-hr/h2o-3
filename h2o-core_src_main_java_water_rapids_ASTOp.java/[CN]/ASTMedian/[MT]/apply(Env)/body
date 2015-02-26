@@ -1,0 +1,15 @@
+{
+  Frame fr;
+  try {
+    fr=env.popAry();
+  }
+ catch (  Exception e) {
+    throw new IllegalArgumentException("`median` expects a single column from a Frame.");
+  }
+  if (fr.numCols() != 1)   throw new IllegalArgumentException("`median` expects a single numeric column from a Frame.");
+  if (!fr.anyVec().isNumeric())   throw new IllegalArgumentException("`median` expects a single numeric column from a Frame.");
+  Quantiles q=new Quantiles();
+  Quantiles[] qbins=new Quantiles.BinningTask(q._max_qbins,fr.anyVec().min(),fr.anyVec().max()).doAll(fr.anyVec())._qbins;
+  qbins[0].finishUp(fr.anyVec(),new double[]{0.5},q._interpolation_type,true);
+  env.push(new ValNum(qbins[0]._pctile[0]));
+}
