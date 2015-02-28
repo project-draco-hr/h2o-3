@@ -19,5 +19,5 @@ def bernoulliGBM(ip, port):
     testDataFeatures = testData[:, 1:]
     auc_sci = roc_auc_score(testDataResponse, gbm_sci.predict_proba(testDataFeatures)[:, 1])
     gbm_perf = gbm_h2o.model_performance(prostate_test)
-    auc_h2o = gbm_perf._auc_data.AUC
+    auc_h2o = gbm_perf.auc()
     assert (auc_h2o >= auc_sci), 'h2o (auc) performance degradation, with respect to scikit'
