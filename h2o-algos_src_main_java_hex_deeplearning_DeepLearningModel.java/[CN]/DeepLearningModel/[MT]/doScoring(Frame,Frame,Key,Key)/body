@@ -15,9 +15,11 @@
     keep_running=(epoch_counter < get_params()._epochs);
     final long sinceLastScore=now - _timeLastScoreStart;
     final long sinceLastPrint=now - _timeLastPrintStart;
-    final long samples=model_info().get_processed_total();
     if (!keep_running || sinceLastPrint > get_params()._score_interval * 1000) {
       _timeLastPrintStart=now;
+      if (!get_params()._quiet_mode) {
+        Log.info("Training time: " + PrettyPrint.msecs(run_time,true) + ". Processed "+ String.format("%,d",model_info().get_processed_total())+ " samples"+ " ("+ String.format("%.3f",epoch_counter)+ " epochs)."+ " Speed: "+ String.format("%.3f",1000. * model_info().get_processed_total() / run_time)+ " samples/sec.\n");
+      }
     }
     if (!keep_running || (sinceLastScore > get_params()._score_interval * 1000 && (double)(_timeLastScoreEnd - _timeLastScoreStart) / sinceLastScore < get_params()._score_duty_cycle)) {
       if (progressKey != null) {
