@@ -1,6 +1,6 @@
 {
-  sb.i().p(modifiers != null ? modifiers + " " : "").p("class ").p(className).p(" {").nl().ii(1);
-  sb.i().p("public static final String[] VALUES = ");
+  sb.ip(modifiers != null ? modifiers + " " : "").p("class ").p(className).p(" {").nl().ii(1);
+  sb.ip("public static final String[] VALUES = ");
   if (values == null)   sb.p("null;").nl();
  else {
     sb.p("new String[").p(values.length).p("];").nl();
@@ -8,16 +8,16 @@
     int remain=values.length;
     int its=0;
     SB sb4fillers=new SB().ci(sb);
-    sb.i().p("static {").ii(1).nl();
+    sb.ip("static {").ii(1).nl();
     while (remain > 0) {
       String subClzName=className + "_" + its++;
       int len=Math.min(MAX_STRINGS_IN_CONST_POOL,remain);
       toClassWithArrayFill(sb4fillers,subClzName,values,s,len);
-      sb.i().p(subClzName).p(".fill(VALUES);").nl();
+      sb.ip(subClzName).p(".fill(VALUES);").nl();
       s+=len;
       remain-=len;
     }
-    sb.di(1).i().p("}").nl();
+    sb.di(1).ip("}").nl();
     sb.p(sb4fillers);
   }
   return sb.di(1).p("}").nl();
