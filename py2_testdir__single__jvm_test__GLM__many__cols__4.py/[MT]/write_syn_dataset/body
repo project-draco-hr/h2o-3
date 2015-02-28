@@ -1,0 +1,20 @@
+def write_syn_dataset(csvPathname, rowCount, colCount, SEED, translateList):
+    r1 = random.Random(SEED)
+    r2 = random.Random(SEED)
+    dsf = open(csvPathname, 'w+')
+    results = ['a', 'b']
+    for i in range(rowCount):
+        rowData = []
+        for j in range(colCount):
+            ri1 = int(r1.triangular(0, 4, 2.5))
+            rowData.append(ri1)
+        rowTotal = sum(rowData)
+        if (translateList is not None):
+            for (i, iNum) in enumerate(rowData):
+                rowData[i] = translateList[iNum]
+        resultIndex = r2.randint(0, 1)
+        rowDataStr = map(str, rowData)
+        rowDataStr.append(results[resultIndex])
+        rowDataCsv = ','.join(rowDataStr)
+        dsf.write((rowDataCsv + '\n'))
+    dsf.close()
