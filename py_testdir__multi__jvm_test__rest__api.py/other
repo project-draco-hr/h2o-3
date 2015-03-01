@@ -28,7 +28,7 @@ h2o.H2O.verboseprint(('host: ' + str(host)))
 h2o.H2O.verboseprint(('port' + str(port)))
 pp = pprint.PrettyPrinter(indent=4)
 a_node = h2o.H2O(host, port)
-algos = ['example', 'kmeans', 'deeplearning', 'glm', 'gbm', 'word2vec', 'quantile', 'grep']
+algos = ['example', 'kmeans', 'deeplearning', 'glm', 'gbm', 'pca', 'word2vec', 'quantile', 'grep']
 algo_additional_default_params = {'grep': {'regex': '.*', }, 'kmeans': {'k': 2, }, }
 clean_up_after = False
 h2o.H2O.verboseprint('connected to: ', str(host), ':', str(port))
@@ -176,7 +176,7 @@ assert (col['precision'] == (-1)), 'FAIL: Failed to find -1 as the precision for
 assert (col['bins'][0] == 1), 'FAIL: Failed to find 1 as the first bin for AGE.'
 assert (col['base'] == 43), 'FAIL: Failed to find 43 as the base for AGE.'
 assert (col['stride'] == 1), 'FAIL: Failed to find 1 as the stride for AGE.'
-assert (col['pctiles'][0] == 50.5), 'FAIL: Failed to find 50.5 as the first pctile for AGE.'
+assert (col['pctiles'][0] == 43), ('FAIL: Failed to find 43 as the first pctile for AGE. ' + str(col['pctiles'][0]))
 if verbose:
     print 'Testing SplitFrame with named destKeys. . .'
 splits = a_node.split_frame(dataset='prostate_binomial', ratios=[0.8], destKeys=['bigger', 'smaller'])
@@ -202,6 +202,8 @@ built_models = {}
 for model_spec in models_to_build:
     model = model_spec.build_and_validate_model(a_node)
     built_models[model_spec['dest_key']] = model
+if verbose:
+    print 'Testing ModelBuilder default parameters. . .'
 model_builders = a_node.model_builders(timeoutSecs=240)['model_builders']
 server_algos = model_builders.keys()
 assert (len((set(server_algos) - set(algos))) == 0), ((("FAIL: Our set of algos doesn't match what the server knows about.  Ours: " + repr(algos)) + "; server's: ") + repr(server_algos))

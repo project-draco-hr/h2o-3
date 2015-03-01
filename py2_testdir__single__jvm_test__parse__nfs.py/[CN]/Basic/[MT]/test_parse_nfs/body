@@ -1,0 +1,19 @@
+def test_parse_nfs(self):
+    print 'run as user 0xcustomer on machine with nfs /mnt/0xcustomer-datasets/c1'
+    tryList = [('iris2.csv', 'iris2.hex', 1, 30)]
+    for (csvFilename, hex_key, multiplyExpected, timeoutSecs) in tryList:
+        importFolderPath = '/mnt/0xcustomer-datasets/c1'
+        csvPathname = ((importFolderPath + '/') + csvFilename)
+        parseResult = h2i.import_parse(path=csvPathname, schema='local', timeoutSecs=timeoutSecs, hex_key=hex_key, chunkSize=(4194304 / 2), doSummary=False)
+        pA = h2o_cmd.ParseObj(parseResult)
+        iA = h2o_cmd.InspectObj(pA.parse_key, expectedNumRows=(150 * multiplyExpected), expectedNumCols=5, expectedMissinglist=[])
+        print iA.missingList, iA.labelList, iA.numRows, iA.numCols
+        for i in range(0):
+            print 'Summary on column', i
+            co = h2o_cmd.runSummary(key=hex_key, column=i)
+            coList = [co.base, len(co.bins), len(co.data), co.domain, co.label, co.maxs, co.mean, co.mins, co.missing, co.ninfs, co.pctiles, co.pinfs, co.precision, co.sigma, co.str_data, co.stride, co.type, co.zeros]
+            for (k, v) in co:
+                print k, v
+        k = parseResult['frames'][0]['key']['name']
+        frames_result = h2o.nodes[0].frames(key=k, len=5)
+        parseKeyIndexedCheck(frames_result, multiplyExpected)

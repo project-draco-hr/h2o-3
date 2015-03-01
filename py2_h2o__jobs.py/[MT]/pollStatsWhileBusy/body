@@ -10,7 +10,8 @@ def pollStatsWhileBusy(timeoutSecs=300, pollTimeoutSecs=15, retryDelaySecs=5):
         a = h2o_nodes.nodes[0].jobs(timeoutSecs=60)
         busy = False
         for j in a['jobs']:
-            if ((j['end_time'] == '') and (not (j['cancelled'] or (j['result'].get('val', None) == 'CANCELLED')))):
+            msec = j.get('msec', None)
+            if (j['status'] != 'DONE'):
                 busy = True
                 verboseprint('Still busy')
                 break

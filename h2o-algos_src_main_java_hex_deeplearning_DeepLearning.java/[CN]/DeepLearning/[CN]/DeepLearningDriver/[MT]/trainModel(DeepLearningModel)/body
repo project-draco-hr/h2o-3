@@ -52,13 +52,13 @@
       Log.warn("Enabling training data shuffling, because all nodes train on the full dataset (replicated training data).");
       mp._shuffle_training_data=true;
     }
-    model._timeLastScoreEnter=System.currentTimeMillis();
-    if (!mp._quiet_mode)     Log.info("Initial model:\n" + model.model_info());
+    if (!mp._quiet_mode && mp._diagnostics)     Log.info("Initial model:\n" + model.model_info());
     if (_parms._autoencoder) {
       new ProgressUpdate("Scoring null model of autoencoder...").fork(_progressKey);
       model.doScoring(trainScoreFrame,validScoreFrame,self(),null);
     }
     model.update(self());
+    model._timeLastScoreEnter=System.currentTimeMillis();
     Log.info("Starting to train the Deep Learning model.");
     do {
       final String speed=(model.run_time != 0 ? (" at " + model.model_info().get_processed_total() * 1000 / model.run_time + " samples/s...") : "...");
@@ -86,14 +86,18 @@
     Log.info(model);
     Log.info("==============================================================================================");
   }
- catch (  RuntimeException ex) {
+ catch (  Throwable ex) {
     model=DKV.get(dest()).get();
     _state=JobState.CANCELLED;
     Log.info("Deep Learning model building was cancelled.");
-    throw ex;
+    throw new RuntimeException(ex);
   }
  finally {
     if (model != null)     model.unlock(self());
+    if (model.actual_best_model_key != null) {
+      assert(model.actual_best_model_key != model._key);
+      DKV.remove(model.actual_best_model_key);
+    }
     for (    Frame f : _delete_me)     f.delete();
   }
   return model;
