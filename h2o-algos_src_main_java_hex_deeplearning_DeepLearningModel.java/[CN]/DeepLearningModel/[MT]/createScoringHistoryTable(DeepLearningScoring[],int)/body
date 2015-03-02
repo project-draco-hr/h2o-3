@@ -103,7 +103,9 @@
       table.set(row,col++,e.valid_mse);
       if (!_output.autoencoder)       table.set(row,col++,e.valid_r2);
       if (_output.getModelCategory() == ModelCategory.Binomial)       table.set(row,col++,e.validAUC != null ? e.validAUC.AUC() : Double.NaN);
-      if (_output.isClassifier())       table.set(row,col++,e.valid_err);
+      if (_output.isClassifier()) {
+        table.set(row,col++,e.valid_err);
+      }
     }
  else     if (get_params()._n_folds > 0) {
       throw H2O.unimpl();
