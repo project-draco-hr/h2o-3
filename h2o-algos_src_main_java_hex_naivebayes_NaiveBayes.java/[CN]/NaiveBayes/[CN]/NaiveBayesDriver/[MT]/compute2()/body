@@ -1,0 +1,35 @@
+{
+  NaiveBayesModel model=null;
+  DataInfo dinfo=null;
+  try {
+    _parms.read_lock_frames(NaiveBayes.this);
+    init(true);
+    if (error_count() > 0)     throw new IllegalArgumentException("Found validation errors: " + validationErrors());
+    model=new NaiveBayesModel(dest(),_parms,new NaiveBayesModel.NaiveBayesOutput(NaiveBayes.this));
+    model.delete_and_lock(_key);
+    _train.read_lock(_key);
+    dinfo=new DataInfo(Key.make(),_train,null,1,false,DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true);
+    NBTask tsk=new NBTask(dinfo).doAll(dinfo._adaptedFrame);
+    computeStatsFillModel(model,dinfo,tsk);
+    model.update(_key);
+    done();
+  }
+ catch (  Throwable t) {
+    Job thisJob=DKV.getGet(_key);
+    if (thisJob._state == JobState.CANCELLED) {
+      Log.info("Job cancelled by user.");
+    }
+ else {
+      t.printStackTrace();
+      failed(t);
+      throw t;
+    }
+  }
+ finally {
+    _train.unlock(_key);
+    if (model != null)     model.unlock(_key);
+    if (dinfo != null)     dinfo.remove();
+    _parms.read_unlock_frames(NaiveBayes.this);
+  }
+  tryComplete();
+}
