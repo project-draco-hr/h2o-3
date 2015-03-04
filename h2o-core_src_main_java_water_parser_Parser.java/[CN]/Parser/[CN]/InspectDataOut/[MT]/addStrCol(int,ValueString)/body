@@ -1,17 +1,13 @@
 {
   if (colIdx < _ncols) {
-    if (ParseTime.attemptTimeParse(str) != Long.MIN_VALUE) {
+    if (ParseTime.isDateTime(str)) {
       ++_ndates[colIdx];
       return;
     }
-    int old=str.get_off();
-    ParseTime.attemptUUIDParse0(str);
-    ParseTime.attemptUUIDParse1(str);
-    if (str.get_off() != -1) {
+    if (ParseTime.isUUID(str)) {
       ++_nUUID[colIdx];
       return;
     }
-    str.setOff(old);
     ++_nstrings[colIdx];
     _domains[colIdx].add(str.toString());
     if (_nlines < MAX_PREVIEW_LINES)     _data[_nlines][colIdx]=str.toString();
