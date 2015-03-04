@@ -9,7 +9,7 @@
     model.delete_and_lock(_key);
     _train.read_lock(_key);
     dinfo=new DataInfo(Key.make(),_train,null,1,false,DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true);
-    NBTask tsk=new NBTask(dinfo).doAll(dinfo._adaptedFrame);
+    NBTask tsk=new NBTask(dinfo,_response.cardinality()).doAll(dinfo._adaptedFrame);
     computeStatsFillModel(model,dinfo,tsk);
     model._output._parameters=_parms;
     model._output._levels=_response.domain();
