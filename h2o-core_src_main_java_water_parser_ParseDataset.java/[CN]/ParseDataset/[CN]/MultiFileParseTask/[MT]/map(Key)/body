@@ -14,6 +14,12 @@
  else   if (!localSetup.isCompatible(_gblSetup)) {
     return;
   }
+  boolean has_hdr=false;
+  if (_gblSetup._checkHeader == 1 && localSetup._checkHeader == 1)   has_hdr=true;
+  if (has_hdr) {
+    for (int i=0; has_hdr && i < localSetup._columnNames.length; ++i)     has_hdr=localSetup._columnNames[i].equalsIgnoreCase(_gblSetup._columnNames[i]);
+    if (!has_hdr)     localSetup._checkHeader=-1;
+  }
   try {
 switch (cpr) {
 case NONE:
