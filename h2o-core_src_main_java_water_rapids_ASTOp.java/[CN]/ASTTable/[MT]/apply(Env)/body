@@ -7,44 +7,98 @@
   Frame fr;
   if (two != null)   fr=new Frame(one.add(two));
  else   fr=one;
-  int ncol;
+  final int ncol;
   if ((ncol=fr.vecs().length) > 2)   throw new IllegalArgumentException("table does not apply to more than two cols.");
   for (int i=0; i < ncol; i++)   if (!fr.vecs()[i].isInt())   throw new IllegalArgumentException("table only applies to integer vectors.");
-  String[][] domains=new String[ncol][];
-  final long[][] levels=new long[ncol][];
-  for (int i=0; i < ncol; i++) {
-    Vec v=fr.vecs()[i];
-    levels[i]=new Vec.CollectDomain().doAll(new Frame(v)).domain();
-    domains[i]=v.domain();
+  Vec dataLayoutVec;
+  Frame fr2;
+  String colnames[];
+  String[][] d=new String[ncol + 1][];
+  if (ncol == 1) {
+    final int min=(int)fr.anyVec().min();
+    final int max=(int)fr.anyVec().max();
+    colnames=new String[]{fr.name(0),"Count"};
+    d[0]=fr.anyVec().domain();
+    d[1]=null;
+    if (min >= 0) {
+      UniqueColumnCountTask t=new UniqueColumnCountTask(max,false,false,0).doAll(fr.anyVec());
+      final long[] cts=t._cts;
+      dataLayoutVec=Vec.makeCon(0,cts.length);
+      fr2=new MRTask(){
+        @Override public void map(        Chunk[] c,        NewChunk[] cs){
+          for (int i=0; i < c[0]._len; ++i) {
+            int idx=(int)(i + c[0].start());
+            if (cts[idx] == 0)             continue;
+            cs[0].addNum(idx);
+            cs[1].addNum(cts[idx]);
+          }
+        }
+      }
+.doAll(2,dataLayoutVec).outputFrame(colnames,d);
+    }
+ else     if (min <= 0 && max <= 0) {
+      UniqueColumnCountTask t=new UniqueColumnCountTask(-1 * min,true,false,0).doAll(fr.anyVec());
+      final long[] cts=t._cts;
+      dataLayoutVec=Vec.makeCon(0,cts.length);
+      fr2=new MRTask(){
+        @Override public void map(        Chunk[] c,        NewChunk[] cs){
+          for (int i=0; i < c[0]._len; ++i) {
+            int idx=(int)(i + c[0].start());
+            if (cts[idx] == 0)             continue;
+            cs[0].addNum(idx * -1);
+            cs[1].addNum(cts[idx]);
+          }
+        }
+      }
+.doAll(2,dataLayoutVec).outputFrame(colnames,d);
+    }
+ else {
+      UniqueColumnCountTask t=new UniqueColumnCountTask(max + -1 * min,false,true,max).doAll(fr.anyVec());
+      final long[] cts=t._cts;
+      dataLayoutVec=Vec.makeCon(0,cts.length);
+      fr2=new MRTask(){
+        @Override public void map(        Chunk[] c,        NewChunk[] cs){
+          for (int i=0; i < c[0]._len; ++i) {
+            int idx=(int)(i + c[0].start());
+            if (cts[idx] == 0)             continue;
+            cs[0].addNum(idx > max ? (idx - max) * -1 : idx);
+            cs[1].addNum(cts[idx]);
+          }
+        }
+      }
+.doAll(2,dataLayoutVec).outputFrame(colnames,d);
+    }
   }
-  final long[][] counts=new Tabularize(levels).doAll(fr)._counts;
-  Vec dataLayoutVec=Vec.makeCon(0,levels[0].length);
-  Vec[] vecs=new Vec[counts.length + 1];
-  String[] colnames=new String[counts.length + 1];
-  (vecs[0]=new MRTask(){
-    @Override public void map(    Chunk cs,    NewChunk oc){
-      for (int i=0; i < cs._len; ++i) {
-        oc.addNum((double)levels[0][(int)(i + cs.start())]);
+ else {
+    colnames=new String[]{fr.name(0),fr.name(1),"count"};
+    long s=System.currentTimeMillis();
+    UniqueTwoColumnTask t=new UniqueTwoColumnTask().doAll(fr);
+    Log.info("Finished raw tabling in: " + (System.currentTimeMillis() - s) / 1000. + " (s)");
+    final NonBlockingHashMap m=t._cnts;
+    dataLayoutVec=Vec.makeCon(0,m.size());
+    d[0]=fr.vec(0).domain();
+    if (ncol == 2) {
+      d[1]=fr.vec(1).domain();
+    }
+    fr2=new MRTask(){
+      @Override public void map(      Chunk[] c,      NewChunk[] cs){
+        Iterator it=m.keySet().iterator();
+        for (int j=0; j < c[0].start(); ++j)         it.next();
+        for (int i=0; i < c[0]._len; ++i) {
+          GroupPair g=(GroupPair)it.next();
+          cs[0].addNum(g._ls[0]);
+          if (ncol == 2) {
+            cs[1].addNum(g._ls[1]);
+            cs[2].addNum((int)m.get(g));
+          }
+ else {
+            cs[1].addNum((int)m.get(g));
+          }
+        }
       }
     }
-  }
-.doAll(1,dataLayoutVec).outputFrame(null,null).anyVec()).setDomain(fr.vecs()[0].domain() == null ? null : fr.vecs()[0].domain().clone());
-  colnames[0]="row.names";
-  if (ncol == 1)   colnames[1]="Count";
-  int level1=0;
-  for (; level1 < counts.length; ) {
-    final int lvl=++level1;
-    vecs[lvl]=new MRTask(){
-      @Override public void map(      Chunk cs,      NewChunk oc){
-        for (int i=0; i < cs._len; ++i)         oc.addNum((double)counts[lvl - 1][(int)(i + cs.start())]);
-      }
-    }
-.doAll(1,dataLayoutVec).outputFrame(null,null).anyVec();
-    if (ncol > 1) {
-      colnames[level1]=domains[1] == null ? Long.toString(levels[1][level1 - 1]) : domains[1][(int)(levels[1][level1])];
-    }
+.doAll(ncol + 1,dataLayoutVec).outputFrame(colnames,d);
   }
   Keyed.remove(dataLayoutVec._key);
-  Frame fr2=new Frame(colnames,vecs);
   env.pushAry(fr2);
 }

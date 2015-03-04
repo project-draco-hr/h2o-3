@@ -9,9 +9,12 @@
       error("_user_points","The user-specified points must have the same number of columns (" + _train.numCols() + ") as the training observations");
     }
   }
-  for (  Vec v : _train.vecs()) {
-    if (v.isEnum())     error("_train","Columns cannot have categorical values");
+  new CheckCols(){
+    @Override protected boolean filter(    Vec v){
+      return v.isEnum();
+    }
   }
+.doIt(_train,"Columns cannot have categorical values: ",expensive);
   Vec vecs[]=_train.vecs();
   int ncats=0, nvecs=vecs.length;
   while (ncats != nvecs) {

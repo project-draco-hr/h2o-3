@@ -4,6 +4,7 @@ def simpleCheckGLM(self, model, parameters, labelList, labelListUsed, allowFailW
     binomial = model.binomial
     residual_deviance = model.residual_deviance
     threshold = model.threshold
+    check_obj_has_good_numbers(threshold, 'threshold')
     auc = model.auc
     best_lambda_idx = model.best_lambda_idx
     model_category = model.model_category
@@ -11,14 +12,23 @@ def simpleCheckGLM(self, model, parameters, labelList, labelListUsed, allowFailW
     residual_degrees_of_freedom = model.residual_degrees_of_freedom
     coefficients_magnitude = model.coefficients_magnitude
     null_deviance = model.null_deviance
+    check_obj_has_good_numbers(null_deviance, 'model.null_deviance')
     null_degrees_of_freedom = model.null_degrees_of_freedom
+    check_obj_has_good_numbers(null_degrees_of_freedom, 'model.null_degrees_of_freedom')
     domains = model.domains
     aic = model.aic
+    check_obj_has_good_numbers(aic, 'model.aic')
     names = model.names
     coeffs_names = model.coefficients_table.data[0]
-    coeffs = map(float, model.coefficients_table.data[1])
+    temp = model.coefficients_table.data[1]
+    assert (len(coeffs_names) == len(temp)), ('%s %s' % (len(coeffs_names), len(temp)))
+    check_obj_has_good_numbers(temp, 'model.coeffs')
+    print 'temp', temp[0:10]
+    print 'temp[5489:5500]', temp[5489:5500]
+    coeffs = map((lambda x: (float(x) if (x != '') else 0)), temp)
     intercept = coeffs[(-1)]
     interceptName = coeffs_names[(-1)]
+    assert (interceptName == 'Intercept')
     assert (len(coeffs) == len(coeffs_names)), ('%s %s' % (len(coeffs), len(coeffs_names)))
     print 'len(coeffs)', len(coeffs)
     print 'coeffs:', coeffs

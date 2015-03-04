@@ -9,6 +9,9 @@
   colHeaders.add("Training Duration");
   colTypes.add("string");
   colFormat.add("%s");
+  colHeaders.add("Training Speed");
+  colTypes.add("string");
+  colFormat.add("%s");
   colHeaders.add("Training Epochs");
   colTypes.add("double");
   colFormat.add("%.5f");
@@ -89,17 +92,30 @@
     DateTimeFormatter fmt=DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     table.set(row,col++,fmt.print(start_time + e.training_time_ms));
     table.set(row,col++,PrettyPrint.msecs(e.training_time_ms,true));
+    table.set(row,col++,e.training_time_ms == 0 ? null : (String.format("%.3f",e.training_samples / (e.training_time_ms / 1e3)) + " rows/sec"));
     table.set(row,col++,e.epoch_counter);
     table.set(row,col++,e.training_samples);
     table.set(row,col++,e.train_mse);
-    if (!_output.autoencoder)     table.set(row,col++,e.train_r2);
-    if (_output.getModelCategory() == ModelCategory.Binomial)     table.set(row,col++,e.trainAUC != null ? e.trainAUC.AUC() : Double.NaN);
-    if (_output.isClassifier())     table.set(row,col++,e.train_err);
+    if (!_output.autoencoder) {
+      table.set(row,col++,e.train_r2);
+    }
+    if (_output.getModelCategory() == ModelCategory.Binomial) {
+      table.set(row,col++,e.trainAUC != null ? e.trainAUC.AUC() : Double.NaN);
+    }
+    if (_output.isClassifier()) {
+      table.set(row,col++,e.train_err);
+    }
     if (get_params()._valid != null) {
       table.set(row,col++,e.valid_mse);
-      if (!_output.autoencoder)       table.set(row,col++,e.valid_r2);
-      if (_output.getModelCategory() == ModelCategory.Binomial)       table.set(row,col++,e.validAUC != null ? e.validAUC.AUC() : Double.NaN);
-      if (_output.isClassifier())       table.set(row,col++,e.valid_err);
+      if (!_output.autoencoder) {
+        table.set(row,col++,e.valid_r2);
+      }
+      if (_output.getModelCategory() == ModelCategory.Binomial) {
+        table.set(row,col++,e.validAUC != null ? e.validAUC.AUC() : Double.NaN);
+      }
+      if (_output.isClassifier()) {
+        table.set(row,col++,e.valid_err);
+      }
     }
  else     if (get_params()._n_folds > 0) {
       throw H2O.unimpl();

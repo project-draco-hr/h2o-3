@@ -1,0 +1,40 @@
+{
+  I=new Persist[8];
+  storeCount=new AtomicLong();
+  deleteCount=new AtomicLong();
+  loadCount=new AtomicLong();
+  if (iceRoot == null) {
+    Log.err("ice_root must be specified.  Exiting.");
+    H2O.exit(1);
+  }
+  Persist ice=null;
+  boolean windowsPath=iceRoot.toString().matches("^[a-zA-Z]:.*");
+  if (windowsPath) {
+    ice=new PersistFS(new File(iceRoot.toString()));
+  }
+ else   if ((iceRoot.getScheme() == null) || Schemes.FILE.equals(iceRoot.getScheme())) {
+    ice=new PersistFS(new File(iceRoot.getPath()));
+  }
+ else   if (Schemes.HDFS.equals(iceRoot.getScheme())) {
+    Log.err("HDFS ice_root not yet supported.  Exiting.");
+    H2O.exit(1);
+  }
+  I[Value.ICE]=ice;
+  I[Value.NFS]=new PersistNFS();
+  try {
+    Class klass=Class.forName("water.persist.PersistHdfs");
+    java.lang.reflect.Constructor constructor=klass.getConstructor();
+    I[Value.HDFS]=(Persist)constructor.newInstance();
+    Log.info("HDFS subsystem successfully initialized");
+  }
+ catch (  Exception ignore) {
+    Log.info("HDFS subsystem not available");
+  }
+  try {
+    I[Value.S3]=new PersistS3();
+    Log.info("S3 subsystem successfully initialized");
+  }
+ catch (  NoClassDefFoundError ignore) {
+    Log.info("S3 subsystem not available");
+  }
+}

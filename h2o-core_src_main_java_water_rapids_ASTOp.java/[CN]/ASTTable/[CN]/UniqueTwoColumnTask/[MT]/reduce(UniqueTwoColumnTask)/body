@@ -1,0 +1,20 @@
+{
+  NonBlockingHashMap<GroupPair,Integer> l=_cnts;
+  NonBlockingHashMap<GroupPair,Integer> r=t._cnts;
+  if (l.size() < r.size()) {
+    l=r;
+    r=this._cnts;
+  }
+  for (  GroupPair g : r.keySet()) {
+    Integer lc=l.get(g);
+    Integer rc=r.get(g);
+    if (rc == null) {
+      l.put(g,lc);
+    }
+ else {
+      l.put(g,rc + (lc == null ? 0 : lc));
+    }
+  }
+  _cnts=l;
+  t._cnts=null;
+}
