@@ -1,3 +1,10 @@
 {
-  return new ModelMetricsNaiveBayes.NaiveBayesModelMetrics(_output._levels);
+switch (_output.getModelCategory()) {
+case Binomial:
+    return new ModelMetricsBinomial.MetricBuilderBinomial(domain,ModelUtils.DEFAULT_THRESHOLDS);
+case Multinomial:
+  return new ModelMetricsMultinomial.MetricBuilderMultinomial(domain);
+default :
+throw H2O.unimpl();
+}
 }
