@@ -35,7 +35,13 @@ synchronized (Schema.class) {
       }
       if (null != s) {
         Log.debug("Registered Schema: " + clz.getSimpleName());
-        SchemaMetadata ignoreme=new SchemaMetadata(s);
+        SchemaMetadata meta=new SchemaMetadata(s);
+        for (        SchemaMetadata.FieldMetadata field_meta : meta.fields) {
+          String name=field_meta.name;
+          if ("__meta".equals(name) || "__http_status".equals(name))           continue;
+          if (name.startsWith("_"))           Log.warn("Found schema field which violates the naming convention; name starts with underscore: " + meta.name + "."+ name);
+          if (!name.equals(name.toLowerCase()) && !name.equals(name.toUpperCase()))           Log.warn("Found schema field which violates the naming convention; name has mixed lowercase and uppercase characters: " + meta.name + "."+ name);
+        }
       }
     }
   }
