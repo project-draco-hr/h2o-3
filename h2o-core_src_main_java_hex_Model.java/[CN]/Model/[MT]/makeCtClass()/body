@@ -1,2 +1,14 @@
 {
+  ClassPool pool=ClassPool.getDefault();
+  CtClass clz=pool.makeClass(JCodeGen.toJavaId(_key.toString()));
+  try {
+    CtClass genmodel_clz=pool.get("hex.genmodel.GenModel");
+    clz.setSuperclass(genmodel_clz);
+  }
+ catch (  NotFoundException nfe) {
+    throw new RuntimeException(nfe);
+  }
+  toJavaInit(clz);
+  clz.addField(CtField.make(toJavaNAMES(new SB()).toString(),clz));
+  throw H2O.unimpl();
 }
