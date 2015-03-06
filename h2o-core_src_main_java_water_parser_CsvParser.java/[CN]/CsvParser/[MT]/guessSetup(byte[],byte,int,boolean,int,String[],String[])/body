@@ -1,0 +1,106 @@
+{
+  String[] lines=new String[10];
+  int nlines=0;
+  int offset=0;
+  while (offset < bits.length && nlines < lines.length) {
+    int lineStart=offset;
+    while (offset < bits.length && !CsvParser.isEOL(bits[offset]))     ++offset;
+    int lineEnd=offset;
+    ++offset;
+    if ((offset < bits.length) && (bits[offset] == CsvParser.CHAR_LF))     ++offset;
+    if (bits[lineStart] == '#')     continue;
+    if (bits[lineStart] == '%')     continue;
+    if (bits[lineStart] == '@')     continue;
+    if (lineEnd > lineStart) {
+      String str=new String(bits,lineStart,lineEnd - lineStart).trim();
+      if (!str.isEmpty())       lines[nlines++]=str;
+    }
+  }
+  if (nlines == 0)   return new ParseSetup(false,0,0,new String[]{"No data!"},ParserType.AUTO,AUTO_SEP,false,checkHeader,0,null,null,null,null,null,FileVec.DFLT_CHUNK_SIZE);
+  ArrayList<String> errors=new ArrayList<>();
+  String[] labels;
+  final byte single_quote=singleQuotes ? CsvParser.CHAR_SINGLE_QUOTE : -1;
+  final String[][] data=new String[nlines][];
+  if (nlines == 1) {
+    if (sep == AUTO_SEP) {
+      if (lines[0].split(",").length > 2)       sep=(byte)',';
+ else       if (lines[0].split(" ").length > 2)       sep=' ';
+ else {
+        data[0]=new String[]{lines[0]};
+        byte[] ctypes=new byte[1];
+        String[][] domains=new String[1][];
+        if (NumberUtils.isNumber(data[0][0])) {
+          ctypes[0]=Vec.T_NUM;
+        }
+ else {
+          ValueString str=new ValueString(data[0][0]);
+          if (ParseTime.isDateTime(str))           ctypes[0]=Vec.T_TIME;
+ else           if (ParseTime.isUUID(str))           ctypes[0]=Vec.T_UUID;
+ else {
+            ctypes[0]=Vec.T_ENUM;
+            domains[0]=new String[]{data[0][0]};
+          }
+        }
+        return new ParseSetup(true,0,0,new String[]{"Failed to guess separator."},ParserType.CSV,AUTO_SEP,singleQuotes,checkHeader,1,null,ctypes,domains,naStrings,data,FileVec.DFLT_CHUNK_SIZE);
+      }
+    }
+    data[0]=determineTokens(lines[0],sep,single_quote);
+    ncols=(ncols > 0) ? ncols : data[0].length;
+    if (checkHeader == 0)     labels=ParseSetup.allStrings(data[0]) ? data[0] : null;
+ else     if (checkHeader == 1)     labels=data[0];
+ else     labels=null;
+  }
+ else {
+    if (sep == AUTO_SEP) {
+      sep=guessSeparator(lines[0],lines[1],single_quote);
+      if (sep == AUTO_SEP && nlines > 2) {
+        if (sep == AUTO_SEP)         sep=guessSeparator(lines[1],lines[2],single_quote);
+        if (sep == AUTO_SEP)         sep=guessSeparator(lines[0],lines[2],single_quote);
+      }
+      if (sep == AUTO_SEP)       sep=(byte)' ';
+    }
+    for (int i=0; i < nlines; ++i)     data[i]=determineTokens(lines[i],sep,single_quote);
+    ncols=guessNcols(columnNames,data);
+    if (checkHeader == 0) {
+      labels=ParseSetup.hasHeader(data[0],data[1]) && (data[0].length == ncols) ? data[0] : null;
+    }
+ else     if (checkHeader == 1) {
+      labels=data[0];
+    }
+ else {
+      labels=null;
+    }
+    if (checkHeader == 0)     checkHeader=labels == null ? -1 : +1;
+    if (columnNames != null && labels != null) {
+      if (labels.length != columnNames.length)       errors.add("Already have " + columnNames.length + " column labels, but found "+ labels.length+ " in this file");
+ else {
+        for (int i=0; i < labels.length; ++i)         if (!labels[i].equalsIgnoreCase(columnNames[i])) {
+          errors.add("Column " + (i + 1) + " label '"+ labels[i]+ "' does not match '"+ columnNames[i]+ "'");
+          break;
+        }
+        labels=columnNames;
+      }
+    }
+  }
+  int ilines=0;
+  for (int i=0; i < data.length; ++i) {
+    if (data[i].length != ncols) {
+      errors.add("error at line " + i + " : incompatible line length. Got "+ data[i].length+ " columns.");
+      ++ilines;
+    }
+  }
+  String[] err=null;
+  if (!errors.isEmpty())   errors.toArray(err=new String[errors.size()]);
+  ParseSetup resSetup=new ParseSetup(true,ilines,labels != null ? 1 : 0,err,ParserType.CSV,sep,singleQuotes,checkHeader,ncols,labels,null,null,naStrings,data);
+  InputStream is=new ByteArrayInputStream(bits);
+  CsvParser p=new CsvParser(resSetup);
+  InspectDataOut dout=new InspectDataOut(resSetup._number_columns);
+  try {
+    p.streamParse(is,dout);
+    resSetup._column_types=dout.guessTypes();
+  }
+ catch (  Throwable e) {
+    throw new RuntimeException(e);
+  }
+  return resSetup;
+}
