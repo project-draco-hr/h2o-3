@@ -1,10 +1,10 @@
-def simpleCheckGLM(self, model, parameters, labelList, labelListUsed, allowFailWarning=False, allowZeroCoeff=False, prettyPrint=False, noPrint=False, maxExpectedIterations=None, doNormalized=False):
+def simpleCheckGLM(self, model, parameters, labelList, labelListUsed, allowFailWarning=False, allowZeroCoeff=False, prettyPrint=False, noPrint=False, maxExpectedIterations=None, doNormalized=False, allowNaN=False):
     warnings = ''
     rank = model.rank
     binomial = model.binomial
     residual_deviance = model.residual_deviance
     threshold = model.threshold
-    check_obj_has_good_numbers(threshold, 'threshold')
+    check_obj_has_good_numbers(threshold, 'threshold', allowNaN=allowNaN)
     auc = model.auc
     best_lambda_idx = model.best_lambda_idx
     model_category = model.model_category
@@ -12,17 +12,17 @@ def simpleCheckGLM(self, model, parameters, labelList, labelListUsed, allowFailW
     residual_degrees_of_freedom = model.residual_degrees_of_freedom
     coefficients_magnitude = model.coefficients_magnitude
     null_deviance = model.null_deviance
-    check_obj_has_good_numbers(null_deviance, 'model.null_deviance')
+    check_obj_has_good_numbers(null_deviance, 'model.null_deviance', allowNaN=allowNaN)
     null_degrees_of_freedom = model.null_degrees_of_freedom
-    check_obj_has_good_numbers(null_degrees_of_freedom, 'model.null_degrees_of_freedom')
+    check_obj_has_good_numbers(null_degrees_of_freedom, 'model.null_degrees_of_freedom', allowNaN=allowNaN)
     domains = model.domains
     aic = model.aic
-    check_obj_has_good_numbers(aic, 'model.aic')
+    check_obj_has_good_numbers(aic, 'model.aic', allowNaN=allowNaN)
     names = model.names
     coeffs_names = model.coefficients_table.data[0]
     temp = model.coefficients_table.data[1]
     assert (len(coeffs_names) == len(temp)), ('%s %s' % (len(coeffs_names), len(temp)))
-    check_obj_has_good_numbers(temp, 'model.coeffs')
+    check_obj_has_good_numbers(temp, 'model.coeffs', allowNaN=allowNaN)
     print 'temp', temp[0:10]
     print 'temp[5489:5500]', temp[5489:5500]
     coeffs = map((lambda x: (float(x) if (x != '') else 0)), temp)
