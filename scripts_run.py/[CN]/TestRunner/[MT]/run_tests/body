@@ -40,12 +40,16 @@ def run_tests(self, nopass):
     num_tests = len(self.tests)
     num_nodes = (self.num_clouds * self.nodes_per_cloud)
     self._log('')
+    if self.use_client:
+        client_message = ' (+ client mode)'
+    else:
+        client_message = ''
     if self.use_cloud:
         self._log('Starting {} tests...'.format(num_tests))
     elif self.use_cloud2:
         self._log('Starting {} tests on {} clouds...'.format(num_tests, len(self.clouds)))
     else:
-        self._log('Starting {} tests on {} clouds with {} total H2O nodes...'.format(num_tests, self.num_clouds, num_nodes))
+        self._log('Starting {} tests on {} clouds with {} total H2O worker nodes{}...'.format(num_tests, self.num_clouds, num_nodes, client_message))
     self._log('')
     start_count = min(len(self.tests_not_started), len(self.clouds), 30)
     if g_use_cloud2:
