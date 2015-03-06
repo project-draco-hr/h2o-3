@@ -1,18 +1,16 @@
 {
   if (schemas_registered)   return;
-  Reflections reflections=null;
+  long before=System.currentTimeMillis();
   new Schema();
+  String[] packages=new String[]{"water","hex"};
   Class<? extends Schema> clzs[]=new Class[]{Schema.class,ModelSchema.class,ModelOutputSchema.class,ModelParametersSchema.class};
-  for (  Class<? extends Schema> clz : clzs) {
-    Log.debug("Registering subclasses of: " + clz.toString() + " in package: water");
-    for (    Class<? extends Schema> schema_class : (new Reflections("water")).getSubTypesOf(clz))     if (!Modifier.isAbstract(schema_class.getModifiers()))     Schema.register(schema_class);
-    Log.debug("Registering subclasses of: " + clz.toString() + " in package: hex");
-    for (    Class<? extends Schema> schema_class : (new Reflections("hex")).getSubTypesOf(clz))     if (!Modifier.isAbstract(schema_class.getModifiers()))     Schema.register(schema_class);
-    if (false) {
-      Log.debug("Registering subclasses of: " + clz.toString() + " in package: (all)");
-      for (      Class<? extends Schema> schema_class : (new Reflections("")).getSubTypesOf(clz))       if (!Modifier.isAbstract(schema_class.getModifiers()))       Schema.register(schema_class);
+  for (  String pkg : packages) {
+    Reflections reflections=new Reflections(pkg);
+    for (    Class<? extends Schema> clz : clzs) {
+      Log.debug("Registering subclasses of: " + clz.toString() + " in package: "+ pkg);
+      for (      Class<? extends Schema> schema_class : reflections.getSubTypesOf(clz))       if (!Modifier.isAbstract(schema_class.getModifiers()))       Schema.register(schema_class);
     }
   }
   schemas_registered=true;
-  Log.info("Registered: " + Schema.schemas().size() + " schemas.");
+  Log.info("Registered: " + Schema.schemas().size() + " schemas in: "+ (System.currentTimeMillis() - before)+ "mS");
 }
