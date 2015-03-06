@@ -12,6 +12,7 @@ def parse_args(argv):
     global g_run_large
     global g_use_cloud
     global g_use_cloud2
+    global g_use_client
     global g_config
     global g_use_ip
     global g_use_port
@@ -92,6 +93,8 @@ def parse_args(argv):
                 unknown_arg(s)
             g_use_cloud2 = True
             g_config = s
+        elif (s == '--client'):
+            g_use_client = True
         elif (s == '--nopass'):
             g_nopass = True
         elif (s == '--c'):
@@ -114,3 +117,8 @@ def parse_args(argv):
         else:
             unknown_arg(s)
         i += 1
+    if (((int(g_use_client) + int(g_use_cloud)) + int(g_use_cloud2)) > 1):
+        print ''
+        print 'ERROR: --client, --usecloud and --usecloud2 are mutually exclusive.'
+        print ''
+        sys.exit(1)

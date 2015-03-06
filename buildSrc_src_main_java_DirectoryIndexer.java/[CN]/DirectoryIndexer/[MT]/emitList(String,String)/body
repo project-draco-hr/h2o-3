@@ -1,0 +1,26 @@
+{
+  list(new File(_dir));
+  BufferedWriter out=null;
+  try {
+    FileWriter fstream=new FileWriter(outputFile);
+    out=new BufferedWriter(fstream);
+    for (    String s : _files) {
+      int idx=s.lastIndexOf(prefix);
+      String s2=s.substring(idx);
+      out.write(s2 + "\n");
+    }
+  }
+ catch (  IOException e) {
+    throw new RuntimeException(e);
+  }
+ finally {
+    if (out != null) {
+      try {
+        out.close();
+      }
+ catch (      Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+}
