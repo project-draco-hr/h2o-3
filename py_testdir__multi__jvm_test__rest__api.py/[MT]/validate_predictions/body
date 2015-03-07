@@ -8,7 +8,7 @@ def validate_predictions(result, model_name, frame_key, expected_rows, destinati
     assert ('key' in mm['predictions']), (((('FAIL: Predictions for scoring: ' + model_name) + ' on: ') + frame_key) + ' does not contain a key.')
     assert ('name' in mm['predictions']['key']), (((('FAIL: Predictions for scoring: ' + model_name) + ' on: ') + frame_key) + ' does not contain a key name.')
     predictions_key = mm['predictions']['key']['name']
-    f = a_node.frames(key=predictions_key, find_compatible_models=True, len=5)
+    f = a_node.frames(key=predictions_key, find_compatible_models=True, row_count=5)
     frames = f['frames']
     frames_dict = h2o_util.list_to_dict(frames, 'key/name')
     assert (predictions_key in frames_dict), (('FAIL: Failed to find predictions key' + predictions_key) + ' in Frames list.')
