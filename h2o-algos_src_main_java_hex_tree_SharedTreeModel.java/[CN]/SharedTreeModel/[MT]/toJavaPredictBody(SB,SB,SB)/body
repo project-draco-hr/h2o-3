@@ -1,0 +1,23 @@
+{
+  final int nclass=_output.nclasses();
+  body.ip("java.util.Arrays.fill(preds,0f);").nl();
+  body.ip("float[] fdata = hex.genmodel.GenModel.SharedTree_fclean(data);").nl();
+  for (int t=0; t < _output._treeKeys.length; t++) {
+    body.ip("Forest_").p(t).p(".score0(fdata,preds);").nl();
+    file.nl();
+    file.ip("class Forest_").p(t).p(" {").nl().ii(1);
+    file.ip("public static void score0(float[] fdata, float[] preds) {").nl().ii(1);
+    for (int c=0; c < nclass; c++)     if (!(c == 1 && nclass == 2))     toJavaTreeName(file.ip("preds[").p(nclass == 1 ? 0 : c + 1).p("] += "),t,c).p(".score0(fdata);").nl();
+    file.di(1).ip("}").nl();
+    file.di(1).ip("}").nl();
+    for (int c=0; c < nclass; c++) {
+      if (!(c == 1 && nclass == 2)) {
+        toJavaTreeName(file.ip("class "),t,c).p(" {").nl().ii(1);
+        CompressedTree ct=_output.ctree(t,c);
+        new TreeJCodeGen(this,ct,file).generate();
+        file.di(1).ip("}").nl();
+      }
+    }
+  }
+  toJavaUnifyPreds(body,file);
+}
