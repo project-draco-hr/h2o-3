@@ -1,0 +1,26 @@
+{
+  testSuiteStartTime=System.currentTimeMillis();
+  document=docBuilder.newDocument();
+  testSuiteElement=document.createElement("testsuite");
+  document.appendChild(testSuiteElement);
+  testSuiteElement.setAttribute("name",testSuiteName);
+  testSuiteElement.setAttribute("timestamp",dateFormat.format(new Date(testSuiteStartTime)));
+  testSuiteElement.setAttribute("hostname",InetAddress.getLocalHost().getHostName());
+  Element propertiesElement=document.createElement("properties");
+  testSuiteElement.appendChild(propertiesElement);
+  for (  String name : System.getProperties().stringPropertyNames()) {
+    Element propertyElement=document.createElement("property");
+    propertyElement.setAttribute("name",name);
+    propertyElement.setAttribute("value",System.getProperty(name));
+    propertiesElement.appendChild(propertyElement);
+  }
+  testCount=0;
+  successCount=0;
+  failureCount=0;
+  stdOut=System.out;
+  out=new ByteArrayOutputStream();
+  System.setOut(new PrintStream(new TeeOutputStream(out,stdOut),true));
+  stdErr=System.err;
+  err=new ByteArrayOutputStream();
+  System.setErr(new PrintStream(new TeeOutputStream(err,stdErr),true));
+}

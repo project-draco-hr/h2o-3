@@ -1,0 +1,15 @@
+{
+  try {
+    Process p=new ProcessBuilder("hadoop","version").start();
+    p.waitFor();
+    BufferedReader br=new BufferedReader(new InputStreamReader(p.getInputStream()));
+    String line=br.readLine();
+    if (line == null) {
+      line="(unknown)";
+    }
+    return line;
+  }
+ catch (  Exception e) {
+    return "(unknown)";
+  }
+}

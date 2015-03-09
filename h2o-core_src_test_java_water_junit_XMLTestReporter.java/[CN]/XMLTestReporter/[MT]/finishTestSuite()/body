@@ -1,0 +1,21 @@
+{
+  double time=(System.currentTimeMillis() - testSuiteStartTime) / 1000.0;
+  testSuiteElement.setAttribute("time","" + time);
+  long errorCount=testCount - successCount - failureCount;
+  testSuiteElement.setAttribute("tests","" + testCount);
+  testSuiteElement.setAttribute("failures","" + failureCount);
+  testSuiteElement.setAttribute("errors","" + errorCount);
+  System.setOut(stdOut);
+  System.setErr(stdErr);
+  Element systemOutElement=document.createElement("system-out");
+  testSuiteElement.appendChild(systemOutElement);
+  systemOutElement.appendChild(document.createCDATASection(out.toString()));
+  Element systemErrElement=document.createElement("system-err");
+  testSuiteElement.appendChild(systemErrElement);
+  systemErrElement.appendChild(document.createCDATASection(err.toString()));
+  FileWriter fw=new FileWriter(reportsDir + File.separator + "TEST-"+ currentTestSuiteName+ ".xml");
+  StreamResult sr=new StreamResult(fw);
+  DOMSource source=new DOMSource(document);
+  trans.transform(source,sr);
+  fw.close();
+}

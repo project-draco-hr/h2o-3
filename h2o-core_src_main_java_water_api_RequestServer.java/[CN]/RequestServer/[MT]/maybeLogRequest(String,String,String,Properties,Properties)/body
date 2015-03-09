@@ -1,0 +1,16 @@
+{
+  if (uri.endsWith(".css"))   return;
+  if (uri.endsWith(".js"))   return;
+  if (uri.endsWith(".png"))   return;
+  if (uri.endsWith(".ico"))   return;
+  if (uri.contains("/Cloud"))   return;
+  if (uri.contains("/Jobs") && method.equals("GET"))   return;
+  if (uri.contains("/Log"))   return;
+  if (uri.contains("/Progress"))   return;
+  if (uri.contains("/Typeahead"))   return;
+  if (uri.contains("/WaterMeterCpuTicks"))   return;
+  String paddedMethod=String.format("%-6s",method);
+  Log.info("Method: " + paddedMethod,", URI: " + uri + ", route: "+ pattern+ ", parms: "+ parms);
+  if (header.getProperty("user-agent") != null)   H2O.GA.postAsync(new AppViewHit(uri).customDimention(H2O.CLIENT_TYPE_GA_CUST_DIM,header.getProperty("user-agent")));
+ else   H2O.GA.postAsync(new AppViewHit(uri));
+}
