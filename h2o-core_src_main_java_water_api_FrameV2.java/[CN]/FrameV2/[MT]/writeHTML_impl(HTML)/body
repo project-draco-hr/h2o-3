@@ -14,59 +14,59 @@
 );
   formatRow(ab,"","min",new ColOp(){
     String op(    ColV2 c){
-      return rollUpStr(c,c.missing == nrows ? Double.NaN : c.mins[0]);
+      return rollUpStr(c,c.missing_count == nrows ? Double.NaN : c.mins[0]);
     }
   }
 );
   formatRow(ab,"","max",new ColOp(){
     String op(    ColV2 c){
-      return rollUpStr(c,c.missing == nrows ? Double.NaN : c.maxs[0]);
+      return rollUpStr(c,c.missing_count == nrows ? Double.NaN : c.maxs[0]);
     }
   }
 );
   formatRow(ab,"","mean",new ColOp(){
     String op(    ColV2 c){
-      return rollUpStr(c,c.missing == nrows ? Double.NaN : c.mean);
+      return rollUpStr(c,c.missing_count == nrows ? Double.NaN : c.mean);
     }
   }
 );
   formatRow(ab,"","sigma",new ColOp(){
     String op(    ColV2 c){
-      return rollUpStr(c,c.missing == nrows ? Double.NaN : c.sigma);
+      return rollUpStr(c,c.missing_count == nrows ? Double.NaN : c.sigma);
     }
   }
 );
-  for (  ColV2 c : columns)   if (c.missing > 0) {
+  for (  ColV2 c : columns)   if (c.missing_count > 0) {
     formatRow(ab,"class='warning'","missing",new ColOp(){
       String op(      ColV2 c){
-        return c.missing == 0 ? "" : Long.toString(c.missing);
+        return c.missing_count == 0 ? "" : Long.toString(c.missing_count);
       }
     }
 );
     break;
   }
-  for (  ColV2 c : columns)   if (c.zeros > 0) {
+  for (  ColV2 c : columns)   if (c.zero_count > 0) {
     formatRow(ab,"class='warning'","zeros",new ColOp(){
       String op(      ColV2 c){
-        return c.zeros == 0 ? "" : Long.toString(c.zeros);
+        return c.zero_count == 0 ? "" : Long.toString(c.zero_count);
       }
     }
 );
     break;
   }
-  for (  ColV2 c : columns)   if (c.pinfs > 0) {
+  for (  ColV2 c : columns)   if (c.positive_infinity_count > 0) {
     formatRow(ab,"class='warning'","+infins",new ColOp(){
       String op(      ColV2 c){
-        return c.pinfs == 0 ? "" : Long.toString(c.pinfs);
+        return c.positive_infinity_count == 0 ? "" : Long.toString(c.positive_infinity_count);
       }
     }
 );
     break;
   }
-  for (  ColV2 c : columns)   if (c.ninfs > 0) {
+  for (  ColV2 c : columns)   if (c.negative_infinity_count > 0) {
     formatRow(ab,"class='warning'","-infins",new ColOp(){
       String op(      ColV2 c){
-        return c.ninfs == 0 ? "" : Long.toString(c.ninfs);
+        return c.negative_infinity_count == 0 ? "" : Long.toString(c.negative_infinity_count);
       }
     }
 );
@@ -84,9 +84,9 @@
   final int len=columns.length > 0 ? columns[0].data.length : 0;
   for (int i=0; i < len; i++) {
     final int row=i;
-    formatRow(ab,"",Long.toString(off + row + 1),new ColOp(){
+    formatRow(ab,"",Long.toString(row_offset + row + 1),new ColOp(){
       String op(      ColV2 c){
-        return formatCell(c.data == null ? 0 : c.data[row],c.str_data == null ? null : c.str_data[row],c,0);
+        return formatCell(c.data == null ? 0 : c.data[row],c.string_data == null ? null : c.string_data[row],c,0);
       }
     }
 );
