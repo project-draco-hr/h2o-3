@@ -1,0 +1,28 @@
+{
+  _mtry=(_parms._mtries == -1) ? (_parms._convert_to_enum ? Math.max((int)Math.sqrt(_ncols),1) : Math.max(_ncols / 3,1)) : _parms._mtries;
+  if (!(1 <= _mtry && _mtry <= _ncols))   throw new IllegalArgumentException("Computed mtry should be in interval <1,#cols> but it is " + _mtry);
+  initTreeMeasurements();
+  _train.add("OUT_BAG_TREES",_response.makeZero());
+  new SetWrkTask().doAll(_train);
+  if (_valid == null && _parms._checkpoint) {
+    Timer t=new Timer();
+    new OOBScorer(_ncols,_nclass,_parms._sample_rate,_model._output._treeKeys).doAll(_train);
+    Log.info("Reconstructing oob stats from checkpointed model took " + t);
+  }
+  Random rand=new Random(_actual_seed);
+  for (int i=0; i < _ntreesFromCheckpoint; i++)   rand.nextLong();
+  int tid;
+  DTree[] ktrees=null;
+  TreeStats tstats=_model._output._treeStats != null ? _model._output._treeStats : new TreeStats();
+  for (tid=0; tid < _parms._ntrees; tid++) {
+    if (tid != 0 || !_parms._checkpoint) {
+      doScoringAndSaveModel(false,_valid == null,_parms._build_tree_one_node);
+    }
+    Timer kb_timer=new Timer();
+    ktrees=buildNextKTrees(_train,_mtry,_parms._sample_rate,rand,tid);
+    Log.info((tid + 1) + ". tree was built " + kb_timer.toString());
+    if (!isRunning())     return;
+    tstats.updateBy(ktrees);
+  }
+  doScoringAndSaveModel(true,_valid == null,_parms._build_tree_one_node);
+}
