@@ -1,0 +1,11 @@
+{
+  Element failureElement=document.createElement("failure");
+  testCaseElement.appendChild(failureElement);
+  Description description=failure.getDescription();
+  String exceptionName=failure.getException().getClass().getName();
+  failureElement.setAttribute("message",failure.getMessage());
+  failureElement.setAttribute("type",exceptionName);
+  Text messageElement=document.createTextNode(exceptionName + ": " + failure.getMessage()+ "\n\tat "+ description.getClassName()+ "."+ description.getMethodName()+ "()");
+  failureElement.appendChild(messageElement);
+  failureCount++;
+}

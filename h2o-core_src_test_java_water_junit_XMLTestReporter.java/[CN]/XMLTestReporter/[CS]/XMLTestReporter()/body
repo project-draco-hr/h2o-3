@@ -1,0 +1,13 @@
+{
+  dateFormat=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+  dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+  docBuilderFactory=DocumentBuilderFactory.newInstance();
+  docBuilder=docBuilderFactory.newDocumentBuilder();
+  transFactory=TransformerFactory.newInstance();
+  trans=transFactory.newTransformer();
+  trans.setOutputProperty(OutputKeys.INDENT,"yes");
+  reportsDir=System.getProperty("junit.reports.dir","build/test-results");
+  File rdir=new File(reportsDir);
+  if (rdir.isFile())   throw new IllegalArgumentException(reportsDir + " is not a directory!");
+  if (!rdir.exists())   rdir.mkdirs();
+}

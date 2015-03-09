@@ -21,7 +21,7 @@ def test_GLM_params_rand2(self):
     labelListUsed = list(labelList)
     numColsUsed = numCols
     paramDict = define_params()
-    for trial in range(1):
+    for trial in range(5):
         parameters = {'response_column': 'C54', 'alpha': 0.1, 'lambda': 0, 'n_folds': 1, }
         h2o_glm.pickRandGlmParams(paramDict, parameters)
         if (('family' not in parameters) or (parameters['family'] == 'binomial')):
@@ -41,20 +41,23 @@ def test_GLM_params_rand2(self):
         bm = OutputObj(bmResult, 'bm')
         modelResult = h2o.n0.models(key=model_key)
         model = OutputObj(modelResult['models'][0]['output'], 'model')
-        h2o_glm.simpleCheckGLM(self, model, parameters, labelList, labelListUsed)
+        h2o_glm.simpleCheckGLM(self, model, parameters, labelList, labelListUsed, allowNaN=True)
         cmmResult = h2o.n0.compute_model_metrics(model=model_key, frame=parse_key, timeoutSecs=60)
         cmm = OutputObj(cmmResult, 'cmm')
-        mcms = OutputObj({'data': cmm.maxCriteriaAndMetricScores.data, }, 'mcms')
-        m1 = mcms.data[1:]
-        h0 = mcms.data[0]
-        print '\nmcms', tabulate(m1, headers=h0)
-        thms = OutputObj(cmm.thresholdsAndMetricScores, 'thms')
-        cmms = OutputObj({'cm': cmm.confusion_matrices, }, 'cmms')
-        if (1 == 0):
-            print ''
-            for (i, c) in enumerate(cmms.cm):
-                print ('\ncmms.cm[%s]' % i), tabulate(c)
-            print ''
+        doClassification = False
+        if doClassification:
+            mcms = OutputObj({'data': cmm.maxCriteriaAndMetricScores.data, }, 'mcms')
+            m1 = mcms.data[1:]
+            h0 = mcms.data[0]
+            print '\nmcms', tabulate(m1, headers=h0)
+        if doClassification:
+            thms = OutputObj(cmm.thresholdsAndMetricScores, 'thms')
+            cmms = OutputObj({'cm': cmm.confusion_matrices, }, 'cmms')
+            if (1 == 0):
+                print ''
+                for (i, c) in enumerate(cmms.cm):
+                    print ('\ncmms.cm[%s]' % i), tabulate(c)
+                print ''
         mmResult = h2o.n0.model_metrics(model=model_key, frame=parse_key, timeoutSecs=60)
         mm = OutputObj(mmResult['model_metrics'][0], 'mm')
         prResult = h2o.n0.predict(model=model_key, frame=parse_key, timeoutSecs=60)

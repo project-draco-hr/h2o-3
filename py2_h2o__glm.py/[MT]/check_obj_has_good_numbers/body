@@ -1,4 +1,4 @@
-def check_obj_has_good_numbers(obj, hierarchy='', curr_depth=0, max_depth=4):
+def check_obj_has_good_numbers(obj, hierarchy='', curr_depth=0, max_depth=4, allowNaN=False):
     'Represent instance of a class as JSON.\n    Arguments:\n    obj -- any object\n    Return:\n    String that represent JSON-encoded object.\n    '
 
     def serialize(obj, hierarchy='', curr_depth=0):
@@ -17,9 +17,9 @@ def check_obj_has_good_numbers(obj, hierarchy='', curr_depth=0, max_depth=4):
                 else:
                     raise Exception(('%s %s %s is not a valid float' % (hierarchy, obj, type(obj))))
                 number = 0.0
-            if math.isnan(number):
+            if ((not allowNaN) and math.isnan(number)):
                 raise Exception(('%s %s is a NaN' % (hierarchy, obj)))
-            if math.isinf(number):
+            if ((not allowNaN) and math.isinf(number)):
                 raise Exception(('%s %s is a Inf' % (hierarchy, obj)))
             return number
         elif isinstance(obj, dict):
