@@ -4,19 +4,19 @@ def parse(self, key, hex_key=None, columnTypeDict=None, timeoutSecs=300, retryDe
     if (not isinstance(key, basestring)):
         if (not key):
             raise Exception(('key seems to be bad in parse. Should be list or string. %s' % key))
-        srcs = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), key))) + ']')
+        source_keys = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), key))) + ']')
     else:
-        srcs = (("['" + key) + "']")
-    params_dict['srcs'] = srcs
+        source_keys = (("['" + key) + "']")
+    params_dict['source_keys'] = source_keys
     h2o_methods.check_params_update_kwargs(params_dict, kwargs, 'parse before setup merge', print_params=False)
-    params_setup = {'srcs': srcs, }
+    params_setup = {'source_keys': source_keys, }
     setup_result = self.do_json_request(jsonRequest='2/ParseSetup.json', cmd='post', timeout=timeoutSecs, postData=params_setup)
     h2o_sandbox.check_sandbox_for_errors()
     verboseprint('ParseSetup result:', dump_json(setup_result))
     if setup_result['source_keys']:
-        srcsStr = (('[' + ','.join([("'%s'" % src['name']) for src in setup_result['source_keys']])) + ']')
+        source_keysStr = (('[' + ','.join([("'%s'" % src['name']) for src in setup_result['source_keys']])) + ']')
     else:
-        srcsStr = None
+        source_keysStr = None
     if setup_result['column_names']:
         columnNamesStr = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), setup_result['column_names']))) + ']')
     else:
@@ -43,13 +43,13 @@ def parse(self, key, hex_key=None, columnTypeDict=None, timeoutSecs=300, retryDe
             else:
                 raise Exception(('%s %s should be int or string' % (k, type(k))))
     columnTypesStr = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), ct))) + ']')
-    parse_params = {'source_keys': srcsStr, 'destination_key': setup_result['destination_key'], 'parse_type': setup_result['parse_type'], 'separator': setup_result['separator'], 'single_quotes': setup_result['single_quotes'], 'check_header': setup_result['check_header'], 'number_columns': setup_result['number_columns'], 'column_names': columnNamesStr, 'column_types': columnTypesStr, 'na_strings': naStrings, 'chunk_size': setup_result['chunk_size'], 'delete_on_done': params_dict['delete_on_done'], 'blocking': params_dict['blocking'], }
+    parse_params = {'source_keys': source_keysStr, 'destination_key': setup_result['destination_key'], 'parse_type': setup_result['parse_type'], 'separator': setup_result['separator'], 'single_quotes': setup_result['single_quotes'], 'check_header': setup_result['check_header'], 'number_columns': setup_result['number_columns'], 'column_names': columnNamesStr, 'column_types': columnTypesStr, 'na_strings': naStrings, 'chunk_size': setup_result['chunk_size'], 'delete_on_done': params_dict['delete_on_done'], 'blocking': params_dict['blocking'], }
     tooManyColNamesToPrint = (setup_result['column_names'] and (len(setup_result['column_names']) > 2000))
     if tooManyColNamesToPrint:
         h2p.yellow_print('Not printing the parameters to Parse because the columnNames are too lengthy.')
         h2p.yellow_print('See sandbox/commands.log')
     h2o_methods.check_params_update_kwargs(parse_params, params_dict, 'parse after merge into parse setup', print_params=(not tooManyColNamesToPrint), ignoreNone=True)
-    print 'parse srcs is length:', len(parse_params['source_keys'])
+    print 'parse source_keys is length:', len(parse_params['source_keys'])
     parse_result = self.do_json_request(jsonRequest='2/Parse.json', cmd='post', postData=parse_params, timeout=timeoutSecs)
     verboseprint('Parse result:', dump_json(parse_result))
     job_key = parse_result['job']['key']['name']
