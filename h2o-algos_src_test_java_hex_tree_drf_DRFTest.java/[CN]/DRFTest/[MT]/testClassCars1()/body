@@ -1,7 +1,8 @@
 {
   basicDRFTestOOBE("./smalldata/junit/cars.csv","cars.hex",new PrepData(){
     @Override int prep(    Frame fr){
-      DKV.remove(fr.remove("name")._key);
+      fr.remove("name").remove();
+      DKV.put(fr._key,fr);
       return fr.find("cylinders");
     }
   }

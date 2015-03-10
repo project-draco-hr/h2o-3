@@ -2,7 +2,7 @@
   super.init(expensive);
   if (!(0.0 < _parms._sample_rate && _parms._sample_rate <= 1.0))   throw new IllegalArgumentException("Sample rate should be interval (0,1> but it is " + _parms._sample_rate);
   if (DEBUG_DETERMINISTIC && _parms._seed == -1)   _parms._seed=0x1321e74a0192470cL;
- else   if (_parms._seed == -1)   _actual_seed=new Random().nextLong();
+ else   if (_parms._seed == -1)   _actual_seed=RandomUtils.getDeterRNG(0xd280524ad7fe0602L).nextLong();
  else   _actual_seed=_parms._seed;
   if (_parms._sample_rate == 1f && _valid != null)   Log.warn("Sample rate is 100% and no validation dataset is specified. There are no OOB data to compute out-of-bag error estimation!");
   if (!_parms._convert_to_enum && _parms._do_grpsplit) {

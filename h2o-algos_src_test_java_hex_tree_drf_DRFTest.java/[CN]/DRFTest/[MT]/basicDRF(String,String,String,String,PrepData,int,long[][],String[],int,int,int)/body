@@ -1,7 +1,6 @@
 {
+  Scope.enter();
   DRFModel.DRFParameters drf=new DRFModel.DRFParameters();
-  Key destTrain=Key.make(hexnametrain);
-  Key destTest=hexnametest != null ? Key.make(hexnametest) : null;
   Frame frTest=null, pred=null;
   Frame frTrain=null;
   DRFModel model=null;
@@ -23,17 +22,31 @@
     try {
       job=new DRF(drf);
       model=job.trainModel().get();
+      Log.info(model._output);
     }
   finally {
       if (job != null)       job.remove();
     }
-    frTest=fnametest != null ? parse_test_file(fnametest) : null;
-    pred=model.score(frTest);
+    Assert.assertTrue(job._state == water.Job.JobState.DONE);
+    hex.ModelMetrics mm;
+    if (fnametest != null) {
+      frTest=parse_test_file(fnametest);
+      pred=model.score(frTest);
+      mm=hex.ModelMetrics.getFromDKV(model,frTest);
+    }
+ else {
+      mm=hex.ModelMetrics.getFromDKV(model,frTrain);
+    }
+    Assert.assertTrue("Expected: " + Arrays.deepToString(expCM) + ", Got: "+ Arrays.deepToString(mm.cm().confusion_matrix),Arrays.deepEquals(mm.cm().confusion_matrix,expCM));
+    Assert.assertEquals("Number of trees differs!",ntree,model._output._ntrees);
+    String[] cmDom=model._output._domains[model._output._domains.length - 1];
+    Assert.assertArrayEquals("CM domain differs!",expRespDom,cmDom);
   }
   finally {
     if (frTrain != null)     frTrain.remove();
     if (frTest != null)     frTest.remove();
     if (model != null)     model.delete();
     if (pred != null)     pred.delete();
+    Scope.exit();
   }
 }

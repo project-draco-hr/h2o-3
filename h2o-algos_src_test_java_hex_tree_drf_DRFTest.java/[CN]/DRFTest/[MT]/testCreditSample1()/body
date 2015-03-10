@@ -1,7 +1,8 @@
 {
   basicDRFTestOOBE("./smalldata/kaggle/creditsample-training.csv.gz","credit.hex",new PrepData(){
     @Override int prep(    Frame fr){
-      DKV.remove(fr.remove("MonthlyIncome")._key);
+      fr.remove("MonthlyIncome").remove();
+      DKV.put(fr._key,fr);
       return fr.find("SeriousDlqin2yrs");
     }
   }

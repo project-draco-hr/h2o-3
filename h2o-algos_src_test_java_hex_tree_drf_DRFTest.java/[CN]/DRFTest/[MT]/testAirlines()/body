@@ -1,20 +1,10 @@
 {
   basicDRFTestOOBE("./smalldata/airlines/allyears2k_headers.zip","airlines.hex",new PrepData(){
     @Override int prep(    Frame fr){
-      DKV.remove(fr.remove("DepTime")._key);
-      DKV.remove(fr.remove("ArrTime")._key);
-      DKV.remove(fr.remove("ActualElapsedTime")._key);
-      DKV.remove(fr.remove("AirTime")._key);
-      DKV.remove(fr.remove("ArrDelay")._key);
-      DKV.remove(fr.remove("DepDelay")._key);
-      DKV.remove(fr.remove("Cancelled")._key);
-      DKV.remove(fr.remove("CancellationCode")._key);
-      DKV.remove(fr.remove("CarrierDelay")._key);
-      DKV.remove(fr.remove("WeatherDelay")._key);
-      DKV.remove(fr.remove("NASDelay")._key);
-      DKV.remove(fr.remove("SecurityDelay")._key);
-      DKV.remove(fr.remove("LateAircraftDelay")._key);
-      DKV.remove(fr.remove("IsArrDelayed")._key);
+      for (      String s : new String[]{"DepTime","ArrTime","ActualElapsedTime","AirTime","ArrDelay","DepDelay","Cancelled","CancellationCode","CarrierDelay","WeatherDelay","NASDelay","SecurityDelay","LateAircraftDelay","IsArrDelayed"}) {
+        fr.remove(s).remove();
+      }
+      DKV.put(fr._key,fr);
       return fr.find("IsDepDelayed");
     }
   }
