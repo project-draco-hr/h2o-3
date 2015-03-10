@@ -28,13 +28,9 @@ def test_summary2_exp(self):
         print iA.missingList, iA.labelList, iA.numRows, iA.numCols
         assert (len(expected) == 6)
         co = h2o_cmd.runSummary(key=hex_key, column=0, expected=expected[1:], maxDelta=maxErr)
-        print co.label, co.type, co.missing, co.domain, sum(co.bins)
-        coList = [co.base, len(co.bins), len(co.data), co.domain, co.label, co.maxs, co.mean, co.mins, co.missing, co.ninfs, co.pctiles, co.pinfs, co.precision, co.sigma, co.str_data, co.stride, co.type, co.zeros]
-        for (k, v) in co:
-            print k, v
         trial += 1
         h2o.nodes[0].remove_all_keys()
         scipyCol = 0
         print 'maxErr', maxErr
         if ((co.label != '') and expected[scipyCol]):
-            h2o_summ.quantile_comparisons(csvPathnameFull, skipHeader=False, col=scipyCol, datatype='float', quantile=(0.5 if DO_MEDIAN else 0.99), h2oSummary2=co.pctiles[(5 if DO_MEDIAN else 9)], h2oSummary2MaxErr=maxErr)
+            h2o_summ.quantile_comparisons(csvPathnameFull, skipHeader=False, col=scipyCol, datatype='float', quantile=(0.5 if DO_MEDIAN else 0.99), h2oSummary2=co.percentiles[(5 if DO_MEDIAN else 9)], h2oSummary2MaxErr=maxErr)

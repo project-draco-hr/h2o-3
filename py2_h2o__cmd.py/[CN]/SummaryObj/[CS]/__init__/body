@@ -3,19 +3,19 @@ def __init__(self, key, colIndex, colName, expectedNumRows=None, expectedNumCols
     assert (colName is not None)
     summaryResult = h2o_nodes.nodes[0].summary(key=key, column=colName, timeoutSecs=timeoutSecs, **kwargs)
     frame = summaryResult['frames'][0]
-    default_pctiles = frame['default_pctiles']
+    default_percentiles = frame['default_percentiles']
     checksum = frame['checksum']
     rows = frame['rows']
     coJson = frame['columns'][0]
     assert ((checksum != 0) and (checksum is not None))
     assert ((rows != 0) and (rows is not None))
     super(SummaryObj, self).__init__(coJson, ('Summary for %s' % colName), noPrint=noPrint)
-    coList = [self.base, len(self.bins), len(self.data), self.domain, self.label, self.maxs, self.mean, self.mins, self.missing, self.ninfs, self.pctiles, self.pinfs, self.precision, self.sigma, self.str_data, self.stride, self.type, self.zeros]
+    coList = [len(self.data), self.domain, self.string_data, self.type, self.label, self.percentiles, self.precision, self.mins, self.maxs, self.mean, self.histogram_base, len(self.histogram_bins), self.histogram_stride, self.zero_count, self.missing_count, self.positive_infinity_count, self.negative_infinity_count]
     assert (self.label == colName), ('%s You must have told me the wrong colName %s for the given colIndex %s' % (self.label, colName, colIndex))
     print "you can look at this attributes in the returned object (which is OutputObj if you assigned to 'co')"
     for (k, v) in self:
         print ('%s' % k),
-    self.default_pctiles = default_pctiles
+    self.default_percentiles = default_percentiles
     self.checksum = checksum
     self.rows = rows
     print '\nSummaryObj for', key, 'for colName', colName, 'colIndex:', colIndex
