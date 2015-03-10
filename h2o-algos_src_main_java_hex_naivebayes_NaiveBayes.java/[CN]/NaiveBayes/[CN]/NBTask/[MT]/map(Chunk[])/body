@@ -1,0 +1,22 @@
+{
+  int res_idx=chks.length - 1;
+  Chunk res=chks[res_idx];
+  OUTER:   for (int row=0; row < chks[0]._len; row++) {
+    for (int col=0; col < chks.length; col++) {
+      if (Double.isNaN(chks[col].atd(row)))       continue OUTER;
+    }
+    int rlevel=(int)res.atd(row);
+    for (int col=0; col < _dinfo._cats; col++) {
+      int plevel=(int)chks[col].atd(row);
+      _jntcnt[col][rlevel][plevel]++;
+    }
+    for (int col=0; col < _dinfo._nums; col++) {
+      int cidx=_dinfo._cats + col;
+      double x=chks[cidx].atd(row);
+      _jntcnt[cidx][rlevel][0]+=x;
+      _jntcnt[cidx][rlevel][1]+=x * x;
+    }
+    _rescnt[rlevel]++;
+    _nobs++;
+  }
+}

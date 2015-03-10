@@ -7,7 +7,7 @@ def test_GBM_basic(self):
     timeoutSecs = 1800
     csvPathname = ((importFolderPath + '/') + trainFilename)
     columnTypeDict = {54: 'Enum', }
-    parseResult = h2i.import_parse(bucket=bucket, path=csvPathname, columnTypeDict=columnTypeDict, schema='local', chunkSize=4194304, hex_key=train_key, timeoutSecs=timeoutSecs)
+    parseResult = h2i.import_parse(bucket=bucket, path=csvPathname, columnTypeDict=columnTypeDict, schema='local', chunk_size=4194304, hex_key=train_key, timeoutSecs=timeoutSecs)
     pA = h2o_cmd.ParseObj(parseResult)
     iA = h2o_cmd.InspectObj(pA.parse_key)
     parse_key = pA.parse_key
@@ -32,6 +32,8 @@ def test_GBM_basic(self):
         model = OutputObj(modelResult['models'][0]['output'], 'model')
         cmmResult = h2o.n0.compute_model_metrics(model=model_key, frame=parse_key, timeoutSecs=60)
         cmm = OutputObj(cmmResult, 'cmm')
+        if p.get('do_classification', None):
+            print '\nLook!, can use dot notation: cmm.cm.confusion_matrix', cmm.cm.confusion_matrix, '\n'
         vis = OutputObj(model.variableImportances, 'vis')
         visDataChopped = [v[0:9] for v in vis.data]
         names = visDataChopped[0]
@@ -47,7 +49,7 @@ def test_GBM_basic(self):
         print 'FIX! why is mse 0 and mes_train Nan?'
         print 'model.mse:', model.mse
         print 'model.mse_train:', model.mse_train
-        if (1 == 0):
+        if (1 == 1):
             print ''
             for (i, c) in enumerate(cmms.cm):
                 print ('\ncmms.cm[%s]' % i), tabulate(c)

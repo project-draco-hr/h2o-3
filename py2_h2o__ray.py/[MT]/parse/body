@@ -1,47 +1,59 @@
 def parse(self, key, hex_key=None, columnTypeDict=None, timeoutSecs=300, retryDelaySecs=0.2, initialDelaySecs=None, pollTimeoutSecs=180, noise=None, benchmarkLogging=None, noPoll=False, intermediateResults=False, **kwargs):
     '\n    Parse an imported raw file or files into a Frame.\n    '
-    params_dict = {'srcs': None, 'hex': hex_key, 'pType': None, 'sep': None, 'ncols': None, 'checkHeader': None, 'singleQuotes': None, 'columnNames': None, 'columnTypes': None, 'chunkSize': None, 'delete_on_done': None, 'blocking': None, }
+    params_dict = {'source_keys': None, 'destination_key': hex_key, 'parse_type': None, 'separator': None, 'single_quotes': None, 'check_header': None, 'number_columns': None, 'column_names': None, 'column_types': None, 'na_strings': None, 'chunk_size': None, 'delete_on_done': None, 'blocking': None, }
     if (not isinstance(key, basestring)):
         if (not key):
             raise Exception(('key seems to be bad in parse. Should be list or string. %s' % key))
-        srcs = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), key))) + ']')
+        source_keys = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), key))) + ']')
     else:
-        srcs = (("['" + key) + "']")
-    params_dict['srcs'] = srcs
+        source_keys = (("['" + key) + "']")
+    params_dict['source_keys'] = source_keys
     h2o_methods.check_params_update_kwargs(params_dict, kwargs, 'parse before setup merge', print_params=False)
-    params_setup = {'srcs': srcs, }
+    params_setup = {'source_keys': source_keys, }
     setup_result = self.do_json_request(jsonRequest='2/ParseSetup.json', cmd='post', timeout=timeoutSecs, postData=params_setup)
     h2o_sandbox.check_sandbox_for_errors()
     verboseprint('ParseSetup result:', dump_json(setup_result))
-    if setup_result['srcs']:
-        srcsStr = (('[' + ','.join([("'%s'" % src['name']) for src in setup_result['srcs']])) + ']')
+    if setup_result['source_keys']:
+        source_keysStr = (('[' + ','.join([("'%s'" % src['name']) for src in setup_result['source_keys']])) + ']')
     else:
-        srcsStr = None
-    if setup_result['columnNames']:
-        columnNamesStr = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), setup_result['columnNames']))) + ']')
+        source_keysStr = None
+    if setup_result['column_names']:
+        columnNamesStr = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), setup_result['column_names']))) + ']')
     else:
         columnNamesStr = None
-    columnTypes = setup_result['columnTypes']
-    assert (columnTypes is not None), ('%s %s' % ('columnTypes:', columnTypes))
-    ct = setup_result['columnTypes']
+    columnTypes = setup_result['column_types']
+    assert (columnTypes is not None), ('%s %s' % ('column_types:', columnTypes))
+    if setup_result['na_strings']:
+        naStrings = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), setup_result['na_strings']))) + ']')
+    else:
+        naStrings = None
+    ct = setup_result['column_types']
     if columnTypeDict:
         for (k, v) in columnTypeDict.iteritems():
-            if ((k >= 0) and (k < len(ct))):
-                ct[k] = v
+            if isinstance(k, int):
+                if ((k >= 0) and (k < len(ct))):
+                    ct[k] = v
+                else:
+                    raise Exception(('bad col index %s in columnTypeDict param %s' % (k, columnTypeDict)))
+            elif isinstance(k, basestring):
+                if (k not in columnNames):
+                    raise Exception(('bad col name %s in columnTypeDict param %s. columnNames: %s' % (k, columnTypeDict, columnNames)))
+                ci = columnNames.index(k)
+                ct[ci] = v
             else:
-                raise Exception(('bad col index %s in columnTypeDict param %s' % (k, columnTypeDict)))
+                raise Exception(('%s %s should be int or string' % (k, type(k))))
     columnTypesStr = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), ct))) + ']')
-    parse_params = {'srcs': srcsStr, 'hex': setup_result['hexName'], 'pType': setup_result['pType'], 'sep': setup_result['sep'], 'ncols': setup_result['ncols'], 'checkHeader': setup_result['checkHeader'], 'singleQuotes': setup_result['singleQuotes'], 'columnNames': columnNamesStr, 'columnTypes': columnTypesStr, 'chunkSize': setup_result['chunkSize'], 'delete_on_done': params_dict['delete_on_done'], 'blocking': params_dict['blocking'], }
-    tooManyColNamesToPrint = (setup_result['columnNames'] and (len(setup_result['columnNames']) > 2000))
+    parse_params = {'source_keys': source_keysStr, 'destination_key': setup_result['destination_key'], 'parse_type': setup_result['parse_type'], 'separator': setup_result['separator'], 'single_quotes': setup_result['single_quotes'], 'check_header': setup_result['check_header'], 'number_columns': setup_result['number_columns'], 'column_names': columnNamesStr, 'column_types': columnTypesStr, 'na_strings': naStrings, 'chunk_size': setup_result['chunk_size'], 'delete_on_done': params_dict['delete_on_done'], 'blocking': params_dict['blocking'], }
+    tooManyColNamesToPrint = (setup_result['column_names'] and (len(setup_result['column_names']) > 2000))
     if tooManyColNamesToPrint:
         h2p.yellow_print('Not printing the parameters to Parse because the columnNames are too lengthy.')
         h2p.yellow_print('See sandbox/commands.log')
     h2o_methods.check_params_update_kwargs(parse_params, params_dict, 'parse after merge into parse setup', print_params=(not tooManyColNamesToPrint), ignoreNone=True)
-    print 'parse srcs is length:', len(parse_params['srcs'])
+    print 'parse source_keys is length:', len(parse_params['source_keys'])
     parse_result = self.do_json_request(jsonRequest='2/Parse.json', cmd='post', postData=parse_params, timeout=timeoutSecs)
     verboseprint('Parse result:', dump_json(parse_result))
     job_key = parse_result['job']['key']['name']
-    hex_key = parse_params['hex']
+    hex_key = parse_params['destination_key']
     if noPoll:
         h2o_sandbox.check_sandbox_for_errors()
         return parse_result
