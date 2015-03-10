@@ -1,18 +1,18 @@
 {
   if (colIdx < _nvs.length) {
-    if (_ctypes[colIdx]._type == ColType.NUM) {
+    if (_ctypes[colIdx] == Vec.T_NUM) {
       addInvalidCol(colIdx);
       return;
     }
-    if (_ctypes[colIdx]._type == ColType.UNKNOWN && ParseTime.attemptTimeParse(str) > 0)     _ctypes[colIdx]._type=ColType.TIME;
-    if (_ctypes[colIdx]._type == ColType.UNKNOWN) {
+    if (_ctypes[colIdx] == Vec.T_BAD && ParseTime.attemptTimeParse(str) > 0)     _ctypes[colIdx]=Vec.T_TIME;
+    if (_ctypes[colIdx] == Vec.T_BAD) {
       int old=str.get_off();
       ParseTime.attemptUUIDParse0(str);
       ParseTime.attemptUUIDParse1(str);
-      if (str.get_off() != -1)       _ctypes[colIdx]._type=ColType.UUID;
+      if (str.get_off() != -1)       _ctypes[colIdx]=Vec.T_UUID;
       str.setOff(old);
     }
-    if (_ctypes[colIdx]._type == ColType.TIME) {
+    if (_ctypes[colIdx] == Vec.T_TIME) {
       long l=ParseTime.attemptTimeParse(str);
       if (l == Long.MIN_VALUE)       addInvalidCol(colIdx);
  else {
@@ -22,7 +22,7 @@
         _nvs[_col]._timCnt[time_pat]++;
       }
     }
- else     if (_ctypes[colIdx]._type == ColType.UUID) {
+ else     if (_ctypes[colIdx] == Vec.T_UUID) {
       long lo=ParseTime.attemptUUIDParse0(str);
       long hi=ParseTime.attemptUUIDParse1(str);
       if (str.get_off() == -1) {
@@ -31,17 +31,17 @@
       }
       if (colIdx < _nCols)       _nvs[_col=colIdx].addUUID(lo,hi);
     }
- else     if (_ctypes[colIdx]._type == ColType.STR) {
+ else     if (_ctypes[colIdx] == Vec.T_STR) {
       _nvs[_col=colIdx].addStr(str);
     }
  else {
       if (!_enums[colIdx].isMapFull()) {
         int id=_enums[_col=colIdx].addKey(str);
-        if (_ctypes[colIdx]._type == ColType.UNKNOWN && id > 1)         _ctypes[colIdx]._type=ColType.ENUM;
+        if (_ctypes[colIdx] == Vec.T_BAD && id > 1)         _ctypes[colIdx]=Vec.T_ENUM;
         _nvs[colIdx].addEnum(id);
       }
  else {
-        _ctypes[_col=colIdx]._type=ColType.STR;
+        _ctypes[_col=colIdx]=Vec.T_STR;
         enumCol2StrCol(colIdx);
         _nvs[colIdx].addStr(str);
       }

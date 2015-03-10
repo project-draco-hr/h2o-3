@@ -5,9 +5,9 @@ def test_GLM_params_rand2(self):
     binomial_key = 'covtype20k.b.hex'
     b = Key(hex_key)
     csvPathname = ((importFolderPath + '/') + csvFilename)
-    parseResult = h2i.import_parse(bucket='smalldata', path=csvPathname, hex_key=hex_key, checkHeader=1, timeoutSecs=180, doSummary=False)
+    parseResult = h2i.import_parse(bucket='smalldata', path=csvPathname, hex_key=hex_key, check_header=1, timeoutSecs=180, doSummary=False)
     columnTypeDict = None
-    parseResult = h2i.import_parse(bucket='smalldata', path=csvPathname, hex_key=binomial_key, columnTypeDict=columnTypeDict, checkHeader=1, timeoutSecs=180, doSummary=False)
+    parseResult = h2i.import_parse(bucket='smalldata', path=csvPathname, hex_key=binomial_key, columnTypeDict=columnTypeDict, check_header=1, timeoutSecs=180, doSummary=False)
     Assign(b[:, 54], (b[:, 54] - 1))
     Assign(b[:, 54], (b[:, 54] != 0))
     pA = h2o_cmd.ParseObj(parseResult)
@@ -46,12 +46,12 @@ def test_GLM_params_rand2(self):
         cmm = OutputObj(cmmResult, 'cmm')
         doClassification = False
         if doClassification:
-            mcms = OutputObj({'data': cmm.maxCriteriaAndMetricScores.data, }, 'mcms')
+            mcms = OutputObj({'data': cmm.max_criteria_and_metric_scores.data, }, 'mcms')
             m1 = mcms.data[1:]
             h0 = mcms.data[0]
             print '\nmcms', tabulate(m1, headers=h0)
         if doClassification:
-            thms = OutputObj(cmm.thresholdsAndMetricScores, 'thms')
+            thms = OutputObj(cmm.thresholds_and_metric_scores, 'thms')
             cmms = OutputObj({'cm': cmm.confusion_matrices, }, 'cmms')
             if (1 == 0):
                 print ''

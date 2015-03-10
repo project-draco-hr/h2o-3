@@ -3,9 +3,9 @@
   try {
     File f=find_test_file("smalldata/airlines/AirlinesTest.csv.zip");
     NFSFileVec nfs=NFSFileVec.make(f);
-    Parser.ColTypeInfo[] ctypes=new Parser.ColTypeInfo[12];
-    for (int i=0; i < 12; i++)     ctypes[i]=new Parser.ColTypeInfo(Parser.ColType.NUM);
-    ParseSetup setup=new ParseSetup(true,0,1,null,ParserType.XLS,(byte)52,12,true,new String[]{"fYear","fMonth","fDayofMonth","fDayOfWeek","DepTime","ArrTime","UniqueCarrier","Origin","Dest","Distance","IsDepDelayed","IsDepDelayed_REC"},null,null,-1,ctypes);
+    byte[] ctypes=new byte[12];
+    for (int i=0; i < 12; i++)     ctypes[i]=Vec.T_NUM;
+    ParseSetup setup=new ParseSetup(true,0,1,null,ParserType.XLS,(byte)52,true,-1,12,new String[]{"fYear","fMonth","fDayofMonth","fDayOfWeek","DepTime","ArrTime","UniqueCarrier","Origin","Dest","Distance","IsDepDelayed","IsDepDelayed_REC"},ctypes,null,null,null);
     k1=ParseDataset.parse(Key.make(),new Key[]{nfs._key},true,setup,true).get();
     assertEquals(0,k1.numCols());
     assertEquals(0,k1.numRows());

@@ -6,17 +6,18 @@ def infoFromInspect(inspect):
     if (len(inspect['frames']) != 1):
         raise Exception(('infoFromInspect expects inspect= param from Frames result (single): %s ' % inspect['frames']))
     frame = inspect['frames'][0]
-    if frame['isText']:
-        raise Exception(('infoFromInspect only for parsed frames?: %s ' % frame['isText']))
     columns = frame['columns']
     key_name = frame['key']['name']
     missingList = []
     labelList = []
     typeList = []
     for (i, colDict) in enumerate(columns):
+        if ('missing' not in colDict):
+            for k in colDict:
+                print ('colDict key: %s' % k)
         mins = colDict['mins']
         maxs = colDict['maxs']
-        missing = colDict['missing']
+        missing = colDict['missing_count']
         label = colDict['label']
         stype = colDict['type']
         missingList.append(missing)
@@ -29,6 +30,5 @@ def infoFromInspect(inspect):
         missingList = []
     numCols = len(frame['columns'])
     numRows = frame['rows']
-    byteSize = frame['byteSize']
-    print ('\n%s numRows: %s, numCols: %s, byteSize: %s' % (key_name, numRows, numCols, byteSize))
+    print ('\n%s numRows: %s, numCols: %s' % (key_name, numRows, numCols))
     return (missingList, labelList, numRows, numCols)
