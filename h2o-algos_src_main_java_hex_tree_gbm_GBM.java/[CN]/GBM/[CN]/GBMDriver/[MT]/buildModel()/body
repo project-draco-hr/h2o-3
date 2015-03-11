@@ -12,7 +12,10 @@
     Log.info("Reconstructing tree residuals stats from checkpointed model took " + t);
   }
   for (int tid=0; tid < _parms._ntrees; tid++) {
-    if (tid != 0 || !_parms._checkpoint)     doScoringAndSaveModel(false,false,false);
+    if (tid != 0 || !_parms._checkpoint) {
+      double training_r2=doScoringAndSaveModel(false,false,false);
+      if (training_r2 >= 0.999999)       return;
+    }
     new ComputeProb().doAll(_train);
     new ComputeRes().doAll(_train);
     Timer kb_timer=new Timer();
