@@ -36,7 +36,7 @@ def test_parse_multi_header_single(self):
                 raise Exception("Didn't find syn_header* key in the import")
         print ('Header Key = ' + header)
         start = time.time()
-        parseResult = h2i.parse_only(pattern=(('*' + rowxcol) + '*'), hex_key=hex_key, timeoutSecs=timeoutSecs, checkHeader='1')
+        parseResult = h2i.parse_only(pattern=(('*' + rowxcol) + '*'), hex_key=hex_key, timeoutSecs=timeoutSecs, check_header='1')
         pA = h2o_cmd.ParseObj(parseResult, expectedNumRows=totalDataRows, expectedNumCols=totalCols)
         print pA.numRows
         print pA.numCols
@@ -45,7 +45,7 @@ def test_parse_multi_header_single(self):
         iA = h2o_cmd.InspectObj(pA.parse_key, expectedNumRows=totalDataRows, expectedNumCols=totalCols, expectedMissinglist=[], expectedLabelList=expectedLabelList)
         if DO_RF:
             if HEADER:
-                kwargs = {'sample_rate': 0.75, 'max_depth': 25, 'ntrees': 1, 'ignored_cols_by_name': 'ID,CAPSULE', }
+                kwargs = {'sample_rate': 0.75, 'max_depth': 25, 'ntrees': 1, 'ignored_columns': "['ID','CAPSULE']", }
             else:
                 kwargs = {'sample_rate': 0.75, 'max_depth': 25, 'ntrees': 1, }
             rfv = h2o_cmd.runRF(parseResult=parseResult, timeoutSecs=timeoutSecs, **kwargs)

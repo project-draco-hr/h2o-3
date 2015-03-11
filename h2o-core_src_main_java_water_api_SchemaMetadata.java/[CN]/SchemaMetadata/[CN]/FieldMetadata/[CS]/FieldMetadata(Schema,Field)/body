@@ -9,7 +9,14 @@
     this.type=consType(schema,f.getType(),f.getName());
     this.is_schema=(Schema.class.isAssignableFrom(f.getType())) || (f.getType().isArray() && Schema.class.isAssignableFrom(f.getType().getComponentType()));
     if (this.is_schema) {
-      this.schema_name=f.getType().getSimpleName();
+      Class<? extends Schema> schema_class=f.getType().isArray() ? (Class<? extends Schema>)f.getType().getComponentType() : (Class<? extends Schema>)f.getType();
+      Class<? extends Schema> versioned_schema_class=Schema.schemaClass(schema.getSchemaVersion(),Schema.getImplClass(schema_class));
+      if (null != versioned_schema_class) {
+        this.schema_name=versioned_schema_class.getSimpleName();
+      }
+ else {
+        this.schema_name=schema_class.getSimpleName();
+      }
     }
     API annotation=f.getAnnotation(API.class);
     if (null != annotation) {

@@ -1,0 +1,64 @@
+def test_GLM_params_rand2(self):
+    importFolderPath = 'covtype'
+    csvFilename = 'covtype.20k.data'
+    hex_key = 'covtype20k.hex'
+    binomial_key = 'covtype20k.b.hex'
+    b = Key(hex_key)
+    csvPathname = ((importFolderPath + '/') + csvFilename)
+    parseResult = h2i.import_parse(bucket='smalldata', path=csvPathname, hex_key=hex_key, check_header=1, timeoutSecs=180, doSummary=False)
+    columnTypeDict = None
+    parseResult = h2i.import_parse(bucket='smalldata', path=csvPathname, hex_key=binomial_key, columnTypeDict=columnTypeDict, check_header=1, timeoutSecs=180, doSummary=False)
+    Assign(b[:, 54], (b[:, 54] - 1))
+    Assign(b[:, 54], (b[:, 54] != 0))
+    pA = h2o_cmd.ParseObj(parseResult)
+    iA = h2o_cmd.InspectObj(pA.parse_key)
+    parse_key = pA.parse_key
+    numRows = iA.numRows
+    numCols = iA.numCols
+    labelList = iA.labelList
+    expected = []
+    allowedDelta = 0
+    labelListUsed = list(labelList)
+    numColsUsed = numCols
+    paramDict = define_params()
+    for trial in range(5):
+        parameters = {'response_column': 'C54', 'alpha': 0.1, 'lambda': 0, 'n_folds': 1, }
+        h2o_glm.pickRandGlmParams(paramDict, parameters)
+        if (('family' not in parameters) or (parameters['family'] == 'binomial')):
+            bHack = binomial_key
+        else:
+            bHack = hex_key
+        co = h2o_cmd.runSummary(key=binomial_key, column=54)
+        print 'binomial_key summary:', co.label, co.type, co.missing, co.domain, sum(co.bins)
+        co = h2o_cmd.runSummary(key=hex_key, column=54)
+        print 'hex_key summary:', co.label, co.type, co.missing, co.domain, sum(co.bins)
+        fixList = ['alpha', 'lambda']
+        for f in fixList:
+            if (f in parameters):
+                parameters[f] = ('[%s]' % parameters[f])
+        model_key = 'rand_glm.hex'
+        bmResult = h2o.n0.build_model(algo='glm', destination_key=model_key, training_frame=bHack, parameters=parameters, timeoutSecs=10)
+        bm = OutputObj(bmResult, 'bm')
+        modelResult = h2o.n0.models(key=model_key)
+        model = OutputObj(modelResult['models'][0]['output'], 'model')
+        h2o_glm.simpleCheckGLM(self, model, parameters, labelList, labelListUsed, allowNaN=True)
+        cmmResult = h2o.n0.compute_model_metrics(model=model_key, frame=parse_key, timeoutSecs=60)
+        cmm = OutputObj(cmmResult, 'cmm')
+        doClassification = False
+        if doClassification:
+            mcms = OutputObj({'data': cmm.max_criteria_and_metric_scores.data, }, 'mcms')
+            m1 = mcms.data[1:]
+            h0 = mcms.data[0]
+            print '\nmcms', tabulate(m1, headers=h0)
+        if doClassification:
+            thms = OutputObj(cmm.thresholds_and_metric_scores, 'thms')
+            cmms = OutputObj({'cm': cmm.confusion_matrices, }, 'cmms')
+            if (1 == 0):
+                print ''
+                for (i, c) in enumerate(cmms.cm):
+                    print ('\ncmms.cm[%s]' % i), tabulate(c)
+                print ''
+        mmResult = h2o.n0.model_metrics(model=model_key, frame=parse_key, timeoutSecs=60)
+        mm = OutputObj(mmResult['model_metrics'][0], 'mm')
+        prResult = h2o.n0.predict(model=model_key, frame=parse_key, timeoutSecs=60)
+        pr = OutputObj(prResult['model_metrics'][0]['predictions'], 'pr')

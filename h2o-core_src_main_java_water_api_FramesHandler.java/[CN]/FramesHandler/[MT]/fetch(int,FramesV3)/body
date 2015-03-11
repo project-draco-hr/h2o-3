@@ -2,7 +2,7 @@
   Frames f=s.createAndFillImpl();
   Frame frame=getFromDKV("key",s.key.key());
   s.frames=new FrameV2[1];
-  s.frames[0]=new FrameV2().fillFromImpl(frame);
+  s.frames[0]=new FrameV2(frame,s.row_offset,s.row_count).fillFromImpl(frame);
   for (  FrameV2 a_frame : s.frames) {
     a_frame.clearBinsField();
   }
@@ -12,7 +12,7 @@
     s.frames[0].compatible_models=new String[compatible.length];
     int i=0;
     for (    Model m : compatible) {
-      s.compatible_models[i]=m.schema().fillFromImpl(m);
+      s.compatible_models[i]=(ModelSchema)Schema.schema(version,m).fillFromImpl(m);
       s.frames[0].compatible_models[i]=m._key.toString();
       i++;
     }

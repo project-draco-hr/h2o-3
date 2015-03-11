@@ -23,6 +23,8 @@
         p._loss=DeepLearningParameters.Loss.CrossEntropy;
         p._train=frame._key;
         p._response_column=frame.names()[resp];
+        Scope.track(frame.replace(resp,frame.vecs()[resp].toEnum())._key);
+        DKV.put(frame);
         p._valid=null;
         p._score_interval=2;
         p._train_samples_per_iteration=0;
@@ -64,7 +66,6 @@
         }
         pred.delete();
         mymodel.delete();
-        mymodel.delete_best_model();
       }
     }
   }

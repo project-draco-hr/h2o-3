@@ -1,0 +1,38 @@
+{
+  double[][] centers;
+  if (null != _parms._user_points) {
+    int numCenters=_parms._k;
+    int numCols=_parms._user_points.get().numCols();
+    centers=new double[numCenters][numCols];
+    Vec[] centersVecs=_parms._user_points.get().vecs();
+    for (int r=0; r < numCenters; r++) {
+      for (int c=0; c < numCols; c++)       centers[r][c]=centersVecs[c].at(r);
+    }
+  }
+ else {
+    KMeansModel.KMeansParameters parms=new KMeansModel.KMeansParameters();
+    parms._train=_parms._train;
+    parms._ignored_columns=_parms._ignored_columns;
+    parms._dropConsCols=_parms._dropConsCols;
+    parms._dropNA20Cols=_parms._dropNA20Cols;
+    parms._max_confusion_matrix_size=_parms._max_confusion_matrix_size;
+    parms._score_each_iteration=_parms._score_each_iteration;
+    parms._init=KMeans.Initialization.PlusPlus;
+    parms._k=_parms._k;
+    parms._max_iterations=_parms._max_iterations;
+    parms._standardize=true;
+    parms._seed=_parms._seed;
+    KMeansModel km=null;
+    KMeans job=null;
+    try {
+      job=new KMeans(parms);
+      km=job.trainModel().get();
+    }
+  finally {
+      if (job != null)       job.remove();
+      if (km != null)       km.remove();
+    }
+    centers=transform(km._output._centers_raw,0,km._output._normSub,km._output._normMul);
+  }
+  return centers;
+}

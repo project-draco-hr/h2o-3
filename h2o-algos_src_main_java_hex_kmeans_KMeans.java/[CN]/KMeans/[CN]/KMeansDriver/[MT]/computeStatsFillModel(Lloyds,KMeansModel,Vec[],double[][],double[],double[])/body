@@ -3,8 +3,10 @@
   String[] rowHeaders=new String[_parms._k];
   for (int i=0; i < _parms._k; i++)   rowHeaders[i]=String.valueOf(i + 1);
   String[] colTypes=new String[_train.numCols()];
+  String[] colFormats=new String[_train.numCols()];
   Arrays.fill(colTypes,"double");
-  model._output._centers=new TwoDimTable("Cluster means",rowHeaders,_train.names(),colTypes,null,new String[_parms._k][],model._output._centers_raw);
+  Arrays.fill(colFormats,"%5f");
+  model._output._centers=new TwoDimTable("Cluster means",rowHeaders,_train.names(),colTypes,colFormats,"",new String[_parms._k][],model._output._centers_raw);
   model._output._size=task._size;
   model._output._within_mse=task._cSqr;
   double ssq=0;

@@ -84,6 +84,7 @@
  finally {
                                       dl.remove();
                                     }
+                                    Log.info("Trained for " + model1.epoch_counter + " epochs.");
                                     assert(((p._train_samples_per_iteration <= 0 || p._train_samples_per_iteration >= frame.numRows()) && model1.epoch_counter > epochs) || Math.abs(model1.epoch_counter - epochs) / epochs < 0.20);
                                     if (n_folds != 0) {
                                       throw H2O.unimpl();
@@ -117,12 +118,6 @@
                                     dl.remove();
                                   }
                                   model2=DKV.get(dest).get();
-                                  if (model2.actual_best_model_key != null) {
-                                    final DeepLearningModel best_model=DKV.get(model2.actual_best_model_key).get();
-                                    if (override_with_best_model) {
-                                      Assert.assertEquals(best_model.error(),model2.error(),0);
-                                    }
-                                  }
                                   if (valid == null)                                   valid=frame;
                                   double threshold=0;
                                   if (model2._output.isClassifier()) {
@@ -180,17 +175,14 @@
  finally {
                                   if (model1 != null) {
                                     model1.delete_xval_models();
-                                    model1.delete_best_model();
                                     model1.delete();
                                   }
                                   if (model2 != null) {
                                     model2.delete_xval_models();
-                                    model2.delete_best_model();
                                     model2.delete();
                                   }
                                   if (tmp_model != null) {
                                     tmp_model.delete_xval_models();
-                                    tmp_model.delete_best_model();
                                     tmp_model.delete();
                                   }
                                   Scope.exit();

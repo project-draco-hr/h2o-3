@@ -6,11 +6,9 @@ def __init__(self, key, colIndex, colName, expectedNumRows=None, expectedNumCols
     default_pctiles = frame['default_pctiles']
     checksum = frame['checksum']
     rows = frame['rows']
-    assert (colIndex < len(frame['columns'])), ("You're asking for colIndex %s but there are only %s" % (colIndex, len(frame['columns'])))
-    coJson = frame['columns'][colIndex]
+    coJson = frame['columns'][0]
     assert ((checksum != 0) and (checksum is not None))
     assert ((rows != 0) and (rows is not None))
-    assert (not frame['isText'])
     super(SummaryObj, self).__init__(coJson, ('Summary for %s' % colName), noPrint=noPrint)
     coList = [self.base, len(self.bins), len(self.data), self.domain, self.label, self.maxs, self.mean, self.mins, self.missing, self.ninfs, self.pctiles, self.pinfs, self.precision, self.sigma, self.str_data, self.stride, self.type, self.zeros]
     assert (self.label == colName), ('%s You must have told me the wrong colName %s for the given colIndex %s' % (self.label, colName, colIndex))

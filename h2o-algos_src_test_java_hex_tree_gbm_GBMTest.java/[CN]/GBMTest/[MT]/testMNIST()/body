@@ -1,0 +1,22 @@
+{
+  Frame tfr=null, vfr=null;
+  try {
+    tfr=parse_test_file("bigdata/laptop/mnist/train.csv.gz");
+    vfr=new Frame(tfr);
+    DKV.put(vfr);
+    GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
+    parms._train=tfr._key;
+    parms._valid=vfr._key;
+    parms._response_column="C785";
+    parms._ntrees=100;
+    parms._max_depth=10;
+    GBM job=new GBM(parms);
+    GBMModel gbm=job.trainModel().get();
+    job.remove();
+    gbm.delete();
+  }
+  finally {
+    if (tfr != null)     tfr.remove();
+    if (vfr != null)     vfr.remove();
+  }
+}

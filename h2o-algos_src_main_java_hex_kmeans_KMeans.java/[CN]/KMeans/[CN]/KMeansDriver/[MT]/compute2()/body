@@ -8,8 +8,10 @@
     model.delete_and_lock(_key);
     model._output._categorical_column_count=_ncats;
     final Vec vecs[]=_train.vecs();
-    final double[] means=prepMeans(vecs);
-    final double[] mults=prepMults(vecs);
+    final double[] means=_train.means();
+    final double[] mults=_parms._standardize ? _train.mults() : null;
+    model._output._normSub=means;
+    model._output._normMul=mults;
     double[][] centers=initial_centers(model,vecs,means,mults);
     if (centers == null)     return;
     double[][] oldCenters=null;

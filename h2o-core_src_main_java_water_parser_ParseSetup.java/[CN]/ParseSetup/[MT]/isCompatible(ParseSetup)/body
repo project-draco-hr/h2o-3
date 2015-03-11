@@ -1,9 +1,6 @@
 {
-  if (other == null || _pType != other._pType)   return false;
-  if (_pType == ParserType.CSV && (_sep != other._sep || _ncols != other._ncols))   return false;
-  if (_ctypes == null)   _ctypes=other._ctypes;
- else   if (other._ctypes != null) {
-    for (int i=0; i < _ctypes.length; ++i)     _ctypes[i].merge(other._ctypes[i]);
-  }
+  if ((_parse_type != other._parse_type) && !(_parse_type == ParserType.ARFF && other._parse_type == ParserType.CSV) && !(_parse_type == ParserType.CSV && other._parse_type == ParserType.ARFF))   return false;
+  if (_separator != other._separator && (other._separator != AUTO_SEP || _separator != AUTO_SEP))   return false;
+  if (_number_columns != other._number_columns && (other._number_columns > 0 && _number_columns > 0))   return false;
   return true;
 }

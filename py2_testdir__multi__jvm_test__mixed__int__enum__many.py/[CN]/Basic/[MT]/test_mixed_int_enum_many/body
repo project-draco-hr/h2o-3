@@ -26,7 +26,7 @@ def test_mixed_int_enum_many(self):
         csvPathnameFull = h2i.find_folder_and_filename(None, csvPathname, returnFullPath=True)
         print 'Creating random', csvPathname
         expectedNaCnt = write_syn_dataset(csvPathname, rowCount, colCount, SEEDPERFILE, enumChoices, intChoices)
-        parseResult = h2i.import_parse(path=csvPathname, schema='put', checkHeader=0, hex_key=hex_key, timeoutSecs=10, doSummary=False)
+        parseResult = h2i.import_parse(path=csvPathname, schema='put', check_header=0, hex_key=hex_key, timeoutSecs=10, doSummary=False)
         (numRows, numCols, parse_key) = h2o_cmd.infoFromParse(parseResult)
         print 'numRows:', numRows, 'numCols:', numCols
         inspect = h2o_cmd.runInspect(None, hex_key)
@@ -34,8 +34,7 @@ def test_mixed_int_enum_many(self):
         for i in range(colCount):
             summaryResult = h2o_cmd.runSummary(key=hex_key, column=('C' + str((i + 1))))
             h2o.verboseprint('summaryResult:', h2o.dump_json(summaryResult))
-            columns = summaryResult['frames'][0]['columns']
-            co = Column(columns[0])
+            co = Column(summaryResult)
             coList = [co.base, len(co.bins), len(co.data), co.domain, co.label, co.maxs, co.mean, co.mins, co.missing, co.ninfs, co.pctiles, co.pinfs, co.precision, co.sigma, co.str_data, co.stride, co.type, co.zeros]
             coNameList = ['co.base', 'len(co.bins)', 'len(co.data)', 'co.domain', 'co.label', 'co.maxs', 'co.mean', 'co.mins', 'co.missing', 'co.ninfs', 'co.pctiles', 'co.pinfs', 'co.precision', 'co.sigma', 'co.str_data', 'co.stride', 'co.type', 'co.zeros']
             for (c, n) in zip(coList, coNameList):
@@ -44,7 +43,7 @@ def test_mixed_int_enum_many(self):
             print 'co.label:', co.label, 'mean (2 places):', h2o_util.twoDecimals(co.mean)
             assert (co.zeros <= numRows), ("Can't have more zeros than rows %s %s" % (co.zeros, numRows))
             if (ENABLE_ASSERTS and resultIsEnum):
-                self.assertEqual(co.type, 'Enum', ('trial %s: Expecting type to be Enum for %s col colname %s' % (trial, i, colname)))
+                self.assertEqual(co.type, 'enum', ("Expecting co.type %s to be 'enum' for %s co label  %s" % (co.type, i, co.label)))
             if (ENABLE_ASSERTS and resultIsEnum):
                 cardinality = len(co.domain)
                 self.assertEqual(cardinality, len(enumChoices), msg=('trial %s: cardinality %s should be %s' % (trial, cardinality, len(enumChoices))))

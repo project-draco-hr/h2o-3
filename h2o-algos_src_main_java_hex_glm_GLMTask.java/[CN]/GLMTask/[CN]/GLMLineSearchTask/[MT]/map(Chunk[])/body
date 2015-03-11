@@ -1,0 +1,69 @@
+{
+  Chunk responseChunk=chks[chks.length - 1];
+  boolean[] skip=MemoryManager.mallocZ(chks[0]._len);
+  double[][] eta=new double[responseChunk._len][_nSteps];
+  double[] beta=_beta;
+  double[] pk=_direction;
+  for (int i=0; i < _dinfo._cats; ++i) {
+    Chunk c=chks[i];
+    for (int r=0; r < c._len; ++r) {
+      if (skip[r] || c.isNA(r)) {
+        skip[r]=true;
+        continue;
+      }
+      int off=_dinfo.getCategoricalId(i,(int)c.at8(r));
+      if (off != -1) {
+        double t=1;
+        for (int j=0; j < _nSteps; ++j, t*=_step)         eta[r][j]+=beta[off] + pk[off] * t;
+      }
+    }
+  }
+  final int numStart=_dinfo.numStart();
+  double[] off=new double[_nSteps];
+  if (_dinfo._normMul != null && _dinfo._normSub != null) {
+    for (int i=0; i < _dinfo._nums; ++i) {
+      double b=beta[numStart + i];
+      double s=pk[numStart + i];
+      double d=_dinfo._normSub[i] * _dinfo._normMul[i];
+      for (int j=0; j < _nSteps; ++j, s*=_step)       off[j]-=(b + s) * d;
+    }
+  }
+  for (int i=0; i < _dinfo._nums; ++i) {
+    Chunk c=chks[i + _dinfo._cats];
+    for (int r=c.nextNZ(-1); r < c._len; r=c.nextNZ(r)) {
+      if (skip[r] || c.isNA(r)) {
+        skip[r]=true;
+        continue;
+      }
+      double d=c.atd(r);
+      if (_dinfo._normMul != null)       d*=_dinfo._normMul[i];
+      double b=beta[numStart + i];
+      double s=pk[numStart + i];
+      for (int j=0; j < _nSteps; ++j) {
+        eta[r][j]+=(b + s) * d;
+        s*=_step;
+      }
+    }
+  }
+  _objVals=MemoryManager.malloc8d(_nSteps);
+  for (int r=0; r < chks[0]._len; ++r) {
+    if (skip[r] || responseChunk.isNA(r))     continue;
+    double y=responseChunk.atd(r);
+    double yy=-1 + 2 * y;
+    double b=0, s=0;
+    if (_dinfo._intercept) {
+      b=beta[beta.length - 1];
+      s=pk[pk.length - 1];
+    }
+    for (int i=0; i < _nSteps; ++i, s*=_step) {
+      double e=eta[r][i] + off[i] + b+ s;
+      if (_params._family == Family.binomial) {
+        _objVals[i]+=Math.log(1 + Math.exp(-yy * e));
+      }
+ else {
+        double mu=_params.linkInv(e);
+        _objVals[i]+=_params.likelihood(y,e,mu);
+      }
+    }
+  }
+}

@@ -9,6 +9,7 @@
     final DeepLearningModel previous=DKV.getGet(_parms._checkpoint);
     if (previous == null)     throw new IllegalArgumentException("Checkpoint not found.");
     Log.info("Resuming from checkpoint.");
+    new ProgressUpdate("Resuming from checkpoint").fork(_progressKey);
     if (_parms._n_folds != 0)     throw new UnsupportedOperationException("n_folds must be 0: Cross-validation is not supported during checkpoint restarts.");
     _parms._autoencoder=previous.model_info().get_params()._autoencoder;
     if (!_parms._autoencoder && (_parms._response_column == null || !_parms._response_column.equals(previous.model_info().get_params()._response_column))) {
@@ -25,7 +26,7 @@
     _parms._epochs+=previous.epoch_counter;
     Log.info("Adding " + String.format("%.3f",previous.epoch_counter) + " epochs from the checkpointed model.");
     try {
-      final DataInfo dinfo=new DataInfo(Key.make(),_train,_valid,_parms._autoencoder ? 0 : 1,_parms._autoencoder || _parms._use_all_factor_levels,_parms._autoencoder ? DataInfo.TransformType.NORMALIZE : DataInfo.TransformType.STANDARDIZE,isClassifier() ? DataInfo.TransformType.NONE : DataInfo.TransformType.STANDARDIZE);
+      final DataInfo dinfo=new DataInfo(Key.make(),_train,_valid,_parms._autoencoder ? 0 : 1,_parms._autoencoder || _parms._use_all_factor_levels,_parms._autoencoder ? DataInfo.TransformType.NORMALIZE : DataInfo.TransformType.STANDARDIZE,isClassifier() ? DataInfo.TransformType.NONE : DataInfo.TransformType.STANDARDIZE,_parms._missing_values_handling == MissingValuesHandling.Skip);
       DKV.put(dinfo._key,dinfo);
       cp=new DeepLearningModel(dest(),previous,false,dinfo);
       cp.write_lock(self());
@@ -60,6 +61,20 @@
     }
   }
   trainModel(cp);
-  Key[] mms=cp._output._model_metrics;
-  Scope.exit(dest(),mms.length == 0 ? null : mms[mms.length - 1]);
+  List<Key> keep=new ArrayList<>();
+  keep.add(dest());
+  if (cp._output._model_metrics.length != 0)   keep.add(cp._output._model_metrics[cp._output._model_metrics.length - 1]);
+  for (  Key k : Arrays.asList(cp._output.weights)) {
+    keep.add(k);
+    for (    Vec vk : ((Frame)DKV.getGet(k)).vecs()) {
+      keep.add(vk._key);
+    }
+  }
+  for (  Key k : Arrays.asList(cp._output.biases)) {
+    keep.add(k);
+    for (    Vec vk : ((Frame)DKV.getGet(k)).vecs()) {
+      keep.add(vk._key);
+    }
+  }
+  Scope.exit(keep.toArray(new Key[0]));
 }

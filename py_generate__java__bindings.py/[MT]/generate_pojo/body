@@ -1,0 +1,27 @@
+def generate_pojo(schema, pojo_name):
+    global args
+    if args.verbose:
+        print 'Generating POJO: ', pojo_name
+    pojo = []
+    pojo.append('package water.bindings.pojos;')
+    pojo.append('')
+    pojo.append((('public class ' + pojo_name) + ' extends Object {'))
+    for field in schema['fields']:
+        help = field['help']
+        type = field['type']
+        name = field['name']
+        schema_name = field['schema_name']
+        if (name == '__meta'):
+            continue
+        if (type == 'Map'):
+            continue
+        if (type == 'Iced'):
+            continue
+        java_type = cons_java_type(pojo_name, name, type, schema_name)
+        if (java_type == 'enum'):
+            continue
+        pojo.append('    /** {help} */'.format(help=help))
+        pojo.append('    public {type} {name};'.format(type=java_type, name=name))
+        pojo.append('')
+    pojo.append('}')
+    return pojo

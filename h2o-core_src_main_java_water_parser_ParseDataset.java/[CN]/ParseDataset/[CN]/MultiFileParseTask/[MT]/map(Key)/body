@@ -3,18 +3,27 @@
   final int chunkStartIdx=_fileChunkOffsets[_lo];
   byte[] zips=vec.getFirstBytes();
   ZipUtil.Compression cpr=ZipUtil.guessCompressionMethod(zips);
-  byte[] bits=ZipUtil.unzipBytes(zips,cpr,_setup._chunkSize);
-  ParseSetup localSetup=_setup.guessSetup(bits,0);
-  localSetup._chunkSize=_setup._chunkSize;
-  if (!localSetup._isValid) {
+  byte[] bits=ZipUtil.unzipBytes(zips,cpr,_gblSetup._chunk_size);
+  ParseSetup localSetup=_gblSetup.guessSetup(bits,0);
+  localSetup._chunk_size=_gblSetup._chunk_size;
+  if (!localSetup._is_valid) {
     _errors=localSetup._errors;
     chunksAreLocal(vec,chunkStartIdx,key);
     return;
   }
+ else   if (!localSetup.isCompatible(_gblSetup)) {
+    return;
+  }
+  boolean has_hdr=false;
+  if (_gblSetup._check_header == 1 && localSetup._check_header == 1)   has_hdr=true;
+  if (has_hdr) {
+    for (int i=0; has_hdr && i < localSetup._column_names.length; ++i)     has_hdr=localSetup._column_names[i].equalsIgnoreCase(_gblSetup._column_names[i]);
+    if (!has_hdr)     localSetup._check_header=-1;
+  }
   try {
 switch (cpr) {
 case NONE:
-      if (localSetup._pType._parallelParseSupported) {
+      if (localSetup._parse_type._parallelParseSupported) {
         DParse dp=new DParse(_vg,localSetup,_vecIdStart,chunkStartIdx,this,key,vec.nChunks());
         addToPendingCount(1);
         dp.setCompleter(this);

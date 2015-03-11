@@ -5,7 +5,7 @@
   rowcount=rows;
   columns=new ColumnSpecsV1[cols];
   columns[0]=new ColumnSpecsV1();
-  columns[0].name="";
+  columns[0].name=t.getColHeaderForRowHeaders();
   columns[0].type="string";
   columns[0].format="%s";
   columns[0].description=null;
@@ -16,15 +16,16 @@
     columns[c].format=t.getColFormats()[c - 1];
     columns[c].description=null;
   }
-  data=new String[cols][rows];
-  data[0]=new String[t.getRowDim()];
+  data=new IcedWrapper[cols][rows];
+  data[0]=new IcedWrapper[t.getRowDim()];
   for (int r=0; r < t.getRowDim(); ++r) {
-    data[0][r]=t.getRowHeaders()[r];
+    data[0][r]=new IcedWrapper(t.getRowHeaders()[r]);
   }
+  IcedWrapper[][] cellValues=t.getCellValues();
   for (int c=1; c < cols; ++c) {
-    data[c]=new String[rows];
+    data[c]=new IcedWrapper[rows];
     for (int r=0; r < rows; ++r) {
-      data[c][r]=t.get(r,c - 1) != null ? t.get(r,c - 1).toString() : null;
+      data[c][r]=cellValues[r][c - 1];
     }
   }
   return this;

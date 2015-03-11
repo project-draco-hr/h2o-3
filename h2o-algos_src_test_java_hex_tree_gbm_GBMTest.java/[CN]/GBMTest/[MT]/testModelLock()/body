@@ -21,6 +21,7 @@
  catch (    Exception ignore) {
     }
     try {
+      Log.info("Trying illegal frame delete.");
       fr.delete();
       Assert.fail("Should toss IAE instead of reaching here");
     }
@@ -29,6 +30,7 @@
 catch (    DException.DistributedException de) {
       assertTrue(de.getMessage().contains("java.lang.IllegalArgumentException"));
     }
+    Log.info("Getting model");
     GBMModel model=gbm.get();
     Assert.assertTrue(gbm._state == Job.JobState.DONE);
     if (model != null)     model.delete();

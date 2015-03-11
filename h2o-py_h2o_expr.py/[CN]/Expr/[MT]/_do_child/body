@@ -1,6 +1,5 @@
-def _do_child(self, left=True):
-    child = (self._left if left else self._rite)
-    assert ((child is None) or isinstance(child, Expr))
+def _do_child(self, child):
+    assert ((child is None) or isinstance(child, Expr)), (' expected None or Expr but found: %r' % child)
     global __CMD__
     if child:
         if child.is_pending():
@@ -8,7 +7,7 @@ def _do_child(self, left=True):
         elif isinstance(child._data, (int, float)):
             __CMD__ += ('#' + str(child._data))
         elif isinstance(child._data, unicode):
-            __CMD__ += ('%' + str(child._data))
+            __CMD__ += (("'" + str(child._data)) + "'")
         elif isinstance(child._data, slice):
             __CMD__ += (((('(: #' + str(child._data.start)) + ' #') + str((child._data.stop - 1))) + ')')
             child._data = None

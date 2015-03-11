@@ -1,17 +1,18 @@
 {
   super.init(expensive);
-  if (_parms._k < 1 || _parms._k > 10000000)   error("_k","k must be between 1 and 1e7");
   if (_parms._max_iterations < 0 || _parms._max_iterations > 1000000)   error("_max_iterations"," max_iterations must be between 0 and 1e6");
   if (_train == null)   return;
-  if (_train.numRows() < _parms._k)   error("_k","Cannot make " + _parms._k + " clusters out of "+ _train.numRows()+ " rows");
   if (null != _parms._user_points) {
     if (_parms._user_points.get().numCols() != _train.numCols()) {
       error("_user_points","The user-specified points must have the same number of columns (" + _train.numCols() + ") as the training observations");
     }
   }
-  for (  Vec v : _train.vecs()) {
-    if (v.isEnum())     error("_train","Columns cannot have categorical values");
+  new CheckCols(){
+    @Override protected boolean filter(    Vec v){
+      return v.isEnum();
+    }
   }
+.doIt(_train,"Columns cannot have categorical values: ",expensive);
   Vec vecs[]=_train.vecs();
   int ncats=0, nvecs=vecs.length;
   while (ncats != nvecs) {

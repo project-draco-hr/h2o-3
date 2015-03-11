@@ -1,0 +1,18 @@
+def _wait_for_one_test_to_complete(self):
+    waits = 0
+    while True:
+        for test in self.tests_running:
+            if self.terminated:
+                return None
+            if test.is_completed():
+                self.tests_running.remove(test)
+                return test
+        if self.terminated:
+            return
+        time.sleep(1)
+        waits += 1
+        if ((waits % 120) == 0):
+            print ''
+            print 'Showing nopass=False summary so far.'
+            print "We've been waiting a minute or so for another test to complete."
+            self.report_summary(nopass=False)

@@ -1,0 +1,14 @@
+{
+  this();
+  if (null != key) {
+    Class clz=getKeyedClass();
+    Value v=DKV.get(key);
+    if (null != v) {
+      if (Job.class.isAssignableFrom(clz) && !v.isJob())       throw new H2OIllegalArgumentException("For Key: " + key + " expected a value of type Job; found a: "+ v.theFreezableClass(),"For Key: " + key + " expected a value of type Job; found a: "+ v.theFreezableClass()+ " ("+ clz+ ")");
+ else       if (Frame.class.isAssignableFrom(clz) && !v.isFrame() && !v.isVec())       throw new H2OIllegalArgumentException("For Key: " + key + " expected a value of type Frame; found a: "+ v.theFreezableClass(),"For Key: " + key + " expected a value of type Frame; found a: "+ v.theFreezableClass()+ " ("+ clz+ ")");
+ else       if (Model.class.isAssignableFrom(clz) && !v.isModel())       throw new H2OIllegalArgumentException("For Key: " + key + " expected a value of type Model; found a: "+ v.theFreezableClass(),"For Key: " + key + " expected a value of type Model; found a: "+ v.theFreezableClass()+ " ("+ clz+ ")");
+ else       if (Vec.class.isAssignableFrom(clz) && !v.isVec())       throw new H2OIllegalArgumentException("For Key: " + key + " expected a value of type Vec; found a: "+ v.theFreezableClass(),"For Key: " + key + " expected a value of type Vec; found a: "+ v.theFreezableClass()+ " ("+ clz+ ")");
+    }
+    this.fillFromImpl(key);
+  }
+}

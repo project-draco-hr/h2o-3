@@ -1,0 +1,8 @@
+{
+  int rank=0;
+  for (int i=0; i < _beta.length; ++i)   if (_beta[i] != 0)   ++rank;
+  if (_validate)   _val=new GLMValidation(_dinfo._key,_ymu,_params,rank);
+  _gradient=MemoryManager.malloc8d(_beta.length);
+  if (_forceCols || (!_forceRows && (chks.length >= 100 || mostlySparse(chks))))   goByCols(chks);
+ else   goByRows(chks);
+}

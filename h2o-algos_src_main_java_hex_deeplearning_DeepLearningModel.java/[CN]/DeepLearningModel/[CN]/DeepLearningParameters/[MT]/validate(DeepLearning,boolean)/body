@@ -30,7 +30,7 @@
     dl.error("_hidden_dropout_ratios","Must have " + _hidden.length + " hidden layer dropout ratios.");
   }
  else   if (_activation != Activation.TanhWithDropout && _activation != Activation.MaxoutWithDropout && _activation != Activation.RectifierWithDropout) {
-    if (!_quiet_mode)     dl.warn("_hidden_dropout_ratios","Ignoring hidden_dropout_ratios because a non-dropout activation function was specified.");
+    if (!_quiet_mode)     dl.hide("_hidden_dropout_ratios","Ignoring hidden_dropout_ratios because a non-dropout activation function was specified.");
   }
   if (_input_dropout_ratio < 0 || _input_dropout_ratio >= 1)   dl.error("_input_dropout_ratio","Input dropout must be in [0,1).");
   if (H2O.CLOUD.size() == 1 && _replicate_training_data) {
@@ -120,6 +120,10 @@
       }
     }
   }
+ else {
+    if (_autoencoder && _loss != Loss.MeanSquare)     dl.error("_loss","Must use MeanSquare loss function for auto-encoder.");
+ else     if (!classification && _loss == Loss.CrossEntropy)     dl.error("_loss","Cannot use CrossEntropy loss function for regression.");
+  }
   if (_score_training_samples < 0) {
     dl.error("_score_training_samples","Number of training samples for scoring must be >= 0 (0 for all).");
   }
@@ -134,8 +138,6 @@
       if (_average_activation <= 0)       dl.error("_average_activation","Rectifier average activation must be positive.");
     }
   }
-  if (_autoencoder && _loss != Loss.MeanSquare)   dl.error("_loss","Must use MeanSquare loss function for auto-encoder.");
- else   if (!classification && _loss == Loss.CrossEntropy)   dl.error("_loss","Cannot use CrossEntropy loss function for regression.");
   if (!_autoencoder && _sparsity_beta != 0)   dl.info("_sparsity_beta","Sparsity beta can only be used for autoencoder.");
   if (_autoencoder && _valid != null)   dl.error("_validation_frame","Cannot specify a validation dataset for auto-encoder.");
   if (_autoencoder && _activation == Activation.Maxout)   dl.error("_activation","Maxout activation is not supported for auto-encoder.");

@@ -1,0 +1,9 @@
+{
+  double[] objVals=getObjVals(beta,direction);
+  double t=1;
+  for (int i=0; i < objVals.length; ++i) {
+    if (admissibleStep(t,ginfo._objVal,objVals[i],direction,ginfo._gradient))     return new LineSearchSol(true,objVals[i],t);
+    t*=tdec;
+  }
+  return new LineSearchSol(false,objVals[objVals.length - 1],t);
+}

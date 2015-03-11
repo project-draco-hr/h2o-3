@@ -1,28 +1,49 @@
 {
-  if (drt._empty)   return;
-  if (_gSetup == null || !_gSetup._isValid) {
+  if (other._empty || other == null)   return;
+  if (_gblSetup == null || !_gblSetup._is_valid) {
     _empty=false;
-    _gSetup=drt._gSetup;
-    if (_gSetup == null)     System.out.println("haha");
+    _gblSetup=other._gblSetup;
+    assert(_gblSetup != null);
   }
- else   if (drt._gSetup._isValid && !_gSetup.isCompatible(drt._gSetup)) {
-  }
- else   if (drt._gSetup._isValid) {
-    if (_gSetup._data.length < Parser.InspectDataOut.MAX_PREVIEW_LINES) {
-      int n=_gSetup._data.length;
-      int m=Math.min(Parser.InspectDataOut.MAX_PREVIEW_LINES,n + drt._gSetup._data.length - 1);
-      _gSetup._data=Arrays.copyOf(_gSetup._data,m);
-      for (int i=n; i < m; ++i) {
-        _gSetup._data[i]=drt._gSetup._data[i - n + 1];
+  if (other._gblSetup._is_valid && !_gblSetup.isCompatible(other._gblSetup)) {
+    if (other._gblSetup._column_names != null) {
+      if (_gblSetup._column_names == null) {
+        _gblSetup._column_names=other._gblSetup._column_names;
+      }
+ else {
+        for (int i=0; i < _gblSetup._column_names.length; i++) {
+          if (!_gblSetup._column_names[i].equals(other._gblSetup._column_names[i]))           Log.warn("Column names do not match between files");
+        }
       }
     }
   }
-  if (_failedSetup == null) {
-    _failedSetup=drt._failedSetup;
-    _conflicts=drt._conflicts;
-  }
+ else   if (other._gblSetup._is_valid) {
+    if (_gblSetup._parse_type == ParserType.CSV && other._gblSetup._parse_type == ParserType.ARFF) {
+      _gblSetup._parse_type=ParserType.ARFF;
+      _gblSetup._column_types=other._gblSetup._column_types;
+    }
+    if (other._gblSetup._column_names != null) {
+      if (_gblSetup._column_names == null) {
+        _gblSetup._column_names=other._gblSetup._column_names;
+      }
  else {
-    _failedSetup.addAll(drt._failedSetup);
-    _conflicts.addAll(drt._conflicts);
+        for (int i=0; i < _gblSetup._column_names.length; i++) {
+          if (!_gblSetup._column_names[i].equals(other._gblSetup._column_names[i]))           Log.warn("Column names do not match between files");
+        }
+      }
+      if (_gblSetup._column_types == null)       _gblSetup._column_types=other._gblSetup._column_types;
+ else       if (other._gblSetup._column_types != null) {
+        for (int i=0; i < _gblSetup._column_types.length; ++i)         if (_gblSetup._column_types[i] != other._gblSetup._column_types[i])         if (_gblSetup._column_types[i] == Vec.T_BAD)         _gblSetup._column_types[i]=other._gblSetup._column_types[i];
+      }
+    }
+    if (_gblSetup._data.length < Parser.InspectDataOut.MAX_PREVIEW_LINES) {
+      int n=_gblSetup._data.length;
+      int m=Math.min(Parser.InspectDataOut.MAX_PREVIEW_LINES,n + other._gblSetup._data.length - 1);
+      _gblSetup._data=Arrays.copyOf(_gblSetup._data,m);
+      for (int i=n; i < m; ++i) {
+        _gblSetup._data[i]=other._gblSetup._data[i - n + 1];
+      }
+    }
+    _totalParseSize+=other._totalParseSize;
   }
 }

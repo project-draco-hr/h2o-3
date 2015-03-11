@@ -1,0 +1,29 @@
+{
+  GBMModel gbm=null;
+  GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
+  Frame pred=null, res=null;
+  Scope.enter();
+  try {
+    Frame train=parse_test_file("smalldata/gbm_test/ecology_model.csv");
+    train.remove("Site").remove();
+    int ci=train.find("Angaus");
+    Scope.track(train.replace(ci,train.vecs()[ci].toEnum())._key);
+    DKV.put(train);
+    parms._train=train._key;
+    parms._response_column="Angaus";
+    GBM job=new GBM(parms);
+    gbm=job.trainModel().get();
+    job.remove();
+    pred=parse_test_file("smalldata/gbm_test/ecology_eval.csv");
+    pred.remove("Angaus").remove();
+    res=gbm.score(pred);
+    Assert.assertTrue(gbm.testJavaScoring(pred,res));
+  }
+  finally {
+    parms._train.remove();
+    if (gbm != null)     gbm.delete();
+    if (pred != null)     pred.remove();
+    if (res != null)     res.remove();
+    Scope.exit();
+  }
+}

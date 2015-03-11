@@ -18,7 +18,9 @@
   errors=cp.errors.clone();
   for (int i=0; i < errors.length; ++i)   errors[i]=cp.errors[i].deep_clone();
   _output.errors=last_scored();
-  _output.scoringHistory=createScoringHistoryTable(errors);
+  makeWeightsBiases(destKey);
+  _output.scoring_history=createScoringHistoryTable(errors);
+  _output.variable_importances=calcVarImp(last_scored().variable_importances);
   _timeLastScoreEnter=System.currentTimeMillis();
   _timeLastScoreStart=0;
   _timeLastScoreEnd=0;

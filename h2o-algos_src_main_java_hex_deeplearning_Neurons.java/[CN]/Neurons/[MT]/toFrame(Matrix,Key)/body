@@ -1,0 +1,10 @@
+{
+  final int log_rows_per_chunk=Math.max(1,FileVec.DFLT_LOG2_CHUNK_SIZE - (int)Math.floor(Math.log(m.cols()) / Math.log(2.)));
+  Vec v[]=new Vec[m.cols()];
+  for (int i=0; i < m.cols(); ++i) {
+    v[i]=makeCon(0,m.rows(),log_rows_per_chunk);
+  }
+  Frame f=new FrameFiller(m).doAll(new Frame(key,v,true))._fr;
+  DKV.put(key,f);
+  return f;
+}

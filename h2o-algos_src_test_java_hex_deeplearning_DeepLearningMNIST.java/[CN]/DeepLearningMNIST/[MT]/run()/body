@@ -1,0 +1,56 @@
+{
+  Scope.enter();
+  try {
+    File file=find_test_file("bigdata/laptop/mnist/train.csv.gz");
+    if (file != null) {
+      NFSFileVec trainfv=NFSFileVec.make(file);
+      Frame frame=ParseDataset.parse(Key.make(),trainfv._key);
+      DeepLearningParameters p=new DeepLearningParameters();
+      p._destination_key=Key.make("dl_mnist_model");
+      p._train=frame._key;
+      p._response_column="C785";
+      p._activation=DeepLearningParameters.Activation.Tanh;
+      p._hidden=new int[]{2500,2000,1500,1000,500};
+      p._train_samples_per_iteration=1500 * H2O.getCloudSize();
+      p._epochs=1.8 * (float)p._train_samples_per_iteration / frame.numRows();
+      int ci=frame.find("C785");
+      Scope.track(frame.replace(ci,frame.vecs()[ci].toEnum())._key);
+      DKV.put(frame);
+      p._adaptive_rate=false;
+      p._replicate_training_data=false;
+      p._override_with_best_model=false;
+      p._diagnostics=false;
+      p._score_interval=20;
+      p._score_training_samples=50;
+      DeepLearning dl=new DeepLearning(p);
+      DeepLearningModel model=null;
+      try {
+        model=dl.trainModel().get();
+        if (model != null) {
+          Assert.assertTrue(1000. * model.model_info().get_processed_total() / model.run_time > 20);
+        }
+      }
+ catch (      Throwable t) {
+        t.printStackTrace();
+        throw new RuntimeException(t);
+      }
+ finally {
+        dl.remove();
+        if (model != null) {
+          model.delete_xval_models();
+          model.delete();
+        }
+      }
+    }
+ else {
+      Log.info("Please run ./gradlew syncBigDataLaptop in the top-level directory of h2o-dev.");
+    }
+  }
+ catch (  Throwable t) {
+    t.printStackTrace();
+    throw new RuntimeException(t);
+  }
+ finally {
+    Scope.exit();
+  }
+}
