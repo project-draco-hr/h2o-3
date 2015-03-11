@@ -1,3 +1,19 @@
 {
-  return new GLMLineSearchTask(_dinfo,0,_lambda,_glmp,1.0 / _nobs,beta,direction,_stepDec,_nsteps).doAll(_dinfo._adaptedFrame)._objVals;
+  double reg=1.0 / _nobs;
+  double[] objs=new GLMLineSearchTask(_dinfo,0,_lambda,_glmp,1.0 / _nobs,beta,direction,_stepDec,_nsteps).doAll(_dinfo._adaptedFrame)._likelihoods;
+  double step=1;
+  for (int i=0; i < objs.length; ++i, step*=_stepDec) {
+    objs[i]*=reg;
+    if (_lambda > 0 || _betaGiven != null) {
+      double[] b=ArrayUtils.wadd(beta,direction,step);
+      if (_lambda > 0)       objs[i]+=.5 * _lambda * ArrayUtils.l2norm2(b,_dinfo._intercept);
+      if (_betaGiven != null && _proximalPen != null) {
+        for (int j=0; j < _betaGiven.length; ++j) {
+          double diff=b[j] - _betaGiven[j];
+          objs[i]+=.5 * _proximalPen[j] * diff* diff;
+        }
+      }
+    }
+  }
+  return objs;
 }
