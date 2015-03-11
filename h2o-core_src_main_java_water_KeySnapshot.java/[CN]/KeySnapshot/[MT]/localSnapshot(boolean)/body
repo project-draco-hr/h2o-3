@@ -1,17 +1,15 @@
 {
   Object[] kvs=H2O.STORE.raw_array();
-  ArrayList<KeyInfo> res=new ArrayList<KeyInfo>();
+  ArrayList<KeyInfo> res=new ArrayList<>();
   for (int i=2; i < kvs.length; i+=2) {
     Object ok=kvs[i], ov=kvs[i + 1];
     if (!(ok instanceof Key))     continue;
     Key key=(Key)ok;
     if (!key.user_allowed())     continue;
     if (homeOnly && !key.home())     continue;
-    if (!(ov instanceof Value)) {
-      ov=H2O.get(key);
-      if (ov == null)       continue;
-    }
-    res.add(new KeyInfo(key,(Value)ov));
+    Value val=ov instanceof Value ? (Value)ov : H2O.get(key);
+    if (val == null)     continue;
+    res.add(new KeyInfo(key,val));
   }
   final KeyInfo[] arr=res.toArray(new KeyInfo[res.size()]);
   Arrays.sort(arr);
