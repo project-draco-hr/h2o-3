@@ -1,4 +1,11 @@
 {
+  final double init=_initialPrediction;
+  if (init != 0.0)   new MRTask(){
+    @Override public void map(    Chunk tree){
+      for (int i=0; i < tree._len; i++)       tree.set(i,init);
+    }
+  }
+.doAll(vec_tree(_train,0));
   if (_parms._checkpoint) {
     Timer t=new Timer();
     new ResidualsCollector(_ncols,_nclass,_model._output._treeKeys).doAll(_train);
