@@ -4,6 +4,98 @@
   init(true);
   DataInfo dinfo=new DataInfo(Key.make(),_train,_valid,1,_parms._use_all_factor_levels || _parms._lambda_search,_parms._standardize ? DataInfo.TransformType.STANDARDIZE : DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true);
   DKV.put(dinfo._key,dinfo);
+  double[] betaStart=null;
+  double[] betaGiven=null;
+  double[] betaLB=null;
+  double[] betaUB=null;
+  double[] rho=null;
+  if (_parms._beta_constraint != null) {
+    Frame beta_constraints=_parms._beta_constraint.get();
+    Vec v=beta_constraints.vec("names");
+    String[] dom;
+    int[] map;
+    if (v.isString()) {
+      dom=new String[(int)v.length()];
+      map=new int[dom.length];
+      ValueString vs=new ValueString();
+      for (int i=0; i < dom.length; ++i) {
+        dom[i]=v.atStr(vs,i).toString();
+        map[i]=i;
+      }
+    }
+ else     if (v.isEnum()) {
+      dom=v.domain();
+      map=FrameUtils.asInts(v);
+    }
+ else     throw new IllegalArgumentException("Illegal beta constraints file, names column expected to contain column names (strings)");
+    String[] names=ArrayUtils.append(dinfo.coefNames(),"Intercept");
+    if (!Arrays.deepEquals(dom,names)) {
+      HashMap<String,Integer> m=new HashMap<String,Integer>();
+      for (int i=0; i < names.length; ++i)       m.put(names[i],i);
+      int[] newMap=MemoryManager.malloc4(dom.length);
+      for (int i=0; i < map.length; ++i) {
+        Integer I=m.get(dom[map[i]]);
+        newMap[i]=I == null ? -1 : I;
+      }
+      map=newMap;
+    }
+    final int numoff=dinfo.numStart();
+    if ((v=beta_constraints.vec("beta_start")) != null) {
+      betaStart=MemoryManager.malloc8d(dinfo.fullN() + (dinfo._intercept ? 1 : 0));
+      for (int i=0; i < (int)v.length(); ++i)       betaStart[map == null ? i : map[i]]=v.at(i);
+    }
+    if ((v=beta_constraints.vec("beta_given")) != null) {
+      betaGiven=MemoryManager.malloc8d(dinfo.fullN() + (dinfo._intercept ? 1 : 0));
+      for (int i=0; i < (int)v.length(); ++i)       betaGiven[map == null ? i : map[i]]=v.at(i);
+    }
+    if ((v=beta_constraints.vec("upper_bounds")) != null) {
+      betaUB=MemoryManager.malloc8d(dinfo.fullN() + (dinfo._intercept ? 1 : 0));
+      for (int i=0; i < (int)v.length(); ++i)       betaUB[map == null ? i : map[i]]=v.at(i);
+    }
+    if ((v=beta_constraints.vec("lower_bounds")) != null) {
+      betaLB=MemoryManager.malloc8d(dinfo.fullN() + (dinfo._intercept ? 1 : 0));
+      for (int i=0; i < (int)v.length(); ++i)       betaLB[map == null ? i : map[i]]=v.at(i);
+    }
+    if ((v=beta_constraints.vec("rho")) != null) {
+      rho=MemoryManager.malloc8d(dinfo.fullN() + (dinfo._intercept ? 1 : 0));
+      for (int i=0; i < (int)v.length(); ++i)       rho[map == null ? i : map[i]]=v.at(i);
+    }
+    if (dinfo._normMul != null) {
+      double normUB=0, normLB=0, normG=0, normS=0;
+      for (int i=numoff; i < dinfo.fullN(); ++i) {
+        double dd=dinfo._normMul[i - numoff];
+        double d=1.0 / dd;
+        if (betaUB != null && !Double.isInfinite(betaUB[i])) {
+          normUB+=betaUB[i] * dd;
+          betaUB[i]*=d;
+        }
+        if (betaLB != null && !Double.isInfinite(betaUB[i])) {
+          normLB+=betaLB[i] * dd;
+          betaLB[i]*=d;
+        }
+        if (betaGiven != null) {
+          normG+=betaGiven[i] * dd;
+          betaGiven[i]*=d;
+        }
+        if (betaStart != null) {
+          normS+=betaStart[i] * dd;
+          betaStart[i]*=d;
+        }
+      }
+      if (dinfo._intercept) {
+        int n=dinfo.fullN();
+        if (betaUB != null && !Double.isInfinite(betaUB[n]))         betaUB[n]-=normUB;
+        if (betaLB != null && !Double.isInfinite(betaUB[n]))         betaLB[n]-=normLB;
+        if (betaGiven != null)         betaGiven[n]-=normG;
+        if (betaStart != null)         betaStart[n]-=normS;
+      }
+    }
+    _betaGiven=betaGiven;
+    _betaStart=betaStart;
+    _betaLB=betaLB;
+    _betaUB=betaUB;
+    _rho=rho;
+  }
   H2OCountedCompleter cmp=new H2OCountedCompleter(){
     AtomicBoolean _gotException=new AtomicBoolean(false);
     @Override public void compute2(){

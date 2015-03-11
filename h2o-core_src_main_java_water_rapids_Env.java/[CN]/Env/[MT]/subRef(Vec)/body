@@ -2,6 +2,7 @@
   if (v == null)   return false;
   boolean delete;
   if (_refcnt.get(v) == null)   return false;
+  if (_locked.contains(v._key))   return false;
   int cnt=_refcnt.get(v)._val - 1;
   if (cnt > 0) {
     _refcnt.put(v,new IcedInt(cnt));

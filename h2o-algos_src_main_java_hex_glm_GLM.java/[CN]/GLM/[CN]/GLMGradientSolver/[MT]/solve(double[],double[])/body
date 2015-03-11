@@ -1,0 +1,9 @@
+{
+  if (_beta == null)   throw new IllegalArgumentException("Can not call solve without beta_start, call setBetaStart() first");
+  if (_betaGiven == null)   _betaGiven=beta_given.clone();
+ else   System.arraycopy(beta_given,0,_betaGiven,0,beta_given.length);
+  L_BFGS.Result r=new L_BFGS().solve(this,_beta);
+  System.arraycopy(r.coefs,0,_beta,0,r.coefs.length);
+  if (_gradient == null)   _gradient=r.ginfo._gradient.clone();
+ else   System.arraycopy(r.ginfo._gradient,0,_gradient,0,_gradient.length);
+}
