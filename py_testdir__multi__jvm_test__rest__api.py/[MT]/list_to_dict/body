@@ -1,0 +1,11 @@
+def list_to_dict(l, key):
+    '\n    Given a List and a key to look for in each element return a Dict which maps the value of that key to the element.  \n    Also handles nesting for the key, so you can use this for things like a list of elements which contain H2O Keys and \n    return a Dict indexed by the \'name" element within the key.\n    list_to_dict([{\'key\': {\'name\': \'joe\', \'baz\': 17}}, {\'key\': {\'name\': \'bobby\', \'baz\': 42}}], \'key/name\') =>\n    {\'joe\': {\'key\': {\'name\': \'joe\', \'baz\': 17}}, \'bobby\': {\'key\': {\'name\': \'bobby\', \'baz\': 42}}}\n    '
+    result = {}
+    for entry in l:
+        part = entry
+        k = None
+        for keypart in key.split('/'):
+            part = part[keypart]
+            k = keypart
+        result[part] = entry
+    return result

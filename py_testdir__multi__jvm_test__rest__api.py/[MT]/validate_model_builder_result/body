@@ -1,0 +1,25 @@
+def validate_model_builder_result(result, original_params, model_name):
+    " \n    Validate that a model build result has no parameter validation errors, \n    and that it has a Job with a Key.  Note that model build will return a\n    Job if successful, and a ModelBuilder with errors if it's not.\n    "
+    error = False
+    if (result is None):
+        print ('FAIL: result for model %s is None, timeout during build? result: %s' % (model_name, result))
+        error = True
+    elif (result['__http_response']['status_code'] != requests.codes.ok):
+        error = True
+        print ('FAIL: expected 200 OK from a good validation request, got: ' + str(result['__http_response']['status_code']))
+    elif (('validation_error_count' in result) and (result['validation_error_count'] > 0)):
+        print 'FAIL: Parameters validation error for model: ', model_name
+        error = True
+    if error:
+        print 'Input parameters: '
+        pp.pprint(original_params)
+        print 'Returned result: '
+        pp.pprint(result)
+        assert (result['validation_error_count'] == 0), ('FAIL: Non-zero validation_error_count for model: ' + model_name)
+    assert ('jobs' in result), ((('FAIL: Failed to find jobs key for model: ' + model_name) + ': ') + pp.pprint(result))
+    jobs = result['jobs']
+    assert (type(jobs) is list), ((('FAIL: Jobs element for model is not a list: ' + model_name) + ': ') + pp.pprint(result))
+    assert (len(jobs) == 1), ((('FAIL: Jobs list for model is not 1 long: ' + model_name) + ': ') + pp.pprint(result))
+    job = jobs[0]
+    assert (type(job) is dict), ((('FAIL: Job element for model is not a dict: ' + model_name) + ': ') + pp.pprint(result))
+    assert ('key' in job), ((('FAIL: Failed to find key in job for model: ' + model_name) + ': ') + pp.pprint(result))
