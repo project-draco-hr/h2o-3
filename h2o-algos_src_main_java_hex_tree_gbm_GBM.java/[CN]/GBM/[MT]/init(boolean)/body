@@ -1,7 +1,10 @@
 {
   super.init(expensive);
-  double mean=_response.mean();
-  _initialPrediction=_nclass == 1 ? mean : (_nclass == 2 ? -0.5 * Math.log(mean / (1.0 - mean)) : 0.0);
+  double mean=0;
+  if (expensive) {
+    mean=_response.mean();
+    _initialPrediction=_nclass == 1 ? mean : (_nclass == 2 ? -0.5 * Math.log(mean / (1.0 - mean)) : 0.0);
+  }
 switch (_parms._loss) {
 case AUTO:
     _parms._convert_to_enum=couldBeBool(_response);
