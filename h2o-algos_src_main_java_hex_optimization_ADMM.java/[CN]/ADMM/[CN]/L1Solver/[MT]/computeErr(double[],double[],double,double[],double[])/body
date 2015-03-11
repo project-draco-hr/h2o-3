@@ -1,0 +1,13 @@
+{
+  grad=grad.clone();
+  gerr=0;
+  if (lb != null)   for (int j=0; j < z.length; ++j)   if (z[j] == lb[j] && grad[j] < 0)   grad[j]=0;
+  if (ub != null)   for (int j=0; j < z.length; ++j)   if (z[j] == ub[j] && grad[j] > 0)   grad[j]=0;
+  subgrad(lambda,z,grad);
+  for (int x=0; x < grad.length - 1; ++x) {
+    double err=grad[x];
+    if (err < 0)     err=-err;
+    if (gerr < err)     gerr=err;
+  }
+  return gerr;
+}

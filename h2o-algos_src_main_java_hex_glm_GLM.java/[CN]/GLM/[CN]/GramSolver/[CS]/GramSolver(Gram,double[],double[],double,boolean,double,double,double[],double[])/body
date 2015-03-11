@@ -1,0 +1,43 @@
+{
+  _lambda=lambda;
+  _ybar=ybar;
+  _xy=xy;
+  _gram=gram;
+  int ii=intercept ? 1 : 0;
+  if (lambda > 0)   gram.addDiag(lambda);
+  if (proxPen != null && beta_given != null) {
+    gram.addDiag(proxPen);
+    xy=xy.clone();
+    for (int i=0; i < xy.length; ++i)     xy[i]+=proxPen[i] * beta_given[i];
+  }
+  if (l1pen == 0) {
+    _chol=gram.cholesky(null,true,null);
+    double l2=1e-8;
+    while (!_chol.isSPD() && _addedL2 < 1) {
+      _gram.addDiag(l2 - _addedL2);
+      _addedL2=l2;
+      l2*=10;
+      _chol=_gram.cholesky(_chol);
+    }
+    return;
+  }
+  double[] rhos=MemoryManager.malloc8d(xy.length);
+  double min=Double.POSITIVE_INFINITY;
+  for (int i=0; i < xy.length - ii; ++i) {
+    double d=gram.get(i,i) / xy[i];
+    d=d >= 0 ? d : -d;
+    if (d < min && d != 0)     min=d;
+  }
+  for (int i=0; i < rhos.length - ii; ++i) {
+    double y=xy[i];
+    if (y == 0)     y=min;
+    y=l1pen * (gram.get(i,i) - xbar[i] * xbar[i]) / (y - _ybar * xbar[i]);
+    if (y < 0)     y=-y;
+    rhos[i]=y;
+  }
+  gram.addDiag(rhos);
+  _chol=gram.cholesky(null,true,null);
+  gram.addDiag(ArrayUtils.mult(rhos,-1));
+  ArrayUtils.mult(rhos,-1);
+  _rho=rhos;
+}
