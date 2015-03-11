@@ -45,7 +45,7 @@
       }
     }
   }
-  _objVals=MemoryManager.malloc8d(_nSteps);
+  _likelihoods=MemoryManager.malloc8d(_nSteps);
   for (int r=0; r < chks[0]._len; ++r) {
     if (skip[r] || responseChunk.isNA(r))     continue;
     double y=responseChunk.atd(r);
@@ -58,11 +58,11 @@
     for (int i=0; i < _nSteps; ++i, s*=_step) {
       double e=eta[r][i] + off[i] + b+ s;
       if (_params._family == Family.binomial) {
-        _objVals[i]+=Math.log(1 + Math.exp(-yy * e));
+        _likelihoods[i]+=Math.log(1 + Math.exp(-yy * e));
       }
  else {
         double mu=_params.linkInv(e);
-        _objVals[i]+=_params.likelihood(y,e,mu);
+        _likelihoods[i]+=_params.likelihood(y,e,mu);
       }
     }
   }
