@@ -33,9 +33,9 @@ def do(self, timeoutSecs=30):
                 print "Hack scalar to int for new key for scalar, because rapids doesn't take reals yet"
                 if math.isnan(float(self.scalar)):
                     print ("Rapids returned scalar result that's NaN. Using -1 instead: %s" % self.scalar)
-                    execExpr2 = ('(= !%s (c {#-1}))' % self.frame)
+                    execExpr2 = astForInit(self.frame)
                 else:
-                    execExpr2 = ('(= !%s (c {#%s}))' % (self.frame, int(self.scalar)))
+                    execExpr2 = ('(= !%s (cbind (c {#%s})))' % (self.frame, int(self.scalar)))
             self.numRows = 1
             self.numCols = 1
             (execResult2, result2) = h2e.exec_expr(execExpr=execExpr2)
