@@ -38,21 +38,21 @@ def runSummary(node=None, key=None, column=None, expected=None, maxDelta=None, n
                 else:
                     print k, v
         if (expected is not None):
-            print 'len(co.bins):', len(co.bins)
+            print 'len(co.histogram_bins):', len(co.histogram_bins)
             print 'co.label:', co.label, 'mean (2 places):', h2o_util.twoDecimals(co.mean)
             print 'co.label:', co.label, 'std dev. (2 places):', h2o_util.twoDecimals(co.sigma)
-            pctiles = co.pctiles
-            assert (len(co.pctiles) == len(co.default_pctiles))
+            percentiles = co.percentiles
+            assert (len(co.percentiles) == len(co.default_percentiles))
             if (maxDelta is None):
                 maxDelta = ((co.maxs[0] - co.mins[0]) / 1000)
             if expected[0]:
                 h2o_util.assertApproxEqual(co.mins[0], expected[0], tol=maxDelta, msg='min is not approx. expected')
             if expected[1]:
-                h2o_util.assertApproxEqual(pctiles[2], expected[1], tol=maxDelta, msg='25th percentile is not approx. expected')
+                h2o_util.assertApproxEqual(percentiles[2], expected[1], tol=maxDelta, msg='25th percentile is not approx. expected')
             if expected[2]:
-                h2o_util.assertApproxEqual(pctiles[4], expected[2], tol=maxDelta, msg='50th percentile (median) is not approx. expected')
+                h2o_util.assertApproxEqual(percentiles[4], expected[2], tol=maxDelta, msg='50th percentile (median) is not approx. expected')
             if expected[3]:
-                h2o_util.assertApproxEqual(pctiles[6], expected[3], tol=maxDelta, msg='75th percentile is not approx. expected')
+                h2o_util.assertApproxEqual(percentiles[6], expected[3], tol=maxDelta, msg='75th percentile is not approx. expected')
             if expected[4]:
                 h2o_util.assertApproxEqual(co.maxs[0], expected[4], tol=maxDelta, msg='max is not approx. expected')
             MAX_QBINS = 1000
@@ -63,11 +63,11 @@ def runSummary(node=None, key=None, column=None, expected=None, maxDelta=None, n
             else:
                 print "Test won't calculate max expected error"
                 maxErr = 0
-            pt = h2o_util.twoDecimals(pctiles)
+            pt = h2o_util.twoDecimals(percentiles)
             mx = h2o_util.twoDecimals(co.maxs[0])
             mn = h2o_util.twoDecimals(co.mins[0])
-            print 'co.label:', co.label, 'co.pctiles (2 places):', pt
-            print 'co.default_pctiles:', co.default_pctiles
+            print 'co.label:', co.label, 'co.percentiles (2 places):', pt
+            print 'co.default_percentiles:', co.default_percentiles
             print 'co.label:', co.label, 'co.maxs: (2 places):', mx
             print 'co.label:', co.label, 'co.mins: (2 places):', mn
             if (pt is None):
