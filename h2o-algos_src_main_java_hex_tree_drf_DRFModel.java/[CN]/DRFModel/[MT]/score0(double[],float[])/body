@@ -1,13 +1,14 @@
 {
-  float[] p=super.score0(data,preds);
+  super.score0(data,preds);
   int N=_parms._ntrees;
-  if (p.length == 1) {
-    if (N > 0)     MathUtils.div(p,N);
+  if (_output.nclasses() == 1) {
+    preds[0]/=N;
+    return preds;
   }
  else {
-    float s=MathUtils.sum(p);
-    if (s > 0)     MathUtils.div(p,s);
-    p[0]=ModelUtils.getPrediction(p,data);
+    float sum=MathUtils.sum(preds);
+    if (sum > 0)     MathUtils.div(preds,sum);
+    preds[0]=getPrediction(preds,data);
   }
-  return p;
+  return preds;
 }

@@ -3,6 +3,7 @@
   DRFModel.DRFParameters drf=new DRFModel.DRFParameters();
   Frame frTest=null, pred=null;
   Frame frTrain=null;
+  Frame test=null, res=null;
   DRFModel model=null;
   try {
     frTrain=parse_test_file(fnametrain);
@@ -41,12 +42,17 @@
     Assert.assertEquals("Number of trees differs!",ntree,model._output._ntrees);
     String[] cmDom=model._output._domains[model._output._domains.length - 1];
     Assert.assertArrayEquals("CM domain differs!",expRespDom,cmDom);
+    test=parse_test_file(fnametrain);
+    res=model.score(test);
+    Assert.assertTrue(model.testJavaScoring(test,res));
   }
   finally {
     if (frTrain != null)     frTrain.remove();
     if (frTest != null)     frTest.remove();
     if (model != null)     model.delete();
     if (pred != null)     pred.delete();
+    if (test != null)     test.delete();
+    if (res != null)     res.delete();
     Scope.exit();
   }
 }
