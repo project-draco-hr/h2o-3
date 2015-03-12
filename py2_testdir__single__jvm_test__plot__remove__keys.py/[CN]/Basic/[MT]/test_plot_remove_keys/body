@@ -17,10 +17,9 @@ def test_plot_remove_keys(self):
         iA = h2o_cmd.InspectObj(pA.parse_key)
         parseElapsed = pA.python_elapsed
         parse_key = pA.parse_key
-        byteSize = pA.byteSize
         numRows = iA.numRows
         numCols = iA.numCols
-        print parse_key, parseElapsed, byteSize, numRows, numCols
+        print parse_key, parseElapsed, numRows, numCols
         labelList = iA.labelList
         node = h2o.nodes[0]
         print 'Deleting', hex_key, 'at', node.http_addr, "Shouldn't matter what node the delete happens at..global?"
@@ -28,7 +27,7 @@ def test_plot_remove_keys(self):
         node.remove_key(hex_key, timeoutSecs=30)
         removeElapsed = (time.time() - start)
         print 'Deleting', hex_key, 'took', removeElapsed, 'seconds'
-        xList.append(byteSize)
+        xList.append(numRows)
         eList.append(parseElapsed)
         fList.append(removeElapsed)
     if (1 == 1):

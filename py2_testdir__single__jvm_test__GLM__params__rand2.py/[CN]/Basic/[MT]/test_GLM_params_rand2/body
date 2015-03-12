@@ -22,7 +22,7 @@ def test_GLM_params_rand2(self):
     numColsUsed = numCols
     paramDict = define_params()
     for trial in range(5):
-        parameters = {'response_column': 'C54', 'alpha': 0.1, 'lambda': 0, 'n_folds': 1, }
+        parameters = {'response_column': 'C55', 'alpha': 0.1, 'lambda': 0, 'n_folds': 1, }
         h2o_glm.pickRandGlmParams(paramDict, parameters)
         if (('family' not in parameters) or (parameters['family'] == 'binomial')):
             bHack = binomial_key
@@ -32,7 +32,7 @@ def test_GLM_params_rand2(self):
         print 'binomial_key summary:', co.label, co.type, co.missing_count, co.domain, sum(co.histogram_bins)
         co = h2o_cmd.runSummary(key=hex_key, column=54)
         print 'hex_key summary:', co.label, co.type, co.missing_count, co.domain, sum(co.histogram_bins)
-        fixList = ['alpha', 'lambda']
+        fixList = ['alpha', 'lambda', 'ignored_columns']
         for f in fixList:
             if (f in parameters):
                 parameters[f] = ('[%s]' % parameters[f])
