@@ -1,0 +1,36 @@
+def parse_args(argv):
+    global g_user
+    global g_pass
+    global g_sprint
+    i = 1
+    while (i < len(argv)):
+        s = argv[i]
+        if (s == '--user'):
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_user = argv[i]
+        elif (s == '--pass'):
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_pass = argv[i]
+        elif (s == '--sprint'):
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_sprint = argv[i]
+        elif ((s == '-h') or (s == '--h') or (s == '-help') or (s == '--help')):
+            usage()
+        else:
+            unknown_arg(s)
+        i += 1
+    if (g_user is None):
+        print 'ERROR: user is not specified'
+        usage()
+    if (g_pass is None):
+        print 'ERROR: pass is not specified'
+        usage()
+    if (g_sprint is None):
+        print 'ERROR: sprint is not specified'
+        usage()

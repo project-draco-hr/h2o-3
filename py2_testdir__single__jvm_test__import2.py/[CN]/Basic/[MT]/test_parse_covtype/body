@@ -9,7 +9,7 @@ def test_parse_covtype(self):
             if (not DO_IMPORT_PARSE):
                 import_result = a_node.import_files(path=csvPathname)
                 k = import_result['keys'][0]
-                frames_result = a_node.frames(key=k, len=5, timeoutSecs=timeoutSecs)
+                frames_result = a_node.frames(key=k, row_count=5, timeoutSecs=timeoutSecs)
                 kList.append(k)
         print 'I think I imported these keys:', kList
         if DO_2X_SRC:
@@ -24,8 +24,8 @@ def test_parse_covtype(self):
             basename = 'abcd012345'
         colLength = (1 if DO_TEST_BAD_COL_LENGTH else 55)
         expectedColumnNames = map((lambda x: ((basename + '_') + str((x + 1)))), range(colLength))
-        columnNames = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), expectedColumnNames))) + ']')
-        kwargs = {'columnNames': columnNames, 'intermediateResults': False, }
+        column_names = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), expectedColumnNames))) + ']')
+        kwargs = {'column_names': column_names, 'intermediateResults': False, }
         print kwargs
         if DO_IMPORT_PARSE:
             multiplyExpected = 1
@@ -34,5 +34,5 @@ def test_parse_covtype(self):
         else:
             parse_result = a_node.parse(key=kList2, timeoutSecs=timeoutSecs, **kwargs)
         k = parse_result['frames'][0]['key']['name']
-        frames_result = a_node.frames(key=k, len=5)
+        frames_result = a_node.frames(key=k, row_count=5)
         parseKeyIndexedCheck(frames_result, multiplyExpected, expectedColumnNames)

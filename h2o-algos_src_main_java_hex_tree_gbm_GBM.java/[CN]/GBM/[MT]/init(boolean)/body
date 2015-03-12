@@ -1,5 +1,10 @@
 {
   super.init(expensive);
+  double mean=0;
+  if (expensive) {
+    mean=_response.mean();
+    _initialPrediction=_nclass == 1 ? mean : (_nclass == 2 ? -0.5 * Math.log(mean / (1.0 - mean)) : 0.0);
+  }
 switch (_parms._loss) {
 case AUTO:
     _parms._convert_to_enum=couldBeBool(_response);
@@ -7,7 +12,6 @@ case AUTO:
 case bernoulli:
 if (_parms._convert_to_enum && _nclass != 2 && !couldBeBool(_response)) error("_loss","Bernoulli requires the response to be a 2-class categorical");
  else if (_response != null) {
-  double mean=_response.mean();
   _initialPrediction=Math.log(mean / (1.0f - mean));
 }
 _parms._convert_to_enum=true;

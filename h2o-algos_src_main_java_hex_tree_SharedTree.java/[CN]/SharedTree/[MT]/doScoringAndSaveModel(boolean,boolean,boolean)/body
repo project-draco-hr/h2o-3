@@ -1,4 +1,5 @@
 {
+  double training_r2=Double.NaN;
   long now=System.currentTimeMillis();
   if (_firstScore == 0)   _firstScore=now;
   long sinceLastScore=now - _timeLastScoreStart;
@@ -6,15 +7,21 @@
   if (_parms._score_each_iteration || finalScoring || (now - _firstScore < 4000)|| (sinceLastScore > 4000 && (double)(_timeLastScoreEnd - _timeLastScoreStart) / sinceLastScore < 0.1)) {
     _model.update(_key);
     updated=true;
-    _timeLastScoreStart=now;
-    Score sc=new Score(this,oob,_model._output.getModelCategory()).doAll(_parms._valid == null ? train() : valid(),build_tree_one_node);
-    ModelMetricsSupervised mm=sc.makeModelMetrics(_model,_parms._valid == null ? _parms.train() : _parms.valid(),_parms._response_column);
     Log.info("============================================================== ");
     SharedTreeModel.SharedTreeOutput out=_model._output;
-    out._mse_train[out._ntrees]=_parms._valid == null ? mm._mse : Double.NaN;
-    out._mse_valid[out._ntrees]=_parms._valid == null ? Double.NaN : mm._mse;
+    _timeLastScoreStart=now;
+    Score sc=new Score(this,oob,_model._output.getModelCategory()).doAll(train(),build_tree_one_node);
+    ModelMetricsSupervised mm=sc.makeModelMetrics(_model,_parms.train(),_parms._response_column);
+    out._mse_train[out._ntrees]=mm._mse;
+    training_r2=mm.r2();
+    Log.info("training r2 is " + mm.r2() + ", mse is "+ mm._mse+ ", with "+ _model._output._ntrees+ "x"+ _nclass+ " trees (average of "+ (_model._output._treeStats._mean_leaves)+ " nodes)");
+    if (_parms._valid != null) {
+      Score scv=new Score(this,oob,_model._output.getModelCategory()).doAll(valid(),build_tree_one_node);
+      ModelMetricsSupervised mmv=scv.makeModelMetrics(_model,_parms.valid(),_parms._response_column);
+      out._mse_valid[out._ntrees]=mmv._mse;
+      Log.info("validate r2 is " + mmv.r2() + ", mse is "+ mmv._mse);
+    }
     if (out._ntrees > 0)     out._variable_importances=hex.ModelMetrics.calcVarImp(new hex.VarImp(_improvPerVar,out._names));
-    Log.info("r2 is " + mm.r2() + ", with "+ _model._output._ntrees+ "x"+ _nclass+ " trees (average of "+ (_model._output._treeStats._mean_leaves)+ " nodes)");
     ConfusionMatrix cm=(mm instanceof ModelMetricsBinomial) ? ((ModelMetricsBinomial)mm)._cm : ((mm instanceof ModelMetricsMultinomial) ? ((ModelMetricsMultinomial)mm)._cm : null);
     if (cm != null) {
       Log.info(cm.toASCII());
@@ -23,4 +30,5 @@
     _timeLastScoreEnd=System.currentTimeMillis();
   }
   if (updated)   _model.update(_key);
+  return training_r2;
 }

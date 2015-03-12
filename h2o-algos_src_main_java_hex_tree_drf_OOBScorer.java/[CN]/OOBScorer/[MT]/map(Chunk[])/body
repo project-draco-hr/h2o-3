@@ -1,0 +1,25 @@
+{
+  double[] data=new double[_ncols];
+  float[] preds=new float[_nclass + 1];
+  int ntrees=_trees.length;
+  Chunk coobt=chk_oobt(chks);
+  Chunk cys=chk_resp(chks);
+  for (int tidx=0; tidx < ntrees; tidx++) {
+    Random rng=rngForTree(_trees[tidx],coobt.cidx());
+    for (int row=0; row < coobt._len; row++) {
+      if (rng.nextFloat() >= _rate || Double.isNaN(cys.atd(row))) {
+        coobt.set(row,_nclass > 1 ? 1 : coobt.atd(row) + 1);
+        for (int i=0; i < _ncols; i++)         data[i]=chks[i].atd(row);
+        Arrays.fill(preds,0);
+        score0(data,preds,_trees[tidx]);
+        if (_nclass == 1)         preds[1]=preds[0];
+        for (int c=0; c < _nclass; c++) {
+          if (preds[1 + c] != 0) {
+            Chunk ctree=chk_tree(chks,c);
+            ctree.set(row,(float)(ctree.atd(row) + preds[1 + c]));
+          }
+        }
+      }
+    }
+  }
+}

@@ -6,26 +6,4 @@
   _tweedie_variance_power=Double.NaN;
   if (f == Family.binomial)   _convert_to_enum=true;
   _link=l;
-  if (_link != Link.family_default) {
-    this._link=l;
-switch (_family) {
-case gaussian:
-      if (_link != Link.identity && _link != Link.log && _link != Link.inverse)       throw new IllegalArgumentException("Incompatible link function for selected family. Only identity, log and inverse links are allowed for family=gaussian.");
-    break;
-case binomial:
-  if (_link != Link.logit && _link != Link.log)   throw new IllegalArgumentException("Incompatible link function for selected family. Only logit and log links are allowed for family=binomial.");
-break;
-case poisson:
-if (_link != Link.log && _link != Link.identity) throw new IllegalArgumentException("Incompatible link function for selected family. Only log and identity links are allowed for family=poisson.");
-break;
-case gamma:
-if (_link != Link.inverse && _link != Link.log && _link != Link.identity) throw new IllegalArgumentException("Incompatible link function for selected family. Only inverse, log and identity links are allowed for family=gamma.");
-break;
-case tweedie:
-if (_link != Link.tweedie) throw new IllegalArgumentException("Incompatible link function for selected family. Only tweedie link allowed for family=tweedie.");
-break;
-default :
-H2O.fail();
-}
-}
 }

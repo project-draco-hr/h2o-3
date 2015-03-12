@@ -30,9 +30,9 @@
       for (int j=0; j < b.length; ++j) {
         b[j]+=step * pk[j];
       }
-      GLMIterationTask glmt=new GLMTask.GLMIterationTask(null,dinfo,0,params,true,b,ymu,1,ModelUtils.DEFAULT_THRESHOLDS,null).doAll(dinfo._adaptedFrame);
-      assertEquals("objective values differ at step " + i + ": "+ step,glmt._objVal,glst._objVals[i],1e-8);
-      System.out.println("step = " + step + ", obj = "+ glmt._objVal+ ", "+ glst._objVals[i]);
+      GLMIterationTask glmt=new GLMTask.GLMIterationTask(null,dinfo,0,params,true,b,ymu,ModelUtils.DEFAULT_THRESHOLDS,null).doAll(dinfo._adaptedFrame);
+      assertEquals("objective values differ at step " + i + ": "+ step,glmt._likelihood,glst._likelihoods[i],1e-8);
+      System.out.println("step = " + step + ", obj = "+ glmt._likelihood+ ", "+ glst._likelihoods[i]);
       step*=stepDec;
     }
   }

@@ -1,0 +1,18 @@
+def main(argv):
+    '\n    Main program.\n\n    @return: none\n    '
+    global g_script_name
+    g_script_name = os.path.basename(argv[0])
+    parse_config_file()
+    parse_args(argv)
+    url = (('https://0xdata.atlassian.net/rest/api/2/search?jql=sprint="' + urllib.quote(g_sprint)) + '"&maxResults=1000')
+    r = requests.get(url, auth=(g_user, g_pass))
+    if (r.status_code != 200):
+        print ('ERROR: status code is ' + str(r.status_code))
+        sys.exit(1)
+    j = r.json()
+    issues = j[u'issues']
+    pm = PeopleManager()
+    for issue in issues:
+        pm.add(issue)
+    pm.emit()
+    print ''

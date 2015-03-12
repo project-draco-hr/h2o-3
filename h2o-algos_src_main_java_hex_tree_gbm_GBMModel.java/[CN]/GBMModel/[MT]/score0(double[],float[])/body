@@ -1,2 +1,20 @@
 {
+  super.score0(data,preds);
+  if (_parms._loss == GBMParameters.Family.bernoulli) {
+    double fx=preds[1] + _output._initialPrediction;
+    preds[2]=1.0f / (float)(1f + Math.exp(-fx));
+    preds[1]=1f - preds[2];
+    preds[0]=hex.genmodel.GenModel.getPrediction(preds,data);
+    return preds;
+  }
+  if (_output.nclasses() == 1) {
+    preds[0]+=_output._initialPrediction;
+    return preds;
+  }
+  if (_output.nclasses() == 2) {
+    preds[1]+=_output._initialPrediction;
+    preds[2]=-preds[1];
+  }
+  hex.genmodel.GenModel.GBM_rescale(data,preds);
+  return preds;
 }
