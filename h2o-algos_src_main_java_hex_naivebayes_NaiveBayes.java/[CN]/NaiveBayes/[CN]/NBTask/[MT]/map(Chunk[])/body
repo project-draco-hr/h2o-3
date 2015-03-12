@@ -1,6 +1,11 @@
 {
-  int res_idx=chks.length - 1;
-  Chunk res=chks[res_idx];
+  _nobs=0;
+  _rescnt=new int[_nrescat];
+  _jntcnt=new int[_npreds][][];
+  for (int i=0; i < _jntcnt.length; i++) {
+    _jntcnt[i]=new int[_nrescat][_njntstat[i]];
+  }
+  Chunk res=chks[_npreds];
   OUTER:   for (int row=0; row < chks[0]._len; row++) {
     for (int col=0; col < chks.length; col++) {
       if (Double.isNaN(chks[col].atd(row)))       continue OUTER;
