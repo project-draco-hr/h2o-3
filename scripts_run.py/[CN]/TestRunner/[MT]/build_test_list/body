@@ -17,6 +17,7 @@ def build_test_list(self, test_group, run_small, run_medium, run_large, nopass):
             is_medium = False
             is_large = False
             is_nopass = False
+            is_nofeature = False
             if re.match('.*large.*', f):
                 is_large = True
             elif re.match('.*medium.*', f):
@@ -25,6 +26,8 @@ def build_test_list(self, test_group, run_small, run_medium, run_large, nopass):
                 is_small = True
             if re.match('.*NOPASS.*', f):
                 is_nopass = True
+            if re.match('.*NOFEATURE.*', f):
+                is_nofeature = True
             if (is_small and (not run_small)):
                 continue
             if (is_medium and (not run_medium)):
@@ -34,7 +37,10 @@ def build_test_list(self, test_group, run_small, run_medium, run_large, nopass):
             if (is_nopass and (not nopass)):
                 self.nopass_counter += 1
                 continue
-            if (nopass and (not is_nopass)):
+            if (is_nofeature and (not nopass)):
+                self.nofeature_counter += 1
+                continue
+            if (nopass and (not is_nopass) and (not is_nofeature)):
                 continue
             if (test_group is not None):
                 test_short_dir = self._calc_test_short_dir(os.path.join(root, f))
