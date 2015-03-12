@@ -1,10 +1,13 @@
 {
   GBM gbm=null;
   Frame fr=null;
+  Scope.enter();
   try {
     GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
     fr=parse_test_file("smalldata/gbm_test/ecology_model.csv");
     fr.remove("Site").remove();
+    int ci=fr.find("Angaus");
+    Scope.track(fr.replace(ci,fr.vecs()[ci].toEnum())._key);
     DKV.put(fr);
     parms._train=fr._key;
     parms._response_column="Angaus";
@@ -13,6 +16,7 @@
     parms._min_rows=1;
     parms._nbins=20;
     parms._learn_rate=.2f;
+    parms._loss=Family.multinomial;
     gbm=new GBM(parms);
     gbm.trainModel();
     try {
@@ -38,5 +42,6 @@ catch (    DException.DistributedException de) {
   finally {
     if (fr != null)     fr.remove();
     if (gbm != null)     gbm.remove();
+    Scope.exit();
   }
 }

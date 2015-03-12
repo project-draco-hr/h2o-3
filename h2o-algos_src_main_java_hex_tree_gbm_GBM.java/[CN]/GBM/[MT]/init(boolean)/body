@@ -6,15 +6,12 @@
     _initialPrediction=_nclass == 1 ? mean : (_nclass == 2 ? -0.5 * Math.log(mean / (1.0 - mean)) : 0.0);
   }
 switch (_parms._loss) {
-case AUTO:
-    _parms._convert_to_enum=couldBeBool(_response);
-  break;
 case bernoulli:
-if (_parms._convert_to_enum && _nclass != 2 && !couldBeBool(_response)) error("_loss","Bernoulli requires the response to be a 2-class categorical");
- else if (_response != null) {
-  _initialPrediction=Math.log(mean / (1.0f - mean));
-}
-_parms._convert_to_enum=true;
+    if (_parms._convert_to_enum && _nclass != 2 && !couldBeBool(_response))     error("_loss","Binomial requires the response to be a 2-class categorical");
+ else     if (_response != null) {
+      _initialPrediction=Math.log(mean / (1.0f - mean));
+    }
+  _parms._convert_to_enum=true;
 break;
 case multinomial:
 _parms._convert_to_enum=true;
