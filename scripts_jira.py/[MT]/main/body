@@ -2,6 +2,7 @@ def main(argv):
     '\n    Main program.\n\n    @return: none\n    '
     global g_script_name
     g_script_name = os.path.basename(argv[0])
+    parse_config_file()
     parse_args(argv)
     url = (('https://0xdata.atlassian.net/rest/api/2/search?jql=sprint="' + urllib.quote(g_sprint)) + '"&maxResults=1000')
     r = requests.get(url, auth=(g_user, g_pass))
@@ -10,19 +11,7 @@ def main(argv):
         sys.exit(1)
     j = r.json()
     issues = j[u'issues']
-    story_points_map = {}
+    pm = PeopleManager()
     for issue in issues:
-        name = issue[u'fields'][u'assignee'][u'name']
-        story_points = issue[u'fields'][u'customfield_10004']
-        if (story_points is None):
-            story_points = 0
-        else:
-            story_points = float(story_points)
-        if (name in story_points_map):
-            n = story_points_map[name]
-            story_points_map[name] = (n + story_points)
-        else:
-            story_points_map[name] = story_points
-    for key in sorted(story_points_map.keys()):
-        value = story_points_map[key]
-        print '{}: {}'.format(key, value)
+        pm.add(issue)
+    pm.emit()
