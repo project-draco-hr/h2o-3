@@ -1,5 +1,5 @@
 {
-  _mtry=(_parms._mtries == -1) ? (_parms._convert_to_enum ? Math.max((int)Math.sqrt(_ncols),1) : Math.max(_ncols / 3,1)) : _parms._mtries;
+  _mtry=(_parms._mtries == -1) ? (isClassifier() ? Math.max((int)Math.sqrt(_ncols),1) : Math.max(_ncols / 3,1)) : _parms._mtries;
   if (!(1 <= _mtry && _mtry <= _ncols))   throw new IllegalArgumentException("Computed mtry should be in interval <1,#cols> but it is " + _mtry);
   initTreeMeasurements();
   _train.add("OUT_BAG_TREES",_response.makeZero());
