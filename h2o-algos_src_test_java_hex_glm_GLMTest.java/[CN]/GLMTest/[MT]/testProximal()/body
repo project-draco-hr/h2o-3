@@ -1,0 +1,18 @@
+{
+  Key parsed=Key.make("prostate_parsed");
+  Key modelKey=Key.make("prostate_model");
+  GLMModel model=null;
+  Frame fr=parse_test_file(parsed,"smalldata/logreg/prostate.csv");
+  Key k=Key.make("rebalanced");
+  fr.remove("ID").remove();
+  DKV.put(fr._key,fr);
+  Key betaConsKey=Key.make("beta_constraints");
+  FVecTest.makeByteVec(betaConsKey,"names, beta_given, rho\n AGE, 0.1, 1\n RACE, -0.1, 1 \n DPROS, 10, 1 \n DCAPS, -10, 1 \n PSA, 0, 1\n VOL, 0, 1\nGLEASON, 0, 1\n Intercept, 0, 0 \n");
+  Frame betaConstraints=ParseDataset.parse(parsed,new Key[]{betaConsKey});
+  try {
+  }
+  finally {
+    fr.delete();
+    if (model != null)     model.delete();
+  }
+}
