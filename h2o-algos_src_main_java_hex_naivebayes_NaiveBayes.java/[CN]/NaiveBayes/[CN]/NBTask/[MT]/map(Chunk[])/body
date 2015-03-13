@@ -1,6 +1,19 @@
 {
-  int res_idx=chks.length - 1;
-  Chunk res=chks[res_idx];
+  _nobs=0;
+  _rescnt=new int[_nrescat];
+  if (_dinfo._cats > 0) {
+    _jntcnt=new int[_dinfo._cats][][];
+    for (int i=0; i < _dinfo._cats; i++) {
+      _jntcnt[i]=new int[_nrescat][_domains[i].length];
+    }
+  }
+  if (_dinfo._nums > 0) {
+    _jntsum=new double[_dinfo._nums][][];
+    for (int i=0; i < _dinfo._nums; i++) {
+      _jntsum[i]=new double[_nrescat][2];
+    }
+  }
+  Chunk res=chks[_npreds];
   OUTER:   for (int row=0; row < chks[0]._len; row++) {
     for (int col=0; col < chks.length; col++) {
       if (Double.isNaN(chks[col].atd(row)))       continue OUTER;
@@ -13,8 +26,8 @@
     for (int col=0; col < _dinfo._nums; col++) {
       int cidx=_dinfo._cats + col;
       double x=chks[cidx].atd(row);
-      _jntcnt[cidx][rlevel][0]+=x;
-      _jntcnt[cidx][rlevel][1]+=x * x;
+      _jntsum[col][rlevel][0]+=x;
+      _jntsum[col][rlevel][1]+=x * x;
     }
     _rescnt[rlevel]++;
     _nobs++;
