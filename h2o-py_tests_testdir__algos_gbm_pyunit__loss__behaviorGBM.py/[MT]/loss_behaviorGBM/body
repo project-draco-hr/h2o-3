@@ -18,7 +18,7 @@ def loss_behaviorGBM(ip, port):
         assert False, 'expected an error'
     except EnvironmentError:
         assert True
-    eco_model = h2o.gbm(x=eco[2:13], y=eco['Angaus'], loss='bernoulli')
+    eco_model = h2o.gbm(x=eco[2:13], y=eco['Angaus'].asfactor(), loss='bernoulli')
     assert isinstance(eco_model, h2o.model.binomial.H2OBinomialModel)
     tree = h2o.import_frame(path=h2o.locate('smalldata/junit/test_tree_minmax.csv'))
     tree_model = h2o.gbm(x=tree[0:3], y=tree['response'], loss='bernoulli')
@@ -33,7 +33,7 @@ def loss_behaviorGBM(ip, port):
         assert False, 'expected an error'
     except EnvironmentError:
         assert True
-    cars_model = h2o.gbm(x=cars[3:7], y=cars['cylinders'], loss='multinomial')
+    cars_model = h2o.gbm(x=cars[3:7], y=cars['cylinders'].asfactor(), loss='multinomial')
     assert isinstance(cars_model, h2o.model.multinomial.H2OMultinomialModel)
     eco_model = h2o.gbm(x=eco[0:8], y=eco['Method'], loss='multinomial')
     assert isinstance(eco_model, h2o.model.multinomial.H2OMultinomialModel)
