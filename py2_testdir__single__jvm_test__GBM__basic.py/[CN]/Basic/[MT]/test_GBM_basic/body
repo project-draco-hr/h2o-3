@@ -17,8 +17,8 @@ def test_GBM_basic(self):
     labelListUsed = list(labelList)
     numColsUsed = numCols
     parameters = []
-    parameters.append({'score_each_iteration': True, 'response_column': 'C55', 'do_classification': True, 'ntrees': 2, 'max_depth': 10, 'min_rows': 3, 'nbins': 40, 'learn_rate': 0.2, })
-    parameters.append({'score_each_iteration': True, 'response_column': 'C55', 'do_classification': True, 'ntrees': 1, 'max_depth': 20, 'min_rows': 3, 'nbins': 40, 'learn_rate': 0.2, })
+    parameters.append({'response_column': 'C55', 'ntrees': 2, 'max_depth': 10, 'min_rows': 3, 'nbins': 40, 'learn_rate': 0.2, 'loss': 'multinomial', })
+    parameters.append({'response_column': 'C55', 'loss': 'multinomial', 'ntrees': 1, 'max_depth': 20, 'min_rows': 3, 'nbins': 40, 'learn_rate': 0.2, })
     model_key = 'covtype_gbm.hex'
     for p in parameters:
         bmResult = h2o.n0.build_model(algo='gbm', destination_key=model_key, training_frame=train_key, validation_frame=train_key, parameters=p, timeoutSecs=60)
@@ -27,8 +27,7 @@ def test_GBM_basic(self):
         model = OutputObj(modelResult['models'][0]['output'], 'model')
         cmmResult = h2o.n0.compute_model_metrics(model=model_key, frame=parse_key, timeoutSecs=60)
         cmm = OutputObj(cmmResult, 'cmm')
-        if p.get('do_classification', None):
-            print '\nLook!, can use dot notation: cmm.cm.confusion_matrix', cmm.cm.confusion_matrix, '\n'
+        print '\nLook!, can use dot notation: cmm.cm.confusion_matrix', cmm.cm.confusion_matrix, '\n'
         vis = OutputObj(model.variable_importances, 'vis')
         visDataChopped = [v[0:9] for v in vis.data]
         names = visDataChopped[0]
