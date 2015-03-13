@@ -20,7 +20,7 @@ h2o.H2O.verboseprint('connecting to: ', args.host, ':', args.port)
 a_node = h2o.H2O(args.host, args.port)
 endpoints_result = a_node.endpoints()
 endpoints = endpoints_result['routes']
-print 'creating the endpoint bindings. . .'
+print 'creating the endpoint bindings in {}. . .'.format(args.dest)
 if h2o.H2O.verbose:
     print 'Endpoints: '
     pp.pprint(endpoints)
@@ -38,7 +38,7 @@ for schema in all_schemas:
         continue
     schema_name = schema['name']
     pojo_name = (schema_name + 'Proxy')
-    save_full = ((((args.dest + os.sep) + 'POJOs/') + pojo_name) + '.java')
+    save_full = ((((args.dest + os.sep) + 'water/bindings/pojos/') + pojo_name) + '.java')
     save_dir = os.path.dirname(save_full)
     try:
         os.makedirs(save_dir)

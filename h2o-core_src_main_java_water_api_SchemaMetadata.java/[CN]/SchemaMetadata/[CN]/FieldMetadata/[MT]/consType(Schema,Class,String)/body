@@ -22,12 +22,9 @@
       return "Schema.Meta";
     }
  else {
-      if (schema instanceof ModelParameterSchemaV2 && ("default_value".equals(field_name) || "actual_value".equals(field_name))) {
-        return "Polymorphic";
-      }
-      if (schema instanceof FieldMetadataV1 && "value".equals(field_name)) {
-        return "Polymorphic";
-      }
+      if (schema instanceof ModelParameterSchemaV2 && ("default_value".equals(field_name) || "actual_value".equals(field_name)))       return "Polymorphic";
+      if ((schema instanceof FieldMetadataV1 || schema instanceof FieldMetadataBase) && "value".equals(field_name))       return "Polymorphic";
+      if ((schema instanceof TwoDimTableV1 && "data".equals(field_name)))       return "Polymorphic";
       Log.warn("WARNING: found non-Schema Iced field: " + clz.toString() + " in Schema: "+ schema.getClass()+ " field: "+ field_name);
       return clz.getSimpleName();
     }
