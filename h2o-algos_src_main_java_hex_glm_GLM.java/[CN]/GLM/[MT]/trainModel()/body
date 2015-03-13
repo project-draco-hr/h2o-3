@@ -1,5 +1,4 @@
 {
-  _clean_enums=_parms._convert_to_enum && _response.isEnum();
   _parms.read_lock_frames(this);
   init(true);
   DataInfo dinfo=new DataInfo(Key.make(),_train,_valid,1,_parms._use_all_factor_levels || _parms._lambda_search,_parms._standardize ? DataInfo.TransformType.STANDARDIZE : DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true);
@@ -102,10 +101,6 @@
     }
     @Override public void onCompletion(    CountedCompleter cc){
       _parms.read_unlock_frames(GLM.this);
-      if (_clean_enums) {
-        train().lastVec().remove();
-        if (valid() != null)         valid().lastVec().remove();
-      }
       done();
     }
     @Override public boolean onExceptionalCompletion(    Throwable ex,    CountedCompleter cc){
@@ -115,10 +110,6 @@
           failed(ex);
         }
         _parms.read_unlock_frames(GLM.this);
-        if (_clean_enums) {
-          train().lastVec().remove();
-          if (valid() != null)           valid().lastVec().remove();
-        }
         return true;
       }
       return false;

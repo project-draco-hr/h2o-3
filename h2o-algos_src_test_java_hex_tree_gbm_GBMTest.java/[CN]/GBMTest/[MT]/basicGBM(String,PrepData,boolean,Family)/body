@@ -5,6 +5,11 @@
     Scope.enter();
     fr=parse_test_file(fname);
     int idx=prep.prep(fr);
+    if (family == Family.bernoulli || family == Family.multinomial) {
+      if (!fr.vecs()[idx].isEnum()) {
+        Scope.track(fr.replace(idx,fr.vecs()[idx].toEnum())._key);
+      }
+    }
     DKV.put(fr);
     GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
     if (idx < 0)     idx=~idx;
