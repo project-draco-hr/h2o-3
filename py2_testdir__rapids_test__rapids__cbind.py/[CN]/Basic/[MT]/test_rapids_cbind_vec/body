@@ -4,8 +4,8 @@ def test_rapids_cbind_vec(self):
     hexKey = 'r1'
     parseResult = h2i.import_parse(bucket=bucket, path=csvPathname, schema='put', hex_key=hexKey)
     keys = []
-    maxx = 29
-    for trial in [int(100000000.0)]:
+    maxx = 10
+    for trial in [int(10000000.0)]:
         length = trial
         execExpr = ('(= !v (c {(: #0 #%s)})' % (length - 1))
         start = time.time()
@@ -16,7 +16,7 @@ def test_rapids_cbind_vec(self):
         xList = []
         eList = []
         fList = []
-        for trial2 in range(0, 16):
+        for trial2 in range(0, 5):
             col = (2 ** trial2)
             vString = ' '.join(['%v' for x in range(col)])
             execExpr = ('(= !v2 (cbind %s))' % vString)
