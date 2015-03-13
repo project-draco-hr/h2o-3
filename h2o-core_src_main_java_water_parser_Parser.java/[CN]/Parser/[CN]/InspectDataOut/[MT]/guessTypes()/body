@@ -1,7 +1,7 @@
 {
   byte[] types=new byte[_ncols];
   for (int i=0; i < _ncols; ++i) {
-    int nonemptyLines=_nlines - _nempty[i];
+    int nonemptyLines=_nlines - _nempty[i] - 1;
     if ((_nnums[i] + _nzeros[i]) >= _ndates[i] && (_nnums[i] + _nzeros[i]) >= _nUUID[i] && _nnums[i] >= _nstrings[i]) {
       types[i]=Vec.T_NUM;
       continue;
@@ -22,7 +22,7 @@
       types[i]=Vec.T_STR;
       continue;
     }
-    if (_nzeros[i] > 0 && ((_nzeros[i] + _nstrings[i]) == _nlines) && (_domains[i].size() <= 0.95 * _nstrings[i])) {
+    if (_nzeros[i] > 0 && ((_nzeros[i] + _nstrings[i]) >= nonemptyLines) && (_domains[i].size() <= 0.95 * _nstrings[i])) {
       types[i]=Vec.T_ENUM;
       continue;
     }
