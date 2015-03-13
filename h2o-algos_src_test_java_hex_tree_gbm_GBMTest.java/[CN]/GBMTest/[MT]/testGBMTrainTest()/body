@@ -1,0 +1,40 @@
+{
+  GBMModel gbm=null;
+  GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
+  try {
+    Scope.enter();
+    parms._valid=parse_test_file("smalldata/gbm_test/ecology_eval.csv")._key;
+    Frame train=parse_test_file("smalldata/gbm_test/ecology_model.csv");
+    train.remove("Site").remove();
+    int ci=train.find("Angaus");
+    Scope.track(train.replace(ci,train.vecs()[ci].toEnum())._key);
+    DKV.put(train);
+    parms._train=train._key;
+    parms._response_column="Angaus";
+    parms._ntrees=5;
+    parms._max_depth=5;
+    parms._min_rows=10;
+    parms._nbins=100;
+    parms._learn_rate=.2f;
+    parms._loss=Family.multinomial;
+    GBM job=null;
+    try {
+      job=new GBM(parms);
+      gbm=job.trainModel().get();
+    }
+  finally {
+      if (job != null)       job.remove();
+    }
+    hex.ModelMetricsBinomial mm=hex.ModelMetricsBinomial.getFromDKV(gbm,parms.valid());
+    double auc=mm._aucdata.AUC();
+    Assert.assertTrue(0.84 <= auc && auc < 0.86);
+    ConfusionMatrix cmf1=mm._aucdata.CM();
+    Assert.assertArrayEquals(ar(ar(336,57),ar(36,71)),cmf1.confusion_matrix);
+  }
+  finally {
+    parms._train.remove();
+    parms._valid.remove();
+    if (gbm != null)     gbm.delete();
+    Scope.exit();
+  }
+}

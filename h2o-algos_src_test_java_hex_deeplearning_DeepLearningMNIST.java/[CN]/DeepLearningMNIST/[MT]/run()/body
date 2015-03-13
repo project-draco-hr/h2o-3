@@ -9,11 +9,13 @@
       p._destination_key=Key.make("dl_mnist_model");
       p._train=frame._key;
       p._response_column="C785";
-      p._convert_to_enum=true;
       p._activation=DeepLearningParameters.Activation.Tanh;
       p._hidden=new int[]{2500,2000,1500,1000,500};
       p._train_samples_per_iteration=1500 * H2O.getCloudSize();
       p._epochs=1.8 * (float)p._train_samples_per_iteration / frame.numRows();
+      int ci=frame.find("C785");
+      Scope.track(frame.replace(ci,frame.vecs()[ci].toEnum())._key);
+      DKV.put(frame);
       p._adaptive_rate=false;
       p._replicate_training_data=false;
       p._override_with_best_model=false;
