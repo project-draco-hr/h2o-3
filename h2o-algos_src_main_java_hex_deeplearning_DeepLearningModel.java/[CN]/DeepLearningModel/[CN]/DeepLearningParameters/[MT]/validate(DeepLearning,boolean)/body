@@ -106,6 +106,15 @@
   if (_loss == Loss.Automatic) {
     if (expensive)     _loss=(classification && !_autoencoder) ? Loss.CrossEntropy : Loss.MeanSquare;
   }
+  if (_loss == null) {
+    if (expensive || dl._nclass != 0) {
+      dl.error("_loss","Loss function must be specified. Try CrossEntropy for categorical response (classification), MeanSquare for numerical response (regression).");
+    }
+  }
+ else {
+    if (_autoencoder && _loss == Loss.CrossEntropy)     dl.error("_loss","Cannot use CrossEntropy loss for auto-encoder.");
+    if (!classification && _loss == Loss.CrossEntropy)     dl.error("_loss","For CrossEntropy loss, the response must be categorical.");
+  }
   if (_autoencoder && _loss == Loss.CrossEntropy)   dl.error("_loss","Must use MeanSquare loss function for auto-encoder.");
   if (!classification && _loss == Loss.CrossEntropy)   dl.error("_loss","For CrossEntropy loss, the response must be categorical. Either select MeanSquare loss for regression, or use a categorical response.");
   if (_score_training_samples < 0) {
