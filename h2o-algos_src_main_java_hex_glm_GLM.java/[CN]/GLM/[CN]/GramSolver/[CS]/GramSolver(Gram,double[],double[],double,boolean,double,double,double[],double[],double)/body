@@ -1,7 +1,6 @@
 {
   _lambda=l2pen;
   _ybar=ybar;
-  _xy=xy;
   _gram=gram;
   int ii=intercept ? 1 : 0;
   double[] rhos=MemoryManager.malloc8d(xy.length);
@@ -37,6 +36,7 @@
       l2*=10;
       _chol=_gram.cholesky(_chol);
     }
+    _xy=xy;
     return;
   }
   gram.addDiag(rhos);
@@ -44,4 +44,5 @@
   gram.addDiag(ArrayUtils.mult(rhos,-1));
   ArrayUtils.mult(rhos,-1);
   _rho=rhos;
+  _xy=xy;
 }
