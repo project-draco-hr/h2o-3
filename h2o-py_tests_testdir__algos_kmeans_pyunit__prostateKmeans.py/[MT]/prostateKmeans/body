@@ -1,0 +1,11 @@
+def prostateKmeans(ip, port):
+    h2o.init(ip, port)
+    prostate_h2o = h2o.import_frame(path=h2o.locate('smalldata/logreg/prostate.csv'))
+    prostate_sci = np.loadtxt(h2o.locate('smalldata/logreg/prostate_train.csv'), delimiter=',', skiprows=1)
+    prostate_sci = prostate_sci[:, 1:]
+    for i in range(5, 9):
+        prostate_km_h2o = h2o.kmeans(x=prostate_h2o[1:], k=i)
+        prostate_km_h2o.show()
+        prostate_km_sci = KMeans(n_clusters=i, init='k-means++', n_init=1)
+        prostate_km_sci.fit(prostate_sci)
+        print prostate_km_sci.cluster_centers_

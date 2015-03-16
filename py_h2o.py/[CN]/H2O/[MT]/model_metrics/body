@@ -1,3 +1,8 @@
-def model_metrics(self, timeoutSecs=60, **kwargs):
-    result = self.__do_json_request('/3/ModelMetrics.json', cmd='get', timeout=timeoutSecs)
+def model_metrics(self, model=None, frame=None, timeoutSecs=60, **kwargs):
+    if ((model is None) and (frame is None)):
+        result = self.__do_json_request('/3/ModelMetrics.json', cmd='get', timeout=timeoutSecs)
+    elif ((model is not None) and (frame is not None)):
+        result = self.__do_json_request(((('/3/ModelMetrics.json/models/' + model) + '/frames/') + frame), cmd='get', timeout=timeoutSecs)
+    else:
+        raise ValueError("model_metrics can't yet handle the filter case")
     return result

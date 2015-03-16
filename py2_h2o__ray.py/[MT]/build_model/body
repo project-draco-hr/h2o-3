@@ -22,7 +22,10 @@ def build_model(self, algo, training_frame, parameters, destination_key=None, ti
     if noPoll:
         result = result1
     elif ('validation_error_count' in result1):
-        h2p.yellow_print('parameter error in model_builders')
+        h2p.yellow_print('parameter error in model_builders: %s')
+        result = result1
+    elif ('exception_msg' in result1):
+        h2p.yellow_print(('exception msg in model_builders: %s' % result1['exception_msg']))
         result = result1
     else:
         job_result = result1['jobs'][0]

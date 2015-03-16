@@ -3,7 +3,8 @@ switch (_family) {
 case gaussian:
     return .5 * (yr - ym) * (yr - ym);
 case binomial:
-  return .5 * deviance(yr,eta,ym);
+  if (yr == ym)   return 0;
+return Math.log(1 + Math.exp((1 - 2 * yr) * eta));
 case poisson:
 if (yr == 0) return 2 * ym;
 return 2 * ((yr * Math.log(yr / ym)) - (yr - ym));

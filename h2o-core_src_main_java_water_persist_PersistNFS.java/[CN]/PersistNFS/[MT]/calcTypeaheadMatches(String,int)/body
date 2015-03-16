@@ -1,0 +1,26 @@
+{
+  File base=null;
+  String filterPrefix="";
+  if (limit == 0)   limit--;
+  if (!filter.isEmpty()) {
+    File file=new File(filter);
+    if (file.isDirectory()) {
+      base=file;
+    }
+ else {
+      base=file.getParentFile();
+      filterPrefix=file.getName().toLowerCase();
+    }
+  }
+  if (base == null)   base=new File(".");
+  ArrayList<String> array=new ArrayList<>();
+  File[] files=base.listFiles();
+  if (files != null) {
+    for (    File file : files) {
+      if (file.isHidden())       continue;
+      if (file.getName().toLowerCase().startsWith(filterPrefix))       array.add(file.getPath());
+      if (array.size() == limit)       break;
+    }
+  }
+  return array;
+}

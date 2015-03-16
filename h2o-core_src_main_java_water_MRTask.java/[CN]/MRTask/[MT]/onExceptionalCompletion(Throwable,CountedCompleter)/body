@@ -1,12 +1,17 @@
 {
   if (!hasException())   setException(ex);
-  if (_nleft != null)   _nleft.cancel(true);
+  self_cancel1();
+  if (_nleft != null)   try {
+    _nleft.get();
+  }
+ catch (  Throwable _) {
+  }
   _nleft=null;
-  if (_nrite != null)   _nrite.cancel(true);
+  if (_nrite != null)   try {
+    _nrite.get();
+  }
+ catch (  Throwable _) {
+  }
   _nrite=null;
-  if (_left != null)   _left.cancel(true);
-  _left=null;
-  if (_rite != null)   _rite.cancel(true);
-  _rite=null;
   return super.onExceptionalCompletion(ex,caller);
 }

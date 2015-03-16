@@ -1,0 +1,17 @@
+{
+  double[] ratios=ard(0.5,0.5);
+  Key[] keys=aro(Key.make("test.hex"),Key.make("train.hex"));
+  Frame[] splits=null;
+  try {
+    splits=ShuffleSplitFrame.shuffleSplitFrame(f,keys,ratios,42);
+    Assert.assertEquals("Expecting 2 splits",2,splits.length);
+    String[] values=append(collectS(splits[0].vec(0)),collectS(splits[1].vec(0)));
+    Arrays.sort(replaceNulls(expValues));
+    Arrays.sort(replaceNulls(values));
+    Assert.assertArrayEquals("Values should match",expValues,values);
+  }
+  finally {
+    f.delete();
+    if (splits != null)     for (    Frame s : splits)     s.delete();
+  }
+}

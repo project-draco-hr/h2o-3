@@ -1,0 +1,15 @@
+def confusion_matrices(self, thresholds=None):
+    cms = ConfusionMatrix.read_cms(self._metric_json['confusion_matrices'])
+    available_thresholds = [float(e[0]) for e in self._metric_json['thresholds_and_metric_scores'].cell_values]
+    threshs_and_cms = zip(available_thresholds, cms)
+    result = []
+    if (thresholds is not None):
+        if (not isinstance(thresholds, list)):
+            raise ValueError('thresholds parameter must be a list (i.e. [0.01, 0.5, 0.99])')
+        for tcm in threshs_and_cms:
+            if (tcm[0] in thresholds):
+                result.append([tcm[0], tcm[1]])
+    else:
+        for tcm in threshs_and_cms:
+            result.append([tcm[0], tcm[1]])
+    return result

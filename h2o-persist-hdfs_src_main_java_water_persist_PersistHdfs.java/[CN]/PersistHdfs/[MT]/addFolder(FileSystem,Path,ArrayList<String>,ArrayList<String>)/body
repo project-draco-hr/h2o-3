@@ -1,0 +1,22 @@
+{
+  try {
+    if (fs == null)     return;
+    Futures futures=new Futures();
+    for (    FileStatus file : fs.listStatus(p)) {
+      Path pfs=file.getPath();
+      if (file.isDir()) {
+        addFolder(fs,pfs,keys,failed);
+      }
+ else {
+        long size=file.getLen();
+        Key k=null;
+        keys.add((k=HDFSFileVec.make(file.getPath().toString(),file.getLen(),futures)).toString());
+        Log.debug("PersistHdfs: DKV.put(" + k + ")");
+      }
+    }
+  }
+ catch (  Exception e) {
+    Log.err(e);
+    failed.add(p.toString());
+  }
+}

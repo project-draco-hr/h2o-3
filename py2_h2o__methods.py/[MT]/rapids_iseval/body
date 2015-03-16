@@ -1,0 +1,12 @@
+def rapids_iseval(self, timeoutSecs=120, ignoreH2oError=False, **kwargs):
+    if (('ast_key' in kwargs) and (kwargs['ast_key'] is not None)):
+        assert isinstance(kwargs['ast_key'], basestring), ('only string assumed? %s' % kwargs['ast_key'])
+    params_dict = {'ast_key': None, }
+    check_params_update_kwargs(params_dict, kwargs, 'rapids_iseval', True)
+    result = self.do_json_request('3/Rapids.json/isEval', cmd='get', timeout=timeoutSecs, params=params_dict)
+    verboseprint('rapids_iseval result:', dump_json(result))
+    if (('exception' in result) and result['exception'] and (not ignoreH2oError)):
+        exception = result['exception']
+        raise Exception(('rapids with kwargs:\n%s\ngot exception:\n"%s"\n' % (dump_json(kwargs), exception)))
+    h2o_sandbox.check_sandbox_for_errors()
+    return result

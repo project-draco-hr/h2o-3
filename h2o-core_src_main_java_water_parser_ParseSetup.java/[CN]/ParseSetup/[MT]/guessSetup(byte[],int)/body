@@ -1,16 +1,20 @@
 {
-  assert _isValid;
-  ParseSetup ps=guessSetup(bits,_singleQuotes,checkHeader);
-  if (!ps._isValid)   return ps;
-  if ((_pType == ParserType.CSV || _pType == ParserType.AUTO) && ps._pType == ParserType.ARFF) {
-    if (ps._sep == ParseSetup.AUTO_SEP && _sep != ParseSetup.AUTO_SEP)     ps._sep=_sep;
+  assert _is_valid;
+  ParseSetup ps=guessSetup(bits,_single_quotes,checkHeader);
+  if (!ps._is_valid)   return ps;
+  if ((_parse_type == ParserType.CSV || _parse_type == ParserType.AUTO) && ps._parse_type == ParserType.ARFF) {
+    if (ps._separator == ParseSetup.AUTO_SEP && _separator != ParseSetup.AUTO_SEP)     ps._separator=_separator;
     return ps;
   }
-  if (_pType == ParserType.ARFF && (ps._pType == ParserType.CSV || _pType == ParserType.AUTO)) {
-    if (ps._sep != ParseSetup.AUTO_SEP && _sep == ParseSetup.AUTO_SEP)     _sep=ps._sep;
+  if (_parse_type == ParserType.ARFF && (ps._parse_type == ParserType.CSV || _parse_type == ParserType.AUTO)) {
+    if (ps._separator != ParseSetup.AUTO_SEP && _separator == ParseSetup.AUTO_SEP)     _separator=ps._separator;
     return this;
   }
-  if (_pType != ps._pType || ((_pType == ParserType.CSV && (_sep != ps._sep || _ncols != ps._ncols)) || (_pType == ParserType.ARFF && (_sep != ps._sep || _ncols != ps._ncols))))   return new ParseSetup(ps,"Conflicting file layouts, expecting: " + this + " but found "+ ps+ "\n");
-  ps._ctypes=_ctypes;
+  if (_parse_type != ps._parse_type || ((_parse_type == ParserType.CSV && (_separator != ps._separator || _number_columns != ps._number_columns)) || (_parse_type == ParserType.ARFF && (_separator != ps._separator || _number_columns != ps._number_columns)))) {
+    ps._is_valid=false;
+    ps._errors=new String[]{"Conflicting file layouts, expecting: " + this + " but found "+ ps+ "\n"};
+    return ps;
+  }
+  ps._column_types=_column_types;
   return ps;
 }

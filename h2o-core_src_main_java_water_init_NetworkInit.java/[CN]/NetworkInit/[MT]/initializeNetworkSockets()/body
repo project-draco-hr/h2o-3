@@ -7,7 +7,11 @@
       _apiSocket.setReuseAddress(true);
       _udpSocket=DatagramChannel.open();
       _udpSocket.socket().setReuseAddress(true);
-      _udpSocket.socket().bind(new InetSocketAddress(H2O.SELF_ADDRESS,H2O.H2O_PORT));
+      InetSocketAddress isa=new InetSocketAddress(H2O.SELF_ADDRESS,H2O.H2O_PORT);
+      _udpSocket.socket().bind(isa);
+      TCPReceiverThread.SOCK=ServerSocketChannel.open();
+      TCPReceiverThread.SOCK.socket().setReceiveBufferSize(water.AutoBuffer.TCP_BUF_SIZ);
+      TCPReceiverThread.SOCK.socket().bind(isa);
       break;
     }
  catch (    IOException e) {
@@ -22,8 +26,14 @@
       }
  catch (      IOException ie) {
       }
+      if (TCPReceiverThread.SOCK != null)       try {
+        TCPReceiverThread.SOCK.close();
+      }
+ catch (      IOException ie) {
+      }
       _apiSocket=null;
       _udpSocket=null;
+      TCPReceiverThread.SOCK=null;
       if (H2O.ARGS.port != 0)       H2O.die("On " + H2O.SELF_ADDRESS + " some of the required ports "+ H2O.ARGS.port+ ", "+ (H2O.ARGS.port + 1)+ " are not available, change -port PORT and try again.");
     }
     H2O.API_PORT+=2;

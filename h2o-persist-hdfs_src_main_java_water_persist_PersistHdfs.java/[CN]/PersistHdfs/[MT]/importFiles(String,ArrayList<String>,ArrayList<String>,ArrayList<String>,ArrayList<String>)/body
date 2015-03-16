@@ -1,0 +1,13 @@
+{
+  if (isBareS3NBucketWithoutTrailingSlash(path)) {
+    path+="/";
+  }
+  Log.info("ImportHDFS processing (" + path + ")");
+  try {
+    addFolder(new Path(path),keys,fails);
+    files.addAll(keys);
+  }
+ catch (  IOException e) {
+    throw new HDFSIOException(path,PersistHdfs.CONF.toString(),e);
+  }
+}

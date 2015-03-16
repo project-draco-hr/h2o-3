@@ -1,35 +1,36 @@
 {
-  ColTypeInfo[] res=new ColTypeInfo[_ncols];
+  byte[] types=new byte[_ncols];
   for (int i=0; i < _ncols; ++i) {
-    res[i]=new ColTypeInfo();
-    int nonemptyLines=_nlines - _nempty[i];
-    if (((_nnums[i] + _nzeros[i]) > (nonemptyLines / 2)) || (_nnums[i] + _nzeros[i] > 0 && _domains[i].size() <= 1 && (_nnums[i] + _nstrings[i] + _nzeros[i]) >= (nonemptyLines - 1))) {
-      res[i]._type=ColType.NUM;
+    int nonemptyLines=_nlines - _nempty[i] - 1;
+    if ((_nnums[i] + _nzeros[i]) >= _ndates[i] && (_nnums[i] + _nzeros[i]) >= _nUUID[i] && _nnums[i] >= _nstrings[i]) {
+      types[i]=Vec.T_NUM;
       continue;
     }
-    if ((_ndates[i] > (nonemptyLines / 2)) || (_ndates[i] > 1 && _domains[i].size() <= 1 && _ndates[i] + _nstrings[i] >= (nonemptyLines - 1))) {
-      res[i]._type=ColType.TIME;
+    if (_domains[i].size() <= 1 && (_nnums[i] + _nstrings[i] + _nzeros[i]) > _ndates[i] + _nUUID[i]) {
+      types[i]=Vec.T_NUM;
       continue;
     }
-    if ((_nUUID[i] > 0) || (_nUUID[i] > 0 && _domains[i].size() <= 1 && _nUUID[i] + _nstrings[i] >= (nonemptyLines - 1))) {
-      res[i]._type=ColType.UUID;
+    if (_ndates[i] > _nUUID[i] && _ndates[i] > (_nnums[i] + _nzeros[i]) && (_ndates[i] > _nstrings[i] || _domains[i].size() <= 1)) {
+      types[i]=Vec.T_TIME;
       continue;
     }
-    if (_nzeros[i] > 0 && (_nzeros[i] + _nstrings[i] >= (nonemptyLines - 1)) && (_domains[i].size() <= 0.98 * _nstrings[i])) {
-      res[i]._naStr=new ValueString("0");
-      res[i]._type=ColType.ENUM;
-      res[i]._strongGuess=true;
+    if (_nUUID[i] > _ndates[i] && _nUUID[i] > (_nnums[i] + _nzeros[i]) && (_nUUID[i] > _nstrings[i] || _domains[i].size() <= 1)) {
+      types[i]=Vec.T_UUID;
       continue;
     }
-    if (_nstrings[i] >= STRING_DOMINANCE_RATIO * (_nnums[i] + _nzeros[i]) && (_domains[i].size() <= 0.98 * _nstrings[i])) {
-      res[i]._type=ColType.ENUM;
+    if (_nstrings[i] > _ndates[i] && _nstrings[i] > _nUUID[i] && _nstrings[i] > (_nnums[i] + _nzeros[i]) && _domains[i].size() >= 0.95 * _nstrings[i]) {
+      types[i]=Vec.T_STR;
       continue;
     }
-    if (_domains[i].size() >= 0.98 * _nstrings[i]) {
-      res[i]._type=ColType.STR;
+    if (_nzeros[i] > 0 && ((_nzeros[i] + _nstrings[i]) >= nonemptyLines) && (_domains[i].size() <= 0.95 * _nstrings[i])) {
+      types[i]=Vec.T_ENUM;
       continue;
     }
-    res[i]._type=ColType.UNKNOWN;
+    if (_nstrings[i] >= (_nnums[i] + _nzeros[i]) && (_domains[i].size() <= 0.95 * _nstrings[i])) {
+      types[i]=Vec.T_ENUM;
+      continue;
+    }
+    types[i]=Vec.T_BAD;
   }
-  return res;
+  return types;
 }

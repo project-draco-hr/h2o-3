@@ -2,9 +2,9 @@ def describe(self):
     '\n    Generate an in-depth description of this H2OFrame.\n\n    The description is a tabular print of the type, min, max, sigma, number of zeros,\n    and number of missing elements for each H2OVec in this H2OFrame.\n\n    :return: None (print to stdout)\n    '
     print 'Rows:', len(self._vecs[0]), 'Cols:', len(self)
     headers = [vec._name for vec in self._vecs]
-    table = [self._row('type', None), self._row('mins', 0), self._row('mean', None), self._row('maxs', 0), self._row('sigma', None), self._row('zeros', None), self._row('missing', None)]
+    table = [self._row('type', None), self._row('mins', 0), self._row('mean', None), self._row('maxs', 0), self._row('sigma', None), self._row('zero_count', None), self._row('missing_count', None)]
     chunk_summary_tmp_key = H2OFrame.send_frame(self)
-    chunk_summary = h2o.frame(chunk_summary_tmp_key)['frames'][0]['chunkSummary']
+    chunk_summary = h2o.frame(chunk_summary_tmp_key)['frames'][0]['chunk_summary']
     h2o.remove(chunk_summary_tmp_key)
     print tabulate.tabulate(table, headers)
     print 

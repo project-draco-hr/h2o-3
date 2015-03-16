@@ -1,0 +1,14 @@
+{
+  super.score0(data,preds);
+  int N=_parms._ntrees;
+  if (_output.nclasses() == 1) {
+    preds[0]/=N;
+    return preds;
+  }
+ else {
+    float sum=MathUtils.sum(preds);
+    if (sum > 0)     MathUtils.div(preds,sum);
+    preds[0]=getPrediction(preds,data);
+  }
+  return preds;
+}

@@ -16,14 +16,14 @@
     columns[c].format=t.getColFormats()[c - 1];
     columns[c].description=null;
   }
-  data=new String[cols][rows];
-  data[0]=new String[t.getRowDim()];
+  data=new IcedWrapper[cols][rows];
+  data[0]=new IcedWrapper[t.getRowDim()];
   for (int r=0; r < t.getRowDim(); ++r) {
-    data[0][r]=t.getRowHeaders()[r];
+    data[0][r]=new IcedWrapper(t.getRowHeaders()[r]);
   }
-  String[][] cellValues=t.getCellValues();
+  IcedWrapper[][] cellValues=t.getCellValues();
   for (int c=1; c < cols; ++c) {
-    data[c]=new String[rows];
+    data[c]=new IcedWrapper[rows];
     for (int r=0; r < rows; ++r) {
       data[c][r]=cellValues[r][c - 1];
     }

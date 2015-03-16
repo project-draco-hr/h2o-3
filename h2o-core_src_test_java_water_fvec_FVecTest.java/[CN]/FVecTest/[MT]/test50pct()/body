@@ -1,0 +1,28 @@
+{
+  Vec vec=null;
+  try {
+    double[] d=new double[]{0.812834256224,1.56386606237,3.12702210880,3.68417563302,5.51277746586};
+    vec=Vec.makeVec(d,Vec.newKey());
+    double pct[]=vec.pctiles();
+    double eps=(vec.max() - vec.min()) / 1e-3;
+    Assert.assertEquals(pct[0],d[0],eps);
+    Assert.assertEquals(pct[1],d[0],eps);
+    Assert.assertEquals(pct[2],d[0],eps);
+    Assert.assertEquals(pct[3],d[1],eps);
+    Assert.assertEquals(pct[4],d[2],eps);
+    Assert.assertEquals(pct[5],d[2],eps);
+    Assert.assertEquals(pct[6],d[3],eps);
+    Assert.assertEquals(pct[7],d[4],eps);
+    Assert.assertEquals(pct[8],d[4],eps);
+    vec.remove();
+    d=new double[]{490,492,494,496,498};
+    vec=Vec.makeVec(d,Vec.newKey());
+    pct=vec.pctiles();
+    eps=(vec.max() - vec.min()) / 1e-3;
+    System.out.println(java.util.Arrays.toString(pct));
+    Assert.assertEquals(pct[0],d[0],eps);
+  }
+  finally {
+    if (vec != null)     vec.remove();
+  }
+}

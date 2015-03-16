@@ -1,0 +1,23 @@
+{
+  List<Class<?>> classes=new ArrayList<Class<?>>();
+  List<Failure> missingClasses=new ArrayList<Failure>();
+  for (  String arg : args) {
+    try {
+      classes.add(Class.forName(arg));
+    }
+ catch (    ClassNotFoundException e) {
+      Description description=Description.createSuiteDescription(arg);
+      Failure failure=new Failure(description,e);
+      missingClasses.add(failure);
+    }
+  }
+  JUnitCore jcore=new JUnitCore();
+  JUnitSystem jsystem=new RealSystem();
+  jcore.addListener(new TextListener(jsystem));
+  jcore.addListener(new XMLTestReporter());
+  Result result=jcore.run(classes.toArray(new Class[0]));
+  for (  Failure each : missingClasses) {
+    result.getFailures().add(each);
+  }
+  return result;
+}

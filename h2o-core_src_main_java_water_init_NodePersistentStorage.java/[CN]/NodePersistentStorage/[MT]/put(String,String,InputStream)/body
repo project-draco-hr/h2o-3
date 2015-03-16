@@ -4,7 +4,7 @@
   validateKeyName(keyName);
   File d=new File(NPS_DIR);
   if (!d.exists()) {
-    boolean success=d.mkdir();
+    boolean success=d.mkdirs();
     if (!success) {
       throw new RuntimeException("Could not make NodePersistentStorage directory (" + d + ")");
     }
@@ -52,6 +52,14 @@
   }
   File realf=new File(d2 + File.separator + keyName);
   try {
+    if (System.getProperty("os.name").toLowerCase().startsWith("windows")) {
+      if (realf.exists()) {
+        boolean success=realf.delete();
+        if (!success) {
+          throw new RuntimeException("NodePersistentStorage delete failed (" + realf + ")");
+        }
+      }
+    }
     boolean success=tmpf.renameTo(realf);
     if (!success) {
       throw new RuntimeException("NodePersistentStorage move failed (" + tmpf + " -> "+ realf+ ")");

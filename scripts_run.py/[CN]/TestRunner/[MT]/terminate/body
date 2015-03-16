@@ -1,0 +1,9 @@
+def terminate(self):
+    '\n        Terminate all running clouds.  (Due to a signal.)\n\n        @return: none\n        '
+    self.terminated = True
+    for test in self.tests:
+        test.cancel()
+    for test in self.tests:
+        test.terminate_if_started()
+    for cloud in self.clouds:
+        cloud.terminate()

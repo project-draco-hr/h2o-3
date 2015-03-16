@@ -1,0 +1,36 @@
+def check_obj_has_good_numbers(obj, hierarchy='', curr_depth=0, max_depth=4, allowNaN=False):
+    'Represent instance of a class as JSON.\n    Arguments:\n    obj -- any object\n    Return:\n    String that represent JSON-encoded object.\n    '
+
+    def serialize(obj, hierarchy='', curr_depth=0):
+        "Recursively walk object's hierarchy. Limit to max_depth"
+        if (curr_depth > max_depth):
+            return
+        if isinstance(obj, (bool, int, long, float, basestring)):
+            try:
+                number = float(obj)
+                print 'Yay!', hierarchy, number
+            except:
+                if (obj is None):
+                    print ("Not Yay! how come you're giving me None for a coefficient? %s %s" % (hierarchy, obj))
+                elif (str(obj) == ''):
+                    print ("Not Yay! how come you're giving me an empty string for a coefficient? %s %s" % (hierarchy, obj))
+                else:
+                    raise Exception(('%s %s %s is not a valid float' % (hierarchy, obj, type(obj))))
+                number = 0.0
+            if ((not allowNaN) and math.isnan(number)):
+                raise Exception(('%s %s is a NaN' % (hierarchy, obj)))
+            if ((not allowNaN) and math.isinf(number)):
+                raise Exception(('%s %s is a Inf' % (hierarchy, obj)))
+            return number
+        elif isinstance(obj, dict):
+            obj = obj.copy()
+            for key in obj:
+                obj[key] = serialize(obj[key], (hierarchy + ('.%' % key)), (curr_depth + 1))
+            return obj
+        elif isinstance(obj, (list, tuple)):
+            return [serialize(item, (hierarchy + ('[%s]' % i)), (curr_depth + 1)) for (i, item) in enumerate(obj)]
+        elif hasattr(obj, '__dict__'):
+            return serialize(obj.__dict__, hierarchy, (curr_depth + 1))
+        else:
+            return repr(obj)
+    return serialize(obj, hierarchy, (curr_depth + 1))

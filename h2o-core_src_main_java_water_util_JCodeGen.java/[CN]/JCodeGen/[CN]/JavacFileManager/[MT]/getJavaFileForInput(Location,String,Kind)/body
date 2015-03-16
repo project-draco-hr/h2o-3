@@ -1,0 +1,12 @@
+{
+  if (location == StandardLocation.CLASS_OUTPUT && _buffers.containsKey(className) && kind == Kind.CLASS) {
+    final byte[] bytes=_buffers.get(className).toByteArray();
+    return new SimpleJavaFileObject(URI.create(className),kind){
+      public InputStream openInputStream(){
+        return new ByteArrayInputStream(bytes);
+      }
+    }
+;
+  }
+  return _fileManager.getJavaFileForInput(location,className,kind);
+}

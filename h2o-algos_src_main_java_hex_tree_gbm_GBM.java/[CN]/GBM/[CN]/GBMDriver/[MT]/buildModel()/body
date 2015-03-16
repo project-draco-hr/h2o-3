@@ -1,11 +1,21 @@
 {
+  final double init=_initialPrediction;
+  if (init != 0.0)   new MRTask(){
+    @Override public void map(    Chunk tree){
+      for (int i=0; i < tree._len; i++)       tree.set(i,init);
+    }
+  }
+.doAll(vec_tree(_train,0));
   if (_parms._checkpoint) {
     Timer t=new Timer();
     new ResidualsCollector(_ncols,_nclass,_model._output._treeKeys).doAll(_train);
     Log.info("Reconstructing tree residuals stats from checkpointed model took " + t);
   }
   for (int tid=0; tid < _parms._ntrees; tid++) {
-    if (tid != 0 || !_parms._checkpoint)     doScoringAndSaveModel(false,false,false);
+    if (tid != 0 || !_parms._checkpoint) {
+      double training_r2=doScoringAndSaveModel(false,false,false);
+      if (training_r2 >= 0.999999)       return;
+    }
     new ComputeProb().doAll(_train);
     new ComputeRes().doAll(_train);
     Timer kb_timer=new Timer();

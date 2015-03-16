@@ -10,10 +10,32 @@
     if (params._loss == DeepLearningModel.DeepLearningParameters.Loss.CrossEntropy) {
       g=t - y;
     }
- else {
-      assert(params._loss == DeepLearningModel.DeepLearningParameters.Loss.MeanSquare);
+ else     if (params._loss == DeepLearningModel.DeepLearningParameters.Loss.Absolute) {
+      g=(2 * t - 1) * (1f - y) * y;
+    }
+ else     if (params._loss == DeepLearningModel.DeepLearningParameters.Loss.MeanSquare) {
       g=(t - y) * (1f - y) * y;
     }
+ else     if (params._loss == DeepLearningModel.DeepLearningParameters.Loss.Huber) {
+      if (t == 0) {
+        if (y < 0.5) {
+          g=-4 * y;
+        }
+ else {
+          g=-2;
+        }
+      }
+ else {
+        if (y > 0.5) {
+          g=4 * (1 - y);
+        }
+ else {
+          g=2;
+        }
+      }
+      g*=(1f - y) * y;
+    }
+ else     throw H2O.unimpl("Loss " + params._loss + " not implemented for classification.");
     bprop(row,g,r,m);
   }
 }

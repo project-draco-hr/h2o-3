@@ -1,0 +1,19 @@
+def parse_config_file():
+    global g_user
+    global g_pass
+    global g_sprint
+    home = os.path.expanduser('~')
+    config_file = os.path.join(home, '.h2o_jira')
+    if os.path.exists(config_file):
+        with open(config_file) as f:
+            for line in f:
+                match_groups = re.search('\\s*(\\S+)\\s*=\\s*([\\S\\s]+)\\s*', line.rstrip())
+                if (match_groups is not None):
+                    key = match_groups.group(1)
+                    value = match_groups.group(2)
+                    if (key == 'user'):
+                        g_user = value
+                    elif (key == 'pass'):
+                        g_pass = value
+                    elif (key == 'sprint'):
+                        g_sprint = value

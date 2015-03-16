@@ -26,7 +26,7 @@
         }
       }
       double[] subgrad=grad.clone();
-      ADMMSolver.subgrad(_taskInfo._params._alpha[0],_currentLambda,fullBeta,subgrad);
+      ADMM.subgrad(_taskInfo._params._alpha[0] * _currentLambda,fullBeta,subgrad);
       double err=GLM_GRAD_EPS;
       if (!failedLineSearch && _activeCols != null) {
         for (        int c : _activeCols)         if (subgrad[c] > err)         err=subgrad[c];
@@ -45,18 +45,18 @@
           int[] oldCols=_activeCols;
           _activeCols=Arrays.copyOf(_activeCols,_activeCols.length + fcnt);
           for (int i=0; i < fcnt; ++i)           _activeCols[n + i]=failedCols[i];
-          if (_lastResult != null)           _lastResult=new IterationInfo(_lastResult._iter,resizeVec(_lastResult._beta,_activeCols,oldCols,_taskInfo._dinfo.fullN() + 1),_lastResult._objval,_lastResult._pen);
+          if (_lastResult != null)           _lastResult=new IterationInfo(_lastResult._iter,resizeVec(_lastResult._beta,_activeCols,oldCols,_taskInfo._dinfo.fullN() + 1),_lastResult._likelihood);
           Arrays.sort(_activeCols);
           LogInfo(fcnt + " variables failed KKT conditions check! Adding them to the model and continuing computation.(grad_eps = " + err+ ", activeCols = "+ (_activeCols.length > 100 ? "lost" : Arrays.toString(_activeCols)));
           _activeData=_taskInfo._dinfo.filterExpandedColumns(_activeCols);
           getCompleter().addToPendingCount(1);
-          new GLMIterationTask(_jobKey,_activeData,_currentLambda * (1 - _taskInfo._params._alpha[0]),_taskInfo._params,true,contractVec(glrt._beta,_activeCols),_taskInfo._ymu,1.0 / _taskInfo._nobs,_taskInfo._thresholds,new Iteration(getCompleter(),false)).asyncExec(_activeData._adaptedFrame);
+          new GLMIterationTask(_jobKey,_activeData,_currentLambda * (1 - _taskInfo._params._alpha[0]),_taskInfo._params,true,contractVec(glrt._beta,_activeCols),_taskInfo._ymu,_taskInfo._thresholds,new Iteration(getCompleter(),false)).asyncExec(_activeData._adaptedFrame);
           return;
         }
       }
       _taskInfo._beta=glrt._beta;
       _taskInfo._ginfo=new GradientInfo(glrt._objVal,glrt._gradient);
-      _taskInfo._objVal=_lastResult._objval;
+      _taskInfo._objVal=glrt._objVal + (1 - _taskInfo._params._alpha[0]) * ArrayUtils.l1norm(glrt._beta,_activeData._intercept);
       _taskInfo._iter=_iter;
       int diff=MAX_ITERATIONS_PER_LAMBDA - _iter + _taskInfo._iter;
       if (diff > 0)       new Job.ProgressUpdate(diff).fork(_progressKey);

@@ -1,0 +1,26 @@
+{
+  if (x == null)   return null;
+  int dim_in=transpose ? x[0].length : x.length;
+  int dim_out=transpose ? x.length : x[0].length;
+  double[][] xgram=new double[dim_out][dim_out];
+  if (transpose) {
+    for (int i=0; i < dim_in; i++) {
+      for (int j=0; j < dim_out; j++) {
+        for (int k=j; k < dim_out; k++)         xgram[j][k]+=x[j][i] * x[k][i];
+      }
+    }
+  }
+ else {
+    for (int i=0; i < dim_in; i++) {
+      for (int j=0; j < dim_out; j++) {
+        for (int k=j; k < dim_out; k++)         xgram[j][k]+=x[i][j] * x[i][k];
+      }
+    }
+  }
+  for (int i=0; i < dim_in; i++) {
+    for (int j=0; j < dim_out; j++) {
+      for (int k=0; k < j; k++)       xgram[j][k]=xgram[k][j];
+    }
+  }
+  return xgram;
+}

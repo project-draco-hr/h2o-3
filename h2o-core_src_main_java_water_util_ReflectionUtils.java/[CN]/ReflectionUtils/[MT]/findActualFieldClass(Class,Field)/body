@@ -1,0 +1,15 @@
+{
+  Type generic_type=f.getGenericType();
+  if (!(generic_type instanceof TypeVariable))   return f.getType();
+  TypeVariable[] tvs=clz.getSuperclass().getTypeParameters();
+  TypeVariable tv=(TypeVariable)generic_type;
+  String type_param_name=tv.getName();
+  int which_tv=-1;
+  for (int i=0; i < tvs.length; i++)   if (type_param_name.equals(tvs[i].getName()))   which_tv=i;
+  if (-1 == which_tv) {
+    return f.getType();
+  }
+  ParameterizedType generic_super=(ParameterizedType)clz.getGenericSuperclass();
+  Class field_clz=(Class)generic_super.getActualTypeArguments()[which_tv];
+  return field_clz;
+}

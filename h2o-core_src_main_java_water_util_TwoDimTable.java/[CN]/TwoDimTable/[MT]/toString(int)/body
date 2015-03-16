@@ -12,30 +12,26 @@
 switch (colTypes[c]) {
 case "double":
       for (int r=0; r < rowDim; ++r) {
-        final String cell=cellValues[r][c];
-        if (!cell.equals(""))         cellStrings[r + 1][c + 1]=String.format(formatString,new Double(cell));
+        cellStrings[r + 1][c + 1]=cellValues[r][c] == null || cellValues[r][c].get() == null ? "" : String.format(formatString,(Double)cellValues[r][c].get());
       }
     break;
 case "float":
   for (int r=0; r < rowDim; ++r) {
-    final String cell=cellValues[r][c];
-    if (!cell.equals(""))     cellStrings[r + 1][c + 1]=String.format(formatString,new Float(cell));
+    cellStrings[r + 1][c + 1]=cellValues[r][c] == null || cellValues[r][c].get() == null ? "" : String.format(formatString,(Float)cellValues[r][c].get());
   }
 break;
 case "integer":
 for (int r=0; r < rowDim; ++r) {
-final String cell=cellValues[r][c];
-if (!cell.equals("")) cellStrings[r + 1][c + 1]=String.format(formatString,new Integer(cell));
+cellStrings[r + 1][c + 1]=cellValues[r][c] == null || cellValues[r][c].get() == null ? "" : String.format(formatString,(Integer)cellValues[r][c].get());
 }
 break;
 case "long":
 for (int r=0; r < rowDim; ++r) {
-final String cell=cellValues[r][c];
-if (!cell.equals("")) cellStrings[r + 1][c + 1]=String.format(formatString,new Long(cell));
+cellStrings[r + 1][c + 1]=cellValues[r][c] == null || cellValues[r][c].get() == null ? "" : String.format(formatString,(Long)cellValues[r][c].get());
 }
 break;
 default :
-for (int r=0; r < rowDim; ++r) cellStrings[r + 1][c + 1]=String.format(formatString,cellValues[r][c]);
+for (int r=0; r < rowDim; ++r) if (cellValues[r][c] != null && cellValues[r][c].get() != null) cellStrings[r + 1][c + 1]=String.format(formatString,cellValues[r][c]);
 break;
 }
 }
@@ -51,7 +47,7 @@ int len=colLen[0];
 if (len > 0) sb.append(String.format("%" + colLen[0] + "s",cellStrings[r][0]));
 for (int c=1; c <= colDim; ++c) {
 len=colLen[c];
-if (len > 0) sb.append(String.format("%" + (len + pad) + "s",cellStrings[r][c]));
+if (len > 0) sb.append(String.format("%" + (len + pad) + "s",cellStrings[r][c].equals("null") ? "" : cellStrings[r][c]));
 }
 sb.append("\n");
 }
