@@ -72,28 +72,29 @@
  else {
     colnames=new String[]{fr.name(0),fr.name(1),"count"};
     long s=System.currentTimeMillis();
-    UniqueTwoColumnTask t=new UniqueTwoColumnTask().doAll(fr);
-    Log.info("Finished raw tabling in: " + (System.currentTimeMillis() - s) / 1000. + " (s)");
-    final NonBlockingHashMap m=t._cnts;
-    dataLayoutVec=Vec.makeCon(0,m.size());
+    Uniq2ColTsk u=new Uniq2ColTsk().doAll(fr);
+    Log.info("Finished gathering uniq groups in: " + (System.currentTimeMillis() - s) / 1000. + " (s)");
+    final long[] pairs=new long[u._s.size()];
+    int i=0;
+    Iterator it=u._s.iterator();
+    while (it.hasNext())     pairs[i++]=(long)it.next();
+    dataLayoutVec=Vec.makeCon(0,pairs.length);
+    s=System.currentTimeMillis();
+    NewHashMap h=new NewHashMap(pairs).doAll(dataLayoutVec);
+    Log.info("Finished creating new HashMap in: " + (System.currentTimeMillis() - s) / 1000. + " (s)");
+    s=System.currentTimeMillis();
+    final long[] cnts=new CountUniq2ColTsk(h._s).doAll(fr)._cnts;
+    Log.info("Finished gathering counts in: " + (System.currentTimeMillis() - s) / 1000. + " (s)");
     d[0]=fr.vec(0).domain();
-    if (ncol == 2) {
-      d[1]=fr.vec(1).domain();
-    }
+    d[1]=fr.vec(1).domain();
     fr2=new MRTask(){
       @Override public void map(      Chunk[] c,      NewChunk[] cs){
-        Iterator it=m.keySet().iterator();
-        for (int j=0; j < c[0].start(); ++j)         it.next();
+        int start=(int)c[0].start();
         for (int i=0; i < c[0]._len; ++i) {
-          GroupPair g=(GroupPair)it.next();
-          cs[0].addNum(g._ls[0]);
-          if (ncol == 2) {
-            cs[1].addNum(g._ls[1]);
-            cs[2].addNum((int)m.get(g));
-          }
- else {
-            cs[1].addNum((int)m.get(g));
-          }
+          long[] g=unmix(pairs[i + start]);
+          cs[0].addNum(g[0]);
+          cs[1].addNum(g[1]);
+          cs[2].addNum(cnts[i + start]);
         }
       }
     }
