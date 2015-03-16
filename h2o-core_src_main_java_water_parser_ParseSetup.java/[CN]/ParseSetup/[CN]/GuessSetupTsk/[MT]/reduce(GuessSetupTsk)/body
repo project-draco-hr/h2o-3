@@ -12,7 +12,12 @@
       }
  else {
         for (int i=0; i < _gblSetup._column_names.length; i++) {
-          if (!_gblSetup._column_names[i].equals(other._gblSetup._column_names[i]))           Log.warn("Column names do not match between files");
+          if (i > other._gblSetup._column_names.length || !_gblSetup._column_names[i].equals(other._gblSetup._column_names[i])) {
+            Log.warn("Column names do not match between files");
+            _gblSetup._is_valid=false;
+            other._gblSetup._is_valid=false;
+            break;
+          }
         }
       }
     }
