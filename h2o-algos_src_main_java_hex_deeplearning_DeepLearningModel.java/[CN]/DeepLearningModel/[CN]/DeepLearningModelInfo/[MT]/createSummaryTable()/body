@@ -1,13 +1,13 @@
 {
   Neurons[] neurons=DeepLearningTask.makeNeuronsForTesting(this);
-  TwoDimTable table=new TwoDimTable("Status of Neuron Layers",new String[neurons.length],new String[]{"#","Units","Type","Dropout","L1","L2",(get_params()._adaptive_rate ? "Rate (Mean,RMS)" : "Rate"),(get_params()._adaptive_rate ? "" : "Momentum"),"Weight (Mean,RMS)","Bias (Mean,RMS)"},new String[]{"integer","integer","string","double","double","double","string","string","string","string"},new String[]{"%d","%d","%s","%2.2f %%","%5f","%5f","%s","%s","%s","%s"},"");
+  TwoDimTable table=new TwoDimTable("Status of Neuron Layers (" + (!get_params()._autoencoder ? ("predicting " + _train.lastVecName() + ", ") : "") + (get_params()._autoencoder ? "auto-encoder" : _classification ? (units[units.length - 1] + "-class classification") : "regression")+ ", "+ get_params()._loss.toString()+ " loss)",new String[neurons.length],new String[]{"#","Units","Type","Dropout","L1","L2",(get_params()._adaptive_rate ? "Rate (Mean,RMS)" : "Rate"),(get_params()._adaptive_rate ? "" : "Momentum"),"Weight (Mean,RMS)","Bias (Mean,RMS)"},new String[]{"integer","integer","string","double","double","double","string","string","string","string"},new String[]{"%d","%d","%s","%2.2f %%","%5f","%5f","%s","%s","%s","%s"},"");
   final String format="%7g";
   for (int i=0; i < neurons.length; ++i) {
     table.set(i,0,i + 1);
     table.set(i,1,neurons[i].units);
     table.set(i,2,neurons[i].getClass().getSimpleName());
     if (i == 0) {
-      table.set(i,3,neurons[i].params._input_dropout_ratio);
+      table.set(i,3,neurons[i].params._input_dropout_ratio * 100);
       continue;
     }
  else     if (i < neurons.length - 1) {
@@ -15,7 +15,7 @@
         table.set(i,3,0);
       }
  else {
-        table.set(i,3,neurons[i].params._hidden_dropout_ratios[i - 1]);
+        table.set(i,3,neurons[i].params._hidden_dropout_ratios[i - 1] * 100);
       }
     }
     table.set(i,4,neurons[i].params._l1);
