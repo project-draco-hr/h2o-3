@@ -1,4 +1,7 @@
 {
-  Job<Model> jm=startBuildModel(hypers);
-  return jm == null ? model(hypers) : jm.get();
+  Model m=model(hypers);
+  if (m != null)   return m;
+  m=(Model)(startBuildModel(hypers).get());
+  _cache.put(new Group(hypers.clone()),m);
+  return m;
 }
