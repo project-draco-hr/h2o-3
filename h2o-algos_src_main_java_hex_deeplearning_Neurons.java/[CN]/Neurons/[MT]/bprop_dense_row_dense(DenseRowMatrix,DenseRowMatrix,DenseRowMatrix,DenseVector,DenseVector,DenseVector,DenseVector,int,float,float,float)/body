@@ -17,8 +17,9 @@
     if (update_prev)     prev_e.add(col,partial_grad * weight);
     final float previous_a=prev_a.get(col);
     if (fast_mode && previous_a == 0)     continue;
-    final float grad=partial_grad * previous_a - Math.signum(weight) * l1 - weight * l2;
     final int w=idx + col;
+    float grad=partial_grad * previous_a - Math.signum(weight) * l1 - weight * l2;
+    if (_wConsensus != null)     grad-=0.001f * (_wConsensus.raw()[w] - _w.raw()[w]);
     if (have_ada) {
       assert(!have_momenta);
       final float grad2=grad * grad;

@@ -12,6 +12,12 @@
       }
     }
  else {
+      if (consensus_minfo != null) {
+        for (int i=1; i < neurons.length; i++) {
+          neurons[i]._wConsensus=consensus_minfo.get_weights(i - 1);
+          neurons[i]._bConsensus=consensus_minfo.get_biases(i - 1);
+        }
+      }
       if (minfo._classification) {
         ((Neurons.Softmax)neurons[neurons.length - 1]).fprop();
         if (training) {

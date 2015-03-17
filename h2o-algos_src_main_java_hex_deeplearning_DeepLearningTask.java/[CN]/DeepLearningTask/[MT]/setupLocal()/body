@@ -1,6 +1,15 @@
 {
   super.setupLocal();
-  _output=_input;
-  _input=null;
-  _output.set_processed_local(0l);
+  if (consensusADMM) {
+    if (DKV.get(_sharedmodel.myModelInfoKey(H2O.SELF)) != null) {
+      _mymodel=DKV.getGet(_sharedmodel.myModelInfoKey(H2O.SELF));
+    }
+ else {
+      _mymodel=_sharedmodel;
+    }
+  }
+ else {
+    _mymodel=_sharedmodel;
+    _sharedmodel=null;
+  }
 }
