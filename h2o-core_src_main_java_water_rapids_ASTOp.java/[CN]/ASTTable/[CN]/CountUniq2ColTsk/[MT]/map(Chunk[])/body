@@ -1,7 +1,8 @@
 {
-  _cnts=new long[_s.size()];
   for (int i=0; i < cs[0]._len; ++i) {
-    int h=_s.get(mix(cs[0].at8(i),cs[1].at8(i)));
-    _cnts[h]++;
+    int h=_m.get(mix(cs[0].at8(i),cs[1].at8(i)));
+    long offset=scaIdx(h);
+    long c=_cnts[h];
+    while (!_unsafe.compareAndSwapLong(_cnts,offset,c,c + 1))     c=_cnts[h];
   }
 }
