@@ -30,18 +30,12 @@
     job=new GLM(modelKey,"glm test simple poisson",params);
     job.trainModel().get();
     model=DKV.get(modelKey).get();
-    double[] beta_2=model.beta();
-    System.out.println("beta1 = " + Arrays.toString(beta_1));
-    System.out.println("beta2 = " + Arrays.toString(beta_2));
     fr.add("CAPSULE",fr.remove("CAPSULE"));
     DataInfo dinfo=new DataInfo(Key.make(),fr,null,1,true,TransformType.NONE,DataInfo.TransformType.NONE,true);
     LBFGS_LogisticGradientTask lt=(LBFGS_LogisticGradientTask)new LBFGS_LogisticGradientTask(dinfo,params,0,beta_1,1.0 / 380.0).doAll(dinfo._adaptedFrame);
-    LBFGS_LogisticGradientTask lt2=(LBFGS_LogisticGradientTask)new LBFGS_LogisticGradientTask(dinfo,params,0,beta_2,1.0 / 380.0).doAll(dinfo._adaptedFrame);
     GLMGradientTask glmt=new GLMGradientTask(dinfo,params,0,beta_1,1.0 / 380).doAll(dinfo._adaptedFrame);
     double[] grad=lt._gradient;
-    double[] grad_2=lt2._gradient;
     for (int i=0; i < beta_1.length; ++i)     assertEquals(0,grad[i] + betaConstraints.vec("rho").at(i) * (beta_1[i] - betaConstraints.vec("beta_given").at(i)),1e-5);
-    for (int i=0; i < beta_1.length; ++i)     assertEquals(0,grad_2[i] + betaConstraints.vec("rho").at(i) * (beta_1[i] - betaConstraints.vec("beta_given").at(i)),1e-4);
   }
   finally {
     for (    Vec v : betaConstraints.vecs())     v.remove();

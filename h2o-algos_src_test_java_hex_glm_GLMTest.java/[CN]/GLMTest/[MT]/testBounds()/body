@@ -22,13 +22,43 @@
     job.trainModel().get();
     assertTrue(job.isDone());
     model=DKV.get(modelKey).get();
-    System.out.println("coefs = " + model.coefficients());
-    System.out.println("beta = " + Arrays.toString(model.beta()));
     Map<String,Double> coefs=model.coefficients();
     for (int i=0; i < cfs1.length; ++i)     assertEquals(vals[i],coefs.get(cfs1[i]),1e-2);
     GLMValidation val=model.validation();
+    System.out.println("val = " + val);
     assertEquals(512.2888,val.nullDeviance(),1e-1);
     assertEquals(388.4686,val.residualDeviance(),1e-1);
+    model.delete();
+    params._lambda=new double[]{0};
+    params._alpha=new double[]{0};
+    FVecTest.makeByteVec(betaConsKey,"names, lower_bounds, upper_bounds\n RACE, -.5, .5\n DCAPS, -.4, .4\n DPROS, -.5, .5 \nPSA, -.5, .5\n VOL, -.5, .5");
+    betaConstraints=ParseDataset.parse(Key.make("beta_constraints.hex"),new Key[]{betaConsKey});
+    job=new GLM(modelKey,"glm test simple poisson",params);
+    job.trainModel().get();
+    assertTrue(job.isDone());
+    model=DKV.get(modelKey).get();
+    double[] beta=model.beta();
+    System.out.println("beta = " + Arrays.toString(beta));
+    fr.add("CAPSULE",fr.remove("CAPSULE"));
+    fr.remove("ID").remove();
+    DKV.put(fr._key,fr);
+    DataInfo dinfo=new DataInfo(Key.make(),fr,null,1,true,TransformType.NONE,DataInfo.TransformType.NONE,true);
+    LBFGS_LogisticGradientTask lt=(LBFGS_LogisticGradientTask)new LBFGS_LogisticGradientTask(dinfo,params,0,beta,1.0 / 380.0).doAll(dinfo._adaptedFrame);
+    double[] grad=lt._gradient;
+    String[] names=model._dinfo.coefNames();
+    System.out.println("coefs = " + Arrays.toString(names));
+    System.out.println("grad = " + Arrays.toString(grad));
+    ValueString vs=new ValueString();
+    outer:     for (int i=0; i < names.length; ++i) {
+      for (int j=0; j < betaConstraints.numRows(); ++j) {
+        if (betaConstraints.vec("names").atStr(vs,j).toString().equals(names[i])) {
+          if (beta[i] == betaConstraints.vec("lower_bounds").at(j) || beta[i] == betaConstraints.vec("upper_bounds").at(j)) {
+            continue outer;
+          }
+        }
+      }
+      assertEquals(grad[i],0,1e-3);
+    }
   }
   finally {
     fr.delete();
