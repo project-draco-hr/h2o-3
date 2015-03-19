@@ -1,0 +1,20 @@
+{
+  String[] lines=new String[10];
+  int nlines=0;
+  int offset=0;
+  while (offset < bits.length && nlines < lines.length) {
+    int lineStart=offset;
+    while (offset < bits.length && !CsvParser.isEOL(bits[offset]))     ++offset;
+    int lineEnd=offset;
+    ++offset;
+    if ((offset < bits.length) && (bits[offset] == CsvParser.CHAR_LF))     ++offset;
+    if (bits[lineStart] == '#')     continue;
+    if (bits[lineStart] == '%')     continue;
+    if (bits[lineStart] == '@')     continue;
+    if (lineEnd > lineStart) {
+      String str=new String(bits,lineStart,lineEnd - lineStart).trim();
+      if (!str.isEmpty())       lines[nlines++]=str;
+    }
+  }
+  return Arrays.copyOf(lines,nlines);
+}
