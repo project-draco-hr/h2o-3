@@ -44,16 +44,14 @@
     }
     for (int i=0; i < lines.length; ++i)     data[i]=determineTokens(lines[i],sep,singleQuotes);
     ncols=guessNcols(columnNames,data);
-    if (checkHeader == GUESS_HEADER) {
-      labels=ParseSetup.hasHeader(data[0],data[1]) && (data[0].length == ncols) ? data[0] : null;
-    }
- else     if (checkHeader == HAS_HEADER) {
+    if (checkHeader == HAS_HEADER || (checkHeader == GUESS_HEADER && ParseSetup.hasHeader(data[0],data[1]) && data[0].length == ncols)) {
+      checkHeader=HAS_HEADER;
       labels=data[0];
     }
  else {
+      checkHeader=NO_HEADER;
       labels=null;
     }
-    if (checkHeader == GUESS_HEADER)     checkHeader=labels == null ? NO_HEADER : HAS_HEADER;
     if (columnNames != null && labels != null) {
       if (labels.length != columnNames.length)       errors.add("Already have " + columnNames.length + " column labels, but found "+ labels.length+ " in this file");
  else {
