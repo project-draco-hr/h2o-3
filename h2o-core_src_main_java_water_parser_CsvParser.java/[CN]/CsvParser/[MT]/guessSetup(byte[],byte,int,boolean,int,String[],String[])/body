@@ -1,28 +1,11 @@
 {
-  String[] lines=new String[10];
-  int nlines=0;
-  int offset=0;
-  while (offset < bits.length && nlines < lines.length) {
-    int lineStart=offset;
-    while (offset < bits.length && !CsvParser.isEOL(bits[offset]))     ++offset;
-    int lineEnd=offset;
-    ++offset;
-    if ((offset < bits.length) && (bits[offset] == CsvParser.CHAR_LF))     ++offset;
-    if (bits[lineStart] == '#')     continue;
-    if (bits[lineStart] == '%')     continue;
-    if (bits[lineStart] == '@')     continue;
-    if (lineEnd > lineStart) {
-      String str=new String(bits,lineStart,lineEnd - lineStart).trim();
-      if (!str.isEmpty())       lines[nlines++]=str;
-    }
-  }
-  if (nlines == 0)   return new ParseSetup(false,0,0,new String[]{"No data!"},ParserType.AUTO,AUTO_SEP,false,checkHeader,0,null,null,null,null,null,FileVec.DFLT_CHUNK_SIZE);
+  String[] lines=getFirstLines(bits);
+  if (lines.length == 0)   return new ParseSetup(false,0,0,new String[]{"No data!"},ParserType.AUTO,GUESS_SEP,false,checkHeader,0,null,null,null,null,null,FileVec.DFLT_CHUNK_SIZE);
   ArrayList<String> errors=new ArrayList<>();
   String[] labels;
-  final byte single_quote=singleQuotes ? CsvParser.CHAR_SINGLE_QUOTE : -1;
-  final String[][] data=new String[nlines][];
-  if (nlines == 1) {
-    if (sep == AUTO_SEP) {
+  final String[][] data=new String[lines.length][];
+  if (lines.length == 1) {
+    if (sep == GUESS_SEP) {
       if (lines[0].split(",").length > 2)       sep=(byte)',';
  else       if (lines[0].split(" ").length > 2)       sep=' ';
  else {
@@ -41,36 +24,36 @@
             domains[0]=new String[]{data[0][0]};
           }
         }
-        return new ParseSetup(true,0,0,new String[]{"Failed to guess separator."},ParserType.CSV,AUTO_SEP,singleQuotes,checkHeader,1,null,ctypes,domains,naStrings,data,FileVec.DFLT_CHUNK_SIZE);
+        return new ParseSetup(true,0,0,new String[]{"Failed to guess separator."},ParserType.CSV,GUESS_SEP,singleQuotes,checkHeader,1,null,ctypes,domains,naStrings,data,FileVec.DFLT_CHUNK_SIZE);
       }
     }
-    data[0]=determineTokens(lines[0],sep,single_quote);
+    data[0]=determineTokens(lines[0],sep,singleQuotes);
     ncols=(ncols > 0) ? ncols : data[0].length;
-    if (checkHeader == 0)     labels=ParseSetup.allStrings(data[0]) ? data[0] : null;
- else     if (checkHeader == 1)     labels=data[0];
+    if (checkHeader == GUESS_HEADER)     labels=ParseSetup.allStrings(data[0]) ? data[0] : null;
+ else     if (checkHeader == HAS_HEADER)     labels=data[0];
  else     labels=null;
   }
  else {
-    if (sep == AUTO_SEP) {
-      sep=guessSeparator(lines[0],lines[1],single_quote);
-      if (sep == AUTO_SEP && nlines > 2) {
-        if (sep == AUTO_SEP)         sep=guessSeparator(lines[1],lines[2],single_quote);
-        if (sep == AUTO_SEP)         sep=guessSeparator(lines[0],lines[2],single_quote);
+    if (sep == GUESS_SEP) {
+      sep=guessSeparator(lines[0],lines[1],singleQuotes);
+      if (sep == GUESS_SEP && lines.length > 2) {
+        sep=guessSeparator(lines[1],lines[2],singleQuotes);
+        if (sep == GUESS_SEP)         sep=guessSeparator(lines[0],lines[2],singleQuotes);
       }
-      if (sep == AUTO_SEP)       sep=(byte)' ';
+      if (sep == GUESS_SEP)       sep=(byte)' ';
     }
-    for (int i=0; i < nlines; ++i)     data[i]=determineTokens(lines[i],sep,single_quote);
+    for (int i=0; i < lines.length; ++i)     data[i]=determineTokens(lines[i],sep,singleQuotes);
     ncols=guessNcols(columnNames,data);
-    if (checkHeader == 0) {
+    if (checkHeader == GUESS_HEADER) {
       labels=ParseSetup.hasHeader(data[0],data[1]) && (data[0].length == ncols) ? data[0] : null;
     }
- else     if (checkHeader == 1) {
+ else     if (checkHeader == HAS_HEADER) {
       labels=data[0];
     }
  else {
       labels=null;
     }
-    if (checkHeader == 0)     checkHeader=labels == null ? -1 : +1;
+    if (checkHeader == GUESS_HEADER)     checkHeader=labels == null ? NO_HEADER : HAS_HEADER;
     if (columnNames != null && labels != null) {
       if (labels.length != columnNames.length)       errors.add("Already have " + columnNames.length + " column labels, but found "+ labels.length+ " in this file");
  else {
