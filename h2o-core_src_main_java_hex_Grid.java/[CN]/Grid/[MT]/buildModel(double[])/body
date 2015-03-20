@@ -1,7 +1,7 @@
 {
-  Model m=model(hypers);
-  if (m != null)   return m;
-  m=(Model)(startBuildModel(hypers).get());
-  _cache.put(new Group(hypers.clone()),m);
+  Key<Model> key=model(hypers);
+  if (key != null)   return key.get();
+  Model m=(Model)(startBuildModel(hypers).get());
+  _cache.put(new Group(hypers.clone()),m._key);
   return m;
 }

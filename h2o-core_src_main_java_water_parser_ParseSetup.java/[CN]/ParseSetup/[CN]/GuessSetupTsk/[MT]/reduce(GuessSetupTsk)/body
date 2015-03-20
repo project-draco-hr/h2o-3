@@ -1,5 +1,5 @@
 {
-  if (other._empty || other == null)   return;
+  if (other._empty)   return;
   if (_gblSetup == null || !_gblSetup._is_valid) {
     _empty=false;
     _gblSetup=other._gblSetup;
@@ -48,9 +48,7 @@
       int n=_gblSetup._data.length;
       int m=Math.min(Parser.InspectDataOut.MAX_PREVIEW_LINES,n + other._gblSetup._data.length - 1);
       _gblSetup._data=Arrays.copyOf(_gblSetup._data,m);
-      for (int i=n; i < m; ++i) {
-        _gblSetup._data[i]=other._gblSetup._data[i - n + 1];
-      }
+      System.arraycopy(other._gblSetup._data,1,_gblSetup._data,n,m - n);
     }
     _totalParseSize+=other._totalParseSize;
   }
