@@ -13,15 +13,16 @@ def _do_it(self):
         __CMD__ += (('(' + self._op) + ' ')
     left = self._do_child(self._left)
     rite = self._do_child(self._rite)
-    if (self._op in ['+', '&', '-', '*', '/', '==', '<', '>', '>=', '<=']):
-        if isinstance(left._data, (int, float)):
-            if isinstance(rite._data, (int, float)):
-                self._data = eval((('left ' + self._op) + ' rite'))
+    if (self._op in ['+', '&', '-', '*', '/', 'n', 'N', 'g', 'G', 'l', 'L']):
+        rapids_dict = {'+': '+', '&': '&', '-': '-', '*': '*', '/': '/', 'n': '==', 'N': '!=', 'g': '>', 'G': '>=', 'l': '<', 'L': '<=', }
+        if isinstance(left._data, (int, float, str)):
+            if isinstance(rite._data, (int, float, str)):
+                self._data = eval((('left ' + rapids_dict[self._op]) + ' rite'))
             elif rite.is_local():
-                self._data = eval((('[left ' + self._op) + ' x for x in rite._data]'))
+                self._data = eval((('[left ' + rapids_dict[self._op]) + ' x for x in rite._data]'))
             else:
                 pass
-        elif isinstance(rite._data, (int, float)):
+        elif isinstance(rite._data, (int, float, str)):
             if left.is_local():
                 self._data = eval((('[x' + self._op) + ' rite for x in left._data]'))
             else:
