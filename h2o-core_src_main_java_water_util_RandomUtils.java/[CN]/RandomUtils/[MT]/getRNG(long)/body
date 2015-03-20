@@ -1,2 +1,13 @@
 {
+switch (_rngType) {
+case JavaRNG:
+    return new H2ORandomRNG(seed[0]);
+case XorShiftRNG:
+  return new XorShiftRNG(seed[0]);
+case PCGRNG:
+return new PCGRNG(seed[0],seed.length > 1 ? seed[1] : 1);
+case MersenneTwisterRNG:
+return new MersenneTwisterRNG((int)(seed[0] & 0xFFFFFFFFL),(int)(seed[0] >>> 32));
+}
+throw H2O.fail();
 }
