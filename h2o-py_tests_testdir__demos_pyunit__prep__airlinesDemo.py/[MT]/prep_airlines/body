@@ -7,7 +7,7 @@ def prep_airlines(ip, port):
     noDepDelayedNAs = air[(air['DepDelay'].isna() == 0)]
     print 'Dimensions of new dataset: {0}'.format(noDepDelayedNAs.dim())
     minutesOfDelayWeTolerate = 15
-    noDepDelayedNAs.append((noDepDelayedNAs['DepDelay'] > minutesOfDelayWeTolerate))
+    noDepDelayedNAs.cbind((noDepDelayedNAs['DepDelay'] > minutesOfDelayWeTolerate))
     noDepDelayedNAs[numCols] = noDepDelayedNAs[numCols].asfactor()
     noDepDelayedNAs._vecs[numCols].setName(y_col)
     gbm = h2o.gbm(x=noDepDelayedNAs[x_cols], y=noDepDelayedNAs[y_col], loss='bernoulli')
