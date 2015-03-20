@@ -1,0 +1,66 @@
+{
+  Scope.enter();
+  DeepLearningModel.DeepLearningParameters dl=new DeepLearningModel.DeepLearningParameters();
+  Frame frTest=null, pred=null;
+  Frame frTrain=null;
+  Frame test=null, res=null;
+  DeepLearningModel model=null;
+  try {
+    frTrain=parse_test_file(fnametrain);
+    Vec removeme=unifyFrame(dl,frTrain,prep,classification);
+    if (removeme != null)     Scope.track(removeme._key);
+    DKV.put(frTrain._key,frTrain);
+    dl._train=frTrain._key;
+    dl._response_column=((Frame)DKV.getGet(dl._train)).lastVecName();
+    dl._seed=(1L << 32) | 2;
+    dl._destination_key=Key.make("DL_model_" + hexnametrain);
+    dl._reproducible=true;
+    dl._epochs=epochs;
+    dl._hidden=hidden;
+    dl._l1=l1;
+    DeepLearning job=null;
+    try {
+      job=new DeepLearning(dl);
+      model=job.trainModel().get();
+      Log.info(model._output);
+    }
+  finally {
+      if (job != null)       job.remove();
+    }
+    Assert.assertTrue(job._state == Job.JobState.DONE);
+    hex.ModelMetrics mm;
+    if (fnametest != null) {
+      frTest=parse_test_file(fnametest);
+      pred=model.score(frTest);
+      mm=hex.ModelMetrics.getFromDKV(model,frTest);
+    }
+ else {
+      pred=model.score(frTrain);
+      mm=hex.ModelMetrics.getFromDKV(model,frTrain);
+    }
+    test=parse_test_file(fnametrain);
+    res=model.score(test);
+    if (classification) {
+      Assert.assertTrue("Expected: " + Arrays.deepToString(expCM) + ", Got: "+ Arrays.deepToString(mm.cm().confusion_matrix),Arrays.deepEquals(mm.cm().confusion_matrix,expCM));
+      String[] cmDom=model._output._domains[model._output._domains.length - 1];
+      Assert.assertArrayEquals("CM domain differs!",expRespDom,cmDom);
+      Log.info("\nTraining CM:\n" + mm.cm().toASCII());
+      Log.info("\nTraining CM:\n" + hex.ModelMetrics.getFromDKV(model,test).cm().toASCII());
+    }
+ else {
+      Assert.assertTrue("Expected: " + expMSE + ", Got: "+ mm.mse(),expMSE == mm.mse());
+      Log.info("\nOOB Training MSE: " + mm.mse());
+      Log.info("\nTraining MSE: " + hex.ModelMetrics.getFromDKV(model,test).mse());
+    }
+    hex.ModelMetrics.getFromDKV(model,test);
+  }
+  finally {
+    if (frTrain != null)     frTrain.remove();
+    if (frTest != null)     frTest.remove();
+    if (model != null)     model.delete();
+    if (pred != null)     pred.delete();
+    if (test != null)     test.delete();
+    if (res != null)     res.delete();
+    Scope.exit();
+  }
+}
