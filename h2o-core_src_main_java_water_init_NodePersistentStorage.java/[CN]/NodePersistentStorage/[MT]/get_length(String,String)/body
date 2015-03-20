@@ -1,10 +1,10 @@
 {
+  validateGeneral();
   validateCategoryName(categoryName);
   validateKeyName(keyName);
-  String fileName=NPS_DIR + File.separator + categoryName+ File.separator+ keyName;
-  File f=new File(fileName);
-  if (!f.exists()) {
-    throw new IllegalArgumentException("Not found");
+  String fileName=NPS_DIR + NPS_SEPARATOR + categoryName+ NPS_SEPARATOR+ keyName;
+  if (!H2O.getPM().exists(fileName)) {
+    throw new IllegalArgumentException("File not found (" + fileName + ")");
   }
-  return f.length();
+  return H2O.getPM().length(fileName);
 }

@@ -1,32 +1,25 @@
 {
+  validateGeneral();
   validateCategoryName(categoryName);
   validateKeyName(keyName);
-  BufferedReader reader=null;
+  String fileName=NPS_DIR + NPS_SEPARATOR + categoryName+ NPS_SEPARATOR+ keyName;
+  InputStream is=H2O.getPM().open(fileName);
+  ByteArrayOutputStream baos=new ByteArrayOutputStream();
+  byte[] buf=new byte[4096];
   try {
-    String fileName=NPS_DIR + File.separator + categoryName+ File.separator+ keyName;
-    reader=new BufferedReader(new FileReader(fileName));
-    String line;
-    StringBuilder stringBuilder=new StringBuilder();
-    String lineseparator="\n";
-    while ((line=reader.readLine()) != null) {
-      stringBuilder.append(line);
-      stringBuilder.append(lineseparator);
+    int n=is.read(buf,0,buf.length);
+    while (true) {
+      if (baos.size() > (1024L * 1024L * 1024L)) {
+        throw new RuntimeException("File too big (" + fileName + ")");
+      }
+      if (n < 0) {
+        return baos.toString();
+      }
+      baos.write(buf,0,n);
+      n=is.read(buf,0,buf.length);
     }
-    return stringBuilder.toString();
   }
- catch (  FileNotFoundException e) {
-    throw new IllegalArgumentException("Not found");
-  }
-catch (  Exception e) {
+ catch (  Exception e) {
     throw new RuntimeException(e);
-  }
- finally {
-    if (reader != null) {
-      try {
-        reader.close();
-      }
- catch (      Exception ignore) {
-      }
-    }
   }
 }

@@ -1,0 +1,21 @@
+{
+  if (isHdfsPath(path)) {
+    validateHdfsConfigured();
+    PersistEntry[] arr=I[Value.HDFS].list(path);
+    return arr;
+  }
+  File dir=new File(path);
+  File[] files=dir.listFiles();
+  if (files == null) {
+    return new PersistEntry[0];
+  }
+  ArrayList<PersistEntry> arr=new ArrayList<>();
+  for (  File f : files) {
+    PersistEntry entry=new PersistEntry();
+    entry._name=f.getName();
+    entry._size=f.length();
+    entry._timestamp_millis=f.lastModified();
+    arr.add(entry);
+  }
+  return arr.toArray(new PersistEntry[arr.size()]);
+}
