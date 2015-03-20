@@ -1,19 +1,14 @@
 {
   validateCategoryName(categoryName);
-  String dirName=NPS_DIR + File.separator + categoryName;
-  File dir=new File(dirName);
-  File[] files=dir.listFiles();
-  if (files == null) {
-    return new NodePersistentStorageEntry[0];
+  String dirName=NPS_DIR + NPS_SEPARATOR + categoryName;
+  PersistEntry[] arr1=H2O.getPM().list(dirName);
+  NodePersistentStorageEntry[] arr2=new NodePersistentStorageEntry[arr1.length];
+  for (int i=0; i < arr1.length; i++) {
+    arr2[i]=new NodePersistentStorageEntry();
+    arr2[i]._category=categoryName;
+    arr2[i]._name=arr1[i]._name;
+    arr2[i]._size=arr1[i]._size;
+    arr2[i]._timestamp_millis=arr1[i]._timestamp_millis;
   }
-  ArrayList<NodePersistentStorageEntry> arr=new ArrayList<>();
-  for (  File f : files) {
-    NodePersistentStorageEntry entry=new NodePersistentStorageEntry();
-    entry._category=categoryName;
-    entry._name=f.getName();
-    entry._size=f.length();
-    entry._timestamp_millis=f.lastModified();
-    arr.add(entry);
-  }
-  return arr.toArray(new NodePersistentStorageEntry[arr.size()]);
+  return arr2;
 }
