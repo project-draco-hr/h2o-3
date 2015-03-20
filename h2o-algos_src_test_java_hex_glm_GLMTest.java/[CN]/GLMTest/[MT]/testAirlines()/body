@@ -19,6 +19,9 @@
     params._standardize=false;
     job=new GLM(Key.make("airlines_cat_nostd"),"Airlines with auto-expanded categoricals, no standardization",params);
     model1=job.trainModel().get();
+    Frame score1=model1.score(fr);
+    ModelMetrics mm=ModelMetrics.getFromDKV(model1,fr);
+    Assert.assertEquals(5336.918,mm._mse * score1.numRows(),1);
     params._train=frMM._key;
     params._ignored_columns=new String[]{"X"};
     job=new GLM(Key.make("airlines_mm"),"Airlines with pre-expanded (mode.matrix) categoricals, no standardization",params);
