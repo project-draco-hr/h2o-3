@@ -4,5 +4,7 @@
     throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(builder);
   }
   Job j=builder.trainModel();
-  return new JobsV2().fillFromImpl(new Jobs(j));
+  builderSchema.job=(JobV2)Schema.schema(version,Job.class).fillFromImpl(j);
+  builderSchema.setHttpStatus(HttpResponseStatus.OK.getCode());
+  return builderSchema;
 }
