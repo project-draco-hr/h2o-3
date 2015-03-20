@@ -73,16 +73,22 @@
   String[] err=null;
   if (!errors.isEmpty())   errors.toArray(err=new String[errors.size()]);
   ParseSetup resSetup=new ParseSetup(true,ilines,err,ParserType.CSV,sep,singleQuotes,checkHeader,ncols,labels,null,null,naStrings,data);
-  InputStream is=new ByteArrayInputStream(bits);
-  CsvParser p=new CsvParser(resSetup);
-  InspectDataOut dout=new InspectDataOut(resSetup._number_columns);
-  try {
-    p.streamParse(is,dout);
-    resSetup._column_types=dout.guessTypes();
-    resSetup._na_strings=dout.guessNAStrings(resSetup._column_types);
+  if (columnTypes == null || ncols != columnTypes.length) {
+    InputStream is=new ByteArrayInputStream(bits);
+    CsvParser p=new CsvParser(resSetup);
+    InspectDataOut dout=new InspectDataOut(resSetup._number_columns);
+    try {
+      p.streamParse(is,dout);
+      resSetup._column_types=dout.guessTypes();
+      resSetup._na_strings=dout.guessNAStrings(resSetup._column_types);
+    }
+ catch (    Throwable e) {
+      throw new RuntimeException(e);
+    }
   }
- catch (  Throwable e) {
-    throw new RuntimeException(e);
+ else {
+    resSetup._column_types=columnTypes;
+    resSetup._na_strings=null;
   }
   return resSetup;
 }
