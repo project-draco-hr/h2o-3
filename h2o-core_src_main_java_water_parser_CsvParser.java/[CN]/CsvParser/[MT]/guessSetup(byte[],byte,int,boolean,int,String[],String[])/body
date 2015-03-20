@@ -1,6 +1,6 @@
 {
   String[] lines=getFirstLines(bits);
-  if (lines.length == 0)   return new ParseSetup(false,0,0,new String[]{"No data!"},ParserType.AUTO,GUESS_SEP,false,checkHeader,0,null,null,null,null,null,FileVec.DFLT_CHUNK_SIZE);
+  if (lines.length == 0)   return new ParseSetup(false,0,new String[]{"No data!"},ParserType.AUTO,GUESS_SEP,false,checkHeader,0,null,null,null,null,null,FileVec.DFLT_CHUNK_SIZE);
   ArrayList<String> errors=new ArrayList<>();
   String[] labels;
   final String[][] data=new String[lines.length][];
@@ -24,7 +24,7 @@
             domains[0]=new String[]{data[0][0]};
           }
         }
-        return new ParseSetup(true,0,0,new String[]{"Failed to guess separator."},ParserType.CSV,GUESS_SEP,singleQuotes,checkHeader,1,null,ctypes,domains,naStrings,data,FileVec.DFLT_CHUNK_SIZE);
+        return new ParseSetup(true,0,new String[]{"Failed to guess separator."},ParserType.CSV,GUESS_SEP,singleQuotes,checkHeader,1,null,ctypes,domains,naStrings,data,FileVec.DFLT_CHUNK_SIZE);
       }
     }
     data[0]=determineTokens(lines[0],sep,singleQuotes);
@@ -72,7 +72,7 @@
   }
   String[] err=null;
   if (!errors.isEmpty())   errors.toArray(err=new String[errors.size()]);
-  ParseSetup resSetup=new ParseSetup(true,ilines,labels != null ? 1 : 0,err,ParserType.CSV,sep,singleQuotes,checkHeader,ncols,labels,null,null,naStrings,data);
+  ParseSetup resSetup=new ParseSetup(true,ilines,err,ParserType.CSV,sep,singleQuotes,checkHeader,ncols,labels,null,null,naStrings,data);
   InputStream is=new ByteArrayInputStream(bits);
   CsvParser p=new CsvParser(resSetup);
   InspectDataOut dout=new InspectDataOut(resSetup._number_columns);
