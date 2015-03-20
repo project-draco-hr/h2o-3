@@ -1,17 +1,17 @@
 {
 switch (pType) {
 case CSV:
-    return CsvParser.guessSetup(bits,sep,ncols,singleQuotes,checkHeader,columnNames,naStrings);
+    return CsvParser.guessSetup(bits,sep,ncols,singleQuotes,checkHeader,columnNames,columnTypes,naStrings);
 case SVMLight:
   return SVMLightParser.guessSetup(bits);
 case XLS:
 return XlsParser.guessSetup(bits);
 case ARFF:
-return ARFFParser.guessSetup(bits,sep,ncols,singleQuotes,checkHeader,columnNames,naStrings);
+return ARFFParser.guessSetup(bits,sep,ncols,singleQuotes,checkHeader,columnNames,columnTypes,naStrings);
 case AUTO:
 for (ParserType pTypeGuess : guessFileTypeOrder) {
 try {
-ParseSetup ps=guessSetup(bits,pTypeGuess,sep,ncols,singleQuotes,checkHeader,columnNames,domains,naStrings);
+ParseSetup ps=guessSetup(bits,pTypeGuess,sep,ncols,singleQuotes,checkHeader,columnNames,columnTypes,domains,naStrings);
 if (ps != null && ps._is_valid) return ps;
 }
  catch (Throwable ignore) {
