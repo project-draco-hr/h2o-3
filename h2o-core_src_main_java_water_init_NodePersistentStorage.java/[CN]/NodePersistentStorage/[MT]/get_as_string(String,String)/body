@@ -1,13 +1,13 @@
 {
+  validateGeneral();
   validateCategoryName(categoryName);
   validateKeyName(keyName);
   String fileName=NPS_DIR + NPS_SEPARATOR + categoryName+ NPS_SEPARATOR+ keyName;
   InputStream is=H2O.getPM().open(fileName);
   ByteArrayOutputStream baos=new ByteArrayOutputStream();
   byte[] buf=new byte[4096];
-  int off=0;
   try {
-    int n=is.read(buf,off,buf.length);
+    int n=is.read(buf,0,buf.length);
     while (true) {
       if (baos.size() > (1024L * 1024L * 1024L)) {
         throw new RuntimeException("File too big (" + fileName + ")");
@@ -16,8 +16,7 @@
         return baos.toString();
       }
       baos.write(buf,0,n);
-      off+=n;
-      n=is.read(buf,off,buf.length);
+      n=is.read(buf,0,buf.length);
     }
   }
  catch (  Exception e) {
