@@ -27,6 +27,10 @@ case ZIP:
     ZipInputStream zis=new ZipInputStream(bvs);
     ZipEntry ze=zis.getNextEntry();
     if (ze != null && !ze.isDirectory())     _dout[_lo]=streamParse(zis,localSetup,makeDout(localSetup,chunkStartIdx,vec.nChunks()),bvs);
+    ZipEntry ze2=zis.getNextEntry();
+    if (ze2 != null && !ze.isDirectory()) {
+      Log.warn("Only single file zip archives are currently supported, only file: " + ze.getName() + " has been parsed.  Remaining files have been ignored.");
+    }
  else     zis.close();
     chunksAreLocal(vec,chunkStartIdx,key);
     break;
