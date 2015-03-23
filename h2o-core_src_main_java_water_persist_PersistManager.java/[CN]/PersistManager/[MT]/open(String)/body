@@ -1,0 +1,17 @@
+{
+  if (isHdfsPath(path)) {
+    validateHdfsConfigured();
+    InputStream os=I[Value.HDFS].open(path);
+    return os;
+  }
+  try {
+    File f=new File(path);
+    return new FileInputStream(f);
+  }
+ catch (  FileNotFoundException e) {
+    throw new IllegalArgumentException("File not found (" + path + ")");
+  }
+catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+}

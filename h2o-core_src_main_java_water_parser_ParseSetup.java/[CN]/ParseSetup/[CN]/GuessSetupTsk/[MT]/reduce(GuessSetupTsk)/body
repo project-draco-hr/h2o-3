@@ -1,5 +1,5 @@
 {
-  if (other._empty || other == null)   return;
+  if (other._empty)   return;
   if (_gblSetup == null || !_gblSetup._is_valid) {
     _empty=false;
     _gblSetup=other._gblSetup;
@@ -12,7 +12,12 @@
       }
  else {
         for (int i=0; i < _gblSetup._column_names.length; i++) {
-          if (!_gblSetup._column_names[i].equals(other._gblSetup._column_names[i]))           Log.warn("Column names do not match between files");
+          if (i > other._gblSetup._column_names.length || !_gblSetup._column_names[i].equals(other._gblSetup._column_names[i])) {
+            Log.warn("Column names do not match between files");
+            _gblSetup._is_valid=false;
+            other._gblSetup._is_valid=false;
+            break;
+          }
         }
       }
     }
@@ -22,6 +27,9 @@
       _gblSetup._parse_type=ParserType.ARFF;
       _gblSetup._column_types=other._gblSetup._column_types;
     }
+    if (_gblSetup._separator == GUESS_SEP && other._gblSetup._separator != GUESS_SEP)     _gblSetup._separator=other._gblSetup._separator;
+    if (_gblSetup._check_header == NO_HEADER && other._gblSetup._check_header == HAS_HEADER)     _gblSetup._check_header=HAS_HEADER;
+ else     if (_gblSetup._check_header == GUESS_HEADER)     Log.err("Header guess failed.");
     if (other._gblSetup._column_names != null) {
       if (_gblSetup._column_names == null) {
         _gblSetup._column_names=other._gblSetup._column_names;
@@ -40,9 +48,7 @@
       int n=_gblSetup._data.length;
       int m=Math.min(Parser.InspectDataOut.MAX_PREVIEW_LINES,n + other._gblSetup._data.length - 1);
       _gblSetup._data=Arrays.copyOf(_gblSetup._data,m);
-      for (int i=n; i < m; ++i) {
-        _gblSetup._data[i]=other._gblSetup._data[i - n + 1];
-      }
+      System.arraycopy(other._gblSetup._data,1,_gblSetup._data,n,m - n);
     }
     _totalParseSize+=other._totalParseSize;
   }

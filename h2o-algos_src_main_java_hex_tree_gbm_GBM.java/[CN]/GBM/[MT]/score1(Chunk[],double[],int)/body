@@ -1,0 +1,16 @@
+{
+  if (_parms._loss == GBMModel.GBMParameters.Family.bernoulli) {
+    fs[1]=1.0 / (1.0 + Math.exp(chk_tree(chks,0).atd(row)));
+    fs[2]=1.0 - fs[1];
+    return 1;
+  }
+  if (_nclass == 1)   return fs[0]=chk_tree(chks,0).atd(row);
+  if (_nclass == 2) {
+    fs[1]=Math.exp(chk_tree(chks,0).atd(row));
+    fs[2]=1.0 / fs[1];
+    return fs[1] + fs[2];
+  }
+  double sum=0;
+  for (int k=0; k < _nclass; k++)   sum+=(fs[k + 1]=Math.exp(chk_tree(chks,k).atd(row)));
+  return sum;
+}
