@@ -57,7 +57,12 @@
       return wrap(handle(type,route,version,parms),type);
     }
   }
- catch (  H2OAbstractRuntimeException e) {
+ catch (  H2OModelBuilderIllegalArgumentException e) {
+    H2OModelBuilderError error=e.toH2OError(uri);
+    Log.warn("Caught exception: " + error.toString());
+    return wrap(new H2OModelBuilderErrorV1().fillFromImpl(error),type);
+  }
+catch (  H2OAbstractRuntimeException e) {
     H2OError error=e.toH2OError(uri);
     Log.warn("Caught exception: " + error.toString());
     return wrap(new H2OErrorV1().fillFromImpl(error),type);

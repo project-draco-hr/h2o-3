@@ -1,0 +1,28 @@
+{
+  double eta=0.0;
+  final double[] b=beta();
+  if (!_parms._use_all_factor_levels) {
+    for (int i=0; i < _dinfo._catOffsets.length - 1; ++i)     if (data[i] != 0)     eta+=b[_dinfo._catOffsets[i] + (int)(data[i] - 1)];
+  }
+ else {
+    for (int i=0; i < _dinfo._catOffsets.length - 1; ++i)     eta+=b[_dinfo._catOffsets[i] + (int)data[i]];
+  }
+  final int noff=_dinfo.numStart() - _dinfo._cats;
+  for (int i=_dinfo._cats; i < data.length; ++i)   eta+=b[noff + i] * data[i];
+  eta+=b[b.length - 1];
+  double mu=_parms.linkInv(eta);
+  preds[0]=mu;
+  if (_parms._family == Family.binomial) {
+    if (Double.isNaN(mu)) {
+      preds[0]=Double.NaN;
+      preds[1]=Double.NaN;
+      preds[2]=Double.NaN;
+    }
+ else {
+      preds[0]=(mu >= _output._threshold ? 1 : 0);
+      preds[1]=1.0 - mu;
+      preds[2]=mu;
+    }
+  }
+  return preds;
+}

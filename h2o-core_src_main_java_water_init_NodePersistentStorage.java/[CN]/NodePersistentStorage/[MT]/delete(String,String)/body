@@ -1,12 +1,12 @@
 {
+  validateGeneral();
   validateCategoryName(categoryName);
   validateKeyName(keyName);
-  String fileName=NPS_DIR + File.separator + categoryName+ File.separator+ keyName;
-  File f=new File(fileName);
-  if (!f.exists()) {
+  String fileName=NPS_DIR + NPS_SEPARATOR + categoryName+ NPS_SEPARATOR+ keyName;
+  if (!H2O.getPM().exists(fileName)) {
     return;
   }
-  boolean success=f.delete();
+  boolean success=H2O.getPM().delete(fileName);
   if (!success) {
     throw new RuntimeException("NodePersistentStorage delete failed (" + fileName + ")");
   }

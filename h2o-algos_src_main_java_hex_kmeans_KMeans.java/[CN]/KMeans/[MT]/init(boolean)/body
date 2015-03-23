@@ -1,24 +1,10 @@
 {
   super.init(expensive);
-  if (_parms._max_iterations < 0 || _parms._max_iterations > 1000000)   error("_max_iterations"," max_iterations must be between 0 and 1e6");
+  if (_parms._max_iterations < 0 || _parms._max_iterations > 1e6)   error("_max_iterations"," max_iterations must be between 0 and 1e6");
   if (_train == null)   return;
   if (null != _parms._user_points) {
     if (_parms._user_points.get().numCols() != _train.numCols()) {
       error("_user_points","The user-specified points must have the same number of columns (" + _train.numCols() + ") as the training observations");
     }
   }
-  new CheckCols(){
-    @Override protected boolean filter(    Vec v){
-      return v.isEnum();
-    }
-  }
-.doIt(_train,"Columns cannot have categorical values: ",expensive);
-  Vec vecs[]=_train.vecs();
-  int ncats=0, nvecs=vecs.length;
-  while (ncats != nvecs) {
-    while (ncats < nvecs && vecs[ncats].isEnum())     ncats++;
-    while (nvecs > 0 && !vecs[nvecs - 1].isEnum())     nvecs--;
-    if (ncats < nvecs - 1)     _train.swap(ncats,nvecs - 1);
-  }
-  _ncats=ncats;
 }
