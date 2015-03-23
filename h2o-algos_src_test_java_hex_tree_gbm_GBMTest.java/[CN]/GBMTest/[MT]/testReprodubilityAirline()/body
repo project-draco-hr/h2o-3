@@ -24,6 +24,7 @@
       parms._max_depth=10;
       parms._min_rows=1;
       parms._loss=Family.bernoulli;
+      parms._balance_classes=true;
       GBM job=new GBM(parms);
       GBMModel gbm=job.trainModel().get();
       assertEquals(gbm._output._ntrees,parms._ntrees);
@@ -41,6 +42,6 @@
     Log.info("trial: " + i + " -> mse: "+ mses[i]);
   }
   for (int i=0; i < mses.length; ++i) {
-    assertEquals(0.20431793792,mses[i],1e-9);
+    assertEquals(0.20753934108993594,mses[i],1e-6);
   }
 }

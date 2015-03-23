@@ -1,0 +1,20 @@
+{
+  if (isHdfsPath(path)) {
+    validateHdfsConfigured();
+    return I[Value.HDFS].create(path,overwrite);
+  }
+  try {
+    if (!overwrite) {
+      File f=new File(path);
+      if (f.exists()) {
+        throw new IllegalArgumentException("File already exists (" + path + ")");
+      }
+    }
+    FileOutputStream fos;
+    fos=new FileOutputStream(path);
+    return fos;
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+}

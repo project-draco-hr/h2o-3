@@ -1,0 +1,9 @@
+def not_equal_factor(ip, port):
+    h2o.init(ip, port)
+    air = h2o.import_frame(path=h2o.locate('smalldata/airlines/allyears2k_headers.zip'))
+    (rows, cols) = air.dim()
+    not_sfo = air[(air['Origin'] != 'SFO')]
+    sfo = air[(air['Origin'] == 'SFO')]
+    (no_rows, no_cols) = not_sfo.dim()
+    (yes_rows, yes_cols) = sfo.dim()
+    assert (((no_rows + yes_rows) == rows) and (no_cols == yes_cols == cols)), 'dimension mismatch'
