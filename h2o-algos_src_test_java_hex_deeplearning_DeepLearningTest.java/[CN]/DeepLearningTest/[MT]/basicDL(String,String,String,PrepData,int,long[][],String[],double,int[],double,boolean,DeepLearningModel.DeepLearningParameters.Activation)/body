@@ -16,6 +16,7 @@
     dl._destination_key=Key.make("DL_model_" + hexnametrain);
     dl._reproducible=true;
     dl._epochs=epochs;
+    dl._activation=activation;
     dl._hidden=hidden;
     dl._l1=l1;
     DeepLearning job=null;
@@ -53,6 +54,7 @@
       Log.info("\nTraining MSE: " + hex.ModelMetrics.getFromDKV(model,test).mse());
     }
     hex.ModelMetrics.getFromDKV(model,test);
+    Assert.assertTrue(model.testJavaScoring(test,res,1e-5));
   }
   finally {
     if (frTrain != null)     frTrain.remove();
