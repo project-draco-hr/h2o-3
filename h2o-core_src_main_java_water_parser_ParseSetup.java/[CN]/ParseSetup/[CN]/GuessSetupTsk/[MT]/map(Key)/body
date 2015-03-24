@@ -14,6 +14,11 @@
     float decompRatio=ZipUtil.decompressionRatio(bv);
     if (decompRatio > 1.0)     _totalParseSize+=bv.length() * decompRatio;
  else     _totalParseSize+=bv.length();
+    if (ZipUtil.getFileCount(bv) > 1) {
+      if (_gblSetup._errors != null)       _gblSetup._errors=Arrays.copyOf(_gblSetup._errors,_gblSetup._errors.length + 1);
+ else       _gblSetup._errors=new String[1];
+      _gblSetup._errors[_gblSetup._errors.length - 1]="Only single file zip " + "archives are currently supported, only the first file has been parsed.  " + "Remaining files have been ignored.";
+    }
   }
   if (bv instanceof FileVec && !(bv instanceof UploadFileVec))   ((FileVec)bv).clearCachedChunk(0);
 }
