@@ -62,18 +62,12 @@
       for (int i=0; i < (int)v.length(); ++i)       rho[map == null ? i : map[i]]=v.at(i);
     }
     if (dinfo._normMul != null) {
-      double normUB=0, normLB=0, normG=0, normS=0;
+      double normG=0, normS=0;
       for (int i=numoff; i < dinfo.fullN(); ++i) {
         double dd=dinfo._normMul[i - numoff];
         double d=1.0 / dd;
-        if (betaUB != null && !Double.isInfinite(betaUB[i])) {
-          normUB+=betaUB[i] * dd;
-          betaUB[i]*=d;
-        }
-        if (betaLB != null && !Double.isInfinite(betaUB[i])) {
-          normLB+=betaLB[i] * dd;
-          betaLB[i]*=d;
-        }
+        if (betaUB != null && !Double.isInfinite(betaUB[i]))         betaUB[i]*=d;
+        if (betaLB != null && !Double.isInfinite(betaUB[i]))         betaLB[i]*=d;
         if (betaGiven != null) {
           normG+=betaGiven[i] * dd;
           betaGiven[i]*=d;
@@ -85,8 +79,6 @@
       }
       if (dinfo._intercept) {
         int n=dinfo.fullN();
-        if (betaUB != null && !Double.isInfinite(betaUB[n]))         betaUB[n]-=normUB;
-        if (betaLB != null && !Double.isInfinite(betaUB[n]))         betaLB[n]-=normLB;
         if (betaGiven != null)         betaGiven[n]-=normG;
         if (betaStart != null)         betaStart[n]-=normS;
       }
