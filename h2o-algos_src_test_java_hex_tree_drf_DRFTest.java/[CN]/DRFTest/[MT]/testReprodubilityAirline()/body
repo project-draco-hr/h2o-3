@@ -25,6 +25,7 @@
       parms._mtries=-1;
       parms._min_rows=1;
       parms._sample_rate=0.66667f;
+      parms._balance_classes=true;
       parms._seed=(1L << 32) | 2;
       DRF job=new DRF(parms);
       DRFModel drf=job.trainModel().get();
@@ -41,5 +42,7 @@
   for (int i=0; i < mses.length; ++i) {
     Log.info("trial: " + i + " -> mse: "+ mses[i]);
   }
-  for (  double mse : mses)   assertEquals(0.2273639898,mse,1e-9);
+  for (int i=0; i < mses.length; ++i) {
+    assertEquals(0.20462305452536414,mses[i],1e-4);
+  }
 }

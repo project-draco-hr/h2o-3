@@ -1,0 +1,24 @@
+def cbind(self, data):
+    '\n    :param data: H2OFrame or H2OVec\n    :return: new H2OFrame with data cbinded to the end\n    '
+    vecs = []
+    if isinstance(data, H2OFrame):
+        vecs.append(self)
+        [vecs.append(vec) for vec in data._vecs]
+    elif isinstance(data, H2OVec):
+        vecs = [self, data]
+    else:
+        raise ValueError('data parameter must be H2OVec or H2OFrame')
+    names = [vec.name() for vec in vecs]
+    fr = H2OFrame.py_tmp_key()
+    cbind = (('(= !' + fr) + ' (cbind %')
+    cbind += (' %'.join([vec._expr.eager() for vec in vecs]) + '))')
+    h2o.rapids(cbind)
+    j = h2o.frame(fr)
+    fr = j['frames'][0]
+    rows = fr['rows']
+    veckeys = fr['vec_keys']
+    cols = fr['columns']
+    colnames = [col['label'] for col in cols]
+    result = H2OFrame(vecs=H2OVec.new_vecs(zip(colnames, veckeys), rows))
+    result.setNames(names)
+    return result
