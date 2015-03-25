@@ -26,6 +26,11 @@
     colTypes.add("double");
     colFormat.add("%.5f");
   }
+  if (_output.isClassifier()) {
+    colHeaders.add("Training LogLoss");
+    colTypes.add("double");
+    colFormat.add("%.5f");
+  }
   if (_output.getModelCategory() == ModelCategory.Binomial) {
     colHeaders.add("Training AUC");
     colTypes.add("double");
@@ -42,6 +47,11 @@
     colFormat.add("%.5f");
     if (!_output.autoencoder) {
       colHeaders.add("Validation R^2");
+      colTypes.add("double");
+      colFormat.add("%.5f");
+    }
+    if (_output.isClassifier()) {
+      colHeaders.add("Validation LogLoss");
       colTypes.add("double");
       colFormat.add("%.5f");
     }
@@ -99,6 +109,9 @@
     if (!_output.autoencoder) {
       table.set(row,col++,e.train_r2);
     }
+    if (_output.isClassifier()) {
+      table.set(row,col++,e.train_logloss);
+    }
     if (_output.getModelCategory() == ModelCategory.Binomial) {
       table.set(row,col++,e.trainAUC != null ? e.trainAUC.AUC() : Double.NaN);
     }
@@ -109,6 +122,9 @@
       table.set(row,col++,e.valid_mse);
       if (!_output.autoencoder) {
         table.set(row,col++,e.valid_r2);
+      }
+      if (_output.isClassifier()) {
+        table.set(row,col++,e.valid_logloss);
       }
       if (_output.getModelCategory() == ModelCategory.Binomial) {
         table.set(row,col++,e.validAUC != null ? e.validAUC.AUC() : Double.NaN);
