@@ -1,5 +1,5 @@
 {
-  TwoDimTable table=new TwoDimTable("Mixed",new String[]{"R0","R1","R2","R3"},new String[]{"C0","C1","C2","C3"},new String[]{"double","float","integer","long"},new String[]{"%f","%f","%d","%d"},"");
+  TwoDimTable table=new TwoDimTable("Mixed","description",new String[]{"R0","R1","R2","R3"},new String[]{"C0","C1","C2","C3"},new String[]{"double","float","integer","long"},new String[]{"%f","%f","%d","%d"},"");
   table.set(0,0,Double.NEGATIVE_INFINITY);
   table.set(1,0,Double.POSITIVE_INFINITY);
   table.set(2,0,Double.NaN);
@@ -36,6 +36,5 @@
   assertTrue(table.get(2,3).equals(0L));
   assertTrue(table.get(3,3).equals(-0L));
   String json=new TwoDimTableV1().fillFromImpl(table).toJsonString();
-  assertTrue(json.equals("{\"__meta\":{\"schema_version\":1,\"schema_name\":\"TwoDimTableV1\",\"schema_type\":\"TwoDimTable\"},\"name\":\"Mixed\",\"columns\":[{\"__meta\":{\"schema_version\":1,\"schema_name\":\"ColumnSpecsV1\",\"schema_type\":\"Iced\"},\"name\":\"\",\"type\":\"string\",\"format\":\"%s\",\"description\":null},{\"__meta\":{\"schema_version\":1,\"schema_name\":\"ColumnSpecsV1\",\"schema_type\":\"Iced\"},\"name\":\"C0\",\"type\":\"double\",\"format\":\"%f\",\"description\":null},{\"__meta\":{\"schema_version\":1,\"schema_name\":\"ColumnSpecsV1\",\"schema_type\":\"Iced\"},\"name\":\"C1\",\"type\":\"float\",\"format\":\"%f\",\"description\":null},{\"__meta\":{\"schema_version\":1,\"schema_name\":\"ColumnSpecsV1\",\"schema_type\":\"Iced\"},\"name\":\"C2\",\"type\":\"integer\",\"format\":\"%d\",\"description\":null},{\"__meta\":{\"schema_version\":1,\"schema_name\":\"ColumnSpecsV1\",\"schema_type\":\"Iced\"},\"name\":\"C3\",\"type\":\"long\",\"format\":\"%d\",\"description\":null}],\"rowcount\":4,\"data\":[[\"R0\",\"R1\",\"R2\",\"R3\"],[\"-Infinity\",\"Infinity\",\"NaN\",\"NaN\"],[\"-Infinity\",\"Infinity\",\"NaN\",\"NaN\"],[2147483647,-2147483648,0,0],[9223372036854775807,-9223372036854775808,0,0]]}"));
   Log.info(json);
 }
