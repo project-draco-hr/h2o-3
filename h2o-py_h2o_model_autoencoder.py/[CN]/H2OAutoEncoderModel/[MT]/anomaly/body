@@ -1,0 +1,14 @@
+def anomaly(self, test_data):
+    '\n    Return the reconstruction error for an AutoEncoder models\n    '
+    if (not test_data):
+        raise ValueError('Must specify test data')
+    test_data_key = H2OFrame.send_frame(test_data)
+    j = H2OConnection.post_json(((('Predictions/models/' + self._key) + '/frames/') + test_data_key), reconstruction_error=True)
+    anomaly_frame_key = j['model_metrics'][0]['predictions']['key']['name']
+    anomaly_frame_meta = h2o.frame(anomaly_frame_key)['frames'][0]
+    vec_keys = anomaly_frame_meta['vec_keys']
+    rows = anomaly_frame_meta['rows']
+    cols = [col['label'] for col in anomaly_frame_meta['columns']]
+    vecs = H2OVec.new_vecs(zip(cols, vec_keys), rows)
+    h2o.remove(test_data_key)
+    return H2OFrame(vecs=vecs)
