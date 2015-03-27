@@ -18,7 +18,12 @@
   int version=1;
   Matcher m=getVersionPattern().matcher(uri);
   if (m.matches()) {
-    version=Integer.valueOf(m.group(1));
+    if ("EXPERIMENTAL".equals(m.group(1))) {
+      version=99;
+    }
+ else {
+      version=Integer.valueOf(m.group(1));
+    }
     String uripath="/" + m.group(2);
     path=type.requestName(uripath);
     versioned_path="/" + version + path;
