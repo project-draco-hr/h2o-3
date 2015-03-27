@@ -1,5 +1,6 @@
 {
   double ths[]=new double[_nBins + 1];
+  double sqe[]=new double[_nBins + 1];
   long tps[]=new long[_nBins + 1];
   long fps[]=new long[_nBins + 1];
   int n=0;
@@ -14,35 +15,48 @@
     }
     idx=-idx - 1;
     System.arraycopy(ths,idx,ths,idx + 1,n - idx);
+    System.arraycopy(sqe,idx,sqe,idx + 1,n - idx);
     System.arraycopy(tps,idx,tps,idx + 1,n - idx);
     System.arraycopy(fps,idx,fps,idx + 1,n - idx);
     ths[idx]=pred;
-    if (act == 0)     fps[idx]=1;
- else     tps[idx]=1;
+    sqe[idx]=0;
+    if (act == 0) {
+      tps[idx]=0;
+      fps[idx]=1;
+    }
+ else {
+      tps[idx]=1;
+      fps[idx]=0;
+    }
     n++;
     if (n <= _nBins)     continue;
-    double minV=Double.MAX_VALUE;
+    double minSQE=Double.MAX_VALUE;
     int minI=-1;
     for (int i=0; i < _nBins; i++) {
-      double diff=ths[i + 1] - ths[i];
-      if (diff < minV) {
+      long k0=tps[i] + fps[i];
+      long k1=tps[i + 1] + fps[i + 1];
+      double delta=ths[i + 1] - ths[i];
+      double sqe0=sqe[i] + sqe[i + 1] + delta * delta * k0* k1 / (k0 + k1);
+      if (sqe0 < minSQE) {
         minI=i;
-        minV=diff;
+        minSQE=sqe0;
       }
     }
     long k0=tps[minI] + fps[minI];
     long k1=tps[minI + 1] + fps[minI + 1];
-    long k=k0 + k1;
-    double d=(ths[minI] * k0 + ths[minI + 1] * k1) / k;
+    double d=(ths[minI] * k0 + ths[minI + 1] * k1) / (k0 + k1);
     ths[minI]=d;
+    sqe[minI]=minSQE;
     tps[minI]+=tps[minI + 1];
     fps[minI]+=fps[minI + 1];
     System.arraycopy(ths,minI + 2,ths,minI + 1,n - minI - 2);
+    System.arraycopy(sqe,minI + 2,sqe,minI + 1,n - minI - 2);
     System.arraycopy(tps,minI + 2,tps,minI + 1,n - minI - 2);
     System.arraycopy(fps,minI + 2,fps,minI + 1,n - minI - 2);
     n--;
   }
   _ths=ths;
+  _sqe=sqe;
   _tps=tps;
   _fps=fps;
   _nBins=n;
