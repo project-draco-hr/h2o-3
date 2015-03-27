@@ -1,4 +1,20 @@
 {
+  if (_beta_constraint != null) {
+    Frame f=_beta_constraint.get();
+    if (f == null)     glm.error("beta_constraint","Missing frame for beta constraints");
+    Vec v=f.vec("names");
+    if (v == null)     glm.error("beta_constraint","Beta constraints parameter must have names column with valid coefficient names");
+    v=f.vec("upper_bounds");
+    if (v != null && !v.isNumeric())     glm.error("beta_constraint","upper_bounds must be numeric if present");
+    v=f.vec("upper_bounds");
+    v=f.vec("lower_bounds");
+    if (v != null && !v.isNumeric())     glm.error("beta_constraint","lower_bounds must be numeric if present");
+    v=f.vec("beta_given");
+    if (v != null && !v.isNumeric())     glm.error("beta_constraint","beta_given must be numeric if present");
+    v=f.vec("upper_bounds");
+    v=f.vec("beta_start");
+    if (v != null && !v.isNumeric())     glm.error("beta_constraint","beta_start must be numeric if present");
+  }
   if (_family == Family.binomial) {
     Frame frame=DKV.getGet(_train);
     if (frame != null) {

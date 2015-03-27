@@ -1,5 +1,34 @@
 {
   super.fillFromImpl(impl);
   this.rank=impl.rank();
+  GLMModel.Submodel sm=impl.bestSubmodel();
+  String[] cnames=impl.coefficientNames();
+  System.out.println("CNAMES = " + Arrays.toString(cnames));
+  String[] names=sm.idxs == null ? impl.coefficientNames().clone() : ArrayUtils.select(impl.coefficientNames(),sm.idxs);
+  coefficients_table=new TwoDimTableV1();
+  coefficients_magnitude=new TwoDimTableV1();
+  if (sm.norm_beta != null) {
+    String[] colTypes=new String[]{"double","double"};
+    String[] colFormats=new String[]{"%5f","%5f"};
+    TwoDimTable tdt=new TwoDimTable("Coefficients",names,new String[]{"Coefficients","Norm Coefficients"},colTypes,colFormats,"names");
+    for (int i=0; i < sm.beta.length; ++i) {
+      tdt.set(i,0,sm.beta[i]);
+      tdt.set(i,1,sm.norm_beta[i]);
+    }
+    coefficients_table.fillFromImpl(tdt);
+    double[] magnitudes=sm.norm_beta.clone();
+    for (int i=0; i < magnitudes.length; ++i)     if (magnitudes[i] < 0)     magnitudes[i]*=-1;
+    coefficients_magnitude.fillFromImpl(new TwoDimTable("Coefficient Magnitudes",names,new String[]{"Coefficients"},new String[]{"double"},new String[]{"%5f"},"names"));
+  }
+ else {
+    String[] colTypes=new String[]{"double"};
+    String[] colFormats=new String[]{"%5f"};
+    TwoDimTable tdt=new TwoDimTable("Coefficients",names,new String[]{"Coefficients"},colTypes,colFormats,"names");
+    for (int i=0; i < sm.beta.length; ++i)     tdt.set(i,0,sm.beta[i]);
+    coefficients_table.fillFromImpl(tdt);
+    double[] magnitudes=sm.beta.clone();
+    for (int i=0; i < magnitudes.length; ++i)     if (magnitudes[i] < 0)     magnitudes[i]*=-1;
+    coefficients_magnitude.fillFromImpl(new TwoDimTable("Coefficient Magnitudes",names,new String[]{"Coefficients"},colTypes,colFormats,"names"));
+  }
   return this;
 }
