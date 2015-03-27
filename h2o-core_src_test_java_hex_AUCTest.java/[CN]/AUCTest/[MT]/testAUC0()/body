@@ -17,11 +17,14 @@
   System.out.println(Arrays.toString(fp));
   for (int i=0; i < tp.length; i++)   System.out.print("{" + ((double)tp[i] / P) + ","+ ((double)fp[i] / N)+ "} ");
   System.out.println();
-  double rows[][]=new double[probs.length][];
-  for (int i=0; i < probs.length; i++)   rows[i]=new double[]{probs[i],actls[i]};
-  Frame fr=frame(new String[]{"probs","actls"},rows);
-  AUC2 auc=new AUC2(5,fr.vec("probs"),fr.vec("actls"));
-  for (int i=0; i < auc._nBins; i++)   System.out.print("{" + ((double)auc._tps[i] / auc._tp) + ","+ ((double)auc._fps[i] / auc._fp)+ "} ");
-  System.out.println();
+  Assert.assertEquals(doAUC(probs,actls),0.636363636363,1e-5);
+  swap(0,5,probs,actls);
+  swap(1,6,probs,actls);
+  swap(7,15,probs,actls);
+  Assert.assertEquals(doAUC(probs,actls),0.636363636363,1e-5);
+  double ROCR_auc=0.7244389;
+  Frame fr=parse_test_file("smalldata/junit/auc4.csv");
+  for (int i=10; i < 1000; i+=10)   System.out.println("bins=" + i + ", aucERR="+ Math.abs(new AUC2(i,fr.vec("V1"),fr.vec("V2"))._auc - ROCR_auc) / ROCR_auc);
+  Assert.assertEquals(ROCR_auc,new AUC2(fr.vec("V1"),fr.vec("V2"))._auc,1e-4);
   fr.remove();
 }
