@@ -28,6 +28,9 @@ def binop_div(ip, port):
     res = (((iris[0] / iris[1]) / iris[2]) / iris[3])
     res.show()
     assert (abs((sum([res[i].eager() for i in range(rows)]) - 283.977)) < 0.0001), 'expected different sum'
+    res = (iris[0] / 5)
+    res.show()
+    assert (abs((sum([res[i].eager() for i in range(rows)]) - 175.3)) < 1e-07), 'expected different column sum'
     res = (iris / iris)
     (res_rows, res_cols) = res.dim()
     assert ((res_rows == rows) and (res_cols == cols)), 'dimension mismatch'

@@ -3,31 +3,54 @@ def binop_minus(ip, port):
     iris = h2o.import_frame(path=h2o.locate('smalldata/iris/iris_wheader.csv'))
     (rows, cols) = iris.dim()
     iris.show()
-    res = (iris - 5)
-    (res_rows, res_cols) = res.dim()
-    h2o_sums = []
-    assert ((res_rows == rows) and (res_cols == cols)), 'dimension mismatch'
-    for (x, y) in zip([sum([res[c][r].eager() for r in range(rows)]) for c in range((cols - 1))], [126.5, (-291.9), (-186.2), (-570.2)]):
-        assert (abs((x - y)) < 1e-07), 'unexpected column sums.'
-    res = (5 - iris)
+    res = (2 - iris)
     (res_rows, res_cols) = res.dim()
     assert ((res_rows == rows) and (res_cols == cols)), 'dimension mismatch'
+    for (x, y) in zip([sum([res[c][r] for r in range(rows)]) for c in range((cols - 1))], [(-576.5), (-158.1), (-263.8), 120.2]):
+        assert (abs((x.eager() - y)) < 0.1), 'expected same values'
+    res = (2 - iris[1])
+    assert (abs((sum([res[i] for i in range(rows)]).eager() - (-158.1))) < 0.1), 'expected same values'
+    res = (2 - iris[0])
+    res2 = (1.1 - res[133])
+    assert (abs((res2.eager() - 5.4)) < 0.1), 'expected same values'
     try:
-        res = (iris - iris[0])
-        assert False, 'expected error. objects of different dimensions not supported.'
-    except EnvironmentError:
+        res = (1.2 - iris[2])
+        res2 = (res[133] - iris)
+    except NotImplementedError:
         pass
     try:
+        res = (1.2 - iris[2])
+        res2 = (res[133] - iris[1])
+        res2.show()
+        assert False, 'expected error. objects with different dimensions not supported.'
+    except EnvironmentError:
+        pass
+    res = (1.1 - iris[2])
+    res2 = (res[133] - res[10])
+    assert (abs((res2.eager() - (-3.6))) < 0.1), 'expected same values'
+    res = (2 - iris[0])
+    res2 = (res[133] - 3)
+    assert (abs((res2.eager() - (-7.3))) < 0.1), 'expected same values'
+    try:
         res = (iris[2] - iris)
-        assert False, 'expected error. objects of different dimensions not supported.'
+        assert False, 'expected error. objects with different dimensions not supported.'
     except EnvironmentError:
         pass
     res = (iris[0] - iris[1])
-    res.show()
-    assert (abs((sum([res[i].eager() for i in range(rows)]) - 418.4)) < 1e-07), 'expected different sum'
-    res = (((iris[0] - iris[1]) - iris[2]) - iris[3])
-    res.show()
-    assert (abs((sum([res[i].eager() for i in range(rows)]) - (-325.2))) < 1e-07), 'expected different sum'
+    assert (abs((sum([res[i] for i in range(rows)]).eager() - 418.4)) < 0.1), 'expected same values'
+    res = (iris[2] - iris[1])
+    assert (abs((sum([res[i] for i in range(rows)]).eager() - 105.7)) < 0.1), 'expected same values'
+    res = ((iris[0] - (iris[1] * iris[2])) - iris[3])
+    assert (abs((sum([res[i] for i in range(rows)]).eager() - (-977.21))) < 0.01), 'expected same values'
+    try:
+        res = (1.2 - iris[2])
+        res2 = (iris[1] - res[133])
+        res2.show()
+        assert False, 'expected error. objects with different dimensions not supported.'
+    except EnvironmentError:
+        pass
+    res = (iris[0] - 2)
+    assert (abs((sum([res[i] for i in range(rows)]).eager() - 576.5)) < 0.01), 'expected different column sum'
     res = (iris - iris)
     (res_rows, res_cols) = res.dim()
     assert ((res_rows == rows) and (res_cols == cols)), 'dimension mismatch'
@@ -39,3 +62,18 @@ def binop_minus(ip, port):
         assert False, 'expected error. frames are different dimensions.'
     except EnvironmentError:
         pass
+    try:
+        res = (iris - iris[0])
+        assert False, 'expected error. objects of different dimensions not supported.'
+    except EnvironmentError:
+        pass
+    try:
+        res = (1.2 - iris[2])
+        res2 = (iris - res[133])
+    except NotImplementedError:
+        pass
+    res = (iris - 2)
+    (res_rows, res_cols) = res.dim()
+    assert ((res_rows == rows) and (res_cols == cols)), 'dimension mismatch'
+    for (x, y) in zip([sum([res[c][r] for r in range(rows)]) for c in range((cols - 1))], [576.5, 158.1, 263.8, (-120.2)]):
+        assert (abs((x.eager() - y)) < 0.1), 'expected same values'
