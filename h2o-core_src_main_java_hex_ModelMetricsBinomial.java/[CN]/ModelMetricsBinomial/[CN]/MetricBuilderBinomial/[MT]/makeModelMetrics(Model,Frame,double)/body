@@ -1,14 +1,11 @@
 {
-  double logloss=Double.NaN;
   if (sigma != 0.0) {
-    ConfusionMatrix[] cms=new ConfusionMatrix[_cms.length];
-    for (int i=0; i < cms.length; i++)     cms[i]=new ConfusionMatrix(_cms[i],_domain);
-    AUCData aucdata=new AUC(cms,_thresholds,_domain).data();
     double mse=_sumsqe / _count;
-    logloss=_logloss / _count;
-    return m._output.addModelMetrics(new ModelMetricsBinomial(m,f,aucdata,logloss,sigma,mse));
+    double logloss=_logloss / _count;
+    AUC2 auc=new AUC2(_auc);
+    return m._output.addModelMetrics(new ModelMetricsBinomial(m,f,sigma,_domain,mse,auc,logloss));
   }
  else {
-    return m._output.addModelMetrics(new ModelMetricsBinomial(m,f,null,Double.NaN,Double.NaN,Double.NaN));
+    return m._output.addModelMetrics(new ModelMetricsBinomial(m,f,Double.NaN,null,Double.NaN,null,Double.NaN));
   }
 }
