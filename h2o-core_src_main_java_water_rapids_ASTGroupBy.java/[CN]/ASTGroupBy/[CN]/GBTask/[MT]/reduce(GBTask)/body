@@ -1,0 +1,19 @@
+{
+  if (_g != t._g) {
+    NonBlockingHashSet<G> l=_g;
+    NonBlockingHashSet<G> r=t._g;
+    if (l.size() < r.size()) {
+      l=r;
+      r=_g;
+    }
+    for (    G rg : r) {
+      G lg=l.get(rg);
+      if (lg == null)       l.add(rg);
+ else {
+        long R=lg._N;
+        while (!G.CAS_N(lg,R,R + rg._N))         R=lg._N;
+        reduceGroup(_agg,lg,rg);
+      }
+    }
+  }
+}
