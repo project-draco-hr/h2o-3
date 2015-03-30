@@ -37,7 +37,7 @@
   OutputStream os=null;
   try {
     os=pm.create(tmpf,true);
-    copyStream(is,os);
+    FileUtils.copyStream(is,os,1024);
   }
   finally {
     if (os != null) {
@@ -49,10 +49,17 @@
       }
     }
   }
+  boolean success;
   String realf=d2 + NPS_SEPARATOR + keyName;
-  boolean success=pm.rename(tmpf,realf);
+  if (pm.exists(realf)) {
+    success=pm.delete(realf);
+    if (!success) {
+      throw new RuntimeException("NodePersistentStorage delete failed (" + realf + ")");
+    }
+  }
+  success=pm.rename(tmpf,realf);
   if (!success) {
-    throw new RuntimeException("NodePersistentStorage move failed (" + tmpf + " -> "+ realf+ ")");
+    throw new RuntimeException("NodePersistentStorage rename failed (" + tmpf + " -> "+ realf+ ")");
   }
   if (!pm.exists(realf)) {
     throw new RuntimeException("NodePersistentStorage file does not exist (" + realf + ")");
