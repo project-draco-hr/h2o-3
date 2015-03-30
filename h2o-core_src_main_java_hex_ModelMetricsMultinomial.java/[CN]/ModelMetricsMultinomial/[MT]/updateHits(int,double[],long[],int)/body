@@ -6,23 +6,17 @@
  else {
     long before=ArrayUtils.sum(hits);
     double[] ds_copy=Arrays.copyOf(ds,ds.length);
-    assert(ArrayUtils.sum(ds_copy) - ds_copy[0] <= 1.0);
     ds_copy[1 + (int)ds[0]]=0;
     for (int k=1; k < hits.length; ++k) {
       final int pred_labels=ModelUtils.getPrediction(ds_copy,row);
-      if (k == 0) {
-        assert(pred_labels == ds_copy[0]);
-      }
-      assert(ArrayUtils.minValue(ds_copy) >= 0);
-      assert(ArrayUtils.maxValue(ds_copy,1,ds_copy.length) <= 1.0);
       ds_copy[1 + pred_labels]=0;
       if (pred_labels == iact) {
         hits[k]++;
         break;
       }
     }
-    long after=ArrayUtils.sum(hits);
     if (hits.length == ds.length - 1) {
+      long after=ArrayUtils.sum(hits);
       if (after == before)       hits[hits.length - 1]++;
     }
   }
