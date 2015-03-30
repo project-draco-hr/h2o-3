@@ -1,2 +1,42 @@
 {
+  double ths[], sqe[];
+  long tps[], fps[];
+  final int n=_n + bldr._n;
+  if (_ths.length >= n) {
+    ths=_ths;
+    sqe=_sqe;
+    tps=_tps;
+    fps=_fps;
+  }
+ else   if (bldr._ths.length >= n) {
+    ths=bldr._ths;
+    sqe=bldr._sqe;
+    tps=bldr._tps;
+    fps=bldr._fps;
+  }
+ else {
+    ths=new double[n];
+    sqe=new double[n];
+    tps=new long[n];
+    fps=new long[n];
+  }
+  int x=_n - 1;
+  int y=bldr._n - 1;
+  while (x + y + 1 >= 0) {
+    if (y < 0 || (x >= 0 && _ths[x] >= bldr._ths[y])) {
+      ths[x + y + 1]=_ths[x];
+      sqe[x + y + 1]=_sqe[x];
+      tps[x + y + 1]=_tps[x];
+      fps[x + y + 1]=_fps[x];
+      x--;
+    }
+ else {
+      ths[x + y + 1]=bldr._ths[y];
+      sqe[x + y + 1]=bldr._sqe[y];
+      tps[x + y + 1]=bldr._tps[y];
+      fps[x + y + 1]=bldr._fps[y];
+      y--;
+    }
+  }
+  throw H2O.unimpl();
 }
