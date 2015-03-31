@@ -1,5 +1,15 @@
 {
-  new FinalizeAndUnlockTsk(null,_dest,_key).invokeTask();
-  doCleanup();
-  done();
+  getCompleter().addToPendingCount(1);
+  new FinalizeAndUnlockTsk(new H2OCallback((H2OCountedCompleter)getCompleter()){
+    @Override public void callback(    H2OCountedCompleter h2OCountedCompleter){
+      doCleanup();
+      done();
+    }
+    @Override public boolean onExceptionalCompletion(    Throwable ex,    CountedCompleter cc){
+      doCleanup();
+      new RemoveCall(null,_dest).invokeTask();
+      return true;
+    }
+  }
+,_dest,_key).fork();
 }

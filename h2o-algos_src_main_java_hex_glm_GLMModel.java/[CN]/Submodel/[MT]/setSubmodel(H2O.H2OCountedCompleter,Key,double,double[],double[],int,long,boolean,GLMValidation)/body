@@ -1,8 +1,8 @@
 {
   final Submodel sm=new Submodel(lambda,beta,norm_beta,runtime,iteration,sparseCoef);
   sm.validation=val;
-  cmp.addToPendingCount(1);
-  new TAtomic<GLMModel>(cmp){
+  if (cmp != null)   cmp.addToPendingCount(1);
+  Future f=new TAtomic<GLMModel>(cmp){
     @Override public GLMModel atomic(    GLMModel old){
       if (old == null)       return old;
       if (val != null)       old._defaultThresholds=val.thresholds;
@@ -30,4 +30,13 @@
     }
   }
 .fork(modelKey);
+  if (cmp == null && f != null)   try {
+    f.get();
+  }
+ catch (  InterruptedException e) {
+    e.printStackTrace();
+  }
+catch (  ExecutionException e) {
+    e.printStackTrace();
+  }
 }
