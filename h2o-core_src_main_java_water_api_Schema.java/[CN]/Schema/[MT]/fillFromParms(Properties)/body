@@ -1,16 +1,20 @@
 {
   Map<String,Field> fields=new HashMap<>();
+  Field current=null;
   try {
     Class clz=getClass();
     do {
       Field[] some_fields=clz.getDeclaredFields();
-      for (      Field f : some_fields)       if (null == fields.get(f.getName()))       fields.put(f.getName(),f);
+      for (      Field f : some_fields) {
+        current=f;
+        if (null == fields.get(f.getName()))         fields.put(f.getName(),f);
+      }
       clz=clz.getSuperclass();
     }
  while (Iced.class.isAssignableFrom(clz.getSuperclass()));
   }
  catch (  SecurityException e) {
-    throw H2O.fail("Exception accessing fields: " + e);
+    throw H2O.fail("Exception accessing field: " + current + " in class: "+ this.getClass()+ ": "+ e);
   }
   for (  String key : parms.stringPropertyNames()) {
     try {
@@ -19,9 +23,13 @@
         throw new H2OIllegalArgumentException("Unknown parameter: " + key,"Unknown parameter in fillFromParms: " + key + " for class: "+ this.getClass().toString());
       }
       int mods=f.getModifiers();
-      if (Modifier.isTransient(mods) || Modifier.isStatic(mods))       throw H2O.fail("Unknown argument (transient or static): " + key);
+      if (Modifier.isTransient(mods) || Modifier.isStatic(mods)) {
+        throw new H2OIllegalArgumentException("Bad parameter for field: " + key + " for class: "+ this.getClass().toString(),"Bad parameter definition for field: " + key + " in fillFromParms for class: "+ this.getClass().toString()+ " (field was declared static or transient)");
+      }
       API api=(API)f.getAnnotations()[0];
-      if (api.direction() == API.Direction.OUTPUT)       throw H2O.fail("Attempting to set output field: " + key);
+      if (api.direction() == API.Direction.OUTPUT) {
+        throw new H2OIllegalArgumentException("Attempting to set output field: " + key + " for class: "+ this.getClass().toString(),"Attempting to set output field: " + key + " in fillFromParms for class: "+ this.getClass().toString()+ " (field was annotated as API.Direction.OUTPUT)");
+      }
       Object parse_result=parse(key,parms.getProperty(key),f.getType(),api.required());
       if (parse_result != null && f.getType().isArray() && parse_result.getClass().isArray() && (f.getType().getComponentType() != parse_result.getClass().getComponentType())) {
         if (parse_result.getClass().getComponentType() == int.class && f.getType().getComponentType() == Integer.class) {

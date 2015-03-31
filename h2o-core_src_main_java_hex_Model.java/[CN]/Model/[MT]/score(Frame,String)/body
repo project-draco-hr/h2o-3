@@ -9,7 +9,11 @@
     ModelCategory model_cat=this._output.getModelCategory();
     ConfusionMatrix cm=mm.cm();
     if (model_cat == ModelCategory.Binomial)     cm=((ModelMetricsBinomial)mm)._cm;
- else     if (model_cat == ModelCategory.Multinomial)     cm=((ModelMetricsMultinomial)mm)._cm;
+ else     if (model_cat == ModelCategory.Multinomial) {
+      cm=((ModelMetricsMultinomial)mm)._cm;
+      float[] hr=((ModelMetricsMultinomial)mm)._hit_ratios;
+      if (hr != null && hr.length > 0)       Log.info(getHitRatioTable(hr));
+    }
     if (cm != null && cm.domain != null) {
       cm.table=cm.toTable();
       if (cm.confusion_matrix.length < _parms._max_confusion_matrix_size)       water.util.Log.info(cm.table.toString(1));
