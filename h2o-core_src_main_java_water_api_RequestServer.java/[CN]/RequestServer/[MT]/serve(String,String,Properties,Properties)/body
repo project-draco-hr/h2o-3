@@ -30,6 +30,10 @@
   }
   alwaysLogRequest(uri,method,parms);
   try {
+    if (method.equals("GET") && uri.equals("/")) {
+      maybeLogRequest(method,uri,"",parms,header);
+      return redirectToFlow();
+    }
     if (method.equals("GET") && uri.endsWith("/Logs/download")) {
       maybeLogRequest(method,uri,"",parms,header);
       return downloadLogs();
