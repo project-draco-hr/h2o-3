@@ -1,0 +1,17 @@
+{
+  int gap=vals.length % 8;
+  int n=(vals.length >> 3) + (gap == 0 ? 0 : 1);
+  byte[] bytes=MemoryManager.malloc1(n);
+  for (int i=0; i < vals.length; ++i) {
+    if (vals[i]) {
+      int j=i / 8;
+      int k=i % 8;
+      bytes[j]|=(1 << k);
+    }
+  }
+  _mem=bytes;
+  _start=-1;
+  _gap=(byte)gap;
+  _bpv=1;
+  set_len(((_mem.length - _OFF) * 8 - _gap) / _bpv);
+}
