@@ -1,0 +1,70 @@
+{
+  Frame fr=e.popAry();
+  GBTask p1=new GBTask(_gbCols,_agg).doAll(fr);
+  final int nGrps=p1._g.size();
+  final int nCols=_gbCols.length + _agg.length;
+  Vec v=Vec.makeZero(nGrps);
+  String[] names=new String[nCols];
+  String[][] domains=new String[nCols][];
+  for (int i=0; i < _gbCols.length; ++i) {
+    names[i]=fr.name((int)_gbCols[i]);
+    domains[i]=fr.domains()[(int)_gbCols[i]];
+  }
+  System.arraycopy(AGG.names(_agg),0,names,_gbCols.length,_agg.length);
+  final G[] grps=p1._g.toArray(new G[nGrps]);
+  final AGG[] agg=_agg;
+  Frame f=new MRTask(){
+    @Override public void map(    Chunk[] c,    NewChunk[] ncs){
+      int start=(int)c[0].start();
+      for (int i=0; i < c[0]._len; ++i) {
+        G g=grps[i + start];
+        int j=0;
+        for (; j < g._ds.length; ++j)         ncs[j].addNum(g._ds[j]);
+        for (int a=0; a < agg.length; ++a) {
+          byte type=agg[a]._type;
+switch (type) {
+case AGG.T_N:
+            ncs[j++].addNum(g._N);
+          break;
+case AGG.T_ND:
+        ncs[j++].addNum(g._ND[a]);
+      break;
+case AGG.T_F:
+    ncs[j++].addNum(g._f[a]);
+  break;
+case AGG.T_L:
+ncs[j++].addNum(g._l[a]);
+break;
+case AGG.T_MIN:
+ncs[j++].addNum(g._min[a]);
+break;
+case AGG.T_MAX:
+ncs[j++].addNum(g._max[a]);
+break;
+case AGG.T_AVG:
+ncs[j++].addNum(g._avs[a]);
+break;
+case AGG.T_VAR:
+ncs[j++].addNum(g._vars[a]);
+break;
+case AGG.T_SD:
+ncs[j++].addNum(g._sdevs[a]);
+break;
+case AGG.T_SUM:
+ncs[j++].addNum(g._sum[a]);
+break;
+case AGG.T_SS:
+ncs[j++].addNum(g._ss[a]);
+break;
+default :
+throw new IllegalArgumentException("Unsupported aggregation type: " + type);
+}
+}
+}
+}
+}
+.doAll(nCols,v).outputFrame(Key.make(),names,domains);
+p1._g=null;
+Keyed.remove(v._key);
+e.pushAry(f);
+}
