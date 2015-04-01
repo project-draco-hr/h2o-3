@@ -124,7 +124,10 @@
       }
  else       _parms._lambda=new double[]{_tInfos[0]._lambdaMax * (_dinfo.fullN() < (_tInfos[0]._nobs >> 4) ? 1e-3 : 1e-1)};
     }
-    new GLMModel(_dest,_parms,new GLMOutput(GLM.this),_dinfo,_tInfos[0]._ymu,_tInfos[0]._lambdaMax,_tInfos[0]._nobs,ModelUtils.DEFAULT_THRESHOLDS).delete_and_lock(GLM.this._key);
-    if (_parms._lambda_search)     setSubmodel(_dest,0,_bc._betaStart,gtBetastart._val,null);
+    GLMModel m=new GLMModel(_dest,_parms,new GLMOutput(GLM.this),_dinfo,_tInfos[0]._ymu,_tInfos[0]._lambdaMax,_tInfos[0]._nobs,ModelUtils.DEFAULT_THRESHOLDS);
+    m.delete_and_lock(GLM.this._key);
+    m.adaptTestForTrain(_valid,true);
+    if (_valid != null)     _validDinfo=new DataInfo(Key.make(),_valid,null,1,_parms._use_all_factor_levels || _parms._lambda_search,_parms._standardize ? DataInfo.TransformType.STANDARDIZE : DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true);
+    if (_parms._lambda_search)     setSubmodel(_dest,0,_bc._betaStart,gtBetastart._val,null,null);
   }
 }

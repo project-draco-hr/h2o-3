@@ -1,2 +1,26 @@
 {
+  if (_allIn)   return null;
+  int selected=0;
+  int[] cols=null;
+  if (_parms._alpha[0] > 0) {
+    final double rhs=_parms._alpha[0] * (2 * l1 - l2);
+    cols=MemoryManager.malloc4(_dinfo.fullN());
+    int j=0;
+    int[] oldActiveCols=_taskInfo._activeCols;
+    if (oldActiveCols == null)     oldActiveCols=new int[0];
+    for (int i=0; i < _dinfo.fullN(); ++i)     if ((j < oldActiveCols.length && i == oldActiveCols[j]) || grad[i] > rhs || grad[i] < -rhs) {
+      cols[selected++]=i;
+      if (j < oldActiveCols.length && i == oldActiveCols[j])       ++j;
+    }
+  }
+  if (_parms._alpha[0] == 0 || selected == _dinfo.fullN()) {
+    _allIn=true;
+    _activeData=_dinfo;
+    LogInfo("strong rule at lambda_value=" + l1 + ", all "+ _dinfo.fullN()+ " coefficients are active");
+    return null;
+  }
+ else {
+    LogInfo("strong rule at lambda_value=" + l1 + ", got "+ selected+ " active cols out of "+ _dinfo.fullN()+ " total.");
+    return Arrays.copyOf(cols,selected);
+  }
 }

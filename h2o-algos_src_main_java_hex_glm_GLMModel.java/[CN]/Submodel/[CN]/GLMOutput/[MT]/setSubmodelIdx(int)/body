@@ -1,6 +1,6 @@
 {
   _best_lambda_idx=l;
-  if (_submodels[l].validation == null) {
+  if (_submodels[l].trainVal == null) {
     _threshold=0.5f;
     _residual_deviance=Double.NaN;
     _null_deviance=Double.NaN;
@@ -10,13 +10,13 @@
     _auc=Double.NaN;
   }
  else {
-    _threshold=_submodels[l].validation.best_threshold;
-    _residual_deviance=_submodels[l].validation.residualDeviance();
-    _null_deviance=_submodels[l].validation.nullDeviance();
-    _residual_degrees_of_freedom=_submodels[l].validation.resDOF();
-    _null_degrees_of_freedom=_submodels[l].validation.nullDOF();
-    _aic=_submodels[l].validation.aic();
-    _auc=_submodels[l].validation.auc();
+    _threshold=_submodels[l].trainVal.best_threshold;
+    _residual_deviance=_submodels[l].trainVal.residualDeviance();
+    _null_deviance=_submodels[l].trainVal.nullDeviance();
+    _residual_degrees_of_freedom=_submodels[l].trainVal.resDOF();
+    _null_degrees_of_freedom=_submodels[l].trainVal.nullDOF();
+    _aic=_submodels[l].trainVal.aic();
+    _auc=_submodels[l].trainVal.auc();
   }
   if (_global_beta == null)   _global_beta=MemoryManager.malloc8d(_coefficient_names.length);
  else   Arrays.fill(_global_beta,0);

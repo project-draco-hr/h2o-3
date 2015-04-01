@@ -1,6 +1,6 @@
 {
   getCompleter().addToPendingCount(1);
-  new FinalizeAndUnlockTsk(new H2OCallback((H2OCountedCompleter)getCompleter()){
+  H2O.submitTask(new FinalizeAndUnlockTsk(new H2OCallback((H2OCountedCompleter)getCompleter()){
     @Override public void callback(    H2OCountedCompleter h2OCountedCompleter){
       doCleanup();
       done();
@@ -11,5 +11,5 @@
       return true;
     }
   }
-,_dest,_key).fork();
+,_dest,_key,_valid != null ? _valid._key : null));
 }
