@@ -1,7 +1,9 @@
 def __getitem__(self, i):
-    x = self.eager()
-    if self.is_local():
-        return x[i]
-    if (not isinstance(i, int)):
-        raise NotImplementedError
+    if isinstance(i, int):
+        x = self.eager()
+        if self.is_local():
+            return x[i]
+    if isinstance(i, tuple):
+        l = (1 if isinstance(i[0], int) else (i[0].stop - i[0].start))
+        return Expr('[', self, Expr((i[0], i[1])), length=l)
     raise NotImplementedError

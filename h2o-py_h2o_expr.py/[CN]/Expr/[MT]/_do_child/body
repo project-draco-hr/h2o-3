@@ -11,6 +11,19 @@ def _do_child(self, child):
         elif isinstance(child._data, slice):
             __CMD__ += (((('(: #' + str(child._data.start)) + ' #') + str((child._data.stop - 1))) + ')')
             child._data = None
+        elif ((self._op == '[') and isinstance(child._data, tuple)):
+            (r, c) = (child._data[0], child._data[1])
+            if (isinstance(r, int) and isinstance(c, int)):
+                __CMD__ += ((('#' + str(r)) + ' #') + str(c))
+            elif (isinstance(r, int) and isinstance(c, slice)):
+                __CMD__ += (((((('#' + str(r)) + ' (: #') + str(c.start)) + ' #') + str(c.stop)) + ')')
+            elif (isinstance(r, slice) and isinstance(c, int)):
+                __CMD__ += (((((('(: #' + str(r.start)) + ' #') + str(r.stop)) + ')') + ' #') + str(c))
+            elif (isinstance(r, slice) and isinstance(c, slice)):
+                __CMD__ += ((((((((('(: #' + str(r.start)) + ' #') + str(r.stop)) + ')') + ' (: #') + str(c.start)) + ' #') + str(c.stop)) + ')')
+            else:
+                raise NotImplementedError
+            return child
         else:
             pass
     __CMD__ += ' '

@@ -36,6 +36,8 @@ def _do_it(self):
     elif (self._op == '['):
         if left.is_local():
             self._data = left._data[rite._data]
+        elif isinstance(rite._data, tuple):
+            pass
         else:
             __CMD__ += ' "null"'
     elif (self._op == '='):
@@ -101,8 +103,11 @@ def _do_it(self):
         __CMD__ += ')'
     if py_tmp:
         __CMD__ += ')'
-    self._left = None
-    self._rite = None
+    if ((self._op == '[') and (not left.is_local()) and isinstance(rite._data, tuple)):
+        pass
+    else:
+        self._left = None
+        self._rite = None
     if assign_vec:
         self._left = assign_vec
         self._data = assign_vec._data
