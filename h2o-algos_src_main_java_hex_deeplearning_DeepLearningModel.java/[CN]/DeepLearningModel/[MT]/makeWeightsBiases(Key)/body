@@ -1,10 +1,16 @@
 {
-  _output.weights=new Key[model_info.get_params()._hidden.length + 1];
-  for (int i=0; i < _output.weights.length; ++i) {
-    _output.weights[i]=Key.makeUserHidden(Key.make(destKey + ".weights." + i));
+  if (!model_info.get_params()._export_weights_and_biases) {
+    _output.weights=null;
+    _output.biases=null;
   }
-  _output.biases=new Key[model_info.get_params()._hidden.length + 1];
-  for (int i=0; i < _output.biases.length; ++i) {
-    _output.biases[i]=Key.makeUserHidden(Key.make(destKey + ".biases." + i));
+ else {
+    _output.weights=new Key[model_info.get_params()._hidden.length + 1];
+    for (int i=0; i < _output.weights.length; ++i) {
+      _output.weights[i]=Key.makeUserHidden(Key.make(destKey + ".weights." + i));
+    }
+    _output.biases=new Key[model_info.get_params()._hidden.length + 1];
+    for (int i=0; i < _output.biases.length; ++i) {
+      _output.biases[i]=Key.makeUserHidden(Key.make(destKey + ".biases." + i));
+    }
   }
 }
