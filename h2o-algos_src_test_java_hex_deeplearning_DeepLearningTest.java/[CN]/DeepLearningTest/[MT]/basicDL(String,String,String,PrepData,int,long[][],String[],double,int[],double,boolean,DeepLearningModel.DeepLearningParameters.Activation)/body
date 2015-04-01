@@ -9,7 +9,7 @@
     frTrain=parse_test_file(fnametrain);
     Vec removeme=unifyFrame(dl,frTrain,prep,classification);
     if (removeme != null)     Scope.track(removeme._key);
-    DKV.put(frTrain._key,frTrain);
+    DKV.put(frTrain);
     dl._train=frTrain._key;
     dl._response_column=((Frame)DKV.getGet(dl._train)).lastVecName();
     dl._seed=(1L << 32) | 2;
@@ -53,8 +53,6 @@
       Log.info("\nOOB Training MSE: " + mm.mse());
       Log.info("\nTraining MSE: " + hex.ModelMetrics.getFromDKV(model,test).mse());
     }
-    hex.ModelMetrics.getFromDKV(model,test);
-    Assert.assertTrue(model.testJavaScoring(test,res,1e-5));
   }
   finally {
     if (frTrain != null)     frTrain.remove();
