@@ -1,0 +1,30 @@
+{
+  Frame tfr=null, vfr=null;
+  Scope.enter();
+  try {
+    tfr=parse_test_file("smalldata/junit/no_weights.csv");
+    DKV.put(tfr);
+    DRFModel.DRFParameters parms=new DRFModel.DRFParameters();
+    parms._train=tfr._key;
+    parms._response_column="response";
+    parms._seed=0xdecaf;
+    parms._ntrees=1;
+    parms._mtries=4;
+    parms._min_rows=1;
+    parms._max_depth=2;
+    DRF job=new DRF(parms);
+    DRFModel drf=job.trainModel().get();
+    drf.score(parms.train());
+    hex.ModelMetricsBinomial mm=hex.ModelMetricsBinomial.getFromDKV(drf,parms.train());
+    assertEquals(1.0,mm.auc().AUC(),1e-8);
+    double mse[]=drf._output._mse_train;
+    assertEquals(0,mse[mse.length - 1],1e-6);
+    job.remove();
+    drf.delete();
+  }
+  finally {
+    if (tfr != null)     tfr.remove();
+    if (vfr != null)     vfr.remove();
+  }
+  Scope.exit();
+}
