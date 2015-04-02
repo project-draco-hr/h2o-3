@@ -1,5 +1,5 @@
 {
-  Frame tfr=null, vfr=null;
+  Frame tfr=null;
   final int N=1;
   double[] mses=new double[N];
   Scope.enter();
@@ -19,7 +19,7 @@
       GBMModel gbm=job.trainModel().get();
       assertEquals(gbm._output._ntrees,parms._ntrees);
       hex.ModelMetricsBinomial mm=hex.ModelMetricsBinomial.getFromDKV(gbm,parms.train());
-      double auc=mm._aucdata.AUC();
+      double auc=mm._auc._auc;
       Assert.assertTrue(1 == auc);
       mses[i]=gbm._output._mse_train[gbm._output._mse_train.length - 1];
       job.remove();
@@ -28,13 +28,7 @@
   }
   finally {
     if (tfr != null)     tfr.remove();
-    if (vfr != null)     vfr.remove();
   }
   Scope.exit();
-  for (int i=0; i < mses.length; ++i) {
-    Log.info("trial: " + i + " -> mse: "+ mses[i]);
-  }
-  for (int i=0; i < mses.length; ++i) {
-    assertEquals(0.0142093,mses[i],1e-6);
-  }
+  for (  double mse : mses)   assertEquals(0.0142093,mse,1e-6);
 }

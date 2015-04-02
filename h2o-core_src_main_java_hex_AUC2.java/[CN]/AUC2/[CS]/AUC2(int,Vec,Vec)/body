@@ -1,29 +1,3 @@
 {
-  _nBins=nBins;
-  AUC_Impl auc=new AUC_Impl(nBins).doAll(probs,actls);
-  _nBins=nBins=auc._nBins;
-  _ths=Arrays.copyOf(auc._ths,nBins);
-  _tps=Arrays.copyOf(auc._tps,nBins);
-  _fps=Arrays.copyOf(auc._fps,nBins);
-  for (int i=0; i < ((nBins) >> 1); i++) {
-    double tmp=_ths[i];
-    _ths[i]=_ths[nBins - 1 - i];
-    _ths[nBins - 1 - i]=tmp;
-    long tmpt=_tps[i];
-    _tps[i]=_tps[nBins - 1 - i];
-    _tps[nBins - 1 - i]=tmpt;
-    long tmpf=_fps[i];
-    _fps[i]=_fps[nBins - 1 - i];
-    _fps[nBins - 1 - i]=tmpf;
-  }
-  long p=0, n=0;
-  for (int i=0; i < nBins; i++) {
-    p+=_tps[i];
-    _tps[i]=p;
-    n+=_fps[i];
-    _fps[i]=n;
-  }
-  _p=p;
-  _n=n;
-  _auc=compute_auc();
+  this(new AUC_Impl(nBins).doAll(probs,actls)._bldr);
 }

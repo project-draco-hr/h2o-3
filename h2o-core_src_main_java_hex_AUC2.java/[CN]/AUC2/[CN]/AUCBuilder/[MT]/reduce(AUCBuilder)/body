@@ -1,0 +1,18 @@
+{
+  int x=_n - 1;
+  int y=bldr._n - 1;
+  while (x + y + 1 >= 0) {
+    boolean self_is_larger=y < 0 || (x >= 0 && _ths[x] >= bldr._ths[y]);
+    AUCBuilder b=self_is_larger ? this : bldr;
+    int idx=self_is_larger ? x : y;
+    _ths[x + y + 1]=b._ths[idx];
+    _sqe[x + y + 1]=b._sqe[idx];
+    _tps[x + y + 1]=b._tps[idx];
+    _fps[x + y + 1]=b._fps[idx];
+    if (self_is_larger)     x--;
+ else     y--;
+  }
+  _n+=bldr._n;
+  boolean dups=true;
+  while ((dups && _n > 1) || _n > _nBins)   dups=mergeOneBin();
+}
