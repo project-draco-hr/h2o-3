@@ -52,14 +52,17 @@ for num in range(len(endpoints)):
     save_dir_html = os.path.dirname(save_full_html)
     try:
         os.makedirs(save_dir_md)
-        if args.generate_html:
-            os.makedirs(save_dir_html)
     except OSError as exception:
         if (exception.errno != errno.EEXIST):
             raise
     with open(save_full_md, 'w') as the_file:
         the_file.write(markdown)
     if args.generate_html:
+        try:
+            os.makedirs(save_dir_html)
+        except OSError as exception:
+            if (exception.errno != errno.EEXIST):
+                raise
         from grip import export
         export(path=save_full_md, gfm=True, out_filename=save_full_html, username=args.github_user, password=args.github_password)
 toc_name = ((args.dest + os.sep) + 'endpoints/markdown/toc.md')
@@ -80,13 +83,16 @@ for schema in all_schemas:
     save_dir_html = os.path.dirname(save_full_html)
     try:
         os.makedirs(save_dir_md)
-        if args.generate_html:
-            os.makedirs(save_dir_html)
     except OSError as exception:
         if (exception.errno != errno.EEXIST):
             raise
     with open(save_full_md, 'w') as the_file:
         the_file.write(schema['markdown'].encode('utf8'))
     if args.generate_html:
+        try:
+            os.makedirs(save_dir_html)
+        except OSError as exception:
+            if (exception.errno != errno.EEXIST):
+                raise
         from grip import export
         export(path=save_full_md, gfm=True, out_filename=save_full_html, username=args.github_user, password=args.github_password)

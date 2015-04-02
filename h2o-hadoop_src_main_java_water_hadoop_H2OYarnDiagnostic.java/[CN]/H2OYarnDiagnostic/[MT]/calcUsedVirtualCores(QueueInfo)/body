@@ -1,0 +1,13 @@
+{
+  if (queueInfo == null) {
+    return 0;
+  }
+  int vc=0;
+  for (  ApplicationReport ar : queueInfo.getApplications()) {
+    vc+=ar.getApplicationResourceUsageReport().getUsedResources().getVirtualCores();
+  }
+  for (  QueueInfo qi : queueInfo.getChildQueues()) {
+    vc+=calcUsedMemory(qi);
+  }
+  return vc;
+}

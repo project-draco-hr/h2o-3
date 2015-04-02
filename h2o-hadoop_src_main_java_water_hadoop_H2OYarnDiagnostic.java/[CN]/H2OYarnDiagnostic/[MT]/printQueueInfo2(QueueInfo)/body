@@ -1,0 +1,29 @@
+{
+  System.out.println("Queue name:            " + queueInfo.getQueueName());
+  System.out.println("    Queue state:       " + queueInfo.getQueueState());
+  System.out.println("    Current capacity:  " + prettyPrintCapacity(queueInfo.getCurrentCapacity()));
+  System.out.println("    Capacity:          " + prettyPrintCapacity(queueInfo.getCapacity()));
+  System.out.println("    Maximum capacity:  " + prettyPrintCapacity(queueInfo.getMaximumCapacity()));
+  System.out.println("    Application count: " + queueInfo.getApplications().size());
+  List<ApplicationReport> applications=queueInfo.getApplications();
+  if (applications.size() > 0) {
+    System.out.println("    ----- Applications in this queue -----");
+  }
+  for (  ApplicationReport ar : applications) {
+    System.out.println("    Application ID:                  " + ar.getApplicationId() + " ("+ ar.getName()+ ")");
+    System.out.println("        Started:                     " + ar.getUser() + " ("+ new Date(ar.getStartTime()).toString()+ ")");
+    YarnApplicationState as=ar.getYarnApplicationState();
+    if (as != YarnApplicationState.RUNNING) {
+      System.out.println("        Application state:           " + ar.getYarnApplicationState());
+    }
+    System.out.println("        Tracking URL:                " + ar.getTrackingUrl());
+    ApplicationResourceUsageReport ur=ar.getApplicationResourceUsageReport();
+    System.out.println("        Used/Reserved containers:    " + ur.getNumUsedContainers() + " / "+ ur.getNumReservedContainers());
+    System.out.println("        Needed/Used/Reserved memory: " + prettyPrintMb(ur.getNeededResources().getMemory()) + " / "+ prettyPrintMb(ur.getUsedResources().getMemory())+ " / "+ prettyPrintMb(ur.getReservedResources().getMemory()));
+    System.out.println("        Needed/Used/Reserved vcores: " + ur.getNeededResources().getVirtualCores() + " / "+ ur.getUsedResources().getVirtualCores()+ " / "+ ur.getReservedResources().getVirtualCores());
+  }
+  List<QueueInfo> childQueues=queueInfo.getChildQueues();
+  for (  QueueInfo q : childQueues) {
+    printQueueInfo2(q);
+  }
+}

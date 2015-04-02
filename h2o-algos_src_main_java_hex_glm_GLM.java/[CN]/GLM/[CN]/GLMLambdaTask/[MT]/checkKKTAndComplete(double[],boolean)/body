@@ -50,7 +50,7 @@
           LogInfo(fcnt + " variables failed KKT conditions check! Adding them to the model and continuing computation.(grad_eps = " + err+ ", activeCols = "+ (_activeCols.length > 100 ? "lost" : Arrays.toString(_activeCols)));
           _activeData=_taskInfo._dinfo.filterExpandedColumns(_activeCols);
           getCompleter().addToPendingCount(1);
-          new GLMIterationTask(_jobKey,_activeData,_currentLambda * (1 - _taskInfo._params._alpha[0]),_taskInfo._params,true,contractVec(glrt._beta,_activeCols),_taskInfo._ymu,_taskInfo._thresholds,new Iteration(getCompleter(),false)).asyncExec(_activeData._adaptedFrame);
+          new GLMIterationTask(_jobKey,_activeData,_currentLambda * (1 - _taskInfo._params._alpha[0]),_taskInfo._params,true,contractVec(glrt._beta,_activeCols),_taskInfo._ymu,new Iteration(getCompleter(),false)).asyncExec(_activeData._adaptedFrame);
           return;
         }
       }
