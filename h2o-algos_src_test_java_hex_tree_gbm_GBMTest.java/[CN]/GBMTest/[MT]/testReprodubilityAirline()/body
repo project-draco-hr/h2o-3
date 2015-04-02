@@ -1,5 +1,5 @@
 {
-  Frame tfr=null, vfr=null;
+  Frame tfr=null;
   final int N=1;
   double[] mses=new double[N];
   Scope.enter();
@@ -35,13 +35,7 @@
   }
   finally {
     if (tfr != null)     tfr.remove();
-    if (vfr != null)     vfr.remove();
   }
   Scope.exit();
-  for (int i=0; i < mses.length; ++i) {
-    Log.info("trial: " + i + " -> mse: "+ mses[i]);
-  }
-  for (int i=0; i < mses.length; ++i) {
-    assertEquals(0.20753934108993594,mses[i],1e-6);
-  }
+  for (  double mse : mses)   assertEquals(0.20753934108993594,mse,1e-6);
 }

@@ -24,7 +24,7 @@
       Log.info("validation r2 is " + (float)mmv.r2() + ", mse is "+ (float)mmv._mse+ valid_logloss);
     }
     if (out._ntrees > 0)     out._variable_importances=hex.ModelMetrics.calcVarImp(new hex.VarImp(_improvPerVar,out._names));
-    ConfusionMatrix cm=(mm instanceof ModelMetricsBinomial) ? ((ModelMetricsBinomial)mm)._cm : ((mm instanceof ModelMetricsMultinomial) ? ((ModelMetricsMultinomial)mm)._cm : null);
+    ConfusionMatrix cm=mm.cm();
     if (cm != null) {
       Log.info(cm.toASCII());
       Log.info((_nclass > 1 ? "Total of " + cm.errCount() + " errors" : "Reported") + " on " + cm.totalRows()+ " rows");

@@ -61,14 +61,15 @@
         hex.ModelMetricsSupervised mm1=(ModelMetricsSupervised)ModelMetrics.getFromDKV(this,ftrain);
         if (mm1 instanceof ModelMetricsBinomial) {
           ModelMetricsBinomial mm=(ModelMetricsBinomial)(mm1);
-          err.trainAUC=mm._aucdata;
-          err.train_confusion_matrix=mm._cm;
-          err.train_err=mm._cm.err();
+          err.trainAUC=mm._auc;
+          err.train_confusion_matrix=mm.cm();
+          err.train_err=err.train_confusion_matrix.err();
+          err.train_logloss=mm._logloss;
         }
  else         if (mm1 instanceof ModelMetricsMultinomial) {
           ModelMetricsMultinomial mm=(ModelMetricsMultinomial)(mm1);
-          err.train_confusion_matrix=mm._cm;
-          err.train_err=mm._cm.err();
+          err.train_confusion_matrix=mm.cm();
+          err.train_err=err.train_confusion_matrix.err();
           err.train_logloss=mm._logloss;
           err.train_hitratio=mm._hit_ratios;
         }
@@ -83,15 +84,15 @@
           if (mm2 != null) {
             if (mm2 instanceof ModelMetricsBinomial) {
               ModelMetricsBinomial mm=(ModelMetricsBinomial)(mm2);
-              err.validAUC=mm._aucdata;
-              err.valid_confusion_matrix=mm._cm;
-              err.valid_err=mm._cm.err();
+              err.validAUC=mm._auc;
+              err.valid_confusion_matrix=mm.cm();
               err.valid_logloss=mm._logloss;
+              err.valid_err=err.valid_confusion_matrix.err();
             }
  else             if (mm2 instanceof ModelMetricsMultinomial) {
               ModelMetricsMultinomial mm=(ModelMetricsMultinomial)(mm2);
-              err.valid_confusion_matrix=mm._cm;
-              err.valid_err=mm._cm.err();
+              err.valid_confusion_matrix=mm.cm();
+              err.valid_err=err.valid_confusion_matrix.err();
               err.valid_logloss=mm._logloss;
               err.valid_hitratio=mm._hit_ratios;
             }
