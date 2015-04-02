@@ -8,5 +8,11 @@
   }
   if (fr.numCols() != 1)   throw new IllegalArgumentException("`median` expects a single numeric column from a Frame.");
   if (!fr.anyVec().isNumeric())   throw new IllegalArgumentException("`median` expects a single numeric column from a Frame.");
-  throw H2O.unimpl();
+  QuantileModel.QuantileParameters parms=new QuantileModel.QuantileParameters();
+  parms._probs=new double[]{0.5};
+  parms._train=fr._key;
+  QuantileModel q=new Quantile(parms).trainModel().get();
+  double median=q._output._quantiles[0][0];
+  q.delete();
+  env.push(new ValNum(median));
 }
