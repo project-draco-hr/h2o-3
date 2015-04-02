@@ -61,9 +61,6 @@ catch (  Throwable e2) {
     Log.err(e=e2);
   }
  finally {
-    if (e != null)     e.printStackTrace();
-    if (e != null)     rapids.error=e.getMessage() == null ? e.toString() : e.getMessage();
-    if (e != null && e instanceof ArrayIndexOutOfBoundsException)     rapids.error=e.toString();
     if (env != null) {
       try {
         env.remove_and_unlock();
@@ -73,5 +70,9 @@ catch (  Throwable e2) {
       }
     }
   }
+  if (e != null)   e.printStackTrace();
+  if (e != null)   rapids.error=e.getMessage() == null ? e.toString() : e.getMessage();
+  if (e != null && e instanceof ArrayIndexOutOfBoundsException)   rapids.error=e.toString();
+  if (e != null)   throw new H2OIllegalArgumentException(rapids.error);
   return rapids;
 }

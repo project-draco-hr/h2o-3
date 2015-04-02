@@ -21,7 +21,22 @@
  else       env.push(new ValNum(ary.vecs()[col].at(row)));
     }
  catch (    ArrayIndexOutOfBoundsException e) {
-      if (col < 0 || col >= ary.vecs().length)       throw new IllegalArgumentException("Column index out of bounds: tried to select column 0<=" + col + "<="+ (ary.vecs().length - 1)+ ".");
+      if (col < 0) {
+        int rm_col=-1 * col - 1;
+        long[] columns=new long[ary.numCols() - 1];
+        int v=0;
+        for (int i=0; i < columns.length; ++i) {
+          if (i == rm_col)           v++;
+          columns[i]=v++;
+        }
+        ValSeries vs=new ValSeries(columns,null);
+        vs.setSlice(false,true);
+        env.pushAry(ary);
+        env.push(rows);
+        env.push(vs);
+        this.exec(env);
+        return;
+      }
       if (row < 0 || row >= ary.vecs()[col].length())       throw new IllegalArgumentException("Row index out of bounds: tried to select row 0<=" + row + "<="+ (ary.vecs()[col].length() - 1)+ ".");
     }
   }
