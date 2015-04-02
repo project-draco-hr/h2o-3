@@ -1,6 +1,10 @@
 {
   int numStart=_dinfo.numStart();
   boolean[] skp=MemoryManager.mallocZ(chks[0]._len);
+  if (_rowFilter != null) {
+    Chunk c=_rowFilter.chunkForChunkIdx(chks[0].cidx());
+    for (int r=0; r < chks[0]._len; ++r)     skp[r]=c.at8(r) == 1;
+  }
   double[] eta=computeEtaByCols(chks,skp);
   double[] b=_beta;
   double[] g=_gradient;
@@ -14,6 +18,7 @@
   double eta_sum=0;
   for (int r=0; r < chks[0]._len; ++r) {
     if (skp[r] || responseChunk.isNA(r))     continue;
+    _nobs++;
     double off=(_dinfo._offset ? offsetChunk.atd(r) : 0);
     double y=responseChunk.atd(r);
     double offset=off + (_dinfo._intercept ? b[b.length - 1] : 0);

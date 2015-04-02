@@ -1,6 +1,15 @@
 {
-  doCleanup();
-  H2OCountedCompleter cmp=(H2OCountedCompleter)getCompleter();
-  cmp.addToPendingCount(1);
-  new FinalizeAndUnlockTsk(cmp,_dest,_key).fork();
+  getCompleter().addToPendingCount(1);
+  H2O.submitTask(new FinalizeAndUnlockTsk(new H2OCallback((H2OCountedCompleter)getCompleter()){
+    @Override public void callback(    H2OCountedCompleter h2OCountedCompleter){
+      doCleanup();
+      done();
+    }
+    @Override public boolean onExceptionalCompletion(    Throwable ex,    CountedCompleter cc){
+      doCleanup();
+      new RemoveCall(null,_dest).invokeTask();
+      return true;
+    }
+  }
+,_dest,_key,_valid != null ? _valid._key : null));
 }
