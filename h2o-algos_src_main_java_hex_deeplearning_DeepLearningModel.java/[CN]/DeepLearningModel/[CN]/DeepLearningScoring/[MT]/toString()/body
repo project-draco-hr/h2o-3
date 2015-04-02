@@ -4,9 +4,9 @@
   sb.append("Training R^2: " + train_r2 + "\n");
   if (classification) {
     sb.append("Training LogLoss: " + train_logloss + "\n");
-    sb.append("Training " + train_confusion_matrix.table.toString(1));
-    sb.append("Training Misclassification" + (trainAUC != null ? " [using threshold for " + trainAUC.threshold_criterion.toString().replace("_"," ") + "]: " : ": ") + String.format("%.2f",100 * train_err)+ "%");
-    if (trainAUC != null)     sb.append(", AUC: " + String.format("%.4f",100 * trainAUC.AUC) + "%");
+    sb.append("Training " + train_confusion_matrix.table().toString(1));
+    sb.append("Training Misclassification" + (trainAUC != null ? " [using threshold for " + AUC2.DEFAULT_CM.toString().replace("_"," ") + "]: " : ": ") + String.format("%.2f",100 * train_err)+ "%");
+    if (trainAUC != null)     sb.append(", AUC: " + String.format("%.4f",100 * trainAUC._auc) + "%");
   }
   if (validation || num_folds > 0) {
     if (num_folds > 0) {
@@ -16,9 +16,9 @@
     sb.append("Validation R^2: " + valid_r2 + "\n");
     if (classification) {
       sb.append("Validation LogLoss: " + valid_logloss + "\n");
-      sb.append("Validation " + valid_confusion_matrix.table.toString(1));
-      sb.append("Validation Misclassification" + (validAUC != null ? " [using threshold for " + validAUC.threshold_criterion.toString().replace("_"," ") + "]: " : ": ") + String.format("%.2f",(100 * valid_err))+ "%");
-      if (validAUC != null)       sb.append(", AUC: " + String.format("%.4f",100 * validAUC.AUC) + "%");
+      sb.append("Validation " + valid_confusion_matrix.table().toString(1));
+      sb.append("Validation Misclassification" + (validAUC != null ? " [using threshold for " + AUC2.DEFAULT_CM.toString().replace("_"," ") + "]: " : ": ") + String.format("%.2f",(100 * valid_err))+ "%");
+      if (validAUC != null)       sb.append(", AUC: " + String.format("%.4f",100 * validAUC._auc) + "%");
     }
   }
   sb.append("\n");
