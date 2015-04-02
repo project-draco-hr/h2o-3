@@ -1,7 +1,18 @@
 def emit(self):
     global g_csv
     if g_csv:
+        print 'STORY_POINTS'
         print 'name,resolved,unresolved'
-    for key in sorted(self.people_map.keys()):
-        person = self.people_map[key]
-        person.emit()
+        for key in sorted(self.people_map.keys()):
+            person = self.people_map[key]
+            person.emit_storypoints_csv()
+        print ''
+        print 'NUMBER_OF_ISSUES'
+        print 'name,resolved,unresolved'
+        for key in sorted(self.people_map.keys()):
+            person = self.people_map[key]
+            person.emit_issues_csv()
+    else:
+        for key in sorted(self.people_map.keys()):
+            person = self.people_map[key]
+            person.emit_barchart()
