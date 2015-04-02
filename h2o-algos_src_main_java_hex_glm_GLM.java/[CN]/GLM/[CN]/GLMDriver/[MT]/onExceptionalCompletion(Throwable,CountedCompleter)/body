@@ -1,12 +1,12 @@
 {
-  doCleanup();
   if (!_gotException.getAndSet(true)) {
     if (ex instanceof TooManyPredictorsException) {
-      _maxLambda=_lambdaId;
       tryComplete();
       return false;
     }
+    doCleanup();
     new RemoveCall(null,_dest).invokeTask();
+    failed(ex);
     return true;
   }
   return false;

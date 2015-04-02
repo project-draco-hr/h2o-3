@@ -2,7 +2,10 @@
   GLM job=null;
   GLMModel model1=null, model2=null, model3=null, model4=null;
   Frame frMM=parse_test_file("smalldata/airlines/AirlinesTrainMM.csv.zip");
+  Frame frG=parse_test_file(Key.make("gram"),"smalldata/airlines/gram_std.csv",true);
+  Vec xy=frG.remove("xy");
   frMM.remove("").remove();
+  frMM.add("IsDepDelayed",frMM.remove("IsDepDelayed"));
   DKV.put(frMM._key,frMM);
   Frame fr=parse_test_file("smalldata/airlines/AirlinesTrain.csv.zip");
   String[] ignoredCols=new String[]{"fYear","fMonth","fDayofMonth","fDayOfWeek","DepTime","ArrTime","IsDepDelayed_REC"};
@@ -14,12 +17,39 @@
     params._train=fr._key;
     params._lambda=new double[]{1e-5};
     params._standardize=false;
-    job=new GLM(Key.make("prostate_model"),"glm test simple poisson",params);
+    job=new GLM(Key.make("airlines_cat_nostd"),"Airlines with auto-expanded categoricals, no standardization",params);
     model1=job.trainModel().get();
+    Frame score1=model1.score(fr);
+    ModelMetrics mm=ModelMetrics.getFromDKV(model1,fr);
+    Assert.assertEquals(5336.918,mm._mse * score1.numRows(),1);
     params._train=frMM._key;
     params._ignored_columns=new String[]{"X"};
-    job=new GLM(Key.make("prostate_model"),"glm test simple poisson",params);
+    job=new GLM(Key.make("airlines_mm"),"Airlines with pre-expanded (mode.matrix) categoricals, no standardization",params);
     model2=job.trainModel().get();
+    params._standardize=true;
+    params._train=frMM._key;
+    params._use_all_factor_levels=true;
+    DataInfo dinfo=new DataInfo(Key.make(),frMM,null,1,true,DataInfo.TransformType.STANDARDIZE,DataInfo.TransformType.NONE,true);
+    GLMIterationTask glmt=new GLMIterationTask(null,dinfo,1e-5,params,false,null,0,null,null).doAll(dinfo._adaptedFrame);
+    for (int i=0; i < glmt._xy.length; ++i) {
+      for (int j=0; j <= i; ++j) {
+        assertEquals(frG.vec(j).at(i),glmt._gram.get(i,j),1e-5);
+      }
+      assertEquals(xy.at(i),glmt._xy[i],1e-5);
+    }
+    frG.delete();
+    xy.remove();
+    params._standardize=true;
+    params._family=Family.binomial;
+    params._link=Link.logit;
+    job=new GLM(Key.make("airlines_mm"),"Airlines with pre-expanded (mode.matrix) categoricals, no standardization",params);
+    model3=job.trainModel().get();
+    params._train=fr._key;
+    params._ignored_columns=ignoredCols;
+    job=new GLM(Key.make("airlines_mm"),"Airlines with pre-expanded (mode.matrix) categoricals, no standardization",params);
+    model4=job.trainModel().get();
+    assertEquals(model3.validation().null_deviance,model4.validation().nullDeviance(),1e-4);
+    assertEquals(model4.validation().residual_deviance,model3.validation().residualDeviance(),model3.validation().null_deviance * 1e-3);
     HashMap<String,Double> coefs1=model1.coefficients();
     HashMap<String,Double> coefs2=model2.coefficients();
     GLMValidation val1=model1.validation();
@@ -34,7 +64,7 @@
     }
     assertEquals(val1.nullDeviance(),val2.nullDeviance(),1e-4);
     assertEquals(val1.residualDeviance(),val2.residualDeviance(),1e-4);
-    assertEquals(val1.aic(),val2.aic(),1e-4);
+    assertEquals(val1.aic(),val2.aic(),1e-2);
     assertEquals(5336.918,val1.residualDeviance(),1);
     assertEquals(6051.613,val1.nullDeviance(),1);
   }

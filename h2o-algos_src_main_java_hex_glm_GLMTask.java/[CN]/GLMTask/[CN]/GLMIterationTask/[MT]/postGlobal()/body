@@ -1,4 +1,19 @@
 {
+  if (_sparse && _dinfo._normSub != null) {
+    int ns=_dinfo.numStart();
+    int interceptIdx=_xy.length - 1;
+    for (int i=ns; i < _dinfo.fullN(); ++i) {
+      double iMean=_dinfo._normSub[i - ns] * _dinfo._normMul[i - ns];
+      for (int j=0; j <= i; ++j) {
+        double jMean=(j >= ns) ? _dinfo._normSub[j - ns] * _dinfo._normMul[j - ns] : 1;
+        _gram._xx[i - _gram._diagN][j]=_gram.get(i,j) - _gram.get(interceptIdx,i) * jMean - _gram.get(interceptIdx,j) * iMean + _gram.get(interceptIdx,interceptIdx) * iMean * jMean;
+      }
+    }
+    if (_dinfo._intercept) {
+      for (int j=0; j < _dinfo.fullN(); ++j)       _gram._xx[_gram._xx.length - 1][j]-=_gram.get(interceptIdx,interceptIdx) * _dinfo._normSub[j - ns] * _dinfo._normMul[j - ns];
+    }
+    for (int i=ns; i < _dinfo.fullN(); ++i)     _xy[i]-=_xy[_xy.length - 1] * _dinfo._normSub[i - ns] * _dinfo._normMul[i - ns];
+  }
   if (_val != null) {
     _val.computeAIC();
     _val.computeAUC();
