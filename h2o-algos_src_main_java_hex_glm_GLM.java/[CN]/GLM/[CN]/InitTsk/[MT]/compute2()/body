@@ -6,10 +6,10 @@
       final double[] beta=MemoryManager.malloc8d(_dinfo.fullN() + 1);
       if (_intercept)       beta[beta.length - 1]=_parms.link(ymut._ymu);
       if (_bc._betaStart == null)       _bc.setBetaStart(beta);
-      _gtNull=new GLMTask.GLMGradientTask(_dinfo,_parms,0,beta,1.0 / ymut._nobs,InitTsk.this).dfork(_dinfo._adaptedFrame);
+      _gtNull=new GLMGradientTask(_dinfo,_parms,0,beta,1.0 / ymut._nobs,_rowFilter,InitTsk.this).dfork(_dinfo._adaptedFrame);
       if (beta != _bc._betaStart) {
         InitTsk.this.addToPendingCount(1);
-        _gtBetaStart=new GLMTask.GLMGradientTask(_dinfo,_parms,0,_bc._betaStart,1.0 / ymut._nobs,InitTsk.this).dfork(_dinfo._adaptedFrame);
+        _gtBetaStart=new GLMGradientTask(_dinfo,_parms,0,_bc._betaStart,1.0 / ymut._nobs,_rowFilter,InitTsk.this).dfork(_dinfo._adaptedFrame);
       }
     }
   }
