@@ -21,10 +21,8 @@
     if (_normMul != null)     d=(d - _normSub[i]) * _normMul[i];
     row.numVals[i]=d;
   }
-  if (_row_weights > 1)   throw H2O.unimpl();
-  for (int i=0; i < _row_weights; ++i)   row.row_weight=chunks[_cats + _nums + i].atd(rid);
   for (int i=0; i < _responses; ++i) {
-    row.response[i]=chunks[_cats + _nums + _row_weights+ i].atd(rid);
+    row.response[i]=chunks[chunks.length - _responses + i].atd(rid);
     if (_normRespMul != null)     row.response[i]=(row.response[i] - _normRespSub[i]) * _normRespMul[i];
     if (Double.isNaN(row.response[i])) {
       row.bad=true;

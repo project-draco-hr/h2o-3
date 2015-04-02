@@ -9,8 +9,8 @@
     new ProgressUpdate("Setting up training data...").fork(_progressKey);
     model.write_lock(self());
     final DeepLearningModel.DeepLearningParameters mp=model._parms;
-    Frame tra_fr=addRowWeights(_train,rowWeights());
-    Frame val_fr=_valid == null ? null : addRowWeights(_valid,vrowWeights());
+    Frame tra_fr=new Frame(mp.train()._key,_train.names(),_train.vecs());
+    Frame val_fr=_valid != null ? new Frame(mp.valid()._key,_valid.names(),_valid.vecs()) : null;
     final long model_size=model.model_info().size();
     if (!_parms._quiet_mode)     Log.info("Number of model parameters (weights/biases): " + String.format("%,d",model_size));
     train=tra_fr;
