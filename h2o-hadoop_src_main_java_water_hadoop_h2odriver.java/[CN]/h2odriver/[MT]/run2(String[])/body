@@ -97,6 +97,7 @@
   int rv=waitForClusterToComeUp();
   if (rv == CLUSTER_ERROR_TIMEOUT) {
     try {
+      Thread.sleep(3000);
       Class clazz=Class.forName("water.hadoop.H2OYarnDiagnostic");
       if (clazz != null) {
         Method method=clazz.getMethod("diagnose",String.class,int.class,int.class);
