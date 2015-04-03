@@ -1,31 +1,5 @@
 {
   String[][] dom=new String[1][];
   dom[0]=domain;
-  return new MRTask(){
-    @Override public void map(    Chunk c,    NewChunk nc){
-      ValueString vstr=new ValueString();
-      for (int i=0; i < c._len; ++i) {
-switch (_type) {
-case T_BAD:
-          break;
-case T_STR:
-        nc.addStr(c.atStr(vstr,i));
-      break;
-case T_UUID:
-    nc.addUUID(c,i);
-  break;
-case T_NUM:
-case T_ENUM:
-case T_TIME:
-nc.addNum(c.atd(i));
-break;
-default :
-if (_type > T_TIME && _type <= T_TIMELAST) nc.addNum(c.atd(i));
- else throw new IllegalArgumentException("Unsupported vector type: " + _type);
-break;
-}
-}
-}
-}
-.doAll(1,this).outputFrame(null,dom).anyVec();
+  return new CPTask(domain).doAll(1,this).outputFrame(null,dom).anyVec();
 }
