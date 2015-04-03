@@ -1,0 +1,21 @@
+def terminate_process_tree(pid, including_parent=True):
+    parent = psutil.Process(pid)
+    for child in parent.get_children(recursive=True):
+        try:
+            child.terminate()
+        except psutil.NoSuchProcess:
+            print 'terminate_process_tree:', ("NoSuchProcess. couldn't terminate child process with pid %s" % child.pid())
+        except psutil.AccessDenied:
+            print 'terminate_process_tree:', ("couldn't terminate child process with pid %s" % child.pid())
+        else:
+            child.wait(timeout=3)
+    if including_parent:
+        try:
+            parent.terminate()
+        except psutil.NoSuchProcess:
+            print 'terminate_process_tree:', ("NoSuchProcess. couldn't terminate parent process with pid %s" % parent.pid())
+            pass
+        except psutil.AccessDenied:
+            print 'terminate_process_tree:', ("AccessDenied. couldn't terminate parent process with pid %s" % parent.pid())
+        else:
+            parent.wait(timeout=3)

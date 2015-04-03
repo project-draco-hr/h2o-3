@@ -1,0 +1,8 @@
+def sandbox_tmp_file(prefix='', suffix=''):
+    dirname = './sandbox'
+    if (not os.path.exists(dirname)):
+        print 'no ./sandbox. Creating'
+        os.makedirs(dirname)
+    (fd, path) = tempfile.mkstemp(prefix=prefix, suffix=suffix, dir=dirname)
+    os.chmod(path, 420)
+    return (fd, path)
