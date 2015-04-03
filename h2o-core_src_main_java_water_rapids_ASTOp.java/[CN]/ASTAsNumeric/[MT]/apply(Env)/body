@@ -1,7 +1,7 @@
 {
   Frame ary=env.peekAry();
   Vec[] nvecs=new Vec[ary.numCols()];
-  for (int c=0; c < ary.numCols(); ++c)   nvecs[c]=ary.vecs()[c].toInt();
+  for (int c=0; c < ary.numCols(); ++c)   nvecs[c]=ary.vecs()[c].isInt() || ary.vecs()[c].isEnum() ? ary.vecs()[c].toInt() : ary.vecs()[c].copyOver(ary.vecs()[c].domain());
   Frame v=new Frame(ary._names,nvecs);
   env.poppush(1,new ValFrame(v));
 }
