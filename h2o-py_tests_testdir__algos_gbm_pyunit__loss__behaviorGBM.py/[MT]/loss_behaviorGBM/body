@@ -6,11 +6,6 @@ def loss_behaviorGBM(ip, port):
     cars = h2o.import_frame(path=h2o.locate('smalldata/junit/cars.csv'))
     cars_model = h2o.gbm(x=cars[3:7], y=cars['cylinders'])
     assert isinstance(cars_model, h2o.model.regression.H2ORegressionModel)
-    try:
-        eco_model = h2o.gbm(x=eco[0:8], y=eco['Method'])
-        assert False, 'expected an error'
-    except EnvironmentError:
-        assert True
     eco_model = h2o.gbm(x=eco[2:13], y=eco['Angaus'], loss='gaussian')
     assert isinstance(eco_model, h2o.model.regression.H2ORegressionModel)
     try:
