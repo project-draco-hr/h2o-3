@@ -2,6 +2,8 @@
   Frame fr=e.popAry();
   GBTask p1=new GBTask(_gbCols,_agg).doAll(fr);
   final int nGrps=p1._g.size();
+  final G[] grps=p1._g._g.toArray(new G[nGrps]);
+  H2O.submitTask(new ParallelPostGlobal(grps)).join();
   final int nCols=_gbCols.length + _agg.length;
   Vec v=Vec.makeZero(nGrps);
   String[] names=new String[nCols];
@@ -11,7 +13,6 @@
     domains[i]=fr.domains()[(int)_gbCols[i]];
   }
   System.arraycopy(AGG.names(_agg),0,names,_gbCols.length,_agg.length);
-  final G[] grps=p1._g.toArray(new G[nGrps]);
   final AGG[] agg=_agg;
   Frame f=new MRTask(){
     @Override public void map(    Chunk[] c,    NewChunk[] ncs){

@@ -1,8 +1,9 @@
 {
   long start=c[0].start();
   byte[] naMethods=AGG.naMethods(_agg);
+  G g=new G(0,c,_gbCols,_agg.length,naMethods);
   for (int i=0; i < c[0]._len; ++i) {
-    G g=new G(i,c,_gbCols,_agg.length,naMethods);
+    g.reFill(i,c,_gbCols);
     if (!_g.add(g))     g=_g.get(g);
     long r=g._N;
     while (!G.CAS_N(g,r,r + 1))     r=g._N;
