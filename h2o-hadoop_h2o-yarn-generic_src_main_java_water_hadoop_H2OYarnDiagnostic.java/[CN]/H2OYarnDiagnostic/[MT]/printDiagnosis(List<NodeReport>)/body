@@ -1,4 +1,6 @@
 {
+  printBar();
+  System.out.println("");
 {
     boolean containerFitsOnSomeNode=false;
     for (    NodeReport node : clusterNodeReports) {
@@ -13,7 +15,6 @@
     }
     if (!containerFitsOnSomeNode) {
       printErrorDiagnosis("Job container memory request (" + prettyPrintMb(nodeMemoryMb) + ") does not fit on any YARN cluster node");
-      return;
     }
   }
 {
@@ -27,7 +28,6 @@
     int jobMb=this.numNodes * this.nodeMemoryMb;
     if (n < jobMb) {
       printErrorDiagnosis("Job memory request (" + prettyPrintMb(jobMb) + ") exceeds available YARN cluster memory ("+ prettyPrintMb(n)+ ")");
-      return;
     }
   }
 {
@@ -41,31 +41,32 @@
     int jobVirtualCores=this.numNodes * this.nodeVirtualCores;
     if (n < jobVirtualCores) {
       printErrorDiagnosis("YARN cluster available virtual cores (" + n + ") < requested H2O containers ("+ jobVirtualCores+ ")");
-      return;
     }
   }
 {
     int jobMb=this.numNodes * this.nodeMemoryMb;
     if (this.queueAvailableMemory < jobMb) {
       printWarningDiagnosis("Job memory request (" + prettyPrintMb(jobMb) + ") exceeds queue available memory capacity ("+ prettyPrintMb(this.queueAvailableMemory)+ ")");
-      return;
     }
   }
 {
     int jobVirtualCores=this.numNodes * this.nodeVirtualCores;
     if (this.queueAvailableVirtualCores < jobVirtualCores) {
       printWarningDiagnosis("Job virtual cores request (" + jobVirtualCores + ") exceeds queue available virtual cores capacity ("+ this.queueAvailableVirtualCores+ ")");
-      return;
     }
   }
-{
-    printBar();
+  if ((numNodesStarted > 0) && (numNodesStarted < numNodes)) {
+    printErrorDiagnosis("Only " + numNodesStarted + " out of the requested "+ numNodes+ " worker containers were started due to YARN cluster resource limitations");
+  }
+  if (numPrinted == 0) {
+    System.out.println("ERROR: Unable to start any H2O nodes; please contact your YARN administrator.");
     System.out.println("");
-    System.out.println("ERROR: Unable to start cluster; you may want to check YARN settings for the following properties:");
+    System.out.println("       A common cause for this is the requested container size (" + prettyPrintMb(this.nodeMemoryMb) + ")");
+    System.out.println("       exceeds the following YARN settings:");
     System.out.println("");
     System.out.println("           yarn.nodemanager.resource.memory-mb");
     System.out.println("           yarn.scheduler.maximum-allocation-mb");
-    System.out.println("");
-    printBar();
   }
+  System.out.println("");
+  printBar();
 }

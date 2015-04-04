@@ -100,7 +100,7 @@
       Thread.sleep(3000);
       Class clazz=Class.forName("water.hadoop.H2OYarnDiagnostic");
       if (clazz != null) {
-        Method method=clazz.getMethod("diagnose",String.class,int.class,int.class);
+        Method method=clazz.getMethod("diagnose",String.class,int.class,int.class,int.class);
         String queueName;
         queueName=conf.get("mapreduce.job.queuename");
         if (queueName == null) {
@@ -109,7 +109,7 @@
         if (queueName == null) {
           queueName="default";
         }
-        method.invoke(null,queueName,numNodes,(int)processTotalPhysicalMemoryMegabytes);
+        method.invoke(null,queueName,numNodes,(int)processTotalPhysicalMemoryMegabytes,numNodesStarted.get());
       }
       return rv;
     }
