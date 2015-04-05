@@ -6,19 +6,15 @@
     double logloss=Double.NaN;
     if (_count != 0) {
       if (_hits != null) {
-        for (int i=0; i < hr.length; i++) {
-          hr[i]=(float)_hits[i] / _count;
-        }
-        for (int i=1; i < hr.length; i++) {
-          hr[i]+=hr[i - 1];
-        }
+        for (int i=0; i < hr.length; i++)         hr[i]=_hits[i] / _count;
+        for (int i=1; i < hr.length; i++)         hr[i]+=hr[i - 1];
       }
       mse=_sumsqe / _count;
       logloss=_logloss / _count;
     }
-    return m._output.addModelMetrics(new ModelMetricsMultinomial(m,f,cm,hr,logloss,sigma,mse));
+    return m._output.addModelMetrics(new ModelMetricsMultinomial(m,f,mse,_domain,sigma,cm,hr,logloss));
   }
  else {
-    return m._output.addModelMetrics(new ModelMetricsMultinomial(m,f,null,null,Double.NaN,Double.NaN,Double.NaN));
+    return m._output.addModelMetrics(new ModelMetricsMultinomial(m,f,Double.NaN,null,Double.NaN,null,null,Double.NaN));
   }
 }

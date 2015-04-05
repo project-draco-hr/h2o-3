@@ -1,6 +1,8 @@
 {
+  Chunk rowFilter=_rowFilter != null ? _rowFilter.chunkForChunkIdx(chks[0].cidx()) : null;
   Chunk responseChunk=chks[chks.length - 1];
   boolean[] skip=MemoryManager.mallocZ(chks[0]._len);
+  if (rowFilter != null)   for (int r=0; r < skip.length; ++r)   skip[r]=rowFilter.at8(r) == 1;
   double[][] eta=new double[responseChunk._len][_nSteps];
   double[] beta=_beta;
   double[] pk=_direction;
@@ -48,6 +50,7 @@
   _likelihoods=MemoryManager.malloc8d(_nSteps);
   for (int r=0; r < chks[0]._len; ++r) {
     if (skip[r] || responseChunk.isNA(r))     continue;
+    _nobs++;
     double y=responseChunk.atd(r);
     double yy=-1 + 2 * y;
     double b=0, s=0;
@@ -59,6 +62,7 @@
       double e=eta[r][i] + off[i] + b+ s;
       if (_params._family == Family.binomial) {
         _likelihoods[i]+=Math.log(1 + Math.exp(-yy * e));
+        double mu=_params.linkInv(e);
       }
  else {
         double mu=_params.linkInv(e);

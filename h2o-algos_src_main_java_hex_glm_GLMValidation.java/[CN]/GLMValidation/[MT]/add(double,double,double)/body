@@ -1,8 +1,8 @@
 {
   null_deviance+=_glm.deviance(yreal,eta,_ymu);
-  if (_glm._family == Family.binomial)   for (int i=0; i < thresholds.length; ++i)   _cms[i].add((int)yreal,(ymodel >= thresholds[i]) ? 1 : 0);
   residual_deviance+=_glm.deviance(yreal,eta,ymodel);
   ++nobs;
+  if (_auc_bldr != null)   _auc_bldr.perRow(ymodel,(int)yreal);
   if (_glm._family == Family.poisson) {
     long y=Math.round(yreal);
     double logfactorial=0;
