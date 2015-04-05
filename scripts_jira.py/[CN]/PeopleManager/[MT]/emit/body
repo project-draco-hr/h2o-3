@@ -10,26 +10,33 @@ def emit(self):
             return
         after_total = total_story_points
         earliest_resolution_date = get_issue_resolution_date(issues[0])
-        start_date = earliest_resolution_date
+        if (g_start_date is not None):
+            start_date = g_start_date
+        else:
+            start_date = earliest_resolution_date
         if g_csv:
             print 'key,assignee,story_points,before_total,resolution_date,resolution_date_days,after_total'
-            date_str = start_date.strftime('%Y-%m-%d %H:%M')
-            date_epoch_millis = (((start_date - start_date).total_seconds() / 3600.0) / 24)
-            print ',,,,{},{}'.format(date_str, date_epoch_millis, total_story_points)
+            if (start_date < earliest_resolution_date):
+                tmp = start_date
+            else:
+                tmp = earliest_resolution_date
+            date_str = tmp.strftime('%Y-%m-%d %H:%M')
+            date_days = (((tmp - start_date).total_seconds() / 3600.0) / 24)
+            print ',,,,{},{},{}'.format(date_str, date_days, total_story_points)
         for issue in issues:
             before_total = after_total
             key = get_issue_key(issue)
             assignee = get_issue_assignee_name(issue)
             story_points = get_issue_story_points(issue)
             resolution_date = get_issue_resolution_date(issue)
-            date_epoch_millis = (((resolution_date - start_date).total_seconds() / 3600.0) / 24)
+            date_days = (((resolution_date - start_date).total_seconds() / 3600.0) / 24)
             after_total = (before_total - story_points)
             if g_csv:
                 date_str = resolution_date.strftime('%Y-%m-%d %H:%M')
-                print '{},{},{},{},{},{},{}'.format(key, assignee, story_points, before_total, date_str, date_epoch_millis, after_total)
+                print '{},{},{},{},{},{},{}'.format(key, assignee, story_points, before_total, date_str, date_days, after_total)
             else:
                 date_str = resolution_date.strftime('%Y-%m-%d %H:%M')
-                print '{:11s}  {:10s}  {:.1f}  {:.1f}  {:s}  {:.1f}'.format(key, assignee, story_points, before_total, date_str, after_total)
+                print '{:11s}  {:10s}  {:.1f}  {:.1f}  {:s}  {:.2f}  {:.1f}'.format(key, assignee, story_points, before_total, date_str, date_days, after_total)
         return
     if g_csv:
         print 'STORY_POINTS'
