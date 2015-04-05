@@ -1,0 +1,72 @@
+{
+  printBar();
+  System.out.println("");
+{
+    boolean containerFitsOnSomeNode=false;
+    for (    NodeReport node : clusterNodeReports) {
+      if (node.getNodeState() == NodeState.RUNNING) {
+        Resource capability=node.getCapability();
+        int m=capability.getMemory();
+        if (m >= this.nodeMemoryMb) {
+          containerFitsOnSomeNode=true;
+          break;
+        }
+      }
+    }
+    if (!containerFitsOnSomeNode) {
+      printErrorDiagnosis("Job container memory request (" + prettyPrintMb(nodeMemoryMb) + ") does not fit on any YARN cluster node");
+    }
+  }
+{
+    int n=0;
+    for (    NodeReport node : clusterNodeReports) {
+      if (node.getNodeState() == NodeState.RUNNING) {
+        Resource capability=node.getCapability();
+        n+=capability.getMemory();
+      }
+    }
+    int jobMb=this.numNodes * this.nodeMemoryMb;
+    if (n < jobMb) {
+      printErrorDiagnosis("Job memory request (" + prettyPrintMb(jobMb) + ") exceeds available YARN cluster memory ("+ prettyPrintMb(n)+ ")");
+    }
+  }
+{
+    int n=0;
+    for (    NodeReport node : clusterNodeReports) {
+      if (node.getNodeState() == NodeState.RUNNING) {
+        Resource capability=node.getCapability();
+        n+=capability.getVirtualCores();
+      }
+    }
+    int jobVirtualCores=this.numNodes * this.nodeVirtualCores;
+    if (n < jobVirtualCores) {
+      printErrorDiagnosis("YARN cluster available virtual cores (" + n + ") < requested H2O containers ("+ jobVirtualCores+ ")");
+    }
+  }
+{
+    int jobMb=this.numNodes * this.nodeMemoryMb;
+    if (this.queueAvailableMemory < jobMb) {
+      printWarningDiagnosis("Job memory request (" + prettyPrintMb(jobMb) + ") exceeds queue available memory capacity ("+ prettyPrintMb(this.queueAvailableMemory)+ ")");
+    }
+  }
+{
+    int jobVirtualCores=this.numNodes * this.nodeVirtualCores;
+    if (this.queueAvailableVirtualCores < jobVirtualCores) {
+      printWarningDiagnosis("Job virtual cores request (" + jobVirtualCores + ") exceeds queue available virtual cores capacity ("+ this.queueAvailableVirtualCores+ ")");
+    }
+  }
+  if ((numNodesStarted > 0) && (numNodesStarted < numNodes)) {
+    printErrorDiagnosis("Only " + numNodesStarted + " out of the requested "+ numNodes+ " worker containers were started due to YARN cluster resource limitations");
+  }
+  if (numPrinted == 0) {
+    System.out.println("ERROR: Unable to start any H2O nodes; please contact your YARN administrator.");
+    System.out.println("");
+    System.out.println("       A common cause for this is the requested container size (" + prettyPrintMb(this.nodeMemoryMb) + ")");
+    System.out.println("       exceeds the following YARN settings:");
+    System.out.println("");
+    System.out.println("           yarn.nodemanager.resource.memory-mb");
+    System.out.println("           yarn.scheduler.maximum-allocation-mb");
+  }
+  System.out.println("");
+  printBar();
+}

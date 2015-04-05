@@ -1,0 +1,28 @@
+def create_junit_xml(name, out, err, sandboxErrorMessage, errors=0, elapsed=0):
+    content = '<?xml version="1.0" encoding="UTF-8" ?>\n'
+    content += ('    <testsuite name="nosetests" tests="1" errors="%s" failures="0" skip="0">\n' % errors)
+    content += ('        <testcase classname="%s" name="%s" time="%0.4f">\n' % (name, name, elapsed))
+    if ((errors != 0) and (not sandboxErrorMessage)):
+        content += '            <error type="Non-zero R exit code" message="Non-zero R exit code"></error>\n'
+    if ((errors != 0) and sandboxErrorMessage):
+        content += '            <error type="Error in h2o logs" message="Error in h2o logs"></error>\n'
+    content += '            <system-out>\n'
+    content += '<![CDATA[\n'
+    content += (('spawn stdout' + str(datetime.datetime.now())) + '**********************************************************\n')
+    content += out
+    content += ']]>\n'
+    content += '            </system-out>\n'
+    content += '            <system-err>\n'
+    content += '<![CDATA[\n'
+    content += (('spawn stderr' + str(datetime.datetime.now())) + '**********************************************************\n')
+    content += err
+    if sandboxErrorMessage:
+        content += 'spawn errors from sandbox log parsing*********************************\n'
+        content += sandboxErrorMessage
+    content += ']]>\n'
+    content += '            </system-err>\n'
+    content += '        </testcase>\n'
+    content += '    </testsuite>\n'
+    x = (('./test_' + os.path.basename(name)) + '.nosetests.xml')
+    with open(x, 'wb') as f:
+        f.write(content)

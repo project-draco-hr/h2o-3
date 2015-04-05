@@ -1,0 +1,17 @@
+{
+  long bins[]=_bins=new long[_nbins];
+  double mins[]=_mins=new double[_nbins];
+  double maxs[]=_maxs=new double[_nbins];
+  for (int row=0; row < chk._len; row++) {
+    double d=chk.atd(row);
+    double idx=(d - _lb) / _step;
+    if (!(0.0 <= idx && idx < bins.length))     continue;
+    int i=(int)idx;
+    if (bins[i] == 0)     mins[i]=maxs[i]=d;
+ else {
+      if (d < mins[i])       mins[i]=d;
+      if (d > maxs[i])       maxs[i]=d;
+    }
+    bins[i]++;
+  }
+}
