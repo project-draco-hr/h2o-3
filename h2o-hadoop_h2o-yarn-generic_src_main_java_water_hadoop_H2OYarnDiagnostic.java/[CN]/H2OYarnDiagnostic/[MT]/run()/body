@@ -1,0 +1,23 @@
+{
+  YarnClient yarnClient;
+  yarnClient=YarnClient.createYarnClient();
+  yarnClient.init(conf);
+  yarnClient.start();
+  List<NodeReport> clusterNodeReports=yarnClient.getNodeReports();
+  List<QueueInfo> rootQueues=yarnClient.getRootQueueInfos();
+  QueueInfo queueInfo=yarnClient.getQueueInfo(this.queueName);
+  if (queueInfo == null) {
+    printErrorDiagnosis("Queue not found (" + this.queueName + ")");
+    return;
+  }
+  System.out.println("");
+  printYarnClusterMetrics(yarnClient);
+  System.out.println("");
+  printClusterNodeReports(clusterNodeReports);
+  System.out.println("");
+  printQueueInfo(queueInfo);
+  System.out.println("");
+  printQueueCapacity(clusterNodeReports,queueInfo,rootQueues);
+  System.out.println("");
+  printDiagnosis(clusterNodeReports);
+}

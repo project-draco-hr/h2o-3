@@ -1,0 +1,54 @@
+{
+  ArrayList<String> nodes=new ArrayList<String>();
+  ArrayList<String> racks=new ArrayList<String>();
+  ArrayList<String> states=new ArrayList<String>();
+  ArrayList<String> containers=new ArrayList<String>();
+  ArrayList<String> gbs=new ArrayList<String>();
+  ArrayList<String> vcores=new ArrayList<String>();
+  System.out.println("----- Nodes -----");
+  for (  NodeReport node : clusterNodeReports) {
+    Resource capability=node.getCapability();
+    Resource used=node.getUsed();
+    nodes.add("Node: http://" + node.getHttpAddress());
+    racks.add("Rack: " + node.getRackName());
+    states.add("" + node.getNodeState());
+    containers.add("" + node.getNumContainers() + " containers used");
+    gbs.add(prettyPrintMb(used.getMemory(),false) + " / " + prettyPrintMb(capability.getMemory(),false)+ " GB used");
+    vcores.add(used.getVirtualCores() + " / " + capability.getVirtualCores()+ " vcores used");
+  }
+  ArrayList<ArrayList<String>> cols=new ArrayList<ArrayList<String>>();
+  cols.add(nodes);
+  cols.add(racks);
+  cols.add(states);
+  cols.add(containers);
+  cols.add(gbs);
+  cols.add(vcores);
+  int numCols=cols.size();
+  int[] colJustifications=new int[numCols];
+  colJustifications[0]=LEFT;
+  colJustifications[1]=LEFT;
+  colJustifications[2]=RIGHT;
+  colJustifications[3]=RIGHT;
+  colJustifications[4]=RIGHT;
+  colJustifications[5]=RIGHT;
+  int[] colWidths=new int[numCols];
+  for (int j=0; j < numCols; j++) {
+    for (    String s : cols.get(j)) {
+      if (s.length() > colWidths[j]) {
+        colWidths[j]=s.length();
+      }
+    }
+  }
+  for (int i=0; i < nodes.size(); i++) {
+    for (int j=0; j < numCols; j++) {
+      if (j == 1) {
+        System.out.print(" ");
+      }
+ else       if (j > 1) {
+        System.out.print(", ");
+      }
+      System.out.print(prettyPrintString(cols.get(j).get(i),colWidths[j],colJustifications[j]));
+    }
+    System.out.println("");
+  }
+}

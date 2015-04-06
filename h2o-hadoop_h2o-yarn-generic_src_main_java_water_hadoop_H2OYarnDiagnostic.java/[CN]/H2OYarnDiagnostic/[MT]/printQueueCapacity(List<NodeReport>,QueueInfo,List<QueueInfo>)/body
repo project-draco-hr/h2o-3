@@ -1,0 +1,27 @@
+{
+  int clusterMemory=0;
+  int clusterVirtualCores=0;
+  for (  NodeReport node : clusterNodeReports) {
+    if (node.getNodeState() == NodeState.RUNNING) {
+      Resource capability=node.getCapability();
+      clusterMemory+=capability.getMemory();
+      clusterVirtualCores+=capability.getVirtualCores();
+    }
+  }
+  String queueToFind=queueInfo.getQueueName();
+  double queueCapacityMemory=calcFractionalCapability(clusterMemory,rootQueues,queueToFind);
+  double queueCapacityVirtualCores=calcFractionalCapability(clusterVirtualCores,rootQueues,queueToFind);
+  int queueUsedMemory=calcUsedMemory(queueInfo);
+  int queueUsedVirtualCores=calcUsedVirtualCores(queueInfo);
+  System.out.println("Queue '" + queueInfo.getQueueName() + "' approximate utilization: "+ prettyPrintMb(queueUsedMemory,false)+ " / "+ prettyPrintMb((int)queueCapacityMemory,false)+ " GB used, "+ queueUsedVirtualCores+ " / "+ (int)queueCapacityVirtualCores+ " vcores used");
+  int queueAvailableMemory=(int)queueCapacityMemory - queueUsedMemory;
+  if (queueAvailableMemory < 0) {
+    queueAvailableMemory=0;
+  }
+  this.queueAvailableMemory=queueAvailableMemory;
+  int queueAvailableVirtualCores=(int)queueCapacityVirtualCores - queueUsedVirtualCores;
+  if (queueAvailableVirtualCores < 0) {
+    queueAvailableVirtualCores=0;
+  }
+  this.queueAvailableVirtualCores=queueAvailableVirtualCores;
+}
