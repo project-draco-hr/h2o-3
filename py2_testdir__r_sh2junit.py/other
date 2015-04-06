@@ -1,0 +1,21 @@
+import sys, psutil, os, stat, tempfile, argparse, time, datetime
+sys.path.extend(['.', '..', '../..', 'py'])
+import h2o_sandbox
+if (__name__ == '__main__'):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-shdir', type=str, default=None, help='executes the $cmd in the target dir, but the logs stay in sandbox here')
+    parser.add_argument('-name', type=str, default='NoName', help='used to help name the xml/stdout/stderr logs created')
+    parser.add_argument('-timeout', type=int, default=5, help='secs timeout for the shell subprocess. Fail if timeout')
+    parser.add_argument('-cmd', '--cmd_string', type=str, default=None, help="cmd string to pass to shell subprocess. Better to just use'--' to start the cmd (everything after that is sucked in)")
+    parser.add_argument('Rargs', nargs=argparse.REMAINDER)
+    args = parser.parse_args()
+    if args.cmd_string:
+        cmd_string = args.cmd_string
+    elif args.Rargs:
+        print 'args.Rargs:', args.Rargs
+        if (args.Rargs[0] == '--'):
+            args.Rargs[0] = ''
+        cmd_string = ' '.join(args.Rargs)
+    else:
+        cmd_string = '/bin/ls'
+    sh2junit(name=args.name, cmd_string=cmd_string, timeout=args.timeout, shdir=args.shdir)
