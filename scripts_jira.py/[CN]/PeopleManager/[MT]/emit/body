@@ -1,11 +1,49 @@
 def emit(self):
-    global g_csv
+    if g_burndown:
+        total_story_points = 0
+        for key in sorted(self.people_map.keys()):
+            person = self.people_map[key]
+            total_story_points += person.get_story_points()
+        issues = self.get_resolved_issues_sorted_by_date()
+        if (len(issues) == 0):
+            print 'No resolved issues'
+            return
+        after_total = total_story_points
+        earliest_resolution_date = get_issue_resolution_date(issues[0])
+        if (g_start_date is not None):
+            start_date = g_start_date
+        else:
+            start_date = earliest_resolution_date
+        if g_csv:
+            print 'key,assignee,story_points,before_total,resolution_date,resolution_date_days,after_total'
+            if (start_date < earliest_resolution_date):
+                tmp = start_date
+            else:
+                tmp = earliest_resolution_date
+            date_str = tmp.strftime('%Y-%m-%d %H:%M')
+            date_days = (((tmp - start_date).total_seconds() / 3600.0) / 24)
+            print ',,,,{},{},{}'.format(date_str, date_days, total_story_points)
+        for issue in issues:
+            before_total = after_total
+            key = get_issue_key(issue)
+            assignee = get_issue_assignee_name(issue)
+            story_points = get_issue_story_points(issue)
+            resolution_date = get_issue_resolution_date(issue)
+            date_days = (((resolution_date - start_date).total_seconds() / 3600.0) / 24)
+            after_total = (before_total - story_points)
+            if g_csv:
+                date_str = resolution_date.strftime('%Y-%m-%d %H:%M')
+                print '{},{},{},{},{},{},{}'.format(key, assignee, story_points, before_total, date_str, date_days, after_total)
+            else:
+                date_str = resolution_date.strftime('%Y-%m-%d %H:%M')
+                print '{:11s}  {:10s}  {:.1f}  {:.1f}  {:s}  {:.2f}  {:.1f}'.format(key, assignee, story_points, before_total, date_str, date_days, after_total)
+        return
     if g_csv:
         print 'STORY_POINTS'
         print 'name,resolved,unresolved'
         for key in sorted(self.people_map.keys()):
             person = self.people_map[key]
-            person.emit_storypoints_csv()
+            person.emit_story_points_csv()
         print ''
         print 'NUMBER_OF_ISSUES'
         print 'name,resolved,unresolved'
