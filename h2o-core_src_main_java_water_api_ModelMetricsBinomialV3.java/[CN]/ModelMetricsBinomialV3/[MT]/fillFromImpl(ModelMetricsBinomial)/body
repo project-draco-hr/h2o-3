@@ -18,14 +18,6 @@
       formats[i]=crits[i]._isInt ? "%d" : "%f";
     }
     TwoDimTable thresholdsByMetrics=new TwoDimTable("Thresholds x Metric Scores",null,thresholds,colHeaders,types,formats,"Thresholds");
-    confusion_matrices=new long[auc._nBins][2][2];
-    for (int i=0; i < auc._nBins; i++) {
-      for (int j=0; j < crits.length; j++) {
-        double d=crits[j].exec(auc,i);
-        thresholdsByMetrics.set(i,j,crits[j]._isInt ? (Object)((long)d) : d);
-      }
-      confusion_matrices[i]=auc.cm_for_threshold(i);
-    }
     this.thresholds_and_metric_scores=new TwoDimTableV1().fillFromImpl(thresholdsByMetrics);
     TwoDimTable maxMetrics=new TwoDimTable("Maximum Metric",null,colHeaders,new String[]{"Threshold","Metric","idx"},new String[]{"double","double","long"},new String[]{"%f","%f","%d"},"Metric");
     for (int i=0; i < crits.length; i++) {
