@@ -6,17 +6,15 @@ def expr_as_list(ip, port):
     iris.show()
     res = (2 - iris)
     res2 = h2o.as_list(res[0])
-    assert ((abs((res2[3][0] - (-2.6))) < 1e-10) and (abs((res[17][0] - (-3.1))) < 1e-10) and (abs((res[24][0] - (-2.8))) < 1e-10)), 'incorrect values'
-    res.eager()
+    assert ((abs((res2[3][0] - (-2.6))) < 1e-10) and (abs((res2[17][0] - (-3.1))) < 1e-10) and (abs((res2[24][0] - (-2.8))) < 1e-10)), 'incorrect values'
     res3 = h2o.as_list(res[0])
-    assert ((abs((res2[3][0] - (-2.6))) < 1e-10) and (abs((res[17][0] - (-3.1))) < 1e-10) and (abs((res[24][0] - (-2.8))) < 1e-10)), 'incorrect values'
+    assert ((abs((res3[3][0] - (-2.6))) < 1e-10) and (abs((res3[17][0] - (-3.1))) < 1e-10) and (abs((res3[24][0] - (-2.8))) < 1e-10)), 'incorrect values'
     expr = h2o.as_list(Expr([1, 2, 3]))
     res4 = expr[2]
     assert (res4 == 3), 'incorrect values'
     res = (2 - iris)
     res5 = h2o.as_list(res[(5, 2)])
     assert (abs((res5[0][0] - 0.3)) < 1e-10), 'incorrect values'
-    res.eager()
     res6 = h2o.as_list(res[(5, 2)])
     assert (abs((res6[0][0] - 0.3)) < 1e-10), 'incorrect values'
     expr = h2o.as_list(Expr([[1, 2, 3], [4, 5, 6]]))
