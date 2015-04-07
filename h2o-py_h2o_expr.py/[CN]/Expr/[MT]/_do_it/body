@@ -34,10 +34,10 @@ def _do_it(self):
         else:
             raise NotImplementedError
     elif (self._op == '['):
-        if left.is_local():
-            self._data = left._data[rite._data]
-        elif isinstance(rite._data, tuple):
+        if isinstance(rite._data, tuple):
             pass
+        elif left.is_local():
+            self._data = left._data[rite._data]
         else:
             __CMD__ += ' "null"'
     elif (self._op == '='):
@@ -103,11 +103,8 @@ def _do_it(self):
         __CMD__ += ')'
     if py_tmp:
         __CMD__ += ')'
-    if ((self._op == '[') and (not left.is_local()) and isinstance(rite._data, tuple)):
-        pass
-    else:
-        self._left = None
-        self._rite = None
+    self._left = None
+    self._rite = None
     if assign_vec:
         self._left = assign_vec
         self._data = assign_vec._data

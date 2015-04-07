@@ -19,8 +19,10 @@ def __getitem__(self, i):
                 raise NotImplementedError
         return H2OFrame(vecs=vecs)
     if isinstance(i, tuple):
-        (rows, cols) = self.dim()
-        l = (1 if isinstance(i[0], int) else (i[0].stop - i[0].start))
-        e = Expr(self.send_frame(), length=rows)
-        return Expr('[', e, Expr((i[0], i[1])), length=l)
+        j = h2o.frame(self.send_frame())
+        fr = j['frames'][0]
+        veckeys = [str(v['name']) for v in fr['vec_keys']]
+        left = Expr(veckeys)
+        rite = Expr((i[0], i[1]))
+        return Expr('[', left, rite, length=2)
     raise NotImplementedError(('Slicing by unknown type: ' + str(type(i))))
