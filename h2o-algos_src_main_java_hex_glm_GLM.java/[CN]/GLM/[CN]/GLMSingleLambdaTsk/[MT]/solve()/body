@@ -4,13 +4,12 @@ switch (_parms._solver) {
 case L_BFGS:
 {
       double[] beta=_taskInfo._beta;
+      GradientSolver solver=new GLMGradientSolver(_parms,_activeData,_parms._lambda[_lambdaId] * (1 - _parms._alpha[0]),_taskInfo._ymu,_taskInfo._nobs,_rowFilter);
+      if (_bc._betaGiven != null && _bc._rho != null)       solver=new ProximalGradientSolver(solver,_bc._betaGiven,_bc._rho);
       if (beta == null) {
         beta=MemoryManager.malloc8d(_activeData.fullN() + (_activeData._intercept ? 1 : 0));
         if (_activeData._intercept)         beta[beta.length - 1]=_parms.link(_taskInfo._ymu);
       }
-      if (_parms._alpha[0] > 0 || _taskInfo._activeCols != null)       throw H2O.unimpl();
-      GradientSolver solver=new GLMGradientSolver(_parms,_activeData,_parms._lambda[_lambdaId] * (1 - _parms._alpha[0]),_taskInfo._ymu,_taskInfo._nobs,_bc._betaGiven,_bc._rho,0,_rowFilter);
-      final long t1=System.currentTimeMillis();
       L_BFGS lbfgs=new L_BFGS().setMaxIter(_parms._max_iter);
       Result r=lbfgs.solve(solver,beta,_taskInfo._ginfo,new ProgressMonitor(){
         @Override public boolean progress(        double[] beta,        GradientInfo ginfo){
@@ -23,13 +22,13 @@ case L_BFGS:
         }
       }
 );
-      long t2=System.currentTimeMillis();
-      Log.info("L_BFGS (k = " + lbfgs.k() + ") done after "+ r.iter+ " iterations and "+ ((t2 - t1) / 1000)+ " seconds, objval = "+ r.ginfo._objVal+ ", penalty = "+ (_parms._lambda[_lambdaId] * .5 * ArrayUtils.l2norm2(beta,true))+ ",  gradient norm2 = "+ (MathUtils.l2norm2(r.ginfo._gradient)));
-      _taskInfo._ginfo=r.ginfo;
-      double[] newBeta=r.coefs;
-      _taskInfo._beta=newBeta;
-      _taskInfo._iter+=r.iter;
-      setSubmodel(newBeta,null,null,this);
+      _taskInfo._beta=r.coefs;
+      double l1pen=_parms._lambda[_lambdaId] * _parms._alpha[0];
+      if (l1pen > 0 || _bc.hasBounds()) {
+        double[] rho=MemoryManager.malloc8d(beta.length);
+        for (int i=0; i < rho.length; ++i)         rho[i]=ADMM.L1Solver.estimateRho(_taskInfo._beta[i],l1pen);
+        new ADMM.L1Solver(1e-4,100).solve(new LBFGS_ProximalSolver(solver,r.coefs.clone(),rho),_taskInfo._beta,l1pen);
+      }
       break;
     }
 case COORDINATE_DESCENT:

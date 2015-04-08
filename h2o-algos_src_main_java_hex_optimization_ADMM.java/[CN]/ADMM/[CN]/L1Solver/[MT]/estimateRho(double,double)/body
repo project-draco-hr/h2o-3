@@ -1,0 +1,25 @@
+{
+  double rho=0;
+  if (x > 0) {
+    double D=l1pen * (l1pen + 4 * x);
+    if (D >= 0) {
+      D=Math.sqrt(D);
+      double r=.25 * (l1pen + D) / (2 * x);
+      if (r > 0)       rho=r;
+ else       if (l1pen > 0)       System.out.println("negative rho estimate(1)! r = " + r);
+    }
+  }
+ else   if (x < 0) {
+    double D=l1pen * (l1pen - 4 * x);
+    if (D >= 0) {
+      D=Math.sqrt(D);
+      double r=-.25 * (l1pen + D) / (2 * x);
+      if (r > 0)       rho=r;
+ else       if (l1pen > 0)       Log.warn("negative rho estimate(2)!  r = " + r);
+    }
+  }
+ else   if (l1pen > 0) {
+    Log.warn("x estimated zero!");
+  }
+  return rho;
+}

@@ -4,15 +4,9 @@
   double step=1;
   for (int i=0; i < objs.length; ++i, step*=_stepDec) {
     objs[i]*=reg;
-    if (_lambda > 0 || _betaGiven != null) {
+    if (_lambda > 0) {
       double[] b=ArrayUtils.wadd(beta.clone(),direction,step);
       if (_lambda > 0)       objs[i]+=.5 * _lambda * ArrayUtils.l2norm2(b,_dinfo._intercept);
-      if (_betaGiven != null && _proximalPen != null) {
-        for (int j=0; j < _betaGiven.length; ++j) {
-          double diff=b[j] - _betaGiven[j];
-          objs[i]+=.5 * _proximalPen[j] * diff* diff;
-        }
-      }
     }
   }
   return objs;
