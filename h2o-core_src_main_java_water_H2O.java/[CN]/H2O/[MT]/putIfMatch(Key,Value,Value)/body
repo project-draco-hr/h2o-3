@@ -1,12 +1,2 @@
 {
-  if (old != null)   key=old._key;
-  if (val != null)   val._key=key;
-  Value res=STORE.putIfMatchUnlocked(key,val,old);
-  if (res != old)   return res;
-  if (old != null && val == null)   old.removePersist();
-  if (val != null) {
-    Cleaner.dirty_store();
-    if (old == null)     Scope.track(key);
-  }
-  return old;
 }
