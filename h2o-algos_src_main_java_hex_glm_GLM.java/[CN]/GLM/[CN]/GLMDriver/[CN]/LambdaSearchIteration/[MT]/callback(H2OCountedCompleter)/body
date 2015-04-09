@@ -1,5 +1,8 @@
 {
   Log.info("Gradient err at lambda = " + _parms._lambda[_lambdaId] + " = "+ _tInfos[0].gradientCheck(_parms._lambda[_lambdaId],_parms._alpha[0]));
+  int rank=0;
+  for (int i=0; i < _tInfos[0]._beta.length - (_dinfo._intercept ? 1 : 0); ++i)   if (_tInfos[0]._beta[i] != 0)   ++rank;
+  Log.info("Solution at lambda = " + _parms._lambda[_lambdaId] + "has "+ rank+ " nonzeros");
   if (_parms._n_folds > 1) {
     ParallelTasks<GLMSingleLambdaTsk> t=(ParallelTasks<GLMSingleLambdaTsk>)h2OCountedCompleter;
     for (int i=0; i < t._tasks.length; ++i)     _tInfos[i]=t._tasks[i]._taskInfo;

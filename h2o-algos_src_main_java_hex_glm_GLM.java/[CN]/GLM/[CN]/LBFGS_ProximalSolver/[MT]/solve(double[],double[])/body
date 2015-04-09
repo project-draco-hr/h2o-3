@@ -1,6 +1,15 @@
 {
   ProximalGradientSolver s=new ProximalGradientSolver(_gSolver,beta_given,_rho);
-  L_BFGS.Result r=new L_BFGS().solve(s,_beta);
+  if (_beta_given == null)   _beta_given=MemoryManager.malloc8d(beta_given.length);
+  if (_ginfo != null) {
+    for (int i=0; i < beta_given.length; ++i) {
+      _ginfo._gradient[i]+=_rho[i] * (_beta_given[i] - beta_given[i]);
+      _ginfo._objVal+=.5 * _rho[i] * (((result[i] - beta_given[i]) * (result[i] - beta_given[i])) - ((result[i] - _beta_given[i]) * (result[i] - _beta_given[i])));
+      _beta_given[i]=beta_given[i];
+    }
+  }
+  L_BFGS.Result r=_ginfo == null ? new L_BFGS().solve(s,result.clone()) : new L_BFGS().solve(s,result.clone(),_ginfo,new ProgressMonitor());
+  _ginfo=r.ginfo;
   _beta=r.coefs;
   _gradient=r.ginfo._gradient;
   _iter+=r.iter;
