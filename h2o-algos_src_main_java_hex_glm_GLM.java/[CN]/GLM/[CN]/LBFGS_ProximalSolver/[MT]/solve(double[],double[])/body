@@ -1,4 +1,5 @@
 {
+  if (_jobKey != null && !Job.isRunning(_jobKey))   throw new JobCancelledException();
   ProximalGradientSolver s=new ProximalGradientSolver(_gSolver,beta_given,_rho);
   if (_beta_given == null)   _beta_given=MemoryManager.malloc8d(beta_given.length);
   if (_ginfo != null) {
@@ -8,7 +9,13 @@
       _beta_given[i]=beta_given[i];
     }
   }
-  L_BFGS.Result r=_ginfo == null ? new L_BFGS().solve(s,result.clone()) : new L_BFGS().solve(s,result.clone(),_ginfo,new ProgressMonitor());
+ else   _ginfo=s.getGradient(result);
+  L_BFGS.Result r=new L_BFGS().solve(s,result.clone(),_ginfo,new ProgressMonitor(){
+    public boolean progress(    double[] beta,    GradientInfo ginfo){
+      return _jobKey == null || Job.isRunning(_jobKey);
+    }
+  }
+);
   _ginfo=r.ginfo;
   _beta=r.coefs;
   _gradient=r.ginfo._gradient;
