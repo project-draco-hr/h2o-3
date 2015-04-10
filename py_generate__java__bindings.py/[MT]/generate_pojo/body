@@ -14,11 +14,12 @@ def generate_pojo(schema, pojo_name):
         schema_name = field['schema_name']
         if (name == '__meta'):
             continue
-        if (type == 'Map'):
-            continue
         if (type == 'Iced'):
             continue
-        java_type = cons_java_type(pojo_name, name, type, schema_name)
+        if type.startswith('Map'):
+            java_type = type
+        else:
+            java_type = cons_java_type(pojo_name, name, type, schema_name)
         if (java_type == 'enum'):
             continue
         pojo.append('    /** {help} */'.format(help=help))
