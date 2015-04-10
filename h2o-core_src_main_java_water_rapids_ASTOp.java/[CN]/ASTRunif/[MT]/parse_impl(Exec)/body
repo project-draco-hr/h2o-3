@@ -1,6 +1,5 @@
 {
   AST ary=E.parse();
-  if (ary instanceof ASTId)   ary=Env.staticLookup((ASTId)ary);
   try {
     _seed=(long)E.parse().treeWalk(new Env(null)).popDbl();
   }
@@ -8,6 +7,7 @@
     e.printStackTrace();
     throw new IllegalArgumentException("Argument `seed` expected to be a number.");
   }
+  E.eatEnd();
   ASTRunif res=(ASTRunif)clone();
   res._asts=new AST[]{ary};
   return res;

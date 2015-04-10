@@ -1,6 +1,5 @@
 {
   AST tst=E.parse();
-  if (tst instanceof ASTId)   tst=Env.staticLookup((ASTId)tst);
   if (tst instanceof ASTId) {
     try {
       double d=((ASTNum)E._env.lookup((ASTId)tst))._d;
@@ -12,10 +11,9 @@
       throw new IllegalArgumentException("`test` must be a frame or TRUE/FALSE");
     }
   }
-  AST yes=E.skipWS().parse();
-  if (yes instanceof ASTId)   yes=Env.staticLookup((ASTId)yes);
-  AST no=E.skipWS().parse();
-  if (no instanceof ASTId)   no=Env.staticLookup((ASTId)no);
+  AST yes=E.parse();
+  AST no=E.parse();
+  E.eatEnd();
   ASTIfElse res=(ASTIfElse)clone();
   res._asts=new AST[]{no,yes,tst};
   return res;

@@ -1,17 +1,19 @@
 {
-  E.skipWS();
   AST l;
   if (E.isSpecial(E.peek())) {
     boolean putkv=E.peek() == '!';
+    boolean skip1=(E.peek() == '\'' || E.peek() == '\"');
     E._x++;
     l=new ASTId(putkv ? '!' : '&',E.parseID());
+    if (skip1)     E._x++;
   }
  else {
     if (E.peek() == '(')     l=E.parse();
  else     l=new ASTId('&',E.parseID());
   }
-  if (!E.hasNext())   throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
-  AST r=E.skipWS().parse();
+  if (!E.hasNext())   throw new IllegalArgumentException("Missing RHS in ASTAssign.");
+  AST r=E.parse();
+  E.eatEnd();
   ASTAssign res=(ASTAssign)clone();
   res._asts=new AST[]{l,r};
   return res;
