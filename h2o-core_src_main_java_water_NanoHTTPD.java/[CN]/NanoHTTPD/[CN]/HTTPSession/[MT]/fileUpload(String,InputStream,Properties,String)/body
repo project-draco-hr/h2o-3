@@ -18,7 +18,7 @@
         String key=parms.getProperty("key");
         boolean nps=Pattern.matches("/[^/]+/NodePersistentStorage.*",uri);
         if (nps) {
-          Pattern p=Pattern.compile(".*NodePersistentStorage.json/([^/]+)/([^/]+)");
+          Pattern p=Pattern.compile(".*NodePersistentStorage/([^/]+)/([^/]+)");
           Matcher m=p.matcher(uri);
           boolean b=m.matches();
           if (!b) {
@@ -41,7 +41,7 @@
         if (!validKeyName(destination_key)) {
           sendError(HTTP_BADREQUEST,"Invalid key name, contains illegal characters");
         }
-        boolean uploadFile=Pattern.matches("/PostFile.json",uri) || Pattern.matches("/[1-9][0-9]*/PostFile.json",uri) || Pattern.matches("/LATEST/PostFile.json",uri);
+        boolean uploadFile=Pattern.matches("/PostFile",uri) || Pattern.matches("/[1-9][0-9]*/PostFile",uri) || Pattern.matches("/LATEST/PostFile",uri);
         if (uploadFile) {
           UploadFileVec.ReadPutStats stats=new UploadFileVec.ReadPutStats();
           UploadFileVec.readPut(destination_key,new InputStreamWrapper(in,boundary.getBytes()),stats);
