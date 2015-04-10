@@ -9,45 +9,47 @@
     model=new GLRMModel(dest(),_parms,new GLRMModel.GLRMOutput(GLRM.this));
     model.delete_and_lock(_key);
     _train.read_lock(_key);
+    double nobs=_train.numRows() * _train.numCols();
+    double[][] yt=ArrayUtils.transpose(initialY());
     Vec[] vecs=new Vec[_ncolA + 2 * _ncolX];
     for (int i=0; i < _ncolA; i++)     vecs[i]=_train.vec(i);
     for (int i=_ncolA; i < vecs.length; i++)     vecs[i]=_train.anyVec().makeRand(_parms._seed);
     fr=new Frame(null,vecs);
     dinfo=new DataInfo(Key.make(),fr,null,0,false,_parms._transform,DataInfo.TransformType.NONE,true);
     DKV.put(dinfo._key,dinfo);
-    model._output._normSub=dinfo._normSub == null ? new double[_ncolA] : Arrays.copyOf(dinfo._normSub,_ncolA);
+    model._output._normSub=_normSub=dinfo._normSub == null ? new double[_ncolA] : Arrays.copyOf(dinfo._normSub,_ncolA);
     if (dinfo._normMul == null) {
-      model._output._normMul=new double[_ncolA];
+      model._output._normMul=_normMul=new double[_ncolA];
       Arrays.fill(model._output._normMul,1.0);
     }
- else     model._output._normMul=Arrays.copyOf(dinfo._normMul,_ncolA);
-    double nobs=_train.numRows() * _train.numCols();
-    double[][] yt=ArrayUtils.transpose(initialY());
-    ObjCalc objtsk=new ObjCalc(dinfo,_parms,yt).doAll(dinfo._adaptedFrame);
+ else     model._output._normMul=_normMul=Arrays.copyOf(dinfo._normMul,_ncolA);
+    ObjCalc objtsk=new ObjCalc(_parms,yt).doAll(dinfo._adaptedFrame);
     model._output._objective=objtsk._loss + _parms._gamma * _parms.regularize(yt);
     model._output._iterations=0;
     model._output._avg_change_obj=2 * TOLERANCE;
     boolean overwriteX=false;
     double step=1.0;
+    double steps_in_row=0;
     while (!isDone(model)) {
-      UpdateX xtsk=new UpdateX(dinfo,_parms,yt,step / _ncolA,overwriteX);
+      UpdateX xtsk=new UpdateX(_parms,yt,step / _ncolA,overwriteX);
       xtsk.doAll(dinfo._adaptedFrame);
-      UpdateY ytsk=new UpdateY(dinfo,_parms,yt,step / _ncolA);
+      UpdateY ytsk=new UpdateY(_parms,yt,step / _ncolA);
       double[][] ytnew=ytsk.doAll(dinfo._adaptedFrame)._ytnew;
-      objtsk=new ObjCalc(dinfo,_parms,ytnew).doAll(dinfo._adaptedFrame);
+      objtsk=new ObjCalc(_parms,ytnew).doAll(dinfo._adaptedFrame);
       double obj_new=objtsk._loss + _parms._gamma * (xtsk._xreg + ytsk._yreg);
       model._output._avg_change_obj=(model._output._objective - obj_new) / nobs;
       model._output._iterations++;
       if (model._output._avg_change_obj > 0) {
         yt=ytnew;
-        step=1.0 / model._output._iterations;
         model._output._objective=obj_new;
+        step*=1.05;
+        steps_in_row=Math.max(1,steps_in_row + 1);
         overwriteX=true;
       }
  else {
-        step=step / 1.5;
+        step=step / Math.max(1.5,-steps_in_row);
+        steps_in_row=Math.min(0,steps_in_row - 1);
         overwriteX=false;
-        Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
       }
       model.update(_key);
       update(1);
