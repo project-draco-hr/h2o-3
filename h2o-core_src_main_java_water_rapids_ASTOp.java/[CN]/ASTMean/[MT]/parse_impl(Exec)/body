@@ -1,6 +1,5 @@
 {
   AST ary=E.parse();
-  if (ary instanceof ASTId)   ary=Env.staticLookup((ASTId)ary);
   try {
     _trim=((ASTNum)(E.skipWS().parse())).dbl();
   }
@@ -16,6 +15,7 @@
     e.printStackTrace();
     throw new IllegalArgumentException("Argument `na.rm` expected to be a number.");
   }
+  E.eatEnd();
   ASTMean res=(ASTMean)clone();
   res._asts=new AST[]{ary};
   return res;

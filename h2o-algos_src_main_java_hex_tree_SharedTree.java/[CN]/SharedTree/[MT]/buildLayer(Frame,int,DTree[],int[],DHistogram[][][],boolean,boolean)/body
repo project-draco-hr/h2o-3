@@ -5,9 +5,9 @@
     final DTree tree=ktrees[k];
     if (tree == null)     continue;
     Frame fr2=new Frame(Arrays.copyOf(fr._names,_ncols + 1),Arrays.copyOf(vecs,_ncols + 1));
-    fr2.add(fr._names[_ncols + 1 + k],vecs[_ncols + 1 + k]);
-    fr2.add(fr._names[_ncols + 1 + _nclass+ k],vecs[_ncols + 1 + _nclass+ k]);
-    fr2.add(fr._names[_ncols + 1 + _nclass+ _nclass+ k],vecs[_ncols + 1 + _nclass+ _nclass+ k]);
+    fr2.add(fr._names[idx_tree(k)],vecs[idx_tree(k)]);
+    fr2.add(fr._names[idx_work(k)],vecs[idx_work(k)]);
+    fr2.add(fr._names[idx_nids(k)],vecs[idx_nids(k)]);
     H2O.submitTask(sb1ts[k]=new ScoreBuildOneTree(this,k,nbins,tree,leafs,hcs,fr2,subset,build_tree_one_node,_improvPerVar));
   }
   boolean did_split=false;

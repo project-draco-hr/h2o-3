@@ -1,18 +1,17 @@
 {
   AST ary=E.parse();
-  if (ary instanceof ASTId)   ary=Env.staticLookup((ASTId)ary);
-  if (!E.skipWS().hasNext())   throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
-  _matches=E.peek() == '{' ? E.xpeek('{').parseString('}').split(";") : new String[]{E.parseString(E.peekPlus())};
+  _matches=((ASTStringList)E.parse())._s;
   for (int i=0; i < _matches.length; ++i)   _matches[i]=_matches[i].replace("\"","").replace("\'","");
   try {
-    ASTNum nomatch=(ASTNum)E.skipWS().parse();
+    ASTNum nomatch=(ASTNum)E.parse();
     _nomatch=nomatch.dbl();
   }
  catch (  ClassCastException e) {
     e.printStackTrace();
     throw new IllegalArgumentException("Argument `nomatch` expected a number.");
   }
-  AST incomp=E.skipWS().parse();
+  AST incomp=E.parse();
+  E.eatEnd();
   ASTMatch res=(ASTMatch)clone();
   res._asts=new AST[]{ary};
   return res;
