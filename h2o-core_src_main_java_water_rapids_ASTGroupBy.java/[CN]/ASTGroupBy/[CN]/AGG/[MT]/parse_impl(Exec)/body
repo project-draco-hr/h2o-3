@@ -1,17 +1,12 @@
 {
-  int n=(int)((ASTNum)(E.parse()))._d;
-  E.skipWS();
-  _aggs=new AGG[n];
-  for (int i=0; i < n; ++i) {
+  ArrayList<AGG> aggs=new ArrayList<>();
+  while (!E.isEnd()) {
     String type=E.parseString(E.peekPlus());
-    E.skipWS();
     int col=(int)((ASTNum)E.parse()).dbl();
-    E.skipWS();
     String na=E.parseString(E.peekPlus());
-    E.skipWS();
     String name=E.parseString(E.peekPlus());
-    E.skipWS();
-    _aggs[i]=new AGG(type,col,na,name);
+    aggs.add(new AGG(type,col,na,name));
   }
+  _aggs=aggs.toArray(new AGG[aggs.size()]);
   return this;
 }
