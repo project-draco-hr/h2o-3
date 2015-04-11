@@ -1,0 +1,16 @@
+{
+  new MRTask(){
+    @Override public void map(    Chunk[] cs){
+      Futures fs=new Futures();
+      int nChunks=cs.length;
+      for (int i=0; i < nChunks; i++) {
+        Key cckey=chunkKey(cs[i].cidx());
+        if (DKV.get(cckey) != null) {
+          DKV.remove(cckey,fs);
+        }
+      }
+      fs.blockForPending();
+    }
+  }
+.doAll(this);
+}
