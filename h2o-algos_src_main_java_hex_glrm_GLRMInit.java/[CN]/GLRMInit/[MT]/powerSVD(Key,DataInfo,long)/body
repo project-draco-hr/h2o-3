@@ -1,0 +1,20 @@
+{
+  double[] v=ArrayUtils.gaussianArray(dinfo._adaptedFrame.numCols(),1,seed)[0];
+  GramTask tsk=new GramTask(key,dinfo).doAll(dinfo._adaptedFrame);
+  double[][] gram=tsk._gram.getXX();
+  int iters=0;
+  double err=2 * TOLERANCE;
+  while (err > TOLERANCE && iters < _parms._max_iterations) {
+    err=0;
+    double[] vnew=new double[v.length];
+    for (int i=0; i < v.length; i++) {
+      vnew[i]=ArrayUtils.innerProduct(gram[i],v);
+      double diff=vnew[i] - v[i];
+      err+=diff * diff;
+    }
+    v=vnew;
+    iters++;
+  }
+  ArrayUtils.div(v,ArrayUtils.l2norm(v));
+  return v;
+}

@@ -1,10 +1,10 @@
 {
   double[][] centers;
   if (null != _parms._user_points) {
-    centers=new double[_ncolX][_ncolA];
+    centers=new double[_parms._k][_ncols];
     Vec[] centersVecs=_parms._user_points.get().vecs();
-    for (int r=0; r < _ncolX; r++) {
-      for (int c=0; c < _ncolA; c++)       centers[r][c]=centersVecs[c].at(r);
+    for (int r=0; r < _parms._k; r++) {
+      for (int c=0; c < _ncols; c++)       centers[r][c]=centersVecs[c].at(r);
     }
     if (frobenius2(centers) == 0)     throw new H2OIllegalArgumentException("The user-specified points cannot all be zero");
   }
@@ -32,7 +32,7 @@
       if (km != null)       km.remove();
     }
     centers=transform(km._output._centers_raw,0,km._output._normSub,km._output._normMul);
-    if (frobenius2(centers) == 0)     centers=ArrayUtils.gaussianArray(_ncolX,_ncolA);
+    if (frobenius2(centers) == 0)     centers=ArrayUtils.gaussianArray(_parms._k,_ncols);
   }
   return centers;
 }
