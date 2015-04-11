@@ -1,3 +1,6 @@
 {
-  return ((ASTString)this.skipWS().parse())._s;
+  AST a=parse();
+  if (a instanceof ASTFrame)   return ((ASTFrame)a)._key;
+ else   if (a instanceof ASTString)   return ((ASTString)a)._s;
+ else   throw new IllegalArgumentException("Expected to parse a String, but got " + a.getClass());
 }
