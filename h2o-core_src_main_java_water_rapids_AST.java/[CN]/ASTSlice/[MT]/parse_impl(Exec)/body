@@ -1,15 +1,42 @@
 {
-  AST hex=E.parse();
-  AST rows=E.skipWS().parse();
-  if (rows instanceof ASTString)   rows=new ASTNull();
-  if (rows instanceof ASTSpan)   ((ASTSpan)rows).setSlice(true,false);
-  if (rows instanceof ASTSeries)   ((ASTSeries)rows).setSlice(true,false);
-  if (!E.hasNext())   throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
-  AST cols=E.skipWS().parse();
-  cols=(cols instanceof ASTString && cols.value().equals("null")) ? new ASTNull() : cols;
-  if (cols instanceof ASTSpan)   ((ASTSpan)cols).setSlice(false,true);
-  if (cols instanceof ASTSeries)   ((ASTSeries)cols).setSlice(false,true);
-  ASTSlice res=(ASTSlice)clone();
-  res._asts=new AST[]{hex,rows,cols};
-  return res;
+  AST fr=E.parse();
+  AST rows=E.parse();
+switch (rows.type()) {
+case Env.STR:
+    rows=new ASTNull();
+  break;
+case Env.SPAN:
+((ASTSpan)rows).setSlice(true,false);
+break;
+case Env.SERIES:
+((ASTSeries)rows).setSlice(true,false);
+break;
+case Env.LIST:
+rows=new ASTSeries(((ASTLongList)rows)._l,null,((ASTLongList)rows)._spans);
+((ASTSeries)rows).setSlice(true,false);
+break;
+default :
+}
+if (!E.hasNext()) throw new IllegalArgumentException("Slice expected 3 arguments (frame, rows, cols), but got 2");
+AST cols=E.parse();
+switch (cols.type()) {
+case Env.STR:
+cols=cols.value().equals("null") ? new ASTNull() : cols;
+break;
+case Env.SPAN:
+((ASTSpan)cols).setSlice(false,true);
+break;
+case Env.SERIES:
+((ASTSeries)cols).setSlice(false,true);
+break;
+case Env.LIST:
+cols=new ASTSeries(((ASTLongList)cols)._l,null,((ASTLongList)cols)._spans);
+((ASTSeries)cols).setSlice(false,true);
+break;
+default :
+}
+E.eatEnd();
+ASTSlice res=(ASTSlice)clone();
+res._asts=new AST[]{fr,rows,cols};
+return res;
 }

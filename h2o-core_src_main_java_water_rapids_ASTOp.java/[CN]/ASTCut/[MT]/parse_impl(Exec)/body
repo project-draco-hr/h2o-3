@@ -1,27 +1,22 @@
 {
   AST ary=E.parse();
-  if (ary instanceof ASTId)   ary=Env.staticLookup((ASTId)ary);
-  String[] cuts;
-  try {
-    cuts=E.skipWS().peek() == '{' ? E.xpeek('{').parseString('}').split(";") : E.peek() == '#' ? new String[]{Double.toString(((ASTNum)E.parse()).dbl())} : new String[]{E.parseString(E.peekPlus())};
+  AST breaks=E.parse();
+  if (breaks instanceof ASTDoubleList)   _cuts=((ASTDoubleList)breaks)._d;
+ else   if (breaks instanceof ASTLongList) {
+    int i=0;
+    _cuts=new double[((ASTLongList)breaks)._l.length];
+    for (    long l : ((ASTLongList)breaks)._l)     _cuts[i++]=l;
   }
- catch (  ClassCastException e) {
-    e.printStackTrace();
-    throw new IllegalArgumentException("Argument `breaks` was malformed. Bad AST input.");
-  }
-  for (int i=0; i < cuts.length; ++i)   cuts[i]=cuts[i].replace("\"","").replace("\'","");
-  _cuts=new double[cuts.length];
-  for (int i=0; i < cuts.length; ++i)   _cuts[i]=Double.valueOf(cuts[i]);
-  try {
-    _labels=E.skipWS().peek() == '{' ? E.xpeek('{').parseString('}').split(";") : new String[]{E.parseString(E.peekPlus())};
-  }
- catch (  ClassCastException e) {
-    e.printStackTrace();
-    throw new IllegalArgumentException("Argument `labels` was malformed. Bad AST input.");
-  }
+ else   if (breaks instanceof ASTNum)   _cuts=new double[]{((ASTNum)breaks)._d};
+ else   throw new IllegalArgumentException("`breaks` argument expected to be a dlist or number. Got: " + breaks.getClass());
+  AST labels=E.parse();
+  if (labels instanceof ASTStringList)   _labels=((ASTStringList)labels)._s;
+ else   if (labels instanceof ASTString)   _labels=new String[]{((ASTString)labels)._s};
+ else   if (labels instanceof ASTFrame)   _labels=new String[]{((ASTFrame)labels)._key};
+ else   throw new IllegalArgumentException("`labels` argument expected to be a slist or String. Got: " + labels.getClass());
   for (int i=0; i < _labels.length; ++i)   _labels[i]=_labels[i].replace("\"","").replace("\'","");
   if (_labels.length == 1 && _labels[0].equals("null"))   _labels=null;
-  AST inc_lowest=E.skipWS().parse();
+  AST inc_lowest=E.parse();
   inc_lowest=E._env.lookup((ASTId)inc_lowest);
   try {
     _includelowest=((ASTNum)inc_lowest).dbl() == 1;
@@ -30,7 +25,7 @@
     e.printStackTrace();
     throw new IllegalArgumentException("Argument `include.lowest` expected to be TRUE/FALSE.");
   }
-  AST right=E.skipWS().parse();
+  AST right=E.parse();
   right=E._env.lookup((ASTId)right);
   try {
     _right=((ASTNum)right).dbl() == 1;
@@ -41,7 +36,7 @@
   }
   ASTNum diglab;
   try {
-    diglab=(ASTNum)E.skipWS().parse();
+    diglab=(ASTNum)E.parse();
   }
  catch (  ClassCastException e) {
     e.printStackTrace();
@@ -49,6 +44,7 @@
   }
   _diglab=diglab.dbl();
   _diglab=_diglab >= 12 ? 12 : _diglab;
+  E.eatEnd();
   ASTCut res=(ASTCut)clone();
   res._asts=new AST[]{ary};
   return res;

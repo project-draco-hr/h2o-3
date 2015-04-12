@@ -16,7 +16,7 @@ def loss_behaviorGBM(ip, port):
     eco_model = h2o.gbm(x=eco[2:13], y=eco['Angaus'].asfactor(), loss='bernoulli')
     assert isinstance(eco_model, h2o.model.binomial.H2OBinomialModel)
     tree = h2o.import_frame(path=h2o.locate('smalldata/junit/test_tree_minmax.csv'))
-    tree_model = h2o.gbm(x=tree[0:3], y=tree['response'], loss='bernoulli')
+    tree_model = h2o.gbm(x=tree[0:3], y=tree['response'], loss='bernoulli', min_rows=1)
     assert isinstance(tree_model, h2o.model.binomial.H2OBinomialModel)
     try:
         cars_mod = h2o.gbm(x=cars[3:7], y=cars['cylinders'], loss='bernoulli')
