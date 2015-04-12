@@ -26,7 +26,7 @@
       a=(E[])Array.newInstance(afclz,splits.length);
     }
     for (int i=0; i < splits.length; i++) {
-      if (String.class == afclz || KeyV1.class.isAssignableFrom(afclz)) {
+      if (String.class == afclz || KeyV3.class.isAssignableFrom(afclz)) {
         String stripped=splits[i].trim();
         if ("null".equals(stripped)) {
           a[i]=null;
@@ -51,30 +51,30 @@
   if (fclz.equals(Key.class))   if ((s == null || s.length() == 0) && required)   throw new H2OKeyNotFoundArgumentException(field_name,s);
  else   if (!required && (s == null || s.length() == 0))   return null;
  else   return Key.make(s.startsWith("\"") ? s.substring(1,s.length() - 1) : s);
-  if (KeyV1.class.isAssignableFrom(fclz)) {
+  if (KeyV3.class.isAssignableFrom(fclz)) {
     if ((s == null || s.length() == 0) && required)     throw new H2OKeyNotFoundArgumentException(field_name,s);
     if (!required && (s == null || s.length() == 0))     return null;
-    return KeyV1.make(fclz,Key.make(s.startsWith("\"") ? s.substring(1,s.length() - 1) : s));
+    return KeyV3.make(fclz,Key.make(s.startsWith("\"") ? s.substring(1,s.length() - 1) : s));
   }
   if (Enum.class.isAssignableFrom(fclz))   return Enum.valueOf(fclz,s);
-  if (FrameV2.class.isAssignableFrom(fclz))   if ((s == null || s.length() == 0) && required)   throw new H2OKeyNotFoundArgumentException(field_name,s);
+  if (FrameV3.class.isAssignableFrom(fclz))   if ((s == null || s.length() == 0) && required)   throw new H2OKeyNotFoundArgumentException(field_name,s);
  else   if (!required && (s == null || s.length() == 0))   return null;
  else {
     Value v=DKV.get(s);
     if (null == v)     return null;
     if (!v.isFrame())     throw H2OIllegalArgumentException.wrongKeyType(field_name,s,"Frame",v.get().getClass());
-    return new FrameV2((Frame)v.get());
+    return new FrameV3((Frame)v.get());
   }
-  if (JobV2.class.isAssignableFrom(fclz))   if ((s == null || s.length() == 0) && required)   throw new H2OKeyNotFoundArgumentException(s);
+  if (JobV3.class.isAssignableFrom(fclz))   if ((s == null || s.length() == 0) && required)   throw new H2OKeyNotFoundArgumentException(s);
  else   if (!required && (s == null || s.length() == 0))   return null;
  else {
     Value v=DKV.get(s);
     if (null == v)     return null;
     if (!v.isJob())     throw H2OIllegalArgumentException.wrongKeyType(field_name,s,"Job",v.get().getClass());
-    return new JobV2().fillFromImpl((Job)v.get());
+    return new JobV3().fillFromImpl((Job)v.get());
   }
-  if (FrameV2.ColSpecifierV2.class.isAssignableFrom(fclz)) {
-    return new FrameV2.ColSpecifierV2(s);
+  if (FrameV3.ColSpecifierV2.class.isAssignableFrom(fclz)) {
+    return new FrameV3.ColSpecifierV2(s);
   }
   if (ModelSchema.class.isAssignableFrom(fclz))   throw H2O.fail("Can't yet take ModelSchema as input.");
   throw H2O.fail("Unimplemented schema fill from " + fclz.getSimpleName());
