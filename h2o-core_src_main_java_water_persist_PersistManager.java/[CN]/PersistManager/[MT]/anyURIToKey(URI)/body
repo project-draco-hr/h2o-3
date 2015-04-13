@@ -7,8 +7,11 @@
  else   if ("s3n".equals(scheme)) {
     ikey=I[Value.HDFS].uriToKey(uri);
   }
- else   if ("files".equals(scheme) || scheme == null) {
+ else   if ("file".equals(scheme) || scheme == null) {
     ikey=I[Value.NFS].uriToKey(uri);
+  }
+ else {
+    throw new H2OIllegalArgumentException("Unsupported schema '" + scheme + "' for given uri "+ uri);
   }
   return ikey;
 }
