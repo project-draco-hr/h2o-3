@@ -8,24 +8,17 @@
     if (delete_on_done)     for (int j=i + 1; j < keys.length; j++)     if (k == keys[j])     throw new IllegalArgumentException("Source key " + k + " appears twice, delete_on_done must be false");
     totalParseSize+=getByteVec(k).length();
   }
-  Vec update;
-  Iced ice;
-  Futures fs=new Futures();
-  Log.info("Parse chunk size " + setup._chunk_size);
   for (int i=0; i < keys.length; ++i) {
-    ice=DKV.getGet(keys[i]);
-    update=(ice instanceof Vec) ? (Vec)ice : ((Frame)ice).vec(0);
-    if (update instanceof FileVec) {
-      ((FileVec)update).setChunkSize(setup._chunk_size);
-      DKV.put(update._key,update,fs);
-      fs.blockForPending();
-      if (ice instanceof Frame) {
-        ((Frame)ice).reloadVecs();
-        DKV.put(((Frame)ice)._key,ice,fs);
-      }
+    Iced ice=DKV.getGet(keys[i]);
+    if (ice instanceof FileVec) {
+      ((FileVec)ice).setChunkSize(setup._chunk_size);
+      Log.info("Parse chunk size " + setup._chunk_size);
+    }
+ else     if (ice instanceof Frame && ((Frame)ice).vec(0) instanceof FileVec) {
+      ((FileVec)((Frame)ice).vec(0)).setChunkSize((Frame)ice,setup._chunk_size);
+      Log.info("Parse chunk size " + setup._chunk_size);
     }
   }
-  fs.blockForPending();
   long memsz=H2O.CLOUD.memsz();
   if (totalParseSize > memsz * 4)   throw new IllegalArgumentException("Total input file size of " + PrettyPrint.bytes(totalParseSize) + " is much larger than total cluster memory of "+ PrettyPrint.bytes(memsz)+ ", please use either a larger cluster or smaller data.");
   ParseDataset job=new ParseDataset(dest);

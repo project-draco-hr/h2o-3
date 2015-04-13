@@ -1,0 +1,25 @@
+{
+  StringBuffer sb=new StringBuffer(argStr);
+  StringBuffer arg=new StringBuffer();
+  List<String> splitArgList=new ArrayList<String>();
+  boolean inDoubleQuotes=false;
+  for (int i=0; i < sb.length(); i++) {
+    if (sb.charAt(i) == '"' && !inDoubleQuotes) {
+      inDoubleQuotes=true;
+      arg.append(sb.charAt(i));
+    }
+ else     if (sb.charAt(i) == '"' && inDoubleQuotes) {
+      inDoubleQuotes=false;
+      arg.append(sb.charAt(i));
+    }
+ else     if (sb.charAt(i) == ',' && !inDoubleQuotes) {
+      splitArgList.add(arg.toString());
+      arg.setLength(0);
+    }
+ else {
+      arg.append(sb.charAt(i));
+    }
+  }
+  if (arg.length() > 0)   splitArgList.add(arg.toString());
+  return splitArgList.toArray(new String[splitArgList.size()]);
+}

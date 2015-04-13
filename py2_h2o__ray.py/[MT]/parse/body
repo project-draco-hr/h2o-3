@@ -4,9 +4,9 @@ def parse(self, key, hex_key=None, columnTypeDict=None, timeoutSecs=300, retryDe
     if (not isinstance(key, basestring)):
         if (not key):
             raise Exception(('key seems to be bad in parse. Should be list or string. %s' % key))
-        source_keys = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), key))) + ']')
+        source_keys = (('[' + ','.join(map((lambda x: (('"' + x) + '"')), key))) + ']')
     else:
-        source_keys = (("['" + key) + "']")
+        source_keys = (('["' + key) + '"]')
     params_dict['source_keys'] = source_keys
     h2o_methods.check_params_update_kwargs(params_dict, kwargs, 'parse before setup merge', print_params=False)
     params_setup = {'source_keys': source_keys, }
@@ -14,17 +14,17 @@ def parse(self, key, hex_key=None, columnTypeDict=None, timeoutSecs=300, retryDe
     h2o_sandbox.check_sandbox_for_errors()
     verboseprint('ParseSetup result:', dump_json(setup_result))
     if setup_result['source_keys']:
-        source_keysStr = (('[' + ','.join([("'%s'" % src['name']) for src in setup_result['source_keys']])) + ']')
+        source_keysStr = (('[' + ','.join([('"%s"' % src['name']) for src in setup_result['source_keys']])) + ']')
     else:
         source_keysStr = None
     if setup_result['column_names']:
-        columnNamesStr = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), setup_result['column_names']))) + ']')
+        columnNamesStr = (('[' + ','.join(map((lambda x: (('"' + x) + '"')), setup_result['column_names']))) + ']')
     else:
         columnNamesStr = None
     columnTypes = setup_result['column_types']
     assert (columnTypes is not None), ('%s %s' % ('column_types:', columnTypes))
     if setup_result['na_strings']:
-        naStrings = (('[' + ','.join(map((lambda x: ((("'" + x) + "'") if (x != None) else "''")), setup_result['na_strings']))) + ']')
+        naStrings = (('[' + ','.join(map((lambda x: ((('"' + x) + '"') if (x != None) else '""')), setup_result['na_strings']))) + ']')
     else:
         naStrings = None
     ct = setup_result['column_types']
@@ -42,7 +42,7 @@ def parse(self, key, hex_key=None, columnTypeDict=None, timeoutSecs=300, retryDe
                 ct[ci] = v
             else:
                 raise Exception(('%s %s should be int or string' % (k, type(k))))
-    columnTypesStr = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), ct))) + ']')
+    columnTypesStr = (('[' + ','.join(map((lambda x: (('"' + x) + '"')), ct))) + ']')
     parse_params = {'source_keys': source_keysStr, 'destination_key': setup_result['destination_key'], 'parse_type': setup_result['parse_type'], 'separator': setup_result['separator'], 'single_quotes': setup_result['single_quotes'], 'check_header': setup_result['check_header'], 'number_columns': setup_result['number_columns'], 'column_names': columnNamesStr, 'column_types': columnTypesStr, 'na_strings': naStrings, 'chunk_size': setup_result['chunk_size'], 'delete_on_done': params_dict['delete_on_done'], 'blocking': params_dict['blocking'], }
     tooManyColNamesToPrint = (setup_result['column_names'] and (len(setup_result['column_names']) > 2000))
     if tooManyColNamesToPrint:

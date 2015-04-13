@@ -63,7 +63,9 @@
  else {
       capturePathParms(parms,versioned_path,route);
       maybeLogRequest(method,uri,route._url_pattern.pattern(),parms,header);
-      return wrap(handle(type,route,version,parms),type);
+      Schema s=handle(type,route,version,parms);
+      Response r=wrap(s,type);
+      return r;
     }
   }
  catch (  H2OFailException e) {
