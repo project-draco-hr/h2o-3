@@ -8,5 +8,5 @@ def predict(self, model, frame, destination_key=None, timeoutSecs=60, **kwargs):
     assert (frames is not None), 'FAIL: /Frames/{0} REST call failed'.format(frame)
     assert (frames['frames'][0]['key']['name'] == frame), 'FAIL: /Frames/{0} returned Frame {1} rather than Frame {2}'.format(frame, frames['frames'][0]['key']['name'], frame)
     postData = {'destination_key': destination_key, }
-    result = self.__do_json_request(((('/3/Predictions.json/models/' + model) + '/frames/') + frame), cmd='post', postData=postData, timeout=timeoutSecs)
+    result = self.__do_json_request(((('/3/Predictions/models/' + model) + '/frames/') + frame), cmd='post', postData=postData, timeout=timeoutSecs)
     return result
