@@ -1,10 +1,6 @@
 {
-  GLM job=null;
   Key parsed=Key.make("cars_parsed");
-  Key modelKey=Key.make("cars_model");
   Frame fr=null;
-  GLMModel model=null;
-  Frame score=null;
   DataInfo dinfo=null;
   try {
     fr=parse_test_file(parsed,"smalldata/junit/mixcat_train.csv");
@@ -15,7 +11,6 @@
     fr.add("Useless",fr.remove("Useless"));
     dinfo=new DataInfo(Key.make(),fr,null,1,params._use_all_factor_levels || params._lambda_search,params._standardize ? DataInfo.TransformType.STANDARDIZE : DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true);
     DKV.put(dinfo._key,dinfo);
-    double ymu=0;
     double[] beta=MemoryManager.malloc8d(dinfo.fullN() + 1);
     Random rnd=new Random(987654321);
     for (int i=0; i < beta.length; ++i)     beta[i]=1 - 2 * rnd.nextDouble();
@@ -41,7 +36,6 @@
     params._use_all_factor_levels=true;
     dinfo=new DataInfo(Key.make(),fr,null,1,params._use_all_factor_levels || params._lambda_search,params._standardize ? DataInfo.TransformType.STANDARDIZE : DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true);
     DKV.put(dinfo._key,dinfo);
-    ymu=0;
     beta=MemoryManager.malloc8d(dinfo.fullN() + 1);
     rnd=new Random(987654321);
     for (int i=0; i < beta.length; ++i)     beta[i]=1 - 2 * rnd.nextDouble();
@@ -52,9 +46,6 @@
   }
   finally {
     if (fr != null)     fr.delete();
-    if (score != null)     score.delete();
-    if (model != null)     model.delete();
-    if (job != null)     job.remove();
     if (dinfo != null)     dinfo.remove();
   }
 }
