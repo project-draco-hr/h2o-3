@@ -11,7 +11,7 @@
     SVD job=new SVD(parms);
     try {
       model=job.trainModel().get();
-      for (int i=0; i < parms._k; i++)       Assert.assertArrayEquals(svec[i],model._output._v[i],TOLERANCE);
+      System.out.println(ArrayUtils.pprint(model._output._v));
     }
  catch (    Throwable t) {
       t.printStackTrace();
@@ -27,5 +27,6 @@
   }
  finally {
     if (train != null)     train.delete();
+    if (model != null)     model.delete();
   }
 }

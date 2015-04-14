@@ -7,6 +7,7 @@
     if (error_count() > 0)     throw new IllegalArgumentException("Found validation errors: " + validationErrors());
     model=new SVDModel(dest(),_parms,new SVDModel.SVDOutput(SVD.this));
     model.delete_and_lock(_key);
+    _train.read_lock(_key);
     dinfo=new DataInfo(Key.make(),_train,null,0,false,_parms._transform,DataInfo.TransformType.NONE,true);
     DKV.put(dinfo._key,dinfo);
     model._output._normSub=dinfo._normSub == null ? new double[_train.numCols()] : Arrays.copyOf(dinfo._normSub,_train.numCols());
@@ -17,15 +18,20 @@
  else     model._output._normMul=Arrays.copyOf(dinfo._normMul,_train.numCols());
     GramTask tsk=new GramTask(self(),dinfo).doAll(dinfo._adaptedFrame);
     double[][] gram=tsk._gram.getXX();
+    double norm=Math.sqrt(_train.numRows());
     double[][] rsvec=new double[_parms._k][gram.length];
+    model._output._iterations=0;
     for (int i=0; i < _parms._k; i++) {
       rsvec[i]=powerLoop(gram,_parms._seed);
+      ArrayUtils.mult(rsvec[i],norm);
       double[][] ivv=ArrayUtils.outerProduct(rsvec[i],rsvec[i]);
       for (int j=0; j < ivv.length; j++)       ivv[j][j]=1 - ivv[j][j];
       double[][] lmat=ArrayUtils.multArrArr(ivv,gram);
       gram=ArrayUtils.multArrArr(lmat,ivv);
+      model._output._iterations++;
     }
     model._output._v=rsvec;
+    done();
   }
  catch (  Throwable t) {
     Job thisJob=DKV.getGet(_key);
