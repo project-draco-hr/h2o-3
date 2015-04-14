@@ -1,4 +1,4 @@
 {
   GLMGradientTask gt=_glmp._family == Family.binomial ? new LBFGS_LogisticGradientTask(_dinfo,_glmp,_lambda,beta,1.0 / _nobs,_rowFilter).doAll(_dinfo._adaptedFrame) : new GLMGradientTask(_dinfo,_glmp,_lambda,beta,1.0 / _nobs,_rowFilter).doAll(_dinfo._adaptedFrame);
-  return new GradientInfo(gt._objVal,gt._gradient);
+  return new GradientInfo(gt._likelihood / gt._nobs + ArrayUtils.l2norm2(beta,_dinfo._intercept),gt._gradient);
 }
