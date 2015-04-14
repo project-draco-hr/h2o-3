@@ -4,11 +4,11 @@ def deepfeatures(self, test_data, layer):
         raise ValueError('Must specify test data')
     test_data_key = H2OFrame.send_frame(test_data)
     j = H2OConnection.post_json(((('Predictions/models/' + self._key) + '/frames/') + test_data_key), deep_features_hidden_layer=layer)
-    deepfeatures_frame_key = j['destination_key']['name']
+    deepfeatures_frame_key = j['predictions_name']['name']
     df_frame_meta = h2o.frame(deepfeatures_frame_key)['frames'][0]
-    vec_keys = df_frame_meta['vec_keys']
+    vec_ids = df_frame_meta['vec_ids']
     rows = df_frame_meta['rows']
     cols = [col['label'] for col in df_frame_meta['columns']]
-    vecs = H2OVec.new_vecs(zip(cols, vec_keys), rows)
+    vecs = H2OVec.new_vecs(zip(cols, vec_ids), rows)
     h2o.remove(test_data_key)
     return H2OFrame(vecs=vecs)
