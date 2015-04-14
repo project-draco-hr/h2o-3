@@ -1,7 +1,7 @@
 {
   GLM job=null;
   GLMModel model=null;
-  Frame fr=null;
+  Frame fr=null, res=null;
   try {
     Key raw=Key.make("gamma_test_data_raw");
     Key parsed=Key.make("gamma_test_data_parsed");
@@ -16,9 +16,12 @@
     job.trainModel().get();
     model=DKV.get(modelKey).get();
     for (    double c : model.beta())     assertEquals(1.0,c,1e-4);
+    res=model.score(fr);
+    Assert.assertTrue(model.testJavaScoring(fr,res,1e-15));
   }
   finally {
     if (fr != null)     fr.delete();
+    if (res != null)     res.delete();
     if (model != null)     model.delete();
     if (job != null)     job.remove();
   }
