@@ -1,0 +1,17 @@
+{
+  Log.info("Locking cloud to new members");
+  Log.info("Reason for locking cloud: " + reason);
+  Exception e=new Exception("slowLockCloud called (the following stack trace is normal and not an error)");
+  Log.info(e.getMessage());
+  for (  StackTraceElement ste : e.getStackTrace()) {
+    Log.info("    " + ste.toString());
+  }
+synchronized (Paxos.class) {
+    while (!_commonKnowledge)     try {
+      Paxos.class.wait();
+    }
+ catch (    InterruptedException ignore) {
+    }
+    _cloudLocked=true;
+  }
+}
