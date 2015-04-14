@@ -5,13 +5,7 @@
     return;
   }
   double op2=!Double.isNaN(op1) && op1 != 0 ? 1 : (env.isNum()) ? env.peekDbl() : (env.isAry()) ? env.peekAry().vecs()[0].at(0) : Double.NaN;
-  if (Double.isNaN(op2)) {
-    env.poppush(2,new ValNum(op2));
-    return;
-  }
-  if (op1 == 0 && op2 == 0) {
-    env.poppush(2,new ValNum(0.0));
-    return;
-  }
-  env.poppush(2,new ValNum(1.0));
+  if (Double.isNaN(op2))   env.poppush(2,new ValNum(op2));
+ else   if (op1 == 0 && op2 == 0)   env.poppush(2,new ValNum(0.0));
+ else   env.poppush(2,new ValNum(1.0));
 }
