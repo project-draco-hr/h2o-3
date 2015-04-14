@@ -32,7 +32,12 @@
         Log.info(getHitRatioTable(mm.hr()));
       }
     }
-    if (out._ntrees > 0)     out._variable_importances=hex.ModelMetrics.calcVarImp(new hex.VarImp(_improvPerVar,out._names));
+    if (out._ntrees > 0) {
+      out._model_summary=createModelSummaryTable(out);
+      out._scoring_history=createScoringHistoryTable(out);
+      out._variable_importances=hex.ModelMetrics.calcVarImp(new hex.VarImp(_improvPerVar,out._names));
+      Log.info(out._model_summary.toString());
+    }
     ConfusionMatrix cm=mm.cm();
     if (cm != null) {
       if (cm._cm.length <= _parms._max_confusion_matrix_size) {
