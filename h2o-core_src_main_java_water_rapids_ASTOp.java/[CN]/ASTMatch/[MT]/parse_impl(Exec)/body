@@ -1,15 +1,10 @@
 {
   AST ary=E.parse();
   _matches=((ASTStringList)E.parse())._s;
-  for (int i=0; i < _matches.length; ++i)   _matches[i]=_matches[i].replace("\"","").replace("\'","");
-  try {
-    ASTNum nomatch=(ASTNum)E.parse();
-    _nomatch=nomatch.dbl();
-  }
- catch (  ClassCastException e) {
-    e.printStackTrace();
-    throw new IllegalArgumentException("Argument `nomatch` expected a number.");
-  }
+  Arrays.sort(_matches);
+  AST nm=E.parse();
+  if (nm instanceof ASTNum)   _nomatch=((ASTNum)nm)._d;
+ else   throw new IllegalArgumentException("Argument `nomatch` expected a number.");
   AST incomp=E.parse();
   E.eatEnd();
   ASTMatch res=(ASTMatch)clone();
