@@ -19,6 +19,7 @@ default :
 }
 if (!E.hasNext()) throw new IllegalArgumentException("Slice expected 3 arguments (frame, rows, cols), but got 2");
 AST cols=E.parse();
+if (!(cols instanceof ASTStringList)) {
 switch (cols.type()) {
 case Env.STR:
 cols=cols.value().equals("null") ? new ASTNull() : cols;
@@ -34,6 +35,7 @@ cols=new ASTSeries(((ASTLongList)cols)._l,null,((ASTLongList)cols)._spans);
 ((ASTSeries)cols).setSlice(false,true);
 break;
 default :
+}
 }
 E.eatEnd();
 ASTSlice res=(ASTSlice)clone();
