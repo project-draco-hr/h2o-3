@@ -41,14 +41,14 @@
           final Frame mse_frame=scoreAutoEncoder(ftrain,Key.make());
           final Vec l2=mse_frame.anyVec();
           Log.info("Mean reconstruction error on training data: " + l2.mean() + "\n");
-          err.train_mse=l2.mean();
+          err.training_MSE=l2.mean();
           mse_frame.delete();
         }
         if (ftest != null) {
           final Frame mse_frame=scoreAutoEncoder(ftest,Key.make());
           final Vec l2=mse_frame.anyVec();
           Log.info("Mean reconstruction error on validation data: " + l2.mean() + "\n");
-          err.valid_mse=l2.mean();
+          err.validation_MSE=l2.mean();
           mse_frame.delete();
         }
       }
@@ -61,7 +61,7 @@
         hex.ModelMetricsSupervised mm1=(ModelMetricsSupervised)ModelMetrics.getFromDKV(this,ftrain);
         if (mm1 instanceof ModelMetricsBinomial) {
           ModelMetricsBinomial mm=(ModelMetricsBinomial)(mm1);
-          err.trainAUC=mm._auc;
+          err.training_AUC=mm._auc;
           err.train_confusion_matrix=mm.cm();
           err.train_err=err.train_confusion_matrix.err();
           err.train_logloss=mm._logloss;
@@ -73,8 +73,8 @@
           err.train_logloss=mm._logloss;
           err.train_hitratio=mm._hit_ratios;
         }
-        err.train_mse=mm1._MSE;
-        err.train_r2=mm1.r2();
+        err.training_MSE=mm1._MSE;
+        err.training_R2=mm1.r2();
         _output._training_metrics=mm1;
         if (get_params()._score_training_samples != 0 && get_params()._score_training_samples != ftrain.numRows()) {
           _output._training_metrics._description="Metrics reported on " + ftrain.numRows() + " training set samples";
@@ -86,7 +86,7 @@
           if (mm2 != null) {
             if (mm2 instanceof ModelMetricsBinomial) {
               ModelMetricsBinomial mm=(ModelMetricsBinomial)(mm2);
-              err.validAUC=mm._auc;
+              err.validation_AUC=mm._auc;
               err.valid_confusion_matrix=mm.cm();
               err.valid_logloss=mm._logloss;
               err.valid_err=err.valid_confusion_matrix.err();
@@ -98,8 +98,8 @@
               err.valid_logloss=mm._logloss;
               err.valid_hitratio=mm._hit_ratios;
             }
-            err.valid_mse=mm2._MSE;
-            err.valid_r2=mm2.r2();
+            err.validation_MSE=mm2._MSE;
+            err.validation_R2=mm2.r2();
             _output._validation_metrics=mm2;
             if (get_params()._score_validation_samples != 0 && get_params()._score_validation_samples != ftest.numRows()) {
               _output._validation_metrics._description="Metrics reported on " + ftest.numRows() + " validation set samples";
@@ -154,7 +154,7 @@
       Log.warn(unstable_msg);
       keep_running=false;
     }
- else     if ((_output.isClassifier() && last_scored().train_err <= get_params()._classification_stop) || (!_output.isClassifier() && last_scored().train_mse <= get_params()._regression_stop)) {
+ else     if ((_output.isClassifier() && last_scored().train_err <= get_params()._classification_stop) || (!_output.isClassifier() && last_scored().training_MSE <= get_params()._regression_stop)) {
       Log.info("Achieved requested predictive accuracy on the training data. Model building completed.");
       keep_running=false;
     }
