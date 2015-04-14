@@ -1,0 +1,8 @@
+def ipy_notebook_exec(path):
+    notebook = json.load(open(path))
+    for block in notebook['cells']:
+        cmd = ''
+        for line in block['source']:
+            if ('h2o.init' not in line):
+                cmd += line
+        exec cmd
