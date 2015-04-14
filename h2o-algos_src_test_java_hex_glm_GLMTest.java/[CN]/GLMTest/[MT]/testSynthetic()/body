@@ -16,13 +16,13 @@
     model=job.trainModel().get();
     double[] beta=model.beta();
     System.out.println("beta = " + Arrays.toString(beta));
-    assertEquals(model.validation().auc(),1,1e-4);
+    assertEquals(model.validation().AUC(),1,1e-4);
     GLMValidation val=model.validation();
-    assertEquals(1,val.auc(),1e-2);
+    assertEquals(1,val.AUC(),1e-2);
     score=model.score(fr);
     hex.ModelMetricsBinomial mm=hex.ModelMetricsBinomial.getFromDKV(model,fr);
     hex.AUC2 adata=mm._auc;
-    assertEquals(val.auc(),adata._auc,1e-2);
+    assertEquals(val.AUC(),adata._auc,1e-2);
   }
   finally {
     fr.remove();
