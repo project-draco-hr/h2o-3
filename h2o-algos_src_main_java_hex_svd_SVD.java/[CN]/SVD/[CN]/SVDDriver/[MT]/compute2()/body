@@ -24,6 +24,9 @@
       rsvec[i]=powerLoop(gram,_parms._seed);
       double[][] ivv=ArrayUtils.outerProduct(rsvec[i],rsvec[i]);
       for (int j=0; j < ivv.length; j++)       ivv[j][j]=1 - ivv[j][j];
+      for (int j=0; j < ivv.length; j++) {
+        for (int k=0; k < j; k++)         ivv[k][j]=ivv[j][k]=-ivv[k][j];
+      }
       double[][] lmat=ArrayUtils.multArrArr(ivv,gram);
       gram=ArrayUtils.multArrArr(lmat,ivv);
       model._output._iterations++;
