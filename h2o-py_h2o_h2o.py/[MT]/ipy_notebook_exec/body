@@ -4,5 +4,9 @@ def ipy_notebook_exec(path):
         cmd = ''
         for line in block['source']:
             if ('h2o.init' not in line):
-                cmd += line
+                if ('def ' in line):
+                    cmd += line
+                    cmd += '  import h2o\n'
+                else:
+                    cmd += line
         exec cmd
