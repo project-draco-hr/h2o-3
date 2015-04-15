@@ -18,12 +18,12 @@
  else     model._output._normMul=Arrays.copyOf(dinfo._normMul,_train.numCols());
     GramTask tsk=new GramTask(self(),dinfo).doAll(dinfo._adaptedFrame);
     double[][] gram=tsk._gram.getXX();
-    double[][] rsvec=new double[_parms._k][gram.length];
-    double[] sigma=new double[_parms._k];
+    double[][] rsvec=new double[_parms._nv][gram.length];
+    double[] sigma=new double[_parms._nv];
     double[][] ivv_sum=new double[gram.length][gram.length];
     for (int i=0; i < gram.length; i++)     ivv_sum[i][i]=1;
     double[][] gram_update=gram.clone();
-    for (int k=0; k < _parms._k; k++) {
+    for (int k=0; k < _parms._nv; k++) {
       rsvec[k]=powerLoop(gram_update,_parms._seed);
       double[] ivv_vk=ArrayUtils.multArrVec(ivv_sum,rsvec[k]);
       sigma[k]=new MultBArrSVec(self(),dinfo,ivv_vk).doAll(dinfo._adaptedFrame)._sval;
@@ -39,7 +39,7 @@
       gram_update=ArrayUtils.multArrArr(lmat,ivv_sum);
     }
     model._output._v=ArrayUtils.transpose(rsvec);
-    model._output._singular_vals=sigma;
+    model._output._d=sigma;
     done();
   }
  catch (  Throwable t) {

@@ -17,14 +17,14 @@
       }
       parms=new SVDParameters();
       parms._train=train._key;
-      parms._k=train.numCols();
+      parms._nv=train.numCols();
       parms._transform=DataInfo.TransformType.STANDARDIZE;
       parms._max_iterations=1000;
       parms._seed=seed;
       SVD job=new SVD(parms);
       try {
         model=job.trainModel().get();
-        Log.info(100 * missing_fraction + "% missing values: Singular values = " + Arrays.toString(model._output._singular_vals));
+        Log.info(100 * missing_fraction + "% missing values: Singular values = " + Arrays.toString(model._output._d));
       }
  catch (      Throwable t) {
         t.printStackTrace();

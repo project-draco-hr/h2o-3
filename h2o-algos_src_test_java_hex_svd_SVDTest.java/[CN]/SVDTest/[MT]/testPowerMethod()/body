@@ -7,13 +7,13 @@
     train=parse_test_file(Key.make("arrests.hex"),"smalldata/pca_test/USArrests.csv");
     SVDModel.SVDParameters parms=new SVDModel.SVDParameters();
     parms._train=train._key;
-    parms._k=4;
+    parms._nv=4;
     parms._seed=1234;
     SVD job=new SVD(parms);
     try {
       model=job.trainModel().get();
       checkEigvec(svec,model._output._v);
-      Assert.assertArrayEquals(sval,model._output._singular_vals,TOLERANCE);
+      Assert.assertArrayEquals(sval,model._output._d,TOLERANCE);
     }
  catch (    Throwable t) {
       t.printStackTrace();
