@@ -1,6 +1,10 @@
 {
+  model._output._categorical_column_count=0;
   _isCats=new String[vecs.length][];
-  for (int v=0; v < vecs.length; v++)   _isCats[v]=vecs[v].isEnum() ? new String[0] : null;
+  for (int v=0; v < vecs.length; v++) {
+    _isCats[v]=vecs[v].isEnum() ? new String[0] : null;
+    if (_isCats[v] != null)     model._output._categorical_column_count++;
+  }
   Random rand=water.util.RandomUtils.getRNG(_parms._seed - 1);
   double centers[][];
   if (null != _parms._user_points) {
