@@ -1,12 +1,11 @@
 {
   double[][] centers;
   if (null != _parms._user_points) {
-    centers=new double[_parms._k][_ncolA];
     Vec[] centersVecs=_parms._user_points.get().vecs();
+    centers=new double[_parms._k][_ncolA];
     for (int r=0; r < _parms._k; r++) {
       for (int c=0; c < _ncolA; c++)       centers[r][c]=centersVecs[c].at(r);
     }
-    if (frobenius2(centers) == 0)     throw new H2OIllegalArgumentException("The user-specified points cannot all be zero");
   }
  else   if (_parms._init == Initialization.SVD) {
     SVDModel.SVDParameters parms=new SVDModel.SVDParameters();
@@ -50,7 +49,11 @@
       if (km != null)       km.remove();
     }
     centers=transform(km._output._centers_raw,0,km._output._normSub,km._output._normMul);
-    if (frobenius2(centers) == 0)     centers=ArrayUtils.gaussianArray(_parms._k,_ncolA);
+  }
+  double frob=frobenius2(centers);
+  if (frob == 0 || Double.isNaN(frob)) {
+    warn("_init","Initialization failed. Setting initial Y to standard normal random matrix instead...");
+    centers=ArrayUtils.gaussianArray(_parms._k,_ncolA);
   }
   return centers;
 }
