@@ -19,19 +19,27 @@
     GramTask tsk=new GramTask(self(),dinfo).doAll(dinfo._adaptedFrame);
     double[][] gram=tsk._gram.getXX();
     double[][] rsvec=new double[_parms._k][gram.length];
-    model._output._iterations=0;
-    for (int i=0; i < _parms._k; i++) {
-      rsvec[i]=powerLoop(gram,_parms._seed);
-      double[][] ivv=ArrayUtils.outerProduct(rsvec[i],rsvec[i]);
-      for (int j=0; j < ivv.length; j++)       ivv[j][j]=1 - ivv[j][j];
-      for (int j=0; j < ivv.length; j++) {
-        for (int k=0; k < j; k++)         ivv[k][j]=ivv[j][k]=-ivv[k][j];
+    double[] sigma=new double[_parms._k];
+    double[][] ivv_sum=new double[gram.length][gram.length];
+    for (int i=0; i < gram.length; i++)     ivv_sum[i][i]=1;
+    double[][] gram_update=gram.clone();
+    for (int k=0; k < _parms._k; k++) {
+      rsvec[k]=powerLoop(gram_update,_parms._seed);
+      double[] ivv_vk=ArrayUtils.multArrVec(ivv_sum,rsvec[k]);
+      sigma[k]=new MultBArrSVec(self(),dinfo,ivv_vk).doAll(dinfo._adaptedFrame)._sval;
+      double[][] vv=ArrayUtils.outerProduct(rsvec[k],rsvec[k]);
+      for (int i=0; i < vv.length; i++) {
+        for (int j=0; j < i; j++) {
+          double diff=ivv_sum[i][j] - vv[i][j];
+          ivv_sum[i][j]=ivv_sum[j][i]=diff;
+        }
+        ivv_sum[i][i]-=vv[i][i];
       }
-      double[][] lmat=ArrayUtils.multArrArr(ivv,gram);
-      gram=ArrayUtils.multArrArr(lmat,ivv);
-      model._output._iterations++;
+      double[][] lmat=ArrayUtils.multArrArr(ivv_sum,gram);
+      gram_update=ArrayUtils.multArrArr(lmat,ivv_sum);
     }
     model._output._v=ArrayUtils.transpose(rsvec);
+    model._output._singular_vals=sigma;
     done();
   }
  catch (  Throwable t) {
