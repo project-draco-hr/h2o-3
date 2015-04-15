@@ -54,11 +54,11 @@ if verboser:
     print 'Schemas: '
     pp.pprint(schemas)
 if verbose:
-    print 'Testing /Metadata/schemas/FrameV2. . .'
-schemas = a_node.schema(schemaname='FrameV2', timeoutSecs=240)
-assert ('schemas' in schemas), ("FAIL: failed to find 'schemas' field in output of /Metadata/schemas/FrameV2: " + repr(schemas))
-assert (type(schemas['schemas']) is list), ("'schemas' field in output of /Metadata/schemas/FrameV2 is not a list: " + repr(schemas))
-assert (len(schemas['schemas']) == 1), ("'schemas' field in output of /Metadata/schemas/FrameV2 has an unexpected length: " + repr(schemas))
+    print 'Testing /Metadata/schemas/FrameV3. . .'
+schemas = a_node.schema(schemaname='FrameV3', timeoutSecs=240)
+assert ('schemas' in schemas), ("FAIL: failed to find 'schemas' field in output of /Metadata/schemas/FrameV3: " + repr(schemas))
+assert (type(schemas['schemas']) is list), ("'schemas' field in output of /Metadata/schemas/FrameV3 is not a list: " + repr(schemas))
+assert (len(schemas['schemas']) == 1), ("'schemas' field in output of /Metadata/schemas/FrameV3 has an unexpected length: " + repr(schemas))
 if verboser:
     print 'Schemas: '
     pp.pprint(schemas)
@@ -261,6 +261,10 @@ validate_validation_messages(parameters_validation, ['input_dropout_ratio'])
 assert (parameters_validation['__http_response']['status_code'] == requests.codes.precondition_failed), ('FAIL: expected 412 Precondition Failed from a bad build request, got: ' + str(parameters_validation['__http_response']['status_code']))
 if verbose:
     print 'Done trying to build DeepLearning model with bad parameters.'
+p = a_node.predict(model='deeplearning_airlines_binomial', frame='airlines_binomial', destination_key='deeplearning_airlines_binomial_predictions')
+validate_predictions(p, 'deeplearning_airlines_binomial', 'airlines_binomial', 43978, destination_key='deeplearning_airlines_binomial_predictions')
+validate_frame_exists('deeplearning_airlines_binomial_predictions')
+h2o.H2O.verboseprint('Predictions for scoring: ', 'deeplearning_airlines_binomial', ' on: ', 'airlines_binomial', ':  ', repr(p))
 print "WARNING: Terminating test before the end because we don't have as.factor yet. . ."
 sys.exit(0)
 mm = a_node.compute_model_metrics(model='deeplearning_prostate_binomial', frame='prostate_binomial')
@@ -336,11 +340,11 @@ if verboser:
     print 'Schemas: '
     pp.pprint(schemas)
 if verbose:
-    print 'Testing /Metadata/schemas/FrameV2 again. . .'
-schemas = a_node.schema(schemaname='FrameV2', timeoutSecs=240)
-assert ('schemas' in schemas), ("FAIL: failed to find 'schemas' field in output of /Metadata/schemas/FrameV2: " + repr(schemas))
-assert (type(schemas['schemas']) is list), ("'schemas' field in output of /Metadata/schemas/FrameV2 is not a list: " + repr(schemas))
-assert (len(schemas['schemas']) == 1), ("'schemas' field in output of /Metadata/schemas/FrameV2 has an unexpected length: " + repr(schemas))
+    print 'Testing /Metadata/schemas/FrameV3 again. . .'
+schemas = a_node.schema(schemaname='FrameV3', timeoutSecs=240)
+assert ('schemas' in schemas), ("FAIL: failed to find 'schemas' field in output of /Metadata/schemas/FrameV3: " + repr(schemas))
+assert (type(schemas['schemas']) is list), ("'schemas' field in output of /Metadata/schemas/FrameV3 is not a list: " + repr(schemas))
+assert (len(schemas['schemas']) == 1), ("'schemas' field in output of /Metadata/schemas/FrameV3 has an unexpected length: " + repr(schemas))
 if verboser:
     print 'Schemas: '
     pp.pprint(schemas)

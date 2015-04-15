@@ -4,8 +4,6 @@
   if (expensive) {
     mean=_response.mean();
     _initialPrediction=_nclass == 1 ? mean : (_nclass == 2 ? -0.5 * Math.log(mean / (1.0 - mean)) : 0.0);
-  }
-  if (expensive) {
     if (_parms._loss == GBMModel.GBMParameters.Family.AUTO) {
       if (_nclass == 1)       _parms._loss=GBMModel.GBMParameters.Family.gaussian;
       if (_nclass == 2)       _parms._loss=GBMModel.GBMParameters.Family.bernoulli;
@@ -15,9 +13,7 @@
 switch (_parms._loss) {
 case bernoulli:
     if (_nclass != 2)     error("_loss","Binomial requires the response to be a 2-class categorical");
- else     if (_response != null) {
-      _initialPrediction=Math.log(mean / (1.0f - mean));
-    }
+ else     if (_response != null)     _initialPrediction=Math.log(mean / (1.0 - mean));
   break;
 case multinomial:
 if (!isClassifier()) error("_loss","Multinomial requires an enum response.");

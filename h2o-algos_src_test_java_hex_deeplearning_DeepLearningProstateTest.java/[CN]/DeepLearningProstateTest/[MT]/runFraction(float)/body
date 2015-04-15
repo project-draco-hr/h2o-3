@@ -66,7 +66,9 @@
                                       p._override_with_best_model=override_with_best_model;
                                       p._epochs=epochs;
                                       p._loss=loss;
-                                      p._n_folds=n_folds;
+                                      if (n_folds > 0) {
+                                        H2O.unimpl();
+                                      }
                                       p._keep_cross_validation_splits=keep_cv_splits;
                                       p._seed=seed;
                                       p._train_samples_per_iteration=train_samples_per_iteration;
@@ -104,7 +106,6 @@
                                     p._destination_key=Key.make();
                                     dest=p._destination_key;
                                     p._checkpoint=dest_tmp;
-                                    p._n_folds=0;
                                     p._valid=valid == null ? null : valid._key;
                                     p._response_column=frame._names[resp];
                                     p._override_with_best_model=override_with_best_model;
@@ -141,23 +142,12 @@
                                           Assert.assertEquals(new ConfusionMatrix(mm.auc().defaultCM(),new String[]{"0","1"}).err(),error,1e-15);
                                           Assert.assertEquals(mm.cm().err(),error,1e-15);
                                         }
-                                        double CMerrorOrig=buildCM(valid.vecs()[resp].toEnum(),pred.vecs()[0].toEnum()).err();
                                         pred2=new Frame(Key.make("pred2"),pred.names(),pred.vecs());
                                         pred2.delete_and_lock(null);
                                         pred2.unlock(null);
                                         if (model2._output.nclasses() == 2) {
-                                          String ast="(= ([ %pred2 \"null\" #0) (G ([ %pred2 \"null\" #2) #" + 0.5 + "))";
+                                          String ast="(= ([ %pred2 \"null\" #0) (G ([ %pred2 \"null\" #2) #" + threshold + "))";
                                           Env ev=Exec.exec(ast);
-                                          try {
-                                            pred2=ev.popAry();
-                                          }
-  finally {
-                                            if (ev != null)                                             ev.remove_and_unlock();
-                                          }
-                                          double threshErr=buildCM(valid.vecs()[resp].toEnum(),pred2.vecs()[0].toEnum()).err();
-                                          Assert.assertEquals(threshErr,CMerrorOrig,1e-15);
-                                          ast="(= ([ %pred2 \"null\" #0) (G ([ %pred2 \"null\" #2) #" + threshold + "))";
-                                          ev=Exec.exec(ast);
                                           try {
                                             pred2=ev.popAry();
                                           }

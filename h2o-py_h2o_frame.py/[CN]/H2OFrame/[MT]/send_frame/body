@@ -1,11 +1,13 @@
 def send_frame(self):
     '\n    Send a frame description to H2O, returns a key.\n    :return: A key\n    '
     fr = H2OFrame.py_tmp_key()
+    rapids_call = '(, '
     cbind = (('(= !' + fr) + " (cbind '")
-    cbind += ("' '".join([vec._expr.eager() for vec in self._vecs]) + "'))")
-    h2o.rapids(cbind)
-    colnames = (((('(colnames= %' + fr) + ' {(: #0 #') + str((len(self) - 1))) + ')} {')
-    cnames = ';'.join([vec._name for vec in self._vecs])
-    colnames += (cnames + '})')
-    h2o.rapids(colnames)
+    cbind += ("' '".join([vec._expr.eager() for vec in self._vecs]) + "')) ")
+    rapids_call += cbind
+    colnames = (((('(colnames= %' + fr) + ' (: #0 #') + str((len(self) - 1))) + ') ')
+    cnames = (('(slist "' + '" "'.join([vec._name for vec in self._vecs])) + '")')
+    colnames += cnames
+    rapids_call += colnames
+    h2o.rapids(rapids_call)
     return fr

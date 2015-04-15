@@ -11,7 +11,10 @@ def _do_child(self, child):
         elif isinstance(child._data, slice):
             __CMD__ += (((('(: #' + str(child._data.start)) + ' #') + str((child._data.stop - 1))) + ')')
             child._data = None
-        else:
-            pass
+        elif ((self._op == '[') and isinstance(self._rite._data, tuple)):
+            if (not isinstance(child._data, tuple)):
+                return child
+            __CMD__ += self.multi_dim_slice_cmd(child)
+            return child
     __CMD__ += ' '
     return child

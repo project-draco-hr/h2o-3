@@ -1,18 +1,12 @@
 {
   AST ary=E.parse();
-  if (ary instanceof ASTId)   ary=Env.staticLookup((ASTId)ary);
-  AST seq=null;
-  if (E.skipWS().peek() == '{') {
-    String[] ps=E.xpeek('{').parseString('}').split(";");
-    _probs=new double[ps.length];
-    for (int i=0; i < ps.length; ++i) {
-      double v=Double.valueOf(ps[i]);
-      if (v < 0 || v > 1)       throw new IllegalArgumentException("Quantile: probs must be in the range of [0, 1].");
-      _probs[i]=v;
-    }
+  AST seq=E.parse();
+  if (seq instanceof ASTDoubleList) {
+    _probs=((ASTDoubleList)seq)._d;
+    seq=null;
   }
- else   seq=E.parse();
-  if (seq != null)   if (seq instanceof ASTId)   seq=Env.staticLookup((ASTId)seq);
+ else   _probs=null;
+  E.eatEnd();
   ASTQtile res=(ASTQtile)clone();
   res._asts=seq == null ? new AST[]{ary} : new AST[]{ary,seq};
   return res;

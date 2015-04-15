@@ -7,12 +7,12 @@
   String[] cfs1=new String[]{"AGE","RACE","DPROS","DCAPS","PSA","VOL","GLEASON","Intercept"};
   double[] vals=new double[]{-0.006502588,-0.500000000,0.500000000,0.400000000,0.034826559,-0.011661747,0.500000000,-4.564024};
   FVecTest.makeByteVec(betaConsKey,"names, lower_bounds, upper_bounds\n AGE, -.5, .5\n RACE, -.5, .5\n DCAPS, -.4, .4\n DPROS, -.5, .5 \nPSA, -.5, .5\n VOL, -.5, .5\nGLEASON, -.5, .5");
-  Frame betaConstraints=ParseDataset.parse(Key.make("beta_constraints.hex"),new Key[]{betaConsKey});
+  Frame betaConstraints=ParseDataset.parse(Key.make("beta_constraints.hex"),betaConsKey);
   try {
     GLMParameters params=new GLMParameters();
     params._standardize=true;
     params._family=Family.binomial;
-    params._beta_constraint=betaConstraints._key;
+    params._beta_constraints=betaConstraints._key;
     params._response_column="CAPSULE";
     params._ignored_columns=new String[]{"ID"};
     params._train=fr._key;
@@ -30,7 +30,7 @@
     params._lambda=new double[]{0};
     params._alpha=new double[]{0};
     FVecTest.makeByteVec(betaConsKey,"names, lower_bounds, upper_bounds\n RACE, -.5, .5\n DCAPS, -.4, .4\n DPROS, -.5, .5 \nPSA, -.5, .5\n VOL, -.5, .5");
-    betaConstraints=ParseDataset.parse(Key.make("beta_constraints.hex"),new Key[]{betaConsKey});
+    betaConstraints=ParseDataset.parse(Key.make("beta_constraints.hex"),betaConsKey);
     job=new GLM(modelKey,"glm test simple poisson",params);
     job.trainModel().get();
     assertTrue(job.isDone());

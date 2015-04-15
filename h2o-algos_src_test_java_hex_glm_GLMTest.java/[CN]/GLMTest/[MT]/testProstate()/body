@@ -20,11 +20,12 @@
     GLMValidation val=model.validation();
     assertEquals(512.3,val.nullDeviance(),1e-1);
     assertEquals(378.3,val.residualDeviance(),1e-1);
-    assertEquals(396.3,val.aic(),1e-1);
+    assertEquals(371,val.resDOF());
+    assertEquals(396.3,val.AIC(),1e-1);
     score=model.score(fr);
     hex.ModelMetricsBinomial mm=hex.ModelMetricsBinomial.getFromDKV(model,fr);
     hex.AUC2 adata=mm._auc;
-    assertEquals(val.auc(),adata._auc,1e-2);
+    assertEquals(val.AUC(),adata._auc,1e-2);
   }
   finally {
     fr.delete();
