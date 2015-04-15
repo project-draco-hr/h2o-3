@@ -1,14 +1,21 @@
 def show(self):
     '\n    Print innards of model, without regards to type\n    :return: None\n    '
     model = self._model_json['output']
-    sub = [k for k in model.keys() if ((k in model['help'].keys()) and (not k.startswith('_')) and (k != 'help'))]
-    val = [[model[k]] for k in sub if (not isinstance(model[k], H2OTwoDimTable))]
-    lab = [(model['help'][k] + ':') for k in sub if (k != 'help')]
-    two_dim_tables = [model[k] for k in sub if isinstance(model[k], H2OTwoDimTable)]
-    for i in range(len(val)):
-        val[i].insert(0, lab[i])
+    print 'Model Details'
+    print '============='
+    print self.__class__.__name__, ': ', self._model_json['algo_full_name']
+    print 'Model Key: ', self._key
+    self.summary()
     print 
-    print 'Model Details:'
+    if (self.__class__.__name__ == 'H2OMultinomialModel'):
+        tm = model['training_metrics']
+        if tm:
+            ModelBase._show_multi_metrics(tm)
+        vm = model['validation_metrics']
+        if vm:
+            ModelBase._show_multi_metrics(vm)
     print 
-    for v in two_dim_tables:
-        v.show()
+    if (('scoring_history' in model.keys()) and model['scoring_history']):
+        model['scoring_history'].show()
+    if (('variable_importances' in model.keys()) and model['variable_importances']):
+        model['variable_importances'].show()
