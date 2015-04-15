@@ -6,6 +6,13 @@
   double[][] eta=new double[responseChunk._len][_nSteps];
   double[] beta=_beta;
   double[] pk=_direction;
+  if (_dinfo._intercept) {
+    for (int r=0; r < eta.length; ++r) {
+      int off=beta.length - 1;
+      double t=1;
+      for (int j=0; j < _nSteps; ++j, t*=_step)       eta[r][j]+=beta[off] + pk[off] * t;
+    }
+  }
   for (int i=0; i < _dinfo._cats; ++i) {
     Chunk c=chks[i];
     for (int r=0; r < c._len; ++r) {
