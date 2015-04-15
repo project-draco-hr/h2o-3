@@ -43,6 +43,9 @@
           Log.info("Mean reconstruction error on training data: " + l2.mean() + "\n");
           err.training_MSE=l2.mean();
           mse_frame.delete();
+          hex.ModelMetricsAutoEncoder mm1=(ModelMetricsAutoEncoder)ModelMetrics.getFromDKV(this,ftrain);
+          err.training_MSE=err.train_err=mm1._MSE;
+          _output._training_metrics=mm1;
         }
         if (ftest != null) {
           final Frame mse_frame=scoreAutoEncoder(ftest,Key.make());
@@ -50,6 +53,9 @@
           Log.info("Mean reconstruction error on validation data: " + l2.mean() + "\n");
           err.validation_MSE=l2.mean();
           mse_frame.delete();
+          hex.ModelMetricsAutoEncoder mm1=(ModelMetricsAutoEncoder)ModelMetrics.getFromDKV(this,ftest);
+          err.validation_MSE=err.valid_err=mm1._MSE;
+          _output._validation_metrics=mm1;
         }
       }
  else {
@@ -76,7 +82,7 @@
         err.training_MSE=mm1._MSE;
         err.training_R2=mm1.r2();
         _output._training_metrics=mm1;
-        if (get_params()._score_training_samples != 0 && get_params()._score_training_samples != ftrain.numRows()) {
+        if (get_params()._score_training_samples != 0 && get_params()._score_training_samples < ftrain.numRows()) {
           _output._training_metrics._description="Metrics reported on " + ftrain.numRows() + " training set samples";
         }
         if (ftest != null) {
