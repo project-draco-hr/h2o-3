@@ -21,9 +21,20 @@
       oldCenters=centers;
       centers=computeStatsFillModel(task,model,vecs,centers,means,mults);
       model._output._iterations++;
+      model._output._history_avg_within_ss=ArrayUtils.copyAndFillOf(model._output._history_avg_within_ss,model._output._history_avg_within_ss.length + 1,model._output._avg_within_ss);
+      model._output._model_summary=createModelSummaryTable(model._output);
+      model._output._scoring_history=createScoringHistoryTable(model._output);
+      model._output._training_metrics=makeTrainingMetrics(model);
+      if (_valid != null) {
+        Frame pred=model.score(_parms.valid());
+        model._output._validation_metrics=DKV.getGet(model._output._model_metrics[model._output._model_metrics.length - 1]);
+        pred.delete();
+      }
       model.update(_key);
       update(1);
+      if (model._parms._score_each_iteration)       Log.info(model._output._model_summary);
     }
+    Log.info(model._output._model_summary);
     done();
   }
  catch (  Throwable t) {

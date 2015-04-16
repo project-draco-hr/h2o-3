@@ -6,12 +6,16 @@ def _do_it(self):
     cnt = (sys.getrefcount(self) - 1)
     py_tmp = ((cnt != 4) and (self._len > 1) and (not assign_vec))
     global __CMD__
+    skip = False
     if py_tmp:
         self._data = frame.H2OFrame.py_tmp_key()
         __CMD__ += (('(= !' + self._data) + ' ')
     if (self._op != ','):
         __CMD__ += (('(' + self._op) + ' ')
     left = self._do_child(self._left)
+    if (py_tmp and self._left._is_key() and (self._op == ',')):
+        skip = True
+        __CMD__ += ')'
     rite = self._do_child(self._rite)
     if (self._op in ['+', '&', '|', '-', '*', '/', '^', 'n', 'N', 'g', 'G', 'l', 'L']):
         rapids_dict = {'+': '+', '&': '&', '|': '|', '-': '-', '*': '*', '/': '/', '^': '**', 'n': '==', 'N': '!=', 'g': '>', 'G': '>=', 'l': '<', 'L': '<=', }
@@ -88,6 +92,11 @@ def _do_it(self):
             raise NotImplementedError
         else:
             pass
+    elif (self._op in ['min', 'max', 'sum', 'median']):
+        if left.is_local():
+            raise NotImplementedError
+        else:
+            __CMD__ += '%FALSE'
     elif (self._op == 'mean'):
         if left.is_local():
             self._data = (sum(left._data) / len(left._data))
@@ -129,7 +138,7 @@ def _do_it(self):
         raise NotImplementedError(self._op)
     if (self._op != ','):
         __CMD__ += ')'
-    if py_tmp:
+    if (py_tmp and (not skip)):
         __CMD__ += ')'
     self._left = None
     self._rite = None
