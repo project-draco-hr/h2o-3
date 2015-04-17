@@ -1,4 +1,4 @@
-def __init__(self, ip='localhost', port=54321, size=1, start_h2o=False, enable_assertions=False, license=None, max_mem_size_GB=1, min_mem_size_GB=1, ice_root=None):
+def __init__(self, ip='localhost', port=54321, size=1, start_h2o=False, enable_assertions=False, license=None, max_mem_size_GB=1, min_mem_size_GB=1, ice_root=None, strict_version_check=False):
     '\n        Instantiate the package handle to the H2O cluster.\n    :param ip: An IP address, default is "localhost"\n    :param port: A port, default is 54321\n    :param size: THe expected number of h2o instances (ignored if start_h2o is True)\n    :param start_h2o: A boolean dictating whether this module should start the H2O jvm. An attempt is made anyways if _connect fails.\n    :param enable_assertions: If start_h2o, pass `-ea` as a VM option.s\n    :param license: If not None, is a path to a license file.\n    :param max_mem_size_GB: Maximum heap size (jvm option Xmx) in gigabytes.\n    :param min_mem_size_GB: Minimum heap size (jvm option Xms) in gigabytes.\n    :param ice_root: A temporary directory (default location is determined by tempfile.mkdtemp()) to hold H2O log files.\n    :return: None\n    '
     port = as_int(port)
     if (not (isinstance(port, int) and (0 <= port <= sys.maxint))):
@@ -38,3 +38,11 @@ def __init__(self, ip='localhost', port=54321, size=1, start_h2o=False, enable_a
     print 
     print tabulate.tabulate(cluster_info)
     print 
+    ver_h2o = cld['version']
+    ver_pkg = pkg_resources.get_distribution('h2o').version
+    if (ver_h2o != ver_pkg):
+        message = 'Version mismatch! H2O is running version {0} but python package is version {1}'.format(ver_h2o, str(ver_pkg))
+        if strict_version_check:
+            raise EnvironmentError, message
+        else:
+            print 'Warning: {0}'.format(message)
