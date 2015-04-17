@@ -1,11 +1,8 @@
 {
   AST ast=E.parse();
-  try {
-    _format=((ASTString)E.parse())._s;
-  }
- catch (  ClassCastException e) {
-    throw new IllegalArgumentException("`format` must be a string.");
-  }
+  AST a=E.parse();
+  if (a instanceof ASTString)   _format=((ASTString)a)._s;
+ else   throw new IllegalArgumentException("`format` must be a string.");
   E.eatEnd();
   ASTasDate res=(ASTasDate)clone();
   res._asts=new AST[]{ast};
