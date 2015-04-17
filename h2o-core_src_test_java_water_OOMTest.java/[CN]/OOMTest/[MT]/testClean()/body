@@ -1,0 +1,47 @@
+{
+  final int log_rows_per_chk=6;
+  final int nchks=1024 / (1 << log_rows_per_chk);
+  Vec vcon=Vec.makeCon(0,1024,log_rows_per_chk);
+  Vec vrnd1=vcon.makeRand(0x123456L);
+  Vec vrnd2=vcon.makeRand(0x123456L);
+  vcon.remove();
+  Value val1s[]=new Value[nchks];
+  Value val2s[]=new Value[nchks];
+  for (int i=0; i < nchks; i++) {
+    val1s[i]=vrnd1.chunkIdx(i);
+    val2s[i]=vrnd2.chunkIdx(i);
+  }
+  long ago=System.currentTimeMillis() - 1000L * 1000L;
+  for (int i=0; i < nchks; i++)   val1s[i].touchAt(ago);
+synchronized (Cleaner.THE_CLEANER) {
+    Cleaner.dirty_store(ago);
+    Cleaner.kick_store_cleaner();
+    Cleaner.block_for_test();
+    Assert.assertTrue(Cleaner.dirty() != ago);
+    for (int i=0; i < nchks; i++)     Assert.assertTrue(val1s[i].isPersisted());
+    Cleaner.DESIRED=-1;
+    ago=System.currentTimeMillis() - 1000L * 1000L;
+    Cleaner.dirty_store(ago);
+    Cleaner.kick_store_cleaner();
+    Cleaner.block_for_test();
+    Assert.assertTrue(Cleaner.dirty() != ago);
+    for (int i=0; i < nchks; i++) {
+      Assert.assertTrue(val1s[i].isPersisted());
+      Assert.assertTrue(val1s[i].rawMem() == null);
+      Assert.assertTrue(val2s[i].isPersisted());
+      Assert.assertTrue(val2s[i].rawMem() == null);
+    }
+  }
+  boolean id=isBitIdentical(new Frame(new String[]{"C1"},new Vec[]{vrnd1}),new Frame(new String[]{"C1"},new Vec[]{vrnd2}));
+  Assert.assertTrue("Frames loaded from disk are equal",id);
+  for (int i=0; i < nchks; i++) {
+    Value v1=vrnd1.chunkIdx(i);
+    Value v2=vrnd2.chunkIdx(i);
+    Assert.assertTrue(v1.isPersisted());
+    Assert.assertTrue(v2.isPersisted());
+    Assert.assertTrue(v1.rawMem() != null || !v1._key.home());
+    Assert.assertTrue(v2.rawMem() != null || !v2._key.home());
+  }
+  vrnd1.remove();
+  vrnd2.remove();
+}
