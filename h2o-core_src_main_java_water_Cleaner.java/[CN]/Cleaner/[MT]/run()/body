@@ -42,7 +42,7 @@
         dirty_store(touched);
         continue;
       }
-      if (!val.isPersisted() && !diskFull && (force || (lazyPersist() && lazy_clean(key)))) {
+      if (isChunk && !val.isPersisted() && !diskFull) {
         try {
           val.storePersist();
           if (m == null)           m=val.rawMem();
@@ -54,7 +54,7 @@
           diskFull=true;
         }
       }
-      if (force && val.isPersisted()) {
+      if (isChunk && force && val.isPersisted()) {
         val.freeMem();
         if (m != null)         freed+=val._max;
         m=null;
