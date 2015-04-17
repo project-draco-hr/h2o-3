@@ -1,6 +1,6 @@
 {
   KMeansModel kmm=null;
-  for (  boolean standardize : new boolean[]{false}) {
+  for (  boolean standardize : new boolean[]{true,false}) {
     Frame fr=null, fr2=null;
     Frame tr=null, te=null;
     try {
@@ -10,7 +10,6 @@
       sf.ratios=new double[]{0.5};
       sf.dest_keys=new Key[]{Key.make("train.hex"),Key.make("test.hex")};
       sf.exec().get();
-      Assert.assertTrue("The job is not in DONE state, but in " + sf._state,sf.isDone());
       Key[] ksplits=sf.dest_keys;
       tr=DKV.get(ksplits[0]).get();
       te=DKV.get(ksplits[1]).get();
