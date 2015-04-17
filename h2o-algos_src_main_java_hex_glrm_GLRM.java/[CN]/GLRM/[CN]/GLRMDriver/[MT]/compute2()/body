@@ -28,9 +28,9 @@
     model._output._iterations=0;
     model._output._avg_change_obj=2 * TOLERANCE;
     boolean overwriteX=false;
-    double step=1.0;
-    double steps_in_row=0;
-    while (!isDone(model)) {
+    double step=_parms._init_step_size;
+    int steps_in_row=0;
+    while (!isDone(model,steps_in_row,step)) {
       UpdateX xtsk=new UpdateX(_parms,yt,step / _ncolA,overwriteX);
       xtsk.doAll(dinfo._adaptedFrame);
       UpdateY ytsk=new UpdateY(_parms,yt,step / _ncolA);

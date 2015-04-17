@@ -13,11 +13,15 @@
     parms._transform=DataInfo.TransformType.STANDARDIZE;
     parms._init=GLRM.Initialization.PlusPlus;
     parms._max_iterations=1000;
+    parms._min_step_size=1e-8;
     parms._user_points=yinit._key;
     parms._recover_pca=true;
     GLRM job=new GLRM(parms);
     try {
       model=job.trainModel().get();
+      Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
+      checkStddev(stddev,model._output._std_deviation);
+      checkEigvec(eigvec,model._output._eigenvectors_raw);
     }
  catch (    Throwable t) {
       t.printStackTrace();
