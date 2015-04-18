@@ -1,0 +1,23 @@
+{
+  if (!aggregateAllNodes) {
+    doIt(nodeidx);
+    return;
+  }
+  for (int i=0; i < H2O.CLOUD.size(); i++) {
+    WaterMeterIo io=new WaterMeterIo();
+    io.doIt(i);
+    if (i == 0) {
+      persist_stats=new IoStatsEntry[io.persist_stats.length];
+      for (int j=0; j < persist_stats.length; j++) {
+        persist_stats[j]=new IoStatsEntry();
+      }
+    }
+    for (int j=0; j < persist_stats.length; j++) {
+      persist_stats[j].storeCount+=io.persist_stats[j].storeCount;
+      persist_stats[j].storeBytes+=io.persist_stats[j].storeBytes;
+      persist_stats[j].deleteCount+=io.persist_stats[j].deleteCount;
+      persist_stats[j].loadCount+=io.persist_stats[j].loadCount;
+      persist_stats[j].loadBytes+=io.persist_stats[j].loadBytes;
+    }
+  }
+}

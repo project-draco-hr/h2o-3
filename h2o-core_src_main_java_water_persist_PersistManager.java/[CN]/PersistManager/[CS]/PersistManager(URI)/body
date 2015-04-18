@@ -1,8 +1,9 @@
 {
-  I=new Persist[8];
-  storeCount=new AtomicLong();
-  deleteCount=new AtomicLong();
-  loadCount=new AtomicLong();
+  I=new Persist[MAX_BACKENDS];
+  stats=new PersistStatsEntry[MAX_BACKENDS];
+  for (int i=0; i < stats.length; i++) {
+    stats[i]=new PersistStatsEntry();
+  }
   if (iceRoot == null) {
     Log.err("ice_root must be specified.  Exiting.");
     H2O.exit(1);
