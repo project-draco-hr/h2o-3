@@ -9,7 +9,7 @@ def bernoulliGBM(ip, port):
     learning_rate = 0.1
     depth = 5
     min_rows = 10
-    gbm_h2o = h2o.gbm(x=prostate_train[1:], y=prostate_train['CAPSULE'], ntrees=ntrees, learn_rate=learning_rate, max_depth=depth, min_rows=min_rows, loss='bernoulli')
+    gbm_h2o = h2o.gbm(x=prostate_train[1:], y=prostate_train['CAPSULE'], ntrees=ntrees, learn_rate=learning_rate, max_depth=depth, min_rows=min_rows, distribution='bernoulli')
     gbm_sci = ensemble.GradientBoostingClassifier(learning_rate=learning_rate, n_estimators=ntrees, max_depth=depth, min_samples_leaf=min_rows, max_features=None)
     gbm_sci.fit(trainDataFeatures, trainDataResponse)
     prostate_test = h2o.import_frame(path=h2o.locate('smalldata/logreg/prostate_test.csv'))
