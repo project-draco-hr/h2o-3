@@ -1,0 +1,42 @@
+{
+  PersistManager.PersistStatsEntry s[]=H2O.getPM().getStats();
+  int[] backendsToQuery=new int[]{Value.NFS,Value.HDFS,Value.S3,Value.ICE};
+  _persist_stats=new IoStatsEntry[backendsToQuery.length];
+  for (int i=0; i < _persist_stats.length; i++) {
+    int j=backendsToQuery[i];
+    _persist_stats[i]=new IoStatsEntry();
+    IoStatsEntry dest_e=_persist_stats[i];
+switch (j) {
+case Value.ICE:
+      dest_e.backend="ice";
+    break;
+case Value.HDFS:
+  dest_e.backend="hdfs";
+break;
+case Value.S3:
+dest_e.backend="s3";
+break;
+case Value.NFS:
+dest_e.backend="local";
+break;
+default :
+throw H2O.fail();
+}
+PersistManager.PersistStatsEntry src_e=s[j];
+dest_e.storeCount=src_e.storeCount.get();
+dest_e.storeBytes=src_e.storeBytes.get();
+dest_e.deleteCount=src_e.deleteCount.get();
+dest_e.loadCount=src_e.loadCount.get();
+dest_e.loadBytes=src_e.loadBytes.get();
+}
+int[] backendsToZeroCheck=new int[]{0,5,6,7};
+for (int j : backendsToZeroCheck) {
+PersistManager.PersistStatsEntry src_e=s[j];
+assert(src_e.storeCount.get() == 0);
+assert(src_e.storeBytes.get() == 0);
+assert(src_e.deleteCount.get() == 0);
+assert(src_e.loadCount.get() == 0);
+assert(src_e.loadBytes.get() == 0);
+}
+tryComplete();
+}
