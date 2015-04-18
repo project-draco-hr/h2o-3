@@ -6,5 +6,8 @@
   if (o instanceof ValNum)   return NUM;
   if (o instanceof ValSpan)   return SPAN;
   if (o instanceof ValSeries)   return SERIES;
-  throw H2O.fail("Got a bad type on the ExecStack: Object class: " + o.getClass() + ". Not a Frame, String, Double, Fun, Span, or Series");
+  if (o instanceof ValLongList)   return LIST;
+  if (o instanceof ValStringList)   return LIST;
+  if (o instanceof ValDoubleList)   return LIST;
+  throw H2O.unimpl("Got a bad type on the ExecStack: Object class: " + o.getClass() + ". Not a Frame, String, Double, Fun, Span, or Series");
 }

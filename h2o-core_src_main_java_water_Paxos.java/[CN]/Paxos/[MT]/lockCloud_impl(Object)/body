@@ -1,0 +1,11 @@
+{
+  Log.info("Locking cloud to new members, because " + reason.toString());
+synchronized (Paxos.class) {
+    while (!_commonKnowledge)     try {
+      Paxos.class.wait();
+    }
+ catch (    InterruptedException ignore) {
+    }
+    _cloudLocked=true;
+  }
+}
