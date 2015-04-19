@@ -2,7 +2,7 @@ def var(self):
     '\n    :return: The covariance matrix of the columns in this H2OFrame.\n    '
     key = self.send_frame()
     tmp_key = H2OFrame.py_tmp_key()
-    expr = '(= !{} (var %{} "null" %FALSE "everything"))'.format(tmp_key, key)
+    expr = '(= !{} (var %{} () %FALSE "everything"))'.format(tmp_key, key)
     h2o.rapids(expr)
     h2o.remove(key)
     j = h2o.frame(tmp_key)
