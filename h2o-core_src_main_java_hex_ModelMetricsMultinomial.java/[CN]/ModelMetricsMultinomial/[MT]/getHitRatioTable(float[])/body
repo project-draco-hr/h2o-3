@@ -1,17 +1,12 @@
 {
   String tableHeader="Top-" + hits.length + " Hit Ratios";
-  String tableDescription=null;
   String[] rowHeaders=new String[hits.length];
-  for (int k=0; k < hits.length; ++k) {
-    rowHeaders[k]=new Integer(k + 1).toString();
-  }
+  for (int k=0; k < hits.length; ++k)   rowHeaders[k]=Integer.toString(k + 1);
   String[] colHeaders=new String[]{"Hit Ratio"};
   String[] colTypes=new String[]{"float"};
   String[] colFormats=new String[]{"%f"};
   String colHeaderForRowHeaders="K";
-  TwoDimTable table=new TwoDimTable(tableHeader,tableDescription,rowHeaders,colHeaders,colTypes,colFormats,colHeaderForRowHeaders);
-  for (int k=0; k < hits.length; ++k) {
-    table.set(k,0,new Float(hits[k]));
-  }
+  TwoDimTable table=new TwoDimTable(tableHeader,null,rowHeaders,colHeaders,colTypes,colFormats,colHeaderForRowHeaders);
+  for (int k=0; k < hits.length; ++k)   table.set(k,0,hits[k]);
   return table;
 }
