@@ -117,7 +117,7 @@ created_job = a_node.create_frame(dest='created')
 a_node.poll_job(job_key=created_job['key']['name'])
 frames = a_node.frames(key='created')['frames']
 assert (len(frames) == 1), ("FAIL: expected to find 1 frame called 'created', found: " + str(len(frames)))
-assert (frames[0]['key']['name'] == 'created'), ("FAIL: expected to find 1 frame called 'created', found: " + repr(frames))
+assert (frames[0]['frame_id']['name'] == 'created'), ("FAIL: expected to find 1 frame called 'created', found: " + repr(frames))
 created = frames[0]
 assert ('rows' in created), "FAIL: failed to find 'rows' field in CreateFrame result."
 assert (created['rows'] == 10000), ((("FAIL: expected value of 'rows' field in CreateFrame result to be: " + str(10000)) + ', found: ') + str(created['rows']))
@@ -129,7 +129,7 @@ for dataset_spec in datasets_to_import:
     dataset = dataset_spec.import_and_validate_dataset(a_node)
     datasets[dataset_spec['dest_key']] = dataset_spec
 frames = a_node.frames(row_count=5)['frames']
-frames_dict = h2o_util.list_to_dict(frames, 'key/name')
+frames_dict = h2o_util.list_to_dict(frames, 'frame_id/name')
 if h2o.H2O.verbose:
     print 'frames: '
     pp.pprint(frames)
@@ -139,7 +139,7 @@ if h2o.H2O.verbose:
 assert ('prostate_binomial' in frames_dict), (('FAIL: Failed to find ' + 'prostate_binomial') + ' in Frames list.')
 assert (not frames_dict['prostate_binomial']['is_text']), 'FAIL: Parsed Frame is is_text'
 frames = a_node.frames(key='prostate_binomial', row_count=5)['frames']
-frames_dict = h2o_util.list_to_dict(frames, 'key/name')
+frames_dict = h2o_util.list_to_dict(frames, 'frame_id/name')
 assert ('prostate_binomial' in frames_dict), 'FAIL: Failed to find prostate.hex in Frames list.'
 columns_dict = h2o_util.list_to_dict(frames[0]['columns'], 'label')
 assert ('CAPSULE' in columns_dict), 'FAIL: Failed to find CAPSULE in Frames/prostate.hex.'
@@ -322,10 +322,10 @@ h2o_util.assertKeysExist(model['models'][0], '', ['compatible_frames'])
 assert ('prostate_binomial' in model['models'][0]['compatible_frames']), (('FAIL: Failed to find ' + 'prostate_binomial') + ' in compatible_frames list.')
 result = a_node.frames(key='prostate_binomial', find_compatible_models=True, row_count=5)
 frames = result['frames']
-frames_dict = h2o_util.list_to_dict(frames, 'key/name')
+frames_dict = h2o_util.list_to_dict(frames, 'frame_id/name')
 assert ('prostate_binomial' in frames_dict), 'FAIL: Failed to find prostate.hex in Frames list.'
 compatible_models = result['compatible_models']
-models_dict = h2o_util.list_to_dict(compatible_models, 'key/name')
+models_dict = h2o_util.list_to_dict(compatible_models, 'model_id/name')
 assert ('deeplearning_prostate_binomial' in models_dict), ((('FAIL: Failed to find ' + 'deeplearning_prostate_binomial') + ' in compatible models list: ') + repr(result))
 assert ('deeplearning_prostate_binomial' in frames[0]['compatible_models']), 'FAIL: failed to find deeplearning_prostate_binomial in compatible_models for prostate.'
 assert ('kmeans_prostate' in frames[0]['compatible_models']), 'FAIL: failed to find kmeans_prostate in compatible_models for prostate.'

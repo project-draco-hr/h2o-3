@@ -5,12 +5,12 @@ def validate_predictions(result, model_name, frame_key, expected_rows, predictio
     mm = p['model_metrics'][0]
     h2o.H2O.verboseprint('mm: ', repr(mm))
     assert ('predictions' in mm), (((('FAIL: Predictions for scoring: ' + model_name) + ' on: ') + frame_key) + ' does not contain an predictions section.')
-    assert ('key' in mm['predictions']), (((('FAIL: Predictions for scoring: ' + model_name) + ' on: ') + frame_key) + ' does not contain a key.')
-    assert ('name' in mm['predictions']['key']), (((('FAIL: Predictions for scoring: ' + model_name) + ' on: ') + frame_key) + ' does not contain a key name.')
-    predictions_key = mm['predictions']['key']['name']
+    assert ('frame_id' in mm['predictions']), (((('FAIL: Predictions for scoring: ' + model_name) + ' on: ') + frame_key) + ' does not contain a key.')
+    assert ('name' in mm['predictions']['frame_id']), (((('FAIL: Predictions for scoring: ' + model_name) + ' on: ') + frame_key) + ' does not contain a key name.')
+    predictions_key = mm['predictions']['frame_id']['name']
     f = a_node.frames(key=predictions_key, find_compatible_models=True, row_count=5)
     frames = f['frames']
-    frames_dict = h2o_util.list_to_dict(frames, 'key/name')
+    frames_dict = h2o_util.list_to_dict(frames, 'frame_id/name')
     assert (predictions_key in frames_dict), (('FAIL: Failed to find predictions key' + predictions_key) + ' in Frames list.')
     predictions = mm['predictions']
     h2o.H2O.verboseprint('p: ', repr(p))
