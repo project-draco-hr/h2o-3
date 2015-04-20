@@ -31,7 +31,7 @@
       ModelMetricsClustering mm=DKV.getGet(model._output._model_metrics[model._output._model_metrics.length - 1]);
       assert(Arrays.equals(mm._size,((ModelMetricsClustering)model._output._training_metrics)._size));
       for (int i=0; i < _parms._k; ++i) {
-        assert(Math.abs(mm._within_mse[i] - ((ModelMetricsClustering)model._output._training_metrics)._within_mse[i]) < 1e-4);
+        assert(MathUtils.compare(mm._within_mse[i],((ModelMetricsClustering)model._output._training_metrics)._within_mse[i],1e-6,1e-6));
       }
     }
     if (_valid != null) {
