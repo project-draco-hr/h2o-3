@@ -13,9 +13,9 @@
   if (labels instanceof ASTStringList)   _labels=((ASTStringList)labels)._s;
  else   if (labels instanceof ASTString)   _labels=new String[]{((ASTString)labels)._s};
  else   if (labels instanceof ASTFrame)   _labels=new String[]{((ASTFrame)labels)._key};
+ else   if (labels instanceof ASTNull)   _labels=null;
  else   throw new IllegalArgumentException("`labels` argument expected to be a slist or String. Got: " + labels.getClass());
-  for (int i=0; i < _labels.length; ++i)   _labels[i]=_labels[i].replace("\"","").replace("\'","");
-  if (_labels.length == 1 && _labels[0].equals("null"))   _labels=null;
+  if (_labels != null)   for (int i=0; i < _labels.length; ++i)   _labels[i]=_labels[i].replace("\"","").replace("\'","");
   AST inc_lowest=E.parse();
   inc_lowest=E._env.lookup((ASTId)inc_lowest);
   try {

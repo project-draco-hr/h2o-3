@@ -1,23 +1,26 @@
 {
   ArrayList<AST> dblarys=new ArrayList<>();
   AST a;
-  while (true) {
+  do {
     a=E.parse();
     if (a instanceof ASTId) {
       if (Env.staticLookup((ASTId)a) instanceof ASTFrame)       dblarys.add(a);
       if (E._env.tryLookup((ASTId)a))       break;
  else       dblarys.add(a);
     }
- else     if (a instanceof ASTNum || a instanceof ASTFrame || a instanceof ASTSlice|| a instanceof ASTOp)     dblarys.add(a);
+ else     if (a instanceof ASTAssign || a instanceof ASTNum || a instanceof ASTFrame|| a instanceof ASTSlice|| a instanceof ASTOp)     dblarys.add(a);
  else     break;
   }
-  try {
-    a=E._env.lookup((ASTId)a);
+ while (!E.isEnd());
+  if (!E.isEnd()) {
+    a=E.parse();
+    if (a instanceof ASTId)     a=E._env.lookup((ASTId)a);
+ else     throw new IllegalArgumentException("Expected the na.rm value to be one of %TRUE, %FALSE, %T, %F");
+    _narm=((ASTNum)a).dbl() == 1;
   }
- catch (  ClassCastException e) {
-    throw new IllegalArgumentException("Expected the na.rm value to be one of $TRUE, $FALSE, $T, $F");
+ else {
+    _narm=true;
   }
-  _narm=((ASTNum)a).dbl() == 1;
   E.eatEnd();
   AST[] arys=new AST[_argcnt=dblarys.size()];
   for (int i=0; i < dblarys.size(); i++)   arys[i]=dblarys.get(i);
