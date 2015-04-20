@@ -17,13 +17,13 @@
     fr=new Frame(null,vecs);
     dinfo=new DataInfo(Key.make(),fr,null,0,false,_parms._transform,DataInfo.TransformType.NONE,true);
     DKV.put(dinfo._key,dinfo);
-    model._output._normSub=_normSub=dinfo._normSub == null ? new double[_ncolA] : Arrays.copyOf(dinfo._normSub,_ncolA);
+    model._output._normSub=dinfo._normSub == null ? new double[_ncolA] : Arrays.copyOf(dinfo._normSub,_ncolA);
     if (dinfo._normMul == null) {
-      model._output._normMul=_normMul=new double[_ncolA];
+      model._output._normMul=new double[_ncolA];
       Arrays.fill(model._output._normMul,1.0);
     }
- else     model._output._normMul=_normMul=Arrays.copyOf(dinfo._normMul,_ncolA);
-    ObjCalc objtsk=new ObjCalc(_parms,yt).doAll(dinfo._adaptedFrame);
+ else     model._output._normMul=Arrays.copyOf(dinfo._normMul,_ncolA);
+    ObjCalc objtsk=new ObjCalc(_parms,yt,_ncolA,_ncolX,model._output._normSub,model._output._normMul).doAll(dinfo._adaptedFrame);
     model._output._objective=objtsk._loss + _parms._gamma * _parms.regularize(yt);
     model._output._iterations=0;
     model._output._avg_change_obj=2 * TOLERANCE;
@@ -31,11 +31,11 @@
     double step=_parms._init_step_size;
     int steps_in_row=0;
     while (!isDone(model,steps_in_row,step)) {
-      UpdateX xtsk=new UpdateX(_parms,yt,step / _ncolA,overwriteX);
+      UpdateX xtsk=new UpdateX(_parms,yt,step / _ncolA,overwriteX,_ncolA,_ncolX,model._output._normSub,model._output._normMul);
       xtsk.doAll(dinfo._adaptedFrame);
-      UpdateY ytsk=new UpdateY(_parms,yt,step / _ncolA);
+      UpdateY ytsk=new UpdateY(_parms,yt,step / _ncolA,_ncolA,_ncolX,model._output._normSub,model._output._normMul);
       double[][] ytnew=ytsk.doAll(dinfo._adaptedFrame)._ytnew;
-      objtsk=new ObjCalc(_parms,ytnew).doAll(dinfo._adaptedFrame);
+      objtsk=new ObjCalc(_parms,ytnew,_ncolA,_ncolX,model._output._normSub,model._output._normMul).doAll(dinfo._adaptedFrame);
       double obj_new=objtsk._loss + _parms._gamma * (xtsk._xreg + ytsk._yreg);
       model._output._avg_change_obj=(model._output._objective - obj_new) / nobs;
       model._output._iterations++;
@@ -55,7 +55,7 @@
       update(1);
     }
     Vec[] xvecs=new Vec[_ncolX];
-    for (int i=0; i < _ncolX; i++)     xvecs[i]=fr.vec(idx_xnew(i));
+    for (int i=0; i < _ncolX; i++)     xvecs[i]=fr.vec(idx_xnew(i,_ncolA,_ncolX));
     x=new Frame(_parms._loading_key,null,xvecs);
     xinfo=new DataInfo(Key.make(),x,null,0,false,DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true);
     DKV.put(x._key,x);
@@ -83,7 +83,7 @@
     if (dinfo != null)     dinfo.remove();
     if (xinfo != null)     xinfo.remove();
     if (fr != null) {
-      for (int i=0; i < _ncolX; i++)       fr.vec(idx_xold(i)).remove();
+      for (int i=0; i < _ncolX; i++)       fr.vec(idx_xold(i,_ncolA)).remove();
     }
     _parms.read_unlock_frames(GLRM.this);
   }
