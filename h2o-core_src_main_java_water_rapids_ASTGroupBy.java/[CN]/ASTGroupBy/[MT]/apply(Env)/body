@@ -1,5 +1,7 @@
 {
   Frame fr=e.popAry();
+  if (_gbCols == null)   _gbCols=_gbColsDelayed == null ? findCols(fr,_gbColsDelayedByName) : findCols(fr,_gbColsDelayed);
+  computeCols(_agg,fr);
   long s=System.currentTimeMillis();
   GBTask p1=new GBTask(_gbCols,_agg).doAll(fr);
   Log.info("Group By Task done in " + (System.currentTimeMillis() - s) / 1000. + " (s)");
