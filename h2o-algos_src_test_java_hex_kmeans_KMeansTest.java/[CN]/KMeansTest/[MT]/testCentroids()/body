@@ -1,5 +1,6 @@
 {
   Frame fr=frame(ard(d(1,0,0),d(0,1,0),d(0,0,1)));
+  Frame fr2=null;
   try {
     KMeansModel.KMeansParameters parms=new KMeansModel.KMeansParameters();
     parms._train=fr._key;
@@ -16,6 +17,9 @@
     for (int i=0; i < 10; i++) {
       KMeansModel kmm=doSeed(parms,System.nanoTime());
       Assert.assertTrue(kmm._output._centers_raw.length == 3);
+      fr2=kmm.score(fr);
+      Assert.assertTrue(kmm.testJavaScoring(fr,fr2,1e-15));
+      fr2.delete();
       boolean gotit=false;
       for (int j=0; j < parms._k; ++j)       gotit|=close(exp1[j],kmm._output._centers_raw[j]);
       for (int j=0; j < parms._k; ++j)       gotit|=close(exp2[j],kmm._output._centers_raw[j]);
@@ -28,6 +32,6 @@
     }
   }
   finally {
-    if (fr != null)     fr.remove();
+    if (fr != null)     fr.delete();
   }
 }

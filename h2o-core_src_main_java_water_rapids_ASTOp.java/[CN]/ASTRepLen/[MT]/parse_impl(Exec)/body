@@ -1,12 +1,7 @@
 {
   AST ary=E.parse();
-  try {
-    _length=E.nextDbl();
-  }
- catch (  ClassCastException e) {
-    e.printStackTrace();
-    throw new IllegalArgumentException("Argument `length` expected to be a number.");
-  }
+  AST a=E.parse();
+  _length=a.treeWalk(new Env(new HashSet<Key>())).popDbl();
   E.eatEnd();
   ASTRepLen res=(ASTRepLen)clone();
   res._asts=new AST[]{ary};
