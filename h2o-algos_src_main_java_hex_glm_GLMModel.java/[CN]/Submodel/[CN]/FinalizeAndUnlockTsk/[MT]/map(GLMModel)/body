@@ -1,8 +1,7 @@
 {
   Frame tFrame=DKV.getGet(_trainFrame);
   Frame vFrame=(_validFrame != null) ? DKV.get(_validFrame).<Frame>get() : null;
-  glmModel._output.pickBestModel(false,glmModel,tFrame,vFrame);
+  glmModel._output.pickBestModel(glmModel._parms._family == Family.binomial,glmModel,tFrame,vFrame);
   glmModel.update(_jobKey);
-  if (vFrame != null)   glmModel.score(vFrame);
   glmModel.unlock(_jobKey);
 }
