@@ -1,13 +1,13 @@
 {
   GLM job=null;
-  GLMModel model1=null, model2=null, model3=null, model4=null;
+  GLMModel model1=null, model2=null, model3, model4;
   Frame frMM=parse_test_file("smalldata/airlines/AirlinesTrainMM.csv.zip");
   Frame frG=parse_test_file(Key.make("gram"),"smalldata/airlines/gram_std.csv",true);
   Vec xy=frG.remove("xy");
   frMM.remove("").remove();
   frMM.add("IsDepDelayed",frMM.remove("IsDepDelayed"));
   DKV.put(frMM._key,frMM);
-  Frame fr=parse_test_file("smalldata/airlines/AirlinesTrain.csv.zip");
+  Frame fr=parse_test_file("smalldata/airlines/AirlinesTrain.csv.zip"), res=null;
   String[] ignoredCols=new String[]{"fYear","fMonth","fDayofMonth","fDayOfWeek","DepTime","ArrTime","IsDepDelayed_REC"};
   try {
     Scope.enter();
@@ -21,7 +21,9 @@
     model1=job.trainModel().get();
     Frame score1=model1.score(fr);
     ModelMetrics mm=ModelMetrics.getFromDKV(model1,fr);
-    Assert.assertEquals(5336.918,mm._mse * score1.numRows(),1);
+    Assert.assertEquals(5336.918,mm._MSE * score1.numRows(),1);
+    res=model1.score(fr);
+    Assert.assertTrue(model1.testJavaScoring(fr,res,1e-15));
     params._train=frMM._key;
     params._ignored_columns=new String[]{"X"};
     job=new GLM(Key.make("airlines_mm"),"Airlines with pre-expanded (mode.matrix) categoricals, no standardization",params);
@@ -64,13 +66,14 @@
     }
     assertEquals(val1.nullDeviance(),val2.nullDeviance(),1e-4);
     assertEquals(val1.residualDeviance(),val2.residualDeviance(),1e-4);
-    assertEquals(val1.aic(),val2.aic(),1e-2);
+    assertEquals(val1.AIC(),val2.AIC(),1e-2);
     assertEquals(5336.918,val1.residualDeviance(),1);
     assertEquals(6051.613,val1.nullDeviance(),1);
   }
   finally {
     fr.delete();
     frMM.delete();
+    res.delete();
     if (model1 != null)     model1.delete();
     if (model2 != null)     model2.delete();
     if (job != null)     job.remove();

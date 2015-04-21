@@ -20,9 +20,28 @@
       if (cleanupBadClusters(task,vecs,centers,means,mults))       continue;
       oldCenters=centers;
       centers=computeStatsFillModel(task,model,vecs,centers,means,mults);
-      model._output._iterations++;
       model.update(_key);
       update(1);
+      if (model._parms._score_each_iteration)       Log.info(model._output._model_summary);
+    }
+    Log.info(model._output._model_summary);
+    if (false) {
+      assert((ArrayUtils.sum(model._output._size) - _parms.train().numRows()) <= 1);
+      model.score(_parms.train()).delete();
+      ModelMetricsClustering mm=DKV.getGet(model._output._model_metrics[model._output._model_metrics.length - 1]);
+      assert(Arrays.equals(mm._size,((ModelMetricsClustering)model._output._training_metrics)._size));
+      for (int i=0; i < _parms._k; ++i) {
+        assert(MathUtils.compare(mm._within_mse[i],((ModelMetricsClustering)model._output._training_metrics)._within_mse[i],1e-6,1e-6));
+      }
+      assert(MathUtils.compare(mm._avg_ss,((ModelMetricsClustering)model._output._training_metrics)._avg_ss,1e-6,1e-6));
+      assert(MathUtils.compare(mm._avg_between_ss,((ModelMetricsClustering)model._output._training_metrics)._avg_between_ss,1e-6,1e-6));
+      assert(MathUtils.compare(mm._avg_within_ss,((ModelMetricsClustering)model._output._training_metrics)._avg_within_ss,1e-6,1e-6));
+    }
+    if (_valid != null) {
+      Frame pred=model.score(_parms.valid());
+      model._output._validation_metrics=DKV.getGet(model._output._model_metrics[model._output._model_metrics.length - 1]);
+      pred.delete();
+      model.update(_key);
     }
     done();
   }

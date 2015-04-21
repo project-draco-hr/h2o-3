@@ -1,17 +1,18 @@
 {
-  int n=(int)((ASTNum)(E.parse()))._d;
-  E.skipWS();
-  _aggs=new AGG[n];
-  for (int i=0; i < n; ++i) {
+  ArrayList<AGG> aggs=new ArrayList<>();
+  while (!E.isEnd()) {
     String type=E.parseString(E.peekPlus());
-    E.skipWS();
-    int col=(int)((ASTNum)E.parse()).dbl();
-    E.skipWS();
+    AST colast=E.parse();
+    Integer col=null;
+    AST delayedCol=null;
+    String delayedColByName=null;
+    if (colast instanceof ASTNum)     col=(int)((ASTNum)colast)._d;
+ else     if (colast instanceof ASTString)     delayedColByName=((ASTString)colast)._s;
+ else     delayedCol=colast;
     String na=E.parseString(E.peekPlus());
-    E.skipWS();
     String name=E.parseString(E.peekPlus());
-    E.skipWS();
-    _aggs[i]=new AGG(type,col,na,name);
+    aggs.add(new AGG(type,col,na,name,delayedColByName,delayedCol));
   }
+  _aggs=aggs.toArray(new AGG[aggs.size()]);
   return this;
 }

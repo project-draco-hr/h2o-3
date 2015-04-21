@@ -1,2 +1,14 @@
 {
+  AST ary=E.parse();
+  AST s=E.parse();
+  if (s instanceof ASTLongList)   _gbCols=((ASTLongList)s)._l;
+ else   if (s instanceof ASTNum)   _gbCols=new long[]{(long)((ASTNum)s)._d};
+ else   if (s instanceof ASTAry)   _gbColsDelayed=((ASTAry)s)._a;
+ else   if (s instanceof ASTStringList)   _gbColsDelayedByName=((ASTStringList)s)._s;
+ else   throw new IllegalArgumentException("Badly formed AST. Columns argument must be a llist or number. Got: " + s.getClass());
+  _agg=((AGG)E.parse())._aggs;
+  E.eatEnd();
+  ASTGroupBy res=(ASTGroupBy)clone();
+  res._asts=new AST[]{ary};
+  return res;
 }

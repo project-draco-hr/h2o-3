@@ -1,9 +1,8 @@
 {
   AST ary=E.parse();
-  if (ary instanceof ASTId)   ary=Env.staticLookup((ASTId)ary);
-  AST two=E.skipWS().parse();
+  AST two=E.parse();
   if (two instanceof ASTString)   two=new ASTNull();
-  if (two instanceof ASTId)   two=Env.staticLookup((ASTId)two);
+  E.eatEnd();
   ASTTable res=(ASTTable)clone();
   res._asts=new AST[]{ary,two};
   return res;

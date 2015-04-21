@@ -1,30 +1,15 @@
-def _simple_frames_bin_op(self, data, op, r=False):
+def _simple_frames_bin_op(self, data, op):
     if (len(self) == 0):
         return self
-    if isinstance(data, (H2OVec, H2OFrame)):
-        self._len_check(data)
-    if (not r):
-        if isinstance(data, H2OFrame):
-            return Expr(op, Expr(self.send_frame(), length=self.nrow()), Expr(data.send_frame(), length=data.nrow()))
-        elif isinstance(data, H2OVec):
-            return Expr(op, Expr(self.send_frame(), length=self.nrow()), Expr(H2OFrame(vecs=[data]).send_frame(), length=len(data)))
-        elif isinstance(data, Expr):
-            return Expr(op, Expr(self.send_frame(), length=self.nrow()), data)
-        elif isinstance(data, (int, float)):
-            return Expr(op, Expr(self.send_frame(), length=self.nrow()), Expr(data))
-        elif isinstance(data, str):
-            return Expr(op, Expr(self.send_frame(), length=self.nrow()), Expr(None, data))
-        else:
-            raise NotImplementedError
-    elif isinstance(data, H2OFrame):
-        return Expr(op, Expr(data.send_frame(), length=data.nrow()), Expr(self.send_frame(), length=self.nrow()))
+    if isinstance(data, H2OFrame):
+        return Expr(op, Expr(self.send_frame(), length=self.nrow()), Expr(data.send_frame(), length=data.nrow()))
     elif isinstance(data, H2OVec):
-        return Expr(op, Expr(H2OFrame(vecs=[data]).send_frame(), length=len(data)), Expr(self.send_frame(), length=self.nrow()))
+        return Expr(op, Expr(self.send_frame(), length=self.nrow()), Expr(H2OFrame(vecs=[data]).send_frame(), length=len(data)))
     elif isinstance(data, Expr):
-        return Expr(op, data, Expr(self.send_frame(), length=self.nrow()))
+        return Expr(op, Expr(self.send_frame(), length=self.nrow()), data)
     elif isinstance(data, (int, float)):
-        return Expr(op, Expr(data), Expr(self.send_frame(), length=self.nrow()), length=self.nrow())
+        return Expr(op, Expr(self.send_frame(), length=self.nrow()), Expr(data))
     elif isinstance(data, str):
-        return Expr(op, Expr(None, data), Expr(self.send_frame(), length=self.nrow()))
+        return Expr(op, Expr(self.send_frame(), length=self.nrow()), Expr(None, data))
     else:
         raise NotImplementedError

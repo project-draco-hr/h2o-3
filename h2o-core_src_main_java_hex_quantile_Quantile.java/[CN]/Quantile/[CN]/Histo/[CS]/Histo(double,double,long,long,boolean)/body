@@ -1,8 +1,9 @@
 {
-  _nbins=NBINS;
+  boolean is_int=(isInt && (ub - lb < NBINS));
+  _nbins=is_int ? (int)(ub - lb + 1) : NBINS;
   _lb=lb;
   double ulp=Math.ulp(Math.max(Math.abs(lb),Math.abs(ub)));
-  _step=(ub + ulp - lb) / _nbins;
+  _step=is_int ? 1 : (ub + ulp - lb) / _nbins;
   _start_row=start_row;
   _nrows=nrows;
   _isInt=isInt;
