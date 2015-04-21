@@ -1,0 +1,60 @@
+{
+  double[][] centers;
+  if (null != _parms._user_points) {
+    Vec[] centersVecs=_parms._user_points.get().vecs();
+    centers=new double[_parms._k][_ncolA];
+    for (int r=0; r < _parms._k; r++) {
+      for (int c=0; c < _ncolA; c++)       centers[r][c]=centersVecs[c].at(r);
+    }
+  }
+ else   if (_parms._init == Initialization.SVD) {
+    SVDModel.SVDParameters parms=new SVDModel.SVDParameters();
+    parms._train=_parms._train;
+    parms._nv=_parms._k;
+    parms._max_iterations=_parms._max_iterations;
+    parms._transform=_parms._transform;
+    parms._seed=_parms._seed;
+    parms._only_v=true;
+    SVDModel svd=null;
+    SVD job=null;
+    try {
+      job=new SVD(parms);
+      svd=job.trainModel().get();
+    }
+  finally {
+      if (job != null)       job.remove();
+      if (svd != null)       svd.remove();
+    }
+    centers=ArrayUtils.transpose(svd._output._v);
+  }
+ else {
+    KMeansModel.KMeansParameters parms=new KMeansModel.KMeansParameters();
+    parms._train=_parms._train;
+    parms._ignored_columns=_parms._ignored_columns;
+    parms._dropConsCols=_parms._dropConsCols;
+    parms._dropNA20Cols=_parms._dropNA20Cols;
+    parms._score_each_iteration=_parms._score_each_iteration;
+    parms._init=KMeans.Initialization.PlusPlus;
+    parms._k=_parms._k;
+    parms._max_iterations=_parms._max_iterations;
+    parms._standardize=true;
+    parms._seed=_parms._seed;
+    KMeansModel km=null;
+    KMeans job=null;
+    try {
+      job=new KMeans(parms);
+      km=job.trainModel().get();
+    }
+  finally {
+      if (job != null)       job.remove();
+      if (km != null)       km.remove();
+    }
+    centers=transform(km._output._centers_raw,0,km._output._normSub,km._output._normMul);
+  }
+  double frob=frobenius2(centers);
+  if (frob == 0 || Double.isNaN(frob)) {
+    warn("_init","Initialization failed. Setting initial Y to standard normal random matrix instead...");
+    centers=ArrayUtils.gaussianArray(_parms._k,_ncolA);
+  }
+  return centers;
+}
