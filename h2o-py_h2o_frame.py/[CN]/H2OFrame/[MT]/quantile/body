@@ -1,4 +1,4 @@
-def quantile(self, prob=None, combine_method='interpolate'):
+def quantile(self, prob=None):
     if (len(self) == 0):
         return self
     if (not prob):
@@ -6,11 +6,9 @@ def quantile(self, prob=None, combine_method='interpolate'):
     if (not isinstance(prob, list)):
         raise ValueError('prob must be a list')
     probs = (('(dlist #' + ' #'.join([str(p) for p in prob])) + ')')
-    if (combine_method not in ['interpolate', 'average', 'low', 'high']):
-        raise ValueError((('combine_method must be one of: [' + ','.join(['interpolate', 'average', 'low', 'high'])) + ']'))
     key = self.send_frame()
     tmp_key = H2OFrame.py_tmp_key()
-    expr = "(= !{} (quantile '{}' {} '{}'".format(tmp_key, key, probs, combine_method)
+    expr = "(= !{} (quantile '{}' {}".format(tmp_key, key, probs)
     h2o.rapids(expr)
     j = h2o.frame(tmp_key)
     fr = j['frames'][0]
