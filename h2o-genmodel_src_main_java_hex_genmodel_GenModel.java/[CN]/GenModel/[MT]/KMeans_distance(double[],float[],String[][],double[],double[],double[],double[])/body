@@ -1,0 +1,31 @@
+{
+  double sqr=0;
+  int pts=point.length;
+  for (int column=0; column < center.length; column++) {
+    float d=point[column];
+    if (Float.isNaN(d)) {
+      pts--;
+      continue;
+    }
+    if (domains[column] != null) {
+      if (d != center[column]) {
+        sqr+=1.0;
+      }
+    }
+ else {
+      if (mults != null) {
+        d-=means[column];
+        d*=mults[column];
+      }
+      double delta=d - center[column];
+      sqr+=delta * delta;
+    }
+    colSum[column]+=d;
+    colSumSq[column]+=d * d;
+  }
+  if (0 < pts && pts < point.length) {
+    double scale=point.length / pts;
+    sqr*=scale;
+  }
+  return sqr;
+}
