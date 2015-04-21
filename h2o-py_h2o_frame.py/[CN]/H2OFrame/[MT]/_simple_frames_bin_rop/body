@@ -1,0 +1,15 @@
+def _simple_frames_bin_rop(self, data, op):
+    if (len(self) == 0):
+        return self
+    if isinstance(data, H2OFrame):
+        return Expr(op, Expr(data.send_frame(), length=data.nrow()), Expr(self.send_frame(), length=self.nrow()))
+    elif isinstance(data, H2OVec):
+        return Expr(op, Expr(H2OFrame(vecs=[data]).send_frame(), length=len(data)), Expr(self.send_frame(), length=self.nrow()))
+    elif isinstance(data, Expr):
+        return Expr(op, data, Expr(self.send_frame(), length=self.nrow()))
+    elif isinstance(data, (int, float)):
+        return Expr(op, Expr(data), Expr(self.send_frame(), length=self.nrow()), length=self.nrow())
+    elif isinstance(data, str):
+        return Expr(op, Expr(None, data), Expr(self.send_frame(), length=self.nrow()))
+    else:
+        raise NotImplementedError

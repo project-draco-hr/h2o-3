@@ -1,0 +1,21 @@
+def frame_reducers(ip, port):
+    h2o.init(ip, port)
+    data = [[random.uniform((-10000), 10000) for r in range(10)] for c in range(10)]
+    h2o_data = h2o.H2OFrame(python_obj=data)
+    np_data = np.array(data)
+    (row, col) = h2o_data.dim()
+    c = random.randint(0, (col - 1))
+    h2o_val = h2o.as_list(h2o.min(h2o_data[c]))[0][0]
+    num_val = np.min(np_data[:, c])
+    h2o_val = h2o.as_list(h2o.max(h2o_data[c]))[0][0]
+    num_val = np.max(np_data[:, c])
+    h2o_val = h2o.as_list(h2o.sum(h2o_data[c]))[0][0]
+    num_val = np.sum(np_data[:, c])
+    h2o_val = h2o.as_list(h2o.sd(h2o_data[c]))[0][0]
+    num_val = np.std(np_data[:, c], axis=0, ddof=1)
+    h2o_val = h2o.as_list(h2o.var(h2o_data[c]))[0][0]
+    num_val = np.var(np_data[:, c], ddof=1)
+    h2o_val = h2o.as_list(h2o.mean(h2o_data[c]))[0][0]
+    num_val = np.mean(np_data[:, c])
+    h2o_val = h2o.as_list(h2o.median(h2o_data[c]))[0][0]
+    num_val = np.median(np_data[:, c])

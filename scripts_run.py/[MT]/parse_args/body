@@ -20,6 +20,7 @@ def parse_args(argv):
     global g_jvm_xmx
     global g_nopass
     global g_convenient
+    global g_path_to_tar
     i = 1
     while (i < len(argv)):
         s = argv[i]
@@ -99,6 +100,9 @@ def parse_args(argv):
             g_nopass = True
         elif (s == '--c'):
             g_convenient = True
+        elif (s == '--tar'):
+            i += 1
+            g_path_to_tar = os.path.abspath(argv[i])
         elif (s == '--jvm.xmx'):
             i += 1
             if (i > len(argv)):
@@ -106,6 +110,8 @@ def parse_args(argv):
             g_jvm_xmx = argv[i]
         elif (s == '--norun'):
             g_no_run = True
+        elif (s == '--noxunit'):
+            g_produce_unit_reports = False
         elif ((s == '-h') or (s == '--h') or (s == '-help') or (s == '--help')):
             usage()
         else:

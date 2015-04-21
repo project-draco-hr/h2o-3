@@ -1,49 +1,35 @@
 {
-  if (other._empty || other == null)   return;
-  if (_gblSetup == null || !_gblSetup._is_valid) {
+  if (other._empty)   return;
+  if (_gblSetup == null) {
     _empty=false;
     _gblSetup=other._gblSetup;
     assert(_gblSetup != null);
+    return;
   }
-  if (other._gblSetup._is_valid && !_gblSetup.isCompatible(other._gblSetup)) {
-    if (other._gblSetup._column_names != null) {
-      if (_gblSetup._column_names == null) {
-        _gblSetup._column_names=other._gblSetup._column_names;
-      }
- else {
-        for (int i=0; i < _gblSetup._column_names.length; i++) {
-          if (!_gblSetup._column_names[i].equals(other._gblSetup._column_names[i]))           Log.warn("Column names do not match between files");
-        }
-      }
-    }
-  }
- else   if (other._gblSetup._is_valid) {
-    if (_gblSetup._parse_type == ParserType.CSV && other._gblSetup._parse_type == ParserType.ARFF) {
+  ParseSetup setupA=_gblSetup, setupB=other._gblSetup;
+  if (setupA._is_valid && setupB._is_valid) {
+    _gblSetup._check_header=unifyCheckHeader(setupA._check_header,setupB._check_header);
+    _gblSetup._separator=unifyColumnSeparators(setupA._separator,setupB._separator);
+    _gblSetup._number_columns=unifyColumnCount(setupA._number_columns,setupB._number_columns);
+    _gblSetup._column_names=unifyColumnNames(setupA._column_names,setupB._column_names);
+    if (setupA._parse_type == ParserType.ARFF && setupB._parse_type == ParserType.CSV)     ;
+ else     if (setupA._parse_type == ParserType.CSV && setupB._parse_type == ParserType.ARFF) {
       _gblSetup._parse_type=ParserType.ARFF;
-      _gblSetup._column_types=other._gblSetup._column_types;
+      _gblSetup._column_types=setupB._column_types;
     }
-    if (other._gblSetup._column_names != null) {
-      if (_gblSetup._column_names == null) {
-        _gblSetup._column_names=other._gblSetup._column_names;
-      }
- else {
-        for (int i=0; i < _gblSetup._column_names.length; i++) {
-          if (!_gblSetup._column_names[i].equals(other._gblSetup._column_names[i]))           Log.warn("Column names do not match between files");
-        }
-      }
-      if (_gblSetup._column_types == null)       _gblSetup._column_types=other._gblSetup._column_types;
- else       if (other._gblSetup._column_types != null) {
-        for (int i=0; i < _gblSetup._column_types.length; ++i)         if (_gblSetup._column_types[i] != other._gblSetup._column_types[i])         if (_gblSetup._column_types[i] == Vec.T_BAD)         _gblSetup._column_types[i]=other._gblSetup._column_types[i];
-      }
+ else     if (setupA._parse_type == setupB._parse_type) {
+      _gblSetup._column_types=unifyColumnTypes(setupA._column_types,setupB._column_types);
     }
-    if (_gblSetup._data.length < Parser.InspectDataOut.MAX_PREVIEW_LINES) {
-      int n=_gblSetup._data.length;
-      int m=Math.min(Parser.InspectDataOut.MAX_PREVIEW_LINES,n + other._gblSetup._data.length - 1);
-      _gblSetup._data=Arrays.copyOf(_gblSetup._data,m);
-      for (int i=n; i < m; ++i) {
-        _gblSetup._data[i]=other._gblSetup._data[i - n + 1];
-      }
-    }
-    _totalParseSize+=other._totalParseSize;
+ else     throw new H2OParseSetupException("File type mismatch. Cannot parse files of type " + setupA._parse_type + " and "+ setupB._parse_type+ " as one dataset.");
   }
+ else {
+    throw new H2OParseSetupException("Cannot determine parse parameters for file.");
+  }
+  if (_gblSetup._data.length < Parser.InspectDataOut.MAX_PREVIEW_LINES) {
+    int n=_gblSetup._data.length;
+    int m=Math.min(Parser.InspectDataOut.MAX_PREVIEW_LINES,n + other._gblSetup._data.length - 1);
+    _gblSetup._data=Arrays.copyOf(_gblSetup._data,m);
+    System.arraycopy(other._gblSetup._data,1,_gblSetup._data,n,m - n);
+  }
+  _totalParseSize+=other._totalParseSize;
 }

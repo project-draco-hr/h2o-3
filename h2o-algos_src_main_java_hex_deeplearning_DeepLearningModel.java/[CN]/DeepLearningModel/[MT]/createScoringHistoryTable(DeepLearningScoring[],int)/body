@@ -6,16 +6,16 @@
   colHeaders.add("Timestamp");
   colTypes.add("string");
   colFormat.add("%s");
-  colHeaders.add("Training Duration");
+  colHeaders.add("Duration");
   colTypes.add("string");
   colFormat.add("%s");
   colHeaders.add("Training Speed");
   colTypes.add("string");
   colFormat.add("%s");
-  colHeaders.add("Training Epochs");
+  colHeaders.add("Epochs");
   colTypes.add("double");
   colFormat.add("%.5f");
-  colHeaders.add("Training Samples");
+  colHeaders.add("Samples");
   colTypes.add("long");
   colFormat.add("%d");
   colHeaders.add("Training MSE");
@@ -23,6 +23,11 @@
   colFormat.add("%.5f");
   if (!_output.autoencoder) {
     colHeaders.add("Training R^2");
+    colTypes.add("double");
+    colFormat.add("%.5f");
+  }
+  if (_output.isClassifier()) {
+    colHeaders.add("Training LogLoss");
     colTypes.add("double");
     colFormat.add("%.5f");
   }
@@ -45,6 +50,11 @@
       colTypes.add("double");
       colFormat.add("%.5f");
     }
+    if (_output.isClassifier()) {
+      colHeaders.add("Validation LogLoss");
+      colTypes.add("double");
+      colFormat.add("%.5f");
+    }
     if (_output.getModelCategory() == ModelCategory.Binomial) {
       colHeaders.add("Validation AUC");
       colTypes.add("double");
@@ -56,7 +66,7 @@
       colFormat.add("%.5f");
     }
   }
- else   if (get_params()._n_folds > 0) {
+ else   if (get_params().getNumFolds() > 0) {
     colHeaders.add("Cross-Validation MSE");
     colTypes.add("double");
     colFormat.add("%.5f");
@@ -81,7 +91,7 @@
     }
   }
   final int rows=Math.min(size_limit,errors.length);
-  TwoDimTable table=new TwoDimTable("Scoring History",new String[rows],colHeaders.toArray(new String[0]),colTypes.toArray(new String[0]),colFormat.toArray(new String[0]),"");
+  TwoDimTable table=new TwoDimTable("Scoring History",null,new String[rows],colHeaders.toArray(new String[0]),colTypes.toArray(new String[0]),colFormat.toArray(new String[0]),"");
   int row=0;
   for (int i=0; i < errors.length; i++) {
     if (errors.length > size_limit && !which.contains(new Integer(i)))     continue;
@@ -95,29 +105,35 @@
     table.set(row,col++,e.training_time_ms == 0 ? null : (String.format("%.3f",e.training_samples / (e.training_time_ms / 1e3)) + " rows/sec"));
     table.set(row,col++,e.epoch_counter);
     table.set(row,col++,e.training_samples);
-    table.set(row,col++,e.train_mse);
+    table.set(row,col++,e.training_MSE);
     if (!_output.autoencoder) {
-      table.set(row,col++,e.train_r2);
+      table.set(row,col++,e.training_R2);
+    }
+    if (_output.isClassifier()) {
+      table.set(row,col++,e.train_logloss);
     }
     if (_output.getModelCategory() == ModelCategory.Binomial) {
-      table.set(row,col++,e.trainAUC != null ? e.trainAUC.AUC() : Double.NaN);
+      table.set(row,col++,e.training_AUC != null ? e.training_AUC._auc : Double.NaN);
     }
     if (_output.isClassifier()) {
       table.set(row,col++,e.train_err);
     }
     if (get_params()._valid != null) {
-      table.set(row,col++,e.valid_mse);
+      table.set(row,col++,e.validation_MSE);
       if (!_output.autoencoder) {
-        table.set(row,col++,e.valid_r2);
+        table.set(row,col++,e.validation_R2);
+      }
+      if (_output.isClassifier()) {
+        table.set(row,col++,e.valid_logloss);
       }
       if (_output.getModelCategory() == ModelCategory.Binomial) {
-        table.set(row,col++,e.validAUC != null ? e.validAUC.AUC() : Double.NaN);
+        table.set(row,col++,e.validation_AUC != null ? e.validation_AUC._auc : Double.NaN);
       }
       if (_output.isClassifier()) {
         table.set(row,col++,e.valid_err);
       }
     }
- else     if (get_params()._n_folds > 1) {
+ else     if (get_params().getNumFolds() > 1) {
       throw H2O.unimpl("n_folds >= 2 is not (yet) implemented.");
     }
     row++;

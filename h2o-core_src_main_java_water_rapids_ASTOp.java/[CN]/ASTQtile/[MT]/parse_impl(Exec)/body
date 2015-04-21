@@ -1,27 +1,13 @@
 {
   AST ary=E.parse();
-  if (ary instanceof ASTId)   ary=Env.staticLookup((ASTId)ary);
-  AST seq=null;
-  if (E.skipWS().peek() == '{') {
-    String[] ps=E.xpeek('{').parseString('}').split(";");
-    _probs=new double[ps.length];
-    for (int i=0; i < ps.length; ++i) {
-      double v=Double.valueOf(ps[i]);
-      if (v < 0 || v > 1)       throw new IllegalArgumentException("Quantile: probs must be in the range of [0, 1].");
-      _probs[i]=v;
-    }
+  AST seq=E.parse();
+  if (seq instanceof ASTDoubleList) {
+    _probs=((ASTDoubleList)seq)._d;
+    seq=null;
   }
- else   seq=E.parse();
-  if (seq != null)   if (seq instanceof ASTId)   seq=Env.staticLookup((ASTId)seq);
-  AST a=E._env.lookup((ASTId)E.skipWS().parse());
-  _narm=((ASTNum)a).dbl() == 1;
-  try {
-    _type=(int)((ASTNum)E.skipWS().parse()).dbl();
-  }
- catch (  ClassCastException e) {
-    e.printStackTrace();
-    throw new IllegalArgumentException("Argument `type` expected to be a number.");
-  }
+ else   _probs=null;
+  _combine_method=QuantileModel.CombineMethod.valueOf(E.nextStr().toUpperCase());
+  E.eatEnd();
   ASTQtile res=(ASTQtile)clone();
   res._asts=seq == null ? new AST[]{ary} : new AST[]{ary,seq};
   return res;

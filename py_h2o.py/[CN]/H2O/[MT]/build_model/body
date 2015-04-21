@@ -12,14 +12,17 @@ def build_model(self, algo, training_frame, parameters, destination_key=None, ti
     parameters['training_frame'] = training_frame
     if (destination_key is not None):
         parameters['destination_key'] = destination_key
-    result = self.__do_json_request(('/3/ModelBuilders.json/' + algo), cmd='post', timeout=timeoutSecs, postData=parameters, raiseIfNon200=False)
+    result = self.__do_json_request(('/3/ModelBuilders/' + algo), cmd='post', timeout=timeoutSecs, postData=parameters, raiseIfNon200=False)
     if asynchronous:
         return result
     elif (('validation_error_count' in result) and (result['validation_error_count'] > 0)):
         return result
+    elif (result['__http_response']['status_code'] != 200):
+        return result
     else:
-        job = result['jobs'][0]
+        assert ('job' in result), ('FAIL: did not find job key in model build result: ' + repr(result))
+        job = result['job']
         job_key = job['key']['name']
         H2O.verboseprint(('model building job_key: ' + repr(job_key)))
         job_json = self.poll_job(job_key, timeoutSecs=timeoutSecs)
-        return job_json
+        return result

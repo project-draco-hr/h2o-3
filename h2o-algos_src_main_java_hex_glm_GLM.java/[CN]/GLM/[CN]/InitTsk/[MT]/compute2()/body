@@ -1,0 +1,18 @@
+{
+  addToPendingCount(1);
+  new YMUTask(_dinfo,_dinfo._adaptedFrame.anyVec().makeZero(),new H2OCallback<YMUTask>(this){
+    @Override public void callback(    final YMUTask ymut){
+      _rowFilter=ymut._fVec;
+      _ymut=ymut;
+      final double[] beta=MemoryManager.malloc8d(_dinfo.fullN() + 1);
+      if (_intercept)       beta[beta.length - 1]=_parms.link(ymut._ymu);
+      if (_bc._betaStart == null)       _bc.setBetaStart(beta);
+      _gtNull=new GLMGradientTask(_dinfo,_parms,0,beta,1.0 / ymut._nobs,_rowFilter,InitTsk.this).asyncExec(_dinfo._adaptedFrame);
+      if (beta != _bc._betaStart) {
+        InitTsk.this.addToPendingCount(1);
+        _gtBetaStart=new GLMGradientTask(_dinfo,_parms,0,_bc._betaStart,1.0 / ymut._nobs,_rowFilter,InitTsk.this).asyncExec(_dinfo._adaptedFrame);
+      }
+    }
+  }
+).asyncExec(_dinfo._adaptedFrame);
+}

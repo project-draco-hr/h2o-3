@@ -1,0 +1,16 @@
+def rc_if_exists_and_done(ps):
+    try:
+        rc = ps.wait(0)
+    except psutil.TimeoutExpired:
+        print 'Got TimeoutExpired on the R subprocess, may be legal'
+        rc = None
+    except psutil.NoSuchProcess:
+        raise Exception('The R subprocess disappeared when we thought it should still be there')
+    except psutil.AccessDenied:
+        raise Exception('The R subprocess gave us AccessDenied')
+    if rc:
+        error = 1
+        print ('rc_if_exists_and_done: got non-zero rc: %s' % rc)
+    else:
+        error = 0
+    return (rc, error)

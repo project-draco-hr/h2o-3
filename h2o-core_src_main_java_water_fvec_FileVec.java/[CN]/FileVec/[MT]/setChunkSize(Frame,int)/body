@@ -1,0 +1,18 @@
+{
+  if (chunkSize <= 0)   throw new IllegalArgumentException("Chunk sizes must be > 0.");
+  if (chunkSize > (1 << 30))   throw new IllegalArgumentException("Chunk sizes must be < 1G.");
+  _log2ChkSize=water.util.MathUtils.log2(chunkSize);
+  _chunkSize=1 << _log2ChkSize;
+  Futures fs=new Futures();
+  if (!(this instanceof UploadFileVec)) {
+    Keyed.remove(_key,fs);
+    fs.blockForPending();
+  }
+  DKV.put(_key,this,fs);
+  if (fr != null) {
+    fr.reloadVecs();
+    DKV.put(fr._key,fr,fs);
+  }
+  fs.blockForPending();
+  return _chunkSize;
+}

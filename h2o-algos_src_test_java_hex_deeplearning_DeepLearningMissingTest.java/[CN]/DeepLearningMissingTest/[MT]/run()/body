@@ -19,7 +19,7 @@
         NFSFileVec nfs=NFSFileVec.make(find_test_file("smalldata/junit/weather.csv"));
         data=ParseDataset.parse(Key.make("data.hex"),nfs._key);
         Log.info("FrameSplitting");
-        FrameSplitter fs=new FrameSplitter(data,new double[]{0.75f});
+        FrameSplitter fs=new FrameSplitter(data,new double[]{0.75f},generateNumKeys(data._key,2),null);
         H2O.submitTask(fs);
         Frame[] train_test=fs.getResult();
         train=train_test[0];
@@ -96,5 +96,5 @@
   }
   Log.info(sb.toString());
   Assert.assertTrue(sumErr.get(DeepLearningModel.DeepLearningParameters.MissingValuesHandling.Skip) > sumErr.get(DeepLearningModel.DeepLearningParameters.MissingValuesHandling.MeanImputation));
-  Assert.assertTrue(sumErr.get(DeepLearningModel.DeepLearningParameters.MissingValuesHandling.MeanImputation) < 1);
+  Assert.assertTrue(sumErr.get(DeepLearningModel.DeepLearningParameters.MissingValuesHandling.MeanImputation) < 1.3);
 }

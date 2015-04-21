@@ -10,6 +10,6 @@
     return f.getType();
   }
   ParameterizedType generic_super=(ParameterizedType)clz.getGenericSuperclass();
-  Class field_clz=(Class)generic_super.getActualTypeArguments()[which_tv];
-  return field_clz;
+  if (generic_super.getActualTypeArguments()[which_tv] instanceof Class)   return (Class)generic_super.getActualTypeArguments()[which_tv];
+  return findActualFieldClass(clz.getSuperclass(),f);
 }

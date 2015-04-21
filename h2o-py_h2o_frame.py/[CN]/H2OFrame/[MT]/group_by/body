@@ -1,0 +1,23 @@
+def group_by(self, cols, a):
+    '\n    GroupBy\n    :param cols: The columns to group on.\n    :param a: A dictionary of aggregates having the following shape:\n              {"colname":[aggregate, column, naMethod]}\n              e.g.: {"bikes":["count", 0, "all"]}\n\n              The naMethod is one of "all", "ignore", or "rm", which specifies how to handle\n              NAs that appear in columns that are being aggregated.\n\n              "all" - include NAs\n              "rm"  - exclude NAs\n              "ignore" - ignore NAs in aggregates, but count them (e.g. in denominators for mean, var, sd, etc.)\n    :return: The group by frame.\n    '
+    rapids_series = (('(llist #' + ' #'.join([str(self._find_idx(name)) for name in cols])) + ')')
+    aggregates = copy.deepcopy(a)
+    key = self.send_frame()
+    tmp_key = H2OFrame.py_tmp_key()
+    aggs = []
+    for k in aggregates:
+        if isinstance(aggregates[k][1], str):
+            aggregates[k][1] = ('#' + str(self._find_idx(aggregates[k][1])))
+        else:
+            aggregates[k][1] = ('#' + str(aggregates[k][1]))
+        aggs += ['"{1}" {2} "{3}" "{0}"'.format(str(k), *aggregates[k])]
+    aggs = '(agg {})'.format(' '.join(aggs))
+    expr = '(= !{} (GB %{} {} {}))'.format(tmp_key, key, rapids_series, aggs)
+    h2o.rapids(expr)
+    j = h2o.frame(tmp_key)
+    fr = j['frames'][0]
+    rows = fr['rows']
+    veckeys = fr['vec_keys']
+    cols = fr['columns']
+    colnames = [col['label'] for col in cols]
+    return H2OFrame(vecs=H2OVec.new_vecs(zip(colnames, veckeys), rows))

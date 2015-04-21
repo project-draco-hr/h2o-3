@@ -69,7 +69,7 @@
       update(model.actual_train_samples_per_iteration);
     }
  while (model.doScoring(trainScoreFrame,validScoreFrame,self(),_progressKey));
-    if (!isCancelledOrCrashed() && _parms._override_with_best_model && model.actual_best_model_key != null && _parms._n_folds == 0) {
+    if (!isCancelledOrCrashed() && _parms._override_with_best_model && model.actual_best_model_key != null && _parms.getNumFolds() == 0) {
       DeepLearningModel best_model=DKV.getGet(model.actual_best_model_key);
       if (best_model != null && best_model.error() < model.error() && Arrays.equals(best_model.model_info().units,model.model_info().units)) {
         Log.info("Setting the model to be the best model so far (based on scoring history).");
@@ -82,10 +82,10 @@
         assert(best_model.error() == model.error());
       }
     }
-    Log.info("==============================================================================================");
+    Log.info("==============================================================================================================================================================================");
     Log.info("Finished training the Deep Learning model.");
     Log.info(model);
-    Log.info("==============================================================================================");
+    Log.info("==============================================================================================================================================================================");
   }
  catch (  Throwable ex) {
     model=DKV.get(dest()).get();

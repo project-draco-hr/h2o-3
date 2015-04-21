@@ -18,6 +18,10 @@ def eager(self):
     j = h2o.rapids(cmd)
     if isinstance(self._data, unicode):
         pass
+    elif j['num_rows']:
+        self._data = j['head']
+    elif (j['result'] in [u'TRUE', u'FALSE']):
+        self._data = (j['result'] == u'TRUE')
     else:
-        self._data = (j['head'] if j['num_rows'] else j['scalar'])
+        self._data = j['scalar']
     return self._data

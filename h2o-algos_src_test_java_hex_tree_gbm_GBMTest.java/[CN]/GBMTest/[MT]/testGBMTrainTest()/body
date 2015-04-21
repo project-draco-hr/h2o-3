@@ -16,7 +16,7 @@
     parms._min_rows=10;
     parms._nbins=100;
     parms._learn_rate=.2f;
-    parms._loss=Family.multinomial;
+    parms._distribution=Family.multinomial;
     GBM job=null;
     try {
       job=new GBM(parms);
@@ -26,10 +26,10 @@
       if (job != null)       job.remove();
     }
     hex.ModelMetricsBinomial mm=hex.ModelMetricsBinomial.getFromDKV(gbm,parms.valid());
-    double auc=mm._aucdata.AUC();
+    double auc=mm._auc._auc;
     Assert.assertTrue(0.84 <= auc && auc < 0.86);
-    ConfusionMatrix cmf1=mm._aucdata.CM();
-    Assert.assertArrayEquals(ar(ar(336,57),ar(36,71)),cmf1.confusion_matrix);
+    long[][] cm=mm._auc.defaultCM();
+    Assert.assertArrayEquals(ar(ar(315,78),ar(26,81)),cm);
   }
   finally {
     parms._train.remove();

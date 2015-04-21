@@ -1,10 +1,6 @@
 {
-  GLM job=null;
   Key parsed=Key.make("cars_parsed");
-  Key modelKey=Key.make("cars_model");
   Frame fr=null;
-  GLMModel model=null;
-  Frame score=null;
   DataInfo dinfo=null;
   try {
     fr=parse_test_file(parsed,"smalldata/junit/mixcat_train.csv");
@@ -15,12 +11,11 @@
     fr.add("Useless",fr.remove("Useless"));
     dinfo=new DataInfo(Key.make(),fr,null,1,params._use_all_factor_levels || params._lambda_search,params._standardize ? DataInfo.TransformType.STANDARDIZE : DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true);
     DKV.put(dinfo._key,dinfo);
-    double ymu=0;
     double[] beta=MemoryManager.malloc8d(dinfo.fullN() + 1);
     Random rnd=new Random(987654321);
     for (int i=0; i < beta.length; ++i)     beta[i]=1 - 2 * rnd.nextDouble();
-    GLMGradientTask grtCol=new GLMGradientTask(dinfo,params,params._lambda[0],beta,1).forceColAccess().doAll(dinfo._adaptedFrame);
-    GLMGradientTask grtRow=new GLMGradientTask(dinfo,params,params._lambda[0],beta,1).forceRowAccess().doAll(dinfo._adaptedFrame);
+    GLMGradientTask grtCol=new GLMGradientTask(dinfo,params,params._lambda[0],beta,1,null).forceColAccess().doAll(dinfo._adaptedFrame);
+    GLMGradientTask grtRow=new GLMGradientTask(dinfo,params,params._lambda[0],beta,1,null).forceRowAccess().doAll(dinfo._adaptedFrame);
     for (int i=0; i < beta.length; ++i)     assertEquals("gradients differ",grtRow._gradient[i],grtCol._gradient[i],1e-4);
     params=new GLMParameters(Family.gaussian,Family.gaussian.defaultLink,new double[]{0},new double[]{0});
     params._use_all_factor_levels=false;
@@ -30,8 +25,8 @@
     beta=MemoryManager.malloc8d(dinfo.fullN() + 1);
     rnd=new Random(1987654321);
     for (int i=0; i < beta.length; ++i)     beta[i]=1 - 2 * rnd.nextDouble();
-    grtCol=new GLMGradientTask(dinfo,params,params._lambda[0],beta,1).forceColAccess().doAll(dinfo._adaptedFrame);
-    grtRow=new GLMGradientTask(dinfo,params,params._lambda[0],beta,1).forceRowAccess().doAll(dinfo._adaptedFrame);
+    grtCol=new GLMGradientTask(dinfo,params,params._lambda[0],beta,1,null).forceColAccess().doAll(dinfo._adaptedFrame);
+    grtRow=new GLMGradientTask(dinfo,params,params._lambda[0],beta,1,null).forceRowAccess().doAll(dinfo._adaptedFrame);
     for (int i=0; i < beta.length; ++i)     assertEquals("gradients differ: " + Arrays.toString(grtRow._gradient) + " != "+ Arrays.toString(grtCol._gradient),grtRow._gradient[i],grtCol._gradient[i],1e-4);
     dinfo.remove();
     fr=parse_test_file(parsed,"smalldata/junit/cars.csv");
@@ -41,20 +36,16 @@
     params._use_all_factor_levels=true;
     dinfo=new DataInfo(Key.make(),fr,null,1,params._use_all_factor_levels || params._lambda_search,params._standardize ? DataInfo.TransformType.STANDARDIZE : DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true);
     DKV.put(dinfo._key,dinfo);
-    ymu=0;
     beta=MemoryManager.malloc8d(dinfo.fullN() + 1);
     rnd=new Random(987654321);
     for (int i=0; i < beta.length; ++i)     beta[i]=1 - 2 * rnd.nextDouble();
-    grtCol=new GLMGradientTask(dinfo,params,params._lambda[0],beta,1).forceColAccess().doAll(dinfo._adaptedFrame);
-    grtRow=new GLMGradientTask(dinfo,params,params._lambda[0],beta,1).forceRowAccess().doAll(dinfo._adaptedFrame);
+    grtCol=new GLMGradientTask(dinfo,params,params._lambda[0],beta,1,null).forceColAccess().doAll(dinfo._adaptedFrame);
+    grtRow=new GLMGradientTask(dinfo,params,params._lambda[0],beta,1,null).forceRowAccess().doAll(dinfo._adaptedFrame);
     for (int i=0; i < beta.length; ++i)     assertEquals("gradients differ: " + Arrays.toString(grtRow._gradient) + " != "+ Arrays.toString(grtCol._gradient),grtRow._gradient[i],grtCol._gradient[i],1e-4);
     dinfo.remove();
   }
   finally {
     if (fr != null)     fr.delete();
-    if (score != null)     score.delete();
-    if (model != null)     model.delete();
-    if (job != null)     job.remove();
     if (dinfo != null)     dinfo.remove();
   }
 }

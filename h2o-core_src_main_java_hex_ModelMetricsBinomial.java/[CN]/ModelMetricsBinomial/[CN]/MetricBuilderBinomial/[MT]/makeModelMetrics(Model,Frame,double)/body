@@ -1,7 +1,11 @@
 {
-  ConfusionMatrix[] cms=new ConfusionMatrix[_cms.length];
-  for (int i=0; i < cms.length; i++)   cms[i]=new ConfusionMatrix(_cms[i],_domain);
-  AUCData aucdata=new AUC(cms,_thresholds,_domain).data();
-  double mse=_sumsqe / _count;
-  return m._output.addModelMetrics(new ModelMetricsBinomial(m,f,aucdata,sigma,mse));
+  if (sigma != 0.0 && _count > 0) {
+    double mse=_sumsqe / _count;
+    double logloss=_logloss / _count;
+    AUC2 auc=new AUC2(_auc);
+    return m._output.addModelMetrics(new ModelMetricsBinomial(m,f,mse,_domain,sigma,auc,logloss));
+  }
+ else {
+    return m._output.addModelMetrics(new ModelMetricsBinomial(m,f,Double.NaN,null,Double.NaN,null,Double.NaN));
+  }
 }

@@ -1,0 +1,34 @@
+{
+  Frame tfr=null;
+  final int N=1;
+  double[] mses=new double[N];
+  Scope.enter();
+  try {
+    tfr=parse_test_file("smalldata/gbm_test/alphabet_cattest.csv");
+    Scope.track(tfr.replace(1,tfr.vecs()[1].toEnum())._key);
+    DKV.put(tfr);
+    for (int i=0; i < N; ++i) {
+      GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
+      parms._train=tfr._key;
+      parms._response_column="y";
+      parms._ntrees=1;
+      parms._max_depth=1;
+      parms._learn_rate=1;
+      parms._distribution=Family.bernoulli;
+      GBM job=new GBM(parms);
+      GBMModel gbm=job.trainModel().get();
+      assertEquals(gbm._output._ntrees,parms._ntrees);
+      hex.ModelMetricsBinomial mm=hex.ModelMetricsBinomial.getFromDKV(gbm,parms.train());
+      double auc=mm._auc._auc;
+      Assert.assertTrue(1 == auc);
+      mses[i]=gbm._output._mse_train[gbm._output._mse_train.length - 1];
+      job.remove();
+      gbm.delete();
+    }
+  }
+  finally {
+    if (tfr != null)     tfr.remove();
+  }
+  Scope.exit();
+  for (  double mse : mses)   assertEquals(0.0142093,mse,1e-6);
+}

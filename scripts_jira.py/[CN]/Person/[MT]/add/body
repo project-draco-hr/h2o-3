@@ -1,11 +1,9 @@
 def add(self, issue):
-    story_points = issue[u'fields'][u'customfield_10004']
-    if (story_points is None):
-        story_points = 0
-    else:
-        story_points = float(story_points)
+    story_points = get_issue_story_points(issue)
     resolution = issue[u'fields'][u'resolution']
     if (resolution is None):
         self.unresolved_story_points += story_points
+        self.unresolved_list.append(issue)
     else:
         self.resolved_story_points += story_points
+        self.resolved_list.append(issue)

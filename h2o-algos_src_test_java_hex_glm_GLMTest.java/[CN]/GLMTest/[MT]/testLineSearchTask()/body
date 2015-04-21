@@ -1,10 +1,6 @@
 {
-  GLM job=null;
   Key parsed=Key.make("cars_parsed");
-  Key modelKey=Key.make("cars_model");
   Frame fr=null;
-  GLMModel model=null;
-  Frame score=null;
   DataInfo dinfo=null;
   double ymu=0;
   try {
@@ -23,14 +19,14 @@
       beta[i]=1 - 2 * rnd.nextDouble();
       pk[i]=10 * (1 - 2 * rnd.nextDouble());
     }
-    GLMLineSearchTask glst=new GLMLineSearchTask(dinfo,0,0,params,1,beta,pk,.7,16).doAll(dinfo._adaptedFrame);
+    GLMLineSearchTask glst=new GLMLineSearchTask(dinfo,params,1,beta,pk,.7,16,null).doAll(dinfo._adaptedFrame);
     double step=1, stepDec=.7;
     for (int i=0; i < glst._nSteps; ++i) {
       double[] b=beta.clone();
       for (int j=0; j < b.length; ++j) {
         b[j]+=step * pk[j];
       }
-      GLMIterationTask glmt=new GLMTask.GLMIterationTask(null,dinfo,0,params,true,b,ymu,ModelUtils.DEFAULT_THRESHOLDS,null).doAll(dinfo._adaptedFrame);
+      GLMIterationTask glmt=new GLMTask.GLMIterationTask(null,dinfo,0,params,true,b,ymu,null,null).doAll(dinfo._adaptedFrame);
       assertEquals("objective values differ at step " + i + ": "+ step,glmt._likelihood,glst._likelihoods[i],1e-8);
       System.out.println("step = " + step + ", obj = "+ glmt._likelihood+ ", "+ glst._likelihoods[i]);
       step*=stepDec;
@@ -38,9 +34,6 @@
   }
   finally {
     if (fr != null)     fr.delete();
-    if (score != null)     score.delete();
-    if (model != null)     model.delete();
-    if (job != null)     job.remove();
     if (dinfo != null)     dinfo.remove();
   }
 }

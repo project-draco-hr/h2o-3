@@ -1,0 +1,21 @@
+def multi_dim_slice_data_cmd(self, child):
+    if isinstance(self._left._data, unicode):
+        return ''
+    elif isinstance(self._left._data, list):
+        c = child._data[1]
+        if isinstance(c, int):
+            return (("'" + self._left._data[c]) + "'")
+        if isinstance(c, slice):
+            cols = self._left._data[c]
+            cmd = '(cbind'
+            for col in cols:
+                cmd += ((" '" + str(col)) + "'")
+            cmd += ')'
+            return cmd
+        if (c == '()'):
+            cmd = '(cbind'
+            for col in self._left._data:
+                cmd += ((" '" + str(col)) + "'")
+            cmd += ')'
+            return cmd
+    raise NotImplementedError

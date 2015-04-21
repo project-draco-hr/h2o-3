@@ -1,4 +1,10 @@
 {
+  model._output._categorical_column_count=0;
+  _isCats=new String[vecs.length][];
+  for (int v=0; v < vecs.length; v++) {
+    _isCats[v]=vecs[v].isEnum() ? new String[0] : null;
+    if (_isCats[v] != null)     model._output._categorical_column_count++;
+  }
   Random rand=water.util.RandomUtils.getRNG(_parms._seed - 1);
   double centers[][];
   if (null != _parms._user_points) {
@@ -22,16 +28,16 @@
       centers=new double[1][vecs.length];
       randomRow(vecs,rand,centers[0],means,mults);
       while (model._output._iterations < 5) {
-        SumSqr sqr=new SumSqr(centers,means,mults,_ncats).doAll(vecs);
-        Sampler sampler=new Sampler(centers,means,mults,_ncats,sqr._sqr,_parms._k * 3,_parms._seed).doAll(vecs);
+        SumSqr sqr=new SumSqr(centers,means,mults,_isCats).doAll(vecs);
+        Sampler sampler=new Sampler(centers,means,mults,_isCats,sqr._sqr,_parms._k * 3,_parms._seed).doAll(vecs);
         centers=ArrayUtils.append(centers,sampler._sampled);
         if (!isRunning())         return null;
-        model._output._centers_raw=destandardize(centers,_ncats,means,mults);
+        model._output._centers_raw=destandardize(centers,_isCats,means,mults);
         model._output._avg_within_ss=sqr._sqr / _train.numRows();
         model._output._iterations++;
         model.update(_key);
       }
-      centers=recluster(centers,rand);
+      centers=recluster(centers,rand,_parms._k,_parms._init,_isCats);
       model._output._iterations=-1;
     }
   }

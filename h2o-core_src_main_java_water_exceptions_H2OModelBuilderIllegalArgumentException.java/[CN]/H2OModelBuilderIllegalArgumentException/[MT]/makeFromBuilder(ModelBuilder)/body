@@ -1,0 +1,12 @@
+{
+  Model.Parameters parameters=builder._parms;
+  String algo=ModelBuilder.getAlgo(builder.getClass());
+  String msg="Illegal argument(s) for " + algo + " model: "+ builder.dest()+ ".  Details: "+ builder.validationErrors();
+  H2OModelBuilderIllegalArgumentException exception=new H2OModelBuilderIllegalArgumentException(msg,msg);
+  exception.values=new IcedHashMap.IcedHashMapStringObject();
+  exception.values.put("algo",algo);
+  exception.values.put("parameters",parameters);
+  exception.values.put("validation_error_count",builder.error_count());
+  exception.values.put("validation_messages",builder._messages);
+  return exception;
+}

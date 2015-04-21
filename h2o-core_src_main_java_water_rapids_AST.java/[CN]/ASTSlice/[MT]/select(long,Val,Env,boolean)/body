@@ -22,7 +22,7 @@
     final ValSeries a0=a;
     Frame fr=a0.all_neg() ? new MRTask(){
       @Override public void map(      Chunk cs){
-        for (long i=cs.start(); i < cs._len + cs.start(); ++i)         if (a0.contains(-i))         cs.set((int)(i - cs.start() - 1),0);
+        for (long i=cs.start(); i < cs._len + cs.start(); ++i)         if (a0.contains(-i))         cs.set((int)(i - cs.start()),0);
       }
     }
 .doAll(v0).getResult()._fr : new MRTask(){
@@ -56,12 +56,31 @@
   Frame ary=env.popAry();
   if (ary.numCols() != 1)   throw new IllegalArgumentException("Selector must be a single column: " + AtoS(ary.names()));
   Vec vec=ary.anyVec();
-  if (ary.numRows() == len && vec.min() >= 0 && vec.max() <= 1 && vec.isInt())   return ary;
-  if (ary.numRows() > 10000000)   throw H2O.fail("Unimplemented: Cannot explicitly select > 10000000 rows in slice.");
-  cols=MemoryManager.malloc8((int)ary.numRows());
-  for (int i=0; i < cols.length; ++i) {
-    if (vec.isNA(i))     throw new IllegalArgumentException("Can not use NA as index!");
-    cols[i]=vec.at8(i);
+  if (isCol) {
+    if (vec.min() != 0 && vec.max() != 1 && !vec.isInt())     throw new IllegalArgumentException("Vec selector must be a single columns of 1s and 0s.");
+    final ASTGroupBy.IcedNBHS<IcedInt> hs=new ASTGroupBy.IcedNBHS();
+    new MRTask(){
+      @Override public void map(      Chunk c){
+        int start=(int)c.start();
+        for (int i=0; i < c._len; ++i) {
+          if (c.at8(i) == 1 && len > (i + start))           hs.add(new IcedInt(start + i));
+        }
+      }
+    }
+.doAll(ary);
+    cols=new long[(int)Math.min(hs.size(),len)];
+    Iterator<IcedInt> it=hs.iterator();
+    int j=0;
+    while (j < cols.length && it.hasNext())     cols[j++]=it.next()._val;
+  }
+ else {
+    if (ary.numRows() == len && vec.min() >= 0 && vec.max() <= 1 && vec.isInt())     return ary;
+    if (ary.numRows() > 10000000)     throw H2O.fail("Unimplemented: Cannot explicitly select > 10000000 rows in slice.");
+    cols=MemoryManager.malloc8((int)ary.numRows());
+    for (int i=0; i < cols.length; ++i) {
+      if (vec.isNA(i))       throw new IllegalArgumentException("Can not use NA as index!");
+      cols[i]=vec.at8(i);
+    }
   }
   return cols;
 }

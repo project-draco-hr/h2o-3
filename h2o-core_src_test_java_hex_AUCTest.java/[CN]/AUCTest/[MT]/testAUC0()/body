@@ -1,0 +1,40 @@
+{
+  double probs[]=new double[]{1e-8,1e-7,1e-6,1e-5,1e-4,1e-3,1e-3,1e-3,1e-3,1e-3,1e-3,1e-3,1e-3,1e-3,1e-3,1e-2,1e-1};
+  double actls[]=new double[]{0,0,1,1,1,1,0,1,0,1,0,1,0,1,1,1,1};
+  int P=0;
+  for (  double a : actls)   P+=(int)a;
+  int N=actls.length - P;
+  System.out.println("P=" + P + ", N="+ N);
+  double thresh[]=new double[]{1e-1,1e-2,1e-3 + 1e-9,1e-3,1e-3 - 1e-9,1e-4,1e-5,1e-6,1e-7,1e-8,0};
+  int tp[]=new int[thresh.length], fp[]=new int[thresh.length];
+  int tn[]=new int[thresh.length], fn[]=new int[thresh.length];
+  for (int i=0; i < probs.length; i++) {
+    for (int t=0; t < thresh.length; t++) {
+      if (probs[i] >= thresh[t])       if (actls[i] == 0.0)       fp[t]++;
+ else       tp[t]++;
+ else       if (actls[i] == 0.0)       tn[t]++;
+ else       fn[t]++;
+    }
+  }
+  System.out.println(Arrays.toString(tp));
+  System.out.println(Arrays.toString(fp));
+  System.out.println(Arrays.toString(fn));
+  System.out.println(Arrays.toString(tn));
+  for (int i=0; i < tp.length; i++)   System.out.print("{" + ((double)tp[i] / P) + ","+ ((double)fp[i] / N)+ "} ");
+  System.out.println();
+  Assert.assertEquals(doAUC(probs,actls),0.636363636363,1e-5);
+  swap(0,5,probs,actls);
+  swap(1,6,probs,actls);
+  swap(7,15,probs,actls);
+  Assert.assertEquals(doAUC(probs,actls),0.636363636363,1e-5);
+  double ROCR_auc=0.7244389;
+  Frame fr=parse_test_file("smalldata/junit/auc.csv.gz");
+  AUC2 auc=new AUC2(fr.vec("V1"),fr.vec("V2"));
+  Assert.assertEquals(ROCR_auc,auc._auc,1e-4);
+  Assert.assertEquals(1.0,AUC2.ThresholdCriterion.precision.max_criterion(auc),1e-4);
+  double ROCR_max_abs_mcc=0.4553512;
+  Assert.assertEquals(ROCR_max_abs_mcc,AUC2.ThresholdCriterion.absolute_MCC.max_criterion(auc),1e-3);
+  double ROCR_f1=0.9920445;
+  Assert.assertEquals(ROCR_f1,AUC2.ThresholdCriterion.f1.max_criterion(auc),1e-4);
+  fr.remove();
+}

@@ -1,12 +1,7 @@
 {
   final Key rskey=vec.rollupStatsKey();
   Value val=DKV.get(rskey);
-  if (val == null) {
-    if (vec.length() > 0)     return null;
- else     return new RollupStats();
-  }
- else {
-    RollupStats rs=val.get(RollupStats.class);
-    return rs.isReady() ? rs : null;
-  }
+  if (val == null)   return vec.length() > 0 ? null : new RollupStats(0);
+  RollupStats rs=val.get(RollupStats.class);
+  return rs.isReady() ? rs : null;
 }

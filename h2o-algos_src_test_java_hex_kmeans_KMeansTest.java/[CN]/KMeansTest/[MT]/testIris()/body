@@ -5,17 +5,21 @@
     fr=parse_test_file("smalldata/iris/iris_wheader.csv");
     KMeansModel.KMeansParameters parms=new KMeansModel.KMeansParameters();
     parms._train=fr._key;
-    parms._ignored_columns=new String[]{"class"};
     parms._k=3;
     parms._standardize=true;
     parms._max_iterations=10;
     parms._init=KMeans.Initialization.Random;
     kmm=doSeed(parms,0);
+    double[][] centers=kmm._output._centers_raw;
+    for (int k=0; k < parms._k; k++) {
+      double flower=centers[k][4];
+      Assert.assertTrue("categorical column expected",flower == (int)flower);
+    }
     fr2=kmm.score(fr);
   }
   finally {
-    if (fr != null)     fr.remove();
-    if (fr2 != null)     fr2.remove();
+    if (fr != null)     fr.delete();
+    if (fr2 != null)     fr2.delete();
     if (kmm != null)     kmm.delete();
   }
 }

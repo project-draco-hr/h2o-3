@@ -1,0 +1,22 @@
+{
+  if (queues == null) {
+    return -1.0;
+  }
+  double totalCapacityAtLevel=0;
+  for (  QueueInfo qi : queues) {
+    totalCapacityAtLevel+=qi.getCapacity();
+  }
+  for (  QueueInfo qi : queues) {
+    if (qi.getQueueName().equals(queueToFind)) {
+      return startingValue * qi.getCapacity() / totalCapacityAtLevel;
+    }
+  }
+  for (  QueueInfo qi : queues) {
+    double newStartingValue=startingValue * qi.getCapacity() / totalCapacityAtLevel;
+    double rv=calcFractionalCapability(newStartingValue,qi.getChildQueues(),queueToFind);
+    if (rv > 0) {
+      return rv;
+    }
+  }
+  throw new RuntimeException("Diagnostic failed, please contact support@h2o.ai");
+}
