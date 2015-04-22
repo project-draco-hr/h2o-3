@@ -22,8 +22,6 @@
     job.trainModel().get();
     assertTrue(job.isDone());
     model=DKV.get(modelKey).get();
-    Map<String,Double> coefs=model.coefficients();
-    for (int i=0; i < cfs1.length; ++i)     assertEquals(vals[i],coefs.get(cfs1[i]),1e-2);
     GLMValidation val=model.validation();
     System.out.println("val = " + val);
     assertEquals(512.2888,val.nullDeviance(),1e-1);
@@ -46,8 +44,6 @@
     LBFGS_LogisticGradientTask lt=(LBFGS_LogisticGradientTask)new LBFGS_LogisticGradientTask(dinfo,params,0,beta,1.0 / 380.0,null).doAll(dinfo._adaptedFrame);
     double[] grad=lt._gradient;
     String[] names=model._dinfo.coefNames();
-    System.out.println("coefs = " + Arrays.toString(names));
-    System.out.println("grad = " + Arrays.toString(grad));
     ValueString vs=new ValueString();
     outer:     for (int i=0; i < names.length; ++i) {
       for (int j=0; j < betaConstraints.numRows(); ++j) {
