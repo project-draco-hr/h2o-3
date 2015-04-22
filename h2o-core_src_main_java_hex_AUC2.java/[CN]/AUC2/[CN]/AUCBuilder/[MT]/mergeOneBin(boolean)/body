@@ -1,5 +1,4 @@
 {
-  boolean dups=false;
   double minSQE=Double.MAX_VALUE;
   int minI=-1;
   for (int i=0; i < _n - 1; i++) {
@@ -11,11 +10,12 @@
       minI=i;
       minSQE=sqe0;
       if (delta == 0) {
-        dups=true;
+        merge=true;
         break;
       }
     }
   }
+  if (!merge)   return false;
   long k0=_tps[minI] + _fps[minI];
   long k1=_tps[minI + 1] + _fps[minI + 1];
   double d=(_ths[minI] * k0 + _ths[minI + 1] * k1) / (k0 + k1);
@@ -28,5 +28,5 @@
   System.arraycopy(_tps,minI + 2,_tps,minI + 1,_n - minI - 2);
   System.arraycopy(_fps,minI + 2,_fps,minI + 1,_n - minI - 2);
   _n--;
-  return dups;
+  return true;
 }
