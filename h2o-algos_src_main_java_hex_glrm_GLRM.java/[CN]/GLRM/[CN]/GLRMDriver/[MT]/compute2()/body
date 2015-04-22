@@ -8,7 +8,6 @@
     if (error_count() > 0)     throw new IllegalArgumentException("Found validation errors: " + validationErrors());
     model=new GLRMModel(dest(),_parms,new GLRMModel.GLRMOutput(GLRM.this));
     model.delete_and_lock(_key);
-    _train.read_lock(_key);
     double nobs=_train.numRows() * _train.numCols();
     double[][] yt=ArrayUtils.transpose(initialY());
     Vec[] vecs=new Vec[_ncolA + 2 * _ncolX];
@@ -78,14 +77,13 @@
     }
   }
  finally {
-    _train.unlock(_key);
+    _parms.read_unlock_frames(GLRM.this);
     if (model != null)     model.unlock(_key);
     if (dinfo != null)     dinfo.remove();
     if (xinfo != null)     xinfo.remove();
     if (fr != null) {
       for (int i=0; i < _ncolX; i++)       fr.vec(idx_xold(i,_ncolA)).remove();
     }
-    _parms.read_unlock_frames(GLRM.this);
   }
   tryComplete();
 }
