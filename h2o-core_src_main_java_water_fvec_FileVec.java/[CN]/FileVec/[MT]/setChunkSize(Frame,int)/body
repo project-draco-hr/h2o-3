@@ -4,10 +4,6 @@
   _log2ChkSize=water.util.MathUtils.log2(chunkSize);
   _chunkSize=1 << _log2ChkSize;
   Futures fs=new Futures();
-  if (!(this instanceof UploadFileVec)) {
-    Keyed.remove(_key,fs);
-    fs.blockForPending();
-  }
   DKV.put(_key,this,fs);
   if (fr != null) {
     fr.reloadVecs();
