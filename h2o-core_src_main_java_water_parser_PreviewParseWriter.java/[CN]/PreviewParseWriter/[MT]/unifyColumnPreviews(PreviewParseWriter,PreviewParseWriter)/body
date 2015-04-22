@@ -1,0 +1,22 @@
+{
+  if (prevA == null)   return prevB;
+ else   if (prevB == null)   return prevA;
+ else {
+    if (prevA._ncols != prevB._ncols)     throw new H2OParseSetupException("Files conflict in number of columns. " + prevA._ncols + " vs. "+ prevB._ncols+ ".");
+    prevA._nlines+=prevB._nlines;
+    prevA._invalidLines+=prevB._invalidLines;
+    for (int i=0; i < prevA._ncols; i++) {
+      prevA._nnums[i]+=prevB._nnums[i];
+      prevA._nstrings[i]+=prevB._nstrings[i];
+      prevA._ndates[i]+=prevB._ndates[i];
+      prevA._nUUID[i]+=prevB._nUUID[i];
+      prevA._nzeros[i]+=prevB._nzeros[i];
+      prevA._nempty[i]+=prevB._nempty[i];
+      if (prevA._domains[i] != null) {
+        if (prevB._domains[i] != null)         for (        String s : prevB._domains[i].keySet())         prevA._domains[i].put(s,"");
+      }
+ else       if (prevB._domains[i] != null)       prevA._domains=prevB._domains;
+    }
+  }
+  return prevA;
+}
