@@ -7,6 +7,14 @@
   glmModel._output._model_summary.set(0,1,glmModel._parms._link.toString());
   glmModel._output._model_summary.set(0,2,_trainFrame.toString());
   glmModel._output._model_summary.set(0,3,Integer.toString(glmModel.beta().length));
+  if (_scoring_iters != null) {
+    glmModel._output._scoring_history=new TwoDimTable("Scoring History","",new String[_scoring_iters.length],new String[]{"iteration","likelihood","objective"},new String[]{"integer","double","double"},new String[]{"%d","%.5f","%.5f"},"");
+    for (int i=0; i < _scoring_iters.length; ++i) {
+      glmModel._output._scoring_history.set(i,0,_scoring_iters[i]);
+      glmModel._output._scoring_history.set(i,1,_likelihoods[i]);
+      glmModel._output._scoring_history.set(i,2,_objectives[i]);
+    }
+  }
   glmModel.update(_jobKey);
   glmModel.unlock(_jobKey);
 }
