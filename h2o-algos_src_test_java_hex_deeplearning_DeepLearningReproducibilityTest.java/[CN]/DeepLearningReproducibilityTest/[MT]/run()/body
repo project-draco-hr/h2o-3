@@ -1,5 +1,6 @@
 {
-  long seed=new Random().nextLong();
+  NFSFileVec ff=NFSFileVec.make(find_test_file("smalldata/junit/weather.csv"));
+  Frame golden=ParseDataset.parse(Key.make("golden.hex"),ff._key);
   DeepLearningModel mymodel=null;
   Frame train=null;
   Frame test=null;
@@ -16,6 +17,7 @@
       try {
         NFSFileVec file=NFSFileVec.make(find_test_file("smalldata/junit/weather.csv"));
         data=ParseDataset.parse(Key.make("data.hex"),file._key);
+        Assert.assertTrue(isBitIdentical(data,golden));
         train=data;
         test=data;
         DeepLearningParameters p=new DeepLearningParameters();
@@ -106,4 +108,5 @@
     }
     Scope.exit();
   }
+  golden.delete();
 }
