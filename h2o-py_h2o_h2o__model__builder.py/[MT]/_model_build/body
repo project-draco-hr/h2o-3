@@ -1,4 +1,10 @@
 def _model_build(x, y, validation_x, validation_y, algo_url, kwargs):
+    if (algo_url == 'autoencoder'):
+        if ('autoencoder' in kwargs.keys()):
+            if kwargs['autoencoder']:
+                if y:
+                    raise ValueError('`y` should not be specified for autoencoder, remove `y` input.')
+                algo_url = 'deeplearning'
     if (not x):
         raise ValueError('Missing features')
     x = _check_frame(x, y, y)
