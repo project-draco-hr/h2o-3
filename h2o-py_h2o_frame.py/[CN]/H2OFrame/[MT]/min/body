@@ -1,3 +1,5 @@
 def min(self):
     '\n    :return: The minimum value of all frame entries\n    '
-    return Expr('min', Expr(self.send_frame(), length=self.nrow()))
+    if ((self._vecs is None) or (self._vecs == [])):
+        raise ValueError('Frame Removed')
+    return Expr('min', Expr('cbind', Expr(self._vecs)))
