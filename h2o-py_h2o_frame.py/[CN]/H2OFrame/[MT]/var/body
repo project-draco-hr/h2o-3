@@ -1,5 +1,7 @@
 def var(self):
     '\n    :return: The covariance matrix of the columns in this H2OFrame.\n    '
+    if ((self._vecs is None) or (self._vecs == [])):
+        raise ValueError('Frame Removed')
     key = self.send_frame()
     tmp_key = H2OFrame.py_tmp_key()
     expr = '(= !{} (var %{} () %FALSE "everything"))'.format(tmp_key, key)
