@@ -16,9 +16,17 @@
       if (p[0] < 0 || p[0] > 1)       throw new IllegalArgumentException("Quantile: probs must be in the range of [0, 1].");
     }
   }
+  parms._combine_method=_combine_method;
   Frame x=env.popAry();
+  Key tk=null;
+  if (x._key == null) {
+    DKV.put(tk=Key.make(),x=new Frame(tk,x.names(),x.vecs()));
+  }
   parms._train=x._key;
   QuantileModel q=new Quantile(parms).trainModel().get();
+  if (tk != null) {
+    DKV.remove(tk);
+  }
   Vec shape=Vec.makeZero(parms._probs.length);
   Key[] keys=shape.group().addVecs(1 + x.numCols());
   Vec[] vecs=new Vec[keys.length];

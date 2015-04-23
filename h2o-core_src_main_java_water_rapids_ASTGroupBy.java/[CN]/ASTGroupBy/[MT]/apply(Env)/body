@@ -1,10 +1,12 @@
 {
   Frame fr=e.popAry();
+  if (_gbCols == null)   _gbCols=_gbColsDelayed == null ? findCols(fr,_gbColsDelayedByName) : findCols(fr,_gbColsDelayed);
+  computeCols(_agg,fr);
   long s=System.currentTimeMillis();
   GBTask p1=new GBTask(_gbCols,_agg).doAll(fr);
   Log.info("Group By Task done in " + (System.currentTimeMillis() - s) / 1000. + " (s)");
   final int nGrps=p1._g.size();
-  final G[] grps=p1._g._g.toArray(new G[nGrps]);
+  final G[] grps=p1._g.toArray(new G[nGrps]);
   H2O.submitTask(new ParallelPostGlobal(grps)).join();
   final int nCols=_gbCols.length + _agg.length;
   Vec v=Vec.makeZero(nGrps);
