@@ -85,11 +85,10 @@
   if (columnTypes == null || ncols != columnTypes.length) {
     InputStream is=new ByteArrayInputStream(bits);
     CsvParser p=new CsvParser(resSetup);
-    InspectDataOut dout=new InspectDataOut(resSetup._number_columns);
+    PreviewParseWriter dout=new PreviewParseWriter(resSetup._number_columns);
     try {
       p.streamParse(is,dout);
-      resSetup._column_types=dout.guessTypes();
-      resSetup._na_strings=dout.guessNAStrings(resSetup._column_types);
+      resSetup._column_previews=dout;
     }
  catch (    Throwable e) {
       throw new RuntimeException(e);
