@@ -38,18 +38,18 @@
                             if (n_folds != 0 && vf != 0)                             continue;
                             for (                            boolean keep_cv_splits : new boolean[]{false}) {
                               for (                              boolean override_with_best_model : new boolean[]{false,true}) {
-                                for (                                int train_samples_per_iteration : new int[]{-2,-1,0,rng.nextInt(200),500}) {
+                                for (                                int train_samples_per_iteration : new int[]{-2,-1,0,p(rng.nextInt(200)),500}) {
                                   DeepLearningModel model1=null, model2=null, tmp_model=null;
                                   Key dest, dest_tmp;
                                   count++;
-                                  if (fraction < rng.nextFloat())                                   continue;
+                                  if (fraction < p(rng.nextFloat()))                                   continue;
                                   try {
                                     Scope.enter();
                                     Log.info("**************************)");
                                     Log.info("Starting test #" + count);
                                     Log.info("**************************)");
-                                    final double epochs=7 + rng.nextDouble() + rng.nextInt(4);
-                                    final int[] hidden=new int[]{1 + rng.nextInt(4),1 + rng.nextInt(6)};
+                                    final double epochs=7 + p(rng.nextDouble()) + p(rng.nextInt(4));
+                                    final int[] hidden=new int[]{1 + p(rng.nextInt(4)),1 + p(rng.nextInt(6))};
                                     Frame valid=null;
                                     if (vf == 1)                                     valid=frame;
  else                                     if (vf == -1)                                     valid=vframe;
