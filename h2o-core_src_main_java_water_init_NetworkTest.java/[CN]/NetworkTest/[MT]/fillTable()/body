@@ -8,7 +8,7 @@
   }
   String[] colHeaders=new String[msg_sizes.length];
   for (int i=0; i < colHeaders.length; ++i) {
-    colHeaders[i]=PrettyPrint.bytes(msg_sizes[i]);
+    colHeaders[i]=msg_sizes[i] + " bytes";
   }
   String[] colTypes=new String[msg_sizes.length];
   for (int i=0; i < colTypes.length; ++i) {
@@ -18,7 +18,7 @@
   for (int i=0; i < colTypes.length; ++i) {
     colFormats[i]="%s";
   }
-  String colHeaderForRowHeaders="Destination / Message size";
+  String colHeaderForRowHeaders="Destination";
   table=new TwoDimTable(tableHeader,tableDescription,rowHeaders,colHeaders,colTypes,colFormats,colHeaderForRowHeaders);
   for (int m=0; m < msg_sizes.length; ++m) {
     table.set(0,m,PrettyPrint.usecs((long)microseconds_collective[m]) + ", " + PrettyPrint.bytesPerSecond((long)bandwidths_collective[m]));
