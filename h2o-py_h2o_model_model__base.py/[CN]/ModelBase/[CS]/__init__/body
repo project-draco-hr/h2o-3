@@ -1,4 +1,14 @@
 def __init__(self, dest_key, model_json, metrics_class):
     self._key = dest_key
+    if ('training_metrics' in model_json['output']):
+        tm = model_json['output']['training_metrics']
+        tm = metrics_class(tm, True, False, model_json['algo'])
+        model_json['output']['training_metrics'] = tm
+    if ('validation_metrics' in model_json['output']):
+        vm = model_json['output']['validation_metrics']
+        vm = metrics_class(vm, False, True, model_json['algo'])
+        model_json['output']['validation_metrics'] = vm
+    else:
+        model_json['output']['validation_metrics'] = None
     self._model_json = model_json
     self._metrics_class = metrics_class
