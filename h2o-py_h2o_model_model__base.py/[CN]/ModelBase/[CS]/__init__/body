@@ -6,8 +6,11 @@ def __init__(self, dest_key, model_json, metrics_class):
         model_json['output']['training_metrics'] = tm
     if ('validation_metrics' in model_json['output']):
         vm = model_json['output']['validation_metrics']
-        vm = metrics_class(vm, False, True, model_json['algo'])
-        model_json['output']['validation_metrics'] = vm
+        if (vm is None):
+            model_json['output']['validation_metrics'] = None
+        else:
+            vm = metrics_class(vm, False, True, model_json['algo'])
+            model_json['output']['validation_metrics'] = vm
     else:
         model_json['output']['validation_metrics'] = None
     self._model_json = model_json
