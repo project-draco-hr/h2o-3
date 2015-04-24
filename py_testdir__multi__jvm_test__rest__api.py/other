@@ -261,8 +261,8 @@ validate_validation_messages(parameters_validation, ['input_dropout_ratio'])
 assert (parameters_validation['__http_response']['status_code'] == requests.codes.precondition_failed), ('FAIL: expected 412 Precondition Failed from a bad build request, got: ' + str(parameters_validation['__http_response']['status_code']))
 if verbose:
     print 'Done trying to build DeepLearning model with bad parameters.'
-p = a_node.predict(model='deeplearning_airlines_binomial', frame='airlines_binomial', predictions_name='deeplearning_airlines_binomial_predictions')
-validate_predictions(p, 'deeplearning_airlines_binomial', 'airlines_binomial', 43978, predictions_name='deeplearning_airlines_binomial_predictions')
+p = a_node.predict(model='deeplearning_airlines_binomial', frame='airlines_binomial', predictions_frame='deeplearning_airlines_binomial_predictions')
+validate_predictions(p, 'deeplearning_airlines_binomial', 'airlines_binomial', 43978, predictions_frame='deeplearning_airlines_binomial_predictions')
 validate_frame_exists('deeplearning_airlines_binomial_predictions')
 h2o.H2O.verboseprint('Predictions for scoring: ', 'deeplearning_airlines_binomial', ' on: ', 'airlines_binomial', ':  ', repr(p))
 print "WARNING: Terminating test before the end because we don't have as.factor yet. . ."
@@ -298,8 +298,8 @@ assert (len(mms['model_metrics']) == 1), ('FAIL: expected 1 ModelMetrics, found:
 a_node.delete_model_metrics('deeplearning_prostate_binomial', 'prostate_binomial')
 mms = a_node.model_metrics('deeplearning_prostate_binomial', 'prostate_binomial')
 assert (len(mms['model_metrics']) == 0), ('FAIL: expected 0 ModelMetrics, found: ' + str(len(mms['model_metrics'])))
-p = a_node.predict(model='deeplearning_prostate_binomial', frame='prostate_binomial', predictions_name='deeplearning_prostate_binomial_predictions')
-validate_predictions(p, 'deeplearning_prostate_binomial', 'prostate_binomial', 380, predictions_name='deeplearning_prostate_binomial_predictions')
+p = a_node.predict(model='deeplearning_prostate_binomial', frame='prostate_binomial', predictions_frame='deeplearning_prostate_binomial_predictions')
+validate_predictions(p, 'deeplearning_prostate_binomial', 'prostate_binomial', 380, predictions_frame='deeplearning_prostate_binomial_predictions')
 validate_frame_exists('deeplearning_prostate_binomial_predictions')
 h2o.H2O.verboseprint('Predictions for scoring: ', 'deeplearning_prostate_binomial', ' on: ', 'prostate_binomial', ':  ', repr(p))
 p = a_node.predict(model='deeplearning_prostate_regression', frame='prostate_binomial')
