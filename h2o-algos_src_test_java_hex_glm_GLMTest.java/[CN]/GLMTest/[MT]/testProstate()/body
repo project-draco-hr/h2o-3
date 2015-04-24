@@ -1,6 +1,6 @@
 {
   GLM job=null;
-  GLMModel model=null;
+  GLMModel model=null, model2=null;
   Frame fr=parse_test_file("smalldata/glm_test/prostate_cat_replaced.csv");
   Frame score=null;
   try {
@@ -27,10 +27,18 @@
     hex.AUC2 adata=mm._auc;
     assertEquals(model._output._training_metrics.auc()._auc,adata._auc,1e-2);
     assertEquals(val.computeAUC(model,fr),adata._auc,1e-2);
+    double prior=1e-5;
+    params._prior=prior;
+    job.remove();
+    job=new GLM(Key.make("prostate_model2"),"glm test simple poisson",params);
+    model2=job.trainModel().get();
+    for (int i=0; i < model2.beta().length - 1; ++i)     assertEquals(model.beta()[i],model2.beta()[i],1e-8);
+    assertEquals(model.beta()[model.beta().length - 1] - Math.log(model._ymu * (1 - prior) / (prior * (1 - model._ymu))),model2.beta()[model.beta().length - 1],1e-10);
   }
   finally {
     fr.delete();
     if (model != null)     model.delete();
+    if (model2 != null)     model2.delete();
     if (score != null)     score.delete();
     if (job != null)     job.remove();
     Scope.exit();
