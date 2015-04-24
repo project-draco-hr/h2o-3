@@ -8,31 +8,11 @@
     float decompRatio=ZipUtil.decompressionRatio(bv);
     if (decompRatio > 1.0)     _totalParseSize+=bv.length() * decompRatio;
  else     _totalParseSize+=bv.length();
-    if (ice instanceof ByteVec || ((Frame)ice).vecs()[0] instanceof UploadFileVec || bv.length() <= FileVec.DFLT_CHUNK_SIZE || decompRatio > 1.0) {
-      try {
-        _gblSetup=guessSetup(bits,_userSetup);
-      }
- catch (      H2OParseException pse) {
-        throw new H2OParseSetupException(key,pse);
-      }
+    try {
+      _gblSetup=guessSetup(bits,_userSetup);
     }
- else {
-      FileVec fv=(FileVec)((Frame)ice).vecs()[0];
-      int chkSize=(int)((1 << 20) / decompRatio);
-      fv.setChunkSize((Frame)ice,chkSize);
-      _gblSetup=guessSetup(fv.getPreviewChunkBytes(0),_userSetup);
-      _userSetup._check_header=-1;
-      _userSetup._parse_type=_gblSetup._parse_type;
-      int numChunks=fv.nChunks();
-      for (int i=100; i < numChunks; i+=100) {
-        bits=fv.getPreviewChunkBytes(i);
-        if (bits != null)         _gblSetup=mergeSetups(_gblSetup,guessSetup(bits,_userSetup));
-      }
-      if (numChunks % 100 > 1) {
-        bits=fv.getPreviewChunkBytes(numChunks - 1);
-        if (bits != null)         _gblSetup=mergeSetups(_gblSetup,guessSetup(bits,_userSetup));
-      }
-      fv.setChunkSize((Frame)ice,FileVec.DFLT_CHUNK_SIZE);
+ catch (    H2OParseException pse) {
+      throw new H2OParseSetupException(key,pse);
     }
     if (ZipUtil.getFileCount(bv) > 1) {
       if (_gblSetup._errors != null)       _gblSetup._errors=Arrays.copyOf(_gblSetup._errors,_gblSetup._errors.length + 1);
