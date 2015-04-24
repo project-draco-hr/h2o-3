@@ -5,15 +5,15 @@
   byte[] bits=ZipUtil.getFirstUnzippedBytes(bv);
   if (bits.length > 0) {
     _empty=false;
+    float decompRatio=ZipUtil.decompressionRatio(bv);
+    if (decompRatio > 1.0)     _totalParseSize+=bv.length() * decompRatio;
+ else     _totalParseSize+=bv.length();
     try {
       _gblSetup=guessSetup(bits,_userSetup);
     }
  catch (    H2OParseException pse) {
       throw new H2OParseSetupException(key,pse);
     }
-    float decompRatio=ZipUtil.decompressionRatio(bv);
-    if (decompRatio > 1.0)     _totalParseSize+=bv.length() * decompRatio;
- else     _totalParseSize+=bv.length();
     if (ZipUtil.getFileCount(bv) > 1) {
       if (_gblSetup._errors != null)       _gblSetup._errors=Arrays.copyOf(_gblSetup._errors,_gblSetup._errors.length + 1);
  else       _gblSetup._errors=new String[1];
