@@ -6,30 +6,6 @@
     assert(_gblSetup != null);
     return;
   }
-  ParseSetup setupA=_gblSetup, setupB=other._gblSetup;
-  if (setupA._is_valid && setupB._is_valid) {
-    _gblSetup._check_header=unifyCheckHeader(setupA._check_header,setupB._check_header);
-    _gblSetup._separator=unifyColumnSeparators(setupA._separator,setupB._separator);
-    _gblSetup._number_columns=unifyColumnCount(setupA._number_columns,setupB._number_columns);
-    _gblSetup._column_names=unifyColumnNames(setupA._column_names,setupB._column_names);
-    if (setupA._parse_type == ParserType.ARFF && setupB._parse_type == ParserType.CSV)     ;
- else     if (setupA._parse_type == ParserType.CSV && setupB._parse_type == ParserType.ARFF) {
-      _gblSetup._parse_type=ParserType.ARFF;
-      _gblSetup._column_types=setupB._column_types;
-    }
- else     if (setupA._parse_type == setupB._parse_type) {
-      _gblSetup._column_previews=PreviewParseWriter.unifyColumnPreviews(setupA._column_previews,setupB._column_previews);
-    }
- else     throw new H2OParseSetupException("File type mismatch. Cannot parse files of type " + setupA._parse_type + " and "+ setupB._parse_type+ " as one dataset.");
-  }
- else {
-    throw new H2OParseSetupException("Cannot determine parse parameters for file.");
-  }
-  if (_gblSetup._data.length < PreviewParseWriter.MAX_PREVIEW_LINES) {
-    int n=_gblSetup._data.length;
-    int m=Math.min(PreviewParseWriter.MAX_PREVIEW_LINES,n + other._gblSetup._data.length - 1);
-    _gblSetup._data=Arrays.copyOf(_gblSetup._data,m);
-    System.arraycopy(other._gblSetup._data,1,_gblSetup._data,n,m - n);
-  }
+  _gblSetup=mergeSetups(_gblSetup,other._gblSetup);
   _totalParseSize+=other._totalParseSize;
 }
