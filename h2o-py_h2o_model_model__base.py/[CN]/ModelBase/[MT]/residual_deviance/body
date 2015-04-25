@@ -1,0 +1,10 @@
+def residual_deviance(self, train=False, valid=False):
+    '\n    Retreive the residual deviance if this model has the attribute, or None otherwise.\n    :param:  train Get the residual deviance for the training set. If both train and valid are False, then train is selected by default.\n    :param:  valid Get the residual deviance for the validation set. If both train and valid are True, then train is selected by default.\n    :return: Return the residual deviance, or None if it is not present.\n    '
+    if ((not train) and (not valid)):
+        train = True
+    if (train and valid):
+        train = True
+    if train:
+        return self._model_json['output']['training_metrics'].residual_deviance()
+    else:
+        return self._model_json['output']['validation_metrics'].residual_deviance()
