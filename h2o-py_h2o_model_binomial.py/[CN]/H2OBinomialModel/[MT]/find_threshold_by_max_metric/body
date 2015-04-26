@@ -1,0 +1,10 @@
+def find_threshold_by_max_metric(self, metric, train=False, valid=False):
+    '\n    If both train and valid are False, return the train.\n    If both train and valid are True, return the valid.\n\n    :param train: Return the max per class error for training data.\n    :param valid: Return the max per class error for the validation data.\n    :param metric: A string in {"min_per_class_accuracy", "absolute_MCC", "tnr", "fnr", "fpr", "tpr", "precision", "error", "accuracy", "f0point5", "f2", "f1"}\n    :return: the threshold at which the given metric is maximum.\n    '
+    tm = ModelBase._get_metrics(self, *ModelBase._train_or_valid(train, valid))
+    if (tm is None):
+        return None
+    crit2d = tm._metric_json['max_criteria_and_metric_scores']
+    for e in crit2d.cell_values:
+        if (e[0] == metric):
+            return e[1]
+    raise ValueError(('No metric ' + str(metric)))
