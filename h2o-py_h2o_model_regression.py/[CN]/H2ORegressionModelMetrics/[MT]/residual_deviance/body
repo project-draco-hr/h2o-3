@@ -1,4 +1,6 @@
-def residual_deviance(self):
-    if ModelBase._has(self._metric_json, 'residual_deviance'):
-        return self._metric_json['residual_deviance']
+def residual_deviance(self, train=False, valid=False):
+    '\n    Get the residual deviance of the GLM.\n    :param train: If train is True, then return the residual deviance on the training set.\n    :param valid: If valid is True, then return the residual deviance on the validation set.\n    :return: Returns None if the model has no residual deviance.\n    '
+    tm = ModelBase._get_metrics(self, *ModelBase._train_or_valid(train, valid))
+    if ModelBase._has(tm, 'residual_deviance'):
+        return tm['residual_deviance']
     return None

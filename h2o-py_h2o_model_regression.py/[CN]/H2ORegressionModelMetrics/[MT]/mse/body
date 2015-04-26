@@ -1,3 +1,4 @@
-def mse(self):
-    '\n    :return: The MSE for this regression model.\n    '
-    return self._metric_json['MSE']
+def mse(self, train=False, valid=False):
+    '\n    :param train: If train is True, then return the MSE value for the training data. If train and valid are both False, then return the training MSE.\n    :param valid: If valid is True, then return the MSE value for the validation data. If train and valid are both True, then return the validation MSE.\n    :return: The MSE for this regression model.\n    '
+    tm = ModelBase._get_metrics(self, *ModelBase._train_or_valid(train, valid))
+    return tm['MSE']
