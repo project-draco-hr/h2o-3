@@ -17,6 +17,8 @@
   is_text=fr.numCols() == 1 && vecs[0] instanceof ByteVec;
   default_percentiles=Vec.PERCENTILES;
   this.checksum=fr.checksum();
-  TwoDimTable table=FrameUtils.chunkSummary(fr).toTwoDimTable();
+  TwoDimTable table=FrameUtils.chunkSummary(fr).toTwoDimTableChunkTypes();
   chunk_summary=(TwoDimTableBase)Schema.schema(this.getSchemaVersion(),table).fillFromImpl(table);
+  TwoDimTable table2=FrameUtils.chunkSummary(fr).toTwoDimTableDistribution();
+  distribution_summary=(TwoDimTableBase)Schema.schema(this.getSchemaVersion(),table).fillFromImpl(table2);
 }
