@@ -29,7 +29,7 @@ def __getitem__(self, i):
             return res
         res.eager()
         if res.is_local():
-            return res
+            return res._data
         j = h2o.frame(res._data)
         return map(list, zip(*[c['data'] for c in j['frames'][0]['columns'][:]]))[0][0]
     raise NotImplementedError(('Slicing by unknown type: ' + str(type(i))))
