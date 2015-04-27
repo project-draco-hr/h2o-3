@@ -1,0 +1,34 @@
+{
+  final String tableHeader="Frame distribution summary";
+  int rows=H2O.CLOUD.size() + 5;
+  final String[] rowHeaders=new String[rows];
+  int row;
+  for (row=0; row < rows - 5; ++row) {
+    rowHeaders[row]=H2O.CLOUD._memary[row].getIpPortString();
+  }
+  rowHeaders[row++]="mean";
+  rowHeaders[row++]="min";
+  rowHeaders[row++]="max";
+  rowHeaders[row++]="stddev";
+  rowHeaders[row++]="total";
+  final String[] colHeaders=new String[]{"Size","Number Of Rows"};
+  final String[] colTypes=new String[]{"string","float"};
+  final String[] colFormats=new String[]{"%s","%f"};
+  final String colHeaderForRowHeaders="";
+  TwoDimTable table=new TwoDimTable(tableHeader,null,rowHeaders,colHeaders,colTypes,colFormats,colHeaderForRowHeaders);
+  for (row=0; row < rows - 5; ++row) {
+    table.set(row,0,display(byte_size_per_node[row]));
+    table.set(row,1,row_count_per_node[row]);
+  }
+  table.set(row,0,display((long)byte_size_per_node_mean));
+  table.set(row++,1,row_count_per_node_mean);
+  table.set(row,0,display((long)byte_size_per_node_min));
+  table.set(row++,1,row_count_per_node_min);
+  table.set(row,0,display((long)byte_size_per_node_max));
+  table.set(row++,1,row_count_per_node_max);
+  table.set(row,0,display((long)byte_size_per_node_stddev));
+  table.set(row++,1,row_count_per_node_stddev);
+  table.set(row,0,display(total_chunk_byte_size));
+  table.set(row++,1,total_row_count);
+  return table;
+}
