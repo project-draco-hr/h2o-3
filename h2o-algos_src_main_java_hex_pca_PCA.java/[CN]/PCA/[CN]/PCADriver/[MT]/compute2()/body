@@ -1,2 +1,60 @@
 {
+  PCAModel model=null;
+  DataInfo dinfo=null;
+  DataInfo xinfo=null;
+  Frame x=null;
+  try {
+    _parms.read_lock_frames(PCA.this);
+    init(true);
+    if (error_count() > 0)     throw new IllegalArgumentException("Found validation errors: " + validationErrors());
+    model=new PCAModel(dest(),_parms,new PCAModel.PCAOutput(PCA.this));
+    model.delete_and_lock(_key);
+    SVDModel.SVDParameters parms=new SVDModel.SVDParameters();
+    parms._train=_parms._train;
+    parms._ignored_columns=_parms._ignored_columns;
+    parms._dropConsCols=_parms._dropConsCols;
+    parms._drop_na20_cols=_parms._drop_na20_cols;
+    parms._score_each_iteration=_parms._score_each_iteration;
+    parms._transform=_parms._transform;
+    parms._nv=_parms._k;
+    parms._max_iterations=_parms._max_iterations;
+    parms._seed=_parms._seed;
+    parms._only_v=false;
+    parms._u_key=_parms._loading_key;
+    parms._keep_u=_parms._keep_loading;
+    SVDModel svd=null;
+    SVD job=null;
+    try {
+      job=new SVD(parms);
+      svd=job.trainModel().get();
+    }
+  finally {
+      if (job != null)       job.remove();
+      if (svd != null)       svd.remove();
+    }
+    recoverPCA(model,svd);
+    if (_parms._keep_loading)     model._output._loading_key=svd._output._u_key;
+    model._output._normSub=svd._output._normSub;
+    model._output._normMul=svd._output._normMul;
+    done();
+  }
+ catch (  Throwable t) {
+    Job thisJob=DKV.getGet(_key);
+    if (thisJob._state == JobState.CANCELLED) {
+      Log.info("Job cancelled by user.");
+    }
+ else {
+      t.printStackTrace();
+      failed(t);
+      throw t;
+    }
+  }
+ finally {
+    _parms.read_unlock_frames(PCA.this);
+    if (model != null)     model.unlock(_key);
+    if (dinfo != null)     dinfo.remove();
+    if (xinfo != null)     xinfo.remove();
+    if (x != null && !_parms._keep_loading)     x.delete();
+  }
+  tryComplete();
 }
