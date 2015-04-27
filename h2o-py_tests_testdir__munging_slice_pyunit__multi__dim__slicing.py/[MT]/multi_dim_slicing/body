@@ -1,8 +1,8 @@
 def multi_dim_slicing(ip, port):
     h2o.init(ip, port)
     prostate = h2o.import_frame(path=h2o.locate('smalldata/logreg/prostate.csv'))
-    pros = h2o.as_list(prostate[47:51, 7])[0][0]
-    assert (pros == 16.3), 'Incorrect slicing result'
+    pros = prostate[47:51, 7]
+    assert (pros[(0, 0)] == 16.3), 'Incorrect slicing result'
     pros = prostate[(172, 8)]
     assert (pros == 7), 'Incorrect slicing result'
     pros = prostate[170:176, 2]
