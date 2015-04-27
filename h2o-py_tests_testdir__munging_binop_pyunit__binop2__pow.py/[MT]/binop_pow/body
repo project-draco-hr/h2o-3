@@ -12,7 +12,7 @@ def binop_pow(ip, port):
     assert (abs((sum([res[(i, 0)] for i in range(rows)]) - 659.6639)) < 0.01), 'expected same values'
     res = (2 ** iris[0])
     res2 = (1.1 ** res[21])
-    assert (abs((res2[(0, 0)] - 26.28056)) < 0.01), 'expected same values'
+    assert (abs((res2.eager() - 26.28056)) < 0.01), 'expected same values'
     res = (1.2 ** iris[2])
     res2 = (res[33] ** iris)
     res2.show()
@@ -21,10 +21,10 @@ def binop_pow(ip, port):
     res2.show()
     res = (1.1 ** iris[2])
     res2 = (res[32] ** res[10])
-    assert (abs((res2[(0, 0)] - 1.179319)) < 1e-05), 'expected same values'
+    assert (abs((res2.eager() - 1.179319)) < 1e-05), 'expected same values'
     res = (2 ** iris[0])
-    res2 = (res[32] ** 3).eager()
-    assert ((int(res2) - 49667) == 0), 'expected same values'
+    res2 = (res[32] ** 3)
+    assert ((int(res2.eager()) - 49667) == 0), 'expected same values'
     try:
         res = (iris[2] ** iris)
         res.show()
@@ -36,7 +36,7 @@ def binop_pow(ip, port):
     res = (iris[2] ** iris[1])
     assert (abs((sum([res[(i, 0)] for i in range(rows)]) - 1309.794)) < 0.01), 'expected same values'
     res = ((iris[0] ** iris[1]) * (iris[2] ** iris[3]))
-    assert ((int(sum([res[(i, 0)].eager() for i in range(rows)])) - 47242.98) < 0.01), 'expected same values'
+    assert ((int(res.sum()) - 47242.98) < 0.01), 'expected same values'
     res = (1.2 ** iris[2])
     res2 = (iris[1] ** res[45])
     res2.show()

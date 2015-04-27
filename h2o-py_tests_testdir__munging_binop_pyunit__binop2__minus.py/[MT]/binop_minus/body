@@ -11,7 +11,7 @@ def binop_minus(ip, port):
     assert (abs((sum([res[(i, 0)] for i in range(rows)]) - (-82.6))) < 0.1), 'expected same values'
     res = (2 - iris[0])
     res2 = (1.1 - res[21])
-    assert (abs((res2[(0, 0)] - 4.2)) < 0.1), 'expected same values'
+    assert (abs((res2.eager() - 4.2)) < 0.1), 'expected same values'
     res = (1.2 - iris[2])
     res2 = (res[21] - iris)
     (res_rows, res_cols) = res2.dim()
@@ -21,10 +21,10 @@ def binop_minus(ip, port):
     res2.show()
     res = (1.1 - iris[2])
     res2 = (res[21] - res[10])
-    assert (abs((res2[(0, 0)] - 0)) < 0.1), 'expected same values'
+    assert (abs((res2.eager() - 0)) < 0.1), 'expected same values'
     res = (2 - iris[0])
     res2 = (res[21] - 3)
-    assert (abs((res2[(0, 0)] - (-6.1))) < 0.1), 'expected same values'
+    assert (abs((res2.eager() - (-6.1))) < 0.1), 'expected same values'
     try:
         res = (iris[2] - iris)
         res.show()
