@@ -178,8 +178,8 @@ assert (col['histogram_base'] == 43), 'FAIL: Failed to find 43 as the histogram_
 assert (col['histogram_stride'] == 1), 'FAIL: Failed to find 1 as the histogram_stride for AGE.'
 assert (col['percentiles'][0] == 43), ('FAIL: Failed to find 43 as the first percentile for AGE. ' + str(col['percentiles'][0]))
 if verbose:
-    print 'Testing SplitFrame with named dest_keys. . .'
-splits = a_node.split_frame(dataset='prostate_binomial', ratios=[0.8], dest_keys=['bigger', 'smaller'])
+    print 'Testing SplitFrame with named destination_frames. . .'
+splits = a_node.split_frame(dataset='prostate_binomial', ratios=[0.8], destination_frames=['bigger', 'smaller'])
 frames = a_node.frames()['frames']
 validate_frame_exists('bigger', frames)
 validate_frame_exists('smaller', frames)
@@ -188,13 +188,13 @@ smaller = a_node.frames(key='smaller')['frames'][0]
 assert (bigger['rows'] == 304), ('FAIL: 80/20 SplitFrame yielded the wrong number of rows.  Expected: 304; got: ' + bigger['rows'])
 assert (smaller['rows'] == 76), ('FAIL: 80/20 SplitFrame yielded the wrong number of rows.  Expected: 76; got: ' + smaller['rows'])
 if verbose:
-    print 'Testing SplitFrame with generated dest_keys. . .'
+    print 'Testing SplitFrame with generated destination_frames. . .'
 splits = a_node.split_frame(dataset='prostate_binomial', ratios=[0.5])
 frames = a_node.frames()['frames']
-validate_frame_exists(splits['dest_keys'][0]['name'], frames)
-validate_frame_exists(splits['dest_keys'][1]['name'], frames)
-first = a_node.frames(key=splits['dest_keys'][0]['name'])['frames'][0]
-second = a_node.frames(key=splits['dest_keys'][1]['name'])['frames'][0]
+validate_frame_exists(splits['destination_frames'][0]['name'], frames)
+validate_frame_exists(splits['destination_frames'][1]['name'], frames)
+first = a_node.frames(key=splits['destination_frames'][0]['name'])['frames'][0]
+second = a_node.frames(key=splits['destination_frames'][1]['name'])['frames'][0]
 assert (first['rows'] == 190), ('FAIL: 50/50 SplitFrame yielded the wrong number of rows.  Expected: 190; got: ' + first['rows'])
 assert (second['rows'] == 190), ('FAIL: 50/50 SplitFrame yielded the wrong number of rows.  Expected: 190; got: ' + second['rows'])
 models_to_build = [ModelSpec.for_dataset('kmeans_prostate', 'kmeans', datasets['prostate_clustering'], {'k': 2, }), ModelSpec.for_dataset('glm_prostate_regression', 'glm', datasets['prostate_regression'], {'family': 'gaussian', }), ModelSpec.for_dataset('glm_prostate_binomial', 'glm', datasets['prostate_binomial'], {'family': 'binomial', }), ModelSpec.for_dataset('deeplearning_prostate_regression', 'deeplearning', datasets['prostate_regression'], {'epochs': 1, 'loss': 'MeanSquare', }), ModelSpec.for_dataset('deeplearning_airlines_binomial', 'deeplearning', datasets['airlines_binomial'], {'epochs': 1, 'hidden': [10, 10], 'loss': 'CrossEntropy', }), ModelSpec.for_dataset('deeplearning_iris_multinomial', 'deeplearning', datasets['iris_multinomial'], {'epochs': 1, 'loss': 'CrossEntropy', }), ModelSpec.for_dataset('gbm_prostate_regression', 'gbm', datasets['prostate_regression'], {'ntrees': 5, 'distribution': 'gaussian', }), ModelSpec.for_dataset('gbm_airlines_binomial', 'gbm', datasets['airlines_binomial'], {'ntrees': 5, 'distribution': 'multinomial', }), ModelSpec.for_dataset('gbm_iris_multinomial', 'gbm', datasets['iris_multinomial'], {'ntrees': 5, 'distribution': 'multinomial', })]
@@ -256,13 +256,13 @@ assert (0 != parameters_validation['validation_error_count']), ('FAIL: 0 == vali
 if verbose:
     print 'About to try to build a DeepLearning model with bad parameters. . .'
 dl_prostate_bad_parameters = {'response_column': 'CAPSULE', 'hidden': '[10, 20, 10]', 'input_dropout_ratio': 27, }
-parameters_validation = a_node.build_model(algo='deeplearning', destination_key='deeplearning_prostate_binomial_bad', training_frame='prostate_binomial', parameters=dl_prostate_bad_parameters, timeoutSecs=240)
+parameters_validation = a_node.build_model(algo='deeplearning', model_id='deeplearning_prostate_binomial_bad', training_frame='prostate_binomial', parameters=dl_prostate_bad_parameters, timeoutSecs=240)
 validate_validation_messages(parameters_validation, ['input_dropout_ratio'])
 assert (parameters_validation['__http_response']['status_code'] == requests.codes.precondition_failed), ('FAIL: expected 412 Precondition Failed from a bad build request, got: ' + str(parameters_validation['__http_response']['status_code']))
 if verbose:
     print 'Done trying to build DeepLearning model with bad parameters.'
-p = a_node.predict(model='deeplearning_airlines_binomial', frame='airlines_binomial', destination_key='deeplearning_airlines_binomial_predictions')
-validate_predictions(p, 'deeplearning_airlines_binomial', 'airlines_binomial', 43978, destination_key='deeplearning_airlines_binomial_predictions')
+p = a_node.predict(model='deeplearning_airlines_binomial', frame='airlines_binomial', predictions_name='deeplearning_airlines_binomial_predictions')
+validate_predictions(p, 'deeplearning_airlines_binomial', 'airlines_binomial', 43978, predictions_name='deeplearning_airlines_binomial_predictions')
 validate_frame_exists('deeplearning_airlines_binomial_predictions')
 h2o.H2O.verboseprint('Predictions for scoring: ', 'deeplearning_airlines_binomial', ' on: ', 'airlines_binomial', ':  ', repr(p))
 print "WARNING: Terminating test before the end because we don't have as.factor yet. . ."
@@ -298,8 +298,8 @@ assert (len(mms['model_metrics']) == 1), ('FAIL: expected 1 ModelMetrics, found:
 a_node.delete_model_metrics('deeplearning_prostate_binomial', 'prostate_binomial')
 mms = a_node.model_metrics('deeplearning_prostate_binomial', 'prostate_binomial')
 assert (len(mms['model_metrics']) == 0), ('FAIL: expected 0 ModelMetrics, found: ' + str(len(mms['model_metrics'])))
-p = a_node.predict(model='deeplearning_prostate_binomial', frame='prostate_binomial', destination_key='deeplearning_prostate_binomial_predictions')
-validate_predictions(p, 'deeplearning_prostate_binomial', 'prostate_binomial', 380, destination_key='deeplearning_prostate_binomial_predictions')
+p = a_node.predict(model='deeplearning_prostate_binomial', frame='prostate_binomial', predictions_name='deeplearning_prostate_binomial_predictions')
+validate_predictions(p, 'deeplearning_prostate_binomial', 'prostate_binomial', 380, predictions_name='deeplearning_prostate_binomial_predictions')
 validate_frame_exists('deeplearning_prostate_binomial_predictions')
 h2o.H2O.verboseprint('Predictions for scoring: ', 'deeplearning_prostate_binomial', ' on: ', 'prostate_binomial', ':  ', repr(p))
 p = a_node.predict(model='deeplearning_prostate_regression', frame='prostate_binomial')
