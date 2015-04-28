@@ -1,0 +1,16 @@
+def show(self):
+    '\n    Display a short summary of the regression metrics.\n    :return: None\n    '
+    print 
+    print ('H2OClusteringMetrics: ' + self._algo)
+    reported_on = '** Reported on {} data. **'
+    if self._on_train:
+        print reported_on.format('train')
+    elif self._on_valid:
+        print reported_on.format('validation')
+    else:
+        print reported_on.format('test')
+    print 
+    print ('Average within cluster Mean Square Error: ' + str(self.avg_within_ss()))
+    print ('Average Mean Square Error to grand mean: ' + str(self.avg_ss()))
+    print ('Average between cluster Mean Square Error: ' + str(self.avg_between_ss()))
+    self._metric_json['centroid_stats'].show()
