@@ -1,7 +1,9 @@
 def dim(self):
-    "\n    Eagerly evaluate the Expr. If it's an H2OFrame, return the number of rows and columns.\n    :return: The number of rows and columns in the H2OFrame as a list [rows, cols].\n    "
+    "\n    Eagerly evaluate the Expr. If it's an H2OFrame, return the number of rows and columns.\n\n    :return: The number of rows and columns in the H2OFrame as a list [rows, cols].\n    "
     self.eager()
-    if isinstance(self._data, unicode):
+    if self.is_remote():
         frame = h2o.frame(self._data)
         return [frame['frames'][0]['rows'], len(frame['frames'][0]['columns'])]
-    raise ValueError('data must be a (unicode) key')
+    elif self.is_local():
+        return ([1, 1] if (not hasattr(self._data, '__len__')) else [1, len(self._data)])
+    raise ValueError('data must be local or remote')

@@ -1,0 +1,13 @@
+def find_idx_by_threshold(self, threshold, train=False, valid=False):
+    "\n    Retrieve the index in this metric's threshold list at which the given threshold is located.\n    If both train and valid are False, return the train.\n    If both train and valid are True, return the valid.\n\n    :param train: Return the max per class error for training data.\n    :param valid: Return the max per class error for the validation data.\n    :param threshold: Find the index of this input threshold.\n    :return: Return the index or throw a ValueError if no such index can be found.\n    "
+    tm = ModelBase._get_metrics(self, *ModelBase._train_or_valid(train, valid))
+    if (tm is None):
+        return None
+    if (not isinstance(threshold, float)):
+        raise ValueError(('Expected a float but got a ' + type(threshold)))
+    thresh2d = tm._metric_json['thresholds_and_metric_scores']
+    for (i, e) in enumerate(thresh2d.cell_values):
+        t = float(e[0])
+        if (abs((t - threshold)) < (1e-08 * max(t, threshold))):
+            return i
+    raise ValueError(('No threshold ' + str(threshold)))
