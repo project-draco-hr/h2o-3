@@ -1,0 +1,6 @@
+def sensitivity(self, thresholds=None, train=False, valid=False):
+    '\n    Get the sensitivity (AKA True Positive Rate or Recall) for a set of thresholds.\n    If both train and valid are False, return the train.\n    If both train and valid are True, return the valid.\n\n    :param train: Return the Sensitivity for training data.\n    :param valid: Return the Sensitivity for the validation data.\n    :param thresholds: thresholds parameter must be a list (i.e. [0.01, 0.5, 0.99]). If None, then the thresholds in this set of metrics will be used.\n    :return: The Sensitivity for the given set of thresholds.\n    '
+    tm = ModelBase._get_metrics(self, *ModelBase._train_or_valid(train, valid))
+    if (tm is None):
+        return None
+    return tm.metric('tpr', thresholds=thresholds)

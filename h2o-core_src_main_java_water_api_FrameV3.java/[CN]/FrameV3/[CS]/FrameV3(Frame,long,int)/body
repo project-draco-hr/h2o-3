@@ -1,6 +1,6 @@
 {
   if (len2 == 0)   len2=100;
-  key=new FrameKeyV3(fr._key);
+  frame_id=new FrameKeyV3(fr._key);
   _fr=fr;
   row_offset=off2;
   rows=fr.numRows();
@@ -9,16 +9,17 @@
   columns=new ColV2[fr.numCols()];
   Key[] keys=fr.keys();
   if (keys != null && keys.length > 0) {
-    vec_keys=new VecKeyV3[keys.length];
-    for (int i=0; i < keys.length; i++)     vec_keys[i]=new VecKeyV3(keys[i]);
+    vec_ids=new VecKeyV3[keys.length];
+    for (int i=0; i < keys.length; i++)     vec_ids[i]=new VecKeyV3(keys[i]);
   }
   Vec[] vecs=fr.vecs();
   for (int i=0; i < columns.length; i++)   columns[i]=new ColV2(fr._names[i],vecs[i],row_offset,row_count);
   is_text=fr.numCols() == 1 && vecs[0] instanceof ByteVec;
   default_percentiles=Vec.PERCENTILES;
   this.checksum=fr.checksum();
-  TwoDimTable table=FrameUtils.chunkSummary(fr).toTwoDimTableChunkTypes();
+  ChunkSummary cs=FrameUtils.chunkSummary(fr);
+  TwoDimTable table=cs.toTwoDimTableChunkTypes();
   chunk_summary=(TwoDimTableBase)Schema.schema(this.getSchemaVersion(),table).fillFromImpl(table);
-  TwoDimTable table2=FrameUtils.chunkSummary(fr).toTwoDimTableDistribution();
-  distribution_summary=(TwoDimTableBase)Schema.schema(this.getSchemaVersion(),table).fillFromImpl(table2);
+  table=cs.toTwoDimTableDistribution();
+  distribution_summary=(TwoDimTableBase)Schema.schema(this.getSchemaVersion(),table).fillFromImpl(table);
 }

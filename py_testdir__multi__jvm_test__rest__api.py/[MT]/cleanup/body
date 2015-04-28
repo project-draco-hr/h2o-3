@@ -11,11 +11,11 @@ def cleanup(a_node, models=None, frames=None):
     else:
         for model in models:
             for m in ms['models']:
-                assert (m['key'] != model), ('FAIL: Found model that we tried to delete in the models list: ' + model)
+                assert (m['model_id'] != model), ('FAIL: Found model that we tried to delete in the models list: ' + model)
     if (frames is not None):
         for frame in frames:
             a_node.delete_frame(frame)
             ms = a_node.frames(row_count=5)
             found = False
             for m in ms['frames']:
-                assert (m['key'] != frame), ('FAIL: Found frame that we tried to delete in the frames list: ' + frame)
+                assert (m['frame_id'] != frame), ('FAIL: Found frame that we tried to delete in the frames list: ' + frame)

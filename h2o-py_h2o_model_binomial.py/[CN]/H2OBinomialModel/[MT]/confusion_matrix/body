@@ -1,0 +1,22 @@
+def confusion_matrix(self, metric='f1', train=False, valid=False):
+    '\n    Get the confusion matrix for the specified metric\n    If both train and valid are False, return the train.\n    If both train and valid are True, return the valid.\n\n    :param metric: A string in {"min_per_class_accuracy", "absolute_MCC", "tnr", "fnr", "fpr", "tpr", "precision", "error", "accuracy", "f0point5", "f2", "f1"}\n    :param train: Return the max per class error for training data.\n    :param valid: Return the max per class error for the validation data.\n    :return: the confusion matrix for the metric\n    '
+    print 'Confusion matrix for metric: ', metric
+    print 
+    tm = ModelBase._get_metrics(self, *ModelBase._train_or_valid(train, valid))
+    if (tm is None):
+        return None
+    thresh = tm.find_threshold_by_max_metric(metric)
+    thresh2d = tm._metric_json['thresholds_and_metric_scores']
+    tidx = thresh2d.col_header.index('tps')
+    fidx = thresh2d.col_header.index('fps')
+    p = tm._metric_json['max_criteria_and_metric_scores'].cell_values[(tidx - 1)][2]
+    n = tm._metric_json['max_criteria_and_metric_scores'].cell_values[(fidx - 1)][2]
+    idx = tm.find_idx_by_threshold(thresh)
+    row = thresh2d.cell_values[idx]
+    tps = row[tidx]
+    fps = row[fidx]
+    c0 = (float('nan') if (isinstance(n, str) or isinstance(fps, str)) else (n - fps))
+    c1 = (float('nan') if (isinstance(p, str) or isinstance(tps, str)) else (p - tps))
+    fps = (float('nan') if isinstance(fps, str) else fps)
+    tps = (float('nan') if isinstance(tps, str) else tps)
+    return [[c0, fps], [c1, tps]]

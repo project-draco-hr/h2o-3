@@ -1,0 +1,26 @@
+def confusion_matrices(self, thresholds=None, train=False, valid=False):
+    '\n    Each threshold defines a confusion matrix. For each threshold in the thresholds list, return a 2x2 list.\n    If both train and valid are False, return the train.\n    If both train and valid are True, return the valid.\n\n    :param train: Return the max per class error for training data.\n    :param valid: Return the max per class error for the validation data.\n    :param thresholds: thresholds parameter must be a list (i.e. [0.01, 0.5, 0.99]). If None, then the thresholds in this set of metrics will be used.\n    :return: A list of 2x2-lists: [, ..., [ [tns,fps], [fns,tps] ], ..., ]\n    '
+    tm = ModelBase._get_metrics(self, *ModelBase._train_or_valid(train, valid))
+    if (tm is None):
+        return None
+    if (not thresholds):
+        thresholds = [tm.find_threshold_by_max_metric('f1')]
+    if (not isinstance(thresholds, list)):
+        raise ValueError('thresholds parameter must be a list (i.e. [0.01, 0.5, 0.99])')
+    thresh2d = tm._metric_json['thresholds_and_metric_scores']
+    tidx = thresh2d.col_header.index('tps')
+    fidx = thresh2d.col_header.index('fps')
+    p = tm._metric_json['max_criteria_and_metric_scores'].cell_values[(tidx - 1)][2]
+    n = tm._metric_json['max_criteria_and_metric_scores'].cell_values[(fidx - 1)][2]
+    cms = []
+    for t in thresholds:
+        idx = tm.find_idx_by_threshold(t)
+        row = thresh2d.cell_values[idx]
+        tps = row[tidx]
+        fps = row[fidx]
+        c0 = (float('nan') if (isinstance(n, str) or isinstance(fps, str)) else (n - fps))
+        c1 = (float('nan') if (isinstance(p, str) or isinstance(tps, str)) else (p - tps))
+        fps = (float('nan') if isinstance(fps, str) else fps)
+        tps = (float('nan') if isinstance(tps, str) else tps)
+        cms.append([[c0, fps], [c1, tps]])
+    return cms
