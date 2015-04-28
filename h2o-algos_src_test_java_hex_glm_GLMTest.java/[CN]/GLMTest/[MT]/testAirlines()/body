@@ -1,6 +1,6 @@
 {
   GLM job=null;
-  GLMModel model1=null, model2=null, model3, model4;
+  GLMModel model1=null, model2=null, model3=null, model4=null;
   Frame frMM=parse_test_file("smalldata/airlines/AirlinesTrainMM.csv.zip");
   Frame frG=parse_test_file(Key.make("gram"),"smalldata/airlines/gram_std.csv",true);
   Vec xy=frG.remove("xy");
@@ -20,8 +20,11 @@
     job=new GLM(Key.make("airlines_cat_nostd"),"Airlines with auto-expanded categoricals, no standardization",params);
     model1=job.trainModel().get();
     Frame score1=model1.score(fr);
-    ModelMetrics mm=ModelMetrics.getFromDKV(model1,fr);
-    Assert.assertEquals(5336.918,mm._MSE * score1.numRows(),1);
+    ModelMetricsRegressionGLM mm=(ModelMetricsRegressionGLM)ModelMetrics.getFromDKV(model1,fr);
+    Assert.assertEquals(model1.validation().residual_deviance,mm._resDev,1e-4);
+    System.out.println("NDOF = " + model1.validation().nullDOF() + ", numRows = "+ score1.numRows());
+    Assert.assertEquals(model1.validation().residual_deviance,mm._MSE * score1.numRows(),1e-4);
+    mm.remove();
     res=model1.score(fr);
     Assert.assertTrue(model1.testJavaScoring(fr,res,1e-15));
     params._train=frMM._key;
@@ -66,16 +69,18 @@
     }
     assertEquals(val1.nullDeviance(),val2.nullDeviance(),1e-4);
     assertEquals(val1.residualDeviance(),val2.residualDeviance(),1e-4);
-    assertEquals(val1.AIC(),val2.AIC(),1e-2);
+    assertEquals(val1.aic,val2.aic,1e-2);
     assertEquals(5336.918,val1.residualDeviance(),1);
     assertEquals(6051.613,val1.nullDeviance(),1);
   }
   finally {
     fr.delete();
     frMM.delete();
-    res.delete();
+    if (res != null)     res.delete();
     if (model1 != null)     model1.delete();
     if (model2 != null)     model2.delete();
+    if (model3 != null)     model3.delete();
+    if (model4 != null)     model4.delete();
     if (job != null)     job.remove();
     Scope.exit();
   }

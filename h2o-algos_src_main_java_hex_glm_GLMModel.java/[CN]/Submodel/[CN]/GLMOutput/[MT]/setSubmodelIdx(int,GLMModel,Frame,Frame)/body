@@ -1,0 +1,12 @@
+{
+  _best_lambda_idx=l;
+  if (_submodels[l].trainVal != null && tFrame != null)   _training_metrics=_submodels[l].trainVal.makeModelMetrics(m,tFrame,Double.NaN);
+  if (_submodels[l].holdOutVal != null && vFrame != null) {
+    _threshold=_submodels[l].trainVal.bestThreshold();
+    _validation_metrics=_submodels[l].holdOutVal.makeModelMetrics(m,vFrame,Double.NaN);
+  }
+  if (_global_beta == null)   _global_beta=MemoryManager.malloc8d(_coefficient_names.length);
+ else   Arrays.fill(_global_beta,0);
+  int j=0;
+  for (  int i : _submodels[l].idxs)   _global_beta[i]=_submodels[l].beta[j++];
+}

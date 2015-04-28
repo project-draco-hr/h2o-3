@@ -3,8 +3,7 @@ def vec_slicing(ip, port):
     iris = h2o.import_frame(path=h2o.locate('smalldata/iris/iris_wheader.csv'))
     iris.show()
     res = (2 - iris)
-    res2 = h2o.as_list(H2OVec(name='C0', expr=res[0]))
-    assert ((abs((res2[3][0] - (-2.6))) < 1e-10) and (abs((res2[17][0] - (-3.1))) < 1e-10) and (abs((res2[24][0] - (-2.8))) < 1e-10)), 'incorrect values'
+    res2 = H2OVec(name='C0', expr=res[0])
+    assert ((abs((res2[(3, 0)] - (-2.6))) < 1e-10) and (abs((res2[(17, 0)] - (-3.1))) < 1e-10) and (abs((res2[(24, 0)] - (-2.8))) < 1e-10)), 'incorrect values'
     res = iris[1][12:25]
-    res3 = h2o.as_list(res)
-    assert ((abs((res3[0][0] - 3.0)) < 1e-10) and (abs((res3[1][0] - 3.0)) < 1e-10) and (abs((res3[5][0] - 3.5)) < 1e-10)), 'incorrect values'
+    assert ((abs((res[(0, 0)] - 3.0)) < 1e-10) and (abs((res[(1, 0)] - 3.0)) < 1e-10) and (abs((res[(5, 0)] - 3.5)) < 1e-10)), 'incorrect values'
