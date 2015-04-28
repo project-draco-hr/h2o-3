@@ -1,0 +1,7 @@
+def auc(self, train=False, valid=False):
+    '\n    Get the AUC.\n    If both train and valid are False, return the train.\n    If both train and valid are True, return the valid.\n\n    :param train: Return the AUC for training data.\n    :param valid: Return the AUC for the validation data.\n    :return: Retrieve the AUC coefficient for this set of metrics\n    '
+    tm = ModelBase._get_metrics(self, *ModelBase._train_or_valid(train, valid))
+    if (tm is None):
+        return None
+    tm = tm._metric_json
+    return tm.auc()

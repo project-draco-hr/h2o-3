@@ -4,9 +4,11 @@ def vec_scaler_comparisons(ip, port):
     (rows, cols) = air.dim()
     row_sum = 0
     for level in air.levels(16):
+        if (level == 'ANC'):
+            continue
         (r, c) = air[(air['Origin'] == str(level))].dim()
         row_sum = (row_sum + r)
-    assert (row_sum == rows), 'expected equal number of rows'
+    assert (row_sum == (rows - 1)), 'expected equal number of rows'
     jan = air[(air['Month'] == 1)]
     not_jan = air[(air['Month'] != 1)]
     (no_rows, no_cols) = not_jan.dim()
@@ -24,9 +26,11 @@ def vec_scaler_comparisons(ip, port):
     assert (((l_rows + G_rows) == rows) and (l_cols == G_cols == cols)), 'expected equal number of rows and cols'
     row_sum = 0
     for level in air.levels(16):
+        if (level == 'ANC'):
+            continue
         (r, c) = air[(str(level) == air['Origin'])].dim()
         row_sum = (row_sum + r)
-    assert (row_sum == rows), 'expected equal number of rows'
+    assert (row_sum == (rows - 1)), 'expected equal number of rows'
     jan = air[(1 == air['Month'])]
     not_jan = air[(1 != air['Month'])]
     (no_rows, no_cols) = not_jan.dim()

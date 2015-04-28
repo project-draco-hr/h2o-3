@@ -38,15 +38,31 @@
     conf.set("mapreduce.map.memory.mb",mapreduceMapMemoryMb);
     String mapChildJavaOpts="-Xms" + mapperXmx + " -Xmx"+ mapperXmx+ (enableExceptions ? " -ea" : "")+ (enableVerboseGC ? " -verbose:gc" : "")+ (enablePrintGCDetails ? " -XX:+PrintGCDetails" : "")+ (enablePrintGCTimeStamps ? " -XX:+PrintGCTimeStamps" : "")+ (enableVerboseClass ? " -verbose:class" : "")+ (enablePrintCompilation ? " -XX:+PrintCompilation" : "")+ (enableExcludeMethods ? " -XX:CompileCommand=exclude,water/fvec/NewChunk.append2slowd" : "")+ (enableLog4jDefaultInitOverride ? " -Dlog4j.defaultInitOverride=true" : "")+ (enableDebug ? " -agentlib:jdwp=transport=dt_socket,server=y,suspend=" + (enableSuspend ? "y" : "n") + ",address="+ debugPort : "");
     conf.set("mapreduce.map.java.opts",mapChildJavaOpts);
+    if (!usingYarn()) {
+      conf.set("mapred.child.java.opts",mapChildJavaOpts);
+      conf.set("mapred.map.child.java.opts",mapChildJavaOpts);
+    }
     System.out.println("Memory Settings:");
     System.out.println("    mapreduce.map.java.opts:     " + mapChildJavaOpts);
     System.out.println("    Extra memory percent:        " + extraMemPercent);
     System.out.println("    mapreduce.map.memory.mb:     " + mapreduceMapMemoryMb);
   }
   conf.set("mapreduce.client.genericoptionsparser.used","true");
+  if (!usingYarn()) {
+    conf.set("mapred.used.genericoptionsparser","true");
+  }
   conf.set("mapreduce.map.speculative","false");
+  if (!usingYarn()) {
+    conf.set("mapred.map.tasks.speculative.execution","false");
+  }
   conf.set("mapreduce.map.maxattempts","1");
+  if (!usingYarn()) {
+    conf.set("mapred.map.max.attempts","1");
+  }
   conf.set("mapreduce.job.jvm.numtasks","1");
+  if (!usingYarn()) {
+    conf.set("mapred.job.reuse.jvm.num.tasks","1");
+  }
   conf.set(h2omapper.H2O_JOBTRACKERNAME_KEY,jobtrackerName);
   conf.set(h2omapper.H2O_DRIVER_IP_KEY,driverCallbackIp);
   conf.set(h2omapper.H2O_DRIVER_PORT_KEY,Integer.toString(actualDriverCallbackPort));
