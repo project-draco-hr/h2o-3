@@ -5,12 +5,13 @@
     _parms.read_lock_frames(NaiveBayes.this);
     init(true);
     if (error_count() > 0)     throw new IllegalArgumentException("Found validation errors: " + validationErrors());
-    dinfo=new DataInfo(Key.make(),_train,_valid,1,false,DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true);
+    dinfo=new DataInfo(Key.make(),_train,_valid,1,false,DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true,false);
     model=new NaiveBayesModel(dest(),_parms,new NaiveBayesModel.NaiveBayesOutput(NaiveBayes.this));
     model.delete_and_lock(_key);
     _train.read_lock(_key);
     NBTask tsk=new NBTask(dinfo,_response.cardinality()).doAll(dinfo._adaptedFrame);
     computeStatsFillModel(model,dinfo,tsk);
+    model._output._rescnt=tsk._rescnt;
     model._output._levels=_response.domain();
     model._output._ncats=dinfo._cats;
     model.update(_key);

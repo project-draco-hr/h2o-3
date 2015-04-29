@@ -4,9 +4,9 @@ def import_parse(node=None, schema='local', bucket=None, path=None, src_key=None
     (importResult, importPattern) = import_only(node, schema, bucket, path, timeoutSecs, retryDelaySecs, initialDelaySecs, pollTimeoutSecs, noise, benchmarkLogging, noPoll, doSummary, src_key, noPrint, importParentDir, **kwargs)
     verboseprint('importPattern:', importPattern)
     verboseprint('importResult', dump_json(importResult))
-    assert (len(importResult['keys']) >= 1), ('No keys imported, maybe bad bucket %s or path %s' % (bucket, path))
+    assert (len(importResult['destination_frames']) >= 1), ('No keys imported, maybe bad bucket %s or path %s' % (bucket, path))
     start = time.time()
-    parseResult = parse_only(node, importPattern, hex_key, importResult['keys'], timeoutSecs, retryDelaySecs, initialDelaySecs, pollTimeoutSecs, noise, benchmarkLogging, noPoll, **kwargs)
+    parseResult = parse_only(node, importPattern, hex_key, importResult['destination_frames'], timeoutSecs, retryDelaySecs, initialDelaySecs, pollTimeoutSecs, noise, benchmarkLogging, noPoll, **kwargs)
     elapsed = (time.time() - start)
     print importPattern, 'parsed in', elapsed, 'seconds.', ('%d pct. of timeout' % ((elapsed * 100) / timeoutSecs)), '\n'
     parseResult['python_elapsed'] = elapsed
