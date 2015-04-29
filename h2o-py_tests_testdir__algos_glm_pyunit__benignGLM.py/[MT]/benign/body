@@ -5,5 +5,5 @@ def benign(ip, port):
     X = [x for x in range(2, 11) if (x != Y)]
     model = h2o.glm(y=training_data[Y].asfactor(), x=training_data[X], family='binomial', alpha=[0], Lambda=[1e-05])
     in_names = [training_data.names()[i] for i in X]
-    out_names = [model._model_json['output']['coefficients_table'].cell_values[c][0] for c in range(len(X))]
-    assert (in_names == out_names)
+    out_names = [model._model_json['output']['coefficients_table'].cell_values[c][0] for c in range((len(X) + 1))]
+    assert (in_names == out_names[1:])

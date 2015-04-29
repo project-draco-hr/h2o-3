@@ -8,10 +8,9 @@
       solve(oldRes,result);
       double[] g=gradient(result);
       gerr=Math.max(-ArrayUtils.minValue(g),ArrayUtils.maxValue(g));
-      System.out.println(i + ": " + gerr);
       if (gerr < 1e-4)       return;
       System.arraycopy(result,0,oldRes,0,result.length);
     }
+    Log.warn("Gram solver did not converge, gerr = " + gerr);
   }
-  Log.warn("Gram solver did not converge, gerr = " + gerr);
 }

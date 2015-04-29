@@ -1,7 +1,7 @@
 {
   final double[] newBetaDeNorm;
-  final double[] fb=fullBeta.clone();
-  fb[fb.length - 1]+=_iceptAdjust;
+  final double[] fb=MemoryManager.arrayCopyOf(fullBeta,fullBeta.length);
+  if (_parms._intercept)   fb[fb.length - 1]+=_iceptAdjust;
   if (_dinfo._predictor_transform == DataInfo.TransformType.STANDARDIZE) {
     newBetaDeNorm=fb.clone();
     double norm=0.0;
@@ -11,7 +11,7 @@
       norm+=b * _dinfo._normSub[i - numoff];
       newBetaDeNorm[i]=b;
     }
-    newBetaDeNorm[newBetaDeNorm.length - 1]-=norm;
+    if (_parms._intercept)     newBetaDeNorm[newBetaDeNorm.length - 1]-=norm;
   }
  else {
     newBetaDeNorm=null;
