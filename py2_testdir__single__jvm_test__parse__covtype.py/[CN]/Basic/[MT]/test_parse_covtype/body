@@ -5,7 +5,7 @@ def test_parse_covtype(self):
         importFolderPath = os.path.expanduser('~/home-0xdiag-datasets/standard')
         csvPathname = ((importFolderPath + '/') + csvFilename)
         importResult = a_node.import_files(path=csvPathname)
-        hex_key = importResult['keys'][0]
+        hex_key = importResult['destination_frames'][0]
         if CAUSE_FAIL:
             frames_result = a_node.frames(key=k, row_count=5, timeoutSecs=timeoutSecs)
         parseResult = a_node.parse(key=hex_key, timeoutSecs=timeoutSecs, chunk_size=(4194304 * 4))
@@ -15,6 +15,6 @@ def test_parse_covtype(self):
         for i in range(0):
             print 'Summary on column', i
             co = h2o_cmd.runSummary(key=hex_key, column=i)
-        k = parseResult['frames'][0]['key']['name']
+        k = parseResult['frames'][0]['frame_id']['name']
         frames_result = a_node.frames(key=k, row_count=5)
         parseKeyIndexedCheck(frames_result, multiplyExpected)
