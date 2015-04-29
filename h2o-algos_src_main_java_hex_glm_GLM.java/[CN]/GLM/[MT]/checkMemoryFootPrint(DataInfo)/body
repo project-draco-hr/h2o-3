@@ -1,8 +1,8 @@
 {
-  if (_parms._solver == Solver.IRLSM) {
-    long p=_train.degreesOfFreedom() - _train.lastVec().cardinality();
+  if (_parms._solver == Solver.IRLSM && !_parms._lambda_search) {
     HeartBeat hb=H2O.CLOUD._memary[H2O.SELF.index()]._heartbeat;
-    long mem_usage=hb._cpus_allowed * p * p* 8;
+    double p=dinfo.fullN() - dinfo.largestCat();
+    long mem_usage=(long)(hb._cpus_allowed * (p * p + dinfo.largestCat()) * 8* Math.log((double)_train.lastVec().nChunks()) / Math.log(2.));
     long max_mem=hb.get_max_mem();
     if (mem_usage > max_mem) {
       String msg="Gram matrices (one per thread) won't fit in the driver node's memory (" + PrettyPrint.bytes(mem_usage) + " > "+ PrettyPrint.bytes(max_mem)+ ") - try reducing the number of columns and/or the number of categorical factors.";
