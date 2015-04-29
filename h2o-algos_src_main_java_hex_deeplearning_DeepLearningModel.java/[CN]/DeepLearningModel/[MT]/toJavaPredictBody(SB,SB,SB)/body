@@ -1,5 +1,6 @@
 {
   SB model=new SB();
+  final DeepLearningParameters p=model_info.get_params();
   bodySb.i().p("java.util.Arrays.fill(preds,0);").nl();
   final int cats=model_info().data_info()._cats;
   final int nums=model_info().data_info()._nums;
@@ -36,10 +37,10 @@
     bodySb.i(1).p("ACTIVATION[0][CATOFFSETS[CATOFFSETS.length-1] + i] = Double.isNaN(NUMS[i]) ? 0f : (float) NUMS[i];").nl();
     bodySb.i().p("}").nl();
   }
-  boolean tanh=(get_params()._activation == DeepLearningParameters.Activation.Tanh || get_params()._activation == DeepLearningParameters.Activation.TanhWithDropout);
-  boolean relu=(get_params()._activation == DeepLearningParameters.Activation.Rectifier || get_params()._activation == DeepLearningParameters.Activation.RectifierWithDropout);
-  boolean maxout=(get_params()._activation == DeepLearningParameters.Activation.Maxout || get_params()._activation == DeepLearningParameters.Activation.MaxoutWithDropout);
-  final String stopping=get_params()._autoencoder ? "(i<=ACTIVATION.length-1)" : "(i<ACTIVATION.length-1)";
+  boolean tanh=(p._activation == DeepLearningParameters.Activation.Tanh || p._activation == DeepLearningParameters.Activation.TanhWithDropout);
+  boolean relu=(p._activation == DeepLearningParameters.Activation.Rectifier || p._activation == DeepLearningParameters.Activation.RectifierWithDropout);
+  boolean maxout=(p._activation == DeepLearningParameters.Activation.Maxout || p._activation == DeepLearningParameters.Activation.MaxoutWithDropout);
+  final String stopping=p._autoencoder ? "(i<=ACTIVATION.length-1)" : "(i<ACTIVATION.length-1)";
   bodySb.i().p("for (i=1; i<ACTIVATION.length; ++i) {").nl();
   bodySb.i(1).p("java.util.Arrays.fill(ACTIVATION[i],0f);").nl();
   if (maxout) {
@@ -97,7 +98,7 @@
       bodySb.i(3).p("ACTIVATION[i][r] = Math.max(0f, ACTIVATION[i][r]);").nl();
     }
   }
-  if (get_params()._hidden_dropout_ratios != null) {
+  if (p._hidden_dropout_ratios != null) {
     bodySb.i(3).p("if (i<ACTIVATION.length-1) {").nl();
     bodySb.i(4).p("ACTIVATION[i][r] *= HIDDEN_DROPOUT_RATIOS[i-1];").nl();
     bodySb.i(3).p("}").nl();
@@ -124,7 +125,7 @@
     bodySb.i(1).p("}").nl();
     bodySb.i().p("}").nl();
   }
- else   if (!get_params()._autoencoder) {
+ else   if (!p._autoencoder) {
     bodySb.i(1).p("if (i == ACTIVATION.length-1) {").nl();
     if (model_info().data_info()._normRespMul != null) {
       bodySb.i(2).p("preds[1] = (ACTIVATION[i][0] / NORMRESPMUL[0] + NORMRESPSUB[0]);").nl();
