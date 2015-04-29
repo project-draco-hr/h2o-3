@@ -9,12 +9,40 @@
     final DeepLearningModel previous=DKV.getGet(_parms._checkpoint);
     if (previous == null)     throw new IllegalArgumentException("Checkpoint not found.");
     Log.info("Resuming from checkpoint.");
+    if (isClassifier() != previous._output.isClassifier())     throw new IllegalArgumentException("Response type must be the same as for the checkpointed model.");
+    if (isSupervised() != previous._output.isSupervised())     throw new IllegalArgumentException("Model type must be the same as for the checkpointed model.");
     DeepLearningModel.DeepLearningParameters oldP=previous._parms;
     DeepLearningModel.DeepLearningParameters newP=_parms;
     new ProgressUpdate("Resuming from checkpoint").fork(_progressKey);
     if (newP.getNumFolds() != 0)     throw new UnsupportedOperationException("n_folds must be 0: Cross-validation is not supported during checkpoint restarts.");
     if ((_parms._valid == null) != (previous._parms._valid == null) || (_parms._valid != null && !_parms._valid.equals(previous._parms._valid))) {
-      throw new IllegalArgumentException("validation must be the same as for the checkpointed model.");
+      throw new IllegalArgumentException("Validation dataset must be the same as for the checkpointed model.");
+    }
+    if (!newP._autoencoder && (newP._response_column == null || !newP._response_column.equals(oldP._response_column))) {
+      throw new IllegalArgumentException("Response column (" + newP._response_column + ") is not the same as for the checkpointed model: "+ oldP._response_column);
+    }
+    if (!Arrays.equals(newP._hidden,oldP._hidden)) {
+      throw new IllegalArgumentException("Hidden layers (" + Arrays.toString(newP._hidden) + ") is not the same as for the checkpointed model: "+ Arrays.toString(oldP._hidden));
+    }
+    if (!Arrays.equals(newP._ignored_columns,oldP._ignored_columns)) {
+      throw new IllegalArgumentException("Predictor columns must be the same as for the checkpointed model. Check ignored columns.");
+    }
+    for (    Field fBefore : oldP.getClass().getDeclaredFields()) {
+      if (ArrayUtils.contains(cp_not_modifiable,fBefore.getName())) {
+        for (        Field fAfter : newP.getClass().getDeclaredFields()) {
+          if (fBefore.equals(fAfter)) {
+            try {
+              if (fAfter.get(newP) == null || fBefore.get(oldP) == null || !fBefore.get(oldP).toString().equals(fAfter.get(newP).toString())) {
+                if (fBefore.get(oldP) == null && fAfter.get(newP) == null)                 continue;
+                throw new IllegalArgumentException("Cannot change parameter: '" + fBefore.getName() + "': "+ fBefore.get(oldP)+ " -> "+ fAfter.get(newP));
+              }
+            }
+ catch (            IllegalAccessException e) {
+              e.printStackTrace();
+            }
+          }
+        }
+      }
     }
     try {
       final DataInfo dinfo=makeDataInfo(_train,_valid,_parms);
@@ -25,18 +53,9 @@
       assert(actualNewP != previous.model_info().get_params());
       assert(actualNewP != newP);
       assert(actualNewP != oldP);
-      if (oldP._autoencoder != newP._autoencoder) {
-        newP._autoencoder=oldP._autoencoder;
-        Log.warn("Automatically " + (newP._autoencoder ? "enabling" : "disabling") + " autoencoder (same as the checkpointed model).");
+      if (!Arrays.equals(cp._output._names,previous._output._names)) {
+        throw new IllegalArgumentException("Predictor columns must be the same as for the checkpointed model. Check ignored columns.");
       }
-      if (!newP._autoencoder && (newP._response_column == null || !newP._response_column.equals(oldP._response_column))) {
-        throw new IllegalArgumentException("Response column (" + newP._response_column + ") is not the same as for the checkpointed model: "+ oldP._response_column);
-      }
-      if (ArrayUtils.difference(newP._ignored_columns,oldP._ignored_columns).length != 0 || ArrayUtils.difference(newP._ignored_columns,oldP._ignored_columns).length != 0) {
-        actualNewP._ignored_columns=oldP._ignored_columns;
-        Log.warn("Automatically re-using ignored_cols from the checkpointed model.");
-      }
-      if (isClassifier() != previous._output.isClassifier())       Log.warn("Automatically switching to " + (isClassifier() ? "regression" : "classification") + " (same as the checkpointed model).");
       for (      Field fBefore : actualNewP.getClass().getDeclaredFields()) {
         if (ArrayUtils.contains(cp_modifiable,fBefore.getName())) {
           for (          Field fAfter : newP.getClass().getDeclaredFields()) {
