@@ -3,15 +3,16 @@
     @Override public void callback(    final YMUTask ymut){
       _rowFilter=ymut._fVec;
       _ymut=ymut;
+      double ymu=_parms._intercept ? _ymut._ymu : 0;
       if (ymut._nobs > 0) {
         InitTsk.this.addToPendingCount(1);
         final double[] beta=MemoryManager.malloc8d(_dinfo.fullN() + 1);
         if (_intercept)         beta[beta.length - 1]=_parms.link(ymut._ymu);
         if (_bc._betaStart == null)         _bc.setBetaStart(beta);
-        _gtNull=new GLMGradientTask(_dinfo,_parms,0,beta,1.0 / ymut._nobs,_rowFilter,InitTsk.this).setValidate(ymut._ymu,true).asyncExec(_dinfo._adaptedFrame);
+        _gtNull=new GLMGradientTask(_dinfo,_parms,0,beta,1.0 / ymut._nobs,_rowFilter,InitTsk.this).setValidate(ymu,true).asyncExec(_dinfo._adaptedFrame);
         if (beta != _bc._betaStart) {
           InitTsk.this.addToPendingCount(1);
-          _gtBetaStart=new GLMGradientTask(_dinfo,_parms,0,_bc._betaStart,1.0 / ymut._nobs,_rowFilter,InitTsk.this).setValidate(ymut._ymu,true).asyncExec(_dinfo._adaptedFrame);
+          _gtBetaStart=new GLMGradientTask(_dinfo,_parms,0,_bc._betaStart,1.0 / ymut._nobs,_rowFilter,InitTsk.this).setValidate(ymu,true).asyncExec(_dinfo._adaptedFrame);
         }
       }
     }
