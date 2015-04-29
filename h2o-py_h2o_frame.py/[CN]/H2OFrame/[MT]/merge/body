@@ -22,4 +22,6 @@ def merge(self, other, allLeft=False, allRite=False):
     veckeys = fr['vec_ids']
     cols = fr['columns']
     colnames = [col['label'] for col in cols]
-    return H2OFrame(vecs=H2OVec.new_vecs(zip(colnames, veckeys), rows))
+    vecs = H2OVec.new_vecs(zip(colnames, veckeys), rows)
+    h2o.rapids('(removeframe !{})'.format(tmp_key))
+    return H2OFrame(vecs=vecs)
