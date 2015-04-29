@@ -2,38 +2,5 @@ import sys
 sys.path.insert(1, '../../../')
 import h2o
 import random
-h2o.init()
-print 'Import and data munging...'
-pros = h2o.upload_file(h2o.locate('smalldata/prostate/prostate.csv.zip'))
-pros[1] = pros[1].asfactor()
-r = pros[0].runif()
-pros_train = pros[(r > 0.2)]
-pros_valid = pros[(r <= 0.2)]
-cars = h2o.upload_file(h2o.locate('smalldata/junit/cars.csv'))
-r = cars[0].runif()
-cars_train = cars[(r > 0.2)]
-cars_valid = cars[(r <= 0.2)]
-print 
-print '======================================================================'
-print '============================== Binomial =============================='
-print '======================================================================'
-for i in range(10):
-    attack('binomial', pros_train, pros_valid, random.sample([2, 3, 4, 5, 6, 7, 8], random.randint(1, 7)), 1)
-print 
-print '======================================================================'
-print '============================== Gaussian =============================='
-print '======================================================================'
-for i in range(10):
-    attack('gaussian', cars_train, cars_valid, random.sample([2, 3, 4, 5, 6, 7], random.randint(1, 6)), 1)
-print 
-print '======================================================================'
-print '============================== Poisson  =============================='
-print '======================================================================'
-for i in range(10):
-    attack('poisson', cars_train, cars_valid, random.sample([1, 3, 4, 5, 6, 7], random.randint(1, 6)), 2)
-print 
-print '======================================================================'
-print '==============================  Gamma   =============================='
-print '======================================================================'
-for i in range(10):
-    attack('gamma', pros_train, pros_valid, random.sample([1, 2, 3, 5, 6, 7, 8], random.randint(1, 7)), 4)
+if (__name__ == '__main__'):
+    h2o.run_test(sys.argv, random_attack)
