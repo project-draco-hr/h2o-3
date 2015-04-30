@@ -24,7 +24,7 @@
         DeepLearningParameters p=new DeepLearningParameters();
         p._train=train._key;
         p._valid=test._key;
-        p._destination_key=Key.make();
+        p._model_id=Key.make();
         p._response_column=train.names()[train.names().length - 1];
         int ci=train.names().length - 1;
         Scope.track(train.replace(ci,train.vecs()[ci].toEnum())._key);
@@ -89,7 +89,9 @@
         for (        Float error : repeatErrs.values())         assertTrue(error.equals(repeatErrs.get(0)));
         for (        long cs : checksums)         assertTrue(cs == checksums[0]);
         for (        Frame f : preds) {
-          assertTrue(TestUtil.isBitIdentical(f,preds[0]));
+          for (int i=0; i < f.vecs().length; ++i) {
+            TestUtil.assertVecEquals(f.vecs()[i],preds[0].vecs()[i],1e-5);
+          }
         }
         repro_error=repeatErrs.get(0);
       }

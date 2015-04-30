@@ -1,5 +1,5 @@
 def show(self):
-    '\n    Print innards of model, without regards to type\n    :return: None\n    '
+    '\n    Print innards of model, without regards to type\n\n    :return: None\n    '
     model = self._model_json['output']
     print 'Model Details'
     print '============='
@@ -7,14 +7,12 @@ def show(self):
     print 'Model Key: ', self._key
     self.summary()
     print 
-    if (self.__class__.__name__ == 'H2OMultinomialModel'):
-        tm = model['training_metrics']
-        if tm:
-            ModelBase._show_multi_metrics(tm)
-        vm = model['validation_metrics']
-        if vm:
-            ModelBase._show_multi_metrics(vm)
-    print 
+    tm = model['training_metrics']
+    if tm:
+        tm.show()
+    vm = model['validation_metrics']
+    if vm:
+        vm.show()
     if (('scoring_history' in model.keys()) and model['scoring_history']):
         model['scoring_history'].show()
     if (('variable_importances' in model.keys()) and model['variable_importances']):

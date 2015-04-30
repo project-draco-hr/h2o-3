@@ -1,4 +1,5 @@
 def __getitem__(self, i):
+    '\n    Column selection via integer, string(name)\n    Column selection via slice returns a subset of the H2OFrame\n\n    :param i: An int, str, slice, H2OVec, or list/tuple\n    :return: An H2OVec, an H2OFrame, or scalar depending on the input slice.\n    '
     if ((self._vecs is None) or (self._vecs == [])):
         raise ValueError('Frame Removed')
     if isinstance(i, int):
@@ -24,5 +25,12 @@ def __getitem__(self, i):
         veckeys = [str(v._expr._data) for v in self._vecs]
         left = Expr(veckeys)
         rite = Expr((i[0], i[1]))
-        return Expr('[', left, rite, length=2)
+        res = Expr('[', left, rite, length=2)
+        if ((not isinstance(i[0], int)) or (not isinstance(i[1], int))):
+            return res
+        res.eager()
+        if res.is_local():
+            return res._data
+        j = h2o.frame(res._data)
+        return map(list, zip(*[c['data'] for c in j['frames'][0]['columns'][:]]))[0][0]
     raise NotImplementedError(('Slicing by unknown type: ' + str(type(i))))
