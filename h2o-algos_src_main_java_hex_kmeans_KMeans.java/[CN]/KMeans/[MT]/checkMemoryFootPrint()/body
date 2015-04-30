@@ -1,0 +1,9 @@
+{
+  long mem_usage=8 * _parms._k * _train.numCols()* (_parms._standardize ? 2 : 1);
+  long max_mem=H2O.CLOUD._memary[H2O.SELF.index()]._heartbeat.get_max_mem();
+  if (mem_usage > max_mem) {
+    String msg="Centroids won't fit in the driver node's memory (" + PrettyPrint.bytes(mem_usage) + " > "+ PrettyPrint.bytes(max_mem)+ ") - try reducing the number of columns and/or the number of categorical factors.";
+    error("_train",msg);
+    cancel(msg);
+  }
+}
