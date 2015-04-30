@@ -1,10 +1,21 @@
 def show(self):
-    if (len(self) == 1):
+    if ((self._vecs is None) or (self._vecs == [])):
+        raise ValueError('Frame Removed')
+    elif (len(self) == 1):
         to_show = [[v] for v in self._vecs[0].show(noprint=True)]
         print tabulate.tabulate(to_show, headers=self.names())
     else:
         vecs = [vec.show(noprint=True) for vec in self]
-        vecs.insert(0, range(1, (len(vecs[0]) + 1), 1))
-        print (('Displaying ' + str(len(vecs[0]))) + ' row(s):')
-        print tabulate.tabulate(zip(*vecs), headers=(['Row ID'] + self.names()))
-        print 
+        l = 1
+        if isinstance(vecs[0], float):
+            vecs.insert(0, 1)
+            print (('Displaying ' + str(l)) + ' row(s):')
+            vecs = [[v] for v in vecs]
+            print tabulate.tabulate(zip(*vecs), headers=(['Row ID'] + self.names()))
+            print 
+        else:
+            l = len(vecs[0])
+            vecs.insert(0, range(1, (len(vecs[0]) + 1), 1))
+            print (('Displaying ' + str(l)) + ' row(s):')
+            print tabulate.tabulate(zip(*vecs), headers=(['Row ID'] + self.names()))
+            print 

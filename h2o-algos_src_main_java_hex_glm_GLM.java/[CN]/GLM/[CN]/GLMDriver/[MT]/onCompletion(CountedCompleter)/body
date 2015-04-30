@@ -1,5 +1,21 @@
 {
   getCompleter().addToPendingCount(1);
+  int[] its=null;
+  int[] tms=null;
+  double[] lgs=null;
+  double[] obs=null;
+  if (!_scoring_iters.isEmpty()) {
+    its=new int[_scoring_iters.size()];
+    tms=new int[_scoring_iters.size()];
+    lgs=new double[its.length];
+    obs=new double[its.length];
+    for (int i=0; i < its.length; ++i) {
+      its[i]=_scoring_iters.get(i);
+      tms[i]=_scoring_times.get(i);
+      lgs[i]=_likelihoods.get(i);
+      obs[i]=_objectives.get(i);
+    }
+  }
   H2O.submitTask(new FinalizeAndUnlockTsk(new H2OCallback((H2OCountedCompleter)getCompleter()){
     @Override public void callback(    H2OCountedCompleter h2OCountedCompleter){
       doCleanup();
@@ -7,9 +23,10 @@
     }
     @Override public boolean onExceptionalCompletion(    Throwable ex,    CountedCompleter cc){
       doCleanup();
+      failed(ex);
       new RemoveCall(null,_dest).invokeTask();
       return true;
     }
   }
-,_dest,_key,_valid != null ? _valid._key : null));
+,_dest,_key,_parms._train,_parms._valid,its,tms,lgs,obs));
 }

@@ -1,4 +1,7 @@
-def quantile(self, prob=None):
+def quantile(self, prob=None, combine_method='interpolate'):
+    '\n    Compute quantiles over a given H2OFrame.\n\n    :param prob: A list of probabilties, default is [0.01,0.1,0.25,0.333,0.5,0.667,0.75,0.9,0.99]. You may provide any sequence of any length.\n    :param combine_method: For even samples, how to combine quantiles. Should be one of ["interpolate", "average", "low", "hi"]\n    :return: an H2OFrame containing the quantiles and probabilities.\n    '
+    if ((self._vecs is None) or (self._vecs == [])):
+        raise ValueError('Frame Removed')
     if (len(self) == 0):
         return self
     if (not prob):
@@ -6,14 +9,19 @@ def quantile(self, prob=None):
     if (not isinstance(prob, list)):
         raise ValueError('prob must be a list')
     probs = (('(dlist #' + ' #'.join([str(p) for p in prob])) + ')')
+    if (combine_method not in ['interpolate', 'average', 'low', 'high']):
+        raise ValueError((('combine_method must be one of: [' + ','.join(['interpolate', 'average', 'low', 'high'])) + ']'))
     key = self.send_frame()
     tmp_key = H2OFrame.py_tmp_key()
-    expr = "(= !{} (quantile '{}' {}".format(tmp_key, key, probs)
+    expr = "(= !{} (quantile '{}' {} '{}'".format(tmp_key, key, probs, combine_method)
     h2o.rapids(expr)
+    h2o.remove(key)
     j = h2o.frame(tmp_key)
     fr = j['frames'][0]
     rows = fr['rows']
-    veckeys = fr['vec_keys']
+    veckeys = fr['vec_ids']
     cols = fr['columns']
     colnames = [col['label'] for col in cols]
-    return H2OFrame(vecs=H2OVec.new_vecs(zip(colnames, veckeys), rows))
+    vecs = H2OVec.new_vecs(zip(colnames, veckeys), rows)
+    h2o.rapids('(removeframe !{})'.format(tmp_key))
+    return H2OFrame(vecs=vecs)

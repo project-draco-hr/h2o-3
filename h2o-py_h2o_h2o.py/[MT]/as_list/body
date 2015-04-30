@@ -1,15 +1,21 @@
 def as_list(data):
-    '\n  If data is an Expr, then eagerly evaluate it and pull the result from h2o into the local environment. In the local\n  environment an H2O Frame is represented as a list of lists (each element in the broader list represents a row).\n  Note: This uses function uses h2o.frame(), which will return meta information on the H2O Frame and only the first\n  100 rows. This function is only intended to be used within the testing framework. More robust functionality must\n  be constructed for production conversion between H2O and python data types.\n  :return: List of list (Rows x Columns).\n  '
+    '\n  If data is an Expr, then eagerly evaluate it and pull the result from h2o into the local environment. In the local\n  environment an H2O Frame is represented as a list of lists (each element in the broader list represents a row).\n  Note: This uses function uses h2o.frame(), which will return meta information on the H2O Frame and only the first\n  100 rows. This function is only intended to be used within the testing framework. More robust functionality must\n  be constructed for production conversion between H2O and python data types.\n\n  :return: List of list (Rows x Columns).\n  '
     if isinstance(data, Expr):
-        x = data.eager()
         if data.is_local():
-            return x
+            return data._data
+        if data.is_pending():
+            data.eager()
+            if data.is_local():
+                return ([data._data] if isinstance(data._data, list) else [[data._data]])
         j = frame(data._data)
         return map(list, zip(*[c['data'] for c in j['frames'][0]['columns'][:]]))
     if isinstance(data, H2OVec):
-        x = data._expr.eager()
         if data._expr.is_local():
-            return x
+            return data._expr._data
+        if data._expr.is_pending():
+            data._expr.eager()
+            if data._expr.is_local():
+                return [[data._expr._data]]
         j = frame(data._expr._data)
         return map(list, zip(*[c['data'] for c in j['frames'][0]['columns'][:]]))
     if isinstance(data, H2OFrame):

@@ -1,0 +1,10 @@
+def value_check(h2o_data, local_data, num_elements, col=None):
+    '\n  Check that the values of h2o_data and local_data are the same. In a testing context, this could be used to check\n  that an operation did not alter the original h2o_data.\n\n  :param h2o_data: an H2OFrame, H2OVec or Expr\n  :param local_data: a list of lists (row x col format)\n  :param num_elements: number of elements to check\n  :param col: an optional integer that specifies the particular column to check\n  :return: None\n  '
+    (rows, cols) = h2o_data.dim()
+    for i in range(num_elements):
+        r = random.randint(0, np.minimum(99, (rows - 1)))
+        c = (random.randint(0, (cols - 1)) if (not col) else col)
+        h2o_val = as_list(h2o_data[(r, c)])
+        h2o_val = (h2o_val[0][0] if isinstance(h2o_val, list) else h2o_val)
+        local_val = local_data[r][c]
+        assert (h2o_val == local_val), 'failed value check! h2o:{0} and local:{1}'.format(h2o_val, local_val)

@@ -1,7 +1,7 @@
 def test_simple2(self):
     csvPathname = find_file('smalldata/logreg/prostate.csv')
     import_result = h2o.n0.import_files(path=csvPathname)
-    k = import_result['keys'][0]
+    k = import_result['destination_frames'][0]
     frames_result = h2o.n0.frames(key=k)
     frame = frames_result['frames'][0]
     rows = frame['rows']
@@ -12,12 +12,12 @@ def test_simple2(self):
         stype = c['type']
         domain = c['domain']
     frames = h2o.n0.frames()['frames']
-    frames_dict = h2o_util.list_to_dict(frames, 'key/name')
+    frames_dict = h2o_util.list_to_dict(frames, 'frame_id/name')
     for (k, v) in frames_dict.items():
         print 'frames_dict key:', k
     parse_result = h2o.n0.parse(key=k, intermediateResults=DO_INTERMEDIATE_RESULTS)
     frame = parse_result['frames'][0]
-    hex_key = frame['key']['name']
+    hex_key = frame['frame_id']['name']
     colCount = 9
     rowCount = 380
     start = time.time()

@@ -1,11 +1,15 @@
 def show(self, noprint=False):
-    '\n    Evaluate and print.\n    :return:\n    '
+    '\n    Evaluate and print.\n\n    :return: None\n    '
     self.eager()
     if noprint:
         if isinstance(self._data, unicode):
             j = h2o.frame(self._data)
-            data = j['frames'][0]['columns'][0]['data'][0:10]
-            return data
+            if (j['frames'][0]['columns'][0]['type'] == 'string'):
+                data = [c['string_data'] for c in j['frames'][0]['columns'][:]]
+            else:
+                data = [c['data'] for c in j['frames'][0]['columns'][:]]
+            data = map(list, zip(*data))
+            return data[0:min(10, len(data))]
         return self._data
     else:
         if isinstance(self._data, unicode):
@@ -18,6 +22,7 @@ def show(self, noprint=False):
         else:
             data = [self._data]
         t_data = map(list, zip(*data))
+        t_data = t_data[0:min(10, len(t_data))]
         for (didx, d) in enumerate(t_data):
             t_data[didx].insert(0, didx)
         headers = ['Row ID']

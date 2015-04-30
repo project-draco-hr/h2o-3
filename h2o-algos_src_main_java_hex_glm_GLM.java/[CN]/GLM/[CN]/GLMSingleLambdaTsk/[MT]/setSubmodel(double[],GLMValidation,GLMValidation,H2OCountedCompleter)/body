@@ -1,8 +1,10 @@
 {
+  if (trainVal != null)   trainVal._intercept=_parms._intercept;
+  if (holdOutVal != null)   holdOutVal._intercept=_parms._intercept;
   double[] fullBeta=(_taskInfo._activeCols == null || newBeta == null) ? newBeta : expandVec(newBeta,_taskInfo._activeCols,_dinfo.fullN() + 1);
   if (fullBeta == null) {
     fullBeta=MemoryManager.malloc8d(_dinfo.fullN() + 1);
-    fullBeta[fullBeta.length - 1]=_parms.linkInv(_taskInfo._ymu);
+    if (_parms._intercept)     fullBeta[fullBeta.length - 1]=_parms.linkInv(_taskInfo._ymu);
   }
   GLM.this.setSubmodel(_taskInfo._dstKey,_taskInfo._iter,fullBeta,trainVal,holdOutVal,cmp);
   return fullBeta;

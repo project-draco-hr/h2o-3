@@ -1,6 +1,6 @@
 {
   KMeansModel kmm=null;
-  for (  boolean standardize : new boolean[]{false}) {
+  for (  boolean standardize : new boolean[]{true,false}) {
     Frame fr=null, fr2=null;
     Frame tr=null, te=null;
     try {
@@ -8,10 +8,9 @@
       SplitFrame sf=new SplitFrame(Key.make());
       sf.dataset=fr;
       sf.ratios=new double[]{0.5};
-      sf.dest_keys=new Key[]{Key.make("train.hex"),Key.make("test.hex")};
+      sf.destination_frames=new Key[]{Key.make("train.hex"),Key.make("test.hex")};
       sf.exec().get();
-      Assert.assertTrue("The job is not in DONE state, but in " + sf._state,sf.isDone());
-      Key[] ksplits=sf.dest_keys;
+      Key[] ksplits=sf.destination_frames;
       tr=DKV.get(ksplits[0]).get();
       te=DKV.get(ksplits[1]).get();
       KMeansModel.KMeansParameters parms=new KMeansModel.KMeansParameters();
@@ -30,6 +29,8 @@
       fr2=kmm.score(te);
       Assert.assertTrue(kmm.testJavaScoring(te,fr2,1e-15));
       fr2.delete();
+      tr.delete();
+      te.delete();
     }
   finally {
       if (fr != null)       fr.delete();

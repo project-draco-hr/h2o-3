@@ -1,0 +1,36 @@
+{
+  super(destKey,parms == null ? (DeepLearningParameters)cp._parms.clone() : parms,(DeepLearningModelOutput)cp._output.clone());
+  assert(_parms != cp._parms);
+  model_info=cp.model_info.deep_clone();
+  if (store_best_model) {
+    model_info.data_info=dataInfo.deep_clone();
+  }
+ else {
+    model_info.data_info=dataInfo;
+    if (parms != null) {
+      assert(_parms == parms);
+      assert(_parms._checkpoint == parms._checkpoint);
+      assert(_parms._checkpoint == cp._key);
+    }
+  }
+  assert(model_info().get_params() != cp.model_info().get_params());
+  actual_best_model_key=cp.actual_best_model_key;
+  start_time=cp.start_time;
+  run_time=cp.run_time;
+  training_rows=cp.training_rows;
+  validation_rows=cp.validation_rows;
+  _bestError=cp._bestError;
+  errors=cp.errors.clone();
+  for (int i=0; i < errors.length; ++i)   errors[i]=cp.errors[i].deep_clone();
+  _output.errors=last_scored();
+  makeWeightsBiases(destKey);
+  _output._scoring_history=createScoringHistoryTable(errors);
+  _output._variable_importances=calcVarImp(last_scored().variable_importances);
+  _output._names=dataInfo._adaptedFrame.names();
+  _output._domains=dataInfo._adaptedFrame.domains();
+  _timeLastScoreEnter=System.currentTimeMillis();
+  _timeLastScoreStart=0;
+  _timeLastScoreEnd=0;
+  _timeLastPrintStart=0;
+  assert(Arrays.equals(_key._kb,destKey._kb));
+}
