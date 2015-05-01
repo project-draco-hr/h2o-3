@@ -15,7 +15,7 @@ def cbind(left, right):
         raise ValueError('left and right data must be H2OVec or H2OFrame')
     names = [vec.name() for vec in vecs]
     fr = H2OFrame.py_tmp_key()
-    cbind = (('(= !' + fr) + ' (cbind %')
+    cbind = (('(= !' + fr) + ' (cbind %TRUE %')
     cbind += (' %'.join([vec._expr.eager() for vec in vecs]) + '))')
     rapids(cbind)
     j = frame(fr)
