@@ -1,0 +1,15 @@
+{
+  basicDRFTestOOBE_Classification("./smalldata/prostate/prostate.csv.zip","prostate.zip.hex",new PrepData(){
+    @Override int prep(    Frame fr){
+      String[] names=fr.names().clone();
+      Vec[] en=fr.remove(new int[]{1,4,5,8});
+      fr.add(names[1],en[0].toEnum());
+      fr.add(names[4],en[1].toEnum());
+      fr.add(names[5],en[2].toEnum());
+      fr.add(names[8],en[3].toEnum());
+      for (      Vec v : en)       v.remove();
+      return 1;
+    }
+  }
+,4,1,1,1,null,s("0","1"));
+}
