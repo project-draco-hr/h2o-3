@@ -50,7 +50,7 @@
     }
     model.actual_train_samples_per_iteration=computeTrainSamplesPerIteration(mp,train.numRows(),model);
     if (mp._replicate_training_data && (model.actual_train_samples_per_iteration == train.numRows() * (mp._single_node_mode ? 1 : H2O.CLOUD.size())) && !mp._shuffle_training_data&& H2O.CLOUD.size() > 1 && !mp._reproducible) {
-      Log.warn("Enabling training data shuffling, because all nodes train on the full dataset (replicated training data).");
+      Log.info("Enabling training data shuffling, because all nodes train on the full dataset (replicated training data).");
       mp._shuffle_training_data=true;
     }
     if (!mp._quiet_mode && mp._diagnostics)     Log.info("Initial model:\n" + model.model_info());
