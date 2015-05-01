@@ -2,6 +2,12 @@
   List<String> colHeaders=new ArrayList<>();
   List<String> colTypes=new ArrayList<>();
   List<String> colFormat=new ArrayList<>();
+  colHeaders.add("Timestamp");
+  colTypes.add("string");
+  colFormat.add("%s");
+  colHeaders.add("Duration");
+  colTypes.add("string");
+  colFormat.add("%s");
   colHeaders.add("Number of Trees");
   colTypes.add("long");
   colFormat.add("%d");
@@ -20,6 +26,9 @@
     int col=0;
     assert(row < table.getRowDim());
     assert(col < table.getColDim());
+    DateTimeFormatter fmt=DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    table.set(row,col++,fmt.print(_output._training_time_ms[i]));
+    table.set(row,col++,PrettyPrint.msecs(_output._training_time_ms[i] - _start_time,true));
     table.set(row,col++,i);
     table.set(row,col++,_output._mse_train[i]);
     if (_valid != null)     table.set(row,col++,_output._mse_valid[i]);
