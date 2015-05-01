@@ -10,7 +10,7 @@ def cbind(self, data):
         raise ValueError('data parameter must be H2OVec or H2OFrame')
     names = [vec.name() for vec in vecs]
     fr = H2OFrame.py_tmp_key()
-    cbind = (('(= !' + fr) + ' (cbind %')
+    cbind = (('(= !' + fr) + ' (cbind %FALSE %')
     cbind += (' %'.join([vec._expr.eager() for vec in vecs]) + '))')
     h2o.rapids(cbind)
     j = h2o.frame(fr)
