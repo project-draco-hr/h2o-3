@@ -3,8 +3,8 @@
   if (null != _parms._user_points) {
     Vec[] centersVecs=_parms._user_points.get().vecs();
     centers=new double[_parms._k][_ncolA];
-    for (int r=0; r < _parms._k; r++) {
-      for (int c=0; c < _ncolA; c++)       centers[r][c]=centersVecs[c].at(r);
+    for (int c=0; c < _ncolA; c++) {
+      for (int r=0; r < _parms._k; r++)       centers[r][c]=centersVecs[c].at(r);
     }
   }
  else   if (_parms._init == Initialization.SVD) {
@@ -51,10 +51,12 @@
     }
     centers=transform(km._output._centers_raw,0,km._output._normSub,km._output._normMul);
   }
-  double frob=frobenius2(centers);
+  double[][] centers_exp=expandCategoricals(centers,dinfo);
+  _ncolY=centers_exp[0].length;
+  double frob=frobenius2(centers_exp);
   if (frob == 0 || Double.isNaN(frob)) {
     warn("_init","Initialization failed. Setting initial Y to standard normal random matrix instead...");
-    centers=ArrayUtils.gaussianArray(_parms._k,_ncolA);
+    centers_exp=ArrayUtils.gaussianArray(_parms._k,_ncolY);
   }
-  return centers;
+  return centers_exp;
 }

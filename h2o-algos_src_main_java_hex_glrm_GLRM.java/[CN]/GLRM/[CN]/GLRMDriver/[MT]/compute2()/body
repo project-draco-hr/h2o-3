@@ -1,6 +1,6 @@
 {
   GLRMModel model=null;
-  DataInfo dinfo=null, xinfo=null;
+  DataInfo dinfo=null, xinfo=null, tinfo=null;
   Frame fr=null, x=null;
   try {
     _parms.read_lock_frames(GLRM.this);
@@ -21,7 +21,9 @@
     }
  else     model._output._normMul=Arrays.copyOf(dinfo._normMul,_ncolA);
     double nobs=_train.numRows() * _train.numCols();
-    double[][] yt=ArrayUtils.transpose(initialY());
+    tinfo=new DataInfo(Key.make(),_train,null,0,false,_parms._transform,DataInfo.TransformType.NONE,true,false);
+    DKV.put(tinfo._key,tinfo);
+    double[][] yt=ArrayUtils.transpose(initialY(tinfo));
     ObjCalc objtsk=new ObjCalc(dinfo,_parms,yt,_ncolA,_ncolX,model._output._normSub,model._output._normMul).doAll(dinfo._adaptedFrame);
     model._output._objective=objtsk._loss + _parms._gamma * _parms.regularize(yt);
     model._output._iterations=0;
@@ -81,6 +83,7 @@
     if (model != null)     model.unlock(_key);
     if (dinfo != null)     dinfo.remove();
     if (xinfo != null)     xinfo.remove();
+    if (tinfo != null)     tinfo.remove();
     if (fr != null) {
       for (int i=0; i < _ncolX; i++)       fr.vec(idx_xold(i,_ncolA)).remove();
     }

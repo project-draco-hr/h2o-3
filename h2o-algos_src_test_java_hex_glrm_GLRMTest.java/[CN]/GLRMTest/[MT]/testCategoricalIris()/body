@@ -1,0 +1,38 @@
+{
+  GLRM job=null;
+  GLRMModel model=null;
+  Frame train=null;
+  try {
+    train=parse_test_file(Key.make("iris.hex"),"smalldata/iris/iris_wheader.csv");
+    GLRMParameters parms=new GLRMParameters();
+    parms._train=train._key;
+    parms._gamma=0;
+    parms._k=5;
+    parms._init=GLRM.Initialization.PlusPlus;
+    parms._transform=DataInfo.TransformType.NONE;
+    parms._recover_pca=false;
+    try {
+      job=new GLRM(parms);
+      model=job.trainModel().get();
+      Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
+    }
+ catch (    Throwable t) {
+      t.printStackTrace();
+      throw new RuntimeException(t);
+    }
+ finally {
+      job.remove();
+    }
+  }
+ catch (  Throwable t) {
+    t.printStackTrace();
+    throw new RuntimeException(t);
+  }
+ finally {
+    if (train != null)     train.delete();
+    if (model != null) {
+      model._parms._loading_key.get().delete();
+      model.delete();
+    }
+  }
+}
