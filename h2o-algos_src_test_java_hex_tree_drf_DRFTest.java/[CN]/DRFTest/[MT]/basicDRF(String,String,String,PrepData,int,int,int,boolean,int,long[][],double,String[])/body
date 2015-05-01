@@ -14,7 +14,7 @@
     drf._response_column=((Frame)DKV.getGet(drf._train)).lastVecName();
     drf._ntrees=ntree;
     drf._max_depth=max_depth;
-    drf._min_rows=1;
+    drf._min_rows=min_rows;
     drf._nbins=nbins;
     drf._mtries=-1;
     drf._sample_rate=0.66667f;
@@ -42,14 +42,14 @@
     Assert.assertEquals("Number of trees differs!",ntree,model._output._ntrees);
     test=parse_test_file(fnametrain);
     res=model.score(test);
-    if (classification) {
+    if (classification && expCM != null) {
       Assert.assertTrue("Expected: " + Arrays.deepToString(expCM) + ", Got: "+ Arrays.deepToString(mm.cm()._cm),Arrays.deepEquals(mm.cm()._cm,expCM));
       String[] cmDom=model._output._domains[model._output._domains.length - 1];
       Assert.assertArrayEquals("CM domain differs!",expRespDom,cmDom);
       Log.info("\nOOB Training CM:\n" + mm.cm().toASCII());
       Log.info("\nTraining CM:\n" + hex.ModelMetrics.getFromDKV(model,test).cm().toASCII());
     }
- else {
+ else     if (!classification) {
       Assert.assertTrue("Expected: " + expMSE + ", Got: "+ mm.mse(),expMSE == mm.mse());
       Log.info("\nOOB Training MSE: " + mm.mse());
       Log.info("\nTraining MSE: " + hex.ModelMetrics.getFromDKV(model,test).mse());
