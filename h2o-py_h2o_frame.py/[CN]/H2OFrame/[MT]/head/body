@@ -6,7 +6,7 @@ def head(self, rows=10, cols=200, **kwargs):
     ncols = min(self.ncol(), cols)
     colnames = self.names()[0:ncols]
     fr = H2OFrame.py_tmp_key()
-    cbind = (('(= !' + fr) + ' (cbind %')
+    cbind = (('(= !' + fr) + ' (cbind %FALSE %')
     cbind += (' %'.join([vec._expr.eager() for vec in self]) + '))')
     res = h2o.rapids(cbind)
     h2o.remove(fr)
