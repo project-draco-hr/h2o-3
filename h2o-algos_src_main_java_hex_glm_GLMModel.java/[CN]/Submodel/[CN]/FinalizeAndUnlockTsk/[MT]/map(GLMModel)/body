@@ -31,15 +31,7 @@
   glmModel._output._model_summary.set(0,4 + lambdaSearch,Integer.toString(glmModel._output.rank() - intercept));
   glmModel._output._model_summary.set(0,5 + lambdaSearch,Integer.valueOf(_iter));
   glmModel._output._model_summary.set(0,6 + lambdaSearch,_trainFrame.toString());
-  if (_scoring_iters != null) {
-    glmModel._output._scoring_history=new TwoDimTable("Scoring History","",new String[_scoring_iters.length],new String[]{"iteration","time [ms]","likelihood","objective"},new String[]{"int","int","double","double"},new String[]{"%d","%d","%.5f","%.5f"},"");
-    for (int i=0; i < _scoring_iters.length; ++i) {
-      glmModel._output._scoring_history.set(i,0,_scoring_iters[i]);
-      glmModel._output._scoring_history.set(i,1,_scoring_times[i]);
-      glmModel._output._scoring_history.set(i,2,_likelihoods[i]);
-      glmModel._output._scoring_history.set(i,3,_objectives[i]);
-    }
-  }
+  if (_scoring_history != null)   glmModel._output._scoring_history=_scoring_history.to2dTable();
   glmModel.update(_jobKey);
   glmModel.unlock(_jobKey);
 }
