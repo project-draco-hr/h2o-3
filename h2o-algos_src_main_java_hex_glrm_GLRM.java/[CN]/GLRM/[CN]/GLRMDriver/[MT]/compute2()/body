@@ -25,7 +25,7 @@
     DKV.put(tinfo._key,tinfo);
     double[][] yt=ArrayUtils.transpose(initialY(tinfo));
     ObjCalc objtsk=new ObjCalc(dinfo,_parms,yt,_ncolA,_ncolX,model._output._normSub,model._output._normMul).doAll(dinfo._adaptedFrame);
-    model._output._objective=objtsk._loss + _parms._gamma * _parms.regularize(yt);
+    model._output._objective=objtsk._loss + _parms._gamma_y * _parms.regularize_y(yt);
     model._output._iterations=0;
     model._output._avg_change_obj=2 * TOLERANCE;
     boolean overwriteX=false;
@@ -37,7 +37,7 @@
       UpdateY ytsk=new UpdateY(dinfo,_parms,yt,step / _ncolA,_ncolA,_ncolX,model._output._normSub,model._output._normMul);
       double[][] ytnew=ytsk.doAll(dinfo._adaptedFrame)._ytnew;
       objtsk=new ObjCalc(dinfo,_parms,ytnew,_ncolA,_ncolX,model._output._normSub,model._output._normMul).doAll(dinfo._adaptedFrame);
-      double obj_new=objtsk._loss + _parms._gamma * (xtsk._xreg + ytsk._yreg);
+      double obj_new=objtsk._loss + _parms._gamma_x * xtsk._xreg + _parms._gamma_y * ytsk._yreg;
       model._output._avg_change_obj=(model._output._objective - obj_new) / nobs;
       model._output._iterations++;
       if (model._output._avg_change_obj > 0) {
