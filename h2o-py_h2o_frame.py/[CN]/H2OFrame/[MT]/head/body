@@ -6,10 +6,10 @@ def head(self, rows=10, cols=200, **kwargs):
     ncols = min(self.ncol(), cols)
     colnames = self.names()[0:ncols]
     fr = H2OFrame.py_tmp_key()
-    cbind = (('(= !' + fr) + ' (cbind %FALSE %')
-    cbind += (' %'.join([vec._expr.eager() for vec in self]) + '))')
+    cbind = (('(, (gput ' + fr) + ' (cbind %FALSE %')
+    cbind += (((' %'.join([vec._expr.eager() for vec in self]) + ")) (del '") + fr) + "'))")
     res = h2o.rapids(cbind)
-    h2o.remove(fr)
+    h2o.delete(fr)
     head_rows = [range(1, (nrows + 1), 1)]
     head_rows += [rows[0:nrows] for rows in res['head'][0:ncols]]
     head = zip(*head_rows)
