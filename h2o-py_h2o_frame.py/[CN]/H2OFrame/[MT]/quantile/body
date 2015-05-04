@@ -15,7 +15,7 @@ def quantile(self, prob=None, combine_method='interpolate'):
     tmp_key = H2OFrame.py_tmp_key()
     expr = "(= !{} (quantile '{}' {} '{}'".format(tmp_key, key, probs, combine_method)
     h2o.rapids(expr)
-    h2o.remove(key)
+    h2o.delete(key)
     j = h2o.frame(tmp_key)
     fr = j['frames'][0]
     rows = fr['rows']
