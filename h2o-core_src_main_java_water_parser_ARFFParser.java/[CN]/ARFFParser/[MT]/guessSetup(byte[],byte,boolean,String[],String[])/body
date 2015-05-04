@@ -29,7 +29,7 @@
       if (!str.isEmpty())       header.add(str);
     }
   }
-  if (header.size() == 0)   return new ParseSetup(false,0,new String[]{"No data!"},ParserType.AUTO,GUESS_SEP,false,ParseSetup.NO_HEADER,0,null);
+  if (header.size() == 0)   throw new H2OParseSetupException("No data!");
   headerlines=header.toArray(headerlines);
   final int nlines=headerlines.length;
   int ncols=nlines;
@@ -40,11 +40,11 @@
   for (int i=0; i < ncols; ++i) {
     data[i]=headerlines[i].split("\\s+");
     if (!data[i][0].equalsIgnoreCase("@ATTRIBUTE")) {
-      return new ParseSetup(false,1,new String[]{"Expected line to start with @ATTRIBUTE."},ParserType.ARFF,GUESS_SEP,singleQuotes,ParseSetup.NO_HEADER,ncols,data);
+      throw new H2OParseSetupException("Expected line to start with @ATTRIBUTE.");
     }
  else {
       if (data[i].length != 3) {
-        return new ParseSetup(false,1,new String[]{"Expected @ATTRIBUTE to be followed by <attribute-name> <datatype>"},ParserType.ARFF,GUESS_SEP,singleQuotes,ParseSetup.NO_HEADER,ncols,data);
+        throw new H2OParseSetupException("Expected @ATTRIBUTE to be followed by <attribute-name> <datatype>");
       }
       labels[i]=data[i][1];
       String type=data[i][2];
@@ -79,7 +79,7 @@
           continue;
         }
       }
-      return new ParseSetup(false,1,new String[]{"Unexpected line."},ParserType.ARFF,GUESS_SEP,singleQuotes,ParseSetup.NO_HEADER,ncols,data);
+      throw new H2OParseSetupException("Unexpected line.");
     }
   }
   if (have_data) {
@@ -98,7 +98,7 @@
         if (!str.isEmpty())         datablock.add(str);
       }
     }
-    if (datablock.size() == 0)     return new ParseSetup(false,0,new String[]{"No data!"},ParserType.AUTO,GUESS_SEP,false,ParseSetup.NO_HEADER,0,null);
+    if (datablock.size() == 0)     throw new H2OParseSetupException("Unexpected line.");
     datalines=datablock.toArray(datalines);
     int nlines2=Math.min(10,datalines.length);
     data=new String[nlines2][];
@@ -106,7 +106,7 @@
       if (sep == GUESS_SEP) {
         if (datalines[0].split(",").length > 2)         sep=(byte)',';
  else         if (datalines[0].split(" ").length > 2)         sep=' ';
- else         return new ParseSetup(false,1,new String[]{"Failed to guess separator."},ParserType.CSV,GUESS_SEP,singleQuotes,ParseSetup.NO_HEADER,ncols,data);
+ else         throw new H2OParseSetupException("Failed to detect separator.");
       }
       data[0]=determineTokens(datalines[0],sep,singleQuotes);
       ncols=(ncols > 0) ? ncols : data[0].length;
@@ -126,5 +126,5 @@
       }
     }
   }
-  return new ParseSetup(true,0,null,ParserType.ARFF,sep,singleQuotes,ParseSetup.NO_HEADER,ncols,labels,ctypes,domains,naStrings,data);
+  return new ParseSetup(ParserType.ARFF,sep,singleQuotes,ParseSetup.NO_HEADER,ncols,labels,ctypes,domains,naStrings,data);
 }
