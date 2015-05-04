@@ -1,6 +1,20 @@
 {
-  Jobs j=new Jobs();
-  j._jobs=Job.jobs();
-  PojoUtils.copyProperties(s,j,PojoUtils.FieldNaming.ORIGIN_HAS_UNDERSCORES);
+  Job[] jobs=Job.jobs();
+  s.jobs=new JobV3[jobs.length];
+  int i=0;
+  for (  Job j : jobs) {
+    if (j instanceof ModelBuilder) {
+      s.jobs[i]=new JobV3().fillFromImpl(j);
+    }
+ else {
+      try {
+        s.jobs[i]=(JobV3)Schema.schema(version,j).fillFromImpl(j);
+      }
+ catch (      H2ONotFoundArgumentException e) {
+        s.jobs[i]=new JobV3().fillFromImpl(j);
+      }
+    }
+    i++;
+  }
   return s;
 }
