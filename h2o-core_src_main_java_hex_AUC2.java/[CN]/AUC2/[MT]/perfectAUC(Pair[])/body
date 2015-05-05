@@ -1,0 +1,24 @@
+{
+  Arrays.sort(ps,new java.util.Comparator<Pair>(){
+    @Override public int compare(    Pair a,    Pair b){
+      return a._prob < b._prob ? 1 : (a._prob == b._prob ? (b._act - a._act) : -1);
+    }
+  }
+);
+  int tp0=0, fp0=0, tp1=0, fp1=0;
+  double prob=1.0;
+  double area=0;
+  for (  Pair p : ps) {
+    if (p._prob != prob) {
+      area+=(fp1 - fp0) * (tp1 + tp0) / 2.0;
+      tp0=tp1;
+      fp0=fp1;
+      prob=p._prob;
+    }
+    if (p._act == 1)     tp1++;
+ else     fp1++;
+  }
+  area+=(double)tp0 * (fp1 - fp0);
+  area+=(double)(tp1 - tp0) * (fp1 - fp0) / 2.0;
+  return area / tp1 / fp1;
+}
