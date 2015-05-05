@@ -45,9 +45,9 @@ def test_quant_cmp_uniform(self):
         h2p.green_print('min/25/50/75/max co.label:', co.label, '(2 places):', mn[0], pt[3], pt[5], pt[7], mx[0])
         h2p.green_print('min/25/50/75/max co.label:', co.label, '(2 places):', exp[0], exp[1], exp[2], exp[3], exp[4])
         probsStr = ('[%s]' % ','.join(map(str, probsList)))
-        parameters = {'destination_key': 'a.hex', 'training_frame': parse_key, 'validation_frame': parse_key, 'ignored_columns': None, 'probs': probsStr, }
+        parameters = {'model_id': 'a.hex', 'training_frame': parse_key, 'validation_frame': parse_key, 'ignored_columns': None, 'probs': probsStr, }
         model_key = 'qhex'
-        bmResult = h2o.n0.build_model(algo='quantile', destination_key=model_key, training_frame=parse_key, parameters=parameters, timeoutSecs=10)
+        bmResult = h2o.n0.build_model(algo='quantile', model_id=model_key, training_frame=parse_key, parameters=parameters, timeoutSecs=10)
         bm = OutputObj(bmResult, 'bm')
         msec = bm.jobs[0]['msec']
         print 'bm msec', msec

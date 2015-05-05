@@ -24,7 +24,7 @@ def test_uncompleted_frame(self):
             basename = 'C'
         colLength = (1 if DO_TEST_BAD_COL_LENGTH else 55)
         expectedColumnNames = map((lambda x: ((basename + '_') + str((x + 1)))), range(colLength))
-        column_names = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), expectedColumnNames))) + ']')
+        column_names = (('[' + ','.join(map((lambda x: (('"' + x) + '"')), expectedColumnNames))) + ']')
         kwargs = {'column_names': column_names, 'intermediateResults': DO_INTERMEDIATE_RESULTS, }
         print kwargs
         if DO_IMPORT_PARSE:
@@ -33,6 +33,6 @@ def test_uncompleted_frame(self):
             parse_result = h2i.import_parse(path=csvPathname, timeoutSecs=timeoutSecs, **kwargs)
         else:
             parse_result = a_node.parse(key=kList2, timeoutSecs=timeoutSecs, **kwargs)
-        k = parse_result['frames'][0]['key']['name']
+        k = parse_result['frames'][0]['frame_id']['name']
         frames_result = a_node.frames(key=k, row_count=5)
         parseKeyIndexedCheck(frames_result, multiplyExpected, expectedColumnNames)
