@@ -10,14 +10,14 @@ def impute(self, column, method, combine_method, by, inplace):
             col_id = [(a._name == v._name) for a in self].index(True)
         except:
             raise ValueError('No column found to impute.')
-    if ((col_id < 0) or (col_id >= self.ncol())):
-        raise ValueError((('Column at index: ' + str(col_id)) + ' is out of range of the data.'))
-    if (len(method) > 1):
+    if (isinstance(method, list) and (len(method) > 1)):
         if self[col_id].isfactor():
             method = 'mode'
         else:
             method = 'mean'
-    if (len(combine_method) > 1):
+    elif isinstance(method, list):
+        method = method[0]
+    if (isinstance(combine_method, list) and (len(combine_method) > 1)):
         combine_method = 'interpolate'
     if (combine_method == 'lo'):
         combine_method = 'low'
@@ -47,6 +47,7 @@ def impute(self, column, method, combine_method, by, inplace):
     if inplace:
         expr = '(h2o.impute %{} #{} "{}" "{}" {} %TRUE'.format(key, col_id, method, combine_method, gb_cols)
         h2o.rapids(expr)
+        h2o.delete(key)
         return self
     else:
         expr = '(= !{} (h2o.impute %{} #{} "{}" "{}" {} %FALSE))'.format(tmp_key, key, col_id, method, combine_method, gb_cols)
@@ -59,6 +60,5 @@ def impute(self, column, method, combine_method, by, inplace):
         cols = fr['columns']
         colnames = [col['label'] for col in cols]
         vecs = H2OVec.new_vecs(zip(colnames, veckeys), rows)
-        if (not inplace):
-            h2o.delete(tmp_key)
+        h2o.delete(tmp_key)
         return H2OFrame(vecs=vecs)
