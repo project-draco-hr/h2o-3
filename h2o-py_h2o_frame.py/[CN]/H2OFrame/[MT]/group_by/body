@@ -16,7 +16,7 @@ def group_by(self, cols, a):
     aggs = '(agg {})'.format(' '.join(aggs))
     expr = '(= !{} (GB %{} {} {}))'.format(tmp_key, key, rapids_series, aggs)
     h2o.rapids(expr)
-    h2o.remove(key)
+    h2o.delete(key)
     j = h2o.frame(tmp_key)
     fr = j['frames'][0]
     rows = fr['rows']
