@@ -1,5 +1,10 @@
 {
   if (!_gotException.getAndSet(true)) {
+    if (ex instanceof JobCancelledException) {
+      GLM.this.cancel();
+      tryComplete();
+      return false;
+    }
     if (ex instanceof TooManyPredictorsException) {
       tryComplete();
       return false;

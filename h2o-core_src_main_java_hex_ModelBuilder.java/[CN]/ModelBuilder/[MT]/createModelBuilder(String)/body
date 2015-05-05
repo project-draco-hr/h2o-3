@@ -1,7 +1,15 @@
 {
   ModelBuilder modelBuilder;
+  Class<? extends ModelBuilder> clz=null;
   try {
-    Class<? extends ModelBuilder> clz=ModelBuilder.getModelBuilder(algo);
+    clz=ModelBuilder.getModelBuilder(algo);
+  }
+ catch (  Exception ignore) {
+  }
+  if (clz == null) {
+    throw new H2OIllegalArgumentException("algo","createModelBuilder","Algo not known (" + algo + ")");
+  }
+  try {
     if (!(clz.getGenericSuperclass() instanceof ParameterizedType)) {
       throw H2O.fail("Class is not parameterized as expected: " + clz);
     }

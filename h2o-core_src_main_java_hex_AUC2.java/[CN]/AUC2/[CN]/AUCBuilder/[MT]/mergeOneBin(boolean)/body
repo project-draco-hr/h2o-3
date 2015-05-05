@@ -4,7 +4,7 @@
   for (int i=0; i < _n - 1; i++) {
     long k0=_tps[i] + _fps[i];
     long k1=_tps[i + 1] + _fps[i + 1];
-    double delta=_ths[i + 1] - _ths[i];
+    double delta=(float)_ths[i + 1] - (float)_ths[i];
     double sqe0=_sqe[i] + _sqe[i + 1] + delta * delta * k0* k1 / (k0 + k1);
     if (sqe0 < minSQE || delta == 0) {
       minI=i;
@@ -19,7 +19,7 @@
   long k0=_tps[minI] + _fps[minI];
   long k1=_tps[minI + 1] + _fps[minI + 1];
   double d=(_ths[minI] * k0 + _ths[minI + 1] * k1) / (k0 + k1);
-  _ths[minI]=d;
+  _ths[minI]=(float)d;
   _sqe[minI]=minSQE;
   _tps[minI]+=_tps[minI + 1];
   _fps[minI]+=_fps[minI + 1];
