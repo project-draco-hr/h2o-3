@@ -24,7 +24,7 @@ def test_parse_covtype(self):
             basename = 'abcd012345'
         colLength = (1 if DO_TEST_BAD_COL_LENGTH else 55)
         expectedColumnNames = map((lambda x: ((basename + '_') + str((x + 1)))), range(colLength))
-        column_names = (('[' + ','.join(map((lambda x: (("'" + x) + "'")), expectedColumnNames))) + ']')
+        column_names = (('[' + ','.join(map((lambda x: (('"' + x) + '"')), expectedColumnNames))) + ']')
         kwargs = {'column_names': column_names, 'intermediateResults': False, }
         print kwargs
         if DO_IMPORT_PARSE:
@@ -36,3 +36,4 @@ def test_parse_covtype(self):
         k = parse_result['frames'][0]['frame_id']['name']
         frames_result = a_node.frames(key=k, row_count=5)
         parseKeyIndexedCheck(frames_result, multiplyExpected, expectedColumnNames)
+    h2o.nodes[0].log_download()

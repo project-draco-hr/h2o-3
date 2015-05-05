@@ -1,19 +1,36 @@
 {
   getCompleter().addToPendingCount(1);
-  int[] its=null;
-  int[] tms=null;
-  double[] lgs=null;
-  double[] obs=null;
+  ScoringHistory sch=new ScoringHistory();
   if (!_scoring_iters.isEmpty()) {
-    its=new int[_scoring_iters.size()];
-    tms=new int[_scoring_iters.size()];
-    lgs=new double[its.length];
-    obs=new double[its.length];
-    for (int i=0; i < its.length; ++i) {
-      its[i]=_scoring_iters.get(i);
-      tms[i]=_scoring_times.get(i);
-      lgs[i]=_likelihoods.get(i);
-      obs[i]=_objectives.get(i);
+    int n=_scoring_iters.size();
+    sch._scoring_iters=new int[n];
+    sch._scoring_times=new long[n];
+    sch._per_iteration_times=new int[n];
+    sch._objectives=new double[n];
+    sch._likelihoods=new double[n];
+    for (int i=0; i < n; ++i) {
+      sch._scoring_iters[i]=_scoring_iters.get(i);
+      sch._scoring_times[i]=_scoring_times.get(i);
+      sch._per_iteration_times[i]=_iteration_times.get(i);
+      sch._likelihoods[i]=_likelihoods.get(i);
+      sch._objectives[i]=_objectives.get(i);
+    }
+  }
+  if (_parms._lambda_search) {
+    int n=_lambda_iterations.size();
+    sch._lambda_iters=new int[n];
+    sch._lambda_times=new int[n];
+    sch._scoring_lambda=new int[n];
+    sch._predictors=new int[n];
+    sch._explained_dev_train=new double[n];
+    if (_parms._valid != null)     sch._explained_dev_val=new double[n];
+    for (int i=0; i < n; ++i) {
+      sch._lambda_iters[i]=_lambda_iterations.get(i);
+      sch._lambda_times[i]=_lambda_times.get(i);
+      sch._scoring_lambda[i]=_lIds.get(i);
+      sch._predictors[i]=_lambda_nonzeros.get(i);
+      sch._explained_dev_train[i]=_explainedDevTrain.get(i);
+      if (sch._explained_dev_val != null)       sch._explained_dev_val[i]=_explainedDevVal.get(i);
     }
   }
   H2O.submitTask(new FinalizeAndUnlockTsk(new H2OCallback((H2OCountedCompleter)getCompleter()){
@@ -28,5 +45,5 @@
       return true;
     }
   }
-,_dest,_key,_parms._train,_parms._valid,_tInfos[0]._iter,its,tms,lgs,obs));
+,_dest,_key,_parms._train,_parms._valid,_tInfos[0]._iter,sch));
 }
