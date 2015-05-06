@@ -15,15 +15,15 @@ def cbind(left, right):
         raise ValueError('left and right data must be H2OVec or H2OFrame')
     names = [vec.name() for vec in vecs]
     fr = H2OFrame.py_tmp_key()
-    cbind = (('(= !' + fr) + ' (cbind %')
+    cbind = (('(= !' + fr) + ' (cbind %FALSE %')
     cbind += (' %'.join([vec._expr.eager() for vec in vecs]) + '))')
     rapids(cbind)
     j = frame(fr)
     fr = j['frames'][0]
     rows = fr['rows']
-    veckeys = fr['vec_keys']
+    vec_ids = fr['vec_ids']
     cols = fr['columns']
     colnames = [col['label'] for col in cols]
-    result = H2OFrame(vecs=H2OVec.new_vecs(zip(colnames, veckeys), rows))
+    result = H2OFrame(vecs=H2OVec.new_vecs(zip(colnames, vec_ids), rows))
     result.setNames(names)
     return result

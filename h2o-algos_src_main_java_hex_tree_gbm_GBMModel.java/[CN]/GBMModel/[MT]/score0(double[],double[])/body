@@ -4,8 +4,8 @@
     double fx=preds[1] + _output._init_f;
     preds[2]=1.0 / (1.0 + Math.exp(-fx));
     preds[1]=1.0 - preds[2];
-    ModelUtils.correctProbabilities(preds,_output._priorClassDist,_output._modelClassDist);
-    preds[0]=hex.genmodel.GenModel.getPrediction(preds,data);
+    GenModel.correctProbabilities(preds,_output._priorClassDist,_output._modelClassDist);
+    preds[0]=hex.genmodel.GenModel.getPrediction(preds,data,defaultThreshold());
     return preds;
   }
   if (_output.nclasses() == 1) {
@@ -16,8 +16,8 @@
     preds[1]+=_output._init_f;
     preds[2]=-preds[1];
   }
-  hex.genmodel.GenModel.GBM_rescale(data,preds);
-  ModelUtils.correctProbabilities(preds,_output._priorClassDist,_output._modelClassDist);
-  preds[0]=hex.genmodel.GenModel.getPrediction(preds,data);
+  hex.genmodel.GenModel.GBM_rescale(preds);
+  GenModel.correctProbabilities(preds,_output._priorClassDist,_output._modelClassDist);
+  preds[0]=hex.genmodel.GenModel.getPrediction(preds,data,defaultThreshold());
   return preds;
 }

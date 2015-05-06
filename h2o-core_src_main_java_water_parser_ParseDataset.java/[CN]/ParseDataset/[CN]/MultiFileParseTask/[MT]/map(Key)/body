@@ -2,6 +2,7 @@
   ParseSetup localSetup=new ParseSetup(_parseSetup);
   ByteVec vec=getByteVec(key);
   final int chunkStartIdx=_fileChunkOffsets[_lo];
+  Log.trace("Begin a map stage of a file parse with start index " + chunkStartIdx + ".");
   byte[] zips=vec.getFirstBytes();
   ZipUtil.Compression cpr=ZipUtil.guessCompressionMethod(zips);
   if (localSetup._check_header == ParseSetup.HAS_HEADER)   localSetup._check_header=localSetup.parser().fileHasHeader(ZipUtil.unzipBytes(zips,cpr,localSetup._chunk_size),localSetup);
@@ -9,7 +10,7 @@
 switch (cpr) {
 case NONE:
       if (_parseSetup._parse_type._parallelParseSupported) {
-        DParse dp=new DParse(_vg,localSetup,_vecIdStart,chunkStartIdx,this,key,vec.nChunks());
+        DistributedParse dp=new DistributedParse(_vg,localSetup,_vecIdStart,chunkStartIdx,this,key,vec.nChunks());
         addToPendingCount(1);
         dp.setCompleter(this);
         dp.asyncExec(vec);
@@ -43,6 +44,7 @@ case GZIP:
   break;
 }
 }
+Log.trace("Finished a map stage of a file parse with start index " + chunkStartIdx + ".");
 }
  catch (IOException ioe) {
 throw new RuntimeException(ioe);

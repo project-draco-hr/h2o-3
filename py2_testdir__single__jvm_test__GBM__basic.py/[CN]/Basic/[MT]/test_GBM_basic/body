@@ -21,7 +21,7 @@ def test_GBM_basic(self):
     parameters.append({'response_column': 'C55', 'loss': 'multinomial', 'ntrees': 1, 'max_depth': 20, 'min_rows': 3, 'nbins': 40, 'learn_rate': 0.2, })
     model_key = 'covtype_gbm.hex'
     for p in parameters:
-        bmResult = h2o.n0.build_model(algo='gbm', destination_key=model_key, training_frame=train_key, validation_frame=train_key, parameters=p, timeoutSecs=60)
+        bmResult = h2o.n0.build_model(algo='gbm', model_id=model_key, training_frame=train_key, validation_frame=train_key, parameters=p, timeoutSecs=60)
         bm = OutputObj(bmResult, 'bm')
         modelResult = h2o.n0.models(key=model_key)
         model = OutputObj(modelResult['models'][0]['output'], 'model')

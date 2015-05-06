@@ -12,7 +12,7 @@ def _model_build(x, y, validation_x, validation_y, algo_url, kwargs):
         validation_x = _check_frame(validation_x, validation_y, y)
     train_key = x.send_frame()
     kwargs['training_frame'] = train_key
-    if validation_x:
+    if (validation_x is not None):
         valid_key = validation_x.send_frame()
         kwargs['validation_frame'] = valid_key
     if y:
@@ -39,7 +39,7 @@ def _model_build(x, y, validation_x, validation_y, algo_url, kwargs):
     else:
         print model_type
         raise NotImplementedError
-    h2o.remove(train_key)
+    h2o.delete(train_key)
     if validation_x:
-        h2o.remove(valid_key)
+        h2o.delete(valid_key)
     return model

@@ -1,0 +1,12 @@
+{
+  if (chkIdx >= nChunks())   throw new H2OIllegalArgumentException("Asked for chunk index beyond the number of chunks.");
+  if (chkIdx == 0)   return chunkForChunkIdx(chkIdx)._mem;
+ else {
+    byte[] mem=chunkForChunkIdx(chkIdx)._mem;
+    int i=0, j=mem.length - 1;
+    while (i < mem.length && mem[i] != CHAR_CR && mem[i] != CHAR_LF)     i++;
+    while (j > i && mem[j] != CHAR_CR && mem[j] != CHAR_LF)     j--;
+    if (j - i > 1)     return Arrays.copyOfRange(mem,i,j);
+ else     return null;
+  }
+}

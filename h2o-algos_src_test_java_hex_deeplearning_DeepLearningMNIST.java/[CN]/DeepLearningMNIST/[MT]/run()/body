@@ -6,7 +6,7 @@
       NFSFileVec trainfv=NFSFileVec.make(file);
       Frame frame=ParseDataset.parse(Key.make(),trainfv._key);
       DeepLearningParameters p=new DeepLearningParameters();
-      p._destination_key=Key.make("dl_mnist_model");
+      p._model_id=Key.make("dl_mnist_model");
       p._train=frame._key;
       p._response_column="C785";
       p._activation=DeepLearningParameters.Activation.Tanh;
@@ -18,7 +18,7 @@
       DKV.put(frame);
       p._adaptive_rate=false;
       p._replicate_training_data=false;
-      p._override_with_best_model=false;
+      p._overwrite_with_best_model=false;
       p._diagnostics=false;
       p._score_interval=20;
       p._score_training_samples=50;

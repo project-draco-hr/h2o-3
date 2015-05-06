@@ -1,11 +1,21 @@
 {
   long start=c[0].start();
   byte[] naMethods=AGG.naMethods(_agg);
+  G g=new G(_gbCols.length,_agg.length,naMethods);
+  G gOld;
   for (int i=0; i < c[0]._len; ++i) {
-    G g=new G(i,c,_gbCols,_agg.length,naMethods);
-    if (!_g.add(g))     g=_g.get(g);
-    long r=g._N;
-    while (!G.CAS_N(g,r,r + 1))     r=g._N;
-    perRow(_agg,i,start,c,g);
+    g.fill(i,c,_gbCols);
+    String g_old=_g.putIfAbsent(g,"");
+    if (g_old == null) {
+      gOld=g;
+      g=new G(_gbCols.length,_agg.length,naMethods);
+    }
+ else {
+      gOld=_g.getk(g);
+      if (gOld == null)       while (gOld == null)       gOld=_g.getk(g);
+    }
+    long r=gOld._N;
+    while (!G.CAS_N(gOld,r,r + 1))     r=gOld._N;
+    perRow(_agg,i,start,c,gOld);
   }
 }

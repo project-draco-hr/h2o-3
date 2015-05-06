@@ -1,0 +1,16 @@
+{
+  System.arraycopy(_xy,0,result,0,_xy.length);
+  _chol.solve(result);
+  double gerr=Double.POSITIVE_INFINITY;
+  if (_addedL2) {
+    double[] oldRes=MemoryManager.arrayCopyOf(result,result.length);
+    for (int i=0; i < 1000; ++i) {
+      solve(oldRes,result);
+      double[] g=gradient(result);
+      gerr=Math.max(-ArrayUtils.minValue(g),ArrayUtils.maxValue(g));
+      if (gerr < 1e-4)       return;
+      System.arraycopy(result,0,oldRes,0,result.length);
+    }
+    Log.warn("Gram solver did not converge, gerr = " + gerr);
+  }
+}
