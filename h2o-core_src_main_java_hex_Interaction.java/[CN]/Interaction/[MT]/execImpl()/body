@@ -1,0 +1,20 @@
+{
+  try {
+    Frame source_frame=DKV.getGet(_source_frame);
+    assert(source_frame != null);
+    if (_factors.length == 0)     throw new IllegalArgumentException("factors must be non-empty.");
+    if (_pairwise && _factors.length < 3)     Log.info("Ignoring the pairwise option, requires 3 or more factors.");
+    for (    int v : _factors) {
+      if (!source_frame.vecs()[v].isEnum()) {
+        throw new IllegalArgumentException("Column " + source_frame.names()[v] + " is not a factor.");
+      }
+    }
+    CreateInteractions in=new CreateInteractions(this,this._key);
+    return start(in,in.work()).get();
+  }
+ catch (  Throwable t) {
+    throw t;
+  }
+ finally {
+  }
+}
