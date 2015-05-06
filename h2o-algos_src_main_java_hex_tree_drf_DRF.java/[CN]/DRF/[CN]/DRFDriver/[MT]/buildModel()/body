@@ -15,7 +15,8 @@
   DTree[] ktrees=null;
   for (tid=0; tid < _parms._ntrees; tid++) {
     if (tid != 0 || !_parms._checkpoint) {
-      doScoringAndSaveModel(false,_valid == null,_parms._build_tree_one_node);
+      double training_r2=doScoringAndSaveModel(false,_valid == null,_parms._build_tree_one_node);
+      if (training_r2 >= _parms._r2_stopping)       return;
     }
     Timer kb_timer=new Timer();
     buildNextKTrees(_train,_mtry,_parms._sample_rate,rand,tid);

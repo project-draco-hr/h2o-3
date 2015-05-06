@@ -38,11 +38,11 @@
               Assert.assertTrue("categorical column expected",flower == (int)flower);
             }
           }
-          Assert.assertTrue(MathUtils.compare(((ModelMetricsClustering)kmm._output._training_metrics)._avg_ss,((ModelMetricsClustering)kmm._output._validation_metrics)._avg_ss,1e-6,1e-6));
-          Assert.assertTrue(MathUtils.compare(((ModelMetricsClustering)kmm._output._training_metrics)._avg_between_ss,((ModelMetricsClustering)kmm._output._validation_metrics)._avg_between_ss,1e-6,1e-6));
-          Assert.assertTrue(MathUtils.compare(((ModelMetricsClustering)kmm._output._training_metrics)._avg_within_ss,((ModelMetricsClustering)kmm._output._validation_metrics)._avg_within_ss,1e-6,1e-6));
+          Assert.assertTrue(MathUtils.compare(((ModelMetricsClustering)kmm._output._training_metrics)._totss,((ModelMetricsClustering)kmm._output._validation_metrics)._totss,1e-6,1e-6));
+          Assert.assertTrue(MathUtils.compare(((ModelMetricsClustering)kmm._output._training_metrics)._betweenss,((ModelMetricsClustering)kmm._output._validation_metrics)._betweenss,1e-6,1e-6));
+          Assert.assertTrue(MathUtils.compare(((ModelMetricsClustering)kmm._output._training_metrics)._tot_withinss,((ModelMetricsClustering)kmm._output._validation_metrics)._tot_withinss,1e-6,1e-6));
           for (int i=0; i < parms._k; ++i) {
-            Assert.assertTrue(MathUtils.compare(((ModelMetricsClustering)kmm._output._training_metrics)._within_mse[i],((ModelMetricsClustering)kmm._output._validation_metrics)._within_mse[i],1e-6,1e-6));
+            Assert.assertTrue(MathUtils.compare(((ModelMetricsClustering)kmm._output._training_metrics)._withinss[i],((ModelMetricsClustering)kmm._output._validation_metrics)._withinss[i],1e-6,1e-6));
             Assert.assertEquals(((ModelMetricsClustering)kmm._output._training_metrics)._size[i],((ModelMetricsClustering)kmm._output._validation_metrics)._size[i]);
           }
           fr2=kmm.score(fr);
