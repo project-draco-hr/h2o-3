@@ -1,6 +1,8 @@
 def impute(self, column, method, combine_method, by, inplace):
     '\n    Impute a column in this H2OFrame.\n\n    :param column: The column to impute\n    :param method: How to compute the imputation value.\n    :param combine_method: For even samples and method="median", how to combine quantiles.\n    :param by: Columns to group-by for computing imputation value per groups of columns.\n    :param inplace: Impute inplace?\n    :return: the imputed frame.\n    '
     col_id = (-1)
+    if isinstance(column, list):
+        column = column[0]
     if isinstance(column, (unicode, str)):
         col_id = self._find_idx(column)
     elif isinstance(column, int):
