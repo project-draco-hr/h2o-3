@@ -24,8 +24,8 @@
     tinfo=new DataInfo(Key.make(),_train,null,0,false,_parms._transform,DataInfo.TransformType.NONE,true,false);
     DKV.put(tinfo._key,tinfo);
     double[][] yt=ArrayUtils.transpose(initialY(tinfo));
-    ObjCalc objtsk=new ObjCalc(dinfo,_parms,yt,_ncolA,_ncolX,model._output._normSub,model._output._normMul).doAll(dinfo._adaptedFrame);
-    model._output._objective=objtsk._loss + _parms._gamma_y * _parms.regularize_y(yt);
+    ObjCalc objtsk=new ObjCalc(dinfo,_parms,yt,_ncolA,_ncolX,model._output._normSub,model._output._normMul,true).doAll(dinfo._adaptedFrame);
+    model._output._objective=objtsk._loss + _parms._gamma_x * objtsk._xold_reg + _parms._gamma_y * _parms.regularize_y(yt);
     model._output._iterations=0;
     model._output._avg_change_obj=2 * TOLERANCE;
     boolean overwriteX=false;
