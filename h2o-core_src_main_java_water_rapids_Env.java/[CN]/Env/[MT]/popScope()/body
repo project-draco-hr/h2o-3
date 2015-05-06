@@ -1,25 +1,22 @@
 {
+  if (_parent == null)   throw new IllegalArgumentException("Cannot pop the parent scope!");
+  Key k=isAry() ? peekAry()._key : null;
+  Set<String> local=_local._table.keySet();
+  for (  String name : local) {
+    Frame f;
+    if (_local.getType(name) == LARY) {
+      f=_local.getFrame(name);
+      if (isAry() && f == peekAry())       continue;
+ else       cleanup(f);
+    }
+  }
   _local.clear();
-  Futures fs=new Futures();
-  for (  String k : _local._frames.keySet()) {
-    boolean delete=true;
-    if (isAry()) {
-      if (peekAry()._key != null && peekAry()._key == _local._frames.get(k)._key)       continue;
-    }
-    if (_locked.contains(Key.make(k)))     continue;
-    Frame f=_local._frames.get(k);
-    for (    Vec v : f.vecs())     delete&=subRef(v);
-    if (delete)     f.delete();
+  for (  Key key : _locked) {
+    if (k != null && k == key)     continue;
+    if (isAry() && Arrays.asList(peekAry().keys()).contains(key))     continue;
   }
-  _local._frames.clear();
-  if (!isGlobal()) {
-    for (    Key k : _locked) {
-      if (isAry()) {
-        if (peekAry()._key != null && peekAry()._key == k)         continue;
-        if (Arrays.asList(peekAry().keys()).contains(k))         continue;
-      }
-      Keyed.remove(k,fs);
-    }
+  _locked.clear();
+  for (  Vec v : _refcnt.keySet()) {
+    if (_refcnt.get(v)._val == 0 && !hasLock(v._key))     Keyed.remove(v._key);
   }
-  fs.blockForPending();
 }

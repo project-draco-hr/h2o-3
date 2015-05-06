@@ -1,7 +1,8 @@
 {
   if (o instanceof ValFrame) {
-    pushHelper(o,_isGlobal ? _global : _local);
-    addRef(o);
+    ValFrame f=(ValFrame)o;
+    if (!_isGlobal)     _local.put(Key.make().toString(),f._fr);
+    addRef(f);
   }
   _stack.push(o);
   clean();
