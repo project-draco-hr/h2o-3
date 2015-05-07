@@ -1,14 +1,14 @@
 {
   if (_grps != t._grps) {
-    ASTGroupBy.IcedNBHS<Group> l=_grps;
-    ASTGroupBy.IcedNBHS<Group> r=t._grps;
+    IcedHashMap<Group,String> l=_grps;
+    IcedHashMap<Group,String> r=t._grps;
     if (l.size() < r.size()) {
       l=r;
       r=_grps;
     }
-    for (    Group rg : r) {
-      if (!l.add(rg)) {
-        Group lg=l.get(rg);
+    for (    Group rg : r.keySet()) {
+      if (l.containsKey(rg)) {
+        Group lg=l.getk(rg);
         long L=lg._N;
         while (!Group.CAS_N(lg,L,L + rg._N))         L=lg._N;
       }
