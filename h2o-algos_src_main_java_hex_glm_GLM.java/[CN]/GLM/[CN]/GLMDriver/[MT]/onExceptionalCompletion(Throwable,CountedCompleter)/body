@@ -9,8 +9,13 @@
       tryComplete();
       return false;
     }
-    doCleanup();
-    new RemoveCall(null,_dest).invokeTask();
+    try {
+      doCleanup();
+      new RemoveCall(null,_dest).invokeTask();
+    }
+ catch (    Throwable t) {
+      Log.err(t);
+    }
     failed(ex);
     return true;
   }
