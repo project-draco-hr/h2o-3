@@ -1,0 +1,15 @@
+{
+  double minSQE=Double.MAX_VALUE;
+  int minI=-1;
+  int n=_n;
+  for (int i=0; i < n - 1; i++) {
+    double derr=compute_delta_error(_ths[i + 1],k(i + 1),_ths[i],k(i));
+    if (derr == 0)     return i;
+    double sqe=_sqe[i] + _sqe[i + 1] + derr;
+    if (sqe < minSQE) {
+      minI=i;
+      minSQE=sqe;
+    }
+  }
+  return minI;
+}
