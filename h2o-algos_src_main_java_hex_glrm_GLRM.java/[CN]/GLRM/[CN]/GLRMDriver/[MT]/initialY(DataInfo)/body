@@ -11,6 +11,11 @@
  else   if (_parms._init == Initialization.SVD) {
     SVDModel.SVDParameters parms=new SVDModel.SVDParameters();
     parms._train=_parms._train;
+    parms._ignored_columns=_parms._ignored_columns;
+    parms._dropConsCols=_parms._dropConsCols;
+    parms._drop_na20_cols=_parms._drop_na20_cols;
+    parms._score_each_iteration=_parms._score_each_iteration;
+    parms._useAllFactorLevels=true;
     parms._nv=_parms._k;
     parms._max_iterations=_parms._max_iterations;
     parms._transform=_parms._transform;
@@ -51,7 +56,7 @@
       if (km != null)       km.remove();
     }
     centers=ArrayUtils.permuteCols(km._output._centers_raw,dinfo.mapNames(km._output._names));
-    centers=transform(centers,dinfo._normSub,dinfo._normMul,dinfo._cats);
+    centers=transform(centers,dinfo._normSub,dinfo._normMul,dinfo._cats,dinfo._nums);
   }
   double[][] centers_exp=expandCats(centers,dinfo);
   _ncolY=centers_exp[0].length;

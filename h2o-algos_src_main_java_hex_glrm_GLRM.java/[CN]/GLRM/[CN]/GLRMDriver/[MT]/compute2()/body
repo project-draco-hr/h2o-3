@@ -14,12 +14,12 @@
     fr=new Frame(null,vecs);
     dinfo=new DataInfo(Key.make(),fr,null,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false);
     DKV.put(dinfo._key,dinfo);
-    model._output._normSub=dinfo._normSub == null ? new double[_ncolA] : Arrays.copyOf(dinfo._normSub,_ncolA);
+    model._output._normSub=dinfo._normSub == null ? new double[dinfo._nums] : dinfo._normSub;
     if (dinfo._normMul == null) {
-      model._output._normMul=new double[_ncolA];
+      model._output._normMul=new double[dinfo._nums];
       Arrays.fill(model._output._normMul,1.0);
     }
- else     model._output._normMul=Arrays.copyOf(dinfo._normMul,_ncolA);
+ else     model._output._normMul=dinfo._normMul;
     double nobs=_train.numRows() * _train.numCols();
     tinfo=new DataInfo(Key.make(),_train,null,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false);
     DKV.put(tinfo._key,tinfo);
