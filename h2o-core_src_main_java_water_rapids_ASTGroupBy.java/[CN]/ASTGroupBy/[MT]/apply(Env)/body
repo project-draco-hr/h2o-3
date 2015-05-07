@@ -6,8 +6,15 @@
   GBTask p1=new GBTask(_gbCols,_agg).doAll(fr);
   Log.info("Group By Task done in " + (System.currentTimeMillis() - s) / 1000. + " (s)");
   final int nGrps=p1._g.size();
-  final G[] grps=p1._g.keySet().toArray(new G[nGrps]);
-  H2O.submitTask(new ParallelPostGlobal(grps)).join();
+  final G[] grps=new G[nGrps];
+  int gnum=0;
+  for (  G g : p1._g.keySet()) {
+    if (g == null) {
+      Log.info("GROUP IS NULL: #" + gnum);
+    }
+    grps[gnum++]=g;
+  }
+  H2O.submitTask(new ParallelPostGlobal(grps,nGrps)).join();
   final int nCols=_gbCols.length + _agg.length;
   Vec v=Vec.makeZero(nGrps);
   String[] names=new String[nCols];
