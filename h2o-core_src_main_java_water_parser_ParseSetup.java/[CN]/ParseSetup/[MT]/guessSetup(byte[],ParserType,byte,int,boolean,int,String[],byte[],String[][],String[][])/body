@@ -12,11 +12,11 @@ case AUTO:
 for (ParserType pTypeGuess : guessFileTypeOrder) {
 try {
 ParseSetup ps=guessSetup(bits,pTypeGuess,sep,ncols,singleQuotes,checkHeader,columnNames,columnTypes,domains,naStrings);
-if (ps != null && ps._is_valid) return ps;
+if (ps != null) return ps;
 }
  catch (Throwable ignore) {
 }
 }
 }
-return new ParseSetup(false,0,new String[]{"Cannot determine file type"},pType,sep,singleQuotes,checkHeader,ncols,columnNames,null,domains,naStrings,null,FileVec.DFLT_CHUNK_SIZE);
+throw new H2OParseSetupException("Cannot determine file type.");
 }
