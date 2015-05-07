@@ -1,7 +1,7 @@
 def impute(self, column, method, combine_method, by, inplace):
     '\n    Impute a column in this H2OFrame.\n\n    :param column: The column to impute\n    :param method: How to compute the imputation value.\n    :param combine_method: For even samples and method="median", how to combine quantiles.\n    :param by: Columns to group-by for computing imputation value per groups of columns.\n    :param inplace: Impute inplace?\n    :return: the imputed frame.\n    '
     col_id = (-1)
-    if (isinstance(column, list) and (len(column) == 1)):
+    if isinstance(column, list):
         column = column[0]
     if isinstance(column, (unicode, str)):
         col_id = self._find_idx(column)
@@ -12,18 +12,14 @@ def impute(self, column, method, combine_method, by, inplace):
             col_id = [(a._name == v._name) for a in self].index(True)
         except:
             raise ValueError('No column found to impute.')
-    if ((col_id < 0) or (col_id >= self.ncol())):
-        raise ValueError((('Column at index: ' + str(col_id)) + ' is out of range of the data.'))
-    if (method == ['mean', 'median', 'mode']):
-        method = ('mode' if self[col_id].isfactor() else 'mean')
-    elif isinstance(method, list):
-        if ((len(method) == 1) and (method in ['mean', 'median', 'mode'])):
-            method = method[0]
+    if (isinstance(method, list) and (len(method) > 1)):
+        if self[col_id].isfactor():
+            method = 'mode'
         else:
-            raise ValueError('method {0} is not a valid method.'.format(method[0]))
-    elif (method not in ['mean', 'median', 'mode']):
-        raise ValueError('method {0} is not a valid method.'.format(method))
-    if (combine_method == ['interpolate', 'average', 'low', 'high']):
+            method = 'mean'
+    elif isinstance(method, list):
+        method = method[0]
+    if (isinstance(combine_method, list) and (len(combine_method) > 1)):
         combine_method = 'interpolate'
     if (combine_method == 'lo'):
         combine_method = 'low'
@@ -31,7 +27,7 @@ def impute(self, column, method, combine_method, by, inplace):
         combine_method = 'high'
     if (method == 'median'):
         if (by is not None):
-            raise ValueError('Unimplemented: No `by` and `median`. Please select a different method.')
+            raise ValueError('Unimplemented: No `by` and `median`. Please select a different method (e.g. `mean`).')
     if (self[col_id].isfactor() and (method not in ['ffill', 'bfill', 'mode'])):
         raise ValueError('Column is categorical, method must not be mean or median.')
     gb_cols = '()'
@@ -53,6 +49,7 @@ def impute(self, column, method, combine_method, by, inplace):
     if inplace:
         expr = '(h2o.impute %{} #{} "{}" "{}" {} %TRUE'.format(key, col_id, method, combine_method, gb_cols)
         h2o.rapids(expr)
+        h2o.delete(key)
         return self
     else:
         expr = '(= !{} (h2o.impute %{} #{} "{}" "{}" {} %FALSE))'.format(tmp_key, key, col_id, method, combine_method, gb_cols)
@@ -65,6 +62,5 @@ def impute(self, column, method, combine_method, by, inplace):
         cols = fr['columns']
         colnames = [col['label'] for col in cols]
         vecs = H2OVec.new_vecs(zip(colnames, veckeys), rows)
-        if (not inplace):
-            h2o.rapids('(removeframe !{})'.format(tmp_key))
+        h2o.delete(tmp_key)
         return H2OFrame(vecs=vecs)
