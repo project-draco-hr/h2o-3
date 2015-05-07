@@ -15,9 +15,8 @@
  else     bestVal=_submodels[0].trainVal;
     for (int i=1; i < _submodels.length; ++i) {
       GLMValidation val=xval ? _submodels[i].xVal : hval ? _submodels[i].holdOutVal : _submodels[i].trainVal;
-      Frame f=hval ? vFrame : tFrame;
       if (val == null || val == bestVal)       continue;
-      if ((useAuc && val.computeAUC(m.clone(),f) > bestVal.computeAUC(m,f)) || val.residual_deviance < bestVal.residual_deviance) {
+      if (MathUtils.roundToNDigits(val.residual_deviance,4) < MathUtils.roundToNDigits(bestVal.residual_deviance,4)) {
         bestVal=val;
         bestId=i;
       }
