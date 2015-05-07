@@ -12,7 +12,7 @@
     if (_oob && chks[oobColIdx].at8(row) == 0)     continue;
     if (_is_train)     _bldr.score2(chks,cdists,row);
  else     _bldr._model.score0(chks,row,tmp,cdists);
-    if (nclass > 1)     cdists[0]=ModelUtils.getPrediction(cdists);
+    if (nclass > 1)     cdists[0]=GenModel.getPrediction(cdists,tmp,_bldr._model.defaultThreshold());
     val[0]=(float)ys.atd(row);
     _mb.perRow(cdists,val,_bldr._model);
   }
