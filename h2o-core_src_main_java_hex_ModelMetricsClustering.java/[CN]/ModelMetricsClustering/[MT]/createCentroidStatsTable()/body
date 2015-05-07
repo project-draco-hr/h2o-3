@@ -1,5 +1,5 @@
 {
-  if (_size == null || _within_mse == null)   return null;
+  if (_size == null || _withinss == null)   return null;
   List<String> colHeaders=new ArrayList<>();
   List<String> colTypes=new ArrayList<>();
   List<String> colFormat=new ArrayList<>();
@@ -9,17 +9,17 @@
   colHeaders.add("Size");
   colTypes.add("double");
   colFormat.add("%.5f");
-  colHeaders.add("Within Sum of Squares");
+  colHeaders.add("Within Cluster Sum of Squares");
   colTypes.add("double");
   colFormat.add("%.5f");
   final int K=_size.length;
-  assert(_within_mse.length == K);
+  assert(_withinss.length == K);
   TwoDimTable table=new TwoDimTable("Centroid Statistics",null,new String[K],colHeaders.toArray(new String[0]),colTypes.toArray(new String[0]),colFormat.toArray(new String[0]),"");
   for (int k=0; k < K; ++k) {
     int col=0;
     table.set(k,col++,k + 1);
     table.set(k,col++,_size[k]);
-    table.set(k,col++,_within_mse[k]);
+    table.set(k,col++,_withinss[k]);
   }
   return table;
 }
