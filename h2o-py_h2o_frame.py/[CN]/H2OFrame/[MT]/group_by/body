@@ -16,7 +16,7 @@ def group_by(self, cols, a):
     aggs = '(agg {})'.format(' '.join(aggs))
     expr = '(= !{} (GB %{} {} {}))'.format(tmp_key, key, rapids_series, aggs)
     h2o.rapids(expr)
-    h2o.remove(key)
+    h2o.delete(key)
     j = h2o.frame(tmp_key)
     fr = j['frames'][0]
     rows = fr['rows']
@@ -24,5 +24,5 @@ def group_by(self, cols, a):
     cols = fr['columns']
     colnames = [col['label'] for col in cols]
     vecs = H2OVec.new_vecs(zip(colnames, veckeys), rows)
-    h2o.rapids('(removeframe !{})'.format(tmp_key))
+    h2o.delete(tmp_key)
     return H2OFrame(vecs=vecs)

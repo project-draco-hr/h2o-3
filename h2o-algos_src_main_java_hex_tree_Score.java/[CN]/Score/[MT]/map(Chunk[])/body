@@ -5,14 +5,14 @@
   final int oobColIdx=_bldr.idx_oobt();
   _mb=_bldr._model.makeMetricBuilder(domain);
   final double[] cdists=_mb._work;
-  final double[] tmp=_bldr._parms._valid != null ? new double[_bldr._ncols] : null;
+  final double[] tmp=_is_train ? null : new double[_bldr._ncols];
   float[] val=new float[1];
   for (int row=0; row < ys._len; row++) {
     if (ys.isNA(row))     continue;
     if (_oob && chks[oobColIdx].at8(row) == 0)     continue;
-    if (_bldr._parms._valid != null)     _bldr._model.score0(chks,row,tmp,cdists);
- else     _bldr.score2(chks,cdists,row);
-    if (nclass > 1)     cdists[0]=ModelUtils.getPrediction(cdists);
+    if (_is_train)     _bldr.score2(chks,cdists,row);
+ else     _bldr._model.score0(chks,row,tmp,cdists);
+    if (nclass > 1)     cdists[0]=GenModel.getPrediction(cdists,tmp,_bldr._model.defaultThreshold());
     val[0]=(float)ys.atd(row);
     _mb.perRow(cdists,val,_bldr._model);
   }
