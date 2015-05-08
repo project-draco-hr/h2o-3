@@ -16,7 +16,6 @@ def tail(self, rows=10, cols=200, **kwargs):
         tail_rows = [range(((self.nrow() - nrows) + 1), (self.nrow() + 1), 1)]
         tail_rows += [rows[0:nrows] for rows in res['head'][0:ncols]]
         tail = zip(*tail_rows)
-        print tabulate.tabulate(tail, headers=(['Row ID'] + colnames))
+        h2o.H2ODisplay(tail, (['Row ID'] + self.names()))
     else:
-        print tabulate.tabulate([([self.nrow()] + [expr.eager() for expr in exprs])], headers=(['Row ID'] + colnames))
-    print 
+        h2o.H2ODisplay([([self.nrow()] + [expr.eager() for expr in exprs])], (['Row ID'] + colnames))
