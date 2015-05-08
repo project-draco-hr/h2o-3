@@ -3,7 +3,7 @@ def show(self):
         raise ValueError('Frame Removed')
     elif (len(self) == 1):
         to_show = [[v] for v in self._vecs[0].show(noprint=True)]
-        print tabulate.tabulate(to_show, headers=self.names())
+        h2o.H2ODisplay(to_show, self.names())
     else:
         vecs = [vec.show(noprint=True) for vec in self]
         l = 1
@@ -11,11 +11,9 @@ def show(self):
             vecs.insert(0, 1)
             print (('Displaying ' + str(l)) + ' row(s):')
             vecs = [[v] for v in vecs]
-            print tabulate.tabulate(zip(*vecs), headers=(['Row ID'] + self.names()))
-            print 
+            h2o.H2ODisplay(zip(*vecs), (['Row ID'] + self.names()))
         else:
             l = len(vecs[0])
             vecs.insert(0, range(1, (len(vecs[0]) + 1), 1))
             print (('Displaying ' + str(l)) + ' row(s):')
-            print tabulate.tabulate(zip(*vecs), headers=(['Row ID'] + self.names()))
-            print 
+            h2o.H2ODisplay(zip(*vecs), (['Row ID'] + self.names()))
