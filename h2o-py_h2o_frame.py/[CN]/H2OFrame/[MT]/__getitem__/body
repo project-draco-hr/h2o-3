@@ -21,16 +21,11 @@ def __getitem__(self, i):
             else:
                 raise NotImplementedError
         return H2OFrame(vecs=vecs)
-    if isinstance(i, tuple):
-        veckeys = [str(v._expr._data) for v in self._vecs]
-        left = Expr(veckeys)
-        rite = Expr((i[0], i[1]))
-        res = Expr('[', left, rite, length=2)
-        if ((not isinstance(i[0], int)) or (not isinstance(i[1], int))):
-            return res
-        res.eager()
-        if res.is_local():
-            return res._data
-        j = h2o.frame(res._data)
-        return map(list, zip(*[c['data'] for c in j['frames'][0]['columns'][:]]))[0][0]
+    if (isinstance(i, tuple) and (len(i) == 2)):
+        res = self[i[1]]
+        if isinstance(res, H2OFrame):
+            return [vec[i[0]] for vec in res._vecs]
+        if isinstance(res, H2OVec):
+            return res[i[0]]
+        raise NotImplementedError
     raise NotImplementedError(('Slicing by unknown type: ' + str(type(i))))
