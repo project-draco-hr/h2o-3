@@ -3,6 +3,8 @@ def __getitem__(self, i):
     if isinstance(i, H2OVec):
         return self.row_select(i)
     if isinstance(i, int):
+        return Expr('[', self, Expr(i), length=1).eager()
+    if isinstance(i, slice):
         e = Expr(i)
-        return Expr('[', self, e, length=len(e)).eager()
+        return H2OVec(self._name, Expr('[', self, e, length=len(e)))
     raise ValueError('Row selection from a Vec is limited to 1 row, or a boolean Vec')
