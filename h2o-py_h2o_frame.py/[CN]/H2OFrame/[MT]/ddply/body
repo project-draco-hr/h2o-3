@@ -7,7 +7,7 @@ def ddply(self, cols, fun):
     tmp_key = H2OFrame.py_tmp_key()
     expr = '(= !{} (h2o.ddply %{} {} {}))'.format(tmp_key, key, rapids_series, fun)
     h2o.rapids(expr)
-    h2o.delete(key)
+    h2o.removeFrameShallow(key)
     j = h2o.frame(tmp_key)
     fr = j['frames'][0]
     rows = fr['rows']
@@ -15,5 +15,5 @@ def ddply(self, cols, fun):
     cols = fr['columns']
     colnames = [col['label'] for col in cols]
     vecs = H2OVec.new_vecs(zip(colnames, veckeys), rows)
-    h2o.delete(tmp_key)
+    h2o.removeFrameShallow(tmp_key)
     return H2OFrame(vecs=vecs)
