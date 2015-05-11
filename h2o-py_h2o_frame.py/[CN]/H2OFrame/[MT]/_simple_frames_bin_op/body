@@ -5,7 +5,7 @@ def _simple_frames_bin_op(self, data, op):
         raise ValueError('Frame Removed')
     self._len_check(data)
     if isinstance(data, H2OFrame):
-        return H2OFrame(vecs=[H2OVec(x._name, Expr(op, x._len_check(y), y)) for (x, y) in zip(self._vecs, i._vecs)])
+        return H2OFrame(vecs=[H2OVec(x._name, Expr(op, x._len_check(y), y)) for (x, y) in zip(self._vecs, data._vecs)])
     if isinstance(data, H2OVec):
         return H2OFrame(vecs=[H2OVec(x._name, Expr(op, x._len_check(data), data)) for x in self._vecs])
     if isinstance(data, (int, float, str)):
