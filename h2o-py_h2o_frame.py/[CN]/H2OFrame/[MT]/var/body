@@ -6,7 +6,7 @@ def var(self):
     tmp_key = H2OFrame.py_tmp_key()
     expr = '(= !{} (var %{} () %FALSE "everything"))'.format(tmp_key, key)
     h2o.rapids(expr)
-    h2o.delete(key)
+    h2o.removeFrameShallow(key)
     j = h2o.frame(tmp_key)
     fr = j['frames'][0]
     rows = fr['rows']
@@ -14,5 +14,5 @@ def var(self):
     cols = fr['columns']
     colnames = [col['label'] for col in cols]
     vecs = H2OVec.new_vecs(zip(colnames, veckeys), rows)
-    h2o.delete(tmp_key)
+    h2o.removeFrameShallow(tmp_key)
     return H2OFrame(vecs=vecs)
