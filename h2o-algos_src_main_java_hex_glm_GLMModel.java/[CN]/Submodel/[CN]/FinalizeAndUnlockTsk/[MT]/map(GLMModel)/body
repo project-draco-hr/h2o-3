@@ -1,7 +1,13 @@
 {
   Frame tFrame=DKV.getGet(_trainFrame);
   Frame vFrame=(_validFrame != null) ? DKV.get(_validFrame).<Frame>get() : null;
-  glmModel._output.pickBestModel(glmModel._parms._family == Family.binomial,glmModel,tFrame,vFrame);
+  glmModel._output.pickBestModel();
+  glmModel.score(tFrame).delete();
+  glmModel._output._training_metrics=ModelMetrics.getFromDKV(glmModel,tFrame);
+  if (vFrame != null) {
+    glmModel.score(vFrame).delete();
+    glmModel._output._validation_metrics=ModelMetrics.getFromDKV(glmModel,vFrame);
+  }
   String[] names=new String[]{"Family","Link","Regularization","Number of Predictors Total","Number of Active Predictors","Number of Iterations","Training Frame"};
   String[] types=new String[]{"string","string","string","int","int","int","string"};
   String[] formats=new String[]{"%s","%s","%s","%d","%d","%d","%s"};
@@ -33,5 +39,5 @@
   glmModel._output._model_summary.set(0,6 + lambdaSearch,_trainFrame.toString());
   if (_scoring_history != null)   glmModel._output._scoring_history=_scoring_history.to2dTable();
   glmModel.update(_jobKey);
-  glmModel.unlock(_jobKey);
+  if (_unlock)   glmModel.unlock(_jobKey);
 }

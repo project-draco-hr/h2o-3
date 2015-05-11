@@ -2,13 +2,13 @@
   double eta=0.0;
   final double[] b=beta();
   if (!_parms._use_all_factor_levels) {
-    for (int i=0; i < _dinfo._catOffsets.length - 1; ++i)     if (data[i] != 0)     eta+=b[_dinfo._catOffsets[i] + (int)(data[i] - 1)];
+    for (int i=0; i < dinfo()._catOffsets.length - 1; ++i)     if (data[i] != 0)     eta+=b[dinfo()._catOffsets[i] + (int)(data[i] - 1)];
   }
  else {
-    for (int i=0; i < _dinfo._catOffsets.length - 1; ++i)     eta+=b[_dinfo._catOffsets[i] + (int)data[i]];
+    for (int i=0; i < dinfo()._catOffsets.length - 1; ++i)     eta+=b[dinfo()._catOffsets[i] + (int)data[i]];
   }
-  final int noff=_dinfo.numStart() - _dinfo._cats;
-  for (int i=_dinfo._cats; i < data.length; ++i)   eta+=b[noff + i] * data[i];
+  final int noff=dinfo().numStart() - dinfo()._cats;
+  for (int i=dinfo()._cats; i < data.length; ++i)   eta+=b[noff + i] * data[i];
   eta+=b[b.length - 1];
   double mu=_parms.linkInv(eta);
   preds[0]=mu;

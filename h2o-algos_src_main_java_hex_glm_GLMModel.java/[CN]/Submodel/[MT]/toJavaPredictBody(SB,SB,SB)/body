@@ -2,7 +2,7 @@
   final int nclass=_output.nclasses();
   String mname=JCodeGen.toJavaId(_key.toString());
   JCodeGen.toStaticVar(classCtx,"BETA",beta(),"The Coefficients");
-  JCodeGen.toStaticVar(classCtx,"CATOFFS",_dinfo._catOffsets,"Categorical Offsets");
+  JCodeGen.toStaticVar(classCtx,"CATOFFS",dinfo()._catOffsets,"Categorical Offsets");
   body.ip("double eta = 0.0;").nl();
   body.ip("final double [] b = BETA;").nl();
   if (!_parms._use_all_factor_levels) {
@@ -13,8 +13,8 @@
     body.ip("for(int i = 0; i < CATOFFS.length-1; ++i)").nl();
     body.ip("  eta += b[CATOFFS[i] + (int)(data[i])];").nl();
   }
-  final int noff=_dinfo.numStart() - _dinfo._cats;
-  body.ip("for(int i = ").p(_dinfo._cats).p("; i < data.length; ++i)").nl();
+  final int noff=dinfo().numStart() - dinfo()._cats;
+  body.ip("for(int i = ").p(dinfo()._cats).p("; i < data.length; ++i)").nl();
   body.ip("  eta += b[").p(noff).p("+i]*data[i];").nl();
   body.ip("eta += b[b.length-1]; // reduce intercept").nl();
   body.ip("double mu = hex.genmodel.GenModel.GLM_").p(_parms._link.toString()).p("Inv(eta");
