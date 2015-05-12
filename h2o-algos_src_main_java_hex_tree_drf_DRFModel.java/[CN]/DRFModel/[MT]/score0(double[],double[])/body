@@ -8,7 +8,7 @@
  else {
     double sum=MathUtils.sum(preds);
     if (sum > 0)     MathUtils.div(preds,sum);
-    GenModel.correctProbabilities(preds,_output._priorClassDist,_output._modelClassDist);
+    if (_parms._balance_classes)     GenModel.correctProbabilities(preds,_output._priorClassDist,_output._modelClassDist);
     preds[0]=hex.genmodel.GenModel.getPrediction(preds,data,defaultThreshold());
   }
   return preds;

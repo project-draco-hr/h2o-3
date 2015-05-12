@@ -1,42 +1,22 @@
 {
   String err="Result of function produced more than a single column!";
-  final ASTOp op=ASTOp.get(_fun);
+  final ASTOp FUN=ASTOp.get(_fun);
   Frame fr2=null;
   Frame fr=env.popAry();
-  env.addRef(fr);
   if (_margin == 2) {
-    int ncols=fr.numCols();
-    double[] row_result=new double[0];
-    Vec[] vecs_result=new Vec[0];
+    double[] row_result;
+    Vec[] vecs_result;
     boolean isRow=false;
-    Frame tmp=new Frame(new String[]{fr.names()[0]},new Vec[]{fr.vecs()[0]});
-    op.exec(env,new ASTFrame(tmp),_fun_args);
-    if (env.isNum())     isRow=true;
-    if (isRow) {
-      row_result=new double[ncols];
-      row_result[0]=env.popDbl();
-    }
- else {
-      if (env.peekAry().numCols() != 1)       throw new UnsupportedOperationException(err);
-      vecs_result=new Vec[ncols];
-      Frame v=env.popAry();
-      vecs_result[0]=v.anyVec().makeCopy(null);
-    }
-    for (int i=1; i < ncols; i++) {
-      tmp=new Frame(new String[]{fr.names()[i]},new Vec[]{fr.vecs()[i]});
-      op.exec(env,new ASTFrame(tmp),_fun_args);
-      if (isRow)       row_result[i]=env.popDbl();
- else {
-        if (env.peekAry().numCols() != 1)         throw new UnsupportedOperationException(err);
-        Frame v=env.popAry();
-        vecs_result[i]=v.anyVec().makeCopy(null);
-      }
-    }
+    ParallelVecApply t;
+    H2O.submitTask(t=new ParallelVecApply(FUN,fr,_fun_args,env)).join();
+    if (t._applyTasks[0]._vec_result == null)     isRow=true;
     if (isRow) {
       Futures fs=new Futures();
       Key key=Vec.VectorGroup.VG_LEN1.addVecs(1)[0];
       AppendableVec v=new AppendableVec(key);
       NewChunk chunk=new NewChunk(v,0);
+      row_result=new double[t._applyTasks.length];
+      for (int i=0; i < row_result.length; ++i)       row_result[i]=t._applyTasks[i]._row_result;
       for (      double aRow_result : row_result)       chunk.addNum(aRow_result);
       chunk.close(0,fs);
       Vec vec=v.close(fs);
@@ -44,13 +24,15 @@
       fr2=new Frame(vec);
     }
  else {
+      vecs_result=new Vec[t._applyTasks.length];
+      for (int i=0; i < vecs_result.length; ++i)       vecs_result[i]=t._applyTasks[i]._vec_result;
       fr2=new Frame(fr.names(),vecs_result);
     }
   }
   if (_margin == 1) {
     double[] rowin=new double[fr.vecs().length];
     for (int c=0; c < rowin.length; c++)     rowin[c]=fr.vecs()[c].at(0);
-    final int outlen=op.map(env,rowin,null,_fun_args).length;
+    final int outlen=FUN.map(env,rowin,null,_fun_args).length;
     final Env env0=env;
     MRTask mrt=new MRTask(){
       @Override public void map(      Chunk[] cs,      NewChunk[] ncs){
@@ -58,7 +40,7 @@
         double rowout[]=new double[outlen];
         for (int row=0; row < cs[0]._len; row++) {
           for (int c=0; c < cs.length; c++)           rowin[c]=cs[c].atd(row);
-          rowout=op.map(env0,rowin,rowout,_fun_args);
+          rowout=FUN.map(env0,rowin,rowout,_fun_args);
           for (int c=0; c < ncs.length; c++)           ncs[c].addNum(rowout[c]);
         }
       }
@@ -69,6 +51,5 @@
     fr2=mrt.doAll(outlen,fr).outputFrame(names,null);
   }
  else   if (_margin != 1 && _margin != 2)   throw new IllegalArgumentException("MARGIN limited to 1 (rows) or 2 (cols)");
-  env.addRef(fr);
   env.pushAry(fr2);
 }

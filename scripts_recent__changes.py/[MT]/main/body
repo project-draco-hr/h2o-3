@@ -1,0 +1,32 @@
+def main(argv):
+    '\n    Main program.\n\n    @return: none\n    '
+    global g_script_name
+    g_script_name = os.path.basename(argv[0])
+    parse_config_file()
+    parse_args(argv)
+    url = (((((((('https://0xdata.atlassian.net/rest/api/2/search?jql=' + 'project+in+(PUBDEV,HEXDEV)') + '+and+') + 'resolutiondate+>=+') + g_start_date.strftime('%Y-%m-%d')) + '+and+') + 'resolution+in+(Done,Fixed)') + 'order+by+type,component,resolutiondate') + '&maxResults=1000')
+    r = requests.get(url, auth=(g_user, g_pass))
+    if (r.status_code != 200):
+        print ('ERROR: status code is ' + str(r.status_code))
+        sys.exit(1)
+    j = r.json()
+    issues = j[u'issues']
+    if (len(issues) >= 1000):
+        print 'ERROR: len(issues) >= 1000.  Too many issues.'
+        sys.exit(1)
+    last_issue_type_name = ''
+    last_component_name = ''
+    for issue in issues:
+        issue_type_name = get_issue_type_name(issue)
+        component_name = get_issue_component_name(issue)
+        if (issue_type_name != last_issue_type_name):
+            print ''
+            print ('# ' + issue_type_name)
+            last_issue_type_name = issue_type_name
+        if (component_name != last_component_name):
+            print ''
+            print ('## ' + component_name)
+            last_component_name = component_name
+        key = get_issue_key(issue)
+        summary = get_issue_summary(issue)
+        print ((('* ' + key) + ': ') + summary)

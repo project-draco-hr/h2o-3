@@ -4,10 +4,22 @@
   if (lb != null)   for (int j=0; j < z.length; ++j)   if (z[j] == lb[j] && grad[j] > 0)   grad[j]=z[j] >= 0 ? -lambda : lambda;
   if (ub != null)   for (int j=0; j < z.length; ++j)   if (z[j] == ub[j] && grad[j] < 0)   grad[j]=z[j] >= 0 ? -lambda : lambda;
   subgrad(lambda,z,grad);
-  for (int x=0; x < grad.length - 1; ++x) {
-    double err=grad[x];
-    if (err < 0)     err=-err;
-    if (gerr < err)     gerr=err;
-  }
-  return gerr;
+switch (_gradientNorm) {
+case L_Infinite:
+    gerr=ArrayUtils.linfnorm(grad,false);
+  break;
+case L2_2:
+gerr=ArrayUtils.l2norm2(grad,false);
+System.out.println("gerr = " + gerr + ", eps = "+ _eps);
+break;
+case L2:
+gerr=Math.sqrt(ArrayUtils.l2norm2(grad,false));
+break;
+case L1:
+gerr=ArrayUtils.l1norm(grad,false);
+break;
+default :
+throw H2O.unimpl();
+}
+return gerr;
 }

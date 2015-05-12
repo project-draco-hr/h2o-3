@@ -3,106 +3,57 @@
   for (  long l : _cols) {
     if (l > fr.numCols() || l < 0)     throw new IllegalArgumentException("Column " + (l + 1) + " out of range for frame columns "+ fr.numCols());
   }
-  ddplyPass1 p1=new ddplyPass1(true,_cols).doAll(fr);
-  int numgrps=p1._groups.size();
-  int csz=H2O.CLOUD.size();
-  ddplyPass2 p2=new ddplyPass2(p1,numgrps,csz).doAllNodes();
-  Key rows[]=p2.close();
-  AppendableVec av;
-  ArrayList<AppendableVec> grpCols=new ArrayList<>();
-  ArrayList<NewChunk> nchks=new ArrayList<>();
-  for (  long ignored : _cols) {
-    grpCols.add(av=new AppendableVec(Vec.VectorGroup.VG_LEN1.addVec()));
-    nchks.add(new NewChunk(av,0));
+  Pass1A p1a=new Pass1A(_cols).doAll(fr);
+  Group[] grps=p1a._grps.keySet().toArray(new Group[p1a._grps.size()]);
+  int ngrps=grps.length;
+  while (grps[ngrps - 1] == null)   ngrps--;
+  Group[] groups=new Group[ngrps];
+  System.arraycopy(grps,0,groups,0,ngrps);
+  grps=groups;
+  Pass2 p2;
+  H2O.submitTask(p2=new Pass2(fr,grps)).join();
+  Key[] groupFrames=p2._keys;
+  Pass3 p3;
+  (p3=new Pass3(groupFrames,ASTOp.get(_fun).make(),grps,_fun_args)).go();
+  Vec layoutVec=Vec.makeZero(p3._remoteTasks.length);
+  final RemoteRapids[] results=p3._remoteTasks;
+  for (int k=0; k < p2._tasks.length; ++k) {
+    for (    Key key : p2._tasks[k]._subsetVecKeys)     Keyed.remove(key);
   }
-  Futures fs=new Futures();
-  RemoteExec[] results=new RemoteExec[csz];
-  for (int i=0; i < csz; ++i) {
-    fs.add(RPC.call(H2O.CLOUD._memary[i],results[i]=(new RemoteExec(numgrps,fr._key,rows,_fun,_fun_args))));
+  int nonnull=-1;
+  for (int i=0; i < results.length; ++i) {
+    results[i]=results[i]._result == null ? null : results[i];
+    if (results[i] != null)     nonnull=i;
   }
-  fs.blockForPending();
-  AppendableVec[] grpColz=new AppendableVec[results[0]._vs.length];
-  NewChunk[] nchkz=new NewChunk[results[0]._vs.length];
-  for (int i=0; i < nchkz.length; ++i) {
-    nchkz[i]=new NewChunk(grpColz[i]=new AppendableVec(Vec.VectorGroup.VG_LEN1.addVec()),0);
-    Vec v=DKV.get(results[0]._vs[i]).get();
-    Chunk src=v.nChunks() == 0 ? null : v.chunkForChunkIdx(0);
-    if (src == null)     continue;
- else     nchkz[i].add(src.inflate_impl(new NewChunk(src)));
+  if (nonnull == -1) {
+    env.pushAry(new Frame(Vec.makeCon(0,0)));
+    return;
   }
-  for (int i=1; i < results.length; ++i) {
-    for (int j=0; j < nchkz.length; ++j) {
-      Chunk src=((Vec)DKV.get(results[i]._vs[j]).get()).chunkForChunkIdx(0);
-      nchkz[j].add(src.inflate_impl(new NewChunk(src)));
-    }
+  final int ncols=results[nonnull]._result.length;
+  String names[]=new String[ncols];
+  String[][] domains=new String[ncols][];
+  int i=0;
+  for (; i < _cols.length; ) {
+    names[i]=fr.names()[(int)_cols[i]];
+    domains[i]=fr.domains()[(int)_cols[i++]];
   }
-  for (  Group g : p1._groups.keySet()) {
-    int c=0;
-    for (    double d : g._ds)     nchks.get(c++).addNum(d);
+  int j=1;
+  for (; i < ncols; ) {
+    names[i++]="C" + j++;
   }
-  Vec vres[]=new Vec[grpCols.size() + grpColz.length];
-  for (int i=0, j=0; i < vres.length; ++i) {
-    if (i < grpCols.size())     nchks.get(i).close(0,fs);
- else     nchkz[j].close(0,fs);
-    vres[i]=i < grpCols.size() ? grpCols.get(i).close(fs) : grpColz[j++].close(fs);
-  }
-  fs.blockForPending();
-  String[] names=new String[grpCols.size() + grpColz.length];
-  for (int i=0; i < _cols.length; i++) {
-    names[i]=fr._names[(int)_cols[i]];
-    vres[i].setDomain(fr.vecs()[(int)_cols[i]].domain());
-  }
-  Vec rm;
-  for (int i=_cols.length; i < names.length; i++)   names[i]="C" + (i - _cols.length + 1);
-  for (int i=0; i < vres.length; ++i) {
-    if (vres[i].length() == 0) {
-      Frame ff=new Frame(new String[]{"C1"},new Vec[]{vres[i]});
-      env.pushAry(ff);
-      return;
-    }
-    if (vres[0].group().equals(vres[i].group()))     continue;
-    vres[i]=vres[0].align(rm=vres[i]);
-    Keyed.remove(rm._key);
-  }
-  Frame ff=new Frame(names,vres);
-  boolean anyNA=false;
-  Frame res=ff;
-  for (  Vec v : ff.vecs())   if (v.naCnt() != 0) {
-    anyNA=true;
-    break;
-  }
-  if (anyNA) {
-    res=new MRTask(){
-      @Override public void map(      Chunk[] cs,      NewChunk[] nc){
-        int rows=cs[0]._len;
-        int cols=cs.length;
-        boolean[] NACols=new boolean[cols];
-        ArrayList<Integer> xrows=new ArrayList<>();
-        for (int i=0; i < cols; ++i)         NACols[i]=(cs[i].vec().naCnt() != 0);
-        for (int r=0; r < rows; ++r)         for (int c=0; c < cols; ++c)         if (NACols[c])         if (cs[c].isNA(r)) {
-          xrows.add(r);
-          break;
-        }
-        for (int r=0; r < rows; ++r) {
-          if (xrows.contains(r))           continue;
-          for (int c=0; c < cols; ++c) {
-            if (cs[c].vec().isEnum())             nc[c].addEnum((int)cs[c].at8(r));
- else             nc[c].addNum(cs[c].atd(r));
-          }
-        }
+  Frame fr2=new MRTask(){
+    @Override public void map(    Chunk[] c,    NewChunk[] nc){
+      int start=(int)c[0].start();
+      double d;
+      for (int i=0; i < c[0]._len; ++i) {
+        if (results[i + start] == null)         continue;
+        d=results[i + start]._result[nc.length - 1];
+        if (Double.isNaN(d))         continue;
+        for (int j=0; j < nc.length; ++j)         nc[j].addNum(results[i + start]._result[j]);
       }
     }
-.doAll(ff.numCols(),ff).outputFrame(null,ff.names(),ff.domains());
-    ff.delete();
   }
-  int chunks=(int)Math.min(4 * H2O.NUMCPUS * H2O.CLOUD.size(),res.numRows());
-  if (res.anyVec().nChunks() < chunks && res.numRows() > 10 * chunks) {
-    Key newKey=Key.make(".chunks" + chunks);
-    RebalanceDataSet rb=new RebalanceDataSet(res,newKey,chunks);
-    H2O.submitTask(rb);
-    rb.join();
-    res.delete();
-    res=DKV.getGet(newKey);
-  }
-  env.pushAry(res);
+.doAll(ncols,layoutVec).outputFrame(names,domains);
+  layoutVec.remove();
+  env.pushAry(fr2);
 }
