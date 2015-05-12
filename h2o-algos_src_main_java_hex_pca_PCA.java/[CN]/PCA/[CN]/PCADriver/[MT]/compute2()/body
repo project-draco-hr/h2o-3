@@ -12,9 +12,10 @@
     SVDModel.SVDParameters parms=new SVDModel.SVDParameters();
     parms._train=_parms._train;
     parms._ignored_columns=_parms._ignored_columns;
-    parms._dropConsCols=_parms._dropConsCols;
+    parms._ignore_const_cols=_parms._ignore_const_cols;
     parms._drop_na20_cols=_parms._drop_na20_cols;
     parms._score_each_iteration=_parms._score_each_iteration;
+    parms._useAllFactorLevels=_parms._useAllFactorLevels;
     parms._transform=_parms._transform;
     parms._nv=_parms._k;
     parms._max_iterations=_parms._max_iterations;
@@ -32,10 +33,7 @@
       if (job != null)       job.remove();
       if (svd != null)       svd.remove();
     }
-    recoverPCA(model,svd);
-    if (_parms._keep_loading)     model._output._loading_key=svd._output._u_key;
-    model._output._normSub=svd._output._normSub;
-    model._output._normMul=svd._output._normMul;
+    computeStatsFillModel(model,svd);
     model.update(_key);
     update(1);
     done();
