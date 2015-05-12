@@ -7,7 +7,7 @@ def validate_model_builder_result(result, original_params, model_name):
     elif (result['__http_response']['status_code'] != requests.codes.ok):
         error = True
         print ('FAIL: expected 200 OK from a good validation request, got: ' + str(result['__http_response']['status_code']))
-    elif (('validation_error_count' in result) and (result['validation_error_count'] > 0)):
+    elif (('error_count' in result) and (result['error_count'] > 0)):
         print 'FAIL: Parameters validation error for model: ', model_name
         error = True
     if error:
@@ -15,7 +15,7 @@ def validate_model_builder_result(result, original_params, model_name):
         pp.pprint(original_params)
         print 'Returned result: '
         pp.pprint(result)
-        assert (result['validation_error_count'] == 0), ('FAIL: Non-zero validation_error_count for model: ' + model_name)
+        assert (result['error_count'] == 0), ('FAIL: Non-zero error_count for model: ' + model_name)
     assert ('job' in result), ((('FAIL: Failed to find job key for model: ' + model_name) + ': ') + pp.pprint(result))
     job = result['job']
     assert (type(job) is dict), ((('FAIL: Job element for model is not a dict: ' + model_name) + ': ') + pp.pprint(result))
