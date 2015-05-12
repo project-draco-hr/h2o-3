@@ -1,13 +1,25 @@
 {
-  Frame tFrame=DKV.getGet(_trainFrame);
-  Frame vFrame=(_validFrame != null) ? DKV.get(_validFrame).<Frame>get() : null;
+  final Frame tFrame=DKV.getGet(_trainFrame);
+  final Frame vFrame=(_validFrame != null) ? DKV.get(_validFrame).<Frame>get() : null;
   glmModel._output.pickBestModel();
-  glmModel.score(tFrame).delete();
-  glmModel._output._training_metrics=ModelMetrics.getFromDKV(glmModel,tFrame);
-  if (vFrame != null) {
-    glmModel.score(vFrame).delete();
-    glmModel._output._validation_metrics=ModelMetrics.getFromDKV(glmModel,vFrame);
+  Futures fs=new Futures();
+  fs.add(new RecursiveAction(){
+    @Override protected void compute(){
+      glmModel.score(tFrame).delete();
+      glmModel._output._training_metrics=ModelMetrics.getFromDKV(glmModel,tFrame);
+    }
   }
+.fork());
+  if (vFrame != null) {
+    fs.add(new RecursiveAction(){
+      @Override protected void compute(){
+        glmModel.score(vFrame).delete();
+        glmModel._output._validation_metrics=ModelMetrics.getFromDKV(glmModel,vFrame);
+      }
+    }
+.fork());
+  }
+  fs.blockForPending();
   String[] names=new String[]{"Family","Link","Regularization","Number of Predictors Total","Number of Active Predictors","Number of Iterations","Training Frame"};
   String[] types=new String[]{"string","string","string","int","int","int","string"};
   String[] formats=new String[]{"%s","%s","%s","%d","%d","%d","%s"};
