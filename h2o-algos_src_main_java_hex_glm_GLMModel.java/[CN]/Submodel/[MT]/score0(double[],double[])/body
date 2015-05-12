@@ -1,14 +1,15 @@
 {
   double eta=0.0;
   final double[] b=beta();
-  if (!_parms._use_all_factor_levels) {
-    for (int i=0; i < dinfo()._catOffsets.length - 1; ++i)     if (data[i] != 0)     eta+=b[dinfo()._catOffsets[i] + (int)(data[i] - 1)];
+  for (int i=0; i < dinfo()._catOffsets.length - 1; ++i) {
+    int ival=(int)data[i];
+    if (ival != data[i])     throw new IllegalArgumentException("categorical value out of range");
+    ival+=dinfo()._catOffsets[i];
+    if (!_parms._use_all_factor_levels)     --ival;
+    if (ival >= 0 && ival < dinfo()._catOffsets[i + 1])     eta+=b[ival];
   }
- else {
-    for (int i=0; i < dinfo()._catOffsets.length - 1; ++i)     eta+=b[dinfo()._catOffsets[i] + (int)data[i]];
-  }
-  final int noff=dinfo().numStart() - dinfo()._cats;
-  for (int i=dinfo()._cats; i < data.length; ++i)   eta+=b[noff + i] * data[i];
+  int noff=dinfo().numStart() - dinfo()._cats;
+  for (int i=dinfo()._cats; i < b.length - 1 - noff; ++i)   eta+=b[noff + i] * data[i];
   eta+=b[b.length - 1];
   double mu=_parms.linkInv(eta);
   preds[0]=mu;
