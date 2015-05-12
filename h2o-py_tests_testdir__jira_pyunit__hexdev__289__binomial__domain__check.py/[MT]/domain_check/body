@@ -7,7 +7,7 @@ def domain_check(ip, port):
     actual_domain = [u'YES', u'NO']
     print 'actual domain of the response: {0}'.format(actual_domain)
     print 
-    print '-------------- GBM:'
+    print '-------------- DRF:'
     print 
     rf = h2o.random_forest(x=air_train[['Origin', 'Dest', 'Distance', 'UniqueCarrier', 'fMonth', 'fDayofMonth', 'fDayOfWeek']], y=air_train['IsDepDelayed'].asfactor(), training_frame=air_train)
     computed_domain = rf._model_json['output']['training_metrics']._metric_json['domain']
@@ -18,7 +18,7 @@ def domain_check(ip, port):
     domain_diff = list((set(computed_domain) - set(actual_domain)))
     assert (not domain_diff), "There's a difference between the actual ({0}) and the computed ({1}) domains of the The difference is {2}".format(actual_domain, computed_domain, domain_diff)
     print 
-    print '-------------- DRF:'
+    print '-------------- GBM:'
     print 
     gbm = h2o.gbm(x=air_train[['Origin', 'Dest', 'Distance', 'UniqueCarrier', 'fMonth', 'fDayofMonth', 'fDayOfWeek']], y=air_train['IsDepDelayed'].asfactor(), training_frame=air_train, distribution='bernoulli')
     computed_domain = gbm._model_json['output']['training_metrics']._metric_json['domain']
