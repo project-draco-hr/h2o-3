@@ -3,7 +3,8 @@
     if (c.isNA(i))     continue;
     double r=c.atd(i);
     int x=0;
-    for (; x < _breaks.length; x++)     if (r < _breaks[x])     break;
+    if (_h == -1)     for (; x < _breaks.length; x++)     if (r < _breaks[x])     break;
+ else     x=Math.min(_breaks.length - 1,(int)Math.floor((r - _x0) / _h));
     _counts[x]++;
     setMinMax(Double.doubleToRawLongBits(r),x);
   }

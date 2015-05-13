@@ -13,32 +13,45 @@
   Vec vec=f.anyVec();
   if (!vec.isNumeric())   throw new IllegalArgumentException("Hist only applies to single numeric columns.");
   HistTask t;
-  if (breaks != null)   t=new HistTask(breaks).doAll(vec);
+  double h;
+  double x1=vec.max();
+  double x0=vec.min();
+  if (breaks != null)   t=new HistTask(breaks,-1,-1).doAll(vec);
  else   if (algo != null) {
 switch (algo) {
 case "sturges":
       numBreaks=sturges(vec);
-    break;
+    h=(x1 - x0) / numBreaks;
+  break;
 case "rice":
-  numBreaks=rice(vec);
+numBreaks=rice(vec);
+h=(x1 - x0) / numBreaks;
 break;
 case "sqrt":
 numBreaks=sqrt(vec);
+h=(x1 - x0) / numBreaks;
 break;
 case "doane":
 numBreaks=doane(vec);
+h=(x1 - x0) / numBreaks;
 break;
 case "scott":
-numBreaks=scott(vec);
+h=scotts_h(vec);
+numBreaks=scott(vec,h);
 break;
 case "fd":
-numBreaks=fd(vec);
+h=fds_h(vec);
+numBreaks=fd(vec,h);
 break;
 default :
 numBreaks=sturges(vec);
+h=(x1 - x0) / numBreaks;
 }
-t=new HistTask(computeCuts(vec,numBreaks)).doAll(vec);
+t=new HistTask(computeCuts(vec,numBreaks),h,x0).doAll(vec);
 }
- else t=new HistTask(computeCuts(vec,numBreaks)).doAll(vec);
+ else {
+h=(x1 - x0) / numBreaks;
+t=new HistTask(computeCuts(vec,numBreaks),h,x0).doAll(vec);
+}
 System.out.println();
 }
