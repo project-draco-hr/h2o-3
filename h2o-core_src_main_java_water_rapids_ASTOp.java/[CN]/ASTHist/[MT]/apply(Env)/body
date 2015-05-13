@@ -1,0 +1,14 @@
+{
+  Val v=e.pop();
+  String algo=null;
+  int numBreaks=-1;
+  double[] breaks=null;
+  if (v instanceof ValStr)   algo=((ValStr)v)._s;
+  if (v instanceof ValDoubleList)   breaks=((ValDoubleList)v)._d;
+  if (v instanceof ValNum)   numBreaks=(int)((ValNum)v)._d;
+ else   throw new IllegalArgumentException("breaks must be a string, a list of doubles, or a number. Got: " + v.getClass());
+  Frame f=e.popAry();
+  if (f.numCols() != 1)   throw new IllegalArgumentException("Hist only applies to single numeric columns.");
+  Vec vec=f.anyVec();
+  if (!vec.isNumeric())   throw new IllegalArgumentException("Hist only applies to single numeric columns.");
+}
