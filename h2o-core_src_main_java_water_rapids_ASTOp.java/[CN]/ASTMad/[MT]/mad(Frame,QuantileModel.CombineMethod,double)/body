@@ -1,0 +1,11 @@
+{
+  final double median=ASTMedian.median(f,cm);
+  Frame abs_dev=new MRTask(){
+    @Override public void map(    Chunk c,    NewChunk nc){
+      for (int i=0; i < c._len; ++i)       nc.addNum(Math.abs(c.at8(i) - median));
+    }
+  }
+.doAll(1,f).outputFrame(null,null,null);
+  double mad=ASTMedian.median(abs_dev,cm);
+  return constant * mad;
+}

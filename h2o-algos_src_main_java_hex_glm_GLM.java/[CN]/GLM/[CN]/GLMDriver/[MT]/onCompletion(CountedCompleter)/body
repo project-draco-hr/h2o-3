@@ -16,23 +16,6 @@
       sch._objectives[i]=_objectives.get(i);
     }
   }
-  if (_parms._lambda_search) {
-    int n=_lambda_iterations.size();
-    sch._lambda_iters=new int[n];
-    sch._lambda_times=new int[n];
-    sch._scoring_lambda=new int[n];
-    sch._predictors=new int[n];
-    sch._explained_dev_train=new double[n];
-    if (_parms._valid != null)     sch._explained_dev_val=new double[n];
-    for (int i=0; i < n; ++i) {
-      sch._lambda_iters[i]=_lambda_iterations.get(i);
-      sch._lambda_times[i]=_lambda_times.get(i);
-      sch._scoring_lambda[i]=_lIds.get(i);
-      sch._predictors[i]=_lambda_nonzeros.get(i);
-      sch._explained_dev_train[i]=_explainedDevTrain.get(i);
-      if (sch._explained_dev_val != null)       sch._explained_dev_val[i]=_explainedDevVal.get(i);
-    }
-  }
   H2O.submitTask(new FinalizeAndUnlockTsk(new H2OCallback((H2OCountedCompleter)getCompleter()){
     @Override public void callback(    H2OCountedCompleter h2OCountedCompleter){
       doCleanup();
@@ -45,5 +28,5 @@
       return true;
     }
   }
-,_dest,_key,_parms._train,_parms._valid,_tInfos[0]._iter,sch));
+,_dest,_key,_parms._train,_parms._valid,_tInfos[0]._iter,sch,true));
 }

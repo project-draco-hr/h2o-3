@@ -1,13 +1,13 @@
 {
   GLM job=null;
   GLMModel model1=null, model2=null, model3=null, model4=null;
-  Frame frMM=parse_test_file("smalldata/airlines/AirlinesTrainMM.csv.zip");
+  Frame frMM=parse_test_file(Key.make("AirlinesMM"),"smalldata/airlines/AirlinesTrainMM.csv.zip");
   Frame frG=parse_test_file(Key.make("gram"),"smalldata/airlines/gram_std.csv",true);
   Vec xy=frG.remove("xy");
   frMM.remove("").remove();
   frMM.add("IsDepDelayed",frMM.remove("IsDepDelayed"));
   DKV.put(frMM._key,frMM);
-  Frame fr=parse_test_file("smalldata/airlines/AirlinesTrain.csv.zip"), res=null;
+  Frame fr=parse_test_file(Key.make("Airlines"),"smalldata/airlines/AirlinesTrain.csv.zip"), res=null;
   String[] ignoredCols=new String[]{"fYear","fMonth","fDayofMonth","fDayOfWeek","DepTime","ArrTime","IsDepDelayed_REC"};
   try {
     Scope.enter();
@@ -15,15 +15,14 @@
     params._response_column="IsDepDelayed";
     params._ignored_columns=ignoredCols;
     params._train=fr._key;
-    params._lambda=new double[]{1e-5};
+    params._lambda=new double[]{0};
     params._standardize=false;
     job=new GLM(Key.make("airlines_cat_nostd"),"Airlines with auto-expanded categoricals, no standardization",params);
     model1=job.trainModel().get();
     Frame score1=model1.score(fr);
     ModelMetricsRegressionGLM mm=(ModelMetricsRegressionGLM)ModelMetrics.getFromDKV(model1,fr);
-    Assert.assertEquals(model1.validation().residual_deviance,mm._resDev,1e-4);
-    System.out.println("NDOF = " + model1.validation().nullDOF() + ", numRows = "+ score1.numRows());
-    Assert.assertEquals(model1.validation().residual_deviance,mm._MSE * score1.numRows(),1e-4);
+    Assert.assertEquals(((ModelMetricsRegressionGLM)model1._output._training_metrics)._resDev,mm._resDev,1e-4);
+    Assert.assertEquals(((ModelMetricsRegressionGLM)model1._output._training_metrics)._resDev,mm._MSE * score1.numRows(),1e-4);
     mm.remove();
     res=model1.score(fr);
     Assert.assertTrue(model1.testJavaScoring(fr,res,1e-15));
@@ -42,8 +41,8 @@
       }
       assertEquals(xy.at(i),glmt._xy[i],1e-5);
     }
-    frG.delete();
     xy.remove();
+    params=(GLMParameters)params.clone();
     params._standardize=true;
     params._family=Family.binomial;
     params._link=Link.logit;
@@ -53,12 +52,10 @@
     params._ignored_columns=ignoredCols;
     job=new GLM(Key.make("airlines_mm"),"Airlines with pre-expanded (mode.matrix) categoricals, no standardization",params);
     model4=job.trainModel().get();
-    assertEquals(model3.validation().null_deviance,model4.validation().nullDeviance(),1e-4);
-    assertEquals(model4.validation().residual_deviance,model3.validation().residualDeviance(),model3.validation().null_deviance * 1e-3);
+    assertEquals(nullDeviance(model3),nullDeviance(model4),1e-4);
+    assertEquals(residualDeviance(model4),residualDeviance(model3),nullDeviance(model3) * 1e-3);
     HashMap<String,Double> coefs1=model1.coefficients();
     HashMap<String,Double> coefs2=model2.coefficients();
-    GLMValidation val1=model1.validation();
-    GLMValidation val2=model2.validation();
     for (    String s : coefs2.keySet()) {
       String s1=s;
       if (s.startsWith("Origin"))       s1="Origin." + s.substring(6);
@@ -67,15 +64,15 @@
       assertEquals("coeff " + s1 + " differs, "+ coefs1.get(s1)+ " != "+ coefs2.get(s),coefs1.get(s1),coefs2.get(s),1e-4);
       DKV.put(frMM._key,frMM);
     }
-    assertEquals(val1.nullDeviance(),val2.nullDeviance(),1e-4);
-    assertEquals(val1.residualDeviance(),val2.residualDeviance(),1e-4);
-    assertEquals(val1.aic,val2.aic,1e-2);
-    assertEquals(5336.918,val1.residualDeviance(),1);
-    assertEquals(6051.613,val1.nullDeviance(),1);
+    assertEquals(nullDeviance(model1),nullDeviance(model2),1e-4);
+    assertEquals(residualDeviance(model1),residualDeviance(model2),1e-4);
+    assertEquals(5336.918,residualDeviance(model1),1);
+    assertEquals(6051.613,nullDeviance(model2),1);
   }
   finally {
     fr.delete();
     frMM.delete();
+    frG.delete();
     if (res != null)     res.delete();
     if (model1 != null)     model1.delete();
     if (model2 != null)     model2.delete();

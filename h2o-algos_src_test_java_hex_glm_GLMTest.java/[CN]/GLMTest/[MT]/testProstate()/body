@@ -17,11 +17,10 @@
     model=job.trainModel().get();
     HashMap<String,Double> coefs=model.coefficients();
     for (int i=0; i < cfs1.length; ++i)     assertEquals(vals[i],coefs.get(cfs1[i]),1e-4);
-    GLMValidation val=model.validation();
-    assertEquals(512.3,val.nullDeviance(),1e-1);
-    assertEquals(378.3,val.residualDeviance(),1e-1);
-    assertEquals(371,val.resDOF());
-    assertEquals(396.3,val.aic,1e-1);
+    assertEquals(512.3,nullDeviance(model),1e-1);
+    assertEquals(378.3,residualDeviance(model),1e-1);
+    assertEquals(371,resDOF(model),0);
+    assertEquals(396.3,aic(model),1e-1);
     model.delete();
     score=model.score(fr);
     hex.ModelMetricsBinomial mm=hex.ModelMetricsBinomial.getFromDKV(model,fr);

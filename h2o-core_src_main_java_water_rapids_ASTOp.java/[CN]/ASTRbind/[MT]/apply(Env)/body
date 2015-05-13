@@ -7,7 +7,7 @@
     Frame t=env.peekAryAt(-i);
     if (t.numCols() != f1.numCols())     throw new IllegalArgumentException("Column mismatch! Expected " + f1.numCols() + " but frame has "+ t.numCols());
     for (int c=0; c < f1.numCols(); ++c) {
-      if (f1.vec(c).get_type() != t.vec(c).get_type())       throw new IllegalArgumentException("Column type mismatch! Expected type " + get_type(f1.vec(c).get_type()) + " but vec has type "+ get_type(t.vec(c).get_type()));
+      if (f1.vec(c).get_type() != t.vec(c).get_type() && (f1.vec(c).get_type() != Vec.T_BAD && t.vec(c).get_type() != Vec.T_BAD))       throw new IllegalArgumentException("Column type mismatch on column #" + c + "! Expected type "+ get_type(f1.vec(c).get_type())+ " but vec has type "+ get_type(t.vec(c).get_type()));
     }
   }
   ParallelRbinds t;
