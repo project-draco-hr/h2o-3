@@ -53,5 +53,27 @@ t=new HistTask(computeCuts(vec,numBreaks),h,x0).doAll(vec);
 h=(x1 - x0) / numBreaks;
 t=new HistTask(computeCuts(vec,numBreaks),h,x0).doAll(vec);
 }
-System.out.println();
+final double[] brks=t._breaks;
+final long[] cnts=t._counts;
+final double[] mids=t._mids;
+Vec layoutVec=Vec.makeZero(brks.length);
+fr2=new MRTask(){
+@Override public void map(Chunk[] c,NewChunk[] nc){
+int start=(int)c[0].start();
+for (int i=0; i < c[0]._len; ++i) {
+nc[0].addNum(brks[i + start]);
+if (i == 0) {
+nc[1].addNA();
+nc[2].addNA();
+}
+ else {
+nc[1].addNum(cnts[(i - 1) + start]);
+nc[2].addNum(mids[(i - 1) + start]);
+}
+}
+}
+}
+.doAll(3,layoutVec).outputFrame(null,new String[]{"breaks","counts","mids"},null);
+layoutVec.remove();
+e.pushAry(fr2);
 }
