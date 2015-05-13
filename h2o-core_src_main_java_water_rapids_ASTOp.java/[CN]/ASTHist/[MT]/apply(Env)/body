@@ -1,0 +1,44 @@
+{
+  Frame fr2;
+  Val v=e.pop();
+  String algo=null;
+  int numBreaks=-1;
+  double[] breaks=null;
+  if (v instanceof ValStr)   algo=((ValStr)v)._s.toLowerCase();
+ else   if (v instanceof ValDoubleList)   breaks=((ValDoubleList)v)._d;
+ else   if (v instanceof ValNum)   numBreaks=(int)((ValNum)v)._d;
+ else   throw new IllegalArgumentException("breaks must be a string, a list of doubles, or a number. Got: " + v.getClass());
+  Frame f=e.popAry();
+  if (f.numCols() != 1)   throw new IllegalArgumentException("Hist only applies to single numeric columns.");
+  Vec vec=f.anyVec();
+  if (!vec.isNumeric())   throw new IllegalArgumentException("Hist only applies to single numeric columns.");
+  HistTask t;
+  if (breaks != null)   t=new HistTask(breaks).doAll(vec);
+ else   if (algo != null) {
+switch (algo) {
+case "sturges":
+      numBreaks=sturges(vec);
+    break;
+case "rice":
+  numBreaks=rice(vec);
+break;
+case "sqrt":
+numBreaks=sqrt(vec);
+break;
+case "doane":
+numBreaks=doane(vec);
+break;
+case "scott":
+numBreaks=scott(vec);
+break;
+case "fd":
+numBreaks=fd(vec);
+break;
+default :
+numBreaks=sturges(vec);
+}
+t=new HistTask(computeCuts(vec,numBreaks)).doAll(vec);
+}
+ else t=new HistTask(computeCuts(vec,numBreaks)).doAll(vec);
+System.out.println();
+}
