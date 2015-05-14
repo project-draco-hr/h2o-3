@@ -55,14 +55,19 @@
             int i=0;
             int version=((Schema)dest).getSchemaVersion();
             for (            Iced impl : ((Iced[])orig_field.get(origin))) {
-              Schema s=null;
-              try {
-                s=Schema.schema(version,impl);
+              if (null == impl) {
+                translation[i++]=null;
               }
- catch (              H2ONotFoundArgumentException e) {
-                s=((Schema)dest_field.getType().getComponentType().newInstance());
+ else {
+                Schema s=null;
+                try {
+                  s=Schema.schema(version,impl);
+                }
+ catch (                H2ONotFoundArgumentException e) {
+                  s=((Schema)dest_field.getType().getComponentType().newInstance());
+                }
+                translation[i++]=s.fillFromImpl(impl);
               }
-              translation[i++]=s.fillFromImpl(impl);
             }
             dest_field.set(dest,translation);
           }
