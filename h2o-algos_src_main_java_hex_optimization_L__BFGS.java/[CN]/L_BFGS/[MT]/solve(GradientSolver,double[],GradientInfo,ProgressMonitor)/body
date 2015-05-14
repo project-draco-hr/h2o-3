@@ -6,7 +6,7 @@
   int ls_switch=0;
   double rel_improvement=1;
   boolean converged=false;
-  while (pm.progress(beta,ginfo) && ArrayUtils.linfnorm(ginfo._gradient,false) > _gradEps && rel_improvement > _objEps && iter != _maxIter) {
+  while (pm.progress(beta,ginfo) && (iter < _minIter || ArrayUtils.linfnorm(ginfo._gradient,false) > _gradEps && rel_improvement > _objEps) && iter != _maxIter) {
     double[] pk=_hist.getSearchDirection(ginfo._gradient);
     if (ArrayUtils.hasNaNsOrInfs(pk)) {
       Log.warn("LBFGS: Got NaNs in search direction.");
