@@ -1,17 +1,13 @@
 def _simple_frames_bin_rop(self, data, op):
-    if ((self._vecs is None) or (self._vecs == [])):
-        raise ValueError('Frame Removed')
     if (len(self) == 0):
         return self
+    if ((self._vecs is None) or (self._vecs == [])):
+        raise ValueError('Frame Removed')
+    self._len_check(data)
     if isinstance(data, H2OFrame):
-        return Expr(op, Expr('cbind', Expr(data._vecs)), Expr('cbind', Expr(self._vecs)), length=self.nrow())
-    elif isinstance(data, H2OVec):
-        return Expr(op, Expr('cbind', Expr([data])), Expr('cbind', Expr(self._vecs)), length=self.nrow())
-    elif isinstance(data, Expr):
-        return Expr(op, data, Expr('cbind', Expr(self._vecs)), length=self.nrow())
-    elif isinstance(data, (int, float)):
-        return Expr(op, Expr(data), Expr('cbind', Expr(self._vecs)), length=self.nrow())
-    elif isinstance(data, str):
-        return Expr(op, Expr(None, data), Expr('cbind', Expr(self._vecs)), length=self.nrow())
-    else:
-        raise NotImplementedError
+        return H2OFrame(vecs=[H2OVec(x._name, Expr(op, y, x._len_check(y))) for (x, y) in zip(self._vecs, data._vecs)])
+    if isinstance(data, H2OVec):
+        return H2OFrame(vecs=[H2OVec(x._name, Expr(op, data, x._len_check(data))) for x in self._vecs])
+    if isinstance(data, (int, float, str)):
+        return H2OFrame(vecs=[H2OVec(x._name, Expr(op, Expr(data), x, length=len(x))) for x in self._vecs])
+    raise NotImplementedError

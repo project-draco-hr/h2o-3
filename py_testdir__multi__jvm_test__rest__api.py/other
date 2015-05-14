@@ -216,46 +216,46 @@ for (algo, model_builder) in model_builders.iteritems():
     if (algo in algo_additional_default_params):
         test_parameters.update(algo_additional_default_params[algo])
     parameters_validation = a_node.validate_model_parameters(algo=algo, training_frame=None, parameters=test_parameters, timeoutSecs=240)
-    assert ('validation_error_count' in parameters_validation), 'FAIL: Failed to find validation_error_count in good-parameters parameters validation result.'
+    assert ('error_count' in parameters_validation), 'FAIL: Failed to find error_count in good-parameters parameters validation result.'
     h2o.H2O.verboseprint('Bad params validation messages: ', repr(parameters_validation))
     expected_count = 0
-    if (expected_count != parameters_validation['validation_error_count']):
+    if (expected_count != parameters_validation['error_count']):
         print 'validation errors: '
         pp.pprint(parameters_validation)
-    assert (expected_count == parameters_validation['validation_error_count']), (('FAIL: ' + str(expected_count)) + ' != validation_error_count in good-parameters parameters validation result.')
+    assert (expected_count == parameters_validation['error_count']), (('FAIL: ' + str(expected_count)) + ' != error_count in good-parameters parameters validation result.')
 model_builder = a_node.model_builders(algo='deeplearning', timeoutSecs=240)['model_builders']['deeplearning']
 dl_test_parameters_list = model_builder['parameters']
 dl_test_parameters = {value['name']: value['default_value'] for value in dl_test_parameters_list}
 parameters_validation = a_node.validate_model_parameters(algo='deeplearning', training_frame=None, parameters=dl_test_parameters, timeoutSecs=240)
-assert ('validation_error_count' in parameters_validation), 'FAIL: Failed to find validation_error_count in good-parameters parameters validation result.'
+assert ('error_count' in parameters_validation), 'FAIL: Failed to find error_count in good-parameters parameters validation result.'
 h2o.H2O.verboseprint('Bad params validation messages: ', repr(parameters_validation))
-if (0 != parameters_validation['validation_error_count']):
+if (0 != parameters_validation['error_count']):
     print 'validation errors: '
     pp.pprint(parameters_validation)
-assert (0 == parameters_validation['validation_error_count']), 'FAIL: 0 != validation_error_count in good-parameters parameters validation result.'
+assert (0 == parameters_validation['error_count']), 'FAIL: 0 != error_count in good-parameters parameters validation result.'
 dl_test_parameters = {'response_column': 'CAPSULE', 'hidden': '[10, 20, 10]', }
 parameters_validation = a_node.validate_model_parameters(algo='deeplearning', training_frame=None, parameters=dl_test_parameters, timeoutSecs=240)
-assert ('validation_error_count' in parameters_validation), 'FAIL: Failed to find validation_error_count in good-parameters parameters validation result.'
+assert ('error_count' in parameters_validation), 'FAIL: Failed to find error_count in good-parameters parameters validation result.'
 h2o.H2O.verboseprint('Bad params validation messages: ', repr(parameters_validation))
-if (0 != parameters_validation['validation_error_count']):
+if (0 != parameters_validation['error_count']):
     print 'validation errors: '
     pp.pprint(parameters_validation)
-assert (0 == parameters_validation['validation_error_count']), 'FAIL: 0 != validation_error_count in good-parameters parameters validation result.'
+assert (0 == parameters_validation['error_count']), 'FAIL: 0 != error_count in good-parameters parameters validation result.'
 dl_test_parameters = {'response_column': 'CAPSULE', 'hidden': '[10, 20, 10]', 'input_dropout_ratio': 27, }
 parameters_validation = a_node.validate_model_parameters(algo='deeplearning', training_frame=None, parameters=dl_test_parameters, timeoutSecs=240)
-assert ('validation_error_count' in parameters_validation), 'FAIL: Failed to find validation_error_count in bad-parameters parameters validation result (input_dropout_ratio).'
+assert ('error_count' in parameters_validation), 'FAIL: Failed to find error_count in bad-parameters parameters validation result (input_dropout_ratio).'
 h2o.H2O.verboseprint('Good params validation messages: ', repr(parameters_validation))
-assert (0 != parameters_validation['validation_error_count']), ('FAIL: 0 == validation_error_count in bad-parameters parameters validation result: ' + repr(parameters_validation))
+assert (0 != parameters_validation['error_count']), ('FAIL: 0 == error_count in bad-parameters parameters validation result: ' + repr(parameters_validation))
 found_expected_error = False
-for validation_message in parameters_validation['validation_messages']:
+for validation_message in parameters_validation['messages']:
     if ((validation_message['message_type'] == 'ERROR') and (validation_message['field_name'] == 'input_dropout_ratio')):
         found_expected_error = True
 assert found_expected_error, 'FAIL: Failed to find error message about input_dropout_ratio in the validation messages.'
 dl_test_parameters = {'hidden': '[10, 20, 10]', }
 parameters_validation = a_node.validate_model_parameters(algo='deeplearning', training_frame='prostate_binomial', parameters=dl_test_parameters, timeoutSecs=240)
-assert ('validation_error_count' in parameters_validation), 'FAIL: Failed to find validation_error_count in bad-parameters parameters validation result (response_column).'
+assert ('error_count' in parameters_validation), 'FAIL: Failed to find error_count in bad-parameters parameters validation result (response_column).'
 h2o.H2O.verboseprint('Good params validation messages: ', repr(parameters_validation))
-assert (0 != parameters_validation['validation_error_count']), ('FAIL: 0 == validation_error_count in bad-parameters parameters validation result: ' + repr(parameters_validation))
+assert (0 != parameters_validation['error_count']), ('FAIL: 0 == error_count in bad-parameters parameters validation result: ' + repr(parameters_validation))
 if verbose:
     print 'About to try to build a DeepLearning model with bad parameters. . .'
 dl_prostate_bad_parameters = {'response_column': 'CAPSULE', 'hidden': '[10, 20, 10]', 'input_dropout_ratio': 27, }

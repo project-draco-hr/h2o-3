@@ -15,7 +15,7 @@ def build_model(self, algo, training_frame, parameters, model_id=None, timeoutSe
     result = self.__do_json_request(('/3/ModelBuilders/' + algo), cmd='post', timeout=timeoutSecs, postData=parameters, raiseIfNon200=False)
     if asynchronous:
         return result
-    elif (('validation_error_count' in result) and (result['validation_error_count'] > 0)):
+    elif (('error_count' in result) and (result['error_count'] > 0)):
         return result
     elif (result['__http_response']['status_code'] != 200):
         return result

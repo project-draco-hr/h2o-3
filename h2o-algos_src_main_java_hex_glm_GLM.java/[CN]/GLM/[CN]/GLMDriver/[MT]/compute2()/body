@@ -1,6 +1,9 @@
 {
   init(true);
-  if (error_count() > 0)   throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(GLM.this);
+  if (error_count() > 0) {
+    GLM.this.updateValidationMessages();
+    throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(GLM.this);
+  }
   _parms.read_lock_frames(GLM.this);
   if (_parms._n_folds != 0)   throw H2O.unimpl();
   new GLMSingleLambdaTsk(new LambdaSearchIteration(this),_tInfos[0]).fork();
