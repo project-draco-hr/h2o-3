@@ -1,32 +1,5 @@
 {
-  getCompleter().addToPendingCount(1);
-  ScoringHistory sch=new ScoringHistory();
-  if (!_scoring_iters.isEmpty()) {
-    int n=_scoring_iters.size();
-    sch._scoring_iters=new int[n];
-    sch._scoring_times=new long[n];
-    sch._per_iteration_times=new int[n];
-    sch._objectives=new double[n];
-    sch._likelihoods=new double[n];
-    for (int i=0; i < n; ++i) {
-      sch._scoring_iters[i]=_scoring_iters.get(i);
-      sch._scoring_times[i]=_scoring_times.get(i);
-      sch._per_iteration_times[i]=_iteration_times.get(i);
-      sch._likelihoods[i]=_likelihoods.get(i);
-      sch._objectives[i]=_objectives.get(i);
-    }
-  }
-  H2O.submitTask(new FinalizeAndUnlockTsk(new H2OCallback((H2OCountedCompleter)getCompleter()){
-    @Override public void callback(    H2OCountedCompleter h2OCountedCompleter){
-      doCleanup();
-      done();
-    }
-    @Override public boolean onExceptionalCompletion(    Throwable ex,    CountedCompleter cc){
-      doCleanup();
-      failed(ex);
-      new RemoveCall(null,_dest).invokeTask();
-      return true;
-    }
-  }
-,_dest,_key,_parms._train,_parms._valid,_tInfos[0]._iter,sch,true));
+  _model.unlock(GLM.this._key);
+  doCleanup();
+  done();
 }
