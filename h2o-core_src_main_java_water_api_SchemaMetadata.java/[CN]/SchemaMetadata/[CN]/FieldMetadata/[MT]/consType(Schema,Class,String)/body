@@ -6,7 +6,7 @@
   if (clz.equals(Boolean.TYPE) || clz.equals(Byte.TYPE) || clz.equals(Short.TYPE)|| clz.equals(Integer.TYPE)|| clz.equals(Long.TYPE)|| clz.equals(Float.TYPE)|| clz.equals(Double.TYPE))   return clz.toString();
   if (is_array)   return consType(schema,clz.getComponentType(),field_name) + "[]";
   if (Map.class.isAssignableFrom(clz)) {
-    if (IcedHashMap.class == clz.getSuperclass()) {
+    if (IcedHashMapBase.class.isAssignableFrom(clz)) {
       return "Map<" + ReflectionUtils.findActualClassParameter(clz,0).getSimpleName() + ","+ ReflectionUtils.findActualClassParameter(clz,1).getSimpleName()+ ">";
     }
  else {
