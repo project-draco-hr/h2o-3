@@ -6,14 +6,14 @@
   rows=fr.numRows();
   row_count=(int)Math.min(len2,rows);
   byte_size=fr.byteSize();
-  columns=new ColV2[fr.numCols()];
+  columns=new ColV3[fr.numCols()];
   Key[] keys=fr.keys();
   if (keys != null && keys.length > 0) {
     vec_ids=new VecKeyV3[keys.length];
     for (int i=0; i < keys.length; i++)     vec_ids[i]=new VecKeyV3(keys[i]);
   }
   Vec[] vecs=fr.vecs();
-  for (int i=0; i < columns.length; i++)   columns[i]=new ColV2(fr._names[i],vecs[i],row_offset,row_count);
+  for (int i=0; i < columns.length; i++)   columns[i]=new ColV3(fr._names[i],vecs[i],row_offset,row_count);
   is_text=fr.numCols() == 1 && vecs[0] instanceof ByteVec;
   default_percentiles=Vec.PERCENTILES;
   this.checksum=fr.checksum();

@@ -6,11 +6,11 @@
   if (s.find_compatible_models) {
     Model[] compatible=Frames.findCompatibleModels(frame,Models.fetchAll());
     s.compatible_models=new ModelSchema[compatible.length];
-    s.frames[0].compatible_models=new String[compatible.length];
+    ((FrameV3)s.frames[0]).compatible_models=new String[compatible.length];
     int i=0;
     for (    Model m : compatible) {
       s.compatible_models[i]=(ModelSchema)Schema.schema(version,m).fillFromImpl(m);
-      s.frames[0].compatible_models[i]=m._key.toString();
+      ((FrameV3)s.frames[0]).compatible_models[i]=m._key.toString();
       i++;
     }
   }

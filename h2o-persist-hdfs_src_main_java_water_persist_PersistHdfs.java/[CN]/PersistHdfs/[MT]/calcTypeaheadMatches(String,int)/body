@@ -1,6 +1,7 @@
 {
   Configuration conf=PersistHdfs.CONF;
-  if (S3N_BARE_BUCKET.matcher(filter).matches()) {
+  filter=convertS3toS3N(filter);
+  if (isBareS3NBucketWithoutTrailingSlash(filter)) {
     filter+="/";
   }
   ArrayList<String> array=new ArrayList<String>();
