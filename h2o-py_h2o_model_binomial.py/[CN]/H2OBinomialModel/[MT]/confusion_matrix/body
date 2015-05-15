@@ -1,8 +1,6 @@
-def confusion_matrix(self, metric='f1', train=False, valid=False):
-    '\n    Get the confusion matrix for the specified metric\n    If both train and valid are False, return the train.\n    If both train and valid are True, return the valid.\n\n    :param metric: A string in {"min_per_class_accuracy", "absolute_MCC", "tnr", "fnr", "fpr", "tpr", "precision", "error", "accuracy", "f0point5", "f2", "f1"}\n    :param train: Return the max per class error for training data.\n    :param valid: Return the max per class error for the validation data.\n    :return: the confusion matrix for the metric\n    '
-    print 'Confusion matrix for metric: ', metric
-    print 
+def confusion_matrix(self, metrics=None, thresholds=None, train=False, valid=False):
+    '\n    Get the confusion matrix for the specified metrics/thresholds\n    If both train and valid are False, return the train.\n    If both train and valid are True, return the valid.\n\n    :param metrics: A string (or list of strings) in {"min_per_class_accuracy", "absolute_MCC", "tnr", "fnr", "fpr", "tpr", "precision", "accuracy", "f0point5", "f2", "f1"}\n    :param thresholds: A value (or list of values) between 0 and 1\n    :param train: Return the max per class error for training data.\n    :param valid: Return the max per class error for the validation data.\n    :return: a list of ConfusionMatrix objects (if there are more than one to return), or a single ConfusionMatrix (if there is only one)\n    '
     tm = ModelBase._get_metrics(self, *ModelBase._train_or_valid(train, valid))
     if (tm is None):
         return None
-    return tm.confusion_matrix(metric=metric)
+    return tm.confusion_matrix(metrics=metrics, thresholds=thresholds)
