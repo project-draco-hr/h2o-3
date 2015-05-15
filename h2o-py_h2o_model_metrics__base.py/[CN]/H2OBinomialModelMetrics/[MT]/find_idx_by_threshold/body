@@ -7,4 +7,11 @@ def find_idx_by_threshold(self, threshold):
         t = float(e[0])
         if (abs((t - threshold)) < (1e-08 * max(t, threshold))):
             return i
-    raise ValueError(('No threshold ' + str(threshold)))
+    if ((threshold >= 0) and (threshold <= 1)):
+        thresholds = [float(e[0]) for (i, e) in enumerate(thresh2d.cell_values)]
+        threshold_diffs = [abs((t - threshold)) for t in thresholds]
+        closest_idx = threshold_diffs.index(min(threshold_diffs))
+        closest_threshold = thresholds[closest_idx]
+        print 'Could not find exact threshold {0}; using closest threshold found {1}.'.format(threshold, closest_threshold)
+        return closest_idx
+    raise ValueError('Threshold must be between 0 and 1, but got {0} '.format(threshold))
