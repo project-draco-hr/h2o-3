@@ -1,4 +1,4 @@
-def __init__(self, cm, domains=None):
+def __init__(self, cm, domains=None, table_header=None):
     if (not cm):
         raise ValueError('Missing data, `cm_raw` is None')
     if (not isinstance(cm, list)):
@@ -23,7 +23,8 @@ def __init__(self, cm, domains=None):
     class_errs[i] = (float('nan') if (totals[(-1)] == 0) else round((float(class_errs[(-1)]) / float(totals[(-1)])), self.ROUND))
     class_err_strings[(-1)] = class_err_strings[(-1)]
     cell_values[(-1)] = ((totals[0:(-1)] + [str(class_errs[(-1)])]) + [class_err_strings[(-1)]])
-    table_header = 'Confusion Matrix (Act/Pred)'
+    if (table_header is None):
+        table_header = 'Confusion Matrix (Act/Pred)'
     col_header = ['']
     if (domains is not None):
         import copy
