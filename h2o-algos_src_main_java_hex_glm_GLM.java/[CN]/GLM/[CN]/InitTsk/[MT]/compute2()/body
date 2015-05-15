@@ -10,6 +10,10 @@
         if (_intercept)         beta[beta.length - 1]=_parms.link(ymut._ymu);
         if (_bc._betaStart == null)         _bc.setBetaStart(beta);
         _gtNull=new GLMGradientTask(_dinfo,_parms,0,beta,1.0 / ymut._nobs,_rowFilter,InitTsk.this).setValidate(ymu,true).asyncExec(_dinfo._adaptedFrame);
+        if (_validDinfo != null) {
+          InitTsk.this.addToPendingCount(1);
+          _gtNullTest=new GLMGradientTask(_validDinfo,_parms,0,beta,1.0,null,InitTsk.this).setValidate(ymu,true).asyncExec(_validDinfo._adaptedFrame);
+        }
         if (beta != _bc._betaStart) {
           InitTsk.this.addToPendingCount(1);
           _gtBetaStart=new GLMGradientTask(_dinfo,_parms,0,_bc._betaStart,1.0 / ymut._nobs,_rowFilter,InitTsk.this).setValidate(ymu,true).asyncExec(_dinfo._adaptedFrame);

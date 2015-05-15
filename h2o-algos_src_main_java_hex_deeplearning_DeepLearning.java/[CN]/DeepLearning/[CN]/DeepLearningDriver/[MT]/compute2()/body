@@ -3,11 +3,11 @@
     byte[] cs=new AutoBuffer().put(_parms).buf();
     Scope.enter();
     init(true);
+    _parms.read_lock_frames(DeepLearning.this);
     if (error_count() > 0) {
       DeepLearning.this.updateValidationMessages();
       throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(DeepLearning.this);
     }
-    _parms.read_lock_frames(DeepLearning.this);
     buildModel();
     byte[] cs2=new AutoBuffer().put(_parms).buf();
     assert(Arrays.equals(cs,cs2));
