@@ -2,13 +2,19 @@
   List<String> colHeaders=new ArrayList<>();
   List<String> colTypes=new ArrayList<>();
   List<String> colFormat=new ArrayList<>();
-  colHeaders.add("Number of Iterations");
+  colHeaders.add("Timestamp");
+  colTypes.add("string");
+  colFormat.add("%s");
+  colHeaders.add("Duration");
+  colTypes.add("string");
+  colFormat.add("%s");
+  colHeaders.add("Iteration");
   colTypes.add("long");
   colFormat.add("%d");
-  colHeaders.add("Average Change of Standardized Centroids");
+  colHeaders.add("Avg. Change of Std. Centroids");
   colTypes.add("double");
   colFormat.add("%.5f");
-  colHeaders.add("Average Within Cluster Sum of Squares");
+  colHeaders.add("Within Cluster Sum Of Squares");
   colTypes.add("double");
   colFormat.add("%.5f");
   final int rows=output._avg_centroids_chg.length;
@@ -18,9 +24,12 @@
     int col=0;
     assert(row < table.getRowDim());
     assert(col < table.getColDim());
+    DateTimeFormatter fmt=DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    table.set(row,col++,fmt.print(output._training_time_ms[i]));
+    table.set(row,col++,PrettyPrint.msecs(output._training_time_ms[i] - _start_time,true));
     table.set(row,col++,i);
     table.set(row,col++,output._avg_centroids_chg[i]);
-    table.set(row,col++,output._history_avg_within_ss[i]);
+    table.set(row,col++,output._history_withinss[i]);
     row++;
   }
   return table;

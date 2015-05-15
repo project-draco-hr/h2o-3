@@ -1,5 +1,7 @@
 def cbind(self, data):
     '\n    :param data: H2OFrame or H2OVec to cbind to self\n    :return: void\n    '
+    if ((self._vecs is None) or (self._vecs == [])):
+        raise ValueError('Frame Removed')
     if isinstance(data, H2OFrame):
         num_vecs = len(data._vecs)
         for vidx in range(num_vecs):

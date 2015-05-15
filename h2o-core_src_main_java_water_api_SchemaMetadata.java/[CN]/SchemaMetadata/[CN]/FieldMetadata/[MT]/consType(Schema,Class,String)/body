@@ -6,7 +6,7 @@
   if (clz.equals(Boolean.TYPE) || clz.equals(Byte.TYPE) || clz.equals(Short.TYPE)|| clz.equals(Integer.TYPE)|| clz.equals(Long.TYPE)|| clz.equals(Float.TYPE)|| clz.equals(Double.TYPE))   return clz.toString();
   if (is_array)   return consType(schema,clz.getComponentType(),field_name) + "[]";
   if (Map.class.isAssignableFrom(clz)) {
-    if (IcedHashMap.class == clz.getSuperclass()) {
+    if (IcedHashMapBase.class.isAssignableFrom(clz)) {
       return "Map<" + ReflectionUtils.findActualClassParameter(clz,0).getSimpleName() + ","+ ReflectionUtils.findActualClassParameter(clz,1).getSimpleName()+ ">";
     }
  else {
@@ -32,7 +32,7 @@
  else {
       if (schema instanceof ModelParameterSchemaV3 && ("default_value".equals(field_name) || "actual_value".equals(field_name)))       return "Polymorphic";
       if ((schema instanceof FieldMetadataV3 || schema instanceof FieldMetadataBase) && "value".equals(field_name))       return "Polymorphic";
-      if ((schema instanceof TwoDimTableV3 && "data".equals(field_name)))       return "Polymorphic";
+      if (((schema instanceof TwoDimTableBase || schema instanceof TwoDimTableV3) && "data".equals(field_name)))       return "Polymorphic";
       Log.warn("WARNING: found non-Schema Iced field: " + clz.toString() + " in Schema: "+ schema.getClass()+ " field: "+ field_name);
       return clz.getSimpleName();
     }

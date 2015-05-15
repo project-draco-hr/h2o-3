@@ -4,10 +4,17 @@
   int iter=0;
   boolean doLineSearch=true;
   int ls_switch=0;
-  while (pm.progress(beta,ginfo) && MathUtils.l2norm2(ginfo._gradient) > _gradEps && iter != _maxIter) {
+  double rel_improvement=1;
+  boolean converged=false;
+  while (pm.progress(beta,ginfo) && (iter < _minIter || ArrayUtils.linfnorm(ginfo._gradient,false) > _gradEps && rel_improvement > _objEps) && iter != _maxIter) {
     double[] pk=_hist.getSearchDirection(ginfo._gradient);
+    if (ArrayUtils.hasNaNsOrInfs(pk)) {
+      Log.warn("LBFGS: Got NaNs in search direction.");
+      break;
+    }
+    double lsVal=Double.POSITIVE_INFINITY;
     if (doLineSearch) {
-      LineSearchSol ls=gslvr.doLineSearch(ginfo,beta,pk,gslvr._stepDec);
+      LineSearchSol ls=gslvr.doLineSearch(ginfo,beta,pk,24,.5);
       if (ls.step == 1) {
         if (++ls_switch == 2) {
           ls_switch=0;
@@ -17,19 +24,23 @@
  else {
         ls_switch=0;
       }
-      if (ls.madeProgress || _hist._k < _hist._m) {
+      if (ls.madeProgress || _hist._k < 2) {
+        lsVal=ls.objVal;
         ArrayUtils.wadd(beta,pk,ls.step);
       }
- else       break;
+ else {
+        break;
+      }
     }
  else     ArrayUtils.add(beta,pk);
     GradientInfo newGinfo=gslvr.getGradient(beta);
+    if (doLineSearch && !(Double.isNaN(lsVal) && Double.isNaN(newGinfo._objVal)) && Math.abs(lsVal - newGinfo._objVal) > 1e-10 * lsVal)     throw new IllegalArgumentException("L-BFGS: Got invalid gradient solver, objective values from line-search and gradient tasks differ, " + lsVal + " != "+ newGinfo._objVal);
     if (!doLineSearch)     if (!admissibleStep(1,ginfo._objVal,newGinfo._objVal,pk,ginfo._gradient)) {
       if (++ls_switch == 2) {
         doLineSearch=true;
         ls_switch=0;
       }
-      if (ginfo._objVal < newGinfo._objVal && (newGinfo._objVal - ginfo._objVal > .001 * ginfo._objVal)) {
+      if (ginfo._objVal < newGinfo._objVal && (newGinfo._objVal - ginfo._objVal > _objEps * ginfo._objVal)) {
         doLineSearch=true;
         ArrayUtils.subtract(beta,pk,beta);
         continue;
@@ -38,8 +49,8 @@
  else     ls_switch=0;
     ++iter;
     _hist.update(pk,newGinfo._gradient,ginfo._gradient);
+    rel_improvement=(ginfo._objVal - newGinfo._objVal) / ginfo._objVal;
     ginfo=newGinfo;
   }
-  Log.info("L_BFGS done after " + iter + " iterations, objval = "+ ginfo._objVal+ ", gradient norm2 = "+ MathUtils.l2norm2(ginfo._gradient));
-  return new Result(iter,beta,ginfo);
+  return new Result(iter < _maxIter || ArrayUtils.linfnorm(ginfo._gradient,false) < _gradEps || rel_improvement < _objEps,iter,beta,ginfo);
 }

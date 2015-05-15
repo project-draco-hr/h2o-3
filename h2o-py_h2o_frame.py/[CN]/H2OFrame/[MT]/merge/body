@@ -1,5 +1,7 @@
 def merge(self, other, allLeft=False, allRite=False):
-    '\n    Merge two datasets based on common column names\n    :param other: Other dataset to merge.  Must have at least one column in\n    common with self, and all columns in common are used as the merge key.  If\n    you want to use only a subset of the columns in common, rename the other\n    columns so the columns are unique in the merged result.\n    :param allLeft: If true, include all rows from the left/self frame\n    :param allRite: If true, include all rows from the right/other frame\n    :return: Original self frame enhanced with merged columns and rows\n    '
+    '\n    Merge two datasets based on common column names\n\n    :param other: Other dataset to merge.  Must have at least one column in common with self, and all columns in common are used as the merge key.  If you want to use only a subset of the columns in common, rename the other columns so the columns are unique in the merged result.\n    :param allLeft: If true, include all rows from the left/self frame\n    :param allRite: If true, include all rows from the right/other frame\n    :return: Original self frame enhanced with merged columns and rows\n    '
+    if ((self._vecs is None) or (self._vecs == [])):
+        raise ValueError('Frame Removed')
     for v0 in self._vecs:
         for v1 in other._vecs:
             if (v0._name == v1._name):
@@ -17,7 +19,9 @@ def merge(self, other, allLeft=False, allRite=False):
     j = h2o.frame(tmp_key)
     fr = j['frames'][0]
     rows = fr['rows']
-    veckeys = fr['vec_keys']
+    veckeys = fr['vec_ids']
     cols = fr['columns']
     colnames = [col['label'] for col in cols]
-    return H2OFrame(vecs=H2OVec.new_vecs(zip(colnames, veckeys), rows))
+    vecs = H2OVec.new_vecs(zip(colnames, veckeys), rows)
+    h2o.removeFrameShallow(tmp_key)
+    return H2OFrame(vecs=vecs)

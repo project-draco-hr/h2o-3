@@ -1,0 +1,92 @@
+{
+  GLRMModel model=null;
+  DataInfo dinfo=null, xinfo=null, tinfo=null;
+  Frame fr=null, x=null;
+  try {
+    _parms.read_lock_frames(GLRM.this);
+    init(true);
+    if (error_count() > 0)     throw new IllegalArgumentException("Found validation errors: " + validationErrors());
+    model=new GLRMModel(dest(),_parms,new GLRMModel.GLRMOutput(GLRM.this));
+    model.delete_and_lock(_key);
+    Vec[] vecs=new Vec[_ncolA + 2 * _ncolX];
+    for (int i=0; i < _ncolA; i++)     vecs[i]=_train.vec(i);
+    for (int i=_ncolA; i < vecs.length; i++)     vecs[i]=_train.anyVec().makeRand(_parms._seed);
+    fr=new Frame(null,vecs);
+    dinfo=new DataInfo(Key.make(),fr,null,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false);
+    DKV.put(dinfo._key,dinfo);
+    model._output._normSub=dinfo._normSub == null ? new double[dinfo._nums] : dinfo._normSub;
+    if (dinfo._normMul == null) {
+      model._output._normMul=new double[dinfo._nums];
+      Arrays.fill(model._output._normMul,1.0);
+    }
+ else     model._output._normMul=dinfo._normMul;
+    double nobs=_train.numRows() * _train.numCols();
+    tinfo=new DataInfo(Key.make(),_train,null,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false);
+    DKV.put(tinfo._key,tinfo);
+    double[][] yt=ArrayUtils.transpose(initialY(tinfo));
+    ObjCalc objtsk=new ObjCalc(dinfo,_parms,yt,_ncolA,_ncolX,model._output._normSub,model._output._normMul,true).doAll(dinfo._adaptedFrame);
+    model._output._objective=objtsk._loss + _parms._gamma_x * objtsk._xold_reg + _parms._gamma_y * _parms.regularize_y(yt);
+    model._output._iterations=0;
+    model._output._avg_change_obj=2 * TOLERANCE;
+    boolean overwriteX=false;
+    double step=_parms._init_step_size;
+    int steps_in_row=0;
+    while (!isDone(model,steps_in_row,step)) {
+      UpdateX xtsk=new UpdateX(dinfo,_parms,yt,step / _ncolA,overwriteX,_ncolA,_ncolX,model._output._normSub,model._output._normMul);
+      xtsk.doAll(dinfo._adaptedFrame);
+      UpdateY ytsk=new UpdateY(dinfo,_parms,yt,step / _ncolA,_ncolA,_ncolX,model._output._normSub,model._output._normMul);
+      double[][] ytnew=ytsk.doAll(dinfo._adaptedFrame)._ytnew;
+      objtsk=new ObjCalc(dinfo,_parms,ytnew,_ncolA,_ncolX,model._output._normSub,model._output._normMul).doAll(dinfo._adaptedFrame);
+      double obj_new=objtsk._loss + _parms._gamma_x * xtsk._xreg + _parms._gamma_y * ytsk._yreg;
+      model._output._avg_change_obj=(model._output._objective - obj_new) / nobs;
+      model._output._iterations++;
+      if (model._output._avg_change_obj > 0) {
+        yt=ytnew;
+        model._output._objective=obj_new;
+        step*=1.05;
+        steps_in_row=Math.max(1,steps_in_row + 1);
+        overwriteX=true;
+      }
+ else {
+        step=step / Math.max(1.5,-steps_in_row);
+        steps_in_row=Math.min(0,steps_in_row - 1);
+        overwriteX=false;
+      }
+      model.update(_key);
+      update(1);
+    }
+    Vec[] xvecs=new Vec[_ncolX];
+    for (int i=0; i < _ncolX; i++)     xvecs[i]=fr.vec(idx_xnew(i,_ncolA,_ncolX));
+    x=new Frame(_parms._loading_key,null,xvecs);
+    xinfo=new DataInfo(Key.make(),x,null,0,true,DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,false,false);
+    DKV.put(x._key,x);
+    DKV.put(xinfo._key,xinfo);
+    model._output._loading_key=_parms._loading_key;
+    model._output._archetypes=yt;
+    model._output._step_size=step;
+    if (_parms._recover_pca)     recoverPCA(model,xinfo);
+    done();
+  }
+ catch (  Throwable t) {
+    Job thisJob=DKV.getGet(_key);
+    if (thisJob._state == JobState.CANCELLED) {
+      Log.info("Job cancelled by user.");
+    }
+ else {
+      t.printStackTrace();
+      failed(t);
+      throw t;
+    }
+  }
+ finally {
+    _parms.read_unlock_frames(GLRM.this);
+    if (model != null)     model.unlock(_key);
+    if (dinfo != null)     dinfo.remove();
+    if (xinfo != null)     xinfo.remove();
+    if (tinfo != null)     tinfo.remove();
+    if (fr != null) {
+      for (int i=0; i < _ncolX; i++)       fr.vec(idx_xold(i,_ncolA)).remove();
+    }
+  }
+  tryComplete();
+}

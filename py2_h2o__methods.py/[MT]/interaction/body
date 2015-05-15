@@ -1,0 +1,11 @@
+def interaction(self, timeoutSecs=120, noPoll=False, **kwargs):
+    params_dict = {}
+    check_params_update_kwargs(params_dict, kwargs, 'interaction', print_params=True)
+    firstResult = self.do_json_request('3/Interaction.json', cmd='post', timeout=timeoutSecs, params=params_dict)
+    job_key = firstResult['dest']['name']
+    if noPoll:
+        h2o_sandbox.check_sandbox_for_errors()
+        return firstResult
+    result = self.poll_job(job_key)
+    verboseprint('interaction result:', dump_json(result))
+    return result

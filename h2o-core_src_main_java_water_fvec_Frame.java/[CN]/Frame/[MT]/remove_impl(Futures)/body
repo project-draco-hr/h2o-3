@@ -1,7 +1,15 @@
 {
-  for (  Vec v : vecs())   if (v != null)   v.remove(fs);
+  final Key[] keys=_keys;
+  if (keys.length == 0)   return fs;
+  final int ncs=anyVec().nChunks();
   _names=new String[0];
   _vecs=new Vec[0];
   _keys=new Key[0];
+  new MRTask(){
+    @Override public void setupLocal(){
+      for (      Key k : keys)       if (k != null)       Vec.bulk_remove(k,ncs,_fs);
+    }
+  }
+.doAllNodes();
   return fs;
 }

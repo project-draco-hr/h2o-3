@@ -1,15 +1,5 @@
 {
-  getCompleter().addToPendingCount(1);
-  H2O.submitTask(new FinalizeAndUnlockTsk(new H2OCallback((H2OCountedCompleter)getCompleter()){
-    @Override public void callback(    H2OCountedCompleter h2OCountedCompleter){
-      doCleanup();
-      done();
-    }
-    @Override public boolean onExceptionalCompletion(    Throwable ex,    CountedCompleter cc){
-      doCleanup();
-      new RemoveCall(null,_dest).invokeTask();
-      return true;
-    }
-  }
-,_dest,_key,_valid != null ? _valid._key : null));
+  _model.unlock(GLM.this._key);
+  doCleanup();
+  done();
 }

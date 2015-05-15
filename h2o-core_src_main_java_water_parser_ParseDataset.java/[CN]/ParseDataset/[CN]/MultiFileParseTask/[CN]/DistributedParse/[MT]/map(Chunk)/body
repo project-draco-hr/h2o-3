@@ -1,0 +1,28 @@
+{
+  Log.trace("Begin a map stage parsing chunk " + in.cidx() + " with start index "+ _startChunkIdx+ ".");
+  AppendableVec[] avs=new AppendableVec[_setup._number_columns];
+  for (int i=0; i < avs.length; ++i)   avs[i]=new AppendableVec(_vg.vecKey(_vecIdStart + i),_espc,_startChunkIdx);
+  Categorical[] enums=enums(_eKey,_setup._number_columns);
+  FVecParseReader din=new FVecParseReader(in);
+  FVecParseWriter dout;
+  Parser p;
+switch (_setup._parse_type) {
+case ARFF:
+case CSV:
+    p=new CsvParser(_setup);
+  dout=new FVecParseWriter(_vg,_startChunkIdx + in.cidx(),enums,_setup._column_types,_setup._chunk_size,avs);
+break;
+case SVMLight:
+p=new SVMLightParser(_setup);
+dout=new SVMLightFVecParseWriter(_vg,_vecIdStart,in.cidx() + _startChunkIdx,enums,_setup._chunk_size,avs);
+break;
+default :
+throw H2O.unimpl();
+}
+p.parseChunk(in.cidx(),din,dout);
+(_dout=dout).close(_fs);
+Job.update(in._len,_job_key);
+freeMem(in,0);
+freeMem(in,1);
+Log.trace("Finished a map stage parsing chunk " + in.cidx() + " with start index "+ _startChunkIdx+ ".");
+}

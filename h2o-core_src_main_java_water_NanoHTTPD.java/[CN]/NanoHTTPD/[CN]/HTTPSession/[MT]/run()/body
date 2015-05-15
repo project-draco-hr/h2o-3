@@ -1,6 +1,5 @@
 {
   try (Socket mySocket=this.mySocket){
-    long startMillis=System.currentTimeMillis();
     InputStream is=new BufferedInputStream(mySocket.getInputStream());
     is.mark(MAX_HEADER_BUFFER_SIZE);
     int bufsize=8192;
@@ -66,6 +65,9 @@
         if (st.countTokens() != 2)         sendError(HTTP_BADREQUEST,"BAD REQUEST: Content type is multipart/form-data but boundary syntax error. Usage: GET /example/file.html");
         st.nextToken();
         String boundary=st.nextToken();
+        String paddedMethod=String.format("%-6s",method);
+        Log.info("Method: " + paddedMethod,", URI: " + uri + ", route: "+ "(special case)"+ ", parms: "+ parms);
+        RequestServer.alwaysLogRequest(uri,"POST",parms);
         boolean handled=fileUpload(boundary,is,parms,uri);
         if (handled) {
           return;
@@ -111,7 +113,7 @@
     }
     Response r=serve(uri,method,header,parms);
     if (r == null)     sendError(HTTP_INTERNALERROR,"SERVER INTERNAL ERROR: Serve() returned a null response.");
- else     sendResponse(startMillis,r.status,r.mimeType,r.header,r.data);
+ else     sendResponse(r.status,r.mimeType,r.header,r.data);
     in.close();
     is.close();
   }

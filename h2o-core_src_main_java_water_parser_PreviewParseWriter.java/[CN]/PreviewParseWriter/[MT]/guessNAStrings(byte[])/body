@@ -1,0 +1,14 @@
+{
+  String[][] na_strings=new String[_ncols][];
+  boolean empty=true;
+  for (int i=0; i < _ncols; ++i) {
+    int nonemptyLines=_nlines - _nempty[i] - 1;
+    if (types[i] == Vec.T_ENUM && _nzeros[i] > 0 && ((_nzeros[i] + _nstrings[i]) >= nonemptyLines) && (_domains[i].size() <= 0.95 * _nstrings[i])) {
+      na_strings[i]=new String[1];
+      na_strings[i][0]="0";
+      empty=false;
+    }
+  }
+  if (empty)   return null;
+ else   return na_strings;
+}

@@ -12,8 +12,11 @@
   fs.blockForPending();
   Key local_key=Key.make();
   Frame fr=new Frame(local_key,null,vecs);
-  _table._frames.put(local_key.toString(),fr);
-  exec(env,new ASTFrame(fr),args);
+  env.put(local_key.toString(),fr);
+  AST[] as=new AST[args == null ? 1 : args.length + 1];
+  as[0]=new ASTFrame(fr);
+  if (args != null)   System.arraycopy(args,0,as,1,args.length);
+  exec(env,as);
   if (env.isNum()) {
     if (out == null || out.length < 1)     out=new double[1];
     out[0]=env.popDbl();

@@ -1,8 +1,10 @@
 def send_frame(self):
-    '\n    Send a frame description to H2O, returns a key.\n    :return: A key\n    '
+    '\n    Send a frame description to H2O, returns a key.\n\n    :return: A key\n    '
+    if ((self._vecs is None) or (self._vecs == [])):
+        raise ValueError('Frame Removed')
     fr = H2OFrame.py_tmp_key()
     rapids_call = '(, '
-    cbind = (('(= !' + fr) + " (cbind '")
+    cbind = (('(gput ' + fr) + " (cbind %FALSE '")
     cbind += ("' '".join([vec._expr.eager() for vec in self._vecs]) + "')) ")
     rapids_call += cbind
     colnames = (((('(colnames= %' + fr) + ' (: #0 #') + str((len(self) - 1))) + ') ')

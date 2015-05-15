@@ -4,5 +4,13 @@ def show(self, header=True):
         print (self.table_header + ':')
     print 
     table = copy.deepcopy(self.cell_values)
-    print tabulate.tabulate(table, headers=self.col_header, numalign='left', stralign='left')
-    print 
+    nr = 0
+    if h2o.H2OFrame._is_list_of_lists(table):
+        nr = len(table)
+    if (nr > 20):
+        trunc_table = []
+        trunc_table += [v for v in table[:5]]
+        trunc_table.append((['---'] * len(table[0])))
+        trunc_table += [v for v in table[(nr - 5):]]
+        table = trunc_table
+    h2o.H2ODisplay(table, self.col_header, numalign='left', stralign='left')

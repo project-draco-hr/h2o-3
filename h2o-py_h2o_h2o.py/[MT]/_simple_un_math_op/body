@@ -1,10 +1,7 @@
 def _simple_un_math_op(op, data):
-    "\n  Element-wise math operations on H2OFrame, H2OVec, and Expr objects.\n\n  :param op: the math operation\n  :param data: the H2OFrame, H2OVec, or Expr object to operate on.\n  :return: Expr'd data\n  "
+    '\n  Element-wise math operations on H2OFrame and H2OVec\n\n  :param op: the math operation\n  :param data: the H2OFrame or H2OVec object to operate on.\n  :return: H2OFrame or H2oVec, with lazy operation\n  '
     if isinstance(data, H2OFrame):
-        return Expr(op, Expr(data.send_frame(), length=data.nrow()))
-    elif isinstance(data, H2OVec):
-        return Expr(op, data, length=len(data))
-    elif isinstance(data, Expr):
-        return Expr(op, data)
-    else:
-        raise ValueError, (op + ' only operates on H2OFrame, H2OVec, or Expr objects')
+        return H2OFrame(vecs=[_simple_un_math_op(op, vec) for vec in data._vecs])
+    if isinstance(data, H2OVec):
+        return H2OVec(data._name, Expr(op, left=data, length=len(data)))
+    raise ValueError, (op + ' only operates on H2OFrame or H2OVec objects')

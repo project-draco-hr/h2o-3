@@ -1,21 +1,17 @@
 def _do_it(self):
-    '\n    External API for eager; called by all top-level demanders (e.g. print)\n    This may trigger (recursive) big-data evaluation.\n    :return: None\n    '
+    '\n    External API for eager; called by all top-level demanders (e.g. print)\n    This may trigger (recursive) big-data evaluation.\n\n    :return: None\n    '
     if self.is_computed():
         return
     assign_vec = (self._left._left if ((self._op == '=') and (self._left._op == '[')) else None)
     cnt = (sys.getrefcount(self) - 1)
-    py_tmp = ((cnt != 4) and (self._len > 1) and (not assign_vec))
+    py_tmp = ((cnt != 5) and (self._len > 1) and (not assign_vec))
     global __CMD__
-    skip = False
     if py_tmp:
         self._data = frame.H2OFrame.py_tmp_key()
         __CMD__ += (('(= !' + self._data) + ' ')
     if (self._op != ','):
         __CMD__ += (('(' + self._op) + ' ')
     left = self._do_child(self._left)
-    if (py_tmp and self._left._is_key() and (self._op == ',')):
-        skip = True
-        __CMD__ += ')'
     rite = self._do_child(self._rite)
     if (self._op in ['+', '&', '|', '-', '*', '/', '^', 'n', 'N', 'g', 'G', 'l', 'L']):
         rapids_dict = {'+': '+', '&': '&', '|': '|', '-': '-', '*': '*', '/': '/', '^': '**', 'n': '==', 'N': '!=', 'g': '>', 'G': '>=', 'l': '<', 'L': '<=', }
@@ -52,6 +48,11 @@ def _do_it(self):
     elif (self._op in ['floor', 'abs']):
         if left.is_local():
             self._data = eval((('[' + self._op) + '(x) for x in left._data]'))
+        else:
+            pass
+    elif (self._op == 'not'):
+        if left.is_local():
+            self._data = [(not x) for x in left._data]
         else:
             pass
     elif (self._op == 'sign'):
@@ -97,6 +98,13 @@ def _do_it(self):
             raise NotImplementedError
         else:
             __CMD__ += '%FALSE'
+    elif (self._op == 'cbind'):
+        if left.is_local():
+            __CMD__ += ' %FALSE '
+            for v in left._data:
+                __CMD__ += (("'" + str(v._expr._data)) + "'")
+        else:
+            pass
     elif (self._op == 'mean'):
         if left.is_local():
             self._data = (sum(left._data) / len(left._data))
@@ -138,7 +146,7 @@ def _do_it(self):
         raise NotImplementedError(self._op)
     if (self._op != ','):
         __CMD__ += ')'
-    if (py_tmp and (not skip)):
+    if py_tmp:
         __CMD__ += ')'
     self._left = None
     self._rite = None

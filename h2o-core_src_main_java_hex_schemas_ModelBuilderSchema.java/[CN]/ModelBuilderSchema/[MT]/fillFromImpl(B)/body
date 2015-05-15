@@ -1,16 +1,16 @@
 {
-  builder.init(false);
   this.algo=builder.getAlgo();
   this.algo_full_name=ModelBuilder.getAlgoFullName(this.algo);
   this.can_build=builder.can_build();
+  this.visibility=builder.builderVisibility();
   job=(JobV3)Schema.schema(this.getSchemaVersion(),Job.class).fillFromImpl(builder);
-  this.validation_messages=new ValidationMessageBase[builder._messages.length];
+  this.messages=new ValidationMessageBase[builder._messages.length];
   int i=0;
   for (  ModelBuilder.ValidationMessage vm : builder._messages) {
-    this.validation_messages[i++]=new ModelParametersSchema.ValidationMessageV2().fillFromImpl(vm);
+    this.messages[i++]=new ValidationMessageV3().fillFromImpl(vm);
   }
-  mapValidationMessageFieldNames(new String[]{"train","valid"},new String[]{"training_frame","validation_frame"});
-  this.validation_error_count=builder.error_count();
+  ValidationMessageBase.mapValidationMessageFieldNames(this.messages,new String[]{"_train","_valid"},new String[]{"training_frame","validation_frame"});
+  this.error_count=builder.error_count();
   parameters=createParametersSchema();
   parameters.fillFromImpl(builder._parms);
   return (S)this;

@@ -1,6 +1,6 @@
 {
-  AST ast=_asts[0];
-  String s=ast instanceof ASTFrame ? ((ASTFrame)ast)._key : (ast instanceof ASTString ? ast.value() : ((ASTId)ast)._id);
-  DKV.remove(Key.make(s));
-  env.push(new ValNum(0));
+  _asts[0].exec(env);
+  if (env.isAry())   env.popAry().remove();
+ else   if (env.isStr())   Keyed.remove(Key.make(env.popStr()));
+ else   throw H2O.unimpl(env.pop().getClass().toString());
 }

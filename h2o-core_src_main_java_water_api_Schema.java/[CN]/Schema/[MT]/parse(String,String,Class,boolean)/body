@@ -22,6 +22,9 @@
  else     if (afclz == double.class) {
       a=(E[])Array.newInstance(Double.class,splits.length);
     }
+ else     if (afclz == float.class) {
+      a=(E[])Array.newInstance(Float.class,splits.length);
+    }
  else {
       a=(E[])Array.newInstance(afclz,splits.length);
     }
@@ -73,8 +76,8 @@
     if (!v.isJob())     throw H2OIllegalArgumentException.wrongKeyType(field_name,s,"Job",v.get().getClass());
     return new JobV3().fillFromImpl((Job)v.get());
   }
-  if (FrameV3.ColSpecifierV2.class.isAssignableFrom(fclz)) {
-    return new FrameV3.ColSpecifierV2(s);
+  if (FrameV3.ColSpecifierV3.class.isAssignableFrom(fclz)) {
+    return new FrameV3.ColSpecifierV3(s);
   }
   if (ModelSchema.class.isAssignableFrom(fclz))   throw H2O.fail("Can't yet take ModelSchema as input.");
   throw H2O.fail("Unimplemented schema fill from " + fclz.getSimpleName());
