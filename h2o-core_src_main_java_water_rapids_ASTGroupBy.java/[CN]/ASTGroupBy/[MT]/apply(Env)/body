@@ -10,7 +10,8 @@
   while (tmpGrps[nGrps - 1] == null)   nGrps--;
   final G[] grps=new G[nGrps];
   System.arraycopy(tmpGrps,0,grps,0,nGrps);
-  H2O.submitTask(new ParallelPostGlobal(grps,nGrps)).join();
+  H2O.submitTask(new ParallelPostGlobal(grps,nGrps,_orderByCols)).join();
+  if (_orderByCols != null)   Arrays.sort(grps);
   final int nCols=_gbCols.length + _agg.length;
   Vec v=Vec.makeZero(nGrps);
   String[] names=new String[nCols];
@@ -71,7 +72,7 @@ throw new IllegalArgumentException("Unsupported aggregation type: " + type);
 }
 }
 }
-.doAll(nCols,v).outputFrame(Key.make(),names,domains);
+.doAll(nCols,v).outputFrame(names,domains);
 p1._g=null;
 Keyed.remove(v._key);
 e.pushAry(f);
