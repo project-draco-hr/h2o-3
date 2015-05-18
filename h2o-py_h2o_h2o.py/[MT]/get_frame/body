@@ -1,7 +1,7 @@
 def get_frame(frame_id):
     if (frame_id is None):
         raise ValueError('frame_id must not be None')
-    res = H2OConnection.get_json(('Frames/' + frame_id))
+    res = H2OConnection.get_json(('Frames/' + urllib.quote(frame_id)))
     res = res['frames'][0]
     colnames = [v['label'] for v in res['columns']]
     veckeys = res['vec_ids']
