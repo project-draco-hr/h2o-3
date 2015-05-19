@@ -1,6 +1,6 @@
 {
-  NaiveBayes job=null;
-  NaiveBayesModel model=null;
+  PCA job=null;
+  PCAModel model=null;
   Frame fr=null, fr2=null;
   Frame tr=null, te=null;
   try {
@@ -13,31 +13,33 @@
     Key[] ksplits=sf.destination_frames;
     tr=DKV.get(ksplits[0]).get();
     te=DKV.get(ksplits[1]).get();
-    NaiveBayesParameters parms=new NaiveBayesParameters();
+    PCAModel.PCAParameters parms=new PCAModel.PCAParameters();
     parms._train=ksplits[0];
     parms._valid=ksplits[1];
-    parms._laplace=0.01;
-    parms._response_column=fr._names[4];
-    parms._compute_metrics=true;
+    parms._k=4;
+    parms._max_iterations=10;
     try {
-      job=new NaiveBayes(parms);
+      job=new PCA(parms);
       model=job.trainModel().get();
-      fr2=model.score(te);
-      Assert.assertTrue(model.testJavaScoring(te,fr2,1e-6));
     }
- catch (    Throwable t) {
-      t.printStackTrace();
-      throw new RuntimeException(t);
-    }
- finally {
+  finally {
       if (job != null)       job.remove();
     }
+    fr2=model.score(te);
+    Assert.assertTrue(model.testJavaScoring(te,fr2,1e-5));
   }
-  finally {
+ catch (  Throwable t) {
+    t.printStackTrace();
+    throw new RuntimeException(t);
+  }
+ finally {
     if (fr != null)     fr.delete();
     if (fr2 != null)     fr2.delete();
     if (tr != null)     tr.delete();
     if (te != null)     te.delete();
-    if (model != null)     model.delete();
+    if (model != null) {
+      if (model._parms._keep_loading)       model._parms._loading_key.get().delete();
+      model.delete();
+    }
   }
 }
