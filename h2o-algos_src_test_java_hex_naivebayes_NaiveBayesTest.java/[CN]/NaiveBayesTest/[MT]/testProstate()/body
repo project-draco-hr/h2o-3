@@ -1,7 +1,7 @@
 {
   NaiveBayes job=null;
   NaiveBayesModel model=null;
-  Frame train=null;
+  Frame train=null, score=null;
   final int[] cats=new int[]{1,3,4,5};
   try {
     Scope.enter();
@@ -17,6 +17,8 @@
     try {
       job=new NaiveBayes(parms);
       model=job.trainModel().get();
+      score=model.score(train);
+      Assert.assertTrue(model.testJavaScoring(train,score,1e-6));
     }
  catch (    Throwable t) {
       t.printStackTrace();
@@ -32,6 +34,7 @@
   }
  finally {
     if (train != null)     train.delete();
+    if (score != null)     score.delete();
     if (model != null)     model.delete();
     Scope.exit();
   }
