@@ -1,0 +1,20 @@
+{
+  String correct="{";
+  if (bitoff > 0) {
+    correct+="..." + bitoff + " 0-bits... ";
+  }
+  for (int i=bitoff; i < bs.size(); ++i) {
+    if (ArrayUtils.find(idx,i) != -1) {
+      Assert.assertTrue(bs.contains(i));
+      correct+="1";
+    }
+ else {
+      Assert.assertTrue(!bs.contains(i));
+      correct+="0";
+    }
+    if ((i - bitoff + 1) % 8 == 0 && i != bs.size() - 1)     correct+=" ";
+  }
+  correct+="}";
+  String s=bs.toString();
+  Assert.assertTrue(s.equals(correct));
+}
