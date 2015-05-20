@@ -1,0 +1,34 @@
+{
+  Frame tfr=null;
+  Frame test=null;
+  Scope.enter();
+  try {
+    tfr=parse_test_file(Key.make("air.hex"),"/users/arno/sz_bench_data/train-1m.csv");
+    test=parse_test_file(Key.make("airt.hex"),"/users/arno/sz_bench_data/test.csv");
+    for (    int i : new int[]{0,1,2}) {
+      tfr.vecs()[i]=tfr.vecs()[i].toEnum();
+      test.vecs()[i]=test.vecs()[i].toEnum();
+    }
+    DRFModel.DRFParameters parms=new DRFModel.DRFParameters();
+    parms._train=tfr._key;
+    parms._valid=test._key;
+    parms._response_column="dep_delayed_15min";
+    parms._nbins=20;
+    parms._ntrees=100;
+    parms._max_depth=20;
+    parms._mtries=-1;
+    parms._sample_rate=0.667f;
+    parms._min_rows=10;
+    parms._seed=12;
+    DRF job=new DRF(parms);
+    DRFModel drf=job.trainModel().get();
+    Log.info("Test set AUC: " + drf._output._validation_metrics.auc()._auc);
+    job.remove();
+    drf.delete();
+  }
+  finally {
+    if (tfr != null)     tfr.remove();
+    if (test != null)     test.remove();
+  }
+  Scope.exit();
+}

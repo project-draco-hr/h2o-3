@@ -3,7 +3,7 @@
   while (true) {
     H2O.H2O_PORT=H2O.API_PORT + 1;
     try {
-      _apiSocket=new ServerSocket(H2O.API_PORT);
+      _apiSocket=H2O.ARGS.ip == null ? new ServerSocket(H2O.API_PORT) : new ServerSocket(H2O.API_PORT,-1,H2O.SELF_ADDRESS);
       _apiSocket.setReuseAddress(true);
       _udpSocket=DatagramChannel.open();
       _udpSocket.socket().setReuseAddress(true);
