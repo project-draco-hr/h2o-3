@@ -7,10 +7,10 @@
     row=_dinfo.extractDenseRow(chks,rid,row);
     if (row.bad)     continue;
     _nobs++;
-    double eta=row.innerProduct(b);
+    double eta=row.innerProduct(b) + row.offset;
     double mu=_params.linkInv(eta);
-    _val.add(row.response(0),mu);
-    _likelihood+=_params.likelihood(row.response(0),eta,mu);
+    _val.add(row.response(0),mu,row.weight,row.offset);
+    _likelihood+=_params.likelihood(row.response(0),mu);
     double var=_params.variance(mu);
     if (var < 1e-6)     var=1e-6;
     double gval=(mu - row.response(0)) / (var * _params.linkDeriv(mu));

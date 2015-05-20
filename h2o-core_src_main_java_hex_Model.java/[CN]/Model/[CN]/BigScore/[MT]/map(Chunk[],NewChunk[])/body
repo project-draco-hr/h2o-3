@@ -1,17 +1,26 @@
 {
+  int n=chks.length;
+  Chunk offsetChunk=null, weightsChunk=null;
+  if (_output.hasOffset())   offsetChunk=chks[chks.length - 1];
+  if (_hasWeights && _computeMetrics)   weightsChunk=chks[_output.weightsIdx()];
+  boolean hasWeightsOrOffset=offsetChunk != null || weightsChunk != null;
+  if (hasWeightsOrOffset) {
+    if (offsetChunk == null)     offsetChunk=new C0DChunk(0,chks[0]._len);
+    if (weightsChunk == null)     weightsChunk=new C0DChunk(1,chks[0]._len);
+    chks=Arrays.copyOf(chks,n);
+  }
   double[] tmp=new double[_output.nfeatures()];
   _mb=Model.this.makeMetricBuilder(_domain);
-  int startcol=(_mb instanceof ModelMetricsSupervised.MetricBuilderSupervised ? chks.length - 1 : 0);
   double[] preds=_mb._work;
   int len=chks[0]._len;
   for (int row=0; row < len; row++) {
-    double[] p=score0(chks,row,tmp,preds);
+    double[] p=hasWeightsOrOffset ? score0(chks,weightsChunk.atd(row),offsetChunk.atd(row),row,tmp,preds) : score0(chks,row,tmp,preds);
     if (_computeMetrics) {
-      float[] actual=new float[chks.length - startcol];
-      for (int c=startcol; c < chks.length; c++) {
-        actual[c - startcol]=(float)chks[c].atd(row);
+      float[] actual=new float[]{(float)chks[_output.responseIdx()].atd(row)};
+      if (hasWeightsOrOffset) {
+        _mb.perRow(preds,actual,weightsChunk.atd(row),offsetChunk.atd(row),Model.this);
       }
-      _mb.perRow(preds,actual,Model.this);
+ else       _mb.perRow(preds,actual,Model.this);
     }
     for (int c=0; c < _npredcols; c++)     cpreds[c].addNum(p[c]);
   }

@@ -1,9 +1,13 @@
 {
   Chunk rowFilter=_rowFilter != null ? _rowFilter.chunkForChunkIdx(chks[0].cidx()) : null;
-  Chunk responseChunk=chks[chks.length - 1];
+  Chunk responseChunk=chks[_dinfo.responseChunkId()];
   boolean[] skip=MemoryManager.mallocZ(chks[0]._len);
   if (rowFilter != null)   for (int r=0; r < skip.length; ++r)   skip[r]=rowFilter.at8(r) == 1;
   double[][] eta=new double[responseChunk._len][_nSteps];
+  if (_dinfo._offset) {
+    Chunk offsetChunk=chks[_dinfo.offsetChunkId()];
+    for (int r=0; r < eta.length; ++r)     Arrays.fill(eta[r],offsetChunk.atd(r));
+  }
   double[] beta=_beta;
   double[] pk=_direction;
   for (int r=0; r < eta.length; ++r) {
@@ -65,7 +69,7 @@
       }
  else {
         double mu=_params.linkInv(e);
-        _likelihoods[i]+=_params.likelihood(y,e,mu);
+        _likelihoods[i]+=_params.likelihood(y,mu);
       }
     }
   }
