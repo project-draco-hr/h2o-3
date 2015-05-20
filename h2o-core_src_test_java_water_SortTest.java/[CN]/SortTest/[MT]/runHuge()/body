@@ -5,7 +5,7 @@
     int[] idxs2=new int[N];
     long merge=0;
     long insertion=0;
-    int reps=1;
+    int reps=10;
     for (int rep=0; rep < reps; ++rep) {
       final double[] values=new double[idxs.length];
       Random rng=new Random();
@@ -15,16 +15,16 @@
         values[i]=rng.nextDouble();
       }
       long before=System.nanoTime();
-      ArrayUtils.sort(idxs,new ArrayUtils.IntComparator(){
-        @Override public int compare(        int x,        int y){
+      ArrayUtils.sort(idxs,new Comparator<Integer>(){
+        @Override public int compare(        Integer x,        Integer y){
           return values[x] < values[y] ? -1 : (values[x] > values[y] ? 1 : 0);
         }
       }
 );
       merge+=System.nanoTime() - before;
       before=System.nanoTime();
-      ArrayUtils.sort(idxs2,new ArrayUtils.IntComparator(){
-        @Override public int compare(        int x,        int y){
+      ArrayUtils.sort(idxs2,new Comparator<Integer>(){
+        @Override public int compare(        Integer x,        Integer y){
           return values[x] < values[y] ? -1 : (values[x] > values[y] ? 1 : 0);
         }
       }
