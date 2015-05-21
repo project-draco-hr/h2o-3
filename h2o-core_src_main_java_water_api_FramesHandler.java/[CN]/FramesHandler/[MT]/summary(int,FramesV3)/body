@@ -1,9 +1,14 @@
 {
   Frame frame=getFromDKV("key",s.frame_id.key());
-  for (  Vec vec : frame.vecs()) {
-    if (!vec.isString()) {
-      vec.bins();
+  if (null != frame) {
+    Futures fs=new Futures();
+    Vec[] vecArr=frame.vecs();
+    for (    Vec v : vecArr) {
+      if (!v.isString()) {
+        v.startRollupStats(fs,Vec.DO_HISTOGRAMS);
+      }
     }
+    fs.blockForPending();
   }
   return doFetch(version,s,FrameV3.ColV3.FORCE_SUMMARY);
 }
