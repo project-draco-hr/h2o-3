@@ -14,15 +14,49 @@
   colHeaders.add("Training MSE");
   colTypes.add("double");
   colFormat.add("%.5f");
+  if (_output.isClassifier()) {
+    colHeaders.add("Training LogLoss");
+    colTypes.add("double");
+    colFormat.add("%.5f");
+  }
+  if (_output.getModelCategory() == ModelCategory.Binomial) {
+    colHeaders.add("Training AUC");
+    colTypes.add("double");
+    colFormat.add("%.5f");
+  }
+  if (_output.getModelCategory() == ModelCategory.Binomial || _output.getModelCategory() == ModelCategory.Multinomial) {
+    colHeaders.add("Training Classification Error");
+    colTypes.add("double");
+    colFormat.add("%.5f");
+  }
   if (valid() != null) {
     colHeaders.add("Validation MSE");
     colTypes.add("double");
     colFormat.add("%.5f");
+    if (_output.isClassifier()) {
+      colHeaders.add("Validation LogLoss");
+      colTypes.add("double");
+      colFormat.add("%.5f");
+    }
+    if (_output.getModelCategory() == ModelCategory.Binomial) {
+      colHeaders.add("Validation AUC");
+      colTypes.add("double");
+      colFormat.add("%.5f");
+    }
+    if (_output.isClassifier()) {
+      colHeaders.add("Validation Classification Error");
+      colTypes.add("double");
+      colFormat.add("%.5f");
+    }
   }
-  final int rows=_output._mse_train.length - 1;
+  int rows=0;
+  for (int i=1; i < _output._scored_train.length; i++) {
+    if (!Double.isNaN(_output._scored_train[i]._mse))     ++rows;
+  }
   TwoDimTable table=new TwoDimTable("Scoring History",null,new String[rows],colHeaders.toArray(new String[0]),colTypes.toArray(new String[0]),colFormat.toArray(new String[0]),"");
   int row=0;
-  for (int i=1; i <= rows; i++) {
+  for (int i=1; i < _output._scored_train.length; i++) {
+    if (Double.isNaN(_output._scored_train[i]._mse))     continue;
     int col=0;
     assert(row < table.getRowDim());
     assert(col < table.getColDim());
@@ -30,8 +64,18 @@
     table.set(row,col++,fmt.print(_output._training_time_ms[i]));
     table.set(row,col++,PrettyPrint.msecs(_output._training_time_ms[i] - _start_time,true));
     table.set(row,col++,i);
-    table.set(row,col++,_output._mse_train[i]);
-    if (_valid != null)     table.set(row,col++,_output._mse_valid[i]);
+    ScoredClassifierRegressor st=_output._scored_train[i];
+    table.set(row,col++,st._mse);
+    if (_output.isClassifier())     table.set(row,col++,st._logloss);
+    if (_output.getModelCategory() == ModelCategory.Binomial)     table.set(row,col++,st._AUC);
+    if (_output.isClassifier())     table.set(row,col++,st._classError);
+    if (_valid != null) {
+      st=_output._scored_valid[i];
+      table.set(row,col++,st._mse);
+      if (_output.isClassifier())       table.set(row,col++,st._logloss);
+      if (_output.getModelCategory() == ModelCategory.Binomial)       table.set(row,col++,st._AUC);
+      if (_output.isClassifier())       table.set(row,col++,st._classError);
+    }
     row++;
   }
   return table;
