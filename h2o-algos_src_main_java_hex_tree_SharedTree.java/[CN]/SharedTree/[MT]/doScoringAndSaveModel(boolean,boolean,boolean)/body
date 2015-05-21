@@ -12,28 +12,17 @@
     SharedTreeModel.SharedTreeOutput out=_model._output;
     _timeLastScoreStart=now;
     Score sc=new Score(this,true,oob,_model._output.getModelCategory()).doAll(train(),build_tree_one_node);
-    ModelMetricsSupervised mm=sc.makeModelMetrics(_model,_parms.train(),_parms._response_column);
+    ModelMetrics mm=sc.makeModelMetrics(_model,_parms.train(),_parms._response_column);
     out._training_metrics=mm;
     if (oob)     out._training_metrics._description="Metrics reported on Out-Of-Bag training samples";
-    String train_class=isClassifier() ? ", logloss is " + (_nclass == 2 ? (String.format("%5f",((ModelMetricsBinomial)mm)._logloss)) : String.format("%5f",(((ModelMetricsMultinomial)mm)._logloss))) : "";
-    if (_nclass == 2 && ((ModelMetricsBinomial)mm)._auc != null)     train_class+=", AUC is " + String.format("%5f",((ModelMetricsBinomial)mm)._auc._auc);
-    out._mse_train[out._ntrees]=mm._MSE;
-    training_r2=mm.r2();
-    Log.info("training r2 is " + (float)mm.r2() + ", MSE is "+ (float)mm._MSE+ train_class+ ", with "+ _model._output._ntrees+ "x"+ (_nclass == 2 ? 1 : _nclass)+ " trees (average of "+ (1 + _model._output._treeStats._mean_leaves)+ " nodes)");
-    if (mm.hr() != null) {
-      Log.info(getHitRatioTable(mm.hr()));
-    }
+    out._scored_train[out._ntrees].fillFrom(mm);
+    if (out._ntrees > 0)     Log.info("Training " + out._scored_train[out._ntrees].toString());
     if (_parms._valid != null) {
       Score scv=new Score(this,false,oob,_model._output.getModelCategory()).doAll(valid(),build_tree_one_node);
-      ModelMetricsSupervised mmv=scv.makeModelMetrics(_model,_parms.valid(),_parms._response_column);
-      out._mse_valid[out._ntrees]=mmv._MSE;
+      ModelMetrics mmv=scv.makeModelMetrics(_model,_parms.valid(),_parms._response_column);
       out._validation_metrics=mmv;
-      String valid_class=isClassifier() ? ", logloss is " + (_nclass == 2 ? (String.format("%5f",((ModelMetricsBinomial)mmv)._logloss)) : String.format("%5f",(((ModelMetricsMultinomial)mmv)._logloss))) : "";
-      if (_nclass == 2 && ((ModelMetricsBinomial)mm)._auc != null)       valid_class+=", AUC is " + String.format("%5f",((ModelMetricsBinomial)mm)._auc._auc);
-      Log.info("validation r2 is " + (float)mmv.r2() + ", MSE is "+ (float)mmv._MSE+ valid_class);
-      if (mmv.hr() != null) {
-        Log.info(getHitRatioTable(mm.hr()));
-      }
+      out._scored_valid[out._ntrees].fillFrom(mmv);
+      if (out._ntrees > 0)       Log.info("Validation " + out._scored_valid[out._ntrees].toString());
     }
     if (out._ntrees > 0) {
       out._model_summary=createModelSummaryTable(out);
