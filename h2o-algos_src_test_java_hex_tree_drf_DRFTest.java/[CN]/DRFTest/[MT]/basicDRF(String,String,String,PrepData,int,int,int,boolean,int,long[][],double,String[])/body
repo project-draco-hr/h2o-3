@@ -42,6 +42,7 @@
     Assert.assertEquals("Number of trees differs!",ntree,model._output._ntrees);
     test=parse_test_file(fnametrain);
     res=model.score(test);
+    Assert.assertTrue(model.testJavaScoring(test,res,1e-15));
     if (classification && expCM != null) {
       Assert.assertTrue("Expected: " + Arrays.deepToString(expCM) + ", Got: "+ Arrays.deepToString(mm.cm()._cm),Arrays.deepEquals(mm.cm()._cm,expCM));
       String[] cmDom=model._output._domains[model._output._domains.length - 1];
@@ -55,7 +56,6 @@
       Log.info("\nTraining MSE: " + hex.ModelMetrics.getFromDKV(model,test).mse());
     }
     hex.ModelMetrics.getFromDKV(model,test);
-    Assert.assertTrue(model.testJavaScoring(test,res,1e-15));
   }
   finally {
     if (frTrain != null)     frTrain.remove();
