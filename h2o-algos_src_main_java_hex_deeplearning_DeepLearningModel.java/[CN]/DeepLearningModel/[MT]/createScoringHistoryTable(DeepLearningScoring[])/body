@@ -94,32 +94,32 @@
     table.set(row,col++,e.training_time_ms == 0 ? null : (String.format("%.3f",e.training_samples / (e.training_time_ms / 1e3)) + " rows/sec"));
     table.set(row,col++,e.epoch_counter);
     table.set(row,col++,e.training_samples);
-    table.set(row,col++,e.training_MSE);
+    table.set(row,col++,e.scored_train != null ? e.scored_train._mse : Double.NaN);
     if (!_output.autoencoder) {
-      table.set(row,col++,e.training_R2);
+      table.set(row,col++,e.scored_train != null ? e.scored_train._r2 : Double.NaN);
     }
     if (_output.isClassifier()) {
-      table.set(row,col++,e.train_logloss);
+      table.set(row,col++,e.scored_train != null ? e.scored_train._logloss : Double.NaN);
     }
     if (_output.getModelCategory() == ModelCategory.Binomial) {
       table.set(row,col++,e.training_AUC != null ? e.training_AUC._auc : Double.NaN);
     }
     if (_output.isClassifier()) {
-      table.set(row,col++,e.train_err);
+      table.set(row,col++,e.scored_train != null ? e.scored_train._classError : Double.NaN);
     }
     if (get_params()._valid != null) {
-      table.set(row,col++,e.validation_MSE);
+      table.set(row,col++,e.scored_valid != null ? e.scored_valid._mse : Double.NaN);
       if (!_output.autoencoder) {
-        table.set(row,col++,e.validation_R2);
+        table.set(row,col++,e.scored_valid != null ? e.scored_valid._r2 : Double.NaN);
       }
       if (_output.isClassifier()) {
-        table.set(row,col++,e.valid_logloss);
+        table.set(row,col++,e.scored_valid != null ? e.scored_valid._logloss : Double.NaN);
       }
       if (_output.getModelCategory() == ModelCategory.Binomial) {
         table.set(row,col++,e.validation_AUC != null ? e.validation_AUC._auc : Double.NaN);
       }
       if (_output.isClassifier()) {
-        table.set(row,col++,e.valid_err);
+        table.set(row,col++,e.scored_valid != null ? e.scored_valid._classError : Double.NaN);
       }
     }
  else     if (get_params().getNumFolds() > 1) {
