@@ -1,0 +1,13 @@
+{
+  if (!(that instanceof ScoreKeeper))   return false;
+  ScoreKeeper o=(ScoreKeeper)that;
+  if (_hitratio == null && ((ScoreKeeper)that)._hitratio != null)   return false;
+  if (_hitratio != null && ((ScoreKeeper)that)._hitratio == null)   return false;
+  if (_hitratio != null && ((ScoreKeeper)that)._hitratio != null) {
+    if (_hitratio.length != ((ScoreKeeper)that)._hitratio.length)     return false;
+    for (int i=0; i < _hitratio.length; ++i) {
+      if (!MathUtils.compare(_hitratio[i],((ScoreKeeper)that)._hitratio[i],1e-6,1e-6))       return false;
+    }
+  }
+  return MathUtils.compare(_r2,o._r2,1e-6,1e-6) && MathUtils.compare(_mse,o._mse,1e-6,1e-6) && MathUtils.compare(_logloss,o._logloss,1e-6,1e-6)&& MathUtils.compare(_classError,o._classError,1e-6,1e-6);
+}
