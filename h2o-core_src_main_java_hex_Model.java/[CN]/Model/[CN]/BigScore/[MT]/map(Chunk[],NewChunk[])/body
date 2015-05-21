@@ -11,7 +11,6 @@
   }
   double[] tmp=new double[_output.nfeatures()];
   _mb=Model.this.makeMetricBuilder(_domain);
-  int startcol=(_mb instanceof ModelMetricsSupervised.MetricBuilderSupervised ? chks.length - 1 : 0);
   double[] preds=_mb._work;
   int len=chks[0]._len;
   for (int row=0; row < len; row++) {
@@ -23,9 +22,7 @@
       }
  else {
         actual=new float[chks.length];
-        for (int c=0; c < chks.length; c++) {
-          actual[c - startcol]=(float)chks[c].atd(row);
-        }
+        for (int c=0; c < chks.length - (_hasWeights ? 1 : 0); c++)         actual[c]=(float)chks[c].atd(row);
       }
       if (hasWeightsOrOffset) {
         _mb.perRow(preds,actual,weightsChunk.atd(row),offsetChunk.atd(row),Model.this);
