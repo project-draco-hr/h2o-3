@@ -44,7 +44,7 @@
           mse_frame.delete();
           ModelMetrics mtrain=ModelMetrics.getFromDKV(this,ftrain);
           _output._training_metrics=mtrain;
-          err.scored_train=new ScoredClassifierRegressor(mtrain);
+          err.scored_train=new ScoreKeeper(mtrain);
         }
         if (ftest != null) {
           final Frame mse_frame=scoreAutoEncoder(ftest,Key.make());
@@ -53,7 +53,7 @@
           mse_frame.delete();
           ModelMetrics mtest=ModelMetrics.getFromDKV(this,ftest);
           _output._validation_metrics=mtest;
-          err.scored_valid=new ScoredClassifierRegressor(mtest);
+          err.scored_valid=new ScoreKeeper(mtest);
         }
       }
  else {
@@ -64,7 +64,7 @@
         trainPredict.delete();
         hex.ModelMetrics mtrain=ModelMetrics.getFromDKV(this,ftrain);
         _output._training_metrics=mtrain;
-        err.scored_train=new ScoredClassifierRegressor(mtrain);
+        err.scored_train=new ScoreKeeper(mtrain);
         hex.ModelMetrics mtest=null;
         hex.ModelMetricsSupervised mm1=(ModelMetricsSupervised)ModelMetrics.getFromDKV(this,ftrain);
         if (mm1 instanceof ModelMetricsBinomial) {
@@ -74,7 +74,6 @@
  else         if (mm1 instanceof ModelMetricsMultinomial) {
           ModelMetricsMultinomial mm=(ModelMetricsMultinomial)(mm1);
           err.train_confusion_matrix=mm.cm();
-          err.train_hitratio=mm._hit_ratios;
         }
         if (get_params()._score_training_samples != 0 && get_params()._score_training_samples < ftrain.numRows()) {
           _output._training_metrics._description="Metrics reported on " + ftrain.numRows() + " training set samples";
@@ -85,7 +84,7 @@
           if (ftest != null) {
             mtest=ModelMetrics.getFromDKV(this,ftest);
             _output._validation_metrics=mtest;
-            err.scored_valid=new ScoredClassifierRegressor(mtest);
+            err.scored_valid=new ScoreKeeper(mtest);
           }
           if (mtest != null) {
             if (mtest instanceof ModelMetricsBinomial) {
@@ -96,7 +95,6 @@
  else             if (mtest instanceof ModelMetricsMultinomial) {
               ModelMetricsMultinomial mm=(ModelMetricsMultinomial)mtest;
               err.valid_confusion_matrix=mm.cm();
-              err.valid_hitratio=mm._hit_ratios;
             }
             if (get_params()._score_validation_samples != 0 && get_params()._score_validation_samples != ftest.numRows()) {
               _output._validation_metrics._description="Metrics reported on " + ftest.numRows() + " validation set samples";

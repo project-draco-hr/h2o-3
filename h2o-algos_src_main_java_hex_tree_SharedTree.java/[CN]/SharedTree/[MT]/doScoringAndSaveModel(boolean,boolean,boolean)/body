@@ -16,18 +16,18 @@
     out._training_metrics=mm;
     if (oob)     out._training_metrics._description="Metrics reported on Out-Of-Bag training samples";
     out._scored_train[out._ntrees].fillFrom(mm);
-    Log.info(out._scored_train[out._ntrees].toString() + ", with " + _model._output._ntrees+ "x"+ (_nclass == 2 ? 1 : _nclass)+ " trees (average of "+ (1 + _model._output._treeStats._mean_leaves)+ " nodes)");
-    if (mm.hr() != null) {
-      Log.info(getHitRatioTable(mm.hr()));
+    if (out._ntrees > 0) {
+      Log.info("Training " + out._scored_train[out._ntrees].toString());
+      if (mm.hr() != null)       Log.info(getHitRatioTable(mm.hr()));
     }
     if (_parms._valid != null) {
       Score scv=new Score(this,false,oob,_model._output.getModelCategory()).doAll(valid(),build_tree_one_node);
       ModelMetricsSupervised mmv=scv.makeModelMetrics(_model,_parms.valid(),_parms._response_column);
       out._validation_metrics=mmv;
       out._scored_valid[out._ntrees].fillFrom(mmv);
-      Log.info(out._scored_valid[out._ntrees].toString());
-      if (mmv.hr() != null) {
-        Log.info(getHitRatioTable(mm.hr()));
+      if (out._ntrees > 0) {
+        Log.info("Validation " + out._scored_valid[out._ntrees].toString());
+        if (mmv.hr() != null)         Log.info(getHitRatioTable(mm.hr()));
       }
     }
     if (out._ntrees > 0) {
