@@ -30,7 +30,7 @@
       DRF job=new DRF(parms);
       DRFModel drf=job.trainModel().get();
       assertEquals(drf._output._ntrees,parms._ntrees);
-      mses[i]=drf._output._mse_train[drf._output._mse_train.length - 1];
+      mses[i]=drf._output._scored_train[drf._output._scored_train.length - 1]._mse;
       job.remove();
       drf.delete();
     }
@@ -43,6 +43,6 @@
     Log.info("trial: " + i + " -> MSE: "+ mses[i]);
   }
   for (int i=0; i < mses.length; ++i) {
-    assertEquals(0.20462305452536414,mses[i],1e-4);
+    assertEquals(0.2093151515479678,mses[i],1e-4);
   }
 }
