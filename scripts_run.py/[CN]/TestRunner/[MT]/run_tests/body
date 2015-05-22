@@ -40,6 +40,23 @@ def run_tests(self, nopass):
             print ''
             sys.exit(1)
         out.close()
+    elif (self._have_some_py_tests() and (self.path_to_whl is not None)):
+        self._log('')
+        self._log('Setting up Python H2O package...')
+        out_file_name = os.path.join(self.output_dir, 'pythonSetup.out.txt')
+        out = open(out_file_name, 'w')
+        cmd = ['pip', 'install', self.path_to_whl, '--force-reinstall']
+        child = subprocess.Popen(args=cmd, stdout=out, stderr=subprocess.STDOUT)
+        rv = child.wait()
+        if self.terminated:
+            return
+        if (rv != 0):
+            print ''
+            print 'ERROR: Python setup failed.'
+            print (('       (See ' + out_file_name) + ')')
+            print ''
+            sys.exit(1)
+        out.close()
     num_tests = len(self.tests)
     num_nodes = (self.num_clouds * self.nodes_per_cloud)
     self._log('')
