@@ -1,0 +1,13 @@
+{
+  if (_mayBeDead == null)   return;
+  Futures fs=null;
+  for (  Vec vec : _mayBeDead) {
+    int cnt=_refcnt.get(vec)._val;
+    if (cnt <= 0) {
+      if (fs == null)       fs=new Futures();
+      vec.remove(fs);
+      _refcnt.remove(vec);
+    }
+  }
+  if (fs != null)   fs.blockForPending();
+}
