@@ -6,6 +6,7 @@
   long rseed=rand.nextLong();
   for (int k=0; k < _nclass; k++) {
     if (_distribution[k] != 0) {
+      if (k == 1 && _nclass == 2)       continue;
       ktrees[k]=new DRFTree(fr,_ncols,(char)_parms._nbins,(char)_nclass,_parms._min_rows,mtrys,rseed);
       boolean isBinom=isClassifier();
       new DRFUndecidedNode(ktrees[k],-1,DHistogram.initialHist(fr,_ncols,adj_nbins,hcs[k][0],isBinom));

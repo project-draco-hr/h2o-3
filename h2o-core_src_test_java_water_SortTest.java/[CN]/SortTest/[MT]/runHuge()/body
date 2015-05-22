@@ -1,0 +1,28 @@
+{
+  for (int N=1 << 6; N < 1 << 17; N<<=1) {
+    System.err.println("N: " + N);
+    int[] idxs=new int[N];
+    int[] idxs2=new int[N];
+    long merge=0;
+    long insertion=0;
+    int reps=1;
+    for (int rep=0; rep < reps; ++rep) {
+      final double[] values=new double[idxs.length];
+      Random rng=new Random();
+      for (int i=0; i < idxs.length; ++i) {
+        idxs[i]=i;
+        idxs2[i]=i;
+        values[i]=rng.nextDouble();
+      }
+      long before=System.nanoTime();
+      ArrayUtils.sort(idxs,values);
+      merge+=System.nanoTime() - before;
+      before=System.nanoTime();
+      ArrayUtils.sort(idxs2,values,Integer.MAX_VALUE);
+      insertion+=System.nanoTime() - before;
+    }
+    System.err.println("Merge sort: " + (double)merge / 1e9 / reps);
+    System.err.println("Insertion sort: " + (double)insertion / 1e9 / reps);
+    Assert.assertTrue(Arrays.equals(idxs,idxs2));
+  }
+}
