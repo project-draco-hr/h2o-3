@@ -1,10 +1,7 @@
 {
   try (Env.StackHelp stk=env.stk()){
-    for (int i=_vals.length - 1; i >= 0; i--) {
-      Val val=_vals[i];
-      stk.push(val.isID() ? lookup(val) : val);
-    }
-    Val fun=stk.pop();
+    for (    Val val : _vals)     stk.push(val.exec(env));
+    Val fun=env.peek(-_vals.length);
     if (!fun.isFun())     throw new Exec.IllegalASTException("Expected a function but found " + fun.getClass());
     throw H2O.unimpl();
   }
