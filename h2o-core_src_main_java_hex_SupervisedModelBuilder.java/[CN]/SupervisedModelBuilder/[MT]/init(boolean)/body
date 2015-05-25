@@ -53,21 +53,4 @@
     if (_nclass <= 2)     hide("_max_hit_ratio_k","Max K-value for hit ratio is only applicable to multi-class classification problems.");
     if (_nclass <= 2)     hide("_max_confusion_matrix_size","Only for multi-class classification problems.");
   }
-  if (_parms._offset_column != null) {
-    Vec off=_train.remove(_parms._offset_column);
-    if (off == null)     error("_offset","Offset column '" + _parms._offset_column + "' not found in the training frame");
- else {
-      _offset=off;
-      _offset_key=off._key;
-      _train.add(_parms._offset_column,off);
-    }
-    if (_valid != null) {
-      off=_valid.remove(_parms._offset_column);
-      if (off == null) {
-        error("_offset","Offset column '" + _parms._offset_column + "' not found in the validation frame");
-        error("_validation_frame","Offset column '" + _parms._offset_column + "' not found in the validation frame");
-      }
- else       _valid.add(_parms._offset_column,off);
-    }
-  }
 }
