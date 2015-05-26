@@ -7,9 +7,17 @@
       _warnCount++;
     }
   }
-  if (_sharedmodel != null && (!_sharedmodel.get_params()._replicate_training_data || H2O.CLOUD.size() == 1)) {
-    _sharedmodel.div(_chunk_node_count);
-    _sharedmodel.add_processed_global(_sharedmodel.get_processed_local());
-    _sharedmodel.set_processed_local(0l);
+  if (_mymodel != null && (!_mymodel.get_params()._replicate_training_data || H2O.CLOUD.size() == 1)) {
+    Log.info("Averaging per-node models.");
+    if (_chunk_node_count > 1)     _mymodel.div(_chunk_node_count);
+    _mymodel.add_processed_global(_mymodel.get_processed_local());
+    _mymodel.set_processed_local(0l);
+    if (consensusADMM && _mymodel != _sharedmodel) {
+      Log.info("Adding per-node model averages to consensus model.");
+      _sharedmodel.div(1.f / 0.9f);
+      _mymodel.div(10f);
+      _sharedmodel.add(_mymodel);
+      _mymodel=null;
+    }
   }
 }

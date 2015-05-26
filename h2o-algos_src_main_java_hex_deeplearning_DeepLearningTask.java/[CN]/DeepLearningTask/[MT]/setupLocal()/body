@@ -2,7 +2,10 @@
   super.setupLocal();
   if (consensusADMM) {
     if (DKV.get(_sharedmodel.myModelInfoKey(H2O.SELF)) != null) {
+      assert(_mymodel == null);
       _mymodel=DKV.getGet(_sharedmodel.myModelInfoKey(H2O.SELF));
+      _mymodel.set_processed_global(_sharedmodel.get_processed_global());
+      assert(_mymodel.get_processed_local() == 0);
     }
  else {
       _mymodel=_sharedmodel;

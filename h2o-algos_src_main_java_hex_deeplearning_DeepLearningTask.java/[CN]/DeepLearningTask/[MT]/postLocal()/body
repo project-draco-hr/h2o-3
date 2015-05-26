@@ -1,10 +1,7 @@
 {
   if (consensusADMM) {
-    DKV.put(_sharedmodel.myModelInfoKey(H2O.SELF),_mymodel);
-    _sharedmodel=_mymodel.deep_clone();
-  }
- else {
-    _sharedmodel=_mymodel;
+    assert(_mymodel.get_processed_local() > 0);
+    DKV.put(_mymodel.myModelInfoKey(H2O.SELF),_mymodel);
   }
   super.postLocal();
 }
