@@ -9,8 +9,10 @@
     offsetChunk=chks[nxs];
   }
   Chunk responseChunk=chks[nxs];
+  Chunk weightsChunk=_dinfo._weights ? chks[_dinfo.weightChunkId()] : new C0DChunk(chks[0]._len,1);
   double eta_sum=0;
   for (int r=0; r < chks[0]._len; ++r) {
+    double w=weightsChunk.atd(r);
     if (skp[r] || responseChunk.isNA(r))     continue;
     ++_nobs;
     double off=(_dinfo._offset ? offsetChunk.atd(r) : 0);
@@ -18,14 +20,14 @@
 switch (_params._family) {
 case gaussian:
       double diff=e - responseChunk.atd(r);
-    _likelihood+=diff * diff;
+    _likelihood+=w * diff * diff;
   eta[r]=diff;
 break;
 case binomial:
 double y=-1 + 2 * responseChunk.atd(r);
 double d=1 + Math.exp(-y * e);
-_likelihood+=Math.log(d);
-eta[r]=-y * (1 - 1.0 / d);
+_likelihood+=w * Math.log(d);
+eta[r]=w * -y * (1 - 1.0 / d);
 break;
 default :
 throw H2O.unimpl();

@@ -8,6 +8,7 @@
     Chunk offsetChunk=chks[_dinfo.offsetChunkId()];
     for (int r=0; r < eta.length; ++r)     Arrays.fill(eta[r],offsetChunk.atd(r));
   }
+  Chunk weightsChunk=_dinfo._weights ? chks[_dinfo.weightChunkId()] : new C0DChunk(chks[0]._len,1);
   double[] beta=_beta;
   double[] pk=_direction;
   for (int r=0; r < eta.length; ++r) {
@@ -58,6 +59,7 @@
   }
   _likelihoods=MemoryManager.malloc8d(_nSteps);
   for (int r=0; r < chks[0]._len; ++r) {
+    double w=weightsChunk.atd(r);
     if (skip[r] || responseChunk.isNA(r))     continue;
     _nobs++;
     double y=responseChunk.atd(r);
@@ -65,11 +67,11 @@
     for (int i=0; i < _nSteps; ++i) {
       double e=eta[r][i] + off[i];
       if (_params._family == Family.binomial && _useFasterMetrics) {
-        _likelihoods[i]+=Math.log(1 + Math.exp(-yy * e));
+        _likelihoods[i]+=w * Math.log(1 + Math.exp(-yy * e));
       }
  else {
         double mu=_params.linkInv(e);
-        _likelihoods[i]+=_params.likelihood(y,mu);
+        _likelihoods[i]+=w * _params.likelihood(y,mu);
       }
     }
   }

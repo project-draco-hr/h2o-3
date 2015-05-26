@@ -9,8 +9,9 @@
   double eta_sum=0;
   for (int r=0; r < chks[0]._len; ++r) {
     if (skp[r] || responseChunk.isNA(r))     continue;
-    _nobs++;
     double w=weightChunk.atd(r);
+    if (w == 0)     continue;
+    _nobs++;
     double y=responseChunk.atd(r);
     double mu=_params.linkInv(eta[r]);
     _val.add(y,mu,w,offsetChunk.atd(r));
