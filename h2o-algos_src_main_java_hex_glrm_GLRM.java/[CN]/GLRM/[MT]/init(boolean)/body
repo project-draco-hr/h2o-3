@@ -11,6 +11,7 @@
   int k_min=(int)Math.min(_train.numCols(),_train.numRows());
   if (_parms._k < 1 || _parms._k > k_min)   error("_k","_k must be between 1 and " + k_min);
   if (null != _parms._user_points) {
+    if (_parms._init != GLRM.Initialization.User)     error("init","init must be 'User' if providing user-specified points");
     if (_parms._user_points.get().numCols() != _train.numCols())     error("_user_points","The user-specified points must have the same number of columns (" + _train.numCols() + ") as the training observations");
  else     if (_parms._user_points.get().numRows() != _parms._k)     error("_user_points","The user-specified points must have k = " + _parms._k + " rows");
  else {
