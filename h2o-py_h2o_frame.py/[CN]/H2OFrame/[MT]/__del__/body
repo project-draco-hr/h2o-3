@@ -1,5 +1,13 @@
 def __del__(self):
     '\n    :return: None\n    '
-    for v in self:
-        v._expr._removed_by_frame_del = True
-    h2o.remove(self)
+    vecs = []
+    for v in self._vecs:
+        cnt = sys.getrefcount(v)
+        if ((cnt >= 4) or v._expr.is_pending()):
+            continue
+        else:
+            v._expr._removed_by_frame_del = True
+            vecs += [v]
+    if (len(vecs) == 0):
+        return
+    h2o.remove(H2OFrame(vecs=vecs))
