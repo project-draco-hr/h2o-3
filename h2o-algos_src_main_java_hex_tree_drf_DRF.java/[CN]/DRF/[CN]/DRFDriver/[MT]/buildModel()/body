@@ -4,18 +4,18 @@
   initTreeMeasurements();
   _train.add("OUT_BAG_TREES",_response.makeZero());
   new SetWrkTask().doAll(_train);
-  if (_valid == null && _parms._checkpoint) {
+  if (_parms._checkpoint) {
     Timer t=new Timer();
     new OOBScorer(_ncols,_nclass,_parms._sample_rate,_model._output._treeKeys).doAll(_train);
     Log.info("Reconstructing oob stats from checkpointed model took " + t);
   }
-  Random rand=createRNG(_actual_seed);
+  Random rand=createRNG(_parms._seed);
   for (int i=0; i < _ntreesFromCheckpoint; i++)   rand.nextLong();
   int tid;
   DTree[] ktrees=null;
   for (tid=0; tid < _parms._ntrees; tid++) {
     if (tid != 0 || !_parms._checkpoint) {
-      double training_r2=doScoringAndSaveModel(false,_valid == null,_parms._build_tree_one_node);
+      double training_r2=doScoringAndSaveModel(false,true,_parms._build_tree_one_node);
       if (training_r2 >= _parms._r2_stopping)       return;
     }
     Timer kb_timer=new Timer();
@@ -24,5 +24,5 @@
     DRF.this.update(1);
     if (!isRunning())     return;
   }
-  doScoringAndSaveModel(true,_valid == null,_parms._build_tree_one_node);
+  doScoringAndSaveModel(true,true,_parms._build_tree_one_node);
 }
