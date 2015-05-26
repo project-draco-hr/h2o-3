@@ -4,52 +4,23 @@ case Env.NUM:
     final double dlf=((ValNum)left)._d;
 switch (rite.type()) {
 case Env.NUM:
-    final double drt=((ValNum)rite)._d;
-  return new ValNum(op(dlf,drt));
-case Env.VEC:
-Vec vrt=((ValVec)rite)._vec;
-return new ValVec(new MRTask(){
-@Override public void map(Chunk crt,NewChunk cres){
-  for (int i=0; i < crt._len; i++)   cres.addNum(op(dlf,crt.atd(i)));
-}
-}
-.doAll(1,vrt).outputFrame().vec(0));
+    return new ValNum(op(dlf,((ValNum)rite)._d));
+case Env.FRM:
+  return scalar_op_frame(dlf,((ValFrame)rite)._fr);
 case Env.STR:
 throw H2O.unimpl();
 default :
 throw H2O.fail();
 }
-case Env.VEC:
-Vec vlf=((ValVec)left)._vec;
+case Env.FRM:
+Frame flf=((ValFrame)left)._fr;
 switch (rite.type()) {
 case Env.NUM:
-if (!vlf.isNumeric()) throw new IllegalArgumentException("Cannot mix Numeric and non-Numeric types");
-final double drt=((ValNum)rite)._d;
-return new ValVec(new MRTask(){
-@Override public void map(Chunk clf,NewChunk cres){
-for (int i=0; i < clf._len; i++) cres.addNum(op(clf.atd(i),drt));
-}
-}
-.doAll(1,vlf).outputFrame().vec(0));
-case Env.VEC:
-Vec vrt=((ValVec)rite)._vec;
-if (vlf.get_type() != vrt.get_type()) throw new IllegalArgumentException("Cannot mix types " + vlf.get_type_str() + " and "+ vrt.get_type_str());
-return new ValVec(new MRTask(){
-@Override public void map(Chunk clf,Chunk crt,NewChunk cres){
-for (int i=0; i < clf._len; i++) cres.addNum(op(clf.atd(i),crt.atd(i)));
-}
-}
-.doAll(1,vlf,vrt).outputFrame().vec(0));
+return frame_op_scalar(flf,((ValNum)rite)._d);
 case Env.STR:
-if (!vlf.isString()) throw new IllegalArgumentException("Cannot mix String and non-String types");
-final ValueString srt=new ValueString(((ValStr)rite)._str);
-return new ValVec(new MRTask(){
-@Override public void map(Chunk clf,NewChunk cres){
-ValueString vstr=new ValueString();
-for (int i=0; i < clf._len; i++) cres.addNum(str_op(clf.atStr(vstr,i),srt));
-}
-}
-.doAll(1,vlf).outputFrame().vec(0));
+return frame_op_scalar(flf,((ValStr)rite)._str);
+case Env.FRM:
+throw H2O.unimpl();
 default :
 throw H2O.fail();
 }

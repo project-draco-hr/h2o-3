@@ -1,0 +1,14 @@
+{
+  for (  Vec vec : fr.vecs())   if (!vec.isString())   throw new IllegalArgumentException("Cannot mix String and non-String types");
+  final ValueString srt=new ValueString(str);
+  return new ValFrame(new MRTask(){
+    @Override public void map(    Chunk[] chks,    NewChunk cres){
+      ValueString vstr=new ValueString();
+      for (int c=0; c < chks.length; c++) {
+        Chunk chk=chks[c];
+        for (int i=0; i < chk._len; i++)         cres.addNum(str_op(chk.atStr(vstr,i),srt));
+      }
+    }
+  }
+.doAll(1,fr).outputFrame());
+}

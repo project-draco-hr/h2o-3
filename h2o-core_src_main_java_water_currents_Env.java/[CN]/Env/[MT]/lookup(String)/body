@@ -1,21 +1,2 @@
 {
-  Value value=DKV.get(Key.make(id));
-  if (value != null) {
-    Vec vec=null;
-    if (value.isFrame()) {
-      Frame fr=value.get();
-      if (fr.numCols() == 1)       vec=fr.anyVec();
-    }
- else     if (value.isVec()) {
-      vec=value.get();
-    }
-    if (vec != null) {
-      _globals.add(vec);
-      return new ValVec(vec);
-    }
-    throw new IllegalArgumentException("DKV name lookup of " + id + " yielded an instance of type "+ value.className()+ ", but only Vec is supported");
-  }
-  AST ast=AST.PRIMS.get(id);
-  if (ast != null)   return new ValFun(ast);
-  throw new IllegalArgumentException("Name lookup of " + id + " failed");
 }
