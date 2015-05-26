@@ -89,7 +89,13 @@
     }
   }
   finally {
-    if (fTrain != null)     fTrain.delete();
-    if (fTest != null)     fTest.delete();
+    if (fTrain != null) {
+      fTrain.remove("offset").remove();
+      DKV.remove(fTrain._key);
+    }
+    if (fTest != null) {
+      fTest.remove("offset").remove();
+      DKV.remove(fTest._key);
+    }
   }
 }
