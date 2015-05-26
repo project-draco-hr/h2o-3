@@ -1,0 +1,26 @@
+{
+  Frame r=frame(new double[][]{{-1},{1},{2},{3},{4},{5},{6},{254}});
+  Key ahex=Key.make("a.hex");
+  Frame fr=new Frame(ahex,null,r.vecs());
+  DKV.put(ahex,fr);
+  try {
+    Val val=Exec.exec(tree);
+    Assert.assertFalse(expectThrow);
+    System.out.println(val.toString());
+    if (val instanceof ValVec) {
+      Vec vec=((ValVec)val)._vec;
+      System.out.println(vec.at(0));
+      vec.remove();
+    }
+ else     if (val instanceof ValNum) {
+      System.out.println(((ValNum)val)._d);
+    }
+  }
+ catch (  IllegalArgumentException iae) {
+    Assert.assertTrue(expectThrow);
+  }
+ finally {
+    fr.delete();
+    r.delete();
+  }
+}
