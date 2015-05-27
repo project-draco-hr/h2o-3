@@ -1,0 +1,23 @@
+def summary(self):
+    '\n    Generate summary of the frame on a per-Vec basis.\n    :return: None\n    '
+    frtmp = self.send_frame()
+    fr_sum = h2o.frame_summary(frtmp)['frames'][0]
+    h2o.removeFrameShallow(frtmp)
+    type = ['type']
+    mins = ['mins']
+    mean = ['mean']
+    maxs = ['maxs']
+    sigma = ['sigma']
+    zeros = ['zero_count']
+    miss = ['missing_count']
+    for v in fr_sum['columns']:
+        type.append(v['type'])
+        mins.append((v['mins'][0] if (v is not None) else v['mins']))
+        mean.append(v['mean'])
+        maxs.append((v['maxs'][0] if (v is not None) else v['maxs']))
+        sigma.append(v['sigma'])
+        zeros.append(v['zero_count'])
+        miss.append(v['missing_count'])
+    table = [type, mins, maxs, sigma, zeros, miss]
+    headers = [vec._name for vec in self._vecs]
+    h2o.H2ODisplay(table, ([''] + headers), 'Column-by-Column Summary')
