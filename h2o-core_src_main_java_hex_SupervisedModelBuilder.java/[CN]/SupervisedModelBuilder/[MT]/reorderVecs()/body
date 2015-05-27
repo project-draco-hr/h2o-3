@@ -11,7 +11,9 @@
     }
   }
   Vec r=_train.remove(_parms._response_column);
-  if (r == null)   error("_response_column","Response column '" + _parms._response_column + "' not found in the training frame");
+  if (r == null) {
+    if (isSupervised())     error("_response_column","Response column '" + _parms._response_column + "' not found in the training frame");
+  }
  else {
     _train.add(_parms._response_column,r);
     ++res;
