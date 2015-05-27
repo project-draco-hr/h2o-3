@@ -1,7 +1,7 @@
 {
   System.out.println("got " + _prostateTrain.anyVec().nChunks() + " chunks");
   GLM job=null;
-  GLMModel model=null;
+  GLMModel model=null, modelUpsampled=null;
   double[] weights=new double[]{0,6,5,4,4,8,2,4,9,5,2,0,0,4,0,0,6,3,6,5,5,5,6,0,9,9,8,6,6,5,6,1,0,6,8,6,9,2,8,0,3,0,2,3,0,2,5,0,0,3,7,4,8,4,1,9,3,7,1,3,8,6,9,5,5,1,9,5,2,1,0,6,4,0,5,3,1,2,4,0,7,9,6,8,0,2,3,7,5,8,3,4,7,8,1,2,5,7,3,7,1,1,5,7,4,9,2,6,3,5,4,9,8,1,8,5,3,0,4,5,1,2,2,7,8,3,4,9,0,1,3,9,8,7,0,8,2,7,1,9,0,7,7,5,2,9,7,6,4,3,4,6,9,1,5,0,7,9,4,1,6,8,8,5,4,2,5,9,8,1,9,2,9,2,3,0,6,7,3,2,3,0,9,5,1,8,0,2,8,6,9,5,1,2,3,1,3,5,0,7,4,0,5,5,7,9,3,0,0,0,1,5,3,2,8,9,9,1,6,2,2,0,5,5,6,2,8,8,9,8,5,0,1,5,3,0,2,5,4,0,6,5,4,5,9,7,5,6,2,2,6,2,5,1,5,9,0,3,0,2,7,0,4,7,7,9,3,7,9,7,9,6,2,6,2,2,9,0,9,8,1,2,6,3,4,1,2,2,3,0};
   Vec offsetVecTrain=_prostateTrain.anyVec().makeZero();
   Vec.Writer vw=offsetVecTrain.open();
@@ -11,7 +11,7 @@
   Frame fTrain=new Frame(fKeyTrain,new String[]{"weights"},new Vec[]{offsetVecTrain});
   fTrain.add(_prostateTrain.names(),_prostateTrain.vecs());
   DKV.put(fKeyTrain,fTrain);
-  String[] cfs1=new String[]{"Intercept","AGE","RACER2","RACER3","DPROSb","DPROSc","DPROSd","DCAPSb","PSA","VOL","GLEASON"};
+  String[] cfs1=new String[]{"Intercept","AGE","RACE.R2","RACE.R3","DPROS.b","DPROS.c","DPROS.d","DCAPS.b","PSA","VOL","GLEASON"};
   double[] vals=new double[]{-6.019527,-0.027350,-0.424333,-0.869188,1.359856,1.745655,1.517155,0.664479,0.034541,-0.005819,0.947644};
   GLMParameters params=new GLMParameters(Family.binomial);
   params._response_column="CAPSULE";
@@ -24,23 +24,42 @@
   params._objective_epsilon=0;
   params._gradient_epsilon=1e-6;
   params._beta_epsilon=1e-6;
-  params._max_iterations=100;
+  params._max_iterations=1000;
   try {
     for (    Solver s : new Solver[]{Solver.AUTO,Solver.IRLSM,Solver.L_BFGS}) {
       Frame scoreTrain=null, scoreTest=null;
       try {
         params._solver=s;
+        params._train=fKeyTrain;
+        params._weights_column="weights";
+        params._gradient_epsilon=1e-8;
+        params._objective_epsilon=0;
         System.out.println("SOLVER = " + s);
-        job=new GLM(Key.make("prostate_model"),"glm test simple poisson",params);
+        job=new GLM(Key.make("prostate_model"),"glm test",params);
         model=job.trainModel().get();
+        params._train=_prostateTrainUpsampled._key;
+        params._weights_column=null;
+        GLM job2=new GLM(Key.make("prostate_model_upsampled"),"glm test",params);
+        modelUpsampled=job2.trainModel().get();
         HashMap<String,Double> coefs=model.coefficients();
+        HashMap<String,Double> coefsUpsampled=modelUpsampled.coefficients();
         System.out.println("coefs = " + coefs);
+        System.out.println("coefs upsampled = " + coefsUpsampled);
         System.out.println(model._output._training_metrics);
+        System.out.println(modelUpsampled._output._training_metrics);
+        for (int i=0; i < cfs1.length; ++i) {
+          System.out.println("cfs = " + cfs1[i]);
+          assertEquals(coefsUpsampled.get(cfs1[i]),coefs.get(cfs1[i]),s == Solver.IRLSM ? 1e-10 : 1e-6);
+          assertEquals(vals[i],coefs.get(cfs1[i]),1e-4);
+        }
+        assertEquals(GLMTest.auc(modelUpsampled),GLMTest.auc(model),1e-4);
         assertEquals(1673,GLMTest.nullDeviance(model),1);
         assertEquals(1195,GLMTest.residualDeviance(model),1);
         assertEquals(251,GLMTest.nullDOF(model),0);
         assertEquals(241,GLMTest.resDOF(model),0);
         assertEquals(1217,GLMTest.aic(model),1);
+        assertEquals(0.1604573,model._output._training_metrics._MSE,1e-5);
+        assertEquals(0.8348088,GLMTest.auc(model),1e-4);
         try {
           scoreTrain=model.score(_prostateTrain);
           assertTrue("shoul've thrown IAE",false);
@@ -66,6 +85,7 @@
       }
   finally {
         if (model != null)         model.delete();
+        if (modelUpsampled != null)         modelUpsampled.delete();
         if (scoreTrain != null)         scoreTrain.delete();
         if (scoreTest != null)         scoreTest.delete();
         if (job != null)         job.remove();
