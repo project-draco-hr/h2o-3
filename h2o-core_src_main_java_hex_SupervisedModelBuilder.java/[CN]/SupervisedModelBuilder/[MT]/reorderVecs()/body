@@ -1,0 +1,22 @@
+{
+  int res=super.reorderVecs();
+  if (_parms._offset_column != null) {
+    Vec o=_train.remove(_parms._offset_column);
+    if (o == null)     error("_offset_column","Offset column '" + _parms._offset_column + "' not found in the training frame");
+ else {
+      _offset=o;
+      _offset_key=o._key;
+      _train.add(_parms._offset_column,o);
+      ++res;
+    }
+  }
+  Vec r=_train.remove(_parms._response_column);
+  if (r == null) {
+    if (isSupervised())     error("_response_column","Response column '" + _parms._response_column + "' not found in the training frame");
+  }
+ else {
+    _train.add(_parms._response_column,r);
+    ++res;
+  }
+  return res;
+}

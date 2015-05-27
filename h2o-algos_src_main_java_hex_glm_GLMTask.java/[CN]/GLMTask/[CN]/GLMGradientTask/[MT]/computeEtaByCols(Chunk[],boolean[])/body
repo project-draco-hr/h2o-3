@@ -1,6 +1,9 @@
 {
   double[] eta=MemoryManager.malloc8d(chks[0]._len);
   if (_dinfo._intercept)   Arrays.fill(eta,_beta[_beta.length - 1]);
+  if (_dinfo._offset) {
+    for (int i=0; i < eta.length; ++i)     eta[i]+=chks[_dinfo.offsetChunkId()].atd(i);
+  }
   double[] b=_beta;
   for (int i=0; i < _dinfo._cats; ++i) {
     Chunk c=chks[i];

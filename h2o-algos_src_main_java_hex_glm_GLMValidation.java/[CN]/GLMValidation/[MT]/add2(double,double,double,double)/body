@@ -1,0 +1,12 @@
+{
+  residual_deviance+=weight * _parms.deviance(yreal,ymodel);
+  double ynull=offset == 0 ? _ymu : _parms.linkInv(offset);
+  null_deviance+=weight * _parms.deviance(yreal,ynull);
+  ++nobs;
+  if (_parms._family == Family.poisson) {
+    long y=Math.round(yreal);
+    double logfactorial=0;
+    for (long i=2; i <= y; ++i)     logfactorial+=Math.log(i);
+    _aic2+=weight * (yreal * Math.log(ymodel) - logfactorial - ymodel);
+  }
+}

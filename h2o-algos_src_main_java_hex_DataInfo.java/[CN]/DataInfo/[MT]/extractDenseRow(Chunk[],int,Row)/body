@@ -23,12 +23,14 @@
     row.numVals[i]=d;
   }
   for (int i=0; i < _responses; ++i) {
-    row.response[i]=chunks[chunks.length - _responses + i].atd(rid);
+    row.response[i]=chunks[responseChunkId()].atd(rid);
     if (_normRespMul != null)     row.response[i]=(row.response[i] - _normRespSub[i]) * _normRespMul[i];
     if (Double.isNaN(row.response[i])) {
       row.bad=true;
       return row;
     }
   }
+  if (_offset)   row.offset=chunks[offsetChunkId()].atd(rid);
+  if (_weights)   row.weight=chunks[weightChunkId()].atd(rid);
   return row;
 }
