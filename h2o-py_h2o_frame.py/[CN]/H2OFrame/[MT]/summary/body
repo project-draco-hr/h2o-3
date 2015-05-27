@@ -1,6 +1,8 @@
 def summary(self):
     '\n    Generate summary of the frame on a per-Vec basis.\n    :return: None\n    '
-    fr_sum = h2o.frame_summary(self.send_frame())['frames'][0]
+    frtmp = self.send_frame()
+    fr_sum = h2o.frame_summary(frtmp)['frames'][0]
+    h2o.removeFrameShallow(frtmp)
     type = ['type']
     mins = ['mins']
     mean = ['mean']
