@@ -4,18 +4,12 @@
     Frame fr=vfr.getFrame();
     if (!(asts[2] instanceof ASTNumList))     throw new IllegalArgumentException("Row slicing requires a number-list as the last argument, but found a " + asts[2].getClass());
     ASTNumList rowlist=(ASTNumList)asts[2];
-    double[] bases=rowlist._bases;
-    double[] strides=rowlist._strides;
-    long[] cnts=rowlist._cnts;
-    int nrows=0, r=0;
-    for (int i=0; i < bases.length; i++)     nrows+=cnts[i];
-    long[] rows=new long[(int)nrows];
-    for (int i=0; i < bases.length; i++) {
-      for (double d=bases[i]; d < bases[i] + cnts[i] * strides[i]; d+=strides[i]) {
-        long row=(long)d;
-        if (row != d || d < 0 || d >= fr.numRows())         throw new IllegalArgumentException("Row must be an integer from 0 to " + (fr.numRows() - 1));
-        rows[r++]=row;
-      }
+    double[] drows=rowlist.expand();
+    long[] rows=new long[drows.length];
+    for (int i=0; i < drows.length; i++) {
+      long row=(long)drows[i];
+      if (row != drows[i] || row < 0 || row >= fr.numRows())       throw new IllegalArgumentException("Row must be an integer from 0 to " + (fr.numRows() - 1));
+      rows[i]=row;
     }
     return stk.returning(new ValFrame(fr.deepSlice(rows,null)));
   }
