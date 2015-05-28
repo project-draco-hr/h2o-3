@@ -13,7 +13,7 @@
   float[] actual=null;
   _mb=Model.this.makeMetricBuilder(_domain);
   if (_computeMetrics) {
-    if (Model.this instanceof SupervisedModel) {
+    if (isSupervised()) {
       actual=new float[1];
       responseChunk=chks[_output.responseIdx()];
     }
@@ -24,7 +24,7 @@
   for (int row=0; row < len; row++) {
     double[] p=hasWeightsOrOffset ? score0(chks,weightsChunk.atd(row),offsetChunk.atd(row),row,tmp,preds) : score0(chks,row,tmp,preds);
     if (_computeMetrics) {
-      if (Model.this instanceof SupervisedModel) {
+      if (isSupervised()) {
         actual[0]=(float)responseChunk.atd(row);
       }
  else {
