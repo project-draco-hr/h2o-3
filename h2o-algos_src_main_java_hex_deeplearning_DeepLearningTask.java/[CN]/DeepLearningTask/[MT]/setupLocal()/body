@@ -1,18 +1,12 @@
 {
   super.setupLocal();
   if (consensusADMM) {
-    if (DKV.get(_sharedmodel.myModelInfoKey(H2O.SELF)) != null) {
-      assert(_mymodel == null);
-      _mymodel=DKV.getGet(_sharedmodel.myModelInfoKey(H2O.SELF));
-      _mymodel.set_processed_global(_sharedmodel.get_processed_global());
-      assert(_mymodel.get_processed_local() == 0);
-    }
- else {
-      _mymodel=_sharedmodel;
+    _localmodel=DKV.getGet(_sharedmodel.localModelInfoKey(H2O.SELF));
+    if (_localmodel != null) {
+      _localmodel.parameters=(DeepLearningModel.DeepLearningParameters)_sharedmodel.get_params().clone();
+      _localmodel.set_processed_global(_sharedmodel.get_processed_global());
+      _localmodel.set_processed_local(0);
     }
   }
- else {
-    _mymodel=_sharedmodel;
-    _sharedmodel=null;
-  }
+  if (_localmodel == null)   _localmodel=_sharedmodel;
 }

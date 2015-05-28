@@ -2,8 +2,10 @@
   assert(_model_info.get_params()._replicate_training_data);
   super.setupLocal();
   _res=new DeepLearningTask(_jobKey,_model_info,_sync_fraction);
+  assert(_res.model_info().get_params()._replicate_training_data);
+  _res.setCompleter(this);
   assert(_model_info == _res.model_info());
   addToPendingCount(1);
-  _res.setCompleter(this);
   _res.asyncExec(0,_fr,true);
+  assert(_res.model_info().get_params()._replicate_training_data);
 }
