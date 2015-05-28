@@ -1,0 +1,22 @@
+{
+  String tree="({var1 . (* var1 var1)} 3)";
+  checkTree(tree);
+  tree="({var1 . (* var1 var2)} 3)";
+  checkTree(tree,true);
+  tree="({var1 . (* var1 (rows %a.hex [0]))} 3)";
+  checkTree(tree);
+  tree="({fun . 3} {y . (* y y)})";
+  checkTree(tree);
+  tree="({fun . (fun 3)} {y . (* y y)})";
+  checkTree(tree);
+  tree="({fun . fun} {y . (* y y)})";
+  checkTree(tree);
+  tree="({fun . (fun (fun 3))} {y . (* y y)})";
+  checkTree(tree);
+  tree="({fun x . (fun (fun x))} {y . (* y y)} 3)";
+  checkTree(tree);
+  tree=" ({fun . {x . (fun (fun x))}} {y . (* y y)})   ";
+  checkTree(tree);
+  tree="(({fun . {x . (fun (fun x))}} {y . (* y y)}) 3)";
+  checkTree(tree);
+}
