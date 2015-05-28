@@ -1,30 +1,30 @@
 {
 switch (left.type()) {
-case Env.NUM:
+case Val.NUM:
     final double dlf=left.getNum();
 switch (rite.type()) {
-case Env.NUM:
+case Val.NUM:
     return new ValNum(op(dlf,rite.getNum()));
-case Env.FRM:
+case Val.FRM:
   return scalar_op_frame(dlf,rite.getFrame());
-case Env.STR:
+case Val.STR:
 throw H2O.unimpl();
 default :
 throw H2O.fail();
 }
-case Env.FRM:
+case Val.FRM:
 Frame flf=left.getFrame();
 switch (rite.type()) {
-case Env.NUM:
+case Val.NUM:
 return frame_op_scalar(flf,rite.getNum());
-case Env.STR:
+case Val.STR:
 return frame_op_scalar(flf,rite.getStr());
-case Env.FRM:
+case Val.FRM:
 return frame_op_frame(flf,rite.getFrame());
 default :
 throw H2O.fail();
 }
-case Env.STR:
+case Val.STR:
 throw H2O.unimpl();
 default :
 throw H2O.fail();
