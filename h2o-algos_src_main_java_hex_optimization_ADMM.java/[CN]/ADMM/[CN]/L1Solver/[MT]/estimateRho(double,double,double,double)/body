@@ -22,11 +22,9 @@
     }
     rho*=.25;
   }
-  if (!Double.isInfinite(ub) || !Double.isInfinite(lb)) {
-    double lx=(x - lb);
-    double ux=(ub - x);
-    double xx=Math.min(lx,ux);
-    rho=Math.max(rho,xx <= .5 * x ? 1 : 1e-4);
+  if (!Double.isInfinite(lb) || !Double.isInfinite(ub)) {
+    boolean oob=-Math.min(x - lb,ub - x) > -1e-4;
+    rho=oob ? 10 : 1e-1;
   }
   return rho;
 }
