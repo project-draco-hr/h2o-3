@@ -1,4 +1,4 @@
-def covtype_getModel(ip, port):
+def covtype_get_model(ip, port):
     h2o.init(ip, port)
     covtype = h2o.import_frame(path=h2o.locate('smalldata/covtype/covtype.20k.data'))
     Y = 54
@@ -7,13 +7,13 @@ def covtype_getModel(ip, port):
     covtype[54] = (covtype[54] == res_class)
     covtype_mod1 = h2o.glm(y=covtype[Y], x=covtype[X], family='binomial', alpha=[0], Lambda=[0])
     covtype_mod1.show()
-    covtype_mod1 = h2o.getModel(covtype_mod1._key)
+    covtype_mod1 = h2o.get_model(covtype_mod1._key)
     covtype_mod1.show()
     covtype_mod2 = h2o.glm(y=covtype[Y], x=covtype[X], family='binomial', alpha=[0.5], Lambda=[0.0001])
     covtype_mod2.show()
-    covtype_mod2 = h2o.getModel(covtype_mod2._key)
+    covtype_mod2 = h2o.get_model(covtype_mod2._key)
     covtype_mod2.show()
     covtype_mod3 = h2o.glm(y=covtype[Y], x=covtype[X], family='binomial', alpha=[1], Lambda=[0.0001])
     covtype_mod3.show()
-    covtype_mod3 = h2o.getModel(covtype_mod3._key)
+    covtype_mod3 = h2o.get_model(covtype_mod3._key)
     covtype_mod3.show()
