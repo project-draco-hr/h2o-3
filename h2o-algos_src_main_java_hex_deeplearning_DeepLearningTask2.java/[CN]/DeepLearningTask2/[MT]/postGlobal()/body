@@ -1,16 +1,9 @@
 {
-  assert(_res.model_info().get_params()._replicate_training_data);
   super.postGlobal();
-  if (_res._chunk_node_count > 1)   _res.model_info().div(_res._chunk_node_count);
-  _res.model_info().add_processed_global(_res.model_info().get_processed_local());
-  _res.model_info().set_processed_local(0l);
-  if (!_res.model_info().get_params()._replicate_training_data && H2O.CLOUD.size() > 1 && _res.consensusADMM) {
-    Log.info("DLT2: Adding per-node model averages to consensus model.");
-    DeepLearningModel.DeepLearningModelInfo moving_avg=(DeepLearningModel.DeepLearningModelInfo)_res.model_info().clone();
-    moving_avg.set_processed_local(0);
-    moving_avg.div(1.f / 0.9f);
-    _res.model_info().div(10f);
-    _res.model_info().add(moving_avg);
+  if (_res.consensusADMM) {
+    _consensus_model_info=(DeepLearningModel.DeepLearningModelInfo)_res.model_info().clone();
   }
-  assert(_res.model_info().get_params()._replicate_training_data);
+ else {
+    _consensus_model_info=_res.model_info();
+  }
 }
