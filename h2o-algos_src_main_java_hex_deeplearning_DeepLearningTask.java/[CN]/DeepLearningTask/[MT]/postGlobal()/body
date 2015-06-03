@@ -1,5 +1,6 @@
 {
-  if (H2O.CLOUD.size() > 1 && !_localmodel.get_params()._replicate_training_data) {
+  DeepLearningModel.DeepLearningParameters dlp=_localmodel.get_params();
+  if (H2O.CLOUD.size() > 1 && !dlp._replicate_training_data) {
     long now=System.currentTimeMillis();
     if (_chunk_node_count < H2O.CLOUD.size() && (now - _lastWarn > 5000) && _warnCount < 3) {
       Log.warn(H2O.CLOUD.size() - _chunk_node_count + " node(s) (out of " + H2O.CLOUD.size() + ") are not contributing to model updates. Consider setting replicate_training_data to true or using a larger training dataset (or fewer H2O nodes).");
@@ -7,14 +8,25 @@
       _warnCount++;
     }
   }
-  if (!_localmodel.get_params()._replicate_training_data && H2O.CLOUD.size() == 1) {
+  if (!dlp._replicate_training_data || H2O.CLOUD.size() == 1) {
     _localmodel.add_processed_global(_localmodel.get_processed_local());
     _localmodel.set_processed_local(0l);
     if (_chunk_node_count > 1)     _localmodel.div(_chunk_node_count);
   }
-  if (consensusADMM) {
-    _sharedmodel=(DeepLearningModel.DeepLearningModelInfo)_localmodel.clone();
+  if (dlp._elastic_averaging) {
+    final double alpha=_localmodel.get_params()._elastic_averaging_moving_rate;
+    final double p=H2O.CLOUD.size();
+    final float pa=(float)(p * alpha);
+    DeepLearningModel.DeepLearningModelInfo avg=_localmodel;
+    avg.mult(pa);
+    _sharedmodel=DKV.getGet(_sharedmodelkey);
+    _sharedmodel.mult(1 - pa);
+    _sharedmodel.add(avg);
+    _sharedmodel.set_processed_global(_localmodel.get_processed_global());
+    _sharedmodel.set_processed_local(0);
+    DKV.put(_sharedmodelkey,_sharedmodel);
     DKV.put(_sharedmodel.data_info());
+    _localmodel=null;
   }
  else {
     _sharedmodel=_localmodel;

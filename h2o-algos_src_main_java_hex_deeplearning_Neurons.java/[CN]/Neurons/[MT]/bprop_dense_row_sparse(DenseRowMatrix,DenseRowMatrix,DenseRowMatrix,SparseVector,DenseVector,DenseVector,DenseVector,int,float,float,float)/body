@@ -19,7 +19,8 @@
     if (update_prev)     prev_e.add(col,partial_grad * weight);
     final float previous_a=prev_a._values[it];
     assert(previous_a != 0);
-    final float grad=partial_grad * previous_a - Math.signum(weight) * l1 - weight * l2;
+    float grad=partial_grad * previous_a - Math.signum(weight) * l1 - weight * l2;
+    if (_wEA != null)     throw H2O.unimpl("elastic averaging is not implemented for sparse input handling.");
     final int w=idx + col;
     if (have_ada) {
       assert(!have_momenta);

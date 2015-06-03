@@ -15,7 +15,8 @@
     if (update_prev)     prev_e.add(col,partial_grad * weight);
     assert(previous_a != 0);
     if (_shortcut && partial_grad == 0f)     continue;
-    final float grad=partial_grad * previous_a - Math.signum(weight) * l1 - weight * l2;
+    float grad=partial_grad * previous_a - Math.signum(weight) * l1 - weight * l2;
+    if (_wEA != null)     throw H2O.unimpl("elastic averaging is not implemented for sparse input handling with column-major matrix format.");
     if (have_ada) {
       assert(!have_momenta);
       float brate=computeAdaDeltaRateForWeight(grad,row,col,adaxg,rho,eps);
