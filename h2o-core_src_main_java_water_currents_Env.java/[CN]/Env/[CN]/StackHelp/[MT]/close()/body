@@ -1,2 +1,16 @@
 {
+  Futures fs=null;
+  int i, sp=sp();
+  while (sp > _sp) {
+    Frame fr=_refcnt.remove(--sp);
+    for (    Vec vec : fr.vecs()) {
+      if (_globals.contains(vec))       continue;
+      for (i=0; i < _sp; i++)       if (_refcnt.get(i).find(vec) != -1)       break;
+      if (i == _sp && (_ret_fr == null || _ret_fr.find(vec) == -1)) {
+        if (fs == null)         fs=new Futures();
+        vec.remove(fs);
+      }
+    }
+  }
+  if (fs != null)   fs.blockForPending();
 }
