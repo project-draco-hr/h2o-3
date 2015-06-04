@@ -26,6 +26,10 @@ fr.delete();
 throw new IllegalArgumentException("Missing the result key 'id' for the returned frame");
 }
 Key k=Key.make(rapids.id);
+Iced i=DKV.getGet(k);
+if (i instanceof Lockable) ((Lockable)i).delete();
+ else if (i instanceof Keyed) ((Keyed)i).remove();
+ else if (i != null) throw new IllegalArgumentException("Attempting to overright an unexpected key");
 DKV.put(fr=new Frame(k,fr._names,fr.vecs()));
 return new RapidsFrameV3(fr);
 default :
