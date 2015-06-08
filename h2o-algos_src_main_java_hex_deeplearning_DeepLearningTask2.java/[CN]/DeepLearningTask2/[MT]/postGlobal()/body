@@ -4,7 +4,11 @@
   _res.model_info().add_processed_global(_res.model_info().get_processed_local());
   _res.model_info().set_processed_local(0l);
   if (_res.model_info().get_params()._elastic_averaging) {
-    _model_info_global=(DeepLearningModel.DeepLearningModelInfo)_res.model_info().clone();
+    _model_info_global=_res.model_info().deep_clone();
+{
+      _model_info_global.computeStats();
+      assert(!_model_info_global.unstable());
+    }
   }
  else {
     _model_info_global=_res.model_info();

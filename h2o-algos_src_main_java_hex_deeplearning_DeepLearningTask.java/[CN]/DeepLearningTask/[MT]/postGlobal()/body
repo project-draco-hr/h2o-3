@@ -12,23 +12,27 @@
     _localmodel.add_processed_global(_localmodel.get_processed_local());
     _localmodel.set_processed_local(0l);
     if (_chunk_node_count > 1)     _localmodel.div(_chunk_node_count);
-  }
-  if (dlp._elastic_averaging) {
-    final double alpha=_localmodel.get_params()._elastic_averaging_moving_rate;
-    final double p=H2O.CLOUD.size();
-    final float pa=(float)(p * alpha);
-    DeepLearningModel.DeepLearningModelInfo avg=_localmodel;
-    avg.mult(pa);
-    _sharedmodel=DKV.getGet(_sharedmodelkey);
-    _sharedmodel.mult(1 - pa);
-    _sharedmodel.add(avg);
-    _sharedmodel.set_processed_global(_localmodel.get_processed_global());
-    _sharedmodel.set_processed_local(0);
-    DKV.put(_sharedmodelkey,_sharedmodel);
-    DKV.put(_sharedmodel.data_info());
-    _localmodel=null;
-  }
+    if (dlp._elastic_averaging) {
+{
+        _localmodel.computeStats();
+        assert(!_localmodel.unstable());
+      }
+      final float pa=(float)_localmodel.get_params()._elastic_averaging_moving_rate;
+      _sharedmodel=DKV.getGet(_sharedmodel.sharedModelInfoKey());
+      _localmodel.mult(pa);
+      _sharedmodel.mult(1 - pa);
+      _sharedmodel.add(_localmodel);
+      _sharedmodel.set_processed_global(_localmodel.get_processed_global());
+      _sharedmodel.set_processed_local(0);
+{
+        _sharedmodel.computeStats();
+        assert(!_sharedmodel.unstable());
+      }
+      DKV.put(_sharedmodel.sharedModelInfoKey(),_sharedmodel);
+      _localmodel=null;
+    }
  else {
-    _sharedmodel=_localmodel;
+      _sharedmodel=_localmodel;
+    }
   }
 }

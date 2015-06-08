@@ -19,7 +19,7 @@
     if (fast_mode && previous_a == 0)     continue;
     final int w=idx + col;
     float grad=partial_grad * previous_a - Math.signum(weight) * l1 - weight * l2;
-    if (_wEA != null)     grad+=_minfo.get_params()._elastic_averaging_moving_rate / 1e-2 * (_wEA.raw()[w] - _w.raw()[w]);
+    if (_wEA != null)     grad+=1e-2 * (_wEA.raw()[w] - _w.raw()[w]);
     if (have_ada) {
       final float grad2=grad * grad;
       avg_grad2+=grad2;
