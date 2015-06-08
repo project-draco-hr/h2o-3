@@ -1,0 +1,19 @@
+{
+  if (m == null)   return;
+  _mse=m._MSE;
+  if (m instanceof ModelMetricsSupervised) {
+    _r2=((ModelMetricsSupervised)m).r2();
+  }
+  if (m instanceof ModelMetricsBinomial) {
+    _logloss=((ModelMetricsBinomial)m)._logloss;
+    if (((ModelMetricsBinomial)m)._auc != null) {
+      _AUC=((ModelMetricsBinomial)m)._auc._auc;
+      _classError=((ModelMetricsBinomial)m)._auc.defaultErr();
+    }
+  }
+ else   if (m instanceof ModelMetricsMultinomial) {
+    _logloss=((ModelMetricsMultinomial)m)._logloss;
+    _classError=((ModelMetricsMultinomial)m)._cm.err();
+    _hitratio=((ModelMetricsMultinomial)m)._hit_ratios;
+  }
+}

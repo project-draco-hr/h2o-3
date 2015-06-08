@@ -3,26 +3,23 @@
   double[] eta=computeEtaByCols(chks,skp);
   double[] b=_beta;
   double[] g=_gradient;
-  Chunk offsetChunk=null;
-  int nxs=chks.length - 1;
-  if (_dinfo._offset) {
-    nxs-=1;
-    offsetChunk=chks[nxs];
-  }
-  Chunk responseChunk=chks[nxs];
+  Chunk offsetChunk=_dinfo._offset ? chks[_dinfo.offsetChunkId()] : new C0DChunk(0,chks[0]._len);
+  Chunk weightChunk=_dinfo._weights ? chks[_dinfo.weightChunkId()] : new C0DChunk(1,chks[0]._len);
+  Chunk responseChunk=chks[_dinfo.responseChunkId()];
   double eta_sum=0;
   for (int r=0; r < chks[0]._len; ++r) {
     if (skp[r] || responseChunk.isNA(r))     continue;
+    double w=weightChunk.atd(r);
+    if (w == 0 || Double.isNaN(w))     continue;
     _nobs++;
-    double off=(_dinfo._offset ? offsetChunk.atd(r) : 0);
+    _wsum+=w;
     double y=responseChunk.atd(r);
-    double offset=off;
-    double mu=_params.linkInv(eta[r] + offset);
-    _val.add(y,mu);
-    _likelihood+=_params.likelihood(y,eta[r],mu);
+    double mu=_params.linkInv(eta[r]);
+    _val.add(y,mu,w,offsetChunk.atd(r));
+    _likelihood+=w * _params.likelihood(y,mu);
     double var=_params.variance(mu);
     if (var < 1e-6)     var=1e-6;
-    eta[r]=(mu - y) / (var * _params.linkDeriv(mu));
+    eta[r]=w * (mu - y) / (var * _params.linkDeriv(mu));
     eta_sum+=eta[r];
   }
   if (_dinfo._intercept)   g[g.length - 1]=eta_sum;

@@ -1,0 +1,19 @@
+{
+  GLMParameters parms=new GLMParameters(Family.gaussian);
+  parms._response_column="D";
+  parms._offset_column="E";
+  parms._train=_abcd._key;
+  parms._intercept=false;
+  parms._standardize=false;
+  GLMModel m=null;
+  GLM job=null;
+  try {
+    job=new GLM(Key.make("glm_abcd"),"glm test abcd",parms);
+    m=job.trainModel().get();
+    System.out.println(m.coefficients());
+  }
+  finally {
+    if (m != null)     m.delete();
+    if (job != null)     job.remove();
+  }
+}

@@ -13,8 +13,8 @@ def _do_it(self):
         __CMD__ += (('(' + self._op) + ' ')
     left = self._do_child(self._left)
     rite = self._do_child(self._rite)
-    if (self._op in ['+', '&', '|', '-', '*', '/', '^', 'n', 'N', 'g', 'G', 'l', 'L']):
-        rapids_dict = {'+': '+', '&': '&', '|': '|', '-': '-', '*': '*', '/': '/', '^': '**', 'n': '==', 'N': '!=', 'g': '>', 'G': '>=', 'l': '<', 'L': '<=', }
+    if (self._op in ['+', '&', '|', '-', '*', '/', '^', 'n', 'N', 'g', 'G', 'l', 'L', 'mod']):
+        rapids_dict = {'+': '+', '&': '&', '|': '|', '-': '-', '*': '*', '/': '/', '^': '**', 'n': '==', 'N': '!=', 'g': '>', 'G': '>=', 'l': '<', 'L': '<=', 'mod': 'mod', }
         if isinstance(left._data, (int, float, str)):
             if isinstance(rite._data, (int, float, str)):
                 self._data = eval((('left ' + rapids_dict[self._op]) + ' rite'))
@@ -81,6 +81,11 @@ def _do_it(self):
                 self._data = eval('[scipy.special.polygamma(0,x) for x in left._data]')
             elif (self._op == 'trigamma'):
                 self._data = eval('[scipy.special.polygamma(1,x) for x in left._data]')
+        else:
+            pass
+    elif (self._op == 'year'):
+        if left.is_local():
+            raise NotImplementedError
         else:
             pass
     elif (self._op == 'month'):

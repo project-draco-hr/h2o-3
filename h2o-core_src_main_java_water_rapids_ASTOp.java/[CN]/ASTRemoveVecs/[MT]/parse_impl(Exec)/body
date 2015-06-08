@@ -1,0 +1,11 @@
+{
+  AST ary=E.parse();
+  AST a=E.parse();
+  if (a instanceof ASTLongList)   _rmVecs=((ASTLongList)a)._l;
+ else   if (a instanceof ASTNum)   _rmVecs=new long[]{(long)((ASTNum)a)._d};
+ else   throw new IllegalArgumentException("Expected to get an `llist` or `num`. Got: " + a.getClass());
+  E.eatEnd();
+  ASTRemoveVecs res=(ASTRemoveVecs)clone();
+  res._asts=new AST[]{ary};
+  return res;
+}

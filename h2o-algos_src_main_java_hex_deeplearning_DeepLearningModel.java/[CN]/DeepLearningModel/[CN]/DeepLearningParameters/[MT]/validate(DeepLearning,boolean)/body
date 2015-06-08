@@ -1,6 +1,6 @@
 {
   dl.hide("_score_each_iteration","Not used by Deep Learning.");
-  boolean classification=expensive || dl._nclass != 0 ? dl.isClassifier() : _loss == Loss.CrossEntropy;
+  boolean classification=expensive || dl.nclasses() != 0 ? dl.isClassifier() : _loss == Loss.CrossEntropy;
   if (_hidden == null || _hidden.length == 0)   dl.error("_hidden","There must be at least one hidden layer.");
   for (  int h : _hidden)   if (h <= 0)   dl.error("_hidden","Hidden layer size must be positive.");
   if (!_autoencoder) {
@@ -51,7 +51,7 @@
   }
   if (getNumFolds() != 0)   dl.error("_n_folds","n_folds is not yet implemented.");
   if (_loss == null) {
-    if (expensive || dl._nclass != 0) {
+    if (expensive || dl.nclasses() != 0) {
       dl.error("_loss","Loss function must be specified. Try CrossEntropy for categorical response (classification), MeanSquare, Absolute or Huber for numerical response (regression).");
     }
   }
