@@ -1,4 +1,4 @@
-def build_test_list(self, test_group, run_small, run_medium, run_large, nopass):
+def build_test_list(self, test_group, run_small, run_medium, run_large, run_xlarge, nopass):
     '\n        Recursively find the list of tests to run and store them in the object.\n        Fills in self.tests and self.tests_not_started.\n\n        @param test_group: Name of the test group of tests to run.\n        @return:  none\n        '
     if self.terminated:
         return
@@ -16,23 +16,28 @@ def build_test_list(self, test_group, run_small, run_medium, run_large, nopass):
             is_small = False
             is_medium = False
             is_large = False
+            is_xlarge = False
             is_nopass = False
             is_nofeature = False
-            if re.match('.*large.*', f):
+            if ('large' in f):
                 is_large = True
-            elif re.match('.*medium.*', f):
+            elif ('medium' in f):
                 is_large = True
+            elif ('xlarge' in f):
+                is_xlarge = True
             else:
                 is_small = True
-            if re.match('.*NOPASS.*', f):
+            if ('NOPASS' in f):
                 is_nopass = True
-            if re.match('.*NOFEATURE.*', f):
+            if ('NOFEATURE' in f):
                 is_nofeature = True
             if (is_small and (not run_small)):
                 continue
             if (is_medium and (not run_medium)):
                 continue
             if (is_large and (not run_large)):
+                continue
+            if (is_xlarge and (not run_xlarge)):
                 continue
             if (is_nopass and (not nopass)):
                 self.nopass_counter += 1
