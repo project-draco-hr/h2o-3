@@ -14,18 +14,18 @@
     parms._ignored_columns=_parms._ignored_columns;
     parms._ignore_const_cols=_parms._ignore_const_cols;
     parms._score_each_iteration=_parms._score_each_iteration;
-    parms._useAllFactorLevels=_parms._useAllFactorLevels;
+    parms._use_all_factor_levels=_parms._use_all_factor_levels;
     parms._transform=_parms._transform;
     parms._nv=_parms._k;
     parms._max_iterations=_parms._max_iterations;
     parms._seed=_parms._seed;
     parms._only_v=false;
-    parms._u_key=_parms._loading_key;
+    parms._u_name=_parms._loading_name;
     parms._keep_u=_parms._keep_loading;
     SVDModel svd=null;
     SVD job=null;
     try {
-      job=new SVD(parms);
+      job=new EmbeddedSVD(parms,_progressKey);
       svd=job.trainModel().get();
     }
   finally {
@@ -33,7 +33,7 @@
       if (svd != null)       svd.remove();
     }
     computeStatsFillModel(model,svd);
-    model.update(_key);
+    model.update(self());
     update(1);
     done();
   }
