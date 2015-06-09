@@ -5,6 +5,7 @@
   final float l2=(float)params._l2;
   final float bias=_b.get(row);
   partial_grad-=Math.signum(bias) * l1 + bias * l2;
+  if (_bEA != null)   partial_grad-=(bias - _bEA.get(row)) * params._elastic_averaging_regularization;
   if (have_ada) {
     final float rho=(float)params._rho;
     final float eps=(float)params._epsilon;
