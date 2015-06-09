@@ -1,14 +1,16 @@
 {
+  assert(_localmodel == null);
   super.setupLocal();
   if (model_info().get_params()._elastic_averaging) {
     _localmodel=DKV.getGet(_sharedmodel.localModelInfoKey(H2O.SELF));
     if (_localmodel != null) {
-{
-        _localmodel.computeStats();
-        assert(!_localmodel.unstable());
+      if (!Arrays.equals(_localmodel.units,_sharedmodel.units)) {
+        _localmodel=_sharedmodel.deep_clone();
       }
-      _localmodel.set_params(_sharedmodel.get_params());
-      _localmodel.set_processed_global(_sharedmodel.get_processed_global());
+ else {
+        _localmodel.set_params(_sharedmodel.get_params());
+        _localmodel.set_processed_global(_sharedmodel.get_processed_global());
+      }
     }
  else {
       _localmodel=_sharedmodel.deep_clone();
@@ -18,8 +20,4 @@
     _localmodel=_sharedmodel;
   }
   _localmodel.set_processed_local(0);
-{
-    _localmodel.computeStats();
-    assert(!_localmodel.unstable());
-  }
 }

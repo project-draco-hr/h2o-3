@@ -26,8 +26,8 @@
         }
         for (        DeepLearningParameters.Loss loss : new DeepLearningParameters.Loss[]{DeepLearningParameters.Loss.Automatic,DeepLearningParameters.Loss.CrossEntropy,DeepLearningParameters.Loss.Huber,DeepLearningParameters.Loss.Absolute,DeepLearningParameters.Loss.MeanSquare}) {
           if (!classification && loss == DeepLearningParameters.Loss.CrossEntropy)           continue;
-          for (          boolean elastic_averaging : new boolean[]{false}) {
-            for (            boolean replicate : new boolean[]{true}) {
+          for (          boolean elastic_averaging : new boolean[]{true,false}) {
+            for (            boolean replicate : new boolean[]{true,false}) {
               for (              DeepLearningParameters.Activation activation : new DeepLearningParameters.Activation[]{DeepLearningParameters.Activation.Tanh,DeepLearningParameters.Activation.TanhWithDropout,DeepLearningParameters.Activation.Rectifier,DeepLearningParameters.Activation.RectifierWithDropout,DeepLearningParameters.Activation.Maxout}) {
                 for (                boolean load_balance : new boolean[]{true,false}) {
                   for (                  boolean shuffle : new boolean[]{true,false}) {
@@ -127,7 +127,7 @@
                                           p2._response_column=frame._names[resp];
                                           p2._overwrite_with_best_model=overwrite_with_best_model;
                                           p2._epochs=epochs;
-                                          p2._replicate_training_data=replicate;
+                                          p2._replicate_training_data=rng.nextBoolean();
                                           p2._seed=myseed;
                                           p2._train_samples_per_iteration=train_samples_per_iteration;
                                           p2._balance_classes=classification && balance_classes;
