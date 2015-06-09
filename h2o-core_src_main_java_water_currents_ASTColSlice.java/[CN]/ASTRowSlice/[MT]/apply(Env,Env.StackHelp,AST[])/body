@@ -7,7 +7,7 @@
       @Override public void map(      Chunk[] cs,      NewChunk[] ncs){
         long start=cs[0].start();
         long end=start + cs[0]._len;
-        double min=nums.min(), max=nums.max1();
+        double min=nums.min(), max=nums.max() - 1;
         if (!(max < start || min > end)) {
           int startOffset=(int)(min > start ? min : start);
           for (int i=startOffset; i < cs[0]._len; ++i) {
@@ -28,6 +28,11 @@
  else   if ((asts[2] instanceof ASTNum)) {
     long[] rows=new long[]{(long)(((ASTNum)asts[2])._d.getNum())};
     returningFrame=fr.deepSlice(rows,null);
+  }
+ else   if ((asts[2] instanceof ASTExec)) {
+    Frame predVec=stk.track(asts[2].exec(env)).getFrame();
+    if (predVec.numCols() != 1)     throw new IllegalArgumentException("Conditional Row Slicing Expression evaluated to " + predVec.numCols() + " columns.  Must be a boolean Vec.");
+    returningFrame=fr.deepSlice(predVec,null);
   }
  else   throw new IllegalArgumentException("Row slicing requires a number-list as the last argument, but found a " + asts[2].getClass());
   return new ValFrame(returningFrame);
