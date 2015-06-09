@@ -1,7 +1,6 @@
 {
   Frame fr=stk.track(asts[1].exec(env)).getFrame();
   Frame returningFrame;
-  long[] rows;
   if (asts[2] instanceof ASTNumList) {
     final ASTNumList nums=(ASTNumList)asts[2];
     returningFrame=new MRTask(){
@@ -27,8 +26,13 @@
 .doAll(fr.numCols(),fr).outputFrame(fr.names(),fr.domains());
   }
  else   if ((asts[2] instanceof ASTNum)) {
-    rows=new long[]{(long)(((ASTNum)asts[2])._d.getNum())};
+    long[] rows=new long[]{(long)(((ASTNum)asts[2])._d.getNum())};
     returningFrame=fr.deepSlice(rows,null);
+  }
+ else   if ((asts[2] instanceof ASTExec)) {
+    Frame predVec=stk.track(asts[2].exec(env)).getFrame();
+    if (predVec.numCols() != 1)     throw new IllegalArgumentException("Conditional Row Slicing Expression evaluated to " + predVec.numCols() + " columns. Must be a boolean Vec.");
+    returningFrame=fr.deepSlice(predVec,null);
   }
  else   throw new IllegalArgumentException("Row slicing requires a number-list as the last argument, but found a " + asts[2].getClass());
   return new ValFrame(returningFrame);
