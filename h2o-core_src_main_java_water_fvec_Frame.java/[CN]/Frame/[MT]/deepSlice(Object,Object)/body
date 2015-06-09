@@ -95,15 +95,13 @@
     return fr2;
   }
   Frame frows=(Frame)orows;
-  Vec vrows=makeCompatible(new Frame(frows.anyVec())).anyVec();
-  DKV.put(vrows);
   Vec[] vecs=new Vec[c2.length + 1];
   String[] names=new String[c2.length + 1];
   for (int i=0; i < c2.length; ++i) {
     vecs[i]=_vecs[c2[i]];
     names[i]=_names[c2[i]];
   }
-  vecs[c2.length]=vrows;
+  vecs[c2.length]=frows.anyVec();
   names[c2.length]="predicate";
   Frame ff=new Frame(names,vecs);
   return new DeepSelect().doAll(c2.length,ff).outputFrame(names(c2),domains(c2));
