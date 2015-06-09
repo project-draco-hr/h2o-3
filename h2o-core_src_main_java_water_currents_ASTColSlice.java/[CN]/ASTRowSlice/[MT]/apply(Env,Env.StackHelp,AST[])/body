@@ -1,7 +1,6 @@
 {
   Frame fr=stk.track(asts[1].exec(env)).getFrame();
   Frame returningFrame;
-  long[] rows;
   if (asts[2] instanceof ASTNumList) {
     final ASTNumList nums=(ASTNumList)asts[2];
     returningFrame=new MRTask(){
@@ -27,7 +26,7 @@
 .doAll(fr.numCols(),fr).outputFrame(fr.names(),fr.domains());
   }
  else   if ((asts[2] instanceof ASTNum)) {
-    rows=new long[]{(long)(((ASTNum)asts[2])._d.getNum())};
+    long[] rows=new long[]{(long)(((ASTNum)asts[2])._d.getNum())};
     returningFrame=fr.deepSlice(rows,null);
   }
  else   throw new IllegalArgumentException("Row slicing requires a number-list as the last argument, but found a " + asts[2].getClass());
