@@ -1,6 +1,7 @@
 {
   DeepLearningModel bestModel=new DeepLearningModel(bestModelKey,null,this,true,model_info().data_info());
   DKV.put(bestModel._key,bestModel);
+  if (model_info().get_params()._elastic_averaging)   DKV.put(model_info().elasticAverageModelInfoKey(),bestModel.model_info);
   assert(DKV.get(bestModelKey) != null);
   assert(bestModel.compareTo(this) <= 0);
 }

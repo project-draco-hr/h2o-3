@@ -5,17 +5,6 @@
   _res.model_info().add_processed_global(_res.model_info().get_processed_local());
   _res.model_info().set_processed_local(0l);
   DeepLearningModel.DeepLearningModelInfo localmodel=_res.model_info();
-  if (localmodel.get_params()._elastic_averaging) {
-    final float pa=(float)_sharedmodel.get_params()._elastic_averaging_moving_rate;
-    _sharedmodel=DKV.getGet(localmodel.sharedModelInfoKey());
-    localmodel.mult(pa);
-    _sharedmodel.mult(1 - pa);
-    _sharedmodel.add(localmodel);
-    _sharedmodel.set_processed_global(localmodel.get_processed_global());
-    _sharedmodel.set_processed_local(0);
-    DKV.put(_sharedmodel.sharedModelInfoKey(),_sharedmodel);
-  }
- else {
-    _sharedmodel=localmodel;
-  }
+  if (localmodel.get_params()._elastic_averaging)   _sharedmodel=DeepLearningModel.elasticAverage(localmodel);
+ else   _sharedmodel=localmodel;
 }

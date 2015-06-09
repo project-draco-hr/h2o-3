@@ -13,16 +13,7 @@
     _localmodel.add_processed_global(_localmodel.get_processed_local());
     _localmodel.set_processed_local(0l);
     if (_chunk_node_count > 1)     _localmodel.div(_chunk_node_count);
-    if (dlp._elastic_averaging) {
-      final float pa=(float)_localmodel.get_params()._elastic_averaging_moving_rate;
-      _sharedmodel=DKV.getGet(_localmodel.sharedModelInfoKey());
-      _localmodel.mult(pa);
-      _sharedmodel.mult(1 - pa);
-      _sharedmodel.add(_localmodel);
-      _sharedmodel.set_processed_global(_localmodel.get_processed_global());
-      _sharedmodel.set_processed_local(0);
-      DKV.put(_sharedmodel.sharedModelInfoKey(),_sharedmodel);
-    }
+    if (_localmodel.get_params()._elastic_averaging)     _sharedmodel=DeepLearningModel.elasticAverage(_localmodel);
   }
  else {
     _sharedmodel=_localmodel;
