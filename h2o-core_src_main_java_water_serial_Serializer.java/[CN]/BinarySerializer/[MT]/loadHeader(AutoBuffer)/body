@@ -1,0 +1,14 @@
+{
+  int smId=ab.get4();
+  String smCN=ab.getStr();
+  T m=null;
+  try {
+    m=(T)AutoBufferWithoutTypeIds.newInstance(smCN);
+  }
+ catch (  Exception e) {
+    throw new IllegalArgumentException("Cannot instantiate the type " + smCN,e);
+  }
+  int amId=id(m);
+  if (amId != smId)   throw new IllegalArgumentException("Trying to load incompatible model! Actual model id = " + amId + ", stored id = "+ smId+ ", type="+ smCN);
+  return m;
+}

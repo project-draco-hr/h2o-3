@@ -1,0 +1,19 @@
+{
+  Frame f=parse_test_file(dataset);
+  try {
+    if (classification && !f.vec(response).isEnum()) {
+      f.replace(f.find(response),f.vec(response).toEnum()).remove();
+      DKV.put(f._key,f);
+    }
+    GBMModel.GBMParameters gbmParams=new GBMModel.GBMParameters();
+    gbmParams._train=f._key;
+    gbmParams._ignored_columns=ignoredColumns;
+    gbmParams._response_column=response;
+    gbmParams._ntrees=ntrees;
+    gbmParams._score_each_iteration=true;
+    return new GBM(gbmParams).trainModel().get();
+  }
+  finally {
+    if (f != null)     f.delete();
+  }
+}
