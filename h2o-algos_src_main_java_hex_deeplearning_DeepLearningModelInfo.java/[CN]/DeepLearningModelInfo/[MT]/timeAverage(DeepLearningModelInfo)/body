@@ -1,0 +1,17 @@
+{
+  float pa=(float)nodeAverageModel.get_params()._elastic_averaging_moving_rate;
+  assert(pa > 0 && pa <= 1);
+  DeepLearningModelInfo elasticAverage=DKV.getGet(nodeAverageModel.elasticAverageModelInfoKey());
+  if (elasticAverage == null || pa == 1) {
+    elasticAverage=nodeAverageModel.deep_clone();
+  }
+ else {
+    nodeAverageModel.mult(pa);
+    elasticAverage.mult(1 - pa);
+    elasticAverage.add(nodeAverageModel);
+    elasticAverage.set_processed_global(nodeAverageModel.get_processed_global());
+  }
+  elasticAverage.set_processed_local(0);
+  DKV.put(elasticAverage.elasticAverageModelInfoKey(),elasticAverage);
+  return elasticAverage;
+}
