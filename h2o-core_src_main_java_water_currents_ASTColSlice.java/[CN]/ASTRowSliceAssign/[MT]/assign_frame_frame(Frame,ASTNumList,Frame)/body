@@ -1,0 +1,14 @@
+{
+  if (dst.numCols() != src.numCols())   throw new IllegalArgumentException("Source and destination frames must have the same count and type of columns");
+  Vec[] dvecs=dst.vecs();
+  Vec[] svecs=src.vecs();
+  for (int col=0; col < dvecs.length; col++)   if (dvecs[col].get_type() != svecs[col].get_type())   throw new IllegalArgumentException("Columns must be the same type; column " + col + ", \'"+ dst._names[col]+ "\', is of type "+ dvecs[col].get_type_str()+ " and the source is "+ svecs[col].get_type_str());
+  long nrows=rows.cnt();
+  if (src.numRows() != nrows)   throw new IllegalArgumentException("Requires same count of rows in the number-list (" + nrows + ") as in the source ("+ src.numRows()+ ")");
+  if (nrows == 1) {
+    long drow=(long)rows.expand()[0];
+    for (int col=0; col < dvecs.length; col++)     dvecs[col].set(drow,svecs[col].at(0));
+    return;
+  }
+  throw water.H2O.unimpl();
+}

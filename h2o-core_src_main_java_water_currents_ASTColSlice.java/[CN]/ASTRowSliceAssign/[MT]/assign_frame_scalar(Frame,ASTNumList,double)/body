@@ -1,0 +1,21 @@
+{
+  Vec[] dvecs=dst.vecs();
+  long nrows=rows.cnt();
+  if (nrows == 1) {
+    long drow=(long)rows.expand()[0];
+    for (int col=0; col < dvecs.length; col++)     dvecs[col].set(drow,src);
+    return;
+  }
+  new MRTask(){
+    @Override public void map(    Chunk[] cs){
+      long start=cs[0].start();
+      long end=start + cs[0]._len;
+      double min=rows.min(), max=rows.max() - 1;
+      if (!(max < start || min > end)) {
+        int startOffset=(int)(min > start ? min : start);
+        for (int i=startOffset; i < cs[0]._len; ++i)         if (rows.has(start + i))         for (int c=0; c < cs.length; ++c)         cs[c].set(i,src);
+      }
+    }
+  }
+.doAll(dst);
+}
