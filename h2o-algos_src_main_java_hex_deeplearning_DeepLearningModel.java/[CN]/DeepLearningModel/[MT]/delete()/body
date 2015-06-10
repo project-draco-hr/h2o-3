@@ -9,8 +9,10 @@
   }
   DKV.remove(model_info().data_info()._key);
   super.delete();
-  DKV.remove(model_info().elasticAverageModelInfoKey());
-  for (  H2ONode node : H2O.CLOUD._memary) {
-    DKV.remove(model_info().localModelInfoKey(node));
+  if (model_info().get_params()._elastic_averaging) {
+    DKV.remove(model_info().elasticAverageModelInfoKey());
+    for (    H2ONode node : H2O.CLOUD._memary) {
+      DKV.remove(model_info().localModelInfoKey(node));
+    }
   }
 }
