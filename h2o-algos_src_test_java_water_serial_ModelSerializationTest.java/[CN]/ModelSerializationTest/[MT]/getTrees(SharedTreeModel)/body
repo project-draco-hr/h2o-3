@@ -1,0 +1,12 @@
+{
+  SharedTreeModel.SharedTreeOutput tmo=(SharedTreeModel.SharedTreeOutput)tm._output;
+  int ntrees=tmo._ntrees;
+  int nclasses=tmo.nclasses();
+  CompressedTree[][] result=new CompressedTree[ntrees][nclasses];
+  for (int i=0; i < ntrees; i++) {
+    for (int j=0; j < nclasses; j++) {
+      if (tmo._treeKeys[i][j] != null)       result[i][j]=tmo.ctree(i,j);
+    }
+  }
+  return result;
+}
