@@ -12,50 +12,46 @@
  else   if (gamma.equals("x")) {
     f=Family.gamma;
   }
-  Solver s=Solver.L_BFGS;
+  GLMParameters params=null != f ? new GLMParameters(f) : new GLMParameters();
   if (irlsm.equals("x")) {
-    s=Solver.IRLSM;
+    params._solver=Solver.IRLSM;
   }
-  double[] a=alpha.equals("") ? null : new double[]{Double.parseDouble(alpha)};
-  double[] l=lambda.equals("") ? null : new double[]{Double.parseDouble(lambda)};
-  boolean ls=lambdaSearch.equals("x");
-  boolean std=standardize.equals("x");
-  boolean bc=betaConstraints.equals("x");
-  boolean uafl=useAllFactorLevels.equals("x");
-  GLM job=null;
-  GLMModel model=null;
-  Frame score=null;
-  try {
-    Scope.enter();
-    GLMParameters params=null != f ? new GLMParameters(f) : new GLMParameters();
-    params._response_column="Ozone";
+ else   if (lbfgs.equals("x")) {
+    params._solver=Solver.L_BFGS;
+  }
+  params._lambda=lambda.equals("") ? null : new double[]{Double.parseDouble(lambda)};
+  params._alpha=alpha.equals("") ? null : new double[]{Double.parseDouble(alpha)};
+  params._standardize=standardize.equals("x");
+  params._lambda_search=lambdaSearch.equals("x");
+  params._use_all_factor_levels=useAllFactorLevels.equals("x");
+switch (dataset) {
+case "airquality.csv":
     params._train=_airquality._key;
-    params._lambda=l;
-    params._alpha=a;
-    params._standardize=std;
-    params._lambda_search=ls;
-    params._use_all_factor_levels=uafl;
-    params._solver=s;
-    if (gaussian.equals("x") && dataset.equals("airquality.csv")) {
-      job=new GLM(Key.make("model"),"basic glm test",params);
-      model=job.trainModel().get();
-      model.delete();
-      if (dataset.equals("airquality.csv")) {
-        score=model.score(_airquality);
-      }
- else       if (dataset.equals("insurance.csv")) {
-        score=model.score(_insurance);
-      }
-      hex.ModelMetricsRegression mm=hex.ModelMetricsRegression.getFromDKV(model,_airquality);
-      double mse=mm._MSE;
-      System.out.println(mse);
-      assertTrue(mse >= 0.0,"Expected mse to be greater than 0.0");
-    }
-  }
+  break;
+case "insurance.csv":
+params._train=_insurance._key;
+break;
+}
+params._response_column="Ozone";
+GLM job=null;
+GLMModel model=null;
+Frame score=null;
+try {
+Scope.enter();
+if (gaussian.equals("x") && dataset.equals("airquality.csv")) {
+job=new GLM(Key.make("model"),"basic glm test",params);
+model=job.trainModel().get();
+score=model.score(_airquality);
+hex.ModelMetricsRegression mm=hex.ModelMetricsRegression.getFromDKV(model,_airquality);
+double mse=mm._MSE;
+System.out.println(mse);
+assertTrue(mse >= 0.0,"Expected mse to be greater than 0.0");
+}
+}
   finally {
-    if (model != null)     model.delete();
-    if (score != null)     score.delete();
-    if (job != null)     job.remove();
-    Scope.exit();
-  }
+if (model != null) model.delete();
+if (score != null) score.delete();
+if (job != null) job.remove();
+Scope.exit();
+}
 }
