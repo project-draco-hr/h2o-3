@@ -5,26 +5,32 @@
   DeepLearningModel[] models=new DeepLearningModel[N];
   dl=new DeepLearningParameters();
   Scope.enter();
-  frTrain=parse_test_file("./smalldata/covtype/covtype.20k.data");
-  Vec resp=frTrain.lastVec().toEnum();
-  frTrain.remove(frTrain.vecs().length - 1).remove();
-  frTrain.add("Response",resp);
-  DKV.put(frTrain);
   try {
     for (int i=0; i < N; ++i) {
+      frTrain=parse_test_file("./smalldata/covtype/covtype.20k.data");
+      Vec resp=frTrain.lastVec().toEnum();
+      frTrain.remove(frTrain.vecs().length - 1).remove();
+      frTrain.add("Response",resp);
       dl._train=frTrain._key;
       dl._response_column=((Frame)DKV.getGet(dl._train)).lastVecName();
       dl._export_weights_and_biases=true;
-      dl._hidden=new int[]{64,64};
+      dl._hidden=new int[]{17,11};
       dl._quiet_mode=false;
       dl._diagnostics=true;
-      dl._replicate_training_data=false;
-      dl._force_load_balance=true;
-      dl._epochs=5;
-      dl._train_samples_per_iteration=1000;
-      dl._elastic_averaging=i == 0;
-      dl._elastic_averaging_moving_rate=0.999;
-      dl._elastic_averaging_regularization=1e-3;
+      dl._seed=1234;
+      dl._reproducible=true;
+      dl._epochs=1;
+      dl._train_samples_per_iteration=-1;
+      if (i == 0) {
+        dl._elastic_averaging=false;
+        dl._elastic_averaging_moving_rate=0.5;
+        dl._elastic_averaging_regularization=0.9;
+      }
+ else {
+        dl._elastic_averaging=true;
+        dl._elastic_averaging_moving_rate=0.5;
+        dl._elastic_averaging_regularization=0.1;
+      }
       DeepLearning job=null;
       try {
         job=new DeepLearning(dl);
@@ -36,10 +42,8 @@
     }
     for (int i=0; i < N; ++i) {
       Log.info(models[i]._output._training_metrics.cm().table().toString());
+      Assert.assertEquals(models[i]._output._training_metrics._MSE,models[0]._output._training_metrics._MSE,1e-6);
     }
-    Log.info("Without elastic averaging: error=" + models[0]._output._training_metrics.cm().err());
-    Log.info("With elastic averaging:    error=" + models[1]._output._training_metrics.cm().err());
-    Assert.assertTrue(models[1]._output._training_metrics.cm().err() < models[0]._output._training_metrics.cm().err());
   }
   finally {
     if (frTrain != null)     frTrain.remove();
