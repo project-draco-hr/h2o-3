@@ -1,0 +1,33 @@
+{
+  checkCompleteness();
+  if (newP.getNumFolds() != 0)   throw new UnsupportedOperationException("n_folds must be 0: Cross-validation is not supported during checkpoint restarts.");
+  if ((newP._valid == null) != (oldP._valid == null) || (newP._valid != null && !newP._valid.equals(oldP._valid))) {
+    throw new IllegalArgumentException("Validation dataset must be the same as for the checkpointed model.");
+  }
+  if (!newP._autoencoder && (newP._response_column == null || !newP._response_column.equals(oldP._response_column))) {
+    throw new IllegalArgumentException("Response column (" + newP._response_column + ") is not the same as for the checkpointed model: "+ oldP._response_column);
+  }
+  if (!Arrays.equals(newP._hidden,oldP._hidden)) {
+    throw new IllegalArgumentException("Hidden layers (" + Arrays.toString(newP._hidden) + ") is not the same as for the checkpointed model: "+ Arrays.toString(oldP._hidden));
+  }
+  if (!Arrays.equals(newP._ignored_columns,oldP._ignored_columns)) {
+    throw new IllegalArgumentException("Predictor columns must be the same as for the checkpointed model. Check ignored columns.");
+  }
+  for (  Field fBefore : oldP.getClass().getDeclaredFields()) {
+    if (ArrayUtils.contains(cp_not_modifiable,fBefore.getName())) {
+      for (      Field fAfter : newP.getClass().getDeclaredFields()) {
+        if (fBefore.equals(fAfter)) {
+          try {
+            if (fAfter.get(newP) == null || fBefore.get(oldP) == null || !fBefore.get(oldP).toString().equals(fAfter.get(newP).toString())) {
+              if (fBefore.get(oldP) == null && fAfter.get(newP) == null)               continue;
+              throw new IllegalArgumentException("Cannot change parameter: '" + fBefore.getName() + "': "+ fBefore.get(oldP)+ " -> "+ fAfter.get(newP));
+            }
+          }
+ catch (          IllegalAccessException e) {
+            e.printStackTrace();
+          }
+        }
+      }
+    }
+  }
+}
