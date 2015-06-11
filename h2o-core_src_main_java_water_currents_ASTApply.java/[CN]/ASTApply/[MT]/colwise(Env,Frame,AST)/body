@@ -1,0 +1,29 @@
+{
+  Vec vecs[]=fr.vecs();
+  Val vals[]=new Val[vecs.length];
+  for (int i=0; i < vecs.length; i++) {
+    Frame f1=new Frame(new String[]{fr._names[i]},new Vec[]{vecs[i]});
+    vals[i]=new ASTExec(fun,new ASTFrame(f1)).exec(env);
+  }
+  Val v0=vals[0];
+  double ds[]=new double[vecs.length];
+  for (int i=0; i < vecs.length; i++) {
+    Val v=vals[i];
+    if (v0.type() != v.type())     throw new IllegalArgumentException("Apply of column " + fr._names[0] + " returned "+ v0.getClass()+ ", and column "+ fr._names[i]+ " returned "+ v.getClass());
+switch (v0.type()) {
+case Val.FRM:
+      throw water.H2O.unimpl();
+case Val.FUN:
+    throw water.H2O.unimpl();
+case Val.STR:
+  throw water.H2O.unimpl();
+case Val.NUM:
+throw water.H2O.unimpl();
+default :
+throw water.H2O.unimpl();
+}
+}
+Key<Vec> key=Vec.VectorGroup.VG_LEN1.addVecs(1)[0];
+Vec vec=Vec.makeVec(ds,key);
+throw water.H2O.unimpl();
+}
