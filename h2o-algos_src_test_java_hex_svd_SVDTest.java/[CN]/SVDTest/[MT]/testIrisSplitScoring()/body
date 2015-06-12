@@ -1,6 +1,6 @@
 {
-  PCA job=null;
-  PCAModel model=null;
+  SVD job=null;
+  SVDModel model=null;
   Frame fr=null, fr2=null;
   Frame tr=null, te=null;
   try {
@@ -13,13 +13,13 @@
     Key[] ksplits=sf.destination_frames;
     tr=DKV.get(ksplits[0]).get();
     te=DKV.get(ksplits[1]).get();
-    PCAModel.PCAParameters parms=new PCAModel.PCAParameters();
+    SVDModel.SVDParameters parms=new SVDModel.SVDParameters();
     parms._train=ksplits[0];
     parms._valid=ksplits[1];
-    parms._k=4;
+    parms._nv=4;
     parms._max_iterations=1000;
     try {
-      job=new PCA(parms);
+      job=new SVD(parms);
       model=job.trainModel().get();
     }
   finally {
@@ -38,7 +38,7 @@
     if (tr != null)     tr.delete();
     if (te != null)     te.delete();
     if (model != null) {
-      if (model._parms._keep_loading)       model._output._loading_key.get().delete();
+      if (model._parms._keep_u)       model._output._u_key.get().delete();
       model.delete();
     }
   }
