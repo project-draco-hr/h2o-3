@@ -1,0 +1,38 @@
+def ifelse(test, yes, no):
+    '\n  Semantically equivalent to R\'s ifelse.\n  Based on the booleans in the test vector, the output has the values of the yes and no\n  vectors interleaved (or merged together).\n\n  :param test: A "test" H2OFrame\n  :param yes:  A "yes" H2OFrame\n  :param no:   A "no"  H2OFrame\n  :return: An H2OFrame\n  '
+    test_a = None
+    yes_a = None
+    no_a = None
+    if isinstance(test, bool):
+        test_a = ('%TRUE' if test else '%FALSE')
+    elif isinstance(test, H2OVec):
+        test_a = test._expr.eager()
+    else:
+        test_a = test.key()
+    if isinstance(yes, (int, float)):
+        yes_a = '#{}'.format(str(yes))
+    elif isinstance(yes, H2OVec):
+        yes_a = yes._expr.eager()
+    else:
+        yes_a = yes.key()
+    if isinstance(no, (int, float)):
+        no_a = '#{}'.format(str(no))
+    elif isinstance(no, H2OVec):
+        no_a = no._expr.eager()
+    else:
+        no_a = no.key()
+    tmp_key = H2OFrame.py_tmp_key()
+    expr = "(= !{} (ifelse '{}' {} {}))".format(tmp_key, test_a, yes_a, no_a)
+    rapids(expr)
+    j = frame(tmp_key)
+    fr = j['frames'][0]
+    rows = fr['rows']
+    veckeys = fr['vec_ids']
+    cols = fr['columns']
+    colnames = [col['label'] for col in cols]
+    vecs = H2OVec.new_vecs(zip(colnames, veckeys), rows)
+    removeFrameShallow(tmp_key)
+    removeFrameShallow(str(yes_a))
+    removeFrameShallow(str(no_a))
+    removeFrameShallow(str(test_a))
+    return H2OFrame(vecs=vecs)
