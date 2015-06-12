@@ -1,0 +1,13 @@
+{
+  Model model=getFromDKV("model_id",mexport.model_id.key());
+  List<Key> keysToExport=new LinkedList<>();
+  keysToExport.add(model._key);
+  keysToExport.addAll(model.getPublishedKeys());
+  try {
+    new ObjectTreeBinarySerializer().save(keysToExport,FileUtils.getURI(mexport.dir));
+  }
+ catch (  IOException e) {
+    throw new H2OIllegalArgumentException("dir","exportModel",e);
+  }
+  return mexport;
+}
