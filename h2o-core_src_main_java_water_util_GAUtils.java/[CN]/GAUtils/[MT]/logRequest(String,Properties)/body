@@ -1,0 +1,11 @@
+{
+  if (H2O.GA != null) {
+    if (uri.contains("/NodePersistentStorage") || uri.contains("/Metadata"))     return;
+    if (uri.contains("/Frames/") || uri.contains("/DKV/") || uri.contains("/Models/")|| uri.contains("/Models.java/")|| uri.contains("/Predictions/")) {
+      int idx=StringUtils.ordinalIndexOf(uri,"/",3);
+      if (idx > 0)       uri=uri.substring(0,idx);
+    }
+    if (header.getProperty("user-agent") != null)     H2O.GA.postAsync(new ScreenViewHit(uri).customDimension(H2O.CLIENT_TYPE_GA_CUST_DIM,header.getProperty("user-agent")));
+ else     H2O.GA.postAsync(new ScreenViewHit(uri));
+  }
+}
