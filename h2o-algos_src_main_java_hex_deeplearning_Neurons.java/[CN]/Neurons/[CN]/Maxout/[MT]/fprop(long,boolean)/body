@@ -1,7 +1,7 @@
 {
   float max=0;
   final int rows=_a.size();
-  if (_previous._a instanceof DenseVector) {
+  if (_previous._a instanceof Storage.DenseVector) {
     for (int row=0; row < rows; row++) {
       _a.set(row,0);
       if (!training || _dropout == null || _dropout.unit_active(row)) {
@@ -15,7 +15,7 @@
     if (max > 1)     ArrayUtils.div(_a.raw(),max);
   }
  else {
-    SparseVector x=(SparseVector)_previous._a;
+    Storage.SparseVector x=(Storage.SparseVector)_previous._a;
     for (int row=0; row < _a.size(); row++) {
       _a.set(row,0);
       if (!training || _dropout == null || _dropout.unit_active(row)) {
