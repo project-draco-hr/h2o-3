@@ -4,4 +4,7 @@
   _res.model_info().div(_res._chunk_node_count);
   _res.model_info().add_processed_global(_res.model_info().get_processed_local());
   _res.model_info().set_processed_local(0l);
+  DeepLearningModelInfo nodeAverageModel=_res.model_info();
+  if (nodeAverageModel.get_params()._elastic_averaging)   _sharedmodel=DeepLearningModelInfo.timeAverage(nodeAverageModel);
+ else   _sharedmodel=nodeAverageModel;
 }
