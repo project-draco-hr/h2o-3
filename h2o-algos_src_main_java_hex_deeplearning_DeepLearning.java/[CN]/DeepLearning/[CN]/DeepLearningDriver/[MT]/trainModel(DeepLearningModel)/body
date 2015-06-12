@@ -64,16 +64,9 @@
     model.update(self());
     model._timeLastScoreEnter=System.currentTimeMillis();
     Log.info("Starting to train the Deep Learning model.");
+    new ProgressUpdate("Training...").fork(_progressKey);
     do {
-      DeepLearningModelInfo mi=model.model_info();
-      assert(mi.get_processed_local() == 0);
-      assert(mi.get_params()._replicate_training_data == mp._replicate_training_data);
-      final String speed=(model.run_time != 0 ? (" at " + mi.get_processed_total() * 1000 / model.run_time + " samples/s...") : "...");
-      final String etl=model.run_time == 0 || progress() == 0 ? "" : " Estimated time left: " + PrettyPrint.msecs((long)(model.run_time * (1. - progress()) / progress()),true);
-      new ProgressUpdate("Training" + speed + etl).fork(_progressKey);
-      final float frac=rowFraction(train,mp,model);
-      model.set_model_info(mp._epochs == 0 ? mi : H2O.CLOUD.size() > 1 && mp._replicate_training_data ? (mp._single_node_mode ? new DeepLearningTask2(self(),train,mi,frac).doAll(Key.make(H2O.SELF)).model_info() : new DeepLearningTask2(self(),train,mi,frac).doAllNodes().model_info()) : new DeepLearningTask(self(),mi,frac).doAll(train).model_info());
-      update(model.actual_train_samples_per_iteration);
+      model.set_model_info(mp._epochs == 0 ? model.model_info() : H2O.CLOUD.size() > 1 && mp._replicate_training_data ? (mp._single_node_mode ? new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model)).doAll(Key.make(H2O.SELF)).model_info() : new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model)).doAllNodes().model_info()) : new DeepLearningTask(self(),model.model_info(),rowFraction(train,mp,model)).doAll(train).model_info());
     }
  while (model.doScoring(trainScoreFrame,validScoreFrame,self(),_progressKey));
     if (!isCancelledOrCrashed() && _parms._overwrite_with_best_model && model.actual_best_model_key != null && _parms.getNumFolds() == 0) {
