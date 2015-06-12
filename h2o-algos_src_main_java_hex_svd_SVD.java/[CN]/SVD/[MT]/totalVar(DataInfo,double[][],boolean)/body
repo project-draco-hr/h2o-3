@@ -1,0 +1,17 @@
+{
+  double total=0;
+  double nrow=dinfo._adaptedFrame.numRows();
+  if (includeCats) {
+    for (int i=0; i < dinfo._cats; i++) {
+      for (int j=0; j < dinfo._catOffsets[i + 1]; j++) {
+        double c=gram[j][j] * nrow;
+        total+=c * (nrow - c) / (nrow * (nrow - 1));
+      }
+    }
+  }
+  if (_parms._transform == DataInfo.TransformType.DESCALE || _parms._transform == DataInfo.TransformType.STANDARDIZE)   total+=dinfo._nums;
+ else {
+    for (int i=dinfo.numStart(); i < gram.length; i++)     total+=gram[i][i] * nrow / (nrow - 1);
+  }
+  return total;
+}
