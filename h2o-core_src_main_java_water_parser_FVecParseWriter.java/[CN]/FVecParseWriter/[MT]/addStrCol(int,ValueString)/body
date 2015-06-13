@@ -7,8 +7,8 @@
     if (_ctypes[colIdx] == Vec.T_BAD && ParseTime.attemptTimeParse(str) > 0)     _ctypes[colIdx]=Vec.T_TIME;
     if (_ctypes[colIdx] == Vec.T_BAD) {
       int old=str.get_off();
-      ParseTime.attemptUUIDParse0(str);
-      ParseTime.attemptUUIDParse1(str);
+      ParseUUID.attemptUUIDParse0(str);
+      ParseUUID.attemptUUIDParse1(str);
       if (str.get_off() != -1)       _ctypes[colIdx]=Vec.T_UUID;
       str.setOff(old);
     }
@@ -23,8 +23,8 @@
       }
     }
  else     if (_ctypes[colIdx] == Vec.T_UUID) {
-      long lo=ParseTime.attemptUUIDParse0(str);
-      long hi=ParseTime.attemptUUIDParse1(str);
+      long lo=ParseUUID.attemptUUIDParse0(str);
+      long hi=ParseUUID.attemptUUIDParse1(str);
       if (str.get_off() == -1) {
         lo=C16Chunk._LO_NA;
         hi=C16Chunk._HI_NA;
