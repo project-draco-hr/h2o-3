@@ -5,7 +5,7 @@
   run_time+=time_last_iter_millis;
   Job.Progress prog=DKV.getGet(progressKey);
   float progress=prog == null ? 0 : prog.progress();
-  String msg="Training at " + model_info().get_processed_total() * 1000 / run_time + " samples/s..." + (progress == 0 ? "" : " Estimated time left: " + PrettyPrint.msecs((long)(run_time * (1. - progress) / progress),true));
+  String msg="Training at " + String.format("%.2f",model_info().get_processed_total() * 1000 / run_time) + " samples/s..."+ (progress == 0 ? "" : " Estimated time left: " + PrettyPrint.msecs((long)(run_time * (1. - progress) / progress),true));
   ((Job)DKV.getGet(job_key)).update(actual_train_samples_per_iteration);
   if (progressKey != null)   new Job.ProgressUpdate(msg).fork(progressKey);
   boolean keep_running;

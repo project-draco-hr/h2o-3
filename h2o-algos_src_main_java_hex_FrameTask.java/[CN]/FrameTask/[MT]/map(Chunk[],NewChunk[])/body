@@ -3,41 +3,52 @@
   final int nrows=chunks[0]._len;
   final long offset=chunks[0].start();
   chunkInit();
-  int start=0;
-  int end=nrows;
   Random skip_rng=null;
   final int repeats=(int)Math.ceil(_useFraction);
   final float fraction=_useFraction / repeats;
-  Random row_weight_rng=RandomUtils.getRNG(0xDECAF);
-  if (fraction < 1.0) {
-    skip_rng=RandomUtils.getRNG(new Random().nextLong());
+  if (fraction < 1.0 || _dinfo._weights) {
+    skip_rng=RandomUtils.getRNG(_seed + offset);
   }
   long[] shuf_map=null;
-  if (_shuffle) {
-    shuf_map=new long[end - start];
-    for (int i=0; i < shuf_map.length; ++i)     shuf_map[i]=start + i;
-    ArrayUtils.shuffleArray(shuf_map,new Random().nextLong());
+  if (_shuffle && !_dinfo._weights) {
+    shuf_map=new long[nrows];
+    for (int i=0; i < nrows; ++i)     shuf_map[i]=i;
+    ArrayUtils.shuffleArray(shuf_map,new Random(_seed + offset).nextLong());
+  }
+  DataInfo.Row row=_dinfo.newDenseRow();
+  float[] weight_map=null;
+  float weight_sum;
+  if (_dinfo._weights) {
+    weight_map=new float[nrows];
+    weight_sum=0;
+    for (int i=0; i < nrows; ++i) {
+      row=_dinfo.extractDenseRow(chunks,i,row);
+      weight_sum+=row.weight;
+      weight_map[i]=weight_sum;
+    }
+    if (weight_sum > 0)     ArrayUtils.div(weight_map,weight_sum);
+ else     return;
   }
   double num_processed_rows=0;
-  DataInfo.Row row=_dinfo.newDenseRow();
   for (int rrr=0; rrr < repeats; ++rrr) {
-    OUTER:     for (int rr=start; rr < end; ++rr) {
-      final int r=shuf_map != null ? (int)shuf_map[rr - start] : rr;
+    OUTER:     for (int rr=0; rr < nrows; ++rr) {
       if (skip_rng != null && skip_rng.nextFloat() > fraction)       continue;
+      int r;
+      if (_dinfo._weights) {
+        float key=skip_rng.nextFloat();
+        r=Arrays.binarySearch(weight_map,0,nrows,key);
+        if (r < 0)         r=-r - 1;
+      }
+ else {
+        r=shuf_map != null ? (int)shuf_map[rr] : rr;
+      }
       row=_dinfo.extractDenseRow(chunks,r,row);
       if (!row.bad) {
-        long seed=offset + rrr * (end - start) + r;
-        row_weight_rng.setSeed(seed);
-        for (int i=0; i < row.weight; ++i) {
-          if (outputs != null && outputs.length > 0)           processRow(seed++,row,outputs);
- else           processRow(seed++,row);
-        }
-        double remainder=row.weight - (int)row.weight;
-        if (remainder > 0 && row_weight_rng.nextDouble() < remainder) {
-          if (outputs != null && outputs.length > 0)           processRow(seed++,row,outputs);
- else           processRow(seed++,row);
-        }
+        long seed=offset + rrr * nrows + r;
+        if (outputs != null && outputs.length > 0)         processRow(seed++,row,outputs);
+ else         processRow(seed++,row);
       }
+      assert(row.weight > 0);
       num_processed_rows+=row.weight;
     }
   }
