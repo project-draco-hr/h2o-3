@@ -1,7 +1,14 @@
 {
   if (glmIterationTask._likelihood > _likelihood) {
-    InitTsk.this.addToPendingCount(1);
-    new GLMTask.GLMIterationTask(GLM.this._key,_nullDinfo,0,_parms,false,new double[]{.5 * (_ymu + glmIterationTask._beta[0])},0,_rowFilter,new NullModelIteration(_nullDinfo)).asyncExec(_nullDinfo._adaptedFrame);
+    if (++_iter < 50) {
+      InitTsk.this.addToPendingCount(1);
+      new GLMTask.GLMIterationTask(GLM.this._key,_nullDinfo,0,_parms,false,new double[]{.5 * (_ymu + glmIterationTask._beta[0])},0,_rowFilter,new NullModelIteration(_nullDinfo)).asyncExec(_nullDinfo._adaptedFrame);
+    }
+ else {
+      _ymuLink=_ymu;
+      _ymu=_parms.linkInv(_ymuLink);
+      computeGradients();
+    }
     return;
   }
   _likelihood=glmIterationTask._likelihood;
