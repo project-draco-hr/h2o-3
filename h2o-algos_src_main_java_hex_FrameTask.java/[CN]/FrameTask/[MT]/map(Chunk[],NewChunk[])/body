@@ -6,11 +6,12 @@
   Random skip_rng=null;
   final int repeats=(int)Math.ceil(_useFraction);
   final float fraction=_useFraction / repeats;
-  if (fraction < 1.0 || _dinfo._weights) {
+  final boolean nontrivial_weights=_dinfo._weights && !_dinfo._adaptedFrame.vecs()[_dinfo.weightChunkId()].isConst();
+  if (fraction < 1.0 || nontrivial_weights) {
     skip_rng=RandomUtils.getRNG(_seed + offset);
   }
   long[] shuf_map=null;
-  if (_shuffle && !_dinfo._weights) {
+  if (_shuffle && !nontrivial_weights) {
     shuf_map=new long[nrows];
     for (int i=0; i < nrows; ++i)     shuf_map[i]=i;
     ArrayUtils.shuffleArray(shuf_map,new Random(_seed + offset).nextLong());
@@ -18,7 +19,7 @@
   DataInfo.Row row=_dinfo.newDenseRow();
   float[] weight_map=null;
   float weight_sum;
-  if (_dinfo._weights) {
+  if (nontrivial_weights) {
     weight_map=new float[nrows];
     weight_sum=0;
     for (int i=0; i < nrows; ++i) {
@@ -34,7 +35,7 @@
     OUTER:     for (int rr=0; rr < nrows; ++rr) {
       if (skip_rng != null && skip_rng.nextFloat() > fraction)       continue;
       int r;
-      if (_dinfo._weights) {
+      if (nontrivial_weights) {
         float key=skip_rng.nextFloat();
         r=Arrays.binarySearch(weight_map,0,nrows,key);
         if (r < 0)         r=-r - 1;
