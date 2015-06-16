@@ -16,8 +16,8 @@
         }
  else {
           ValueString str=new ValueString(data[0][0]);
-          if (ParseTime.isDateTime(str))           ctypes[0]=Vec.T_TIME;
- else           if (ParseTime.isUUID(str))           ctypes[0]=Vec.T_UUID;
+          if (ParseTime.isTime(str))           ctypes[0]=Vec.T_TIME;
+ else           if (ParseUUID.isUUID(str))           ctypes[0]=Vec.T_UUID;
  else {
             ctypes[0]=Vec.T_ENUM;
             domains[0]=new String[]{data[0][0]};
@@ -84,6 +84,7 @@
     }
   }
  else {
+    for (int i=0; i < columnTypes.length; i++)     if (columnTypes[i] == Vec.T_BAD)     columnTypes[i]=Vec.T_NUM;
     resSetup._column_types=columnTypes;
     resSetup._na_strings=null;
   }
