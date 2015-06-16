@@ -33,16 +33,27 @@
   double num_processed_rows=0;
   for (int rrr=0; rrr < repeats; ++rrr) {
     OUTER:     for (int rr=0; rr < nrows; ++rr) {
-      if (skip_rng != null && skip_rng.nextFloat() > fraction)       continue;
-      int r;
+      int r=0;
+      if (skip_rng != null && skip_rng.nextFloat() > fraction) {
+        if (rrr == repeats - 1 && rr == nrows - 1 && num_processed_rows == 0) {
+          r=-1;
+        }
+ else {
+          continue;
+        }
+      }
       if (nontrivial_weights) {
         float key=skip_rng.nextFloat();
         r=Arrays.binarySearch(weight_map,0,nrows,key);
         if (r < 0)         r=-r - 1;
       }
- else {
+ else       if (r == -1) {
+        r=skip_rng.nextInt(nrows);
+      }
+ else       if (r != -1) {
         r=shuf_map != null ? (int)shuf_map[rr] : rr;
       }
+      assert(r >= 0 && r <= nrows);
       row=_dinfo.extractDenseRow(chunks,r,row);
       if (!row.bad) {
         long seed=offset + rrr * nrows + r;
