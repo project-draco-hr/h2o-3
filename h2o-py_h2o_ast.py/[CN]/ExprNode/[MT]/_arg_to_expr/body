@@ -1,0 +1,9 @@
+@staticmethod
+def _arg_to_expr(arg):
+    if isinstance(arg, h2o.H2OFrame):
+        return arg._id
+    elif isinstance(arg, (int, float, ExprNode)):
+        return arg
+    elif isinstance(arg, str):
+        return (('"' + arg) + '"')
+    raise ValueError(('Unexpected arg type: ' + str(type(arg))))

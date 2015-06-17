@@ -1,29 +1,3 @@
 def cbind(left, right):
     '\n  :param left: H2OFrame or H2OVec\n  :param right: H2OFrame or H2OVec\n  :return: new H2OFrame with left|right cbinded\n  '
-    vecs = []
-    if (isinstance(left, H2OFrame) and isinstance(right, H2OFrame)):
-        vecs = (left._vecs + right._vecs)
-    elif (isinstance(left, H2OFrame) and isinstance(right, H2OVec)):
-        [vecs.append(vec) for vec in left._vecs]
-        vecs.append(right)
-    elif (isinstance(left, H2OVec) and isinstance(right, H2OVec)):
-        vecs = [left, right]
-    elif (isinstance(left, H2OVec) and isinstance(right, H2OFrame)):
-        vecs.append(left)
-        [vecs.append(vec) for vec in right._vecs]
-    else:
-        raise ValueError('left and right data must be H2OVec or H2OFrame')
-    names = [vec.name() for vec in vecs]
-    fr = H2OFrame.py_tmp_key()
-    cbind = (('(= !' + fr) + ' (cbind %FALSE %')
-    cbind += (' %'.join([vec._expr.eager() for vec in vecs]) + '))')
-    rapids(cbind)
-    j = frame(fr)
-    fr = j['frames'][0]
-    rows = fr['rows']
-    vec_ids = fr['vec_ids']
-    cols = fr['columns']
-    colnames = [col['label'] for col in cols]
-    result = H2OFrame(vecs=H2OVec.new_vecs(zip(colnames, vec_ids), rows))
-    result.setNames(names)
-    return result
+    return ExprNode('cbind', left, right)
