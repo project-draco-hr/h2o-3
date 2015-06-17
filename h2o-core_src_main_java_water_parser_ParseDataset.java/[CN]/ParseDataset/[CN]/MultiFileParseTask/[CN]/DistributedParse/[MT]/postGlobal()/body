@@ -1,5 +1,4 @@
 {
-  Log.trace("Begin parsing chunk memory cleanup with start index " + _startChunkIdx + ".");
   super.postGlobal();
   _outerMFPT._dout[_outerMFPT._lo]=_dout;
   _dout=null;
@@ -7,12 +6,11 @@
   if (val == null)   return;
   Iced ice=val.get();
   if (ice instanceof ByteVec) {
-    if (_outerMFPT._delete_on_done)     ((ByteVec)ice).remove();
+    if (_outerMFPT._deleteOnDone)     ((ByteVec)ice).remove();
   }
  else {
     Frame fr=(Frame)ice;
-    if (_outerMFPT._delete_on_done)     fr.delete(_outerMFPT._job_key,new Futures()).blockForPending();
- else     if (fr._key != null)     fr.unlock(_outerMFPT._job_key);
+    if (_outerMFPT._deleteOnDone)     fr.delete(_outerMFPT._jobKey,new Futures()).blockForPending();
+ else     if (fr._key != null)     fr.unlock(_outerMFPT._jobKey);
   }
-  Log.trace("Finished parsing chunk memory cleanup with start index " + _startChunkIdx + ".");
 }
