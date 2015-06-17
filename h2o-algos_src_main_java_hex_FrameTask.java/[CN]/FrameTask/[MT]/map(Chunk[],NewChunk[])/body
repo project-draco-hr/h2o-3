@@ -20,21 +20,21 @@
     }
     if (weight_sum > 0) {
       ArrayUtils.div(weight_map,weight_sum);
-      relative_chunk_weight=global_weight_sum / _dinfo._adaptedFrame.anyVec().nChunks() / weight_sum;
+      relative_chunk_weight=global_weight_sum * nrows / _dinfo._adaptedFrame.numRows() / weight_sum;
     }
  else     return;
   }
   final int repeats=(int)Math.ceil(_useFraction * relative_chunk_weight);
   final float fraction=(float)(_useFraction * relative_chunk_weight) / repeats;
   assert(fraction <= 1.0);
-  if (fraction < 1.0 || nontrivial_weights) {
+  if (fraction < 0.999 || nontrivial_weights) {
     skip_rng=RandomUtils.getRNG(_seed + offset);
   }
-  double num_processed_rows=0;
+  long num_processed_rows=0;
   for (int rep=0; rep < repeats; ++rep) {
     for (int row_idx=0; row_idx < nrows; ++row_idx) {
       int r=_shuffle ? -1 : 0;
-      if (skip_rng != null && skip_rng.nextDouble() > fraction) {
+      if (fraction < 0.999 && skip_rng != null && skip_rng.nextDouble() > fraction) {
         if (rep == repeats - 1 && row_idx == nrows - 1 && num_processed_rows == 0) {
           r=-1;
         }
@@ -61,7 +61,7 @@
  else         processRow(seed++,row);
       }
       assert(row.weight > 0);
-      num_processed_rows+=row.weight;
+      num_processed_rows++;
     }
   }
   chunkDone(num_processed_rows);
