@@ -2,14 +2,14 @@
   if (_jobKey != null && !Job.isRunning(_jobKey))   throw new JobCancelledException();
   final int nrows=chunks[0]._len;
   final long offset=chunks[0].start();
-  chunkInit();
-  Random skip_rng=null;
-  final boolean nontrivial_weights=_dinfo._weights && !_dinfo._adaptedFrame.vecs()[_dinfo.weightChunkId()].isConst();
-  final double global_weight_sum=nontrivial_weights ? _dinfo._adaptedFrame.vecs()[_dinfo.weightChunkId()].mean() * _dinfo._adaptedFrame.numRows() : 0;
+  boolean doWork=chunkInit();
+  if (!doWork)   return;
+  final boolean obs_weights=_dinfo._weights && !_fr.vecs()[_dinfo.weightChunkId()].isConst();
+  final double global_weight_sum=obs_weights ? _fr.vecs()[_dinfo.weightChunkId()].mean() * _fr.numRows() : 0;
   DataInfo.Row row=_dinfo.newDenseRow();
   double[] weight_map=null;
   double relative_chunk_weight=1;
-  if (nontrivial_weights) {
+  if (obs_weights) {
     weight_map=new double[nrows];
     double weight_sum=0;
     for (int i=0; i < nrows; ++i) {
@@ -20,29 +20,21 @@
     }
     if (weight_sum > 0) {
       ArrayUtils.div(weight_map,weight_sum);
-      relative_chunk_weight=global_weight_sum * nrows / _dinfo._adaptedFrame.numRows() / weight_sum;
+      relative_chunk_weight=global_weight_sum * nrows / _fr.numRows() / weight_sum;
     }
  else     return;
   }
   final int repeats=(int)Math.ceil(_useFraction * relative_chunk_weight);
   final float fraction=(float)(_useFraction * relative_chunk_weight) / repeats;
   assert(fraction <= 1.0);
-  if (fraction < 0.999 || nontrivial_weights || _shuffle) {
-    skip_rng=RandomUtils.getRNG(_seed + offset);
-  }
+  final boolean sample=(fraction < 0.999 || obs_weights || _shuffle);
+  final Random skip_rng=sample ? RandomUtils.getRNG((0x8734093502429734L + _seed + offset) * (_iteration + 0x9823423497823423L)) : null;
   long num_processed_rows=0;
   for (int rep=0; rep < repeats; ++rep) {
     for (int row_idx=0; row_idx < nrows; ++row_idx) {
-      int r=_shuffle ? -1 : 0;
-      if (fraction < 0.999 && skip_rng != null && skip_rng.nextDouble() > fraction) {
-        if (rep == repeats - 1 && row_idx == nrows - 1 && num_processed_rows == 0) {
-          r=-1;
-        }
- else {
-          continue;
-        }
-      }
-      if (nontrivial_weights) {
+      int r=sample ? -1 : 0;
+      if (sample && !obs_weights && skip_rng.nextDouble() > fraction)       continue;
+      if (obs_weights && num_processed_rows % 2 == 0) {
         double key=skip_rng.nextDouble();
         r=Arrays.binarySearch(weight_map,0,nrows,key);
         if (r < 0)         r=-r - 1;
@@ -64,5 +56,6 @@
       num_processed_rows++;
     }
   }
+  assert(fraction != 1 || num_processed_rows == repeats * nrows);
   chunkDone(num_processed_rows);
 }
