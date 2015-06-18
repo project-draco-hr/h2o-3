@@ -25,8 +25,9 @@
     SVDModel svd=null;
     SVD job=null;
     try {
-      job=new EmbeddedSVD(parms,_progressKey);
+      job=new EmbeddedSVD(_key,_progressKey,parms);
       svd=job.trainModel().get();
+      if (job.isCancelledOrCrashed())       PCA.this.cancel();
     }
   finally {
       if (job != null)       job.remove();
