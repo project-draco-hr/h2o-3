@@ -16,7 +16,7 @@
       row=_dinfo.extractDenseRow(chunks,i,row);
       weight_sum+=row.weight;
       weight_map[i]=weight_sum;
-      assert(i == 0 || weight_map[i] > weight_map[i - 1]);
+      assert(i == 0 || row.weight == 0 || weight_map[i] > weight_map[i - 1]);
     }
     if (weight_sum > 0) {
       ArrayUtils.div(weight_map,weight_sum);
@@ -38,21 +38,26 @@
         double key=skip_rng.nextDouble();
         r=Arrays.binarySearch(weight_map,0,nrows,key);
         if (r < 0)         r=-r - 1;
+        assert(r == 0 || weight_map[r] > weight_map[r - 1]);
       }
  else       if (r == -1) {
-        r=skip_rng.nextInt(nrows);
+        do {
+          r=skip_rng.nextInt(nrows);
+        }
+ while (obs_weights && ((r == 0 && weight_map[0] == 0) || (r > 0 && weight_map[r] == weight_map[r - 1])));
       }
  else {
+        assert(!obs_weights);
         r=row_idx;
       }
       assert(r >= 0 && r <= nrows);
       row=_dinfo.extractDenseRow(chunks,r,row);
       if (!row.bad) {
+        assert(row.weight > 0);
         long seed=offset + rep * nrows + r;
         if (outputs != null && outputs.length > 0)         processRow(seed++,row,outputs);
  else         processRow(seed++,row);
       }
-      assert(row.weight > 0);
       num_processed_rows++;
     }
   }
