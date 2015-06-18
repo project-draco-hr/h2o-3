@@ -1,3 +1,5 @@
 def ncol(self):
     '\n    Get the number of columns in this H2OFrame.\n\n    :return: The number of columns in this H2OFrame.\n    '
-    return len(self._cols)
+    if isinstance(self, ExprNode):
+        self.eager()
+    return self._ncols
