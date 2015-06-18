@@ -1,7 +1,7 @@
 {
   final DHistogram hcs[][]=_hcs;
   if (hcs.length == 0)   return;
-  int bins[]=new int[Math.max(_nbins,_nbins_cats)];
+  double bins[]=new double[Math.max(_nbins,_nbins_cats)];
   double sums[]=new double[Math.max(_nbins,_nbins_cats)];
   double ssqs[]=new double[Math.max(_nbins,_nbins_cats)];
   for (int c=0; c < _ncols; c++) {
@@ -14,7 +14,7 @@
       float min=rh._min2;
       float max=rh._maxIn;
       if (rh._bins.length >= bins.length) {
-        bins=new int[rh._bins.length];
+        bins=new double[rh._bins.length];
         sums=new double[rh._bins.length];
         ssqs=new double[rh._bins.length];
       }
@@ -27,15 +27,16 @@
         bins[b]++;
         double resp=wrks.atd(row);
         double w=weight.atd(row);
+        assert(w == 1);
         assert(w > 0);
-        sums[b]+=resp;
-        ssqs[b]+=resp * resp;
+        sums[b]+=w * resp;
+        ssqs[b]+=w * w * resp* resp;
       }
       rh.setMin(min);
       rh.setMax(max);
       for (int b=0; b < rh._bins.length; b++) {
         if (bins[b] != 0) {
-          AtomicUtils.IntArray.add(rh._bins,b,bins[b]);
+          AtomicUtils.DoubleArray.add(rh._bins,b,bins[b]);
           bins[b]=0;
         }
         if (sums[b] != 0) {
