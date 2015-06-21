@@ -21,6 +21,10 @@
     assertEquals(1.0,mm.auc()._auc,1e-8);
     double mse=gbm._output._training_metrics.mse();
     assertEquals(0.24850374695598948,mse,1e-8);
+    double r2=((ModelMetricsBinomial)gbm._output._training_metrics).r2();
+    assertEquals(0.06120806705515103,r2,1e-6);
+    double ll=((ModelMetricsBinomial)gbm._output._training_metrics)._logloss;
+    assertEquals(0.690155,ll,1e-6);
     job.remove();
   }
   finally {
