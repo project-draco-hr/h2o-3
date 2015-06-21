@@ -2,7 +2,7 @@
   final DTree[] ktrees=new DTree[_nclass];
   DHistogram hcs[][][]=new DHistogram[_nclass][1][_ncols];
   int adj_nbins=Math.max(_parms._nbins_top_level,_parms._nbins);
-  final long[] _distribution=_model._output._distribution;
+  final double[] _distribution=_model._output._distribution;
   long rseed=rand.nextLong();
   for (int k=0; k < _nclass; k++) {
     if (_distribution[k] != 0) {
@@ -37,6 +37,7 @@
           if (nid == 0) {
             LeafNode ln=new DRFLeafNode(tree,-1,0);
             ln._pred=(float)(isClassifier() ? _model._output._priorClassDist[k] : _response.mean());
+            if (!isClassifier() && _weights != null && (_weights.min() != 1 || _weights.max() != 1))             ln._pred=(float)new FrameUtils.WeightedMean().doAll(_response,_weights).weightedMean();
           }
           continue;
         }

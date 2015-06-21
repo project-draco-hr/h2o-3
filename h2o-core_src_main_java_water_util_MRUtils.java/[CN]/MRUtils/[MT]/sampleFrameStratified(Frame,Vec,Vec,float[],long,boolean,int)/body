@@ -4,6 +4,7 @@
   assert(sampling_ratios != null && sampling_ratios.length == label.domain().length);
   final int labelidx=fr.find(label);
   assert(labelidx >= 0);
+  final int weightsidx=fr.find(weights);
   final boolean poisson=false;
   Frame r=new MRTask(){
     @Override public void map(    Chunk[] cs,    NewChunk[] ncs){
@@ -29,10 +30,12 @@
     }
   }
 .doAll(fr.numCols(),fr).outputFrame(fr.names(),fr.domains());
-  long[] dist=new ClassDist(r.vecs()[labelidx]).doAll(r.vecs()[labelidx]).dist();
+  Vec lab=r.vecs()[labelidx];
+  Vec wei=weightsidx != -1 ? r.vecs()[weightsidx] : null;
+  double[] dist=wei != null ? new ClassDist(lab).doAll(lab,wei).dist() : new ClassDist(lab).doAll(lab).dist();
   if (dist == null)   return fr;
   if (debug) {
-    long sumdist=ArrayUtils.sum(dist);
+    double sumdist=ArrayUtils.sum(dist);
     Log.info("After stratified sampling: " + sumdist + " rows.");
     for (int i=0; i < dist.length; ++i) {
       Log.info("Class " + r.vecs()[labelidx].factor(i) + ": count: "+ dist[i]+ " sampling ratio: "+ sampling_ratios[i]+ " actual relative frequency: "+ (float)dist[i] / sumdist * dist.length);
@@ -41,7 +44,7 @@
   if (ArrayUtils.minValue(dist) == 0 && count < 10) {
     Log.info("Re-doing stratified sampling because not all classes were represented (unlucky draw).");
     r.delete();
-    return sampleFrameStratified(fr,label,sampling_ratios,seed + 1,debug,++count);
+    return sampleFrameStratified(fr,label,weights,sampling_ratios,seed + 1,debug,++count);
   }
   Frame shuffled=shuffleFramePerChunk(r,seed + 0x580FF13);
   r.delete();
