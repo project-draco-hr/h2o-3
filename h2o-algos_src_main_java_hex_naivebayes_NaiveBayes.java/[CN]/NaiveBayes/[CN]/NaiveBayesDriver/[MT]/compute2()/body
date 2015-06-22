@@ -9,10 +9,9 @@
     model=new NaiveBayesModel(dest(),_parms,new NaiveBayesModel.NaiveBayesOutput(NaiveBayes.this));
     model.delete_and_lock(_key);
     _train.read_lock(_key);
-    NBTask tsk=new NBTask(dinfo,_response.cardinality()).doAll(dinfo._adaptedFrame);
-    computeStatsFillModel(model,dinfo,tsk);
-    model.update(_key);
-    update(1);
+    update(1,"Begin distributed Naive Bayes calculation");
+    NBTask tsk=new NBTask(_key,dinfo,_response.cardinality()).doAll(dinfo._adaptedFrame);
+    if (computeStatsFillModel(model,dinfo,tsk))     model.update(_key);
     done();
   }
  catch (  Throwable t) {
