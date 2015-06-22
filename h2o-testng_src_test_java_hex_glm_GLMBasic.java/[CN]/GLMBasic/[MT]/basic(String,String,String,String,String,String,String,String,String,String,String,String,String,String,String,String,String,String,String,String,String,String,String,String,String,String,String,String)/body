@@ -6,7 +6,7 @@
  else   if (binomial.equals("x")) {
     f=Family.binomial;
   }
- else   if (poissan.equals("x")) {
+ else   if (poisson.equals("x")) {
     f=Family.poisson;
   }
  else   if (gamma.equals("x")) {
@@ -23,34 +23,46 @@
   params._alpha=alpha.equals("") ? null : new double[]{Double.parseDouble(alpha)};
   params._standardize=standardize.equals("x");
   params._lambda_search=lambdaSearch.equals("x");
-  params._use_all_factor_levels=useAllFactorLevels.equals("x");
-switch (dataset) {
-case "airquality.csv":
-    params._train=_airquality._key;
-  break;
-case "insurance.csv":
-params._train=_insurance._key;
+switch (train_dataset_filename) {
+case "airquality_train1.csv":
+    params._train=_airquality_train1._key;
+  params._valid=_airquality_validation1._key;
+params._response_column="Ozone";
+break;
+case "airquality_train2.csv":
+params._train=_airquality_train2._key;
+params._valid=_airquality_validation2._key;
+params._response_column="Ozone";
+break;
+case "insurance_train1.csv":
+params._train=_insurance_train1._key;
+params._valid=_insurance_validation1._key;
+params._response_column="Claims";
+break;
+case "iris_train1.csv":
+params._train=_iris_train1._key;
+params._valid=_iris_validation1._key;
+params._response_column="Species";
 break;
 }
-params._response_column="Ozone";
 GLM job=null;
 GLMModel model=null;
 Frame score=null;
 try {
 Scope.enter();
-if (gaussian.equals("x") && dataset.equals("airquality.csv")) {
+if (train_dataset_filename.equals("airquality_train1.csv")) {
 job=new GLM(Key.make("model"),"basic glm test",params);
 model=job.trainModel().get();
-score=model.score(_airquality);
-hex.ModelMetricsRegression mm=hex.ModelMetricsRegression.getFromDKV(model,_airquality);
-double mse=mm._MSE;
-System.out.println(mse);
-assertTrue(mse >= 0.0,"Expected mse to be greater than 0.0");
+if (gaussian.equals("x")) {
+assertTrue(model._output._validation_metrics._MSE >= 0.0,"Expected mse to be greater than 0.0");
+}
+ else if (binomial.equals("x")) {
+assertTrue(model._output._validation_metrics.auc()._auc >= 0.0,"Expected mse to be greater than 0.0");
+}
 }
 }
   finally {
 if (model != null) model.delete();
-if (score != null) score.delete();
 if (job != null) job.remove();
 Scope.exit();
 }
