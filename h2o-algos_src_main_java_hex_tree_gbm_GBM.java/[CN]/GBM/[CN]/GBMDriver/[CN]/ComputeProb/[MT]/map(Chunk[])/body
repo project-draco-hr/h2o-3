@@ -8,7 +8,9 @@
  else   if (_nclass > 1) {
     double fs[]=new double[_nclass + 1];
     for (int row=0; row < ys._len; row++) {
-      double sum=score1(chks,fs,row);
+      double weight=hasWeights() ? chk_weight(chks).atd(row) : 1;
+      double offset=hasOffset() ? chk_offset(chks).atd(row) : 0;
+      double sum=score1(chks,weight,offset,fs,row);
       if (Double.isInfinite(sum))       for (int k=0; k < _nclass; k++)       chk_work(chks,k).set(row,Double.isInfinite(fs[k + 1]) ? 1.0f : 0.0f);
  else       for (int k=0; k < _nclass; k++)       chk_work(chks,k).set(row,(float)(fs[k + 1] / sum));
     }
