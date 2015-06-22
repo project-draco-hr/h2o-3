@@ -1,6 +1,6 @@
 {
   if (columnNames != null)   throw new UnsupportedOperationException("ARFFParser doesn't accept columnNames.");
-  boolean have_data=false;
+  boolean haveData=false;
   int offset=0;
   String[][] data;
   String[] labels;
@@ -20,7 +20,7 @@
       String str=new String(bits,lineStart,lineEnd - lineStart,Charset.defaultCharset()).trim();
       if (str.equalsIgnoreCase("@DATA")) {
         if (!CsvParser.isEOL(bits[offset])) {
-          have_data=true;
+          haveData=true;
         }
         break;
       }
@@ -86,7 +86,7 @@
       throw new H2OParseSetupException("Unexpected line.");
     }
   }
-  if (have_data) {
+  if (haveData) {
     String[] datalines=new String[0];
     ArrayList<String> datablock=new ArrayList<>();
     while (offset < bits.length) {

@@ -1,0 +1,7 @@
+def as_date(self, format):
+    '\n    Return the column with all elements converted to millis since the epoch.\n    :param format: The date time format string\n    :return: H2OFrame\n    '
+    if ((self._vecs is None) or (self._vecs == [])):
+        raise ValueError('Frame Removed')
+    if (len(self) != 1):
+        raise (ValueError, '`setLevels` can only be called on a single H2OVec or an H2OFrame with one column')
+    return H2OFrame(vecs=[self[0].as_date(format=format)])

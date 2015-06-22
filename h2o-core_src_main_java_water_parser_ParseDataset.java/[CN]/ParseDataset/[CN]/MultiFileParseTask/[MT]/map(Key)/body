@@ -17,14 +17,14 @@ case NONE:
         for (int i=0; i < vec.nChunks(); ++i)         _chunk2Enum[chunkStartIdx + i]=vec.chunkKey(i).home_node().index();
       }
  else {
-        InputStream bvs=vec.openStream(_job_key);
+        InputStream bvs=vec.openStream(_jobKey);
         _dout[_lo]=streamParse(bvs,localSetup,makeDout(localSetup,chunkStartIdx,vec.nChunks()),bvs);
         chunksAreLocal(vec,chunkStartIdx,key);
       }
     break;
 case ZIP:
 {
-    InputStream bvs=vec.openStream(_job_key);
+    InputStream bvs=vec.openStream(_jobKey);
     ZipInputStream zis=new ZipInputStream(bvs);
     ZipEntry ze=zis.getNextEntry();
     if (ze != null && !ze.isDirectory())     _dout[_lo]=streamParse(zis,localSetup,makeDout(localSetup,chunkStartIdx,vec.nChunks()),bvs);
@@ -38,7 +38,7 @@ case ZIP:
   }
 case GZIP:
 {
-  InputStream bvs=vec.openStream(_job_key);
+  InputStream bvs=vec.openStream(_jobKey);
   _dout[_lo]=streamParse(new GZIPInputStream(bvs),localSetup,makeDout(localSetup,chunkStartIdx,vec.nChunks()),bvs);
   chunksAreLocal(vec,chunkStartIdx,key);
   break;

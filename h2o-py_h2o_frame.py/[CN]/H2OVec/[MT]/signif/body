@@ -1,0 +1,5 @@
+def signif(self, digits=6):
+    '\n    :return: The rounded values in the H2OFrame to the specified number of significant digits.\n    '
+    tmp_key = H2OFrame.py_tmp_key()
+    expr = '(= !{} (signif %{} #{}))'.format(tmp_key, self.key(), digits)
+    return H2OVec._get_vec_from_rapids_string(self, expr, tmp_key)
