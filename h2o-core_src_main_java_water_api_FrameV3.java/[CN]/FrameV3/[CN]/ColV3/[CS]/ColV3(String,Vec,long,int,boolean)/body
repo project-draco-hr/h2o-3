@@ -16,6 +16,12 @@
   }
   type=vec.isEnum() ? "enum" : vec.isUUID() ? "uuid" : vec.isString() ? "string" : (vec.isInt() ? (vec.isTime() ? "time" : "int") : "real");
   domain=vec.domain();
+  if (vec.isEnum()) {
+    domain_cardinality=domain.length;
+  }
+ else {
+    domain_cardinality=0;
+  }
   len=(int)Math.min(len,vec.length() - off);
   if (vec.isUUID()) {
     string_data=new String[len];

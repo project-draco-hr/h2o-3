@@ -1,0 +1,5 @@
+def setLevel(self, level):
+    '\n    A method to set all column values to one of the levels.\n    :param level: The level at which the column will be set (a string). Must be a member of self.levels().\n    :return: An H2OVec with all entries set to the desired level\n    '
+    tmp_key = H2OFrame.py_tmp_key()
+    expr = '(= !{} (setLevel %{} {}))'.format(tmp_key, self.key(), (('"' + level) + '"'))
+    return H2OVec._get_vec_from_rapids_string(self, expr, tmp_key)

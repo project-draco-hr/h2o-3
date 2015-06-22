@@ -2,35 +2,65 @@
   if (_jobKey != null && !Job.isRunning(_jobKey))   throw new JobCancelledException();
   final int nrows=chunks[0]._len;
   final long offset=chunks[0].start();
-  chunkInit();
-  int start=0;
-  int end=nrows;
-  Random skip_rng=null;
-  final int repeats=(int)Math.ceil(_useFraction);
-  final float fraction=_useFraction / repeats;
-  if (fraction < 1.0) {
-    skip_rng=RandomUtils.getRNG(new Random().nextLong());
-  }
-  long[] shuf_map=null;
-  if (_shuffle) {
-    shuf_map=new long[end - start];
-    for (int i=0; i < shuf_map.length; ++i)     shuf_map[i]=start + i;
-    ArrayUtils.shuffleArray(shuf_map,new Random().nextLong());
-  }
-  long num_processed_rows=0;
+  boolean doWork=chunkInit();
+  if (!doWork)   return;
+  final boolean obs_weights=_dinfo._weights && !_fr.vecs()[_dinfo.weightChunkId()].isConst();
+  final double global_weight_sum=obs_weights ? _fr.vecs()[_dinfo.weightChunkId()].mean() * _fr.numRows() : 0;
   DataInfo.Row row=_dinfo.newDenseRow();
-  for (int rrr=0; rrr < repeats; ++rrr) {
-    OUTER:     for (int rr=start; rr < end; ++rr) {
-      final int r=shuf_map != null ? (int)shuf_map[rr - start] : rr;
-      final long lr=r + chunks[0].start();
-      if (skip_rng != null && skip_rng.nextFloat() > fraction)       continue;
-      ++num_processed_rows;
-      if (!_dinfo.extractDenseRow(chunks,r,row).bad) {
-        long seed=offset + rrr * (end - start) + r;
-        if (outputs != null && outputs.length > 0)         processRow(seed,row,outputs);
- else         processRow(seed,row);
+  double[] weight_map=null;
+  double relative_chunk_weight=1;
+  if (obs_weights) {
+    weight_map=new double[nrows];
+    double weight_sum=0;
+    for (int i=0; i < nrows; ++i) {
+      row=_dinfo.extractDenseRow(chunks,i,row);
+      weight_sum+=row.weight;
+      weight_map[i]=weight_sum;
+      assert(i == 0 || row.weight == 0 || weight_map[i] > weight_map[i - 1]);
+    }
+    if (weight_sum > 0) {
+      ArrayUtils.div(weight_map,weight_sum);
+      relative_chunk_weight=global_weight_sum * nrows / _fr.numRows() / weight_sum;
+    }
+ else     return;
+  }
+  final int repeats=(int)Math.ceil(_useFraction * relative_chunk_weight);
+  final float fraction=(float)(_useFraction * relative_chunk_weight) / repeats;
+  assert(fraction <= 1.0);
+  final boolean sample=(fraction < 0.999 || obs_weights || _shuffle);
+  final Random skip_rng=sample ? RandomUtils.getRNG((0x8734093502429734L + _seed + offset) * (_iteration + 0x9823423497823423L)) : null;
+  long num_processed_rows=0;
+  for (int rep=0; rep < repeats; ++rep) {
+    for (int row_idx=0; row_idx < nrows; ++row_idx) {
+      int r=sample ? -1 : 0;
+      if (sample && !obs_weights && skip_rng.nextDouble() > fraction)       continue;
+      if (obs_weights && num_processed_rows % 2 == 0) {
+        double key=skip_rng.nextDouble();
+        r=Arrays.binarySearch(weight_map,0,nrows,key);
+        if (r < 0)         r=-r - 1;
+        assert(r == 0 || weight_map[r] > weight_map[r - 1]);
       }
+ else       if (r == -1) {
+        do {
+          r=skip_rng.nextInt(nrows);
+        }
+ while (obs_weights && ((r == 0 && weight_map[0] == 0) || (r > 0 && weight_map[r] == weight_map[r - 1])));
+      }
+ else {
+        assert(!obs_weights);
+        r=row_idx;
+      }
+      assert(r >= 0 && r <= nrows);
+      row=_dinfo.extractDenseRow(chunks,r,row);
+      if (!row.bad) {
+        assert(row.weight > 0);
+        long seed=offset + rep * nrows + r;
+        if (outputs != null && outputs.length > 0)         processRow(seed++,row,outputs);
+ else         processRow(seed++,row);
+      }
+      num_processed_rows++;
     }
   }
+  assert(fraction != 1 || num_processed_rows == repeats * nrows);
   chunkDone(num_processed_rows);
 }

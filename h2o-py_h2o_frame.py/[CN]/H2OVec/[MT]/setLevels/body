@@ -1,0 +1,6 @@
+def setLevels(self, levels):
+    '\n    Works on a single categorical vector. New domains must be aligned with the old domains. This call has SIDE\n    EFFECTS and mutates the column in place (does not make a copy).\n    :param level: The level at which the column will be set (a string)\n    :param x: A single categorical column.\n    :param levels: A list of strings specifying the new levels. The number of new levels must match the number of\n    old levels.\n    :return: None\n    '
+    tmp_key = H2OFrame.py_tmp_key()
+    expr = '(= !{} (setDomain %{} {}))'.format(tmp_key, self.key(), (('(slist ' + ' '.join([(('"' + l) + '"') for l in levels])) + ')'))
+    h2o.rapids(expr)
+    h2o.removeFrameShallow(tmp_key)
