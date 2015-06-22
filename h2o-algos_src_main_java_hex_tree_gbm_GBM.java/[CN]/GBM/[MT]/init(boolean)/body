@@ -18,7 +18,10 @@
 switch (_parms._distribution) {
 case bernoulli:
     if (_nclass != 2)     error("_distribution","Binomial requires the response to be a 2-class categorical");
- else     if (_response != null)     _initialPrediction=Math.log(mean / (1.0 - mean));
+ else     if (_response != null) {
+      _initialPrediction=Math.log(mean / (1.0 - mean));
+      if (_offset != null)       throw H2O.unimpl("Newton-Raphson iteration needed.");
+    }
   break;
 case multinomial:
 if (!isClassifier()) error("_distribution","Multinomial requires an enum response.");
