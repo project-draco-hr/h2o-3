@@ -1,0 +1,8 @@
+def strsplit(self, pattern):
+    '\n    Split the strings in the target column on the given pattern\n    :return: H2OFrame\n    '
+    if ((self._vecs is None) or (self._vecs == [])):
+        raise ValueError('Frame Removed')
+    frame_keys = [self.send_frame()]
+    tmp_key = H2OFrame.py_tmp_key()
+    expr = '(= !{} (strsplit %{} {}))'.format(tmp_key, frame_keys[0], (('"' + pattern) + '"'))
+    return H2OFrame._get_frame_from_rapids_string(expr, tmp_key, frame_keys)

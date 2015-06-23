@@ -1,0 +1,8 @@
+def rep_len(self, length_out):
+    '\n    Replicates the values in `data` in the H2O backend\n    :param length_out: the number of columns of the resulting H2OFrame\n    :return: an H2OFrame\n    '
+    if ((self._vecs is None) or (self._vecs == [])):
+        raise ValueError('Frame Removed')
+    frame_keys = [self.send_frame()]
+    tmp_key = H2OFrame.py_tmp_key()
+    expr = '(= !{} (rep_len %{} #{}))'.format(tmp_key, frame_keys[0], length_out)
+    return H2OFrame._get_frame_from_rapids_string(expr, tmp_key, frame_keys)
