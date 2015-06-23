@@ -2,22 +2,19 @@ def _to_string(self, depth=0, sb=None):
     if (sb is None):
         sb = []
     sb += ['\n']
-    if self.is_pending():
-        sb += [(((' ' * depth) + '(') + self._op), ' ']
-        for (i, child) in enumerate(self._children):
-            if isinstance(child, ExprNode):
-                child._to_string((depth + 2), sb)
-            elif (depth > 0):
-                sb += ['\n']
-                sb += [((' ' * (depth + 2)) + str(child))]
-            elif (i == (len(self._children) - 1)):
-                sb += [str(child)]
-            else:
-                sb += [(str(child) + ' ')]
-            if (i == (len(self._children) - 1)):
-                sb += [(('\n' + (' ' * depth)) + ') ')]
-    else:
-        sb += [self._data]
+    sb += [(((' ' * depth) + '(') + self._op), ' ']
+    for (i, child) in enumerate(self._children):
+        if isinstance(child, ExprNode):
+            child._to_string((depth + 2), sb)
+        elif (depth > 0):
+            sb += ['\n']
+            sb += [((' ' * (depth + 2)) + str(child))]
+        elif (i == (len(self._children) - 1)):
+            sb += [str(child)]
+        else:
+            sb += [(str(child) + ' ')]
+        if (i == (len(self._children) - 1)):
+            sb += [(('\n' + (' ' * depth)) + ') ')]
     if (depth == 0):
         sb += ['\n']
     return sb
