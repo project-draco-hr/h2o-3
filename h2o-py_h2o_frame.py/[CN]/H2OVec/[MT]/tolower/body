@@ -1,0 +1,5 @@
+def tolower(self):
+    '\n    Translate characters from upper to lower case for a particular column\n    Of note, mutates the frame.\n    :return: H2OFrame\n    '
+    tmp_key = H2OFrame.py_tmp_key()
+    expr = '(= !{} (tolower %{}))'.format(tmp_key, self.key())
+    return H2OVec._get_vec_from_rapids_string(self, expr, tmp_key)

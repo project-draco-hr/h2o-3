@@ -13,10 +13,15 @@ def __init__(self, ip='localhost', port=54321, size=1, start_h2o=False, enable_a
     self._rest_version = __H2O_REST_API_VERSION__
     self._child = (getattr(__H2OCONN__, '_child') if hasattr(__H2OCONN__, '_child') else None)
     __H2OCONN__ = self
+    jar_path = None
+    if os.path.exists(os.path.join(sys.prefix, 'h2o_jar/h2o.jar')):
+        jar_path = os.path.join(sys.prefix, 'h2o_jar', 'h2o.jar')
+    else:
+        jar_path = os.path.join(sys.prefix, 'local', 'h2o_jar', 'h2o.jar')
     if start_h2o:
         if (not ice_root):
             ice_root = tempfile.mkdtemp()
-        cld = self._start_local_h2o_jar(max_mem_size_GB, min_mem_size_GB, enable_assertions, license, ice_root)
+        cld = self._start_local_h2o_jar(max_mem_size_GB, min_mem_size_GB, enable_assertions, license, ice_root, jar_path)
     else:
         try:
             cld = self._connect(size)
@@ -26,11 +31,11 @@ def __init__(self, ip='localhost', port=54321, size=1, start_h2o=False, enable_a
             print (((('No instance found at ip and port: ' + ip) + ':') + str(port)) + '. Trying to start local jar...')
             print 
             print 
-            path_to_jar = os.path.exists(os.path.join(sys.prefix, 'h2o_jar', 'h2o.jar'))
+            path_to_jar = os.path.exists(jar_path)
             if path_to_jar:
                 if (not ice_root):
                     ice_root = tempfile.mkdtemp()
-                cld = self._start_local_h2o_jar(max_mem_size_GB, min_mem_size_GB, enable_assertions, license, ice_root)
+                cld = self._start_local_h2o_jar(max_mem_size_GB, min_mem_size_GB, enable_assertions, license, ice_root, jar_path)
             else:
                 print 'No jar file found. Could not start local instance.'
                 print ('No h2o jar found at: ' + path_to_jar)
