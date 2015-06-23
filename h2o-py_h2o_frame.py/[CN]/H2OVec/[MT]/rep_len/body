@@ -1,0 +1,5 @@
+def rep_len(self, length_out):
+    '\n    Replicates the values in `data` in the H2O backend\n    :param length_out: the length of the resulting H2OVec\n    :return: an H2OVec\n    '
+    tmp_key = H2OFrame.py_tmp_key()
+    expr = '(= !{} (rep_len %{} #{}))'.format(tmp_key, self.key(), length_out)
+    return H2OVec._get_vec_from_rapids_string(self, expr, tmp_key)

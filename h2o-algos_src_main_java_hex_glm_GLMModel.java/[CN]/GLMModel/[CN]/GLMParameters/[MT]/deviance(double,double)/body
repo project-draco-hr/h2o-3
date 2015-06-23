@@ -1,4 +1,5 @@
 {
+  double y1=yr == 0 ? .1 : yr;
 switch (_family) {
 case gaussian:
     return (yr - ym) * (yr - ym);
@@ -10,6 +11,10 @@ return 2 * ((yr * Math.log(yr / ym)) - (yr - ym));
 case gamma:
 if (yr == 0) return -2;
 return -2 * (Math.log(yr / ym) - (yr - ym) / ym);
+case tweedie:
+double theta=_tweedie_variance_power == 1 ? Math.log(y1 / ym) : (Math.pow(y1,1. - _tweedie_variance_power) - Math.pow(ym,1 - _tweedie_variance_power)) / (1 - _tweedie_variance_power);
+double kappa=_tweedie_variance_power == 2 ? Math.log(y1 / ym) : (Math.pow(yr,2 - _tweedie_variance_power) - Math.pow(ym,2 - _tweedie_variance_power)) / (2 - _tweedie_variance_power);
+return 2 * (yr * theta - kappa);
 default :
 throw new RuntimeException("unknown family " + _family);
 }
