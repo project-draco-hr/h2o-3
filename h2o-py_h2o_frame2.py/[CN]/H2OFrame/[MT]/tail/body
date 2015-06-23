@@ -1,7 +1,6 @@
 def tail(self, rows=10, cols=200, **kwargs):
     "\n    Analgous to R's `tail` call on a data.frame. Display a digestible chunk of the H2OFrame starting from the end.\n\n    :param rows: Number of rows to display.\n    :param cols: Number of columns to display.\n    :param kwargs: Extra arguments passed from other methods.\n    :return: None\n    "
-    if isinstance(self, ExprNode):
-        self.eager()
+    self._eager()
     nrows = min(self.nrow(), rows)
     ncols = min(self.ncol(), cols)
     colnames = self.names()[0:ncols]

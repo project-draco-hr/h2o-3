@@ -1,7 +1,6 @@
 def as_data_frame(self, use_pandas=True):
-    if isinstance(self, ExprNode):
-        self.eager()
-    url = (((((('http://' + H2OConnection.ip()) + ':') + str(H2OConnection.port())) + '/3/DownloadDataset?frame_id=') + urllib.quote(id)) + '&hex_string=false')
+    self._eager()
+    url = (((((('http://' + H2OConnection.ip()) + ':') + str(H2OConnection.port())) + '/3/DownloadDataset?frame_id=') + urllib.quote(self._id)) + '&hex_string=false')
     response = urllib2.urlopen(url)
     if (h2o.can_use_pandas() and use_pandas):
         import pandas

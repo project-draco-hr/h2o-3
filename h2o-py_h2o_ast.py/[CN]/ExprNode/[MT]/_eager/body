@@ -1,3 +1,13 @@
-def _eager(self):
-    if self.is_computed():
-        return self._data
+def _eager(self, sb=None):
+    '\n    The top-level call to evaluate an expression DAG.\n\n    First walk the expr DAG and build a rapids string.\n    Second evaluate the rapids string and exit.\n    Caller handles the results\n\n    :return: None\n    '
+    assert self.is_pending()
+    if (sb is None):
+        sb = []
+    sb += [(('(' + self._op) + ' ')]
+    for child in self._children:
+        if isinstance(child, (h2o.H2OFrame, ExprNode)):
+            child._do_it(sb)
+        else:
+            sb += [(str(child) + ' ')]
+    sb += [') ']
+    return sb
