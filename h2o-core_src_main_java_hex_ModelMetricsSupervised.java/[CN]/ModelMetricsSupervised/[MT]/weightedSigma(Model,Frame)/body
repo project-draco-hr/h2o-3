@@ -2,5 +2,6 @@
   Vec w=f.vec(m._output.weightsName());
   Vec y=f.vec(m._output.responseName());
   if (w != null && y != null)   return new FrameUtils.WeightedSigma().doAll(y,w).weightedSigma();
-  return sigma;
+  if (y != null)   return y.sigma();
+  return Double.NaN;
 }
