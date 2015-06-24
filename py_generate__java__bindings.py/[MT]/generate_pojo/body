@@ -1,11 +1,22 @@
 def generate_pojo(schema, pojo_name):
     global args
+    global enums
     if args.verbose:
         print 'Generating POJO: ', pojo_name
     pojo = []
     pojo.append('package water.bindings.pojos;')
     pojo.append('')
-    pojo.append((('public class ' + pojo_name) + ' extends Object {'))
+    has_map = False
+    for field in schema['fields']:
+        if field['type'].startswith('Map'):
+            has_map = True
+    if has_map:
+        pojo.append('import java.util.Map;')
+        pojo.append('')
+    superclass = schema['superclass']
+    if ('Iced' == superclass):
+        superclass = 'Object'
+    pojo.append(((('public class ' + pojo_name) + ' extends {superclass} '.format(superclass=superclass)) + '{'))
     first = True
     for field in schema['fields']:
         help = field['help']
@@ -20,10 +31,14 @@ def generate_pojo(schema, pojo_name):
             java_type = type
         else:
             java_type = cons_java_type(pojo_name, name, type, schema_name)
-        if (java_type == 'enum'):
-            continue
+        if type.startswith('enum'):
+            enum_name = field['schema_name']
+            if (enum_name not in enums):
+                enums[enum_name] = field['values']
+        if (not first):
+            pojo.append('')
         pojo.append('    /** {help} */'.format(help=help))
         pojo.append('    public {type} {name};'.format(type=java_type, name=name))
-        pojo.append('')
+        first = False
     pojo.append('}')
     return pojo
