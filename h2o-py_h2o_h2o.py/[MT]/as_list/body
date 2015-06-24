@@ -1,29 +1,3 @@
 def as_list(data, use_pandas=True):
     '\n  Convert an H2O data object into a python-specific object.\n\n  WARNING: This will pull all data local!\n\n  If Pandas is available (and use_pandas is True), then pandas will be used to parse the data frame.\n  Otherwise, a list-of-lists populated by character data will be returned (so the types of data will\n  all be str).\n\n  :param data: An H2O data object.\n  :param use_pandas: Try to use pandas for reading in the data.\n  :return: List of list (Rows x Columns).\n  '
-    found_pandas = False
-    try:
-        imp.find_module('pandas')
-        found_pandas = True
-    except ImportError:
-        found_pandas = False
-    if isinstance(data, H2OFrame):
-        fr = H2OFrame.send_frame(data)
-        res = _as_data_frame(fr, (use_pandas and found_pandas))
-        removeFrameShallow(fr)
-        return res
-    if isinstance(data, Expr):
-        if data.is_local():
-            return data._data
-        if data.is_pending():
-            data.eager()
-            if data.is_local():
-                return ([data._data] if isinstance(data._data, list) else [[data._data]])
-        return _as_data_frame(data._data, (use_pandas and found_pandas))
-    if isinstance(data, H2OVec):
-        if data._expr.is_local():
-            return data._expr._data
-        if data._expr.is_pending():
-            data._expr.eager()
-            if data._expr.is_local():
-                return [[data._expr._data]]
-        return as_list(H2OFrame(vecs=[data]), use_pandas)
+    raise NotImplementedError

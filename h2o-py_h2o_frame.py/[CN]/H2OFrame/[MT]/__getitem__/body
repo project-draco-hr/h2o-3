@@ -1,36 +1,20 @@
-def __getitem__(self, i):
-    '\n    Column selection via integer, string(name)\n    Column selection via slice returns a subset of the H2OFrame\n\n    :param i: An int, str, slice, H2OVec, or list/tuple\n    :return: An H2OVec, an H2OFrame, or scalar depending on the input slice.\n    '
-    if ((self._vecs is None) or (self._vecs == [])):
-        raise ValueError('Frame Removed')
-    if isinstance(i, int):
-        return self._vecs[i]
-    if isinstance(i, str):
-        return self._find(i)
-    if isinstance(i, slice):
-        return H2OFrame(vecs=self._vecs[i])
-    if isinstance(i, H2OVec):
-        self._len_check(i)
-        return H2OFrame(vecs=[x.row_select(i) for x in self._vecs])
-    if (isinstance(i, list) or (isinstance(i, tuple) and (len(i) != 2))):
-        vecs = []
-        for it in i:
-            if isinstance(it, int):
-                vecs.append(self._vecs[it])
-            elif isinstance(it, str):
-                vecs.append(self._find(it))
-            else:
-                raise NotImplementedError
-        return H2OFrame(vecs=vecs)
-    if (isinstance(i, tuple) and (len(i) == 2)):
-        res = self[i[1]]
-        if isinstance(res, H2OFrame):
-            if isinstance(i[0], slice):
-                return H2OFrame(vecs=[vec[i[0]] for vec in res._vecs])
-            elif isinstance(i[0], int):
-                return H2OFrame(python_obj=[vec[i[0]] for vec in res._vecs])
-            else:
-                raise NotImplementedError
-        if isinstance(res, H2OVec):
-            return res[i[0]]
-        raise NotImplementedError
-    raise NotImplementedError(('Slicing by unknown type: ' + str(type(i))))
+def __getitem__(self, item):
+    '\n    Frame slicing.\n    Supports R-like row and column slicing.\n\n    Examples:\n      fr[0:5,:]          # first 5 rows, all columns\n      fr[fr[0] > 1, :]   # all rows greater than 1 in the first column, all columns\n      fr[[1,5,6]]        # columns 1, 5, and 6\n      fr[0:50, [1,2,3]]  # first 50 rows, columns 1,2, and 3\n\n    :param item: A tuple, a list, a string, or an int.\n                 If a tuple, then this indicates both row and column selection. The tuple\n                 must be exactly length 2.\n                 If a list, then this indicates column selection.\n                 If a int, the this indicates a single column to be retrieved at the index.\n                 If a string, then slice on the column with this name.\n    :return: An H2OFrame.\n    '
+    if isinstance(item, (int, str, list, slice)):
+        return H2OFrame(expr=ExprNode('cols', self, item))
+    elif isinstance(item, tuple):
+        rows = item[0]
+        cols = item[1]
+        allrows = False
+        allcols = False
+        if isinstance(cols, slice):
+            allcols = all([(a is None) for a in [cols.start, cols.step, cols.stop]])
+        if isinstance(rows, slice):
+            allrows = all([(a is None) for a in [rows.start, rows.step, rows.stop]])
+        if (allrows and allcols):
+            return self
+        if allrows:
+            return H2OFrame(expr=ExprNode('cols', self, item[1]))
+        if allcols:
+            return H2OFrame(expr=ExprNode('rows', self, item[0]))
+        return H2OFrame(expr=ExprNode('rows', ExprNode('cols', self, item[1]), item[0]))

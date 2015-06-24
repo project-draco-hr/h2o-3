@@ -1,14 +1,3 @@
 def scale(self, center=True, scale=True):
     '\n    Centers and/or scales the columns of the H2OFrame\n    :return: H2OFrame\n    :param center: either a \xe2\x80\x98logical\xe2\x80\x99 value or numeric list of length equal to the number of columns of the H2OFrame\n    :param scale: either a \xe2\x80\x98logical\xe2\x80\x99 value or numeric list of length equal to the number of columns of H2OFrame.\n    '
-    if ((self._vecs is None) or (self._vecs == [])):
-        raise ValueError('Frame Removed')
-    if (isinstance(center, bool) and isinstance(scale, bool)):
-        return H2OFrame(vecs=[vec.scale(center=center, scale=scale) for vec in self._vecs])
-    elif (isinstance(center, list) and isinstance(scale, bool)):
-        return H2OFrame(vecs=[vec.scale(center=c, scale=scale) for (vec, c) in zip(self._vecs, center)])
-    elif (isinstance(center, list) and isinstance(scale, list)):
-        return H2OFrame(vecs=[vec.scale(center=c, scale=s) for (vec, c, s) in zip(self._vecs, center, scale)])
-    elif (isinstance(center, bool) and isinstance(scale, list)):
-        return H2OFrame(vecs=[vec.scale(center=center, scale=s) for (vec, s) in zip(self._vecs, scale)])
-    else:
-        raise (ValueError, '`center` and `scale` arguments (for a frame) must be bools or lists of numbers, but got center: {0}, scale: {1}'.format(center, scale))
+    raise NotImplementedError

@@ -1,0 +1,14 @@
+def _import_parse(self, file_path):
+    rawkey = h2o.import_file(file_path)
+    setup = h2o.parse_setup(rawkey)
+    parse = h2o.parse(setup, H2OFrame.py_tmp_key())
+    self._id = parse['job']['dest']['name']
+    self._computed = True
+    rows = self._nrows = parse['rows']
+    cols = self._col_names = parse['column_names']
+    self._ncols = len(cols)
+    thousands_sep = h2o.H2ODisplay.THOUSANDS
+    if isinstance(file_path, str):
+        print 'Imported {}. Parsed {} rows and {} cols'.format(file_path, thousands_sep.format(rows), thousands_sep.format(len(cols)))
+    else:
+        h2o.H2ODisplay([[('File' + str((i + 1))), f] for (i, f) in enumerate(file_path)], None, 'Parsed {} rows and {} cols'.format(thousands_sep.format(rows), thousands_sep.format(len(cols))))

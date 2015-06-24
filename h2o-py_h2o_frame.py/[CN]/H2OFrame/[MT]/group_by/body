@@ -1,37 +1,3 @@
 def group_by(self, cols, a, order_by=None):
     '\n    GroupBy\n    :param cols: The columns to group on.\n    :param a: A dictionary of aggregates having the following shape:     {"colname":[aggregate, column, naMethod]}    e.g.: {"bikes":["count", 0, "all"]}\n    The naMethod is one of "all", "ignore", or "rm", which specifies how to handle\n    NAs that appear in columns that are being aggregated.\n\n    "all" - include NAs\n    "rm"  - exclude NAs\n    "ignore" - ignore NAs in aggregates, but count them (e.g. in denominators for mean, var, sd, etc.)\n    :param order_by: A list of column names or indices on which to order the results.\n    :return: The group by frame.\n    '
-    if ((self._vecs is None) or (self._vecs == [])):
-        raise ValueError('Frame Removed')
-    rapids_series = (('(llist #' + ' #'.join([str(self._find_idx(name)) for name in cols])) + ')')
-    aggregates = copy.deepcopy(a)
-    key = self.send_frame()
-    tmp_key = H2OFrame.py_tmp_key()
-    aggs = []
-    for k in aggregates:
-        if isinstance(aggregates[k][1], str):
-            aggregates[k][1] = ('#' + str(self._find_idx(aggregates[k][1])))
-        else:
-            aggregates[k][1] = ('#' + str(aggregates[k][1]))
-        aggs += ['"{1}" {2} "{3}" "{0}"'.format(str(k), *aggregates[k])]
-    aggs = '(agg {})'.format(' '.join(aggs))
-    if (order_by is None):
-        order_by = '()'
-    elif isinstance(order_by, list):
-        oby = [cols.index(i) for i in order_by]
-        order_by = (('(llist #' + ' #'.join([str(o) for o in oby])) + ')')
-    elif isinstance(order_by, str):
-        order_by = ('#' + str(self._find_idx(order_by)))
-    else:
-        order_by = ('#' + str(order_by))
-    expr = '(= !{} (GB %{} {} {} {}))'.format(tmp_key, key, rapids_series, aggs, order_by)
-    h2o.rapids(expr)
-    h2o.removeFrameShallow(key)
-    j = h2o.frame(tmp_key)
-    fr = j['frames'][0]
-    rows = fr['rows']
-    veckeys = fr['vec_ids']
-    cols = fr['columns']
-    colnames = [col['label'] for col in cols]
-    vecs = H2OVec.new_vecs(zip(colnames, veckeys), rows)
-    h2o.removeFrameShallow(tmp_key)
-    return H2OFrame(vecs=vecs)
+    raise ValueError('groupby: unimpl')

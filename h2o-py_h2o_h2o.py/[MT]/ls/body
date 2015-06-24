@@ -1,16 +1,3 @@
 def ls():
     '\n  List Keys on an H2O Cluster\n  :return: Returns a list of keys in the current H2O instance\n  '
-    tmp_key = H2OFrame.py_tmp_key()
-    expr = '(= !{} (ls ))'.format(tmp_key)
-    rapids(expr)
-    j = frame(tmp_key)
-    fr = j['frames'][0]
-    rows = fr['rows']
-    veckeys = fr['vec_ids']
-    cols = fr['columns']
-    colnames = [col['label'] for col in cols]
-    vecs = H2OVec.new_vecs(zip(colnames, veckeys), rows)
-    fr = H2OFrame(vecs=vecs)
-    print 'First 10 Keys: '
-    fr.show()
-    return as_list(fr, use_pandas=False)
+    NotImplementedError

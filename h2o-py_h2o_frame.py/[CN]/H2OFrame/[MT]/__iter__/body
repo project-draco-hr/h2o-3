@@ -1,9 +1,4 @@
 def __iter__(self):
     '\n    Allows for list comprehensions over an H2OFrame\n\n    :return: An iterator over the H2OFrame\n    '
-    import traceback
-    if ((self._vecs is None) or (self._vecs == [])):
-        for line in traceback.format_stack():
-            print line.strip()
-        print 'PADASDAS'
-        raise ValueError('Frame Removed')
-    return (vec for vec in self._vecs.__iter__() if (vec is not None))
+    self._eager()
+    return (self[i] for i in range(self.ncol()))
