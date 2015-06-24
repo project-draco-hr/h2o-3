@@ -1,5 +1,5 @@
 def cons_java_type(pojo_name, name, h2o_type, schema_name):
-    if (schema_name is None):
+    if ((schema_name is None) or h2o_type.startswith('enum')):
         simple_type = string.replace(h2o_type, '[]', '')
         idx = string.find(h2o_type, '[]')
         brackets = ('' if (idx is (-1)) else h2o_type[idx:])
@@ -13,10 +13,10 @@ def cons_java_type(pojo_name, name, h2o_type, schema_name):
         return ('String' + brackets)
     if (simple_type in ['int', 'float', 'double', 'long', 'boolean', 'byte', 'short']):
         return (simple_type + brackets)
-    if (schema_name is not None):
-        return ((simple_type + 'Proxy') + brackets)
     if (simple_type == 'enum'):
-        return simple_type
+        return (schema_name + brackets)
+    if (schema_name is not None):
+        return (simple_type + brackets)
     if (simple_type == 'Polymorphic'):
         return 'Object'
     if (simple_type == 'IcedWrapper'):
