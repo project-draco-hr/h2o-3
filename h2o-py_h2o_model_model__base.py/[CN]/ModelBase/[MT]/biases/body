@@ -3,11 +3,4 @@ def biases(self, vector_id=0):
     num_bias_vectors = len(self._model_json['output']['biases'])
     if (vector_id not in range(num_bias_vectors)):
         raise ValueError('Bias vector does not exist. Model has {0} bias vectors (0-based indexing), but vector {1} was requested.'.format(num_bias_vectors, vector_id))
-    j = h2o.frame(self._model_json['output']['biases'][vector_id]['URL'].split('/')[3])
-    fr = j['frames'][0]
-    rows = fr['rows']
-    vec_ids = fr['vec_ids']
-    cols = fr['columns']
-    colnames = [col['label'] for col in cols]
-    result = H2OFrame(vecs=H2OVec.new_vecs(zip(colnames, vec_ids), rows))
-    return result
+    return h2o.get_frame(self._model_json['output']['biases'][vector_id]['URL'].split('/')[3])
