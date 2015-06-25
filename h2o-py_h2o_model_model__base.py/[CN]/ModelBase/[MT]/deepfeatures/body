@@ -3,7 +3,7 @@ def deepfeatures(self, test_data, layer):
     if (not test_data):
         raise ValueError('Must specify test data')
     test_data_key = H2OFrame.send_frame(test_data)
-    j = H2OConnection.post_json(((('Predictions/models/' + self._key) + '/frames/') + test_data_key), deep_features_hidden_layer=layer)
+    j = H2OConnection.post_json(((('Predictions/models/' + self._id) + '/frames/') + test_data_key), deep_features_hidden_layer=layer)
     deepfeatures_frame_key = j['predictions_frame']['name']
     df_frame_meta = h2o.frame(deepfeatures_frame_key)['frames'][0]
     vec_ids = df_frame_meta['vec_ids']
