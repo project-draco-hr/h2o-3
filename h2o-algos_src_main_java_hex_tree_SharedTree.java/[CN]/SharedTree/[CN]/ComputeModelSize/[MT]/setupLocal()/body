@@ -1,0 +1,11 @@
+{
+  _model_mem_size=0;
+  for (int i=0; i < trees_so_far; ++i) {
+    Key<CompressedTree>[] per_class=_treeKeys[i];
+    for (int j=0; j < per_class.length; ++j) {
+      if (per_class[j] == null)       continue;
+      if (!per_class[j].home())       continue;
+      _model_mem_size+=DKV.get(per_class[j])._max;
+    }
+  }
+}

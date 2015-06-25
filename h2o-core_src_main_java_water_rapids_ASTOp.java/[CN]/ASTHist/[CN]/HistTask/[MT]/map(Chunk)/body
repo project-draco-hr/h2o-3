@@ -1,15 +1,14 @@
 {
-  int x;
-  int xx=1;
   for (int i=0; i < c._len; ++i) {
+    int x=1;
     if (c.isNA(i))     continue;
     double r=c.atd(i);
     if (_h == -1) {
-      for (; xx < _counts.length; xx++)       if (r <= _breaks[xx])       break;
-      x=xx - 1;
+      for (; x < _counts.length; x++)       if (r <= _breaks[x])       break;
+      x--;
     }
  else     x=Math.min(_counts.length - 1,(int)Math.floor((r - _x0) / _h));
-    _counts[x]++;
+    bumpCount(x);
     setMinMax(Double.doubleToRawLongBits(r),x);
   }
 }

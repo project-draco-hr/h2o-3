@@ -1,0 +1,7 @@
+def setLevels(self, levels):
+    '\n    Works on a single categorical vector. New domains must be aligned with the old domains. This call has SIDE\n    EFFECTS and mutates the column in place (does not make a copy).\n    :param level: The level at which the column will be set (a string)\n    :param x: A single categorical column.\n    :param levels: A list of strings specifying the new levels. The number of new levels must match the number of\n    old levels.\n    :return: None\n    '
+    if ((self._vecs is None) or (self._vecs == [])):
+        raise ValueError('Frame Removed')
+    if (len(self) != 1):
+        raise (ValueError, '`setLevels` can only be called on a single H2OVec or an H2OFrame with one column')
+    self[0].setLevels(levels=levels)

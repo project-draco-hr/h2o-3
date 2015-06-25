@@ -10,6 +10,7 @@ def parse_args(argv):
     global g_run_small
     global g_run_medium
     global g_run_large
+    global g_run_xlarge
     global g_use_cloud
     global g_use_cloud2
     global g_use_client
@@ -20,7 +21,11 @@ def parse_args(argv):
     global g_jvm_xmx
     global g_nopass
     global g_convenient
+    global g_path_to_h2o_jar
     global g_path_to_tar
+    global g_path_to_whl
+    global g_produce_unit_reports
+    global g_phantomjs_to
     i = 1
     while (i < len(argv)):
         s = argv[i]
@@ -71,6 +76,8 @@ def parse_args(argv):
                     g_run_medium = False
                 if ('l' not in v):
                     g_run_large = False
+                if ('x' not in v):
+                    g_run_xlarge = False
             else:
                 bad_arg(s)
         elif (s == '--usecloud'):
@@ -100,9 +107,18 @@ def parse_args(argv):
             g_nopass = True
         elif (s == '--c'):
             g_convenient = True
+        elif (s == '--h2ojar'):
+            i += 1
+            g_path_to_h2o_jar = os.path.abspath(argv[i])
+        elif (s == '--pto'):
+            i += 1
+            g_phantomjs_to = int(argv[i])
         elif (s == '--tar'):
             i += 1
             g_path_to_tar = os.path.abspath(argv[i])
+        elif (s == '--whl'):
+            i += 1
+            g_path_to_whl = os.path.abspath(argv[i])
         elif (s == '--jvm.xmx'):
             i += 1
             if (i > len(argv)):

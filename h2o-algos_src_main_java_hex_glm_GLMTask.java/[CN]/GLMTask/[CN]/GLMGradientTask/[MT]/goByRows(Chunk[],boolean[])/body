@@ -5,12 +5,13 @@
   for (int rid=0; rid < chks[0]._len; ++rid) {
     if (skp[rid])     continue;
     row=_dinfo.extractDenseRow(chks,rid,row);
-    if (row.bad)     continue;
+    if (row.bad || row.weight == 0)     continue;
     _nobs++;
-    double eta=row.innerProduct(b);
+    _wsum+=row.weight;
+    double eta=row.innerProduct(b) + row.offset;
     double mu=_params.linkInv(eta);
-    _dev+=_params.deviance(row.response(0),mu);
-    _likelihood+=_params.likelihood(row.response(0),eta,mu);
+    _val.add(row.response(0),mu,row.weight,row.offset);
+    _likelihood+=row.weight * _params.likelihood(row.response(0),mu);
     double var=_params.variance(mu);
     if (var < 1e-6)     var=1e-6;
     double gval=(mu - row.response(0)) / (var * _params.linkDeriv(mu));

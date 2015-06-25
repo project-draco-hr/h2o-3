@@ -6,7 +6,15 @@
     j.remove(fs);
   }
   fs.blockForPending();
-  new RemoveAllTask().doAllNodes();
+  new MRTask(){
+    @Override public byte priority(){
+      return H2O.GUI_PRIORITY;
+    }
+    @Override public void setupLocal(){
+      H2O.raw_clear();
+    }
+  }
+.doAllNodes();
   Log.info("Finished removing objects");
   return u;
 }

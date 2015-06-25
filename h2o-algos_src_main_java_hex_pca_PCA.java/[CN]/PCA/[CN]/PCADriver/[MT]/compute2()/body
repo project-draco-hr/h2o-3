@@ -4,8 +4,8 @@
   DataInfo xinfo=null;
   Frame x=null;
   try {
-    _parms.read_lock_frames(PCA.this);
     init(true);
+    _parms.read_lock_frames(PCA.this);
     if (error_count() > 0)     throw new IllegalArgumentException("Found validation errors: " + validationErrors());
     model=new PCAModel(dest(),_parms,new PCAModel.PCAOutput(PCA.this));
     model.delete_and_lock(_key);
@@ -13,28 +13,28 @@
     parms._train=_parms._train;
     parms._ignored_columns=_parms._ignored_columns;
     parms._ignore_const_cols=_parms._ignore_const_cols;
-    parms._drop_na20_cols=_parms._drop_na20_cols;
     parms._score_each_iteration=_parms._score_each_iteration;
-    parms._useAllFactorLevels=_parms._useAllFactorLevels;
+    parms._use_all_factor_levels=_parms._use_all_factor_levels;
     parms._transform=_parms._transform;
     parms._nv=_parms._k;
     parms._max_iterations=_parms._max_iterations;
     parms._seed=_parms._seed;
     parms._only_v=false;
-    parms._u_key=_parms._loading_key;
+    parms._u_name=_parms._loading_name;
     parms._keep_u=_parms._keep_loading;
     SVDModel svd=null;
     SVD job=null;
     try {
-      job=new SVD(parms);
+      job=new EmbeddedSVD(_key,_progressKey,parms);
       svd=job.trainModel().get();
+      if (job.isCancelledOrCrashed())       PCA.this.cancel();
     }
   finally {
       if (job != null)       job.remove();
       if (svd != null)       svd.remove();
     }
     computeStatsFillModel(model,svd);
-    model.update(_key);
+    model.update(self());
     update(1);
     done();
   }

@@ -1,0 +1,19 @@
+{
+switch (_family) {
+case gaussian:
+    return .5 * (yr - ym) * (yr - ym);
+case binomial:
+  if (yr == ym)   return 0;
+return .5 * deviance(yr,ym);
+case poisson:
+if (yr == 0) return 2 * ym;
+return 2 * ((yr * Math.log(yr / ym)) - (yr - ym));
+case gamma:
+if (yr == 0) return -2;
+return -2 * (Math.log(yr / ym) - (yr - ym) / ym);
+case tweedie:
+return deviance(yr,ym);
+default :
+throw new RuntimeException("unknown family " + _family);
+}
+}

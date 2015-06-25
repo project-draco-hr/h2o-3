@@ -1,5 +1,5 @@
-def group_by(self, cols, a):
-    '\n    GroupBy\n    :param cols: The columns to group on.\n    :param a: A dictionary of aggregates having the following shape:     {"colname":[aggregate, column, naMethod]}    e.g.: {"bikes":["count", 0, "all"]}\n    The naMethod is one of "all", "ignore", or "rm", which specifies how to handle\n    NAs that appear in columns that are being aggregated.\n\n    "all" - include NAs\n    "rm"  - exclude NAs\n    "ignore" - ignore NAs in aggregates, but count them (e.g. in denominators for mean, var, sd, etc.)\n    :return: The group by frame.\n    '
+def group_by(self, cols, a, order_by=None):
+    '\n    GroupBy\n    :param cols: The columns to group on.\n    :param a: A dictionary of aggregates having the following shape:     {"colname":[aggregate, column, naMethod]}    e.g.: {"bikes":["count", 0, "all"]}\n    The naMethod is one of "all", "ignore", or "rm", which specifies how to handle\n    NAs that appear in columns that are being aggregated.\n\n    "all" - include NAs\n    "rm"  - exclude NAs\n    "ignore" - ignore NAs in aggregates, but count them (e.g. in denominators for mean, var, sd, etc.)\n    :param order_by: A list of column names or indices on which to order the results.\n    :return: The group by frame.\n    '
     if ((self._vecs is None) or (self._vecs == [])):
         raise ValueError('Frame Removed')
     rapids_series = (('(llist #' + ' #'.join([str(self._find_idx(name)) for name in cols])) + ')')
@@ -14,7 +14,16 @@ def group_by(self, cols, a):
             aggregates[k][1] = ('#' + str(aggregates[k][1]))
         aggs += ['"{1}" {2} "{3}" "{0}"'.format(str(k), *aggregates[k])]
     aggs = '(agg {})'.format(' '.join(aggs))
-    expr = '(= !{} (GB %{} {} {}))'.format(tmp_key, key, rapids_series, aggs)
+    if (order_by is None):
+        order_by = '()'
+    elif isinstance(order_by, list):
+        oby = [cols.index(i) for i in order_by]
+        order_by = (('(llist #' + ' #'.join([str(o) for o in oby])) + ')')
+    elif isinstance(order_by, str):
+        order_by = ('#' + str(self._find_idx(order_by)))
+    else:
+        order_by = ('#' + str(order_by))
+    expr = '(= !{} (GB %{} {} {} {}))'.format(tmp_key, key, rapids_series, aggs, order_by)
     h2o.rapids(expr)
     h2o.removeFrameShallow(key)
     j = h2o.frame(tmp_key)

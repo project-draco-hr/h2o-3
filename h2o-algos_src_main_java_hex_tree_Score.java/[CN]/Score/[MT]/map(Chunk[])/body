@@ -1,19 +1,25 @@
 {
   Chunk ys=_bldr.chk_resp(chks);
-  final int nclass=_bldr._nclass;
+  Model m=_bldr._model;
+  Chunk weightsChunk=m._output.hasWeights() ? chks[m._output.weightsIdx()] : new C0DChunk(1,chks[0]._len);
+  Chunk offsetChunk=m._output.hasOffset() ? chks[m._output.offsetIdx()] : new C0DChunk(0,chks[0]._len);
+  final int nclass=_bldr.nclasses();
   String[] domain=_bldr.vresponse().domain();
   final int oobColIdx=_bldr.idx_oobt();
-  _mb=_bldr._model.makeMetricBuilder(domain);
+  _mb=m.makeMetricBuilder(domain);
   final double[] cdists=_mb._work;
   final double[] tmp=_is_train ? null : new double[_bldr._ncols];
   float[] val=new float[1];
   for (int row=0; row < ys._len; row++) {
     if (ys.isNA(row))     continue;
     if (_oob && chks[oobColIdx].at8(row) == 0)     continue;
-    if (_is_train)     _bldr.score2(chks,cdists,row);
- else     _bldr._model.score0(chks,row,tmp,cdists);
-    if (nclass > 1)     cdists[0]=GenModel.getPrediction(cdists,tmp,_bldr._model.defaultThreshold());
+    double weight=weightsChunk.atd(row);
+    if (weight == 0)     continue;
+    double offset=offsetChunk.atd(row);
+    if (_is_train)     _bldr.score2(chks,weight,offset,cdists,row);
+ else     m.score0(chks,weight,offset,row,tmp,cdists);
+    if (nclass > 1)     cdists[0]=GenModel.getPrediction(cdists,tmp,m.defaultThreshold());
     val[0]=(float)ys.atd(row);
-    _mb.perRow(cdists,val,_bldr._model);
+    _mb.perRow(cdists,val,weight,offset,m);
   }
 }

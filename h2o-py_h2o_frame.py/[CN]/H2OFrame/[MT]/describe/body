@@ -4,10 +4,11 @@ def describe(self):
         raise ValueError('Frame Removed')
     thousands_sep = h2o.H2ODisplay.THOUSANDS
     print 'Rows:', thousands_sep.format(len(self._vecs[0])), 'Cols:', thousands_sep.format(len(self))
-    headers = [vec._name for vec in self._vecs]
-    table = [self._row('type', None), self._row('mins', 0), self._row('mean', None), self._row('maxs', 0), self._row('sigma', None), self._row('zero_count', None), self._row('missing_count', None)]
     chunk_summary_tmp_key = H2OFrame.send_frame(self)
-    dist_summary = h2o.frame(chunk_summary_tmp_key)['frames'][0]['distribution_summary']
+    chunk_dist_sum = h2o.frame(chunk_summary_tmp_key)['frames'][0]
+    dist_summary = chunk_dist_sum['distribution_summary']
+    chunk_summary = chunk_dist_sum['chunk_summary']
     h2o.removeFrameShallow(chunk_summary_tmp_key)
+    chunk_summary.show()
     dist_summary.show()
-    h2o.H2ODisplay(table, ([''] + headers), 'Column-by-Column Summary')
+    self.summary()

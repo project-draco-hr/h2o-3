@@ -1,0 +1,32 @@
+{
+  String[] names=new String[]{"Family","Link","Regularization","Number of Predictors Total","Number of Active Predictors","Number of Iterations","Training Frame"};
+  String[] types=new String[]{"string","string","string","int","int","int","string"};
+  String[] formats=new String[]{"%s","%s","%s","%d","%d","%d","%s"};
+  if (_parms._lambda_search) {
+    names=new String[]{"Family","Link","Regularization","Lambda Search","Number of Predictors Total","Number of Active Predictors","Number of Iterations","Training Frame"};
+    types=new String[]{"string","string","string","string","int","int","int","string"};
+    formats=new String[]{"%s","%s","%s","%s","%d","%d","%d","%s"};
+  }
+  _output._model_summary=new TwoDimTable("GLM Model","summary",new String[]{""},names,types,formats,"");
+  _output._model_summary.set(0,0,_parms._family.toString());
+  _output._model_summary.set(0,1,_parms._link.toString());
+  String regularization="None";
+  if (_parms._lambda != null && !(_parms._lambda.length == 1 && _parms._lambda[0] == 0)) {
+    if (_parms._alpha[0] == 0)     regularization="Ridge ( lambda = ";
+ else     if (_parms._alpha[0] == 1)     regularization="Lasso (lambda = ";
+ else     regularization="Elastic Net (alpha = " + MathUtils.roundToNDigits(_parms._alpha[0],4) + ", lambda = ";
+    regularization=regularization + MathUtils.roundToNDigits(_parms._lambda[_output._best_lambda_idx],4) + " )";
+  }
+  _output._model_summary.set(0,2,regularization);
+  int lambdaSearch=0;
+  if (_parms._lambda_search) {
+    lambdaSearch=1;
+    _output._model_summary.set(0,3,"nlambda = " + _parms._nlambdas + ", lambda_max = "+ MathUtils.roundToNDigits(_lambda_max,4)+ ", best_lambda = "+ MathUtils.roundToNDigits(_output.bestSubmodel().lambda_value,4));
+  }
+  int intercept=_parms._intercept ? 1 : 0;
+  _output._model_summary.set(0,3 + lambdaSearch,Integer.toString(beta().length - intercept));
+  _output._model_summary.set(0,4 + lambdaSearch,Integer.toString(_output.rank() - intercept));
+  _output._model_summary.set(0,5 + lambdaSearch,Integer.valueOf(iter));
+  _output._model_summary.set(0,6 + lambdaSearch,train.toString());
+  return _output._model_summary;
+}
