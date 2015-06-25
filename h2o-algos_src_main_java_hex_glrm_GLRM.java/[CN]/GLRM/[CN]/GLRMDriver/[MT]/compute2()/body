@@ -20,21 +20,6 @@
       Arrays.fill(model._output._normMul,1.0);
     }
  else     model._output._normMul=dinfo._normMul;
-    final double[] normSub=model._output._normSub;
-    final double[] normMul=model._output._normMul;
-    final int ncats=dinfo._cats;
-    new MRTask(){
-      @Override public void map(      Chunk cs[]){
-        for (int row=0; row < cs[0]._len; row++) {
-          for (int col=0; col < _ncolX; col++) {
-            double x=(cs[ncats + col].atd(row) - normSub[col]) * normMul[col];
-            chk_xold(cs,col,_ncolA).set(row,x);
-            chk_xnew(cs,col,_ncolA,_ncolX).set(row,x);
-          }
-        }
-      }
-    }
-.doAll(dinfo._adaptedFrame);
     double nobs=_train.numRows() * _train.numCols();
     tinfo=new DataInfo(Key.make(),_train,null,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false,false,false);
     DKV.put(tinfo._key,tinfo);
