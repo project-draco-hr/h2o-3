@@ -3,11 +3,12 @@
   DRFModel drf=null;
   Scope.enter();
   try {
-    tfr=parse_test_file("smalldata/junit/no_weights.csv");
+    tfr=parse_test_file("smalldata/junit/weights_all_twos.csv");
     DKV.put(tfr);
     DRFModel.DRFParameters parms=new DRFModel.DRFParameters();
     parms._train=tfr._key;
     parms._response_column="response";
+    parms._weights_column="weight";
     parms._seed=234;
     parms._min_rows=1;
     parms._max_depth=2;
@@ -28,7 +29,7 @@
   finally {
     if (tfr != null)     tfr.remove();
     if (vfr != null)     vfr.remove();
-    if (drf != null)     drf.remove();
+    if (drf != null)     drf.delete();
     Scope.exit();
   }
 }
