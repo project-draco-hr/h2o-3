@@ -12,11 +12,16 @@
     if (v0.type() != v.type())     throw new IllegalArgumentException("Apply of column " + fr._names[0] + " returned "+ v0.getClass()+ ", and column "+ fr._names[i]+ " returned "+ v.getClass());
 switch (v0.type()) {
 case Val.FRM:
-      throw water.H2O.unimpl();
+      Frame res=v0.getFrame();
+    if (res.numRows() != 1)     throw new IllegalArgumentException("apply single-column result must be a scalar, or a frame with 1 row; found " + fr.numRows() + " rows");
+  if (res.numCols() == 1)   ds[i]=fr.vec(0).at(0);
+ else   throw water.H2O.unimpl();
+res.delete();
+break;
 case Val.FUN:
-    throw water.H2O.unimpl();
+throw water.H2O.unimpl();
 case Val.STR:
-  throw water.H2O.unimpl();
+throw water.H2O.unimpl();
 case Val.NUM:
 ds[i]=v.getNum();
 break;
@@ -26,5 +31,5 @@ throw water.H2O.unimpl();
 }
 Key<Vec> key=Vec.VectorGroup.VG_LEN1.addVecs(1)[0];
 Vec vec=Vec.makeVec(ds,key);
-throw water.H2O.unimpl();
+return new ValFrame(new Frame(new String[]{fun.str()},new Vec[]{vec}));
 }
