@@ -7,7 +7,7 @@
     _parms.read_lock_frames(GLRM.this);
     if (error_count() > 0)     throw new IllegalArgumentException("Found validation errors: " + validationErrors());
     model=new GLRMModel(dest(),_parms,new GLRMModel.GLRMOutput(GLRM.this));
-    model.delete_and_lock(_key);
+    model.delete_and_lock(self());
     Vec[] vecs=new Vec[_ncolA + 2 * _ncolX];
     for (int i=0; i < _ncolA; i++)     vecs[i]=_train.vec(i);
     for (int i=_ncolA; i < vecs.length; i++)     vecs[i]=_train.anyVec().makeRand(_parms._seed);
@@ -24,10 +24,12 @@
     tinfo=new DataInfo(Key.make(),_train,null,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false,false,false);
     DKV.put(tinfo._key,tinfo);
     double[][] yt=ArrayUtils.transpose(initialY(tinfo));
-    ObjCalc objtsk=new ObjCalc(dinfo,_parms,yt,_ncolA,_ncolX,model._output._normSub,model._output._normMul,true).doAll(dinfo._adaptedFrame);
+    ObjCalc objtsk=new ObjCalc(dinfo,_parms,yt,_ncolA,_ncolX,model._output._normSub,model._output._normMul,_parms._gamma_x != 0).doAll(dinfo._adaptedFrame);
     model._output._objective=objtsk._loss + _parms._gamma_x * objtsk._xold_reg + _parms._gamma_y * _parms.regularize_y(yt);
     model._output._iterations=0;
     model._output._avg_change_obj=2 * TOLERANCE;
+    model.update(_key);
+    update(1);
     boolean overwriteX=false;
     double step=_parms._init_step_size;
     int steps_in_row=0;
@@ -41,7 +43,7 @@
       model._output._avg_change_obj=(model._output._objective - obj_new) / nobs;
       model._output._iterations++;
       if (model._output._avg_change_obj > 0) {
-        yt=ytnew;
+        model._output._archetypes=yt=ytnew;
         model._output._objective=obj_new;
         step*=1.05;
         steps_in_row=Math.max(1,steps_in_row + 1);
@@ -51,8 +53,10 @@
         step=step / Math.max(1.5,-steps_in_row);
         steps_in_row=Math.min(0,steps_in_row - 1);
         overwriteX=false;
+        Log.info("Iteration " + model._output._iterations + ": Objective increased to "+ model._output._objective+ "; reducing step size to "+ step);
       }
-      model.update(_key);
+      model._output._step_size=step;
+      model.update(self());
       update(1);
     }
     Vec[] xvecs=new Vec[_ncolX];
@@ -62,9 +66,8 @@
     DKV.put(x._key,x);
     DKV.put(xinfo._key,xinfo);
     model._output._loading_key=_parms._loading_key;
-    model._output._archetypes=yt;
-    model._output._step_size=step;
     if (_parms._recover_pca)     recoverPCA(model,xinfo);
+    model.update(self());
     done();
   }
  catch (  Throwable t) {
