@@ -1,4 +1,14 @@
 {
-  if (path.startsWith("/") || path.startsWith("./"))   path="file://" + path;
-  return URI.create(path);
+  File[] roots=File.listRoots();
+  if (path.startsWith("./")) {
+    return new File(path).toURI();
+  }
+ else {
+    for (    File root : roots) {
+      if (path.startsWith(root.getAbsolutePath())) {
+        return new File(path).toURI();
+      }
+    }
+    return URI.create(path);
+  }
 }
