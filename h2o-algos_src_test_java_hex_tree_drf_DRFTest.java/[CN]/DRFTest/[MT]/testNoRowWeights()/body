@@ -14,15 +14,11 @@
     parms._ntrees=3;
     DRF job=new DRF(parms);
     drf=job.trainModel().get();
-    drf.score(parms.train());
-    hex.ModelMetricsBinomial mm=hex.ModelMetricsBinomial.getFromDKV(drf,parms.train());
-    assertEquals(1.0,mm.auc()._auc,1e-8);
-    double mse=drf._output._training_metrics.mse();
-    assertEquals(0.07692307692307693,mse,1e-8);
-    double r2=((ModelMetricsBinomial)drf._output._training_metrics).r2();
-    assertEquals(0.6904761904761905,r2,1e-6);
-    double ll=((ModelMetricsBinomial)drf._output._training_metrics)._logloss;
-    assertEquals(2.656828953454668,ll,1e-6);
+    ModelMetricsBinomial mm=(ModelMetricsBinomial)drf._output._training_metrics;
+    assertEquals(0.9285714285714285,mm.auc()._auc,1e-8);
+    assertEquals(0.07692307692307693,mm.mse(),1e-8);
+    assertEquals(0.6904761904761905,mm.r2(),1e-6);
+    assertEquals(2.656828953454668,mm.logloss(),1e-6);
     job.remove();
   }
   finally {
