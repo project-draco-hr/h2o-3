@@ -7,7 +7,7 @@ def __setitem__(self, b, c):
         update_index = b
     lhs = (ExprNode('[', self, b, None) if isinstance(b, H2OFrame) else ExprNode('[', self, None, update_index))
     rhs = (c._frame() if isinstance(c, H2OFrame) else c)
-    col_name = (b if (isinstance(b, (str, unicode)) and (update_index == self._ncols)) else c._col_names[0])
+    col_name = (b if ((update_index == self._ncols) and isinstance(b, (str, unicode))) else (c._col_names[0] if isinstance(c, H2OFrame) else ''))
     sb = (ExprNode(',', ExprNode('=', lhs, rhs), ExprNode('colnames=', self, update_index, col_name))._eager() if (update_index >= self.ncol()) else ExprNode('=', lhs, rhs)._eager())
     h2o.rapids(ExprNode._collapse_sb(sb))
     self._update()
