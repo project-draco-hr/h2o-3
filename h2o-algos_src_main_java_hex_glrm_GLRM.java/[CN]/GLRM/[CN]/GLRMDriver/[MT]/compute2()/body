@@ -27,12 +27,6 @@
     fr=new Frame(null,vecs);
     dinfo=new DataInfo(Key.make(),fr,null,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false,false,false);
     DKV.put(dinfo._key,dinfo);
-    model._output._normSub=dinfo._normSub == null ? new double[dinfo._nums] : dinfo._normSub;
-    if (dinfo._normMul == null) {
-      model._output._normMul=new double[dinfo._nums];
-      Arrays.fill(model._output._normMul,1.0);
-    }
- else     model._output._normMul=dinfo._normMul;
     double nobs=_train.numRows() * _train.numCols();
     double[][] yt=ArrayUtils.transpose(initialY(tinfo));
     ObjCalc objtsk=new ObjCalc(dinfo,_parms,yt,_ncolA,_ncolX,model._output._normSub,model._output._normMul,true).doAll(dinfo._adaptedFrame);
