@@ -16,14 +16,12 @@
     env.push(new ValNum(mean / rows));
   }
  else {
-    MeanNARMTask t=new MeanNARMTask(_narm).doAll(fr.anyVec()).getResult();
-    if (t._rowcnt == 0 || Double.isNaN(t._sum)) {
-      double ave=Double.NaN;
-      env.push(new ValNum(ave));
-    }
+    Vec v=fr.anyVec();
+    if (_narm || v.naCnt() == 0)     env.push(new ValNum(v.mean()));
  else {
-      double ave=t._sum / t._rowcnt;
-      env.push(new ValNum(ave));
+      MeanNARMTask t=new MeanNARMTask(false).doAll(v);
+      if (t._rowcnt == 0 || Double.isNaN(t._sum))       env.push(new ValNum(Double.NaN));
+ else       env.push(new ValNum(t._sum / t._rowcnt));
     }
   }
 }

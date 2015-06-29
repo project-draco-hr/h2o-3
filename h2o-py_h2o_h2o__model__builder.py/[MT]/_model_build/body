@@ -8,16 +8,14 @@ def _model_build(x, y, validation_x, validation_y, algo_url, kwargs):
     if (not x):
         raise ValueError('Missing features')
     x = _check_frame(x, y, y)
-    if validation_x:
-        validation_x = _check_frame(validation_x, validation_y, y)
-    train_key = x.send_frame()
-    kwargs['training_frame'] = train_key
     if (validation_x is not None):
-        valid_key = validation_x.send_frame()
-        kwargs['validation_frame'] = valid_key
-    if y:
-        kwargs['response_column'] = y._name
-    kwargs = dict([(k, kwargs[k]) for k in kwargs if (kwargs[k] is not None)])
+        validation_x = _check_frame(validation_x, validation_y, y)
+    kwargs['training_frame'] = x._id
+    if (validation_x is not None):
+        kwargs['validation_frame'] = validation_x._id
+    if (y is not None):
+        kwargs['response_column'] = y._col_names[0]
+    kwargs = dict([(k, (kwargs[k]._frame()._id if isinstance(kwargs[k], H2OFrame) else kwargs[k])) for k in kwargs if (kwargs[k] is not None)])
     job = H2OJob(H2OConnection.post_json(('ModelBuilders/' + algo_url), **kwargs), job_type=(algo_url + ' Model Build')).poll()
     model_json = H2OConnection.get_json(('Models/' + job.dest_key))['models'][0]
     model_type = model_json['output']['model_category']
@@ -42,7 +40,4 @@ def _model_build(x, y, validation_x, validation_y, algo_url, kwargs):
     else:
         print model_type
         raise NotImplementedError
-    h2o.removeFrameShallow(train_key)
-    if validation_x:
-        h2o.removeFrameShallow(valid_key)
     return model
