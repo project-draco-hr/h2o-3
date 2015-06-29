@@ -16,15 +16,17 @@
     parms._learn_rate=1e-3f;
     GBM job=new GBM(parms);
     gbm=job.trainModel().get();
+    ModelMetricsBinomial mm=(ModelMetricsBinomial)gbm._output._training_metrics;
+    assertEquals(_AUC,mm.auc()._auc,1e-8);
+    assertEquals(_MSE,mm.mse(),1e-8);
+    assertEquals(_R2,mm.r2(),1e-6);
+    assertEquals(_LogLoss,mm.logloss(),1e-6);
     gbm.score(parms.train());
-    hex.ModelMetricsBinomial mm=hex.ModelMetricsBinomial.getFromDKV(gbm,parms.train());
-    assertEquals(1.0,mm.auc()._auc,1e-8);
-    double mse=gbm._output._training_metrics.mse();
-    assertEquals(0.24850374695598948,mse,1e-8);
-    double r2=((ModelMetricsBinomial)gbm._output._training_metrics).r2();
-    assertEquals(0.06120806705515103,r2,1e-6);
-    double ll=((ModelMetricsBinomial)gbm._output._training_metrics)._logloss;
-    assertEquals(0.690155,ll,1e-6);
+    hex.ModelMetricsBinomial mm2=hex.ModelMetricsBinomial.getFromDKV(gbm,parms.train());
+    assertEquals(_AUC,mm2.auc()._auc,1e-8);
+    assertEquals(_MSE,mm2.mse(),1e-8);
+    assertEquals(_R2,mm2.r2(),1e-6);
+    assertEquals(_LogLoss,mm2.logloss(),1e-6);
     job.remove();
   }
   finally {
