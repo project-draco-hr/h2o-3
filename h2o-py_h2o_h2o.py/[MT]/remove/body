@@ -3,12 +3,6 @@ def remove(object):
     if (object is None):
         raise ValueError('remove with no object is not supported, for your protection')
     if isinstance(object, H2OFrame):
-        fr = H2OFrame.send_frame(object)
-        remove(fr)
-        object._vecs = []
-    elif isinstance(object, H2OVec):
-        H2OConnection.delete(('DKV/' + str(object.key())))
-        object._expr = None
-        object = None
-    else:
+        H2OConnection.delete(('DKV/' + object._id))
+    if isinstance(object, str):
         H2OConnection.delete(('DKV/' + object))

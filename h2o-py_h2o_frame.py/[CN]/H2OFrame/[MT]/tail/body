@@ -1,23 +1,12 @@
 def tail(self, rows=10, cols=200, **kwargs):
     "\n    Analgous to R's `tail` call on a data.frame. Display a digestible chunk of the H2OFrame starting from the end.\n\n    :param rows: Number of rows to display.\n    :param cols: Number of columns to display.\n    :param kwargs: Extra arguments passed from other methods.\n    :return: None\n    "
-    if ((self._vecs is None) or (self._vecs == [])):
-        raise ValueError('Frame Removed')
+    self._eager()
     nrows = min(self.nrow(), rows)
     ncols = min(self.ncol(), cols)
     colnames = self.names()[0:ncols]
-    vecs = [self[c][(self.nrow() - nrows):self.nrow()] for c in range(ncols)]
-    print 'Last', str(nrows), 'rows and first', str(ncols), 'columns: '
-    if (nrows != 1):
-        fr = H2OFrame.py_tmp_key()
-        rapids_call = '(, '
-        cbind = (('(gput ' + fr) + " (cbind %FALSE '")
-        cbind += ("' '".join([vec._expr.eager() for vec in self._vecs]) + "')) ")
-        rapids_call += cbind
-        res = h2o.rapids(rapids_call)
-        h2o.removeFrameShallow(fr)
-        tail_rows = [range(((self.nrow() - nrows) + 1), (self.nrow() + 1), 1)]
-        tail_rows += [rows[0:nrows] for rows in res['head'][0:ncols]]
-        tail = zip(*tail_rows)
-        h2o.H2ODisplay(tail, (['Row ID'] + self.names()))
-    else:
-        h2o.H2ODisplay([([self.nrow()] + [expr.eager() for expr in exprs])], (['Row ID'] + colnames))
+    start_idx = max((self.nrow() - nrows), 0)
+    tail = self[start_idx:(start_idx + nrows), :]
+    res = tail.as_data_frame(False)
+    print 'Last {} rows and first {} columns: '.format(nrows, ncols)
+    h2o.H2ODisplay(res, (['Row ID'] + colnames))
+    return tail
