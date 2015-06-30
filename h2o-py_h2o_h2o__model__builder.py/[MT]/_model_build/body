@@ -29,7 +29,10 @@ def _model_build(x, y, validation_x, validation_y, algo_url, kwargs):
         kwargs['response_column'] = y._col_names[0]
     kwargs = dict([(k, (kwargs[k]._frame()._id if isinstance(kwargs[k], H2OFrame) else kwargs[k])) for k in kwargs if (kwargs[k] is not None)])
     job = H2OJob(H2OConnection.post_json(('ModelBuilders/' + algo_url), **kwargs), job_type=(algo_url + ' Model Build')).poll()
-    model_json = H2OConnection.get_json(('Models/' + job.dest_key))['models'][0]
+    if ('_rest_version' in kwargs.keys()):
+        model_json = H2OConnection.get_json(('Models/' + job.dest_key), _rest_version=kwargs['_rest_version'])['models'][0]
+    else:
+        model_json = H2OConnection.get_json(('Models/' + job.dest_key))['models'][0]
     model_type = model_json['output']['model_category']
     if (model_type == 'Binomial'):
         from model.binomial import H2OBinomialModel
