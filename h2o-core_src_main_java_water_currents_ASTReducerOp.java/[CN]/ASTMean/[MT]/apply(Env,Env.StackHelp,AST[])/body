@@ -1,6 +1,10 @@
 {
-  double sum=super.apply(env,stk,asts).getNum();
-  long cnt=_fr.numCols() * _fr.numRows();
-  if (_rmna)   for (  Vec vec : _fr.vecs())   cnt-=vec.naCnt();
+  Frame fr=stk.track(asts[1].exec(env)).getFrame();
+  double trim=stk.track(asts[2].exec(env)).getNum();
+  double rmna=stk.track(asts[3].exec(env)).getNum();
+  if (rmna != 0 && rmna != 1)   throw new IllegalArgumentException("Expected a 0/NAs propagate or 1/NAs ignored");
+  double sum=rmna == 1 ? new NaRmRedOp(this).doAll(fr)._d : new RedOp(this).doAll(fr)._d;
+  long cnt=fr.numCols() * fr.numRows();
+  if (rmna == 1)   for (  Vec vec : fr.vecs())   cnt-=vec.naCnt();
   return new ValNum(sum / cnt);
 }
