@@ -20,17 +20,19 @@
       parms._train=tfr._key;
       parms._response_column="IsDepDelayed";
       parms._nbins=10;
+      parms._nbins_cats=1024;
       parms._ntrees=7;
       parms._max_depth=10;
+      parms._binomial_double_trees=false;
       parms._mtries=-1;
       parms._min_rows=1;
-      parms._sample_rate=0.66667f;
+      parms._sample_rate=0.632f;
       parms._balance_classes=true;
       parms._seed=(1L << 32) | 2;
       DRF job=new DRF(parms);
       DRFModel drf=job.trainModel().get();
       assertEquals(drf._output._ntrees,parms._ntrees);
-      mses[i]=drf._output._scored_train[drf._output._scored_train.length - 1]._mse;
+      mses[i]=drf._output._training_metrics.mse();
       job.remove();
       drf.delete();
     }
@@ -43,6 +45,6 @@
     Log.info("trial: " + i + " -> MSE: "+ mses[i]);
   }
   for (int i=0; i < mses.length; ++i) {
-    assertEquals(0.2093151515479678,mses[i],1e-4);
+    assertEquals(0.20934191392060025,mses[i],1e-4);
   }
 }

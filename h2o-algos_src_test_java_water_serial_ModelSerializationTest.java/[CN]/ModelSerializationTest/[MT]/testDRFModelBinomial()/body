@@ -1,0 +1,15 @@
+{
+  DRFModel model=null, loadedModel=null;
+  try {
+    model=prepareDRFModel("smalldata/logreg/prostate.csv",ar("ID"),"CAPSULE",true,5);
+    CompressedTree[][] trees=getTrees(model);
+    loadedModel=saveAndLoad(model);
+    assertModelBinaryEquals(model,loadedModel);
+    CompressedTree[][] loadedTrees=getTrees(loadedModel);
+    assertTreeEquals("Trees have to be binary same",trees,loadedTrees);
+  }
+  finally {
+    if (model != null)     model.delete();
+    if (loadedModel != null)     loadedModel.delete();
+  }
+}

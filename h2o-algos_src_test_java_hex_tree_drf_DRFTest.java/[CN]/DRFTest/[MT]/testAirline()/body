@@ -5,24 +5,26 @@
   try {
     tfr=parse_test_file(Key.make("air.hex"),"/users/arno/sz_bench_data/train-1m.csv");
     test=parse_test_file(Key.make("airt.hex"),"/users/arno/sz_bench_data/test.csv");
-    for (    int i : new int[]{0,1,2}) {
-      tfr.vecs()[i]=tfr.vecs()[i].toEnum();
-      test.vecs()[i]=test.vecs()[i].toEnum();
-    }
     DRFModel.DRFParameters parms=new DRFModel.DRFParameters();
     parms._train=tfr._key;
     parms._valid=test._key;
+    parms._ignored_columns=new String[]{"Origin","Dest"};
     parms._response_column="dep_delayed_15min";
     parms._nbins=20;
-    parms._ntrees=100;
-    parms._max_depth=20;
+    parms._nbins_cats=1024;
+    parms._binomial_double_trees=new Random().nextBoolean();
+    parms._ntrees=1;
+    parms._max_depth=3;
     parms._mtries=-1;
     parms._sample_rate=0.632f;
     parms._min_rows=10;
     parms._seed=12;
     DRF job=new DRF(parms);
     DRFModel drf=job.trainModel().get();
-    Log.info("Test set AUC: " + drf._output._validation_metrics.auc()._auc);
+    Log.info("Training set AUC:   " + drf._output._training_metrics.auc()._auc);
+    Log.info("Validation set AUC: " + drf._output._validation_metrics.auc()._auc);
+    assertEquals(drf._output._training_metrics.auc()._auc,0.6498819479528417,1e-8);
+    assertEquals(drf._output._validation_metrics.auc()._auc,0.6479974533672835,1e-8);
     job.remove();
     drf.delete();
   }

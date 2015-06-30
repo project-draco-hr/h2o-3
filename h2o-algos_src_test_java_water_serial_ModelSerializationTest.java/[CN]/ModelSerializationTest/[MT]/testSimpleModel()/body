@@ -1,0 +1,14 @@
+{
+  BlahModel.BlahParameters params=new BlahModel.BlahParameters();
+  BlahModel.BlahOutput output=new BlahModel.BlahOutput(false,false);
+  Model model=new BlahModel(Key.make("BLAHModel"),params,output);
+  DKV.put(model._key,model);
+  Model loadedModel=null;
+  try {
+    loadedModel=saveAndLoad(model);
+    assertModelBinaryEquals(model,loadedModel);
+  }
+  finally {
+    if (loadedModel != null)     loadedModel.delete();
+  }
+}

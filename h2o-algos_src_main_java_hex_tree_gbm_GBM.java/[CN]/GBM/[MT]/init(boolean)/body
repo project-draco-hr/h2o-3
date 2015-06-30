@@ -7,6 +7,10 @@
       throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(GBM.this);
     }
     mean=_response.mean();
+    if (_weights != null && (_weights.min() != 1 || _weights.max() != 1)) {
+      FrameUtils.WeightedMean wm=new FrameUtils.WeightedMean();
+      mean=(float)(hasOffset() ? wm.doAll(_response,_weights,_offset) : wm.doAll(_response,_weights)).weightedMean();
+    }
     _initialPrediction=_nclass == 1 ? mean : (_nclass == 2 ? -0.5 * Math.log(mean / (1.0 - mean)) : 0.0);
     if (_parms._distribution == GBMModel.GBMParameters.Family.AUTO) {
       if (_nclass == 1)       _parms._distribution=GBMModel.GBMParameters.Family.gaussian;
@@ -17,7 +21,10 @@
 switch (_parms._distribution) {
 case bernoulli:
     if (_nclass != 2)     error("_distribution","Binomial requires the response to be a 2-class categorical");
- else     if (_response != null)     _initialPrediction=Math.log(mean / (1.0 - mean));
+ else     if (_response != null) {
+      _initialPrediction=Math.log(mean / (1.0 - mean));
+      if (_offset != null)       throw H2O.unimpl("Newton-Raphson iteration needed.");
+    }
   break;
 case multinomial:
 if (!isClassifier()) error("_distribution","Multinomial requires an enum response.");

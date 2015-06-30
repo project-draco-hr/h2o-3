@@ -1,0 +1,19 @@
+{
+  Frame f=parse_test_file(dataset);
+  try {
+    if (classification && !f.vec(response).isEnum()) {
+      f.replace(f.find(response),f.vec(response).toEnum()).remove();
+      DKV.put(f._key,f);
+    }
+    DRFModel.DRFParameters drfParams=new DRFModel.DRFParameters();
+    drfParams._train=f._key;
+    drfParams._ignored_columns=ignoredColumns;
+    drfParams._response_column=response;
+    drfParams._ntrees=ntrees;
+    drfParams._score_each_iteration=true;
+    return new DRF(drfParams).trainModel().get();
+  }
+  finally {
+    if (f != null)     f.delete();
+  }
+}

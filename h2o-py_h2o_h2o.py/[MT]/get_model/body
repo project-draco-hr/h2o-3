@@ -1,0 +1,16 @@
+def get_model(model_id):
+    '\n  Return the specified model\n\n  :param model_id: The model identification in h2o\n  '
+    model_json = H2OConnection.get_json(('Models/' + model_id))['models'][0]
+    model_type = model_json['output']['model_category']
+    if (model_type == 'Binomial'):
+        return H2OBinomialModel(model_id, model_json)
+    elif (model_type == 'Clustering'):
+        return H2OClusteringModel(model_id, model_json)
+    elif (model_type == 'Regression'):
+        return H2ORegressionModel(model_id, model_json)
+    elif (model_type == 'Multinomial'):
+        return H2OMultinomialModel(model_id, model_json)
+    elif (model_type == 'AutoEncoder'):
+        return H2OAutoEncoderModel(model_id, model_json)
+    else:
+        raise NotImplementedError(model_type)
