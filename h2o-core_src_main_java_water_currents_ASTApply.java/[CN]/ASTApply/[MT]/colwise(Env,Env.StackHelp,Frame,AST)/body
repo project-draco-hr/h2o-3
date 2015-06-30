@@ -1,10 +1,16 @@
 {
   Vec vecs[]=fr.vecs();
   Val vals[]=new Val[vecs.length];
+  int nargs=fun.nargs();
+  if (nargs != -1 && nargs != 2)   throw new IllegalArgumentException("Incorrect number of arguments; '" + fun + "' expects "+ nargs+ " but was passed "+ 2);
+  AST asts[]=new AST[2];
+  asts[0]=fun;
   for (int i=0; i < vecs.length; i++) {
-    Frame f1=new Frame(new String[]{fr._names[i]},new Vec[]{vecs[i]});
-    vals[i]=new ASTExec(fun,new ASTFrame(f1)).exec(env);
-  }
+    asts[1]=new ASTFrame(new Frame(new String[]{fr._names[i]},new Vec[]{vecs[i]}));
+    try (Env.StackHelp stk_inner=env.stk()){
+      vals[i]=stk.track(stk_inner.returning(fun.apply(env,stk_inner,asts)));
+    }
+   }
   Val v0=vals[0];
   Vec ovecs[]=new Vec[vecs.length];
 switch (v0.type()) {
