@@ -1,0 +1,31 @@
+{
+  int nargs=ast.nargs();
+  if (nargs != -1 && nargs != 2)   throw new IllegalArgumentException("Incorrect number of arguments; '" + ast + "' expects "+ nargs+ " but was passed "+ 2);
+  ASTFun old=env._scope;
+  if (ast instanceof ASTFun) {
+    final ASTFun fun=(ASTFun)ast;
+    env._scope=new ASTFun(fun,null,fun._parent);
+    ValFrame res=new ValFrame(new MRTask(){
+      @Override public void map(      Chunk chks[],      NewChunk nc){
+        double ds[]=new double[chks.length];
+        for (int row=0; row < chks[0]._len; row++) {
+          for (int col=0; col < chks.length; col++)           ds[col]=chks[col].atd(row);
+          nc.addNum(fun._body.rowApply(env,ds));
+        }
+      }
+    }
+.doAll(1,fr).outputFrame());
+    env._scope=old;
+    return res;
+  }
+  return new ValFrame(new MRTask(){
+    @Override public void map(    Chunk chks[],    NewChunk nc){
+      double ds[]=new double[chks.length];
+      for (int row=0; row < chks[0]._len; row++) {
+        for (int col=0; col < chks.length; col++)         ds[col]=chks[col].atd(row);
+        nc.addNum(ast.rowApply(env,ds));
+      }
+    }
+  }
+.doAll(1,fr).outputFrame());
+}
