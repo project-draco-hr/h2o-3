@@ -1,19 +1,14 @@
 {
   Val vals[]=new Val[asts.length];
   Vec vec=null;
-  int numCols=0;
   for (int i=1; i < asts.length; i++) {
     vals[i]=stk.track(asts[i].exec(env));
     if (vals[i].isFrame()) {
-      numCols+=vals[i].getFrame().numCols();
       Vec anyvec=vals[i].getFrame().anyVec();
       if (anyvec == null)       continue;
       if (vec == null)       vec=anyvec;
  else       if (vec.length() != anyvec.length())       throw new IllegalArgumentException("cbind frames must have all the same rows, found " + vec.length() + " and "+ anyvec.length()+ " rows.");
- else       if (!vec.checkCompatible(anyvec)) {
-      }
     }
- else     numCols++;
   }
   boolean clean=false;
   if (vec == null) {
