@@ -26,7 +26,10 @@ case Val.FUN:
 case Val.STR:
   throw H2O.unimpl();
 case Val.NUM:
-for (int c=0; c < numCols; c++) res.vec(c).set(i - 1,vals[i].getNum());
+for (int c=0; c < numCols; c++) {
+  if (stk.inUse(res.vec(c)))   throw H2O.unimpl();
+  res.vec(c).set(i - 1,vals[i].getNum());
+}
 break;
 default :
 throw H2O.unimpl();
