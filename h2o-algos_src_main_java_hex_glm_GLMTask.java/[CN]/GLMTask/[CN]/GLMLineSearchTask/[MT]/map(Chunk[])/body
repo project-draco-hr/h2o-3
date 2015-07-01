@@ -13,7 +13,7 @@
   double[] pk=_direction;
   for (int r=0; r < eta.length; ++r) {
     double b=beta[beta.length - 1];
-    double t=pk[beta.length - 1];
+    double t=pk[beta.length - 1] * _initStep;
     for (int j=0; j < _nSteps; ++j, t*=_step) {
       eta[r][j]+=b + t;
     }
@@ -27,7 +27,7 @@
       }
       int off=_dinfo.getCategoricalId(i,(int)c.at8(r));
       if (off != -1) {
-        double t=pk[off];
+        double t=pk[off] * _initStep;
         double b=beta[off];
         for (int j=0; j < _nSteps; ++j, t*=_step)         eta[r][j]+=b + t;
       }
@@ -38,7 +38,7 @@
   if (_dinfo._normMul != null && _dinfo._normSub != null) {
     for (int i=0; i < _dinfo._nums; ++i) {
       double b=beta[numStart + i];
-      double s=pk[numStart + i];
+      double s=pk[numStart + i] * _initStep;
       double d=_dinfo._normSub[i] * _dinfo._normMul[i];
       for (int j=0; j < _nSteps; ++j, s*=_step)       off[j]-=(b + s) * d;
     }
@@ -53,7 +53,7 @@
       double d=c.atd(r);
       if (_dinfo._normMul != null)       d*=_dinfo._normMul[i];
       double b=beta[numStart + i];
-      double s=pk[numStart + i];
+      double s=pk[numStart + i] * _initStep;
       for (int j=0; j < _nSteps; ++j, s*=_step)       eta[r][j]+=(b + s) * d;
     }
   }
