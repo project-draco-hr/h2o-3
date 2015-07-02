@@ -3,14 +3,17 @@
   long nrows=rows.cnt();
   if (nrows == 1) {
     long drow=(long)rows.expand()[0];
-    for (    Vec vec : dvecs) {
-      if (stk.inUse(vec))       throw H2O.unimpl();
-      vec.set(drow,src);
-    }
+    for (    Vec vec : dvecs)     vec.set(drow,src);
     return;
   }
   if (dst.numRows() == nrows && rows.isDense()) {
-    throw H2O.unimpl();
+    new MRTask(){
+      @Override public void map(      Chunk[] cs){
+        for (int i=0; i < cs.length; i++)         cs[i].replaceAll(new C0DChunk(src,cs[i]._len));
+      }
+    }
+.doAll(dst);
+    return;
   }
   new MRTask(){
     @Override public void map(    Chunk[] cs){

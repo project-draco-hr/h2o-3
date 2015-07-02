@@ -7,14 +7,12 @@
   if (src.numRows() != nrows)   throw new IllegalArgumentException("Requires same count of rows in the number-list (" + nrows + ") as in the source ("+ src.numRows()+ ")");
   if (nrows == 1) {
     long drow=(long)rows.expand()[0];
-    for (int col=0; col < dvecs.length; col++) {
-      if (stk.inUse(dvecs[col]))       throw H2O.unimpl();
-      dvecs[col].set(drow,svecs[col].at(0));
-    }
+    for (int col=0; col < dvecs.length; col++)     dvecs[col].set(drow,svecs[col].at(0));
     return;
   }
   if (dst.numRows() == nrows && rows.isDense()) {
-    System.arraycopy(svecs,0,dvecs,0,svecs.length);
+    for (int i=0; i < dvecs.length; i++)     DKV.put(dvecs[i]=dvecs[i].doCopy());
+    if (dst._key != null)     throw H2O.unimpl();
     return;
   }
   throw H2O.unimpl();
