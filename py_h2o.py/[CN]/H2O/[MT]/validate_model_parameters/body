@@ -10,6 +10,10 @@ def validate_model_parameters(self, algo, training_frame, parameters, timeoutSec
         assert (frames is not None), 'FAIL: /Frames/{0} REST call failed'.format(training_frame)
         assert (frames['frames'][0]['frame_id']['name'] == training_frame), 'FAIL: /Frames/{0} returned Frame {1} rather than Frame {2}'.format(training_frame, frames['frames'][0]['frame_id']['name'], training_frame)
         parameters['training_frame'] = training_frame
-    result = self.__do_json_request((('/3/ModelBuilders/' + algo) + '/parameters'), cmd='post', timeout=timeoutSecs, postData=parameters, ignoreH2oError=True, noExtraErrorCheck=True, raiseIfNon200=False)
+    if (algo in H2O.experimental_algos):
+        _rest_version = 99
+    else:
+        _rest_version = 3
+    result = self.__do_json_request((((('/' + str(_rest_version)) + '/ModelBuilders/') + algo) + '/parameters'), cmd='post', timeout=timeoutSecs, postData=parameters, ignoreH2oError=True, noExtraErrorCheck=True, raiseIfNon200=False)
     H2O.verboseprint(('model parameters validation: ' + repr(result)))
     return result

@@ -10,6 +10,18 @@ def _model_build(x, y, validation_x, validation_y, algo_url, kwargs):
     x = _check_frame(x, y, y)
     if (validation_x is not None):
         validation_x = _check_frame(validation_x, validation_y, y)
+    if ('weights_column' in kwargs.keys()):
+        if (kwargs['weights_column'] not in x._col_names):
+            if ('training_frame' not in kwargs.keys()):
+                raise ValueError('must specify `training_frame` argument if `weights`not part of `x`')
+            _add_weights_col(x, kwargs['training_frame'], kwargs['weights_column'])
+            assert (kwargs['weights_column'] in x._col_names)
+        if (validation_x is not None):
+            if (kwargs['weights_column'] not in validation_x._col_names):
+                if ('validation_frame' not in kwargs.keys()):
+                    raise ValueError('must specify `validation_frame` argument if `weights` not part of `validation_x`')
+                _add_weights_col(validation_x, kwargs['validation_frame'], kwargs['weights_column'])
+                assert (kwargs['weights_column'] in validation_x._col_names)
     kwargs['training_frame'] = x._id
     if (validation_x is not None):
         kwargs['validation_frame'] = validation_x._id
@@ -17,7 +29,10 @@ def _model_build(x, y, validation_x, validation_y, algo_url, kwargs):
         kwargs['response_column'] = y._col_names[0]
     kwargs = dict([(k, (kwargs[k]._frame()._id if isinstance(kwargs[k], H2OFrame) else kwargs[k])) for k in kwargs if (kwargs[k] is not None)])
     job = H2OJob(H2OConnection.post_json(('ModelBuilders/' + algo_url), **kwargs), job_type=(algo_url + ' Model Build')).poll()
-    model_json = H2OConnection.get_json(('Models/' + job.dest_key))['models'][0]
+    if ('_rest_version' in kwargs.keys()):
+        model_json = H2OConnection.get_json(('Models/' + job.dest_key), _rest_version=kwargs['_rest_version'])['models'][0]
+    else:
+        model_json = H2OConnection.get_json(('Models/' + job.dest_key))['models'][0]
     model_type = model_json['output']['model_category']
     if (model_type == 'Binomial'):
         from model.binomial import H2OBinomialModel
