@@ -11,7 +11,17 @@
     return;
   }
   if (dst.numRows() == nrows && rows.isDense()) {
-    for (int i=0; i < dvecs.length; i++)     DKV.put(dvecs[i]=dvecs[i].doCopy());
+    new MRTask(){
+      @Override public void map(      Chunk[] cs){
+        int len=cs.length >> 1;
+        for (int i=0; i < len; i++) {
+          Chunk cdst=cs[i];
+          Chunk csrc=cs[i + len];
+          cdst.replaceAll(csrc.deepCopy());
+        }
+      }
+    }
+.doAll(new Frame().add(dst).add(src));
     if (dst._key != null)     throw H2O.unimpl();
     return;
   }
