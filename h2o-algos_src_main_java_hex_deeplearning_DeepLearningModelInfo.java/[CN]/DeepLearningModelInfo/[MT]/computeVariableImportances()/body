@@ -35,5 +35,11 @@
   }
   for (int i=0; i < units[0]; i++)   vi[i]=ArrayUtils.sum(Qik[i]);
   ArrayUtils.div(vi,ArrayUtils.maxValue(vi));
+  if (_saw_missing_cats != null) {
+    for (int i=0; i < _saw_missing_cats.length; ++i) {
+      assert(data_info._catMissing[i] == 1);
+      if (!_saw_missing_cats[i])       vi[data_info._catOffsets[i + 1] - 1]=0;
+    }
+  }
   return vi;
 }
