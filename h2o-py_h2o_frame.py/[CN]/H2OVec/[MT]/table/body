@@ -1,8 +1,0 @@
-def table(self, data2=None):
-    '\n    :return: a frame of the counts at each combination of factor levels\n    '
-    if (data2 and (not isinstance(data2, H2OVec))):
-        raise ValueError('`data2` must be a vec, but got {0}'.format(type(data2)))
-    tmp_key = H2OFrame.py_tmp_key()
-    data2_key = (('%' + data2.key()) if data2 else '()')
-    expr = '(= !{} (table %{} {}))'.format(tmp_key, self.key(), data2_key)
-    return H2OFrame._get_frame_from_rapids_string(expr, tmp_key, [])

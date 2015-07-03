@@ -9,11 +9,11 @@ port = int(ip_port[1])
 h2o.init(ip=ip, port=port)
 df = h2o.import_frame(path='../../../smalldata/logreg/prostate.csv')
 df.describe()
-del df['ID']
+df = df[:, (-1)]
 vol = df['VOL']
-vol[(vol == 0)] = None
+vol[(vol == 0)] = float('nan')
 gle = df['GLEASON']
-gle[(gle == 0)] = None
+gle[(gle == 0)] = float('nan')
 df['CAPSULE'] = df['CAPSULE'].asfactor()
 r = vol.runif()
 train = df[(r < 0.8)]

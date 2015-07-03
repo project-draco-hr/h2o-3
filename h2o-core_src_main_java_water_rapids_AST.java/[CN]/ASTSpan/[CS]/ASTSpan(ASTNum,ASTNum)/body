@@ -2,11 +2,11 @@
   _ast_min=min;
   _ast_max=max;
   _min=(long)min._d;
-  _max=(long)max._d;
+  _max=max._d;
   if (_min <= 0 && _max <= 0) {
-    if (_max > _min)     throw new IllegalArgumentException("max>min: All negative, incorrect order.");
+    if (!Double.isNaN(_max) && _max > _min)     throw new IllegalArgumentException("max>min: All negative, incorrect order.");
   }
  else {
-    if (_min > _max)     throw new IllegalArgumentException("min > max: min <= max for `:` operator.");
+    if (!Double.isNaN(_max) && _min > _max)     throw new IllegalArgumentException("min > max: min <= max for `:` operator.");
   }
 }

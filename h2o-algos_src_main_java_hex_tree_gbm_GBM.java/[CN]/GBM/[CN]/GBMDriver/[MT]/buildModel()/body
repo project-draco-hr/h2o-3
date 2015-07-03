@@ -1,14 +1,35 @@
 {
-  final double init=_initialPrediction;
-  if (init != 0.0)   new MRTask(){
-    @Override public void map(    Chunk tree){
-      for (int i=0; i < tree._len; i++)       tree.set(i,init);
+  if (hasOffset() && _parms._distribution == GBMModel.GBMParameters.Family.bernoulli) {
+    Log.info("Running Newton-Raphson iteration to find the initial value since offsets are specified.");
+    Log.info("Iteration 0: initial value: " + _initialPrediction + " (starting value)");
+    double delta;
+    int count=0;
+    double tol=1e-4;
+    int N=1;
+    _initialPrediction=0;
+    do {
+      double newInit=new NewtonRaphson(_initialPrediction).doAll(_train).value();
+      delta=Math.abs(_initialPrediction - newInit);
+      _initialPrediction=newInit;
+      Log.info("Iteration " + ++count + ": initial value: "+ _initialPrediction);
     }
+ while (count < N && delta >= tol);
+    if (delta > tol)     Log.warn("Not fully converged.");
+    Log.info("Newton-Raphson iteration ran for " + count + " iteration(s). Final residual: "+ delta);
   }
+  _model._output._init_f=_initialPrediction;
+  if (_initialPrediction != 0.0) {
+    final double init=_initialPrediction;
+    new MRTask(){
+      @Override public void map(      Chunk tree){
+        for (int i=0; i < tree._len; i++)         tree.set(i,init);
+      }
+    }
 .doAll(vec_tree(_train,0),_parms._build_tree_one_node);
+  }
   if (_parms._checkpoint) {
     Timer t=new Timer();
-    new ResidualsCollector(_ncols,_nclass,_model._output._treeKeys).doAll(_train,_parms._build_tree_one_node);
+    new ResidualsCollector(_ncols,_nclass,(hasOffset() ? 1 : 0) + (hasWeights() ? 1 : 0),_model._output._treeKeys).doAll(_train,_parms._build_tree_one_node);
     Log.info("Reconstructing tree residuals stats from checkpointed model took " + t);
   }
   for (int tid=0; tid < _parms._ntrees; tid++) {

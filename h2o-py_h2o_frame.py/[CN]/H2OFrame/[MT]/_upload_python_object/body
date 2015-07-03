@@ -1,29 +1,11 @@
 def _upload_python_object(self, python_obj):
     '\n    Properly handle native python data types. For a discussion of the rules and\n    permissible data types please refer to the main documentation for H2OFrame.\n\n    :param python_obj: A tuple, list, dict, collections.OrderedDict\n    :return: None\n    '
-    have_numpy = False
-    try:
-        imp.find_module('numpy')
-        import numpy
-        have_numpy = True
-    except ImportError:
-        pass
-    have_pandas = False
-    try:
-        imp.find_module('pandas')
-        import pandas
-        have_pandas = True
-    except ImportError:
-        pass
     if isinstance(python_obj, (list, tuple)):
-        (header, data_to_write) = H2OFrame._handle_python_lists(python_obj)
+        (header, data_to_write) = _handle_python_lists(python_obj)
     elif isinstance(python_obj, (dict, collections.OrderedDict)):
-        (header, data_to_write) = H2OFrame._handle_python_dicts(python_obj)
-    elif (have_numpy and isinstance(python_obj, numpy.ndarray)):
-        (header, data_to_write) = H2OFrame._handle_numpy_array(python_obj)
-    elif (have_pandas and isinstance(python_obj, pandas.DataFrame)):
-        (header, data_to_write) = H2OFrame._handle_pandas_data_frame(python_obj)
+        (header, data_to_write) = _handle_python_dicts(python_obj)
     else:
-        raise ValueError(('`python_obj` must be a tuple, list, dict, collections.OrderedDict, numpy.ndarray, or pandas.DataFrame. Got: ' + str(type(python_obj))))
+        raise ValueError(('`python_obj` must be a tuple, list, dict, collections.OrderedDict. Got: ' + str(type(python_obj))))
     if ((header is None) or (data_to_write is None)):
         raise ValueError('No data to write')
     (tmp_handle, tmp_path) = tempfile.mkstemp(suffix='.csv')

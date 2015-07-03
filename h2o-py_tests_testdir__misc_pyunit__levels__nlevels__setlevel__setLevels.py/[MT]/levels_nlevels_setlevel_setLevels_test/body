@@ -30,7 +30,7 @@ def levels_nlevels_setlevel_setLevels_test(ip, port):
     assert (levels == None), 'Expected levels to be None, but got {0}'.format(levels)
     assert (nlevels == 0), 'Expected nlevels to be 0, but got {0}'.format(nlevels)
     iris = h2o.import_frame(path=h2o.locate('smalldata/iris/iris.csv'))
-    iris[4].setLevels(levels=['a', 'b', 'c'])
+    iris[4] = iris[4].setLevels(levels=['a', 'b', 'c'])
     levels = iris.levels()
     nlevels = iris.nlevels()
     assert (levels == None), 'Expected levels to be None, but got {0}'.format(levels)
@@ -59,6 +59,6 @@ def levels_nlevels_setlevel_setLevels_test(ip, port):
     nlevels = iris[1].nlevels()
     assert (levels == None), 'Expected levels to be None, but got {0}'.format(levels)
     assert (nlevels == 0), 'Expected nlevels to be 0, but got {0}'.format(nlevels)
-    one_column_frame = h2o.H2OFrame(vecs=[iris[4]])
+    one_column_frame = iris[4]
     one_column_frame = one_column_frame.setLevel(level='c')
     assert (one_column_frame[(0, 0)] == 'c')

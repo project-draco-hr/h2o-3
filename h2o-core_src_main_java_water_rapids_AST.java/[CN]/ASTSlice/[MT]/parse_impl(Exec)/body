@@ -6,10 +6,10 @@ case Env.STR:
     rows=new ASTNull();
   break;
 case Env.SPAN:
-((ASTSpan)rows).setSlice(true,false);
+rows=((ASTSpan)rows).setSlice(true,false);
 break;
 case Env.SERIES:
-((ASTSeries)rows).setSlice(true,false);
+rows=((ASTSeries)rows).setSlice(true,false);
 break;
 case Env.LIST:
 rows=new ASTSeries(((ASTLongList)rows)._l,null,((ASTLongList)rows)._spans);
@@ -28,17 +28,24 @@ case Env.STR:
 cols=cols.value().equals("null") ? new ASTNull() : cols;
 break;
 case Env.SPAN:
-((ASTSpan)cols).setSlice(false,true);
+cols=((ASTSpan)cols).setSlice(false,true);
 break;
 case Env.SERIES:
-((ASTSeries)cols).setSlice(false,true);
+cols=((ASTSeries)cols).setSlice(false,true);
 break;
 case Env.LIST:
-cols=new ASTSeries(((ASTLongList)cols)._l,null,((ASTLongList)cols)._spans);
+if (cols instanceof ASTLongList) cols=new ASTSeries(((ASTLongList)cols)._l,null,((ASTLongList)cols)._spans);
+ else {
+double[] d=((ASTDoubleList)cols)._d;
+long[] l=new long[d.length];
+int i=0;
+for (double dd : d) l[i++]=(long)dd;
+cols=new ASTSeries(l,null,((ASTDoubleList)cols)._spans);
+}
 ((ASTSeries)cols).setSlice(false,true);
 break;
 case Env.NULL:
-rows=new ASTNull();
+cols=new ASTNull();
 break;
 default :
 }

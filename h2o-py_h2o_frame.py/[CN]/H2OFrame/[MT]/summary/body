@@ -1,8 +1,6 @@
 def summary(self):
     '\n    Generate summary of the frame on a per-Vec basis.\n    :return: None\n    '
-    frtmp = self.send_frame()
-    fr_sum = h2o.frame_summary(frtmp)['frames'][0]
-    h2o.removeFrameShallow(frtmp)
+    fr_sum = h2o.H2OConnection.get_json((('Frames/' + urllib.quote(self._id)) + '/summary'))['frames'][0]
     type = ['type']
     mins = ['mins']
     mean = ['mean']
@@ -19,5 +17,5 @@ def summary(self):
         zeros.append(v['zero_count'])
         miss.append(v['missing_count'])
     table = [type, mins, maxs, sigma, zeros, miss]
-    headers = [vec._name for vec in self._vecs]
+    headers = self._col_names
     h2o.H2ODisplay(table, ([''] + headers), 'Column-by-Column Summary')
