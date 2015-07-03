@@ -4,7 +4,8 @@
     Log.info("Iteration 0: initial value: " + _initialPrediction + " (starting value)");
     double delta;
     int count=0;
-    int N=100;
+    double tol=1e-4;
+    int N=1;
     _initialPrediction=0;
     do {
       double newInit=new NewtonRaphson(_initialPrediction).doAll(_train).value();
@@ -12,9 +13,9 @@
       _initialPrediction=newInit;
       Log.info("Iteration " + ++count + ": initial value: "+ _initialPrediction);
     }
- while (delta > 1e-6 || count > N);
-    if (count > N)     Log.warn("Newton-Raphson iteration didn't converge after " + count + " iterations.");
- else     Log.info("Newton-Raphson iteration converged. Final residual: " + delta);
+ while (count < N && delta >= tol);
+    if (delta > tol)     Log.warn("Not fully converged.");
+    Log.info("Newton-Raphson iteration ran for " + count + " iteration(s). Final residual: "+ delta);
   }
   _model._output._init_f=_initialPrediction;
   if (_initialPrediction != 0.0) {
