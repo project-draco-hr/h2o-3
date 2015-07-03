@@ -1,0 +1,34 @@
+{
+  if (e instanceof H2OFailException) {
+    H2OFailException ee=(H2OFailException)e;
+    H2OError error=ee.toH2OError(uri);
+    Log.fatal("Caught exception (fatal to the cluster): " + error.toString());
+    throw (H2O.fail(error.toString()));
+  }
+ else   if (e instanceof H2OAbstractRuntimeException) {
+    H2OAbstractRuntimeException ee=(H2OAbstractRuntimeException)e;
+    H2OError error=ee.toH2OError(uri);
+    Log.warn("Caught exception: " + error.toString());
+    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+    try {
+      @SuppressWarnings("unchecked") String s=new H2OErrorV3().fillFromImpl(error).toJsonString();
+      response.getWriter().write(s);
+    }
+ catch (    Exception ignore) {
+    }
+  }
+ else {
+    H2OError error=new H2OError(e,uri);
+    if (e instanceof IllegalArgumentException)     error._http_status=HttpResponseStatus.BAD_REQUEST.getCode();
+ else     if (e instanceof FileNotFoundException)     error._http_status=HttpResponseStatus.BAD_REQUEST.getCode();
+ else     if (e instanceof MalformedURLException)     error._http_status=HttpResponseStatus.BAD_REQUEST.getCode();
+    response.setStatus(error._http_status);
+    Log.warn("Caught exception: " + error.toString());
+    try {
+      @SuppressWarnings("unchecked") String s=new H2OErrorV3().fillFromImpl(error).toJsonString();
+      response.getWriter().write(s);
+    }
+ catch (    Exception ignore) {
+    }
+  }
+}

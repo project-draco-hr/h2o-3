@@ -1,5 +1,8 @@
 {
   H2O.API_PORT=H2O.ARGS.port == 0 ? H2O.ARGS.baseport : H2O.ARGS.port;
+  if (H2O.getJetty() == null) {
+    H2O.setJetty(new JettyHTTPD());
+  }
   while (true) {
     H2O.H2O_PORT=H2O.API_PORT + 1;
     try {
@@ -12,9 +15,11 @@
       TCPReceiverThread.SOCK=ServerSocketChannel.open();
       TCPReceiverThread.SOCK.socket().setReceiveBufferSize(water.AutoBuffer.TCP_BUF_SIZ);
       TCPReceiverThread.SOCK.socket().bind(isa);
+      _apiSocket.close();
+      H2O.getJetty().start(H2O.API_PORT,H2O.ARGS.ip);
       break;
     }
- catch (    IOException e) {
+ catch (    Exception e) {
       if (_apiSocket != null)       try {
         _apiSocket.close();
       }
