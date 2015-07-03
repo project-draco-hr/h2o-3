@@ -18,6 +18,11 @@
  else {
     Chunk tr=chk_tree(chks,0);
     Chunk wk=chk_work(chks,0);
-    for (int row=0; row < ys._len; row++)     wk.set(row,(float)(tr.atd(row) + offset.atd(row)));
+    if (_parms._distribution == GBMModel.GBMParameters.Family.gaussian) {
+      for (int row=0; row < ys._len; row++)       wk.set(row,(float)(tr.atd(row) + offset.atd(row)));
+    }
+ else     if (_parms._distribution == GBMModel.GBMParameters.Family.poisson) {
+      for (int row=0; row < ys._len; row++)       wk.set(row,(float)Math.exp((tr.atd(row) + offset.atd(row))));
+    }
   }
 }
