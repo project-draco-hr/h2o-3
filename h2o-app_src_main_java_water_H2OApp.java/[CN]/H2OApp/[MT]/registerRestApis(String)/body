@@ -2,6 +2,10 @@
   if (apisRegistered) {
     throw H2O.fail("APIs already registered");
   }
+  for (  AbstractH2OExtension e : H2O.getExtensions()) {
+    e.printInitialized();
+  }
+  Log.info("Registered " + H2O.getExtensions().size() + " extensions in: "+ registerExtensionsMillis+ "mS");
   long before=System.currentTimeMillis();
   String[] packages=new String[]{"water","hex"};
   for (  String pkg : packages) {
@@ -22,5 +26,6 @@
     }
   }
   apisRegistered=true;
-  Log.info("Registered REST APIs in: " + (System.currentTimeMillis() - before) + "mS");
+  long registerApisMillis=System.currentTimeMillis() - before;
+  Log.info("Registered REST APIs in: " + registerApisMillis + "mS");
 }
