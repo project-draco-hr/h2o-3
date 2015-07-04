@@ -1,9 +1,5 @@
 {
   Configuration conf=context.getConfiguration();
-  String mapredTaskId=conf.get("mapred.task.id");
-  Text textId=new Text(mapredTaskId);
-  emitLogHeader(context,mapredTaskId);
-  Log.POST(10,"After emitLogHeader");
   Counter counter=context.getCounter(H2O_MAPPER_COUNTER.HADOOP_COUNTER_HEARTBEAT);
   Thread counterThread=new CounterThread(context,counter);
   counterThread.start();
@@ -16,7 +12,6 @@
     ice_root=mapredLocalDir;
   }
   String jobtrackerName=conf.get(H2O_JOBTRACKERNAME_KEY);
-  context.write(textId,new Text("mapred.local.dir is " + ice_root));
   String driverIp=conf.get(H2O_DRIVER_IP_KEY);
   String driverPortString=conf.get(H2O_DRIVER_PORT_KEY);
   int driverPort=Integer.parseInt(driverPortString);
@@ -33,7 +28,7 @@
   InetSocketAddress sa=new InetSocketAddress("127.0.0.1",0);
   ss.bind(sa);
   int localPort=ss.getLocalPort();
-  List<String> argsList=new ArrayList<String>();
+  List<String> argsList=new ArrayList<>();
   argsList.add("-ice_root");
   argsList.add(ice_root);
   argsList.add("-name");
@@ -78,7 +73,11 @@
       Log.POST(102,b ? "exists" : "does not exist");
       if (!b) {
         Log.POST(103,"before mkdirs()");
-        f.mkdirs();
+        boolean success=f.mkdirs();
+        if (!success) {
+          Log.POST(103,"mkdirs failed()");
+          return -1;
+        }
         Log.POST(104,"after mkdirs()");
       }
       String fileName=ice_root + File.separator + "h2o_license.txt";
@@ -100,43 +99,22 @@
     argsList.add(hadoopVersion);
   }
   if (gaOptOut != null)   argsList.add(gaOptOut);
-  context.write(textId,new Text("before water.H2O.main()"));
-  String[] args=(String[])argsList.toArray(new String[0]);
+  String[] args=argsList.toArray(new String[argsList.size()]);
   try {
     _embeddedH2OConfig=new EmbeddedH2OConfig();
     _embeddedH2OConfig.setDriverCallbackIp(driverIp);
     _embeddedH2OConfig.setDriverCallbackPort(driverPort);
     _embeddedH2OConfig.setMapperCallbackPort(localPort);
     H2O.setEmbeddedH2OConfig(_embeddedH2OConfig);
-    Log.POST(11,"After register");
+    Log.POST(11,"After setEmbeddedH2OConfig");
     water.H2OApp.main(args);
     Log.POST(12,"After main");
   }
  catch (  Exception e) {
     Log.POST(13,"Exception in main");
-    context.write(textId,new Text("exception in water.H2O.main()"));
-    String s=e.getMessage();
-    if (s == null) {
-      s="(null exception message)";
-    }
-    context.write(textId,new Text(s));
-    s=e.toString();
-    if (s == null) {
-      s="(null exception toString)";
-    }
-    context.write(textId,new Text(s));
-    StackTraceElement[] els=e.getStackTrace();
-    for (int i=0; i < els.length; i++) {
-      StackTraceElement el=els[i];
-      s=el.toString();
-      context.write(textId,new Text("    " + s));
-    }
+    Log.POST(13,e.toString());
   }
- finally {
-    Log.POST(14,"Top of finally");
-    context.write(textId,new Text("after water.H2O.main()"));
-  }
-  Log.POST(15,"Waiting for exit");
+  Log.POST(14,"Waiting for exit");
   Socket sock=ss.accept();
   System.out.println("Wait for exit woke up from accept");
   byte[] b=new byte[1];
