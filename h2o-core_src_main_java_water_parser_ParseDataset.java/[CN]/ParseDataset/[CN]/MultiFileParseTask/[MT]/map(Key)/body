@@ -1,11 +1,12 @@
 {
+  if (((Job)DKV.getGet(_jobKey)).isCancelledOrCrashed())   return;
   ParseSetup localSetup=new ParseSetup(_parseSetup);
   ByteVec vec=getByteVec(key);
   final int chunkStartIdx=_fileChunkOffsets[_lo];
   Log.trace("Begin a map stage of a file parse with start index " + chunkStartIdx + ".");
   byte[] zips=vec.getFirstBytes();
   ZipUtil.Compression cpr=ZipUtil.guessCompressionMethod(zips);
-  if (localSetup._check_header == ParseSetup.HAS_HEADER)   localSetup._check_header=localSetup.parser().fileHasHeader(ZipUtil.unzipBytes(zips,cpr,localSetup._chunk_size),localSetup);
+  if (localSetup._check_header == ParseSetup.HAS_HEADER)   localSetup._check_header=localSetup.parser(_jobKey).fileHasHeader(ZipUtil.unzipBytes(zips,cpr,localSetup._chunk_size),localSetup);
   try {
 switch (cpr) {
 case NONE:
