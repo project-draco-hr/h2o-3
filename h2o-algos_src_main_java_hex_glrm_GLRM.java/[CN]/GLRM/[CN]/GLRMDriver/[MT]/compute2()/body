@@ -29,19 +29,7 @@
     fr=new Frame(null,vecs);
     dinfo=new DataInfo(Key.make(),fr,null,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false,false,false);
     DKV.put(dinfo._key,dinfo);
-    if (_parms._loss == GLRMParameters.Loss.L2 && (_parms._gamma_x == 0 || _parms._regularization_x == GLRMParameters.Regularizer.L2) && (_parms._gamma_y == 0 || _parms._regularization_y == GLRMParameters.Regularizer.L2)) {
-      Log.info("Initializing X = AY'(YY' + gamma I)^(-1) where A = training data");
-      double[][] ygram=ArrayUtils.formGram(yt);
-      if (_parms._gamma_y > 0) {
-        for (int i=0; i < ygram.length; i++)         ygram[i][i]+=_parms._gamma_y;
-      }
-      CholeskyDecomposition yychol=regularizedCholesky(ygram,10,false);
-      if (!yychol.isSPD())       Log.warn("Initialization failed: (YY' + gamma I) is non-SPD. Setting X to a matrix of random numbers. Results will be numerically unstable");
- else {
-        CholMulTask cmtsk=new CholMulTask(dinfo,_parms,yychol,yt,_ncolA,_ncolX,model._output._normSub,model._output._normMul);
-        cmtsk.doAll(dinfo._adaptedFrame);
-      }
-    }
+    initialX(dinfo,yt,model._output._normSub,model._output._normMul);
     ObjCalc objtsk=new ObjCalc(dinfo,_parms,yt,_ncolA,_ncolX,model._output._normSub,model._output._normMul,_parms._gamma_x != 0).doAll(dinfo._adaptedFrame);
     model._output._objective=objtsk._loss + _parms._gamma_x * objtsk._xold_reg + _parms._gamma_y * _parms.regularize_y(yt);
     model._output._iterations=0;

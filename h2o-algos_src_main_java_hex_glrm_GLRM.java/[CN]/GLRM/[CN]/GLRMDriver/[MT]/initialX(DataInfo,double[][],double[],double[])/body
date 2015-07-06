@@ -1,0 +1,15 @@
+{
+  if (_parms._loss == GLRMParameters.Loss.L2 && (_parms._gamma_x == 0 || _parms._regularization_x == GLRMParameters.Regularizer.L2) && (_parms._gamma_y == 0 || _parms._regularization_y == GLRMParameters.Regularizer.L2)) {
+    Log.info("Initializing X = AY'(YY' + gamma I)^(-1) where A = training data");
+    double[][] ygram=ArrayUtils.formGram(yt);
+    if (_parms._gamma_y > 0) {
+      for (int i=0; i < ygram.length; i++)       ygram[i][i]+=_parms._gamma_y;
+    }
+    CholeskyDecomposition yychol=regularizedCholesky(ygram,10,false);
+    if (!yychol.isSPD())     Log.warn("Initialization failed: (YY' + gamma I) is non-SPD. Setting X to a matrix of random numbers. Results will be numerically unstable");
+ else {
+      CholMulTask cmtsk=new CholMulTask(dinfo,_parms,yychol,yt,_ncolA,_ncolX,normSub,normMul);
+      cmtsk.doAll(dinfo._adaptedFrame);
+    }
+  }
+}
