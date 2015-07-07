@@ -13,8 +13,14 @@
       if (_nclass == 2)       _parms._distribution=GBMModel.GBMParameters.Family.bernoulli;
       if (_nclass >= 3)       _parms._distribution=GBMModel.GBMParameters.Family.multinomial;
     }
-    if (hasOffset() && isClassifier() && _parms._distribution != GBMModel.GBMParameters.Family.bernoulli) {
-      error("_offset_column","Offset is only supported for regression or binary classification with the Bernoulli distribution.");
+ else     if (_parms._distribution == GBMModel.GBMParameters.Family.poisson) {
+      _initialPrediction=poissonInitialValue();
+    }
+ else     if (_parms._distribution == GBMModel.GBMParameters.Family.gamma) {
+      _initialPrediction=gammaInitialValue();
+    }
+    if (hasOffset() && isClassifier() && _parms._distribution == GBMModel.GBMParameters.Family.multinomial) {
+      error("_offset_column","Offset is not supported for multinomial distribution.");
     }
     if (hasOffset() && _parms._distribution == GBMModel.GBMParameters.Family.bernoulli) {
       if (_offset.max() > 1)       error("_offset_column","Offset cannot be larger than 1 for Bernoulli distribution.");
@@ -29,6 +35,12 @@ case bernoulli:
   break;
 case multinomial:
 if (!isClassifier()) error("_distribution","Multinomial requires an enum response.");
+break;
+case poisson:
+if (isClassifier()) error("_distribution","Poisson requires the response to be numeric.");
+break;
+case gamma:
+if (isClassifier()) error("_distribution","Gamma requires the response to be numeric.");
 break;
 case gaussian:
 if (isClassifier()) error("_distribution","Gaussian requires the response to be numeric.");

@@ -1,0 +1,18 @@
+{
+  Log.info("Running Newton-Raphson iteration to find the initial value since offsets are specified.");
+  double delta;
+  int count=0;
+  double tol=1e-4;
+  int N=1;
+  double init=0;
+  do {
+    double newInit=new NewtonRaphson(init).doAll(train).value();
+    delta=Math.abs(init - newInit);
+    init=newInit;
+    Log.info("Iteration " + ++count + ": initial value: "+ init);
+  }
+ while (count < N && delta >= tol);
+  if (delta > tol)   Log.warn("Not fully converged.");
+  Log.info("Newton-Raphson iteration ran for " + count + " iteration(s). Final residual: "+ delta);
+  return init;
+}
