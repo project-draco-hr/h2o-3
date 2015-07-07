@@ -16,6 +16,9 @@
  else     if (_parms._distribution == GBMModel.GBMParameters.Family.poisson) {
       _initialPrediction=poissonInitialValue();
     }
+ else     if (_parms._distribution == GBMModel.GBMParameters.Family.gamma) {
+      _initialPrediction=gammaInitialValue();
+    }
     if (hasOffset() && isClassifier() && _parms._distribution == GBMModel.GBMParameters.Family.multinomial) {
       error("_offset_column","Offset is not supported for multinomial distribution.");
     }
@@ -35,6 +38,9 @@ if (!isClassifier()) error("_distribution","Multinomial requires an enum respons
 break;
 case poisson:
 if (isClassifier()) error("_distribution","Poisson requires the response to be numeric.");
+break;
+case gamma:
+if (isClassifier()) error("_distribution","Gamma requires the response to be numeric.");
 break;
 case gaussian:
 if (isClassifier()) error("_distribution","Gaussian requires the response to be numeric.");
