@@ -1,27 +1,43 @@
 {
   Chunk ys=chk_resp(chks);
-  if (_parms._distribution == GBMModel.GBMParameters.Family.bernoulli) {
-    for (int row=0; row < ys._len; row++) {
-      if (ys.isNA(row))       continue;
-      int y=(int)ys.at8(row);
-      Chunk wk=chk_work(chks,0);
-      wk.set(row,y - 1f + (float)wk.atd(row));
+  Chunk offset=hasOffset() ? chk_offset(chks) : new C0DChunk(0,chks[0]._len);
+  Chunk tr=chk_tree(chks,0);
+  Chunk wk=chk_work(chks,0);
+  double fs[]=_nclass > 1 ? new double[_nclass + 1] : null;
+  for (int row=0; row < wk._len; row++) {
+    if (ys.isNA(row))     continue;
+    double f=tr.atd(row) + offset.atd(row);
+    double y=ys.at8(row);
+    if (_parms._distribution == GBMModel.GBMParameters.Family.bernoulli) {
+      wk.set(row,(float)Distributions.Bernoulli.gradient(y,f));
     }
-  }
- else   if (_nclass > 1) {
-    for (int row=0; row < ys._len; row++) {
-      if (ys.isNA(row))       continue;
-      int y=(int)ys.at8(row);
-      for (int k=0; k < _nclass; k++) {
-        if (_model._output._distribution[k] != 0) {
-          Chunk wk=chk_work(chks,k);
-          wk.set(row,(y == k ? 1f : 0f) - (float)wk.atd(row));
+ else     if (_parms._distribution == GBMModel.GBMParameters.Family.gaussian) {
+      wk.set(row,(float)Distributions.Gaussian.gradient(y,f));
+    }
+ else     if (_parms._distribution == GBMModel.GBMParameters.Family.poisson) {
+      wk.set(row,(float)Distributions.Poisson.gradient(y,f));
+    }
+ else     if (_parms._distribution == GBMModel.GBMParameters.Family.gamma) {
+      wk.set(row,(float)Distributions.Gamma.gradient(y,f));
+    }
+ else     if (_nclass > 1) {
+      double weight=hasWeights() ? chk_weight(chks).atd(row) : 1;
+      double sum=score1(chks,weight,0.0,fs,row);
+      if (Double.isInfinite(sum)) {
+        for (int k=0; k < _nclass; k++) {
+          wk=chk_work(chks,k);
+          wk.set(row,((int)y == k ? 1f : 0f) - (Double.isInfinite(fs[k + 1]) ? 1.0f : 0.0f));
+        }
+      }
+ else {
+        for (int k=0; k < _nclass; k++) {
+          if (_model._output._distribution[k] != 0) {
+            wk=chk_work(chks,k);
+            wk.set(row,((int)y == k ? 1f : 0f) - (float)(fs[k + 1] / sum));
+          }
         }
       }
     }
-  }
- else {
-    Chunk wk=chk_work(chks,0);
-    for (int row=0; row < ys._len; row++)     wk.set(row,(float)(ys.atd(row) - wk.atd(row)));
+ else     throw H2O.unimpl();
   }
 }

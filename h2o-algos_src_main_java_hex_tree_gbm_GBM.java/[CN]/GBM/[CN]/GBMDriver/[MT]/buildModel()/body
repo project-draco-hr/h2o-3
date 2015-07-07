@@ -1,21 +1,6 @@
 {
   if (hasOffset() && _parms._distribution == GBMModel.GBMParameters.Family.bernoulli) {
-    Log.info("Running Newton-Raphson iteration to find the initial value since offsets are specified.");
-    Log.info("Iteration 0: initial value: " + _initialPrediction + " (starting value)");
-    double delta;
-    int count=0;
-    double tol=1e-4;
-    int N=1;
-    _initialPrediction=0;
-    do {
-      double newInit=new NewtonRaphson(_initialPrediction).doAll(_train).value();
-      delta=Math.abs(_initialPrediction - newInit);
-      _initialPrediction=newInit;
-      Log.info("Iteration " + ++count + ": initial value: "+ _initialPrediction);
-    }
- while (count < N && delta >= tol);
-    if (delta > tol)     Log.warn("Not fully converged.");
-    Log.info("Newton-Raphson iteration ran for " + count + " iteration(s). Final residual: "+ delta);
+    _initialPrediction=getInitialValueBernoulliOffset(_train);
   }
   _model._output._init_f=_initialPrediction;
   if (_initialPrediction != 0.0) {
@@ -37,7 +22,6 @@
       double training_r2=doScoringAndSaveModel(false,false,_parms._build_tree_one_node);
       if (training_r2 >= _parms._r2_stopping)       return;
     }
-    new ComputeProb().doAll(_train,_parms._build_tree_one_node);
     new ComputeRes().doAll(_train,_parms._build_tree_one_node);
     Timer kb_timer=new Timer();
     buildNextKTrees();
