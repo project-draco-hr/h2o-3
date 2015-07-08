@@ -7,26 +7,39 @@
     double[] row_result;
     Vec[] vecs_result;
     boolean isRow=false;
-    ParallelVecApply t;
-    H2O.submitTask(t=new ParallelVecApply(FUN,fr,_fun_args,env)).join();
-    if (t._applyTasks[0]._vec_result == null)     isRow=true;
+    Futures fs=new Futures();
+    Key key;
+    AppendableVec v=null;
+    NewChunk chunk=null;
+    Vec[] vecs=new Vec[fr.numCols()];
+    for (int i=0; i < fr.numCols(); ++i) {
+      ASTFrame f;
+      AST[] funargs=new AST[_fun_args == null ? 1 : _fun_args.length + 1];
+      funargs[0]=f=new ASTFrame(fr.vec(i)._key.toString());
+      if (_fun_args != null)       System.arraycopy(_fun_args,0,funargs,1,_fun_args.length);
+      FUN.exec(env,funargs);
+      if (i == 0) {
+        isRow=env.isNum();
+        if (isRow) {
+          key=Vec.VectorGroup.VG_LEN1.addVecs(1)[0];
+          v=new AppendableVec(key);
+          chunk=new NewChunk(v,0);
+        }
+      }
+      if (isRow)       chunk.addNum(env.popDbl());
+ else {
+        vecs[i]=env.popAry().anyVec();
+        env.lock(vecs[i]);
+      }
+    }
     if (isRow) {
-      Futures fs=new Futures();
-      Key key=Vec.VectorGroup.VG_LEN1.addVecs(1)[0];
-      AppendableVec v=new AppendableVec(key);
-      NewChunk chunk=new NewChunk(v,0);
-      row_result=new double[t._applyTasks.length];
-      for (int i=0; i < row_result.length; ++i)       row_result[i]=t._applyTasks[i]._row_result;
-      for (      double aRow_result : row_result)       chunk.addNum(aRow_result);
       chunk.close(0,fs);
       Vec vec=v.close(fs);
       fs.blockForPending();
       fr2=new Frame(vec);
     }
  else {
-      vecs_result=new Vec[t._applyTasks.length];
-      for (int i=0; i < vecs_result.length; ++i)       vecs_result[i]=t._applyTasks[i]._vec_result;
-      fr2=new Frame(fr.names(),vecs_result);
+      fr2=new Frame(fr.names(),vecs);
     }
   }
   if (_margin == 1) {

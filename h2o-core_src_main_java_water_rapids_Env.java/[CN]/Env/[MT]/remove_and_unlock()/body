@@ -11,11 +11,7 @@ break;
 }
 }
 Futures fs=new Futures();
-for (Vec v : _refcnt.keySet()) {
-if (_refcnt.get(v)._val == 0) {
-removeVec(v,fs);
-}
-}
+for (Key k : _refcnt.keySet()) if (_refcnt.get(k)._val == 0) removeVec(((Vec)DKV.getGet(k)),fs);
 fs.blockForPending();
 for (Frame f : _tmpFrames) {
 if (f._key != null) DKV.remove(f._key);
