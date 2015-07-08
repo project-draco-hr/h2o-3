@@ -8,9 +8,7 @@
   if (_parms._min_step_size < 0 || _parms._min_step_size > _parms._init_step_size)   error("_min_step_size","min_step_size must be between 0 and " + _parms._init_step_size);
   if (_train == null)   return;
   if (_train.numCols() < 2)   error("_train","_train must have more than one column");
-  _ncolY=_train.numColsExp(true,false);
-  int k_min=(int)Math.min(_ncolY,_train.numRows());
-  if (_ncolY > MAX_COLS_EXPANDED)   warn("_train","_train has " + _ncolY + " columns when categoricals are expanded. Algorithm may be slow.");
+  int k_min=(int)Math.min(_train.numCols(),_train.numRows());
   if (_parms._k < 1 || _parms._k > k_min)   error("_k","_k must be between 1 and " + k_min);
   if (null != _parms._user_points) {
     if (_parms._init != GLRM.Initialization.User)     error("init","init must be 'User' if providing user-specified points");
