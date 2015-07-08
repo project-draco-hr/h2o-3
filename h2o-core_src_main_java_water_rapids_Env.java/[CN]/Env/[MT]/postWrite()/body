@@ -1,5 +1,8 @@
 {
   Futures fs=new Futures();
-  for (  Vec vec : _refcnt.keySet())   vec.postWrite(fs);
+  for (  Key key : _refcnt.keySet()) {
+    Vec v=DKV.getGet(key);
+    if (v != null)     v.postWrite(fs);
+  }
   fs.blockForPending();
 }
