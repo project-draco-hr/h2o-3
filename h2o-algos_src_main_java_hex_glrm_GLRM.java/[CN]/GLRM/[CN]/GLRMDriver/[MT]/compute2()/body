@@ -21,7 +21,9 @@
     model._output._ncats=tinfo._cats;
     model._output._catOffsets=tinfo._catOffsets;
     model._output._names_expanded=tinfo.coefNames();
-    double nobs=_train.numRows() * _train.numCols();
+    long nobs=_train.numRows() * _train.numCols();
+    for (int i=0; i < _train.numCols(); i++)     nobs-=_train.vec(i).naCnt();
+    model._output._nobs=nobs;
     double[][] yt=ArrayUtils.transpose(initialY(tinfo));
     Vec[] vecs=new Vec[_ncolA + 2 * _ncolX];
     for (int i=0; i < _ncolA; i++)     vecs[i]=_train.vec(i);
