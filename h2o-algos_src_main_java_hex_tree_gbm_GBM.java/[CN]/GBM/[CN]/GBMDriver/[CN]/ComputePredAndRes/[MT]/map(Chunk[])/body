@@ -8,24 +8,7 @@
     if (ys.isNA(row))     continue;
     double f=tr.atd(row) + offset.atd(row);
     double y=ys.at8(row);
-    if (_parms._distribution == GBMModel.GBMParameters.Family.bernoulli) {
-      wk.set(row,(float)Distributions.Bernoulli.gradient(y,f));
-    }
- else     if (_parms._distribution == GBMModel.GBMParameters.Family.gaussian) {
-      wk.set(row,(float)Distributions.Gaussian.gradient(y,f));
-    }
- else     if (_parms._distribution == GBMModel.GBMParameters.Family.poisson) {
-      wk.set(row,(float)Distributions.Poisson.gradient(y,f));
-    }
- else     if (_parms._distribution == GBMModel.GBMParameters.Family.gamma) {
-      wk.set(row,(float)Distributions.Gamma.gradient(y,f));
-    }
- else     if (_parms._distribution == GBMModel.GBMParameters.Family.tweedie) {
-      Chunk wk2=chk_work2(chks);
-      wk2.set(row,f);
-      wk.set(row,(float)Distributions.Tweedie.gradient(y,f,_parms._tweedie_power));
-    }
- else     if (_nclass > 1) {
+    if (_parms._distribution == Distributions.Family.multinomial) {
       double weight=hasWeights() ? chk_weight(chks).atd(row) : 1;
       double sum=score1(chks,weight,0.0,fs,row);
       if (Double.isInfinite(sum)) {
@@ -43,6 +26,11 @@
         }
       }
     }
- else     throw H2O.unimpl();
+ else {
+      if (_parms._distribution == Distributions.Family.tweedie) {
+        chk_work2(chks).set(row,f);
+      }
+      wk.set(row,(float)_parms._distribution.gradient(y,f));
+    }
   }
 }
