@@ -21,6 +21,11 @@
       if (_response.min() < 0)       error("_response","Response cannot be negative for Gamma distribution.");
       _initialPrediction=gammaInitialValue();
     }
+ else     if (_parms._distribution == GBMModel.GBMParameters.Family.tweedie) {
+      if (_parms._tweedie_power >= 2 || _parms._tweedie_power <= 1)       error("_tweedie_power","Tweedie power must be between 1 and 2.");
+      if (_response.min() < 0)       error("_response","Response cannot be negative for Gamma distribution.");
+      _initialPrediction=tweedieInitialValue(_parms._tweedie_power);
+    }
     if (hasOffset() && isClassifier() && _parms._distribution == GBMModel.GBMParameters.Family.multinomial) {
       error("_offset_column","Offset is not supported for multinomial distribution.");
     }
@@ -43,6 +48,9 @@ if (isClassifier()) error("_distribution","Poisson requires the response to be n
 break;
 case gamma:
 if (isClassifier()) error("_distribution","Gamma requires the response to be numeric.");
+break;
+case tweedie:
+if (isClassifier()) error("_distribution","Tweedie requires the response to be numeric.");
 break;
 case gaussian:
 if (isClassifier()) error("_distribution","Gaussian requires the response to be numeric.");
