@@ -1,5 +1,6 @@
 {
   parseArgs(args);
+  validateArgs();
   if (driverCallbackIp == null) {
     driverCallbackIp=calcMyIp();
   }
@@ -63,33 +64,49 @@
   if (!usingYarn()) {
     conf.set("mapred.job.reuse.jvm.num.tasks","1");
   }
-  conf.set(h2omapper.H2O_JOBTRACKERNAME_KEY,jobtrackerName);
   conf.set(h2omapper.H2O_DRIVER_IP_KEY,driverCallbackIp);
   conf.set(h2omapper.H2O_DRIVER_PORT_KEY,Integer.toString(actualDriverCallbackPort));
-  conf.set(h2omapper.H2O_NETWORK_KEY,network);
+  addMapperArg(conf,"-name",jobtrackerName);
+  if (network.length() > 0) {
+    addMapperArg(conf,"-network",network);
+  }
   if (nthreads >= 0) {
-    conf.set(h2omapper.H2O_NTHREADS_KEY,Integer.toString(nthreads));
+    addMapperArg(conf,"-nthreads",Integer.toString(nthreads));
   }
   if (basePort >= 0) {
-    conf.set(h2omapper.H2O_BASE_PORT_KEY,Integer.toString(basePort));
+    addMapperArg(conf,"-baseport",Integer.toString(basePort));
   }
   if (beta) {
-    conf.set(h2omapper.H2O_BETA_KEY,"-beta");
+    addMapperArg(conf,"-beta");
   }
   if (enableRandomUdpDrop) {
-    conf.set(h2omapper.H2O_RANDOM_UDP_DROP_KEY,"-random_udp_drop");
-  }
-  if (licenseData != null) {
-    conf.set(h2omapper.H2O_LICENSE_DATA_KEY,licenseData);
+    addMapperArg(conf,"-random_udp_drop");
   }
   if (flowDir != null) {
-    conf.set(h2omapper.H2O_FLOW_DIR_KEY,flowDir);
+    addMapperArg(conf,"-flow_dir",flowDir);
+  }
+  if ((new File(".h2o_no_collect")).exists() || (new File(System.getProperty("user.home") + "/.h2o_no_collect")).exists()) {
+    addMapperArg(conf,"-ga_opt_out");
   }
   String hadoopVersion=calcHadoopVersion();
-  conf.set(h2omapper.H2O_HADOOP_VERSION,hadoopVersion);
-  if ((new File(".h2o_no_collect")).exists() || (new File(System.getProperty("user.home") + "/.h2o_no_collect")).exists()) {
-    conf.set(h2omapper.H2O_GA_OPTOUT,"-ga_opt_out");
+  addMapperArg(conf,"-ga_hadoop_ver",hadoopVersion);
+  if (jksPass != null) {
+    addMapperArg(conf,"-jks_pass",jksPass);
   }
+  if (hashLogin) {
+    addMapperArg(conf,"-hash_login");
+  }
+  for (  String s : extraArguments) {
+    addMapperArg(conf,s);
+  }
+  conf.set(h2omapper.H2O_MAPPER_ARGS_LENGTH,Integer.toString(mapperArgsLength));
+  if (jksFileName != null) {
+    addMapperConf(conf,"-jks","h2o.jks",jksFileName);
+  }
+  if (loginConfFileName != null) {
+    addMapperConf(conf,"-login_conf","login.conf",loginConfFileName);
+  }
+  conf.set(h2omapper.H2O_MAPPER_CONF_LENGTH,Integer.toString(mapperConfLength));
   job=new Job(conf,jobtrackerName);
   job.setJarByClass(getClass());
   job.setInputFormatClass(H2OInputFormat.class);
@@ -116,7 +133,7 @@
       Thread.sleep(3000);
       Class clazz=Class.forName("water.hadoop.H2OYarnDiagnostic");
       if (clazz != null) {
-        Method method=clazz.getMethod("diagnose",String.class,String.class,int.class,int.class,int.class);
+        @SuppressWarnings("all") Method method=clazz.getMethod("diagnose",String.class,String.class,int.class,int.class,int.class);
         String queueName;
         queueName=conf.get("mapreduce.job.queuename");
         if (queueName == null) {

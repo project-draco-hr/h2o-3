@@ -1,9 +1,5 @@
 {
   Configuration conf=context.getConfiguration();
-  String mapredTaskId=conf.get("mapred.task.id");
-  Text textId=new Text(mapredTaskId);
-  emitLogHeader(context,mapredTaskId);
-  Log.POST(10,"After emitLogHeader");
   Counter counter=context.getCounter(H2O_MAPPER_COUNTER.HADOOP_COUNTER_HEARTBEAT);
   Thread counterThread=new CounterThread(context,counter);
   counterThread.start();
@@ -15,20 +11,9 @@
  else {
     ice_root=mapredLocalDir;
   }
-  String jobtrackerName=conf.get(H2O_JOBTRACKERNAME_KEY);
-  context.write(textId,new Text("mapred.local.dir is " + ice_root));
   String driverIp=conf.get(H2O_DRIVER_IP_KEY);
   String driverPortString=conf.get(H2O_DRIVER_PORT_KEY);
   int driverPort=Integer.parseInt(driverPortString);
-  String network=conf.get(H2O_NETWORK_KEY);
-  String nthreadsString=conf.get(H2O_NTHREADS_KEY);
-  String basePortString=conf.get(H2O_BASE_PORT_KEY);
-  String betaString=conf.get(H2O_BETA_KEY);
-  String randomUdpDropString=conf.get(H2O_RANDOM_UDP_DROP_KEY);
-  String licenseData=conf.get(H2O_LICENSE_DATA_KEY);
-  String flowDir=conf.get(H2O_FLOW_DIR_KEY);
-  String hadoopVersion=conf.get(H2O_HADOOP_VERSION);
-  String gaOptOut=conf.get(H2O_GA_OPTOUT);
   ServerSocket ss=new ServerSocket();
   InetSocketAddress sa=new InetSocketAddress("127.0.0.1",0);
   ss.bind(sa);
@@ -36,107 +21,50 @@
   List<String> argsList=new ArrayList<String>();
   argsList.add("-ice_root");
   argsList.add(ice_root);
-  argsList.add("-name");
-  argsList.add(jobtrackerName);
   argsList.add("-hdfs_skip");
-  if (network != null) {
-    if (network.length() > 0) {
-      argsList.add("-network");
-      argsList.add(network);
-    }
+  int argsLength=Integer.parseInt(conf.get(H2O_MAPPER_ARGS_LENGTH));
+  for (int i=0; i < argsLength; i++) {
+    String arg=conf.get(H2O_MAPPER_ARGS_BASE + Integer.toString(i));
+    argsList.add(arg);
   }
-  if (nthreadsString != null) {
-    if (nthreadsString.length() > 0) {
-      argsList.add("-nthreads");
-      int nthreads=Integer.parseInt(nthreadsString);
-      argsList.add(Integer.toString(nthreads));
-    }
-  }
-  if (basePortString != null) {
-    if (basePortString.length() > 0) {
-      argsList.add("-baseport");
-      int basePort=Integer.parseInt(basePortString);
-      argsList.add(Integer.toString(basePort));
-    }
-  }
-  if (betaString != null) {
-    if (betaString.length() > 0) {
-      argsList.add(betaString);
-    }
-  }
-  if (randomUdpDropString != null) {
-    if (randomUdpDropString.length() > 0) {
-      argsList.add(randomUdpDropString);
-    }
-  }
-  if (licenseData != null) {
-    if (licenseData.length() > 0) {
-      Log.POST(100,"Before writing license file");
-      Log.POST(101,ice_root);
-      File f=new File(ice_root);
-      boolean b=f.exists();
-      Log.POST(102,b ? "exists" : "does not exist");
-      if (!b) {
-        Log.POST(103,"before mkdirs()");
-        f.mkdirs();
-        Log.POST(104,"after mkdirs()");
+  int confLength=Integer.parseInt(conf.get(H2O_MAPPER_CONF_LENGTH));
+  for (int i=0; i < confLength; i++) {
+    String arg=conf.get(H2O_MAPPER_CONF_ARG_BASE + Integer.toString(i));
+    argsList.add(arg);
+    String basename=conf.get(H2O_MAPPER_CONF_BASENAME_BASE + Integer.toString(i));
+    File f=new File(ice_root);
+    boolean b=f.exists();
+    if (!b) {
+      boolean success=f.mkdirs();
+      if (!success) {
+        Log.POST(103,"mkdirs(" + f.toString() + ") failed");
+        return -1;
       }
-      String fileName=ice_root + File.separator + "h2o_license.txt";
-      PrintWriter out=new PrintWriter(fileName);
-      out.print(licenseData);
-      out.close();
-      argsList.add("-license");
-      argsList.add(fileName);
+      Log.POST(104,"after mkdirs()");
     }
+    String fileName=ice_root + File.separator + basename;
+    PrintWriter out=new PrintWriter(fileName);
+    String payload=conf.get(H2O_MAPPER_CONF_PAYLOAD_BASE + Integer.toString(i));
+    out.print(payload);
+    out.close();
+    argsList.add(fileName);
   }
-  if (flowDir != null) {
-    if (flowDir.length() > 0) {
-      argsList.add("-flow_dir");
-      argsList.add(flowDir);
-    }
-  }
-  if (hadoopVersion != null) {
-    argsList.add("-ga_hadoop_ver");
-    argsList.add(hadoopVersion);
-  }
-  if (gaOptOut != null)   argsList.add(gaOptOut);
-  context.write(textId,new Text("before water.H2O.main()"));
-  String[] args=(String[])argsList.toArray(new String[0]);
+  String[] args=argsList.toArray(new String[argsList.size()]);
   try {
     _embeddedH2OConfig=new EmbeddedH2OConfig();
     _embeddedH2OConfig.setDriverCallbackIp(driverIp);
     _embeddedH2OConfig.setDriverCallbackPort(driverPort);
     _embeddedH2OConfig.setMapperCallbackPort(localPort);
     H2O.setEmbeddedH2OConfig(_embeddedH2OConfig);
-    Log.POST(11,"After register");
+    Log.POST(11,"After setEmbeddedH2OConfig");
     water.H2OApp.main(args);
     Log.POST(12,"After main");
   }
  catch (  Exception e) {
     Log.POST(13,"Exception in main");
-    context.write(textId,new Text("exception in water.H2O.main()"));
-    String s=e.getMessage();
-    if (s == null) {
-      s="(null exception message)";
-    }
-    context.write(textId,new Text(s));
-    s=e.toString();
-    if (s == null) {
-      s="(null exception toString)";
-    }
-    context.write(textId,new Text(s));
-    StackTraceElement[] els=e.getStackTrace();
-    for (int i=0; i < els.length; i++) {
-      StackTraceElement el=els[i];
-      s=el.toString();
-      context.write(textId,new Text("    " + s));
-    }
+    Log.POST(13,e.toString());
   }
- finally {
-    Log.POST(14,"Top of finally");
-    context.write(textId,new Text("after water.H2O.main()"));
-  }
-  Log.POST(15,"Waiting for exit");
+  Log.POST(14,"Waiting for exit");
   Socket sock=ss.accept();
   System.out.println("Wait for exit woke up from accept");
   byte[] b=new byte[1];
