@@ -1,4 +1,7 @@
 {
+  for (  AbstractH2OExtension e : H2O.getExtensions()) {
+    args=e.parseArguments(args);
+  }
   for (int i=0; i < args.length; i++) {
     OptString s=new OptString(args[i]);
     if (s.matches("h") || s.matches("help")) {
@@ -45,10 +48,6 @@
  else     if (s.matches("nthreads")) {
       i=s.incrementAndCheck(i,args);
       ARGS.nthreads=s.parseInt(args[i]);
-    }
- else     if (s.matches("hdfs")) {
-      i=s.incrementAndCheck(i,args);
-      ARGS.hdfs=args[i];
     }
  else     if (s.matches("hdfs_config")) {
       i=s.incrementAndCheck(i,args);

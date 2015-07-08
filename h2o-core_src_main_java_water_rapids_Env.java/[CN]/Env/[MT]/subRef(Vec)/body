@@ -1,11 +1,11 @@
 {
   if (v == null)   return false;
   boolean delete;
-  if (_refcnt.get(v) == null)   return false;
+  if (getRef(v) == null)   return false;
   if (hasLock(v._key))   return false;
-  int cnt=_refcnt.get(v)._val - 1;
+  int cnt=getRef(v)._val - 1;
   if (cnt > 0) {
-    _refcnt.put(v,new IcedInt(cnt));
+    putRef(v,new IcedInt(cnt));
     delete=false;
   }
  else {

@@ -5,6 +5,7 @@ synchronized (_dupChecker) {
       System.out.println("ERROR: Duplicate node registered (" + entry + "), exiting");
       System.exit(1);
     }
+    _dupChecker.add(entry);
     _nodes.add(entry);
     _socks.add(s);
     if (_nodes.size() != numNodes) {
@@ -14,8 +15,7 @@ synchronized (_dupChecker) {
     assert(_nodes.size() == numNodes);
     assert(_nodes.size() == _socks.size());
     String flatfile="";
-    for (int i=0; i < _nodes.size(); i++) {
-      String val=_nodes.get(i);
+    for (    String val : _nodes) {
       flatfile+=val;
       flatfile+="\n";
     }
