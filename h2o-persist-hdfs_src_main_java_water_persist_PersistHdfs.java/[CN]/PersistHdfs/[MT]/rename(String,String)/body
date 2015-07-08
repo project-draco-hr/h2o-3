@@ -1,0 +1,12 @@
+{
+  Path f=new Path(fromPath);
+  Path t=new Path(toPath);
+  URI uri=f.toUri();
+  try {
+    FileSystem fs=FileSystem.get(uri,CONF);
+    return fs.rename(f,t);
+  }
+ catch (  IOException e) {
+    throw new HDFSIOException(toPath,CONF.toString(),e);
+  }
+}

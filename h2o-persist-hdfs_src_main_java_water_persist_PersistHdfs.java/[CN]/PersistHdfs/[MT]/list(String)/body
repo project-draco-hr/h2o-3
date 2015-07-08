@@ -1,0 +1,16 @@
+{
+  try {
+    Path p=new Path(path);
+    URI uri=p.toUri();
+    FileSystem fs=FileSystem.get(uri,CONF);
+    FileStatus[] arr1=fs.listStatus(p);
+    PersistEntry[] arr2=new PersistEntry[arr1.length];
+    for (int i=0; i < arr1.length; i++) {
+      arr2[i]=new PersistEntry(arr1[i].getPath().getName(),arr1[i].getLen(),arr1[i].getModificationTime());
+    }
+    return arr2;
+  }
+ catch (  IOException e) {
+    throw new HDFSIOException(path,CONF.toString(),e);
+  }
+}

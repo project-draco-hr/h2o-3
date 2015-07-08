@@ -1,0 +1,34 @@
+{
+  Configuration conf=PersistHdfs.CONF;
+  filter=convertS3toS3N(filter);
+  if (isBareS3NBucketWithoutTrailingSlash(filter)) {
+    filter+="/";
+  }
+  ArrayList<String> array=new ArrayList<String>();
+{
+    String s=filter.toLowerCase();
+    if ("hdfs:".equals(s))     return array;
+    if ("maprfs:".equals(s))     return array;
+  }
+  try {
+    Path p=new Path(filter);
+    Path expand=p;
+    if (!filter.endsWith("/"))     expand=p.getParent();
+    FileSystem fs=FileSystem.get(p.toUri(),conf);
+    for (    FileStatus file : fs.listStatus(expand)) {
+      Path fp=file.getPath();
+      if (fp.toString().startsWith(p.toString())) {
+        array.add(fp.toString());
+      }
+      if (array.size() == limit)       break;
+    }
+  }
+ catch (  Exception e) {
+    Log.trace(e);
+  }
+catch (  Throwable t) {
+    t.printStackTrace();
+    Log.warn(t);
+  }
+  return array;
+}
