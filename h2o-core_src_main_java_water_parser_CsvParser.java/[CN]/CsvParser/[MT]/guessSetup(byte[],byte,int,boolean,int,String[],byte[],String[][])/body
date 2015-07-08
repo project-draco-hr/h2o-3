@@ -52,7 +52,7 @@
     }
     for (int i=0; i < lines.length; ++i)     data[i]=determineTokens(lines[i],sep,singleQuotes);
     ncols=guessNcols(columnNames,data);
-    if (checkHeader == HAS_HEADER || (checkHeader == GUESS_HEADER && ParseSetup.hasHeader(data[0],data[1]) && data[0].length == ncols)) {
+    if (checkHeader == HAS_HEADER || (checkHeader == GUESS_HEADER && ParseSetup.hasHeader(data[0],data[1]))) {
       checkHeader=HAS_HEADER;
       labels=data[0];
     }
@@ -73,7 +73,7 @@
   ParseSetup resSetup=new ParseSetup(ParserType.CSV,sep,singleQuotes,checkHeader,ncols,labels,null,null,naStrings,data);
   if (columnTypes == null || ncols != columnTypes.length) {
     InputStream is=new ByteArrayInputStream(bits);
-    CsvParser p=new CsvParser(resSetup);
+    CsvParser p=new CsvParser(resSetup,null);
     PreviewParseWriter dout=new PreviewParseWriter(resSetup._number_columns);
     try {
       p.streamParse(is,dout);

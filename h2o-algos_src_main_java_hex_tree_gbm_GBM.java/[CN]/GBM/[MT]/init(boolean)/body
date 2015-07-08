@@ -6,16 +6,31 @@
       GBM.this.updateValidationMessages();
       throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(GBM.this);
     }
-    mean=_response.mean();
-    if (_weights != null && (_weights.min() != 1 || _weights.max() != 1)) {
-      FrameUtils.WeightedMean wm=new FrameUtils.WeightedMean();
-      mean=(float)(hasOffset() ? wm.doAll(_response,_weights,_offset) : wm.doAll(_response,_weights)).weightedMean();
-    }
+    mean=responseMean();
     _initialPrediction=_nclass == 1 ? mean : (_nclass == 2 ? -0.5 * Math.log(mean / (1.0 - mean)) : 0.0);
     if (_parms._distribution == GBMModel.GBMParameters.Family.AUTO) {
       if (_nclass == 1)       _parms._distribution=GBMModel.GBMParameters.Family.gaussian;
       if (_nclass == 2)       _parms._distribution=GBMModel.GBMParameters.Family.bernoulli;
       if (_nclass >= 3)       _parms._distribution=GBMModel.GBMParameters.Family.multinomial;
+    }
+ else     if (_parms._distribution == GBMModel.GBMParameters.Family.poisson) {
+      if (_response.min() < 0)       error("_response","Response cannot be negative for Gamma distribution.");
+      _initialPrediction=poissonInitialValue();
+    }
+ else     if (_parms._distribution == GBMModel.GBMParameters.Family.gamma) {
+      if (_response.min() < 0)       error("_response","Response cannot be negative for Gamma distribution.");
+      _initialPrediction=gammaInitialValue();
+    }
+ else     if (_parms._distribution == GBMModel.GBMParameters.Family.tweedie) {
+      if (_parms._tweedie_power >= 2 || _parms._tweedie_power <= 1)       error("_tweedie_power","Tweedie power must be between 1 and 2.");
+      if (_response.min() < 0)       error("_response","Response cannot be negative for Gamma distribution.");
+      _initialPrediction=tweedieInitialValue(_parms._tweedie_power);
+    }
+    if (hasOffset() && isClassifier() && _parms._distribution == GBMModel.GBMParameters.Family.multinomial) {
+      error("_offset_column","Offset is not supported for multinomial distribution.");
+    }
+    if (hasOffset() && _parms._distribution == GBMModel.GBMParameters.Family.bernoulli) {
+      if (_offset.max() > 1)       error("_offset_column","Offset cannot be larger than 1 for Bernoulli distribution.");
     }
   }
 switch (_parms._distribution) {
@@ -23,11 +38,19 @@ case bernoulli:
     if (_nclass != 2)     error("_distribution","Binomial requires the response to be a 2-class categorical");
  else     if (_response != null) {
       _initialPrediction=Math.log(mean / (1.0 - mean));
-      if (_offset != null)       throw H2O.unimpl("Newton-Raphson iteration needed.");
     }
   break;
 case multinomial:
 if (!isClassifier()) error("_distribution","Multinomial requires an enum response.");
+break;
+case poisson:
+if (isClassifier()) error("_distribution","Poisson requires the response to be numeric.");
+break;
+case gamma:
+if (isClassifier()) error("_distribution","Gamma requires the response to be numeric.");
+break;
+case tweedie:
+if (isClassifier()) error("_distribution","Tweedie requires the response to be numeric.");
 break;
 case gaussian:
 if (isClassifier()) error("_distribution","Gaussian requires the response to be numeric.");
