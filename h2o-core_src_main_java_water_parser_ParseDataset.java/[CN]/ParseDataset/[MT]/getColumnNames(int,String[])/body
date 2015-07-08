@@ -1,14 +1,18 @@
 {
-  String[] res=null;
-  int i=0;
-  if (colNames != null) {
-    if (colNames.length == ncols)     return colNames;
+  if (colNames == null) {
+    colNames=new String[ncols];
+    for (int i=0; i < ncols; i++)     colNames[i]="C" + String.valueOf(i + 1);
+  }
  else {
-      i=colNames.length;
-      res=Arrays.copyOf(colNames,ncols);
+    HashSet<String> nameSet=new HashSet<>(Arrays.asList(colNames));
+    colNames=Arrays.copyOf(colNames,ncols);
+    for (int i=0; i < ncols; i++) {
+      if (colNames[i] == null || colNames[i].equals("")) {
+        String tmp="C" + String.valueOf(i + 1);
+        while (nameSet.contains(tmp))         tmp=tmp + tmp;
+        colNames[i]=tmp;
+      }
     }
   }
-  if (res == null)   res=new String[ncols];
-  for (; i < res.length; ++i)   res[i]="C" + String.valueOf(i + 1);
-  return res;
+  return colNames;
 }
