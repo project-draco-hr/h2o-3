@@ -25,12 +25,12 @@
           v=new AppendableVec(key);
           chunk=new NewChunk(v,0);
         }
- else {
-          vecs[0]=env.popAry().anyVec();
-        }
       }
       if (isRow)       chunk.addNum(env.popDbl());
- else       vecs[i]=env.popAry().anyVec();
+ else {
+        vecs[i]=env.popAry().anyVec();
+        env.lock(vecs[i]);
+      }
     }
     if (isRow) {
       chunk.close(0,fs);
