@@ -33,7 +33,7 @@
   if (_single_node_mode && (H2O.CLOUD.size() == 1 || !_replicate_training_data))   dl.hide("_single_node_mode","single_node_mode is only used with multi-node operation with replicated training data.");
   if (H2O.ARGS.client && _single_node_mode)   dl.error("_single_node_mode","Cannot run on a single node in client mode");
   if (_autoencoder)   dl.hide("_use_all_factor_levels","use_all_factor_levels is mandatory in combination with autoencoder.");
-  if (getNumFolds() != 0)   dl.hide("_overwrite_with_best_model","overwrite_with_best_model is unsupported in combination with n-fold cross-validation.");
+  if (_nfolds != 0)   dl.hide("_overwrite_with_best_model","overwrite_with_best_model is unsupported in combination with n-fold cross-validation.");
   if (_adaptive_rate) {
     dl.hide("_rate","rate is not used with adaptive_rate.");
     dl.hide("_rate_annealing","rate_annealing is not used with adaptive_rate.");
@@ -50,7 +50,7 @@
   if (_initial_weight_distribution == InitialWeightDistribution.UniformAdaptive) {
     dl.hide("_initial_weight_scale","initial_weight_scale is not used if initial_weight_distribution == UniformAdaptive.");
   }
-  if (getNumFolds() != 0)   dl.error("_n_folds","n_folds is not yet implemented.");
+  if (_nfolds > 1)   dl.error("_nfolds","nfolds > 1 is not implemented.");
   if (_loss == null) {
     if (expensive || dl.nclasses() != 0) {
       dl.error("_loss","Loss function must be specified. Try CrossEntropy for categorical response (classification), MeanSquare, Absolute or Huber for numerical response (regression).");

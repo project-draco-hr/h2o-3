@@ -1,30 +1,21 @@
 {
   double f=chk_tree(chks,0).atd(row) + offset;
-  if (_parms._distribution == GBMModel.GBMParameters.Family.bernoulli) {
-    fs[2]=Distributions.Bernoulli.linkInv(f);
-    fs[1]=1.0 - fs[2];
+  double p=_parms._distribution.linkInv(f);
+  if (_parms._distribution == Distributions.Family.bernoulli) {
+    fs[2]=p;
+    fs[1]=1.0 - p;
     return 1;
   }
- else   if (_parms._distribution == GBMModel.GBMParameters.Family.gaussian) {
-    return fs[0]=Distributions.Gaussian.linkInv(f);
-  }
- else   if (_parms._distribution == GBMModel.GBMParameters.Family.poisson) {
-    return fs[0]=Distributions.Poisson.linkInv(f);
-  }
- else   if (_parms._distribution == GBMModel.GBMParameters.Family.gamma) {
-    return fs[0]=Distributions.Gamma.linkInv(f);
-  }
- else   if (_parms._distribution == GBMModel.GBMParameters.Family.tweedie) {
-    return fs[0]=Distributions.Tweedie.linkInv(f);
-  }
- else   if (_parms._distribution == GBMModel.GBMParameters.Family.multinomial) {
+ else   if (_parms._distribution == Distributions.Family.multinomial) {
     if (_nclass == 2) {
-      fs[1]=Math.exp(chk_tree(chks,0).atd(row));
-      fs[2]=1.0 / fs[1];
+      fs[1]=p;
+      fs[2]=1 / p;
       return fs[1] + fs[2];
     }
     for (int k=0; k < _nclass; k++)     fs[k + 1]=chk_tree(chks,k).atd(row);
     return hex.genmodel.GenModel.log_rescale(fs);
   }
-  throw H2O.unimpl();
+ else {
+    return fs[0]=p;
+  }
 }
