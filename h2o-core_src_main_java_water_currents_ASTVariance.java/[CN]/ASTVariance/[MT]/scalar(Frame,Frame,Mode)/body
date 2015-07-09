@@ -1,0 +1,13 @@
+{
+  Vec vecxs[]=frx.vecs();
+  Vec vecys[]=fry.vecs();
+  double xmean=0, ymean=0, ncols=frx.numCols();
+  for (  Vec v : vecxs)   xmean+=v.at(0);
+  for (  Vec v : vecys)   ymean+=v.at(0);
+  xmean/=ncols;
+  ymean/=ncols;
+  double ss=0;
+  for (int r=0; r < ncols; ++r)   ss+=(vecxs[r].at(0) - xmean) * (vecys[r].at(0) - ymean);
+  if (mode.equals(Mode.AllObs))   throw new IllegalArgumentException("Mode is 'all.obs' but NAs are present");
+  return new ValNum(ss / (ncols - 1));
+}
