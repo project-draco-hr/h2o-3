@@ -149,13 +149,6 @@
       enablePrintGCDetails=true;
       enablePrintGCTimeStamps=true;
     }
- else     if (s.equals("-license")) {
-      i++;
-      if (i >= args.length) {
-        usage();
-      }
-      licenseFileName=args[i];
-    }
  else     if (s.equals("-flow_dir")) {
       i++;
       if (i >= args.length) {
@@ -163,83 +156,44 @@
       }
       flowDir=args[i];
     }
+ else     if (s.equals("-J")) {
+      i++;
+      if (i >= args.length) {
+        usage();
+      }
+      extraArguments.add(args[i]);
+    }
+ else     if (s.equals("-jks")) {
+      i++;
+      if (i >= args.length) {
+        usage();
+      }
+      jksFileName=args[i];
+    }
+ else     if (s.equals("-jks_pass")) {
+      i++;
+      if (i >= args.length) {
+        usage();
+      }
+      jksPass=args[i];
+    }
+ else     if (s.equals("-hash_login")) {
+      i++;
+      if (i >= args.length) {
+        usage();
+      }
+      hashLogin=true;
+    }
+ else     if (s.equals("-login_conf")) {
+      i++;
+      if (i >= args.length) {
+        usage();
+      }
+      loginConfFileName=args[i];
+    }
  else {
       error("Unrecognized option " + s);
     }
     i++;
-  }
-  if (numNodes < 1) {
-    error("Number of H2O nodes must be greater than 0 (must specify -n)");
-  }
-  if (outputPath == null) {
-    error("Missing required option -output");
-  }
-  if (mapperXmx == null) {
-    error("Missing required option -mapperXmx");
-  }
-  if (!mapperXmx.matches("[1-9][0-9]*[mgMG]")) {
-    error("-mapperXmx invalid (try something like -mapperXmx 4g)");
-  }
-  if (extraMemPercent < 0) {
-    extraMemPercent=DEFAULT_EXTRA_MEM_PERCENT;
-  }
-  if (jobtrackerName == null) {
-    Random rng=new Random();
-    int num=rng.nextInt(99999);
-    jobtrackerName="H2O_" + num;
-  }
-  if (network == null) {
-    network="";
-  }
- else {
-    String[] networks;
-    if (network.contains(",")) {
-      networks=network.split(",");
-    }
- else {
-      networks=new String[1];
-      networks[0]=network;
-    }
-    for (int j=0; j < networks.length; j++) {
-      String n=networks[j];
-      Pattern p=Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)/(\\d+)");
-      Matcher m=p.matcher(n);
-      boolean b=m.matches();
-      if (!b) {
-        error("network invalid: " + n);
-      }
-      for (int k=1; k <= 4; k++) {
-        int o=Integer.parseInt(m.group(k));
-        if ((o < 0) || (o > 255)) {
-          error("network invalid: " + n);
-        }
-        int bits=Integer.parseInt(m.group(5));
-        if ((bits < 0) || (bits > 32)) {
-          error("network invalid: " + n);
-        }
-      }
-    }
-  }
-  if (network == null) {
-    error("Internal error, network should not be null at this point");
-  }
-  if ((nthreads >= 0) && (nthreads < 4)) {
-    error("nthreads invalid (must be >= 4): " + nthreads);
-  }
-  if (licenseFileName != null) {
-    try {
-      licenseData=readFile(licenseFileName);
-    }
- catch (    Exception xe) {
-      StringBuilder sb=new StringBuilder();
-      sb.append("Failed to read license file: ");
-      if (xe.getLocalizedMessage() != null) {
-        sb.append(xe.getLocalizedMessage());
-      }
- else {
-        sb.append(licenseFileName);
-      }
-      error(sb.toString());
-    }
   }
 }

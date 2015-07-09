@@ -1,0 +1,23 @@
+{
+  String ct=request.getContentType();
+  if (!ct.startsWith("multipart/form-data")) {
+    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+    response.getWriter().write("Content type must be multipart/form-data");
+    return null;
+  }
+  String boundaryString;
+  int idx=ct.indexOf("boundary=");
+  if (idx < 0) {
+    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+    response.getWriter().write("Boundary missing");
+    return null;
+  }
+  boundaryString=ct.substring(idx + "boundary=".length());
+  byte[] boundary=boundaryString.getBytes();
+  InputStream is=request.getInputStream();
+  String line=readLine(is);
+  while ((line != null) && (line.trim().length() > 0)) {
+    line=readLine(is);
+  }
+  return new InputStreamWrapper(is,boundary);
+}
