@@ -1,0 +1,16 @@
+{
+  Class<?> clazz=glmParams.getClass();
+  while (clazz != null) {
+    try {
+      Field field=clazz.getDeclaredField(name);
+      System.out.println(String.format("  %s = %s",name,field.get(glmParams)));
+      return;
+    }
+ catch (    NoSuchFieldException e) {
+      clazz=clazz.getSuperclass();
+    }
+catch (    Exception e) {
+      throw new IllegalStateException(e);
+    }
+  }
+}

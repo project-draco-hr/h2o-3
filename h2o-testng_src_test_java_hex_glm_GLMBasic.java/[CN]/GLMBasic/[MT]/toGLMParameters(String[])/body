@@ -1,0 +1,34 @@
+{
+  String gaussian=input[tcHeaders.indexOf("gaussian")];
+  String binomial=input[tcHeaders.indexOf("binomial")];
+  String poisson=input[tcHeaders.indexOf("poisson")];
+  String gamma=input[tcHeaders.indexOf("gamma")];
+  String irlsm=input[tcHeaders.indexOf("irlsm")];
+  String lbfgs=input[tcHeaders.indexOf("lbfgs")];
+  Family f=null;
+  if ("x".equals(gaussian)) {
+    f=Family.gaussian;
+  }
+ else   if ("x".equals(binomial)) {
+    f=Family.binomial;
+  }
+ else   if ("x".equals(poisson)) {
+    f=Family.poisson;
+  }
+ else   if ("x".equals(gamma)) {
+    f=Family.gamma;
+  }
+  GLMParameters glmParams=null != f ? new GLMParameters(f) : new GLMParameters();
+  if ("x".equals(irlsm)) {
+    glmParams._solver=Solver.IRLSM;
+  }
+ else   if ("x".equals(lbfgs)) {
+    glmParams._solver=Solver.L_BFGS;
+  }
+  for (  Param p : params) {
+    if (p.isAutoSet) {
+      p.parseAndSet(glmParams,input[tcHeaders.indexOf(p.name)]);
+    }
+  }
+  return glmParams;
+}
