@@ -23,6 +23,10 @@
       Score scv=new Score(this,false,false,_model._output.getModelCategory()).doAll(valid(),build_tree_one_node);
       ModelMetrics mmv=scv.makeModelMetrics(_model,_parms.valid());
       out._validation_metrics=mmv;
+      if (out._scored_valid == null) {
+        assert(out._ntrees == 1);
+        out._scored_valid=new ScoreKeeper[out._ntrees];
+      }
       out._scored_valid[out._ntrees].fillFrom(mmv);
       if (out._ntrees > 0)       Log.info("Validation " + out._scored_valid[out._ntrees].toString());
     }
