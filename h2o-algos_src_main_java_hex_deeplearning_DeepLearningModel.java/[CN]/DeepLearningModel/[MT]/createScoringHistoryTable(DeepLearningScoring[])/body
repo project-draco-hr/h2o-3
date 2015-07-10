@@ -65,7 +65,7 @@
       colFormat.add("%.5f");
     }
   }
- else   if (get_params().getNumFolds() > 0) {
+ else   if (get_params()._nfolds > 1) {
     colHeaders.add("Cross-Validation MSE");
     colTypes.add("double");
     colFormat.add("%.5f");
@@ -122,8 +122,8 @@
         table.set(row,col++,e.scored_valid != null ? e.scored_valid._classError : Double.NaN);
       }
     }
- else     if (get_params().getNumFolds() > 1) {
-      throw H2O.unimpl("n_folds >= 2 is not (yet) implemented.");
+ else     if (get_params()._nfolds > 1) {
+      throw H2O.unimpl("n_folds > 1 is not implemented.");
     }
     row++;
   }

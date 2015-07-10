@@ -1,0 +1,27 @@
+{
+  if (extensionsRegistered) {
+    throw H2O.fail("Extensions already registered");
+  }
+  long before=System.currentTimeMillis();
+  String[] packages=new String[]{"water","hex"};
+  for (  String pkg : packages) {
+    Reflections reflections=new Reflections(pkg);
+    for (    Class registerClass : reflections.getSubTypesOf(water.AbstractH2OExtension.class)) {
+      if (!Modifier.isAbstract(registerClass.getModifiers())) {
+        try {
+          Object instance=registerClass.newInstance();
+          water.AbstractH2OExtension e=(water.AbstractH2OExtension)instance;
+          H2O.addExtension(e);
+        }
+ catch (        Exception e) {
+          throw H2O.fail(e.toString());
+        }
+      }
+    }
+  }
+  for (  AbstractH2OExtension e : H2O.getExtensions()) {
+    e.init();
+  }
+  extensionsRegistered=true;
+  registerExtensionsMillis=System.currentTimeMillis() - before;
+}

@@ -1,0 +1,14 @@
+{
+  GateHandler gh=new GateHandler();
+  AddCommonResponseHeadersHandler rhh=new AddCommonResponseHeadersHandler();
+  ServletContextHandler context=new ServletContextHandler(ServletContextHandler.SECURITY | ServletContextHandler.SESSIONS);
+  context.setContextPath("/");
+  context.addServlet(H2oNpsBinServlet.class,"/3/NodePersistentStorage.bin/*");
+  context.addServlet(H2oPostFileServlet.class,"/3/PostFile.bin");
+  context.addServlet(H2oPostFileServlet.class,"/3/PostFile");
+  context.addServlet(H2oDefaultServlet.class,"/");
+  Handler[] handlers={gh,rhh,context};
+  HandlerCollection hc=new HandlerCollection();
+  hc.setHandlers(handlers);
+  s.setHandler(hc);
+}

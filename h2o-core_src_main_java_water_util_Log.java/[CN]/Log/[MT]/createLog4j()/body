@@ -1,20 +1,21 @@
 {
   if (_logger != null)   return _logger;
-  File dir;
-  boolean windowsPath=H2O.ICE_ROOT.toString().matches("^[a-zA-Z]:.*");
-  if (windowsPath)   dir=new File(H2O.ICE_ROOT.toString());
- else   if (H2O.ICE_ROOT.getScheme() == null || PersistManager.Schemes.FILE.equals(H2O.ICE_ROOT.getScheme()))   dir=new File(H2O.ICE_ROOT.getPath());
- else   dir=new File(H2O.DEFAULT_ICE_ROOT());
-  String log4jConfiguration=System.getProperty("log4j.configuration");
   boolean launchedWithHadoopJar=H2O.ARGS.hdfs_skip;
+  String log4jConfiguration=System.getProperty("log4j.configuration");
   boolean log4jConfigurationProvided=log4jConfiguration != null;
-  boolean useProvidedLog4jConfigurationFile=log4jConfigurationProvided && !launchedWithHadoopJar;
-  if (useProvidedLog4jConfigurationFile) {
+  if (!launchedWithHadoopJar && H2O.haveInheritedLog4jConfiguration()) {
+  }
+ else   if (!launchedWithHadoopJar && log4jConfigurationProvided) {
     PropertyConfigurator.configure(log4jConfiguration);
   }
  else {
     java.util.Properties p=new java.util.Properties();
     try {
+      File dir;
+      boolean windowsPath=H2O.ICE_ROOT.toString().matches("^[a-zA-Z]:.*");
+      if (windowsPath)       dir=new File(H2O.ICE_ROOT.toString());
+ else       if (H2O.ICE_ROOT.getScheme() == null || PersistManager.Schemes.FILE.equals(H2O.ICE_ROOT.getScheme()))       dir=new File(H2O.ICE_ROOT.getPath());
+ else       dir=new File(H2O.DEFAULT_ICE_ROOT());
       setLog4jProperties(dir.toString(),p);
     }
  catch (    Exception e) {
