@@ -11,6 +11,21 @@
   System.out.println("");
   System.out.println(String.format("Datasets: \n" + "Train Dataset ID:      %s\n" + "Train Dataset File:    %s\n"+ "Validate Dataset ID:   %s\n"+ "Validate Dataset File: %s\n",trainDatasetId,trainDatasetFilename,validateDatasetId,validateDatasetFilename));
   System.out.println("");
-  _basic(glmParams,trainDatasetId,trainDatasetFilename,validateDatasetId,validateDatasetFilename);
-  resetStandardStreams();
+  try {
+    if (_validate(glmParams,trainDatasetId,trainDatasetFilename,validateDatasetId,validateDatasetFilename,rawInput)) {
+      _basic(glmParams,trainDatasetId,trainDatasetFilename,validateDatasetId,validateDatasetFilename);
+    }
+ else {
+      Assert.fail(String.format("INVALID INPUT - this test is skipped."));
+    }
+  }
+  finally {
+    try {
+      Thread.sleep(100);
+    }
+ catch (    InterruptedException ex) {
+      Thread.currentThread().interrupt();
+    }
+    resetStandardStreams();
+  }
 }
