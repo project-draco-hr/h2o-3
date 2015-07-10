@@ -14,14 +14,26 @@ def _model_build(x, y, validation_x, validation_y, algo_url, kwargs):
         if (kwargs['weights_column'] not in x._col_names):
             if ('training_frame' not in kwargs.keys()):
                 raise ValueError('must specify `training_frame` argument if `weights`not part of `x`')
-            _add_weights_col(x, kwargs['training_frame'], kwargs['weights_column'])
+            x = _add_col(x, kwargs['training_frame'], kwargs['weights_column'])
             assert (kwargs['weights_column'] in x._col_names)
         if (validation_x is not None):
             if (kwargs['weights_column'] not in validation_x._col_names):
                 if ('validation_frame' not in kwargs.keys()):
                     raise ValueError('must specify `validation_frame` argument if `weights` not part of `validation_x`')
-                _add_weights_col(validation_x, kwargs['validation_frame'], kwargs['weights_column'])
+                x = _add_col(validation_x, kwargs['validation_frame'], kwargs['weights_column'])
                 assert (kwargs['weights_column'] in validation_x._col_names)
+    if ('offset_column' in kwargs.keys()):
+        if (kwargs['offset_column'] not in x._col_names):
+            if ('training_frame' not in kwargs.keys()):
+                raise ValueError('must specify `training_frame` argument if `offset_column` not part of `x`')
+            x = _add_col(x, kwargs['training_frame'], kwargs['offset_column'])
+            assert (kwargs['offset_column'] in x._col_names)
+        if (validation_x is not None):
+            if (kwargs['offset_column'] not in validation_x._col_names):
+                if ('validation_frame' not in kwargs.keys()):
+                    raise ValueError('must specify `validation_frame` argument if `offset_column` not part of `validation_x`')
+                x = _add_col(validation_x, kwargs['validation_frame'], kwargs['offset_column'])
+                assert (kwargs['offset_column'] in validation_x._col_names)
     kwargs['training_frame'] = x._id
     if (validation_x is not None):
         kwargs['validation_frame'] = validation_x._id
