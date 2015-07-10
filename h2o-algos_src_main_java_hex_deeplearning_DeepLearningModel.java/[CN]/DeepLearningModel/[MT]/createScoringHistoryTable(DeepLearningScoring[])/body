@@ -66,19 +66,6 @@
     }
   }
  else   if (get_params()._nfolds > 1) {
-    colHeaders.add("Cross-Validation MSE");
-    colTypes.add("double");
-    colFormat.add("%.5f");
-    if (_output.getModelCategory() == ModelCategory.Binomial) {
-      colHeaders.add("Cross-Validation AUC");
-      colTypes.add("double");
-      colFormat.add("%.5f");
-    }
-    if (_output.isClassifier()) {
-      colHeaders.add("Cross-Validation Classification Error");
-      colTypes.add("double");
-      colFormat.add("%.5f");
-    }
   }
   final int rows=errors.length;
   TwoDimTable table=new TwoDimTable("Scoring History",null,new String[rows],colHeaders.toArray(new String[0]),colTypes.toArray(new String[0]),colFormat.toArray(new String[0]),"");
@@ -121,9 +108,6 @@
       if (_output.isClassifier()) {
         table.set(row,col++,e.scored_valid != null ? e.scored_valid._classError : Double.NaN);
       }
-    }
- else     if (get_params()._nfolds > 1) {
-      throw H2O.unimpl("n_folds > 1 is not implemented.");
     }
     row++;
   }
