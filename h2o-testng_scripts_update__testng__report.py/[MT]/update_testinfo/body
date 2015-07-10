@@ -1,0 +1,8 @@
+def update_testinfo(content):
+    '\n    . update test with real test case name\n    . change status from FAILED to INVALID for those invalid input cases\n    '
+    testname = re.search(testname_re, content, re.S).group(1)
+    reporter_out = re.search(reporter_out_re, content, re.S).group(0)
+    content = re.sub(testname_find_re, (testname_format % testname), content)
+    if (invalid_key in reporter_out):
+        content = re.sub(status_find_re, invalid_status, content)
+    return content
