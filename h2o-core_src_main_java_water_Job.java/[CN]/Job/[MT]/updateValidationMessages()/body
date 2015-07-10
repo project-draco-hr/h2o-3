@@ -2,9 +2,8 @@
   new TAtomic<Job>(){
     @Override public Job atomic(    Job old){
       if (old == null)       throw new H2OKeyNotFoundArgumentException(old._key);
-      ModelBuilder builder=(ModelBuilder)old;
-      builder._messages=ModelBuilder.this._messages;
-      return builder;
+      old._messages=_messages;
+      return old;
     }
   }
 .invoke(_key);

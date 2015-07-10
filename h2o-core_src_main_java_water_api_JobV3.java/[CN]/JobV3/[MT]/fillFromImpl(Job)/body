@@ -11,5 +11,11 @@
   Class<? extends Keyed> dest_class=ReflectionUtils.findActualClassParameter(job.getClass(),0);
   dest=KeyV3.forKeyedClass(dest_class,dest_key);
   exception=job._exception;
+  this.messages=new ValidationMessageBase[job._messages.length];
+  int i=0;
+  for (  ModelBuilder.ValidationMessage vm : job._messages) {
+    this.messages[i++]=new ValidationMessageV3().fillFromImpl(vm);
+  }
+  this.error_count=job.error_count();
   return (S)this;
 }
