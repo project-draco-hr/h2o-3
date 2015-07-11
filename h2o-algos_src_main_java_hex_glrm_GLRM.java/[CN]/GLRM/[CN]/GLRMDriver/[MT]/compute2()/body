@@ -8,7 +8,7 @@
     if (error_count() > 0)     throw new IllegalArgumentException("Found validation errors: " + validationErrors());
     model=new GLRMModel(dest(),_parms,new GLRMModel.GLRMOutput(GLRM.this));
     model.delete_and_lock(self());
-    tinfo=new DataInfo(Key.make(),_train,null,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false,false,false);
+    tinfo=new DataInfo(Key.make(),_train,_valid,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false,false,false);
     DKV.put(tinfo._key,tinfo);
     model._output._normSub=tinfo._normSub == null ? new double[tinfo._nums] : tinfo._normSub;
     if (tinfo._normMul == null) {
