@@ -1,0 +1,18 @@
+{
+  Log.info("Initializing X to matrix of indicator columns corresponding to cluster assignments");
+  final KMeansModel model=km;
+  new MRTask(){
+    @Override public void map(    Chunk chks[]){
+      double tmp[]=new double[_ncolA];
+      double preds[]=new double[_ncolX];
+      for (int row=0; row < chks[0]._len; row++) {
+        double p[]=model.score_indicator(chks,row,tmp,preds);
+        for (int c=0; c < preds.length; c++) {
+          chks[_ncolA + c].set(row,p[c]);
+          chks[_ncolA + _ncolX + c].set(row,p[c]);
+        }
+      }
+    }
+  }
+.doAll(dinfo._adaptedFrame);
+}

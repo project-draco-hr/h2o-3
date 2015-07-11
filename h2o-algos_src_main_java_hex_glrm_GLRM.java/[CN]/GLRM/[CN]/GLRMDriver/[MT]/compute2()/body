@@ -24,14 +24,14 @@
     long nobs=_train.numRows() * _train.numCols();
     for (int i=0; i < _train.numCols(); i++)     nobs-=_train.vec(i).naCnt();
     model._output._nobs=nobs;
-    double[][] yt=ArrayUtils.transpose(initialY(tinfo));
     Vec[] vecs=new Vec[_ncolA + 2 * _ncolX];
     for (int i=0; i < _ncolA; i++)     vecs[i]=_train.vec(i);
     for (int i=_ncolA; i < vecs.length; i++)     vecs[i]=_train.anyVec().makeGaus(_parms._seed);
     fr=new Frame(null,vecs);
     dinfo=new DataInfo(Key.make(),fr,null,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false,false,false);
     DKV.put(dinfo._key,dinfo);
-    initialX(dinfo,yt,model._output._normSub,model._output._normMul);
+    double[][] yt=ArrayUtils.transpose(initialXY(tinfo,dinfo));
+    if (_parms.hasClosedForm())     initialXClosedForm(dinfo,yt,model._output._normSub,model._output._normMul);
     ObjCalc objtsk=new ObjCalc(dinfo,_parms,yt,_ncolA,_ncolX,model._output._normSub,model._output._normMul,_parms._gamma_x != 0).doAll(dinfo._adaptedFrame);
     model._output._objective=objtsk._loss + _parms._gamma_x * objtsk._xold_reg + _parms._gamma_y * _parms.regularize_y(yt);
     model._output._iterations=0;
