@@ -25,7 +25,17 @@ default :
 throw H2O.fail();
 }
 case Val.STR:
+String slf=left.getStr();
+switch (rite.type()) {
+case Val.NUM:
 throw H2O.unimpl();
+case Val.STR:
+throw H2O.unimpl();
+case Val.FRM:
+return scalar_op_frame(slf,rite.getFrame());
+default :
+throw H2O.fail();
+}
 default :
 throw H2O.fail();
 }

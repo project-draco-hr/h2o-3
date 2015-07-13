@@ -2,6 +2,6 @@
   final boolean enumOK=enumOK();
   final Vec oldvecs[]=oldfr.vecs();
   final Vec newvecs[]=newfr.vecs();
-  for (int i=0; i < oldvecs.length; i++)   newvecs[i]=cleanEnum(enumOK,oldvecs[i],newvecs[i]);
+  for (int i=0; i < oldvecs.length; i++)   if (!oldvecs[i].isNumeric() && !oldvecs[i].isTime() && !(oldvecs[i].isEnum() && enumOK))   newvecs[i]=newvecs[i].makeCon(Double.NaN);
   return new ValFrame(newfr);
 }
