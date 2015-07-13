@@ -1,0 +1,17 @@
+{
+  Frame f=e.popAry();
+  CumMaxTask t=new CumMaxTask(f.anyVec().nChunks());
+  t.doAll(1,f.anyVec());
+  final double[] chkMaxs=t._chkMaxs;
+  Vec cumuVec=t.outputFrame().anyVec();
+  new MRTask(){
+    @Override public void map(    Chunk c){
+      if (c.cidx() != 0) {
+        double d=chkMaxs[c.cidx() - 1];
+        for (int i=0; i < c._len; ++i)         c.set(i,Math.min(c.atd(i),d));
+      }
+    }
+  }
+.doAll(cumuVec);
+  e.pushAry(new Frame(cumuVec));
+}

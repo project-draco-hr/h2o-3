@@ -1,0 +1,17 @@
+{
+  Frame f=e.popAry();
+  CumMinTask t=new CumMinTask(f.anyVec().nChunks());
+  t.doAll(1,f.anyVec());
+  final double[] chkMins=t._chkMins;
+  Vec cumuVec=t.outputFrame().anyVec();
+  new MRTask(){
+    @Override public void map(    Chunk c){
+      if (c.cidx() != 0) {
+        double d=chkMins[c.cidx() - 1];
+        for (int i=0; i < c._len; ++i)         c.set(i,Math.min(c.atd(i),d));
+      }
+    }
+  }
+.doAll(cumuVec);
+  e.pushAry(new Frame(cumuVec));
+}
