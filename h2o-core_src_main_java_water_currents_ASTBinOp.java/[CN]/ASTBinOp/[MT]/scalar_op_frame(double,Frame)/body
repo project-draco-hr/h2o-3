@@ -1,6 +1,5 @@
 {
-  for (  Vec vec : fr.vecs())   if (!vec.isNumeric())   throw new IllegalArgumentException("Cannot mix Numeric and non-Numeric types");
-  return new ValFrame(new MRTask(){
+  Frame res=new MRTask(){
     @Override public void map(    Chunk[] chks,    NewChunk[] cress){
       for (int c=0; c < chks.length; c++) {
         Chunk chk=chks[c];
@@ -9,5 +8,6 @@
       }
     }
   }
-.doAll(fr.numCols(),fr).outputFrame());
+.doAll(fr.numCols(),fr).outputFrame(fr._names,null);
+  return cleanEnum(fr,res);
 }

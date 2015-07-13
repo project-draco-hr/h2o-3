@@ -8,6 +8,6 @@
   ymean/=ncols;
   double ss=0;
   for (int r=0; r < ncols; ++r)   ss+=(vecxs[r].at(0) - xmean) * (vecys[r].at(0) - ymean);
-  if (mode.equals(Mode.AllObs))   throw new IllegalArgumentException("Mode is 'all.obs' but NAs are present");
+  if (Double.isNaN(ss) && mode.equals(Mode.AllObs))   throw new IllegalArgumentException("Mode is 'all.obs' but NAs are present");
   return new ValNum(ss / (ncols - 1));
 }
