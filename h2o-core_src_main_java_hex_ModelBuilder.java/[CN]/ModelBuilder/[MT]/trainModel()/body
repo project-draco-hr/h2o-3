@@ -1,0 +1,9 @@
+{
+  return _parms._nfolds == 0 ? trainModelImpl(progressUnits()) : start(new H2O.H2OCountedCompleter(){
+    @Override protected void compute2(){
+      computeCrossValidation();
+      tryComplete();
+    }
+  }
+,(_parms._nfolds + 1) * progressUnits());
+}
