@@ -1,0 +1,36 @@
+{
+  Frame tfr=null, vfr=null;
+  GBMModel gbm=null;
+  Scope.enter();
+  try {
+    tfr=parse_test_file("smalldata/junit/weights.csv");
+    vfr=parse_test_file("smalldata/junit/weights.csv");
+    DKV.put(tfr);
+    GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
+    parms._train=tfr._key;
+    parms._valid=vfr._key;
+    parms._response_column="response";
+    parms._weights_column="weight";
+    parms._seed=0xdecaf;
+    parms._min_rows=1;
+    parms._max_depth=2;
+    parms._nfolds=3;
+    parms._ntrees=3;
+    parms._learn_rate=1e-3f;
+    GBM job=new GBM(parms);
+    try {
+      Log.info("Trying N-fold cross-validation AND Validation dataset provided.");
+      gbm=job.trainModel().get();
+      Assert.fail("Should toss AssertionError instead of reaching here");
+    }
+ catch (    AssertionError e) {
+    }
+    job.remove();
+  }
+  finally {
+    if (tfr != null)     tfr.remove();
+    if (vfr != null)     vfr.remove();
+    if (gbm != null)     gbm.delete();
+    Scope.exit();
+  }
+}
