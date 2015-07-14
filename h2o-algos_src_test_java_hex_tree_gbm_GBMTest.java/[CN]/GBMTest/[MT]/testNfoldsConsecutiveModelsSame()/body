@@ -1,22 +1,26 @@
 {
   Frame tfr=null;
+  Vec old=null;
   GBMModel gbm1=null;
   GBMModel gbm2=null;
   Scope.enter();
   try {
-    tfr=parse_test_file("smalldata/junit/weights.csv");
+    tfr=parse_test_file("smalldata/junit/cars_20mpg.csv");
+    tfr.remove("name").remove();
+    tfr.remove("economy").remove();
+    old=tfr.remove("economy_20mpg");
+    tfr.add("economy_20mpg",old.toEnum());
     DKV.put(tfr);
     GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
     parms._train=tfr._key;
-    parms._response_column="response";
+    parms._response_column="economy_20mpg";
     parms._min_rows=1;
     parms._max_depth=2;
-    parms._nfolds=(int)tfr.numRows();
+    parms._nfolds=3;
     parms._ntrees=3;
     parms._learn_rate=1e-3f;
     GBM job1=new GBM(parms);
     gbm1=job1.trainModel().get();
-    parms._nfolds=(int)tfr.numRows() + 1;
     GBM job2=new GBM(parms);
     gbm2=job2.trainModel().get();
     ModelMetricsBinomial mm1=(ModelMetricsBinomial)gbm1._output._validation_metrics;
@@ -30,6 +34,7 @@
   }
   finally {
     if (tfr != null)     tfr.remove();
+    if (old != null)     old.remove();
     if (gbm1 != null)     gbm1.delete();
     if (gbm2 != null)     gbm2.delete();
     Scope.exit();
