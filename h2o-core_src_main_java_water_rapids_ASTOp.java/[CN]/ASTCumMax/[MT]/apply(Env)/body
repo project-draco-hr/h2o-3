@@ -1,5 +1,7 @@
 {
   Frame f=e.popAry();
+  if (f.numCols() != 1)   throw new IllegalArgumentException("Must give a single numeric column.");
+  if (!f.anyVec().isNumeric())   throw new IllegalArgumentException("Column must be numeric.");
   CumMaxTask t=new CumMaxTask(f.anyVec().nChunks());
   t.doAll(1,f.anyVec());
   final double[] chkMaxs=t._chkMaxs;
