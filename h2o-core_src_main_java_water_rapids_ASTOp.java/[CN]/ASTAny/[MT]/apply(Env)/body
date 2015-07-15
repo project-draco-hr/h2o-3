@@ -1,0 +1,15 @@
+{
+  boolean any;
+  if (env.isNum()) {
+    any=env.popDbl() != 0;
+  }
+ else {
+    Frame fr=env.popAry();
+    if (fr.numCols() != 1)     throw new IllegalArgumentException("must only have 1 column for `all`");
+    Vec v=fr.anyVec();
+    if (!v.isInt())     throw new IllegalArgumentException("column must be a column of 1s and 0s.");
+    if (v.min() != 0 || v.max() != 1)     throw new IllegalArgumentException("column must be a column of 1s and 0s");
+    any=new AllTask().doAll(fr.anyVec()).any;
+  }
+  env.push(new ValStr(any ? "TRUE" : "FALSE"));
+}
