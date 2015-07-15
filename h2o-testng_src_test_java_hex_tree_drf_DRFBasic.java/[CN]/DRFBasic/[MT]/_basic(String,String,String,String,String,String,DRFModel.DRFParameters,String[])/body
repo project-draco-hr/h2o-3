@@ -1,0 +1,35 @@
+{
+  Frame trainFrame=null;
+  Frame validateFrame=null;
+  DRF job=null;
+  DRFModel drfModel=null;
+  Frame score=null;
+  Scope.enter();
+  job=new DRF(parameter);
+  drfModel=job.trainModel().get();
+  trainFrame=parameter._train.get();
+  validateFrame=parameter._valid.get();
+  try {
+    score=drfModel.score(trainFrame);
+    System.out.println("Test is passed.");
+  }
+ catch (  IllegalArgumentException ex) {
+    Assert.fail("Test is failed. It can't predict");
+    ex.printStackTrace();
+  }
+  job.remove();
+  drfModel.delete();
+  if (trainFrame != null) {
+    trainFrame.remove();
+    trainFrame.delete();
+  }
+  if (validateFrame != null) {
+    validateFrame.remove();
+    validateFrame.delete();
+  }
+  if (score != null) {
+    score.remove();
+    score.delete();
+  }
+  Scope.exit();
+}

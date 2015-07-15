@@ -1,0 +1,22 @@
+{
+  System.out.println("Validate DRFParameters object with testcase: " + input[tcHeaders.indexOf("testcase_id")]);
+  String result=null;
+  for (  Param p : params) {
+    if (p.isAutoSet) {
+      result=p.validate(input[tcHeaders.indexOf(p.name)]);
+      if (result != null) {
+        return result;
+      }
+    }
+  }
+  String train_dataset_id=input[tcHeaders.indexOf("train_dataset_id")];
+  String train_dataset_filename=input[tcHeaders.indexOf("train_dataset_filename")];
+  String response_column=input[tcHeaders.indexOf("_response_column")];
+  if (StringUtils.isEmpty(train_dataset_id) || StringUtils.isEmpty(train_dataset_filename)) {
+    result="Dataset is empty";
+  }
+ else   if (StringUtils.isEmpty(response_column)) {
+    result="_response_column is empty";
+  }
+  return result;
+}
