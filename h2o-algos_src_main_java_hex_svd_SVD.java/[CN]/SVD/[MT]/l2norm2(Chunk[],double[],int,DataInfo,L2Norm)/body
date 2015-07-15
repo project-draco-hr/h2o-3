@@ -2,9 +2,11 @@
   double sumsqr=0, sum=0;
   long nobs=0;
   int ncols=dinfo._adaptedFrame.numCols();
+  Chunk[] cs_train=Arrays.copyOfRange(cs,0,ncols);
   for (int r=0; r < cs[0].len(); r++) {
     DataInfo.Row row=dinfo.newDenseRow();
-    if (dinfo.extractDenseRow(cs,r,row).bad)     continue;
+    dinfo.extractDenseRow(cs_train,r,row);
+    if (row.bad)     continue;
     sum=row.innerProduct(vec);
     sumsqr+=sum * sum;
     nobs++;
