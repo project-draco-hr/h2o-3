@@ -1,4 +1,5 @@
 {
+  _g=new IcedHashMap<>();
   long start=c[0].start();
   byte[] naMethods=AGG.naMethods(_agg);
   G g=new G(_gbCols.length,_agg.length,naMethods);
@@ -10,10 +11,7 @@
       gOld=g;
       g=new G(_gbCols.length,_agg.length,naMethods);
     }
- else {
-      gOld=_g.getk(g);
-      if (gOld == null)       while (gOld == null)       gOld=_g.getk(g);
-    }
+ else     gOld=_g.getk(g);
     long r=gOld._N;
     while (!G.CAS_N(gOld,r,r + 1))     r=gOld._N;
     perRow(_agg,i,start,c,gOld);
