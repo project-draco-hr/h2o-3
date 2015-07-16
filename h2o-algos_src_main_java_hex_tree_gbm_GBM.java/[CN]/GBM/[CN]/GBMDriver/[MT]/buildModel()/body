@@ -1,5 +1,5 @@
 {
-  if (hasOffset() && _parms._distribution == Distributions.Family.bernoulli) {
+  if (hasOffsetCol() && _parms._distribution == Distributions.Family.bernoulli) {
     _initialPrediction=getInitialValueBernoulliOffset(_train);
   }
   _model._output._init_f=_initialPrediction;
@@ -14,7 +14,7 @@
   }
   if (_parms._checkpoint) {
     Timer t=new Timer();
-    new ResidualsCollector(_ncols,_nclass,(hasOffset() ? 1 : 0) + (hasWeights() ? 1 : 0),_model._output._treeKeys).doAll(_train,_parms._build_tree_one_node);
+    new ResidualsCollector(_ncols,_nclass,numSpecialCols(),_model._output._treeKeys).doAll(_train,_parms._build_tree_one_node);
     Log.info("Reconstructing tree residuals stats from checkpointed model took " + t);
   }
   for (int tid=0; tid < _parms._ntrees; tid++) {

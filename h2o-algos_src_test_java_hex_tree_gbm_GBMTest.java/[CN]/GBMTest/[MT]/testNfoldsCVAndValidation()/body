@@ -10,6 +10,7 @@
     parms._train=tfr._key;
     parms._valid=vfr._key;
     parms._response_column="response";
+    parms._seed=12345;
     parms._min_rows=1;
     parms._max_depth=2;
     parms._nfolds=3;
@@ -19,9 +20,9 @@
     try {
       Log.info("Trying N-fold cross-validation AND Validation dataset provided.");
       gbm=job.trainModel().get();
-      Assert.fail("Should toss AssertionError instead of reaching here");
+      Assert.fail("Should toss H2OModelBuilderIllegalArgumentException instead of reaching here");
     }
- catch (    AssertionError e) {
+ catch (    H2OModelBuilderIllegalArgumentException e) {
     }
     job.remove();
   }

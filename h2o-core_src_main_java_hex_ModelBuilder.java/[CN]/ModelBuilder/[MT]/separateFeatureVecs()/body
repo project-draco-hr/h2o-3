@@ -15,7 +15,7 @@
   }
  else {
     _weights=null;
-    assert(!hasWeights());
+    assert(!hasWeightCol());
   }
   if (_parms._offset_column != null) {
     Vec o=_train.remove(_parms._offset_column);
@@ -31,7 +31,26 @@
   }
  else {
     _offset=null;
-    assert(!hasOffset());
+    assert(!hasOffsetCol());
+  }
+  if (_parms._fold_column != null) {
+    Vec f=_train.remove(_parms._fold_column);
+    if (f == null)     error("_fold_column","Fold column '" + _parms._fold_column + "' not found in the training frame");
+ else {
+      if (!f.isInt())       error("_fold_column","Invalid fold column '" + _parms._fold_column + "', fold must be integer");
+      if (f.min() < 0)       error("_fold_column","Invalid fold column '" + _parms._fold_column + "', fold must be non-negative");
+      if (f.isConst())       error("_fold_column","Invalid fold column '" + _parms._fold_column + "', fold cannot be constant");
+      _fold=f;
+      if (f.naCnt() > 0)       error("_fold_column","Fold cannot have missing values.");
+      if (_fold == _weights)       error("_fold_column","Fold must be different from weights");
+      if (_fold == _offset)       error("_fold_column","Fold must be different from offset");
+      _train.add(_parms._fold_column,f);
+      ++res;
+    }
+  }
+ else {
+    _fold=null;
+    assert(!hasFoldCol());
   }
   if (isSupervised() && _parms._response_column != null) {
     _response=_train.remove(_parms._response_column);
