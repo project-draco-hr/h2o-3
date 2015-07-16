@@ -1,8 +1,12 @@
 {
-  return _parms._nfolds == 0 ? trainModelImpl(progressUnits()) : start(new H2O.H2OCountedCompleter(){
+  return _parms._nfolds == 0 && _parms._fold_column == null ? trainModelImpl(progressUnits()) : start(new H2O.H2OCountedCompleter(){
     @Override protected void compute2(){
       computeCrossValidation();
       tryComplete();
+    }
+    @Override public boolean onExceptionalCompletion(    Throwable ex,    CountedCompleter caller){
+      failed(ex);
+      return true;
     }
   }
 ,(_parms._nfolds + 1) * progressUnits());

@@ -1,6 +1,6 @@
 {
   Chunk ys=chk_resp(chks);
-  Chunk offset=hasOffset() ? chk_offset(chks) : new C0DChunk(0,chks[0]._len);
+  Chunk offset=hasOffsetCol() ? chk_offset(chks) : new C0DChunk(0,chks[0]._len);
   Chunk tr=chk_tree(chks,0);
   Chunk wk=chk_work(chks,0);
   double fs[]=_nclass > 1 ? new double[_nclass + 1] : null;
@@ -9,7 +9,7 @@
     double f=tr.atd(row) + offset.atd(row);
     double y=ys.at8(row);
     if (_parms._distribution == Distributions.Family.multinomial) {
-      double weight=hasWeights() ? chk_weight(chks).atd(row) : 1;
+      double weight=hasWeightCol() ? chk_weight(chks).atd(row) : 1;
       double sum=score1(chks,weight,0.0,fs,row);
       if (Double.isInfinite(sum)) {
         for (int k=0; k < _nclass; k++) {
