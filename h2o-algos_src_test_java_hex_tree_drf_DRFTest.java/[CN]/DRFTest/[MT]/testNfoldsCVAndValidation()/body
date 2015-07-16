@@ -1,0 +1,33 @@
+{
+  Frame tfr=null, vfr=null;
+  DRFModel drf=null;
+  Scope.enter();
+  try {
+    tfr=parse_test_file("smalldata/junit/weights.csv");
+    vfr=parse_test_file("smalldata/junit/weights.csv");
+    DKV.put(tfr);
+    DRFModel.DRFParameters parms=new DRFModel.DRFParameters();
+    parms._train=tfr._key;
+    parms._valid=vfr._key;
+    parms._response_column="response";
+    parms._min_rows=2;
+    parms._max_depth=2;
+    parms._nfolds=3;
+    parms._ntrees=3;
+    DRF job=new DRF(parms);
+    try {
+      Log.info("Trying N-fold cross-validation AND Validation dataset provided.");
+      drf=job.trainModel().get();
+      Assert.fail("Should toss H2OModelBuilderIllegalArgumentException instead of reaching here");
+    }
+ catch (    H2OModelBuilderIllegalArgumentException e) {
+    }
+    job.remove();
+  }
+  finally {
+    if (tfr != null)     tfr.remove();
+    if (vfr != null)     vfr.remove();
+    if (drf != null)     drf.delete();
+    Scope.exit();
+  }
+}
