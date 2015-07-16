@@ -12,12 +12,12 @@
     parms._min_rows=1;
     parms._max_depth=2;
     parms._nfolds=(int)tfr.numRows();
+    parms._fold_assignment=Model.Parameters.FoldAssignmentScheme.Modulo;
     parms._ntrees=3;
     parms._seed=12345;
     parms._learn_rate=1e-3f;
     GBM job1=new GBM(parms);
     gbm1=job1.trainModel().get();
-    parms._nfolds=(int)tfr.numRows() + 1;
     GBM job2=new GBM(parms);
     gbm2=job2.trainModel().get();
     ModelMetricsBinomial mm1=(ModelMetricsBinomial)gbm1._output._validation_metrics;
