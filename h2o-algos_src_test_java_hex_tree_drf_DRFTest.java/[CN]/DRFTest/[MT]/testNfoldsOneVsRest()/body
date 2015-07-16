@@ -12,11 +12,11 @@
     parms._seed=9999;
     parms._min_rows=2;
     parms._nfolds=(int)tfr.numRows();
+    parms._fold_assignment=Model.Parameters.FoldAssignmentScheme.Modulo;
     parms._max_depth=5;
     parms._ntrees=5;
     DRF job1=new DRF(parms);
     drf1=job1.trainModel().get();
-    parms._nfolds=(int)tfr.numRows() + 1;
     DRF job2=new DRF(parms);
     drf2=job2.trainModel().get();
     ModelMetricsBinomial mm1=(ModelMetricsBinomial)drf1._output._validation_metrics;
