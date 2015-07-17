@@ -34,7 +34,7 @@
     DKV.put(dinfo._key,dinfo);
     double[][] yt=initialXY(tinfo,dinfo);
     yt=ArrayUtils.transpose(yt);
-    if (na_cnt == 0 && _parms.hasClosedForm())     initialXClosedForm(dinfo,yt,model._output._normSub,model._output._normMul);
+    if (_parms.hasClosedForm(tinfo))     initialXClosedForm(dinfo,yt,model._output._normSub,model._output._normMul);
     ObjCalc objtsk=new ObjCalc(dinfo,_parms,yt,_ncolA,_ncolX,model._output._normSub,model._output._normMul,_parms._gamma_x != 0).doAll(dinfo._adaptedFrame);
     model._output._objective=objtsk._loss + _parms._gamma_x * objtsk._xold_reg + _parms._gamma_y * _parms.regularize_y(yt);
     model._output._iterations=0;
