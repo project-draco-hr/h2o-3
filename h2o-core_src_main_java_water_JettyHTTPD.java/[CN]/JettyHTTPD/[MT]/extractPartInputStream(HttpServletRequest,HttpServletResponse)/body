@@ -1,14 +1,14 @@
 {
   String ct=request.getContentType();
   if (!ct.startsWith("multipart/form-data")) {
-    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+    setResponseStatus(response,HttpServletResponse.SC_BAD_REQUEST);
     response.getWriter().write("Content type must be multipart/form-data");
     return null;
   }
   String boundaryString;
   int idx=ct.indexOf("boundary=");
   if (idx < 0) {
-    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+    setResponseStatus(response,HttpServletResponse.SC_BAD_REQUEST);
     response.getWriter().write("Boundary missing");
     return null;
   }

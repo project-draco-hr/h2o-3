@@ -5,7 +5,7 @@
     Matcher m=p.matcher(uri);
     boolean b=m.matches();
     if (!b) {
-      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      setResponseStatus(response,HttpServletResponse.SC_BAD_REQUEST);
       response.getWriter().write("Improperly formatted URI");
       return;
     }
@@ -17,7 +17,7 @@
     response.setContentType("application/octet-stream");
     response.setContentLengthLong(length.get());
     response.addHeader("Content-Disposition","attachment; filename=" + keyName + ".flow");
-    response.setStatus(HttpServletResponse.SC_OK);
+    setResponseStatus(response,HttpServletResponse.SC_OK);
     OutputStream os=response.getOutputStream();
     water.util.FileUtils.copyStream(is,os,2048);
   }
