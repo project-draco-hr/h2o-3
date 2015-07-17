@@ -9,7 +9,7 @@
     if (error_count() > 0)     throw new IllegalArgumentException("Found validation errors: " + validationErrors());
     model=new GLRMModel(dest(),_parms,new GLRMModel.GLRMOutput(GLRM.this));
     model.delete_and_lock(self());
-    tinfo=new DataInfo(Key.make(),_train,_valid,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false,false,false);
+    tinfo=new DataInfo(Key.make(),_train,_valid,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false,false,false,false);
     DKV.put(tinfo._key,tinfo);
     model._output._normSub=tinfo._normSub == null ? new double[tinfo._nums] : tinfo._normSub;
     if (tinfo._normMul == null) {
@@ -29,7 +29,7 @@
     for (int i=0; i < _ncolA; i++)     vecs[i]=_train.vec(i);
     for (int i=_ncolA; i < vecs.length; i++)     vecs[i]=_train.anyVec().makeGaus(_parms._seed);
     fr=new Frame(null,vecs);
-    dinfo=new DataInfo(Key.make(),fr,null,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false,false,false);
+    dinfo=new DataInfo(Key.make(),fr,null,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false,false,false,false);
     DKV.put(dinfo._key,dinfo);
     double[][] yt=initialXY(tinfo,dinfo);
     yt=ArrayUtils.transpose(yt);
@@ -76,7 +76,7 @@
       for (int i=0; i < _ncolX; i++)       xvecs[i]=fr.vec(idx_xold(i,_ncolA));
     }
     x=new Frame(_parms._loading_key,null,xvecs);
-    xinfo=new DataInfo(Key.make(),x,null,0,true,DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,false,false,false,false);
+    xinfo=new DataInfo(Key.make(),x,null,0,true,DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,false,false,false,false,false);
     DKV.put(x._key,x);
     DKV.put(xinfo._key,xinfo);
     model._output._loading_key=_parms._loading_key;
