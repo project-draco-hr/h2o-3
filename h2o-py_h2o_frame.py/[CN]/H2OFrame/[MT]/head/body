@@ -1,11 +1,12 @@
-def head(self, rows=10, cols=200, **kwargs):
-    "\n    Analgous to R's `head` call on a data.frame. Display a digestible chunk of the H2OFrame starting from the beginning.\n\n    :param rows: Number of rows to display.\n    :param cols: Number of columns to display.\n    :param kwargs: Extra arguments passed from other methods.\n    :return: None\n    "
+def head(self, rows=10, cols=200, show=False, **kwargs):
+    "\n    Analgous to R's `head` call on a data.frame. Display a digestible chunk of the H2OFrame starting from the beginning.\n\n    :param rows: Number of rows to display.\n    :param cols: Number of columns to display.\n    :param show: Display the output.\n    :param kwargs: Extra arguments passed from other methods.\n    :return: None\n    "
     self._eager()
     nrows = min(self.nrow(), rows)
     ncols = min(self.ncol(), cols)
     colnames = self.names()[0:ncols]
     head = self[0:10, 0:ncols]
     res = head.as_data_frame(False)[1:]
-    print 'First {} rows and first {} columns: '.format(nrows, ncols)
-    h2o.H2ODisplay(res, colnames)
+    if show:
+        print 'First {} rows and first {} columns: '.format(nrows, ncols)
+        h2o.H2ODisplay(res, colnames)
     return head
