@@ -12,15 +12,16 @@
     parms._response_column="response";
     parms._min_rows=2;
     parms._max_depth=2;
-    parms._nfolds=3;
+    parms._nfolds=2;
     parms._ntrees=3;
+    parms._seed=11233;
     DRF job=new DRF(parms);
     try {
       Log.info("Trying N-fold cross-validation AND Validation dataset provided.");
       drf=job.trainModel().get();
-      Assert.fail("Should toss H2OModelBuilderIllegalArgumentException instead of reaching here");
     }
  catch (    H2OModelBuilderIllegalArgumentException e) {
+      Assert.fail("Should not toss H2OModelBuilderIllegalArgumentException.");
     }
     job.remove();
   }
