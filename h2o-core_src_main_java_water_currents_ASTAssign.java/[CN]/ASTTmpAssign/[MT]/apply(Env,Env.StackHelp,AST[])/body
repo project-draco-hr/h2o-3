@@ -1,0 +1,10 @@
+{
+  Futures fs=new Futures();
+  String id=((ASTId)asts[1])._id;
+  Frame dst=stk.track(asts[2].exec(env)).getFrame();
+  Key key=Key.make(id);
+  Frame dst2=new Frame(key,dst._names,dst.vecs());
+  if (DKV.DputIfMatch(key,new Value(key,dst2),null,fs) != null)   throw new IllegalArgumentException("Tmp keys are final; key " + id + " attempted to be reassigned");
+  fs.blockForPending();
+  return env.addGlobals(dst2);
+}
