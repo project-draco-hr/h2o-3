@@ -22,7 +22,7 @@
         Log.info("Old value of train_samples_per_iteration: " + actual_train_samples_per_iteration);
         correction=get_params()._target_ratio_comm_to_comp / comm_to_work_ratio;
         correction=Math.max(0.1,Math.min(2,correction));
-        if (actual_train_samples_per_iteration / correction <= 10 * tspiGuess || actual_train_samples_per_iteration / correction >= 0.1 * tspiGuess) {
+        if (actual_train_samples_per_iteration / correction <= 10 * tspiGuess && actual_train_samples_per_iteration / correction >= 0.1 * tspiGuess) {
           if (Math.abs(correction) < 0.8 || Math.abs(correction) > 1.2) {
             actual_train_samples_per_iteration/=correction;
             actual_train_samples_per_iteration=Math.max(1,actual_train_samples_per_iteration);
