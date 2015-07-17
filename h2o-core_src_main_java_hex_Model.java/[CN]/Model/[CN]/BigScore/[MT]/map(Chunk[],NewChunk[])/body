@@ -16,7 +16,12 @@
   int len=chks[0]._len;
   for (int row=0; row < len; row++) {
     double weight=weightsChunk.atd(row);
-    if (weight == 0)     continue;
+    if (weight == 0) {
+      if (_makePreds) {
+        for (int c=0; c < _npredcols; c++)         cpreds[c].addNum(0);
+      }
+      continue;
+    }
     double offset=offsetChunk.atd(row);
     double[] p=score0(chks,weight,offset,row,tmp,preds);
     if (_computeMetrics) {
