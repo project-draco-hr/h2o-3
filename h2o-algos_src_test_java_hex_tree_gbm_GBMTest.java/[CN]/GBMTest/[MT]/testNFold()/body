@@ -9,7 +9,7 @@
     parms._train=tfr._key;
     parms._response_column="response";
     parms._weights_column="weight";
-    parms._seed=0xdecaf;
+    parms._seed=123;
     parms._min_rows=1;
     parms._max_depth=2;
     parms._nfolds=2;
@@ -18,10 +18,10 @@
     GBM job=new GBM(parms);
     gbm=job.trainModel().get();
     ModelMetricsBinomial mm=(ModelMetricsBinomial)gbm._output._validation_metrics;
-    assertEquals(0.55555555555,mm.auc()._auc,1e-8);
-    assertEquals(0.3313375036935877,mm.mse(),1e-8);
-    assertEquals(-0.3253500147743509,mm.r2(),1e-6);
-    assertEquals(0.8630781835948022,mm.logloss(),1e-6);
+    assertEquals(0.6296296296296297,mm.auc()._auc,1e-8);
+    assertEquals(0.28640022521234304,mm.mse(),1e-8);
+    assertEquals(-0.145600900849372169,mm.r2(),1e-6);
+    assertEquals(0.7674117059335286,mm.logloss(),1e-6);
     job.remove();
   }
   finally {

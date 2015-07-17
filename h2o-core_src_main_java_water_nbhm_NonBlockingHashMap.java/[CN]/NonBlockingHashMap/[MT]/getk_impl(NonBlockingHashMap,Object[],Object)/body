@@ -10,7 +10,7 @@
     if (K == null)     return null;
     final Object[] newkvs=chm._newkvs;
     if (keyeq(K,key,hashes,idx,fullhash))     return K;
-    if (++reprobe_cnt >= reprobe_limit(len) || key == TOMBSTONE) {
+    if (++reprobe_cnt >= reprobe_limit(len) || K == TOMBSTONE) {
       if (newkvs == READONLY)       return null;
       return newkvs == null ? null : getk_impl(topmap,topmap.help_copy(newkvs),key);
     }

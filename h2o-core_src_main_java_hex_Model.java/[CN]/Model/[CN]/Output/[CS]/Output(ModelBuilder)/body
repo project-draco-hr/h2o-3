@@ -2,14 +2,16 @@
   if (b == null) {
     _hasOffset=false;
     _hasWeights=false;
+    _hasFold=false;
     return;
   }
   _isSupervised=b.isSupervised();
   if (b.error_count() > 0)   throw new IllegalArgumentException(b.validationErrors());
   _names=b._train.names();
   _domains=b._train.domains();
-  _hasOffset=b.hasOffset();
-  _hasWeights=b.hasWeights();
+  _hasOffset=b.hasOffsetCol();
+  _hasWeights=b.hasWeightCol();
+  _hasFold=b.hasFoldCol();
   _distribution=b._distribution;
   _priorClassDist=b._priorClassDist;
 }
