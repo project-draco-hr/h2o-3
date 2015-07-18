@@ -1,0 +1,9 @@
+{
+  Frame fr1=stk.track(asts[1].exec(env)).getFrame();
+  Frame fr2=asts.length == 3 ? stk.track(asts[2].exec(env)).getFrame() : null;
+  if (!(asts.length == 2 || asts.length == 3) || (fr1.numCols() + (fr2 == null ? 0 : fr2.numCols())) > 2)   throw new IllegalArgumentException("table expects one or two columns");
+  Vec vec1=fr1.vec(0);
+  if (fr2 == null && fr1.numCols() == 1)   return one_col(vec1);
+  Vec vec2=fr1.numCols() == 2 ? fr1.vec(1) : fr2.vec(0);
+  return two_col(vec1,vec2);
+}
