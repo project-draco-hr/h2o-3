@@ -1,4 +1,4 @@
-def tail(self, rows=10, cols=200, **kwargs):
+def tail(self, rows=10, cols=200, show=False, **kwargs):
     "\n    Analgous to R's `tail` call on a data.frame. Display a digestible chunk of the H2OFrame starting from the end.\n\n    :param rows: Number of rows to display.\n    :param cols: Number of columns to display.\n    :param kwargs: Extra arguments passed from other methods.\n    :return: None\n    "
     self._eager()
     nrows = min(self.nrow(), rows)
@@ -7,6 +7,7 @@ def tail(self, rows=10, cols=200, **kwargs):
     tail = self[start_idx:(start_idx + nrows), :]
     res = tail.as_data_frame(False)
     colnames = res.pop(0)
-    print 'Last {} rows and first {} columns: '.format(nrows, ncols)
-    h2o.H2ODisplay(res, colnames)
+    if show:
+        print 'Last {} rows and first {} columns: '.format(nrows, ncols)
+        h2o.H2ODisplay(res, colnames)
     return tail
