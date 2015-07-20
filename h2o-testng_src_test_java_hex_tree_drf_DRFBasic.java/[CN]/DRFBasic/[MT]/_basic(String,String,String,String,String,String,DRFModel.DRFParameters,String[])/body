@@ -1,15 +1,23 @@
 {
+  System.out.println(String.format("Testcase: %s",testcase_id));
+  System.out.println(String.format("Description: %s",test_description));
+  System.out.println("DRF Params:");
+  for (  Param p : params) {
+    p.print(parameter);
+  }
   Frame trainFrame=null;
   Frame validateFrame=null;
   DRF job=null;
   DRFModel drfModel=null;
   Frame score=null;
-  Scope.enter();
-  job=new DRF(parameter);
-  drfModel=job.trainModel().get();
   trainFrame=parameter._train.get();
-  validateFrame=parameter._valid.get();
+  if (parameter._valid != null) {
+    validateFrame=parameter._valid.get();
+  }
   try {
+    Scope.enter();
+    job=new DRF(parameter);
+    drfModel=job.trainModel().get();
     score=drfModel.score(trainFrame);
     System.out.println("Test is passed.");
   }
@@ -17,19 +25,25 @@
     Assert.fail("Test is failed. It can't predict");
     ex.printStackTrace();
   }
-  job.remove();
-  drfModel.delete();
-  if (trainFrame != null) {
-    trainFrame.remove();
-    trainFrame.delete();
+ finally {
+    if (job != null) {
+      job.remove();
+    }
+    if (drfModel != null) {
+      drfModel.delete();
+    }
+    if (trainFrame != null) {
+      trainFrame.remove();
+      trainFrame.delete();
+    }
+    if (validateFrame != null) {
+      validateFrame.remove();
+      validateFrame.delete();
+    }
+    if (score != null) {
+      score.remove();
+      score.delete();
+    }
+    Scope.exit();
   }
-  if (validateFrame != null) {
-    validateFrame.remove();
-    validateFrame.delete();
-  }
-  if (score != null) {
-    score.remove();
-    score.delete();
-  }
-  Scope.exit();
 }

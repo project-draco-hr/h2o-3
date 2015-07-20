@@ -1,2 +1,47 @@
 {
+  System.out.println("GLM Params:");
+  for (  Param p : params) {
+    p.print(glmParams);
+  }
+  Frame trainFrame=null;
+  Frame validateFrame=null;
+  Frame betaConstraints=null;
+  Key modelKey=Key.make("model");
+  GLM job=null;
+  GLMModel model=null;
+  Frame score=null;
+  HashMap<String,Double> coef=null;
+  trainFrame=glmParams._train.get();
+  if (glmParams._valid != null) {
+    validateFrame=glmParams._valid.get();
+  }
+  if (glmParams._beta_constraints != null) {
+    betaConstraints=glmParams._beta_constraints.get();
+  }
+  try {
+    Scope.enter();
+    job=new GLM(modelKey,"basic glm test",glmParams);
+    model=job.trainModel().get();
+    coef=model.coefficients();
+    score=model.score(trainFrame);
+    System.out.println("Test is passed.");
+  }
+ catch (  IllegalArgumentException ex) {
+    Assert.fail("Test is failed. It can't predict");
+    ex.printStackTrace();
+  }
+ finally {
+    if (trainFrame != null) {
+      trainFrame.delete();
+    }
+    if (validateFrame != null) {
+      validateFrame.delete();
+    }
+    if (betaConstraints != null) {
+      betaConstraints.delete();
+    }
+    if (model != null)     model.delete();
+    if (job != null)     job.remove();
+    Scope.exit();
+  }
 }
