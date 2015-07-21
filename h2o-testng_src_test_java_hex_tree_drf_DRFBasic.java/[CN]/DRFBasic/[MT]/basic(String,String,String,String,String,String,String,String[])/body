@@ -1,0 +1,27 @@
+{
+  redirectStandardStreams();
+  try {
+    String invalidMessage=validate(rawInput);
+    String notImplMessage=checkImplemented(rawInput);
+    if (invalidMessage != null) {
+      System.out.println(invalidMessage);
+      Assert.fail(String.format(invalidMessage));
+    }
+ else     if (notImplMessage != null) {
+      System.out.println(notImplMessage);
+      Assert.fail(String.format(notImplMessage));
+    }
+ else {
+      _basic(testcase_id,test_description,train_dataset_id,train_dataset_filename,validate_dataset_id,validate_dataset_filename,toDRFParameters(rawInput),rawInput);
+    }
+  }
+  finally {
+    try {
+      Thread.sleep(100);
+    }
+ catch (    InterruptedException ex) {
+      Thread.currentThread().interrupt();
+    }
+    resetStandardStreams();
+  }
+}
