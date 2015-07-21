@@ -1,9 +1,9 @@
 def levels(self, col=None):
     '\n    Get the factor levels for this frame and the specified column index.\n\n    :param col: A column index in this H2OFrame.\n    :return: a list of strings that are the factor levels for the column.\n    '
-    if (self.ncol() == 1):
+    if ((self.ncol() == 1) or (col is None)):
         levels = h2o.as_list(H2OFrame(expr=ExprNode('levels', self))._frame(), False)[1:]
     elif (col is not None):
         levels = h2o.as_list(H2OFrame(expr=ExprNode('levels', ExprNode('[', self, None, col)))._frame(), False)[1:]
     else:
         levels = None
-    return (None if ((levels is None) or (levels == [])) else [i[0] for i in levels])
+    return (None if ((levels is None) or (levels == [])) else levels)

@@ -1,6 +1,8 @@
-def _handle_text_key(self, text_key):
+def _handle_text_key(self, text_key, check_header=None):
     '\n    Handle result of upload_file\n    :param test_key: A key pointing to raw text to be parsed\n    :return: Part of the H2OFrame constructor.\n    '
     setup = h2o.parse_setup(text_key)
+    if (check_header is not None):
+        setup['check_header'] = check_header
     parse = h2o.parse(setup, _py_tmp_key())
     self._computed = True
     self._id = parse['destination_frame']['name']
