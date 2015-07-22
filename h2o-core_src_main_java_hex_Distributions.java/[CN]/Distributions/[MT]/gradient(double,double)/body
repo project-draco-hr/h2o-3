@@ -1,0 +1,16 @@
+{
+switch (distribution) {
+case AUTO:
+case gaussian:
+case bernoulli:
+case poisson:
+    return y - linkInv(f);
+case gamma:
+  return y * exp(-f) - 1;
+case tweedie:
+assert(p > 1 && p < 2);
+return y * exp(f * (1 - p)) - exp(f * (2 - p));
+default :
+throw H2O.unimpl();
+}
+}

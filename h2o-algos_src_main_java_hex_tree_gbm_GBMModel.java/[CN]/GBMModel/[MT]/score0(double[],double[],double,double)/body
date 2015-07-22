@@ -2,7 +2,7 @@
   super.score0(data,preds,weight,offset);
   if (_parms._distribution == Distributions.Family.bernoulli) {
     double f=preds[1] + _output._init_f + offset;
-    preds[2]=_parms._distribution.linkInv(f);
+    preds[2]=new Distributions(Distributions.Family.bernoulli).linkInv(f);
     preds[1]=1.0 - preds[2];
   }
  else   if (_parms._distribution == Distributions.Family.multinomial) {
@@ -14,7 +14,7 @@
   }
  else {
     double f=preds[0] + _output._init_f + offset;
-    preds[0]=_parms._distribution.linkInv(f);
+    preds[0]=new Distributions(_parms._distribution).linkInv(f);
   }
   return preds;
 }
