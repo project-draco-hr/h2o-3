@@ -18,7 +18,7 @@
   dd=digit(dd,buf[i++]);
   dd=digit(dd,buf[i++]);
   if (dd < 1 || dd > 31)   return Long.MIN_VALUE;
-  if (i == end)   return encodeTimePat(new DateTime(yy,MM,dd,0,0,0,getTimezone()).getMillis(),0);
+  if (i == end)   return new DateTime(yy,MM,dd,0,0,0,getTimezone()).getMillis();
   if (buf[i++] != ' ')   return Long.MIN_VALUE;
   HH=digit(HH,buf[i++]);
   HH=digit(HH,buf[i++]);
@@ -40,5 +40,5 @@
   }
   if (i < end && buf[i] == '"')   i++;
   if (i < end)   return Long.MIN_VALUE;
-  return encodeTimePat(new DateTime(yy,MM,dd,HH,mm,ss,getTimezone()).getMillis() + SS,1);
+  return new DateTime(yy,MM,dd,HH,mm,ss,getTimezone()).getMillis() + SS;
 }
