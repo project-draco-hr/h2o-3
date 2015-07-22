@@ -4,7 +4,7 @@
   ASTNumList cols=check(dst.numCols(),asts[3]);
   ASTNumList rows=check(dst.numRows(),asts[4]);
   if (cols.cnt() == 1 && cols.max() - 1 == dst.numCols()) {
-    dst=new Frame(dst);
+    dst=new Frame(dst._names.clone(),dst.vecs().clone());
     dst.add(Frame.defaultColName(dst.numCols()),dst.anyVec().makeCon(Double.NaN));
   }
   Frame slice=new ASTColSlice().apply(env,stk,new AST[]{null,new ASTFrame(dst),cols}).getFrame();
