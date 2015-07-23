@@ -1,3 +1,3 @@
 def export_file(frame, path, force=False):
     '\n  Export a given H2OFrame to a path on the machine this python session is currently connected to. To view the current session, call h2o.cluster_info().\n\n  :param frame: The Frame to save to disk.\n  :param path: The path to the save point on disk.\n  :param force: Overwrite any preexisting file with the same path\n  :return: None\n  '
-    H2OJob(H2OConnection.get_json(((((('Frames/' + frame._id) + '/export/') + path) + '/overwrite/') + ('true' if force else 'false'))), 'Export File').poll()
+    H2OJob(H2OConnection.post_json(((((('Frames/' + frame._id) + '/export/') + path) + '/overwrite/') + ('true' if force else 'false'))), 'Export File').poll()
