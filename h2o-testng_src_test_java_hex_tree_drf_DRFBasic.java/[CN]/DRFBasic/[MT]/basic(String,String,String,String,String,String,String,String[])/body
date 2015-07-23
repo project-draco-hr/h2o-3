@@ -1,4 +1,5 @@
 {
+  DRFModel.DRFParameters DRFParameter=null;
   redirectStandardStreams();
   try {
     String invalidMessage=validate(rawInput);
@@ -12,7 +13,8 @@
       Assert.fail(String.format(notImplMessage));
     }
  else {
-      _basic(testcase_id,test_description,train_dataset_id,train_dataset_filename,validate_dataset_id,validate_dataset_filename,toDRFParameters(rawInput),rawInput);
+      DRFParameter=toDRFParameters(dataset_directory,train_dataset_id,train_dataset_filename,validate_dataset_id,validate_dataset_filename,rawInput);
+      _basic(testcase_id,test_description,DRFParameter,rawInput);
     }
   }
   finally {

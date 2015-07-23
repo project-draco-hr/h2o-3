@@ -16,14 +16,25 @@
   }
   try {
     Scope.enter();
+    System.out.println("Build model");
     job=new DRF(parameter);
+    System.out.println("Train model:");
     drfModel=job.trainModel().get();
+    System.out.println("Predict testcase " + testcase_id);
     score=drfModel.score(trainFrame);
-    System.out.println("Test is passed.");
+    System.out.println("Predict success.");
+    System.out.println("Testcase is passed.");
   }
  catch (  IllegalArgumentException ex) {
-    Assert.fail("Test is failed. It can't predict");
     ex.printStackTrace();
+    System.out.println("Cannot predit testcase " + testcase_id);
+    System.out.println("Testcase is failed");
+    Assert.fail("Testcase is failed");
+  }
+catch (  Exception ex) {
+    ex.printStackTrace();
+    System.out.println("Testcase is failed");
+    Assert.fail("Testcase is failed.");
   }
  finally {
     if (job != null) {

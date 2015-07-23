@@ -1,4 +1,5 @@
 {
+  System.out.println(String.format("Testcase: %s",testcaseId));
   System.out.println("GLM Params:");
   for (  Param p : params) {
     p.print(glmParams);
@@ -20,11 +21,15 @@
   }
   try {
     Scope.enter();
+    System.out.println("Build model");
     job=new GLM(modelKey,"basic glm test",glmParams);
+    System.out.println("Train model");
     model=job.trainModel().get();
     coef=model.coefficients();
+    System.out.println("Predict testcase " + testcaseId);
     score=model.score(trainFrame);
-    System.out.println("Test is passed.");
+    System.out.println("Predict success.");
+    System.out.println("Testcase is passed.");
   }
  catch (  IllegalArgumentException ex) {
     Assert.fail("Test is failed. It can't predict");

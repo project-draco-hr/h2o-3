@@ -1,16 +1,18 @@
 {
+  GLMParameters glmParams=null;
   redirectStandardStreams();
   System.out.println("");
   System.out.println(String.format("Datasets: \n" + "Train Dataset ID:      %s\n" + "Train Dataset File:    %s\n"+ "Validate Dataset ID:   %s\n"+ "Validate Dataset File: %s\n",trainDatasetId,trainDatasetFilename,validateDatasetId,validateDatasetFilename));
   System.out.println("");
   try {
-    String errorMessage=validate(rawInput);
-    if (errorMessage == null) {
-      _basic(toGLMParameters(rawInput),trainDatasetId,datasetDirectory,trainDatasetFilename,validateDatasetId,validateDatasetFilename,rawInput);
+    String validateMessage=validate(rawInput);
+    if (validateMessage != null) {
+      System.out.println(validateMessage);
+      Assert.fail(String.format(validateMessage));
     }
  else {
-      System.out.println(errorMessage);
-      Assert.fail(String.format(errorMessage));
+      glmParams=toGLMParameters(datasetDirectory,trainDatasetId,trainDatasetFilename,validateDatasetId,validateDatasetFilename,rawInput);
+      _basic(testcaseId,glmParams,rawInput);
     }
   }
   finally {
