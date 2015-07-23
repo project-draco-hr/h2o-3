@@ -2,14 +2,16 @@
 switch (distribution) {
 case AUTO:
 case gaussian:
+case huber:
+case laplace:
     return f;
 case bernoulli:
-  return "1/(1+" + expString("-" + f) + ")";
+  return 1 / (1 + exp(-f));
 case multinomial:
 case poisson:
 case gamma:
 case tweedie:
-return expString(f);
+return exp(f);
 default :
 throw H2O.unimpl();
 }

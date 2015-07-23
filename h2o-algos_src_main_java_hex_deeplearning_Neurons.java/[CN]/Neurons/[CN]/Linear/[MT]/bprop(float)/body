@@ -3,22 +3,7 @@
   final int row=0;
   final float t=target;
   final float y=_a.get(row);
-  float g;
-  if (params._loss == DeepLearningParameters.Loss.MeanSquare) {
-    g=t - y;
-  }
- else   if (params._loss == DeepLearningParameters.Loss.Absolute) {
-    g=y > t ? -1f : 1f;
-  }
- else   if (params._loss == DeepLearningParameters.Loss.Huber) {
-    if (Math.abs(y - t) < 1) {
-      g=t - y;
-    }
- else {
-      g=y >= t + 1f ? -2f : 2f;
-    }
-  }
- else   throw H2O.unimpl("Loss " + params._loss + " not implemented for regression.");
+  float g=(float)Neurons.getDistribution(params._loss).gradient(t,y);
   float m=momentum();
   float r=_minfo.adaDelta() ? 0 : rate(_minfo.get_processed_total()) * (1f - m);
   bprop(row,g,r,m);
