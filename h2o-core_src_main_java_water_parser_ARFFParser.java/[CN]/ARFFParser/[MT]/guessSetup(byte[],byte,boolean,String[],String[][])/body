@@ -8,27 +8,8 @@
   String[] headerlines=new String[0];
   byte[] ctypes;
   ArrayList<String> header=new ArrayList<>();
-  while (offset < bits.length) {
-    int lineStart=offset;
-    while (offset < bits.length && !CsvParser.isEOL(bits[offset]))     ++offset;
-    int lineEnd=offset;
-    ++offset;
-    if ((offset < bits.length) && (bits[offset] == CsvParser.CHAR_LF))     ++offset;
-    if (bits[lineStart] == '#')     continue;
-    if (bits[lineStart] == '%')     continue;
-    if (lineEnd > lineStart) {
-      String str=new String(bits,lineStart,lineEnd - lineStart,Charset.defaultCharset()).trim();
-      if (str.equalsIgnoreCase("@DATA")) {
-        if (!CsvParser.isEOL(bits[offset])) {
-          haveData=true;
-        }
-        break;
-      }
-      String[] tok=determineTokens(str,CHAR_SPACE,singleQuotes);
-      if (tok.length > 0 && tok[0].equalsIgnoreCase("@RELATION"))       continue;
-      if (!str.isEmpty())       header.add(str);
-    }
-  }
+  offset=readArffHeader(offset,header,bits,singleQuotes);
+  if (offset < bits.length && !CsvParser.isEOL(bits[offset]))   haveData=true;
   if (header.size() == 0)   throw new H2OParseSetupException("No data!");
   headerlines=header.toArray(headerlines);
   final int nlines=headerlines.length;
@@ -37,55 +18,7 @@
   labels=new String[ncols];
   domains=new String[ncols][];
   ctypes=new byte[ncols];
-  for (int i=0; i < ncols; ++i) {
-    data[i]=headerlines[i].split("\\s+");
-    if (!data[i][0].equalsIgnoreCase("@ATTRIBUTE")) {
-      throw new H2OParseSetupException("Expected line to start with @ATTRIBUTE.");
-    }
- else {
-      if (data[i].length < 3) {
-        throw new H2OParseSetupException("Expected @ATTRIBUTE to be followed by <attribute-name> <datatype>");
-      }
-      labels[i]=data[i][1];
-      String type=data[i][2];
-      domains[i]=null;
-      if (type.equalsIgnoreCase("NUMERIC") || type.equalsIgnoreCase("REAL") || type.equalsIgnoreCase("INTEGER")|| type.equalsIgnoreCase("INT")) {
-        ctypes[i]=Vec.T_NUM;
-        continue;
-      }
- else       if (type.equalsIgnoreCase("DATE") || type.equalsIgnoreCase("TIME")) {
-        ctypes[i]=Vec.T_TIME;
-        continue;
-      }
- else       if (type.equalsIgnoreCase("ENUM")) {
-        ctypes[i]=Vec.T_ENUM;
-        continue;
-      }
- else       if (type.equalsIgnoreCase("STRING")) {
-        ctypes[i]=Vec.T_STR;
-        continue;
-      }
- else       if (type.equalsIgnoreCase("UUID")) {
-        ctypes[i]=Vec.T_UUID;
-        continue;
-      }
- else       if (type.equalsIgnoreCase("RELATIONAL")) {
-        throw new UnsupportedOperationException("Relational ARFF format is not supported.");
-      }
- else       if (type.startsWith("{") && data[i][data[i].length - 1].endsWith("}")) {
-        StringBuilder builder=new StringBuilder();
-        for (int j=2; j < data[i].length; j++) {
-          builder.append(data[i][j]);
-        }
-        domains[i]=builder.toString().replaceAll("[{}]","").split(",");
-        if (domains[i][0].length() > 0) {
-          ctypes[i]=Vec.T_ENUM;
-          continue;
-        }
-      }
-      throw new H2OParseSetupException("Unexpected line.");
-    }
-  }
+  processArffHeader(ncols,headerlines,data,labels,domains,ctypes);
   if (haveData) {
     String[] datalines=new String[0];
     ArrayList<String> datablock=new ArrayList<>();

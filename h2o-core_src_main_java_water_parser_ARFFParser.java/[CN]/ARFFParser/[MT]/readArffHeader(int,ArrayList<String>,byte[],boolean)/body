@@ -1,0 +1,21 @@
+{
+  while (offset < bits.length) {
+    int lineStart=offset;
+    while (offset < bits.length && !CsvParser.isEOL(bits[offset]))     ++offset;
+    int lineEnd=offset;
+    ++offset;
+    if ((offset < bits.length) && (bits[offset] == CsvParser.CHAR_LF))     ++offset;
+    if (bits[lineStart] == '#')     continue;
+    if (bits[lineStart] == '%')     continue;
+    if (lineEnd > lineStart) {
+      if (bits[lineStart] == '@' && (bits[lineStart + 1] == 'D' || bits[lineStart + 1] == 'd') && (bits[lineStart + 2] == 'A' || bits[lineStart + 2] == 'a') && (bits[lineStart + 3] == 'T' || bits[lineStart + 3] == 't') && (bits[lineStart + 4] == 'A' || bits[lineStart + 4] == 'a')) {
+        break;
+      }
+      String str=new String(bits,lineStart,lineEnd - lineStart).trim();
+      String[] tok=determineTokens(str,CHAR_SPACE,singleQuotes);
+      if (tok.length > 0 && tok[0].equalsIgnoreCase("@RELATION"))       continue;
+      if (!str.isEmpty())       header.add(str);
+    }
+  }
+  return offset;
+}
