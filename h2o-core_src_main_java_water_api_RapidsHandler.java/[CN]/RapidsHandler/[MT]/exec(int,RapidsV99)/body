@@ -93,10 +93,16 @@ catch (    Throwable e2) {
         }
       }
     }
-    if (e != null)     e.printStackTrace();
-    if (e != null)     rapids.error=e.getMessage() == null ? e.toString() : e.getMessage();
-    if (e != null && e instanceof ArrayIndexOutOfBoundsException)     rapids.error=e.toString();
-    if (e != null)     throw new H2OIllegalArgumentException(rapids.error);
+    if (e != null) {
+      e.printStackTrace();
+      rapids.error=e.getMessage();
+      if (rapids.error == null || e instanceof ArrayIndexOutOfBoundsException) {
+        rapids.error=e.toString();
+      }
+      H2OIllegalArgumentException hiae=new H2OIllegalArgumentException(rapids.error);
+      hiae.setStackTrace(e.getStackTrace());
+      throw hiae;
+    }
     return rapids;
   }
 }
