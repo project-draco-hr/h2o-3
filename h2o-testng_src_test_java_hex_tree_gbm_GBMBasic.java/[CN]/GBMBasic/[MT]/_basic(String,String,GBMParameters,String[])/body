@@ -1,0 +1,50 @@
+{
+  System.out.println(String.format("Testcase: %s",testcase_id));
+  System.out.println(String.format("Description: %s",test_description));
+  System.out.println("GBM Params:");
+  for (  Param p : params) {
+    p.print(parameter);
+  }
+  Frame trainFrame=null;
+  Frame validateFrame=null;
+  GBM job=null;
+  GBMModel gbmModel=null;
+  Frame score=null;
+  trainFrame=parameter._train.get();
+  if (parameter._valid != null) {
+    validateFrame=parameter._valid.get();
+  }
+  try {
+    Scope.enter();
+    job=new GBM(parameter);
+    gbmModel=job.trainModel().get();
+    score=gbmModel.score(trainFrame);
+    System.out.println("Test is passed.");
+  }
+ catch (  IllegalArgumentException ex) {
+    System.out.println("Test is failed. It can't predict");
+    ex.printStackTrace();
+    Assert.fail("Test is failed. It can't predict",ex);
+  }
+ finally {
+    if (trainFrame != null) {
+      trainFrame.remove();
+      trainFrame.delete();
+    }
+    if (validateFrame != null) {
+      validateFrame.remove();
+      validateFrame.delete();
+    }
+    if (score != null) {
+      score.remove();
+      score.delete();
+    }
+    if (job != null) {
+      job.remove();
+    }
+    if (gbmModel != null) {
+      gbmModel.delete();
+    }
+    Scope.exit();
+  }
+}

@@ -1,0 +1,47 @@
+{
+  System.out.println("Create Parameters object with testcase: " + input[tcHeaders.indexOf("testcase_id")]);
+  GBMParameters gbmParams=new GBMParameters();
+  for (  Param p : params) {
+    if (p.isAutoSet) {
+      p.parseAndSet(gbmParams,input[tcHeaders.indexOf(p.name)]);
+    }
+  }
+  Family f=(Family)familyParams.getValue(input,tcHeaders);
+  if (f != null) {
+    System.out.println("Set _distribution: " + f);
+    gbmParams._distribution=f;
+  }
+  Frame trainFrame=null;
+  Frame validateFrame=null;
+  if ("bigdata".equals(dataset_directory)) {
+    dataset_directory="bigdata/laptop/testng/";
+  }
+ else {
+    dataset_directory="smalldata/testng/";
+  }
+  try {
+    System.out.println("Create train frame: " + train_dataset_filename);
+    trainFrame=Param.createFrame(dataset_directory + train_dataset_filename,train_dataset_id);
+    if (StringUtils.isNotEmpty(validate_dataset_filename)) {
+      System.out.println("Create validate frame: " + validate_dataset_filename);
+      validateFrame=Param.createFrame(dataset_directory + validate_dataset_filename,validate_dataset_id);
+    }
+  }
+ catch (  Exception e) {
+    if (trainFrame != null) {
+      trainFrame.remove();
+    }
+    if (validateFrame != null) {
+      validateFrame.remove();
+    }
+    throw e;
+  }
+  System.out.println("Set train frame");
+  gbmParams._train=trainFrame._key;
+  if (validateFrame != null) {
+    System.out.println("Set validate frame");
+    gbmParams._valid=validateFrame._key;
+  }
+  System.out.println("Create success GBMParameters object.");
+  return gbmParams;
+}
