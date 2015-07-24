@@ -46,15 +46,58 @@
       toParms._overwrite_with_best_model=false;
     }
   }
-  if (fromParms._loss == Loss.Automatic) {
-    toParms._loss=(classification && !fromParms._autoencoder) ? Loss.CrossEntropy : Loss.MeanSquare;
-    Log.info("_loss: Automatically setting loss function to " + toParms._loss);
-  }
-  if (fromParms._reproducible) {
-    Log.info("_reproducibility: Automatically enabling force_load_balancing, disabling single_node_mode and replicate_training_data\n" + "and setting train_samples_per_iteration to -1 to enforce reproducibility.");
-    toParms._force_load_balance=true;
-    toParms._single_node_mode=false;
-    toParms._train_samples_per_iteration=-1;
-    toParms._replicate_training_data=false;
-  }
+  if (fromParms._distribution == Distribution.Family.AUTO) {
+    if (nClasses > 1) {
+      toParms._distribution=nClasses == 2 ? Distribution.Family.bernoulli : Distribution.Family.multinomial;
+    }
+ else {
+switch (fromParms._loss) {
+case Automatic:
+case MeanSquare:
+        toParms._distribution=Distribution.Family.gaussian;
+      break;
+case Absolute:
+    toParms._distribution=Distribution.Family.laplace;
+  break;
+case Huber:
+toParms._distribution=Distribution.Family.huber;
+break;
+default :
+throw H2O.unimpl();
+}
+}
+}
+if (fromParms._loss == Loss.Automatic) {
+switch (fromParms._distribution) {
+case gaussian:
+toParms._loss=Loss.MeanSquare;
+break;
+case laplace:
+toParms._loss=Loss.Absolute;
+break;
+case huber:
+toParms._loss=Loss.Huber;
+break;
+case multinomial:
+case bernoulli:
+toParms._loss=Loss.CrossEntropy;
+break;
+case tweedie:
+case poisson:
+case gamma:
+toParms._loss=Loss.Automatic;
+break;
+default :
+throw H2O.unimpl();
+}
+}
+if (nClasses >= 1) Log.info("Doing " + (nClasses > 1 ? "classification" : "regression") + " with "+ toParms._distribution+ " distribution and "+ toParms._loss+ " loss function.");
+ else Log.info("Doing autoencoding with" + toParms._distribution + " distribution and "+ toParms._loss+ " loss function.");
+if (fromParms._reproducible) {
+Log.info("_reproducibility: Automatically enabling force_load_balancing, disabling single_node_mode and replicate_training_data\n" + "and setting train_samples_per_iteration to -1 to enforce reproducibility.");
+toParms._force_load_balance=true;
+toParms._single_node_mode=false;
+toParms._train_samples_per_iteration=-1;
+toParms._replicate_training_data=false;
+}
 }

@@ -1,12 +1,14 @@
 {
-  _classification=classification;
+  _classification=nClasses > 1;
   _train=train;
   _valid=valid;
   data_info=dinfo;
   parameters=(DeepLearningParameters)params.clone();
-  DeepLearningParameters.Sanity.modifyParms(parameters,parameters,_classification);
+  DeepLearningParameters.Sanity.modifyParms(parameters,parameters,nClasses);
   final int num_input=dinfo.fullN();
   final int num_output=get_params()._autoencoder ? num_input : (_classification ? train.lastVec().cardinality() : 1);
+  if (!get_params()._autoencoder)   assert(num_output == nClasses);
+ else   assert(nClasses == 0);
   _saw_missing_cats=dinfo._cats > 0 ? new boolean[data_info._cats] : null;
   assert(num_input > 0);
   assert(num_output > 0);
