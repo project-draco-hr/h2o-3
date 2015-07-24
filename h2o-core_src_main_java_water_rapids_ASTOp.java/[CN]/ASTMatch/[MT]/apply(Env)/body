@@ -2,11 +2,13 @@
   Frame fr=e.popAry();
   if (fr.numCols() != 1 && !fr.anyVec().isEnum())   throw new IllegalArgumentException("can only match on a single categorical column.");
   Key tmp=Key.make();
-  final String[] matches=_matches;
+  final String[] strsTable=_strsTable;
+  final double[] dblsTable=_dblsTable;
   Frame rez=new MRTask(){
     @Override public void map(    Chunk c,    NewChunk n){
       int rows=c._len;
-      for (int r=0; r < rows; ++r)       n.addNum(in(matches,c.vec().domain()[(int)c.at8(r)]));
+      if (strsTable == null)       for (int r=0; r < rows; ++r)       n.addNum(in(dblsTable,c.atd(r)),0);
+ else       for (int r=0; r < rows; ++r)       n.addNum(in(strsTable,c.vec().domain()[(int)c.at8(r)]),0);
     }
   }
 .doAll(1,fr.anyVec()).outputFrame(tmp,null,null);
