@@ -4,12 +4,12 @@
   Chunk tr=chk_tree(chks,0);
   Chunk wk=chk_work(chks,0);
   double fs[]=_nclass > 1 ? new double[_nclass + 1] : null;
-  Distributions dist=new Distributions(_parms._distribution,_parms._tweedie_power);
+  Distribution dist=new Distribution(_parms._distribution,_parms._tweedie_power);
   for (int row=0; row < wk._len; row++) {
     if (ys.isNA(row))     continue;
     double f=tr.atd(row) + offset.atd(row);
     double y=ys.at8(row);
-    if (_parms._distribution == Distributions.Family.multinomial) {
+    if (_parms._distribution == Distribution.Family.multinomial) {
       double weight=hasWeightCol() ? chk_weight(chks).atd(row) : 1;
       double sum=score1(chks,weight,0.0,fs,row);
       if (Double.isInfinite(sum)) {

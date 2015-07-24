@@ -60,48 +60,89 @@
       dl.error("_loss","Loss function must be specified. Try CrossEntropy for categorical response (classification), MeanSquare, Absolute or Huber for numerical response (regression).");
     }
   }
- else   if (_loss != Loss.Automatic) {
+ else {
     if (_autoencoder && _loss == Loss.CrossEntropy)     dl.error("_loss","Cannot use CrossEntropy loss for auto-encoder.");
     if (!classification && _loss == Loss.CrossEntropy)     dl.error("_loss","For CrossEntropy loss, the response must be categorical.");
   }
-  if (!classification && _loss == Loss.CrossEntropy)   dl.error("_loss","For CrossEntropy loss, the response must be categorical. Either select MeanSquare, Absolute or Huber loss for regression, or use a categorical response.");
-  if (_score_training_samples < 0)   dl.error("_score_training_samples","Number of training samples for scoring must be >= 0 (0 for all).");
-  if (_score_validation_samples < 0)   dl.error("_score_validation_samples","Number of training samples for scoring must be >= 0 (0 for all).");
-  if (_autoencoder && _sparsity_beta > 0) {
-    if (_activation == Activation.Tanh || _activation == Activation.TanhWithDropout) {
-      if (_average_activation >= 1 || _average_activation <= -1)       dl.error("_average_activation","Tanh average activation must be in (-1,1).");
-    }
- else     if (_activation == Activation.Rectifier || _activation == Activation.RectifierWithDropout) {
-      if (_average_activation <= 0)       dl.error("_average_activation","Rectifier average activation must be positive.");
-    }
-  }
-  if (!_autoencoder && _sparsity_beta != 0)   dl.info("_sparsity_beta","Sparsity beta can only be used for autoencoder.");
-  if (classification && dl.hasOffsetCol())   dl.info("_offset_column","Offset is only supported for regression.");
-  if (_autoencoder && _activation == Activation.Maxout)   dl.error("_activation","Maxout activation is not supported for auto-encoder.");
-  if (_max_categorical_features < 1)   dl.error("_max_categorical_features","max_categorical_features must be at least 1.");
-  if (!_sparse && _col_major) {
-    dl.error("_col_major","Cannot use column major storage for non-sparse data handling.");
-  }
-  if (_sparse && _elastic_averaging) {
-    dl.error("_elastic_averaging","Cannot use elastic averaging for sparse data handling.");
-  }
-  if (expensive) {
-    if (!classification && _balance_classes) {
-      dl.error("_balance_classes","balance_classes requires classification.");
-    }
-    if (_class_sampling_factors != null && !_balance_classes) {
-      dl.error("_class_sampling_factors","class_sampling_factors requires balance_classes to be enabled.");
-    }
-    if (_replicate_training_data && null != train() && train().byteSize() > 1e10) {
-      dl.error("_replicate_training_data","Compressed training dataset takes more than 10 GB, cannot run with replicate_training_data.");
-    }
-  }
-  if (!_elastic_averaging) {
-    dl.hide("_elastic_averaging_moving_rate","Elastic averaging is required for this parameter.");
-    dl.hide("_elastic_averaging_regularization","Elastic averaging is required for this parameter.");
-  }
+  if (!classification && _loss == Loss.CrossEntropy)   dl.error("_loss","For CrossEntropy loss, the response must be categorical. Either select Automatic, MeanSquare, Absolute or Huber loss for regression, or use a categorical response.");
+  if (classification) {
+switch (_distribution) {
+case gaussian:
+case huber:
+case laplace:
+case tweedie:
+case gamma:
+case poisson:
+      dl.error("_distribution",_distribution + " distribution is not allowed for classification.");
+    break;
+case AUTO:
+case bernoulli:
+case multinomial:
+default :
+  break;
+}
+}
  else {
-    if (_elastic_averaging_moving_rate > 1 || _elastic_averaging_moving_rate < 0)     dl.error("_elastic_averaging_moving_rate","Elastic averaging moving rate must be between 0 and 1.");
-    if (_elastic_averaging_regularization < 0)     dl.error("_elastic_averaging_regularization","Elastic averaging regularization strength must be >= 0.");
-  }
+switch (_distribution) {
+case multinomial:
+case bernoulli:
+dl.error("_distribution",_distribution + " distribution is not allowed for regression.");
+break;
+case tweedie:
+case gamma:
+case poisson:
+if (_loss != Loss.Automatic) dl.error("_distribution","Only Automatic loss (deviance) is allowed for " + _distribution + " distribution.");
+break;
+case laplace:
+if (_loss != Loss.Absolute && _loss != Loss.Automatic) dl.error("_distribution","Only Automatic or Absolute loss is allowed for " + _distribution + " distribution.");
+break;
+case huber:
+if (_loss != Loss.Huber && _loss != Loss.Automatic) dl.error("_distribution","Only Automatic or Huber loss is allowed for " + _distribution + " distribution.");
+break;
+case AUTO:
+case gaussian:
+default :
+break;
+}
+}
+if (expensive) dl.checkDistributions();
+if (_score_training_samples < 0) dl.error("_score_training_samples","Number of training samples for scoring must be >= 0 (0 for all).");
+if (_score_validation_samples < 0) dl.error("_score_validation_samples","Number of training samples for scoring must be >= 0 (0 for all).");
+if (_autoencoder && _sparsity_beta > 0) {
+if (_activation == Activation.Tanh || _activation == Activation.TanhWithDropout) {
+if (_average_activation >= 1 || _average_activation <= -1) dl.error("_average_activation","Tanh average activation must be in (-1,1).");
+}
+ else if (_activation == Activation.Rectifier || _activation == Activation.RectifierWithDropout) {
+if (_average_activation <= 0) dl.error("_average_activation","Rectifier average activation must be positive.");
+}
+}
+if (!_autoencoder && _sparsity_beta != 0) dl.info("_sparsity_beta","Sparsity beta can only be used for autoencoder.");
+if (classification && dl.hasOffsetCol()) dl.info("_offset_column","Offset is only supported for regression.");
+if (_autoencoder && _activation == Activation.Maxout) dl.error("_activation","Maxout activation is not supported for auto-encoder.");
+if (_max_categorical_features < 1) dl.error("_max_categorical_features","max_categorical_features must be at least 1.");
+if (!_sparse && _col_major) {
+dl.error("_col_major","Cannot use column major storage for non-sparse data handling.");
+}
+if (_sparse && _elastic_averaging) {
+dl.error("_elastic_averaging","Cannot use elastic averaging for sparse data handling.");
+}
+if (expensive) {
+if (!classification && _balance_classes) {
+dl.error("_balance_classes","balance_classes requires classification.");
+}
+if (_class_sampling_factors != null && !_balance_classes) {
+dl.error("_class_sampling_factors","class_sampling_factors requires balance_classes to be enabled.");
+}
+if (_replicate_training_data && null != train() && train().byteSize() > 1e10) {
+dl.error("_replicate_training_data","Compressed training dataset takes more than 10 GB, cannot run with replicate_training_data.");
+}
+}
+if (!_elastic_averaging) {
+dl.hide("_elastic_averaging_moving_rate","Elastic averaging is required for this parameter.");
+dl.hide("_elastic_averaging_regularization","Elastic averaging is required for this parameter.");
+}
+ else {
+if (_elastic_averaging_moving_rate > 1 || _elastic_averaging_moving_rate < 0) dl.error("_elastic_averaging_moving_rate","Elastic averaging moving rate must be between 0 and 1.");
+if (_elastic_averaging_regularization < 0) dl.error("_elastic_averaging_regularization","Elastic averaging regularization strength must be >= 0.");
+}
 }
