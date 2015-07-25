@@ -2,16 +2,25 @@ def __init__(self, dest_key, model_json, metrics_class):
     self._id = dest_key
     if ('training_metrics' in model_json['output']):
         tm = model_json['output']['training_metrics']
-        tm = metrics_class(tm, True, False, model_json['algo'])
+        tm = metrics_class(tm, True, False, False, model_json['algo'])
         model_json['output']['training_metrics'] = tm
     if ('validation_metrics' in model_json['output']):
         vm = model_json['output']['validation_metrics']
         if (vm is None):
             model_json['output']['validation_metrics'] = None
         else:
-            vm = metrics_class(vm, False, True, model_json['algo'])
+            vm = metrics_class(vm, False, True, False, model_json['algo'])
             model_json['output']['validation_metrics'] = vm
     else:
         model_json['output']['validation_metrics'] = None
+    if ('cross_validation_metrics' in model_json['output']):
+        cvm = model_json['output']['cross_validation_metrics']
+        if (cvm is None):
+            model_json['output']['cross_validation_metrics'] = None
+        else:
+            cvm = metrics_class(cvm, False, False, True, model_json['algo'])
+            model_json['output']['cross_validation_metrics'] = cvm
+    else:
+        model_json['output']['cross_validation_metrics'] = None
     self._model_json = model_json
     self._metrics_class = metrics_class

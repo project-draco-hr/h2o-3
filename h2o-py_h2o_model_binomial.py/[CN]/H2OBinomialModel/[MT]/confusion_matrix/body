@@ -1,6 +1,7 @@
-def confusion_matrix(self, metrics=None, thresholds=None, train=False, valid=False):
-    '\n    Get the confusion matrix for the specified metrics/thresholds\n    If both train and valid are False, return the train.\n    If both train and valid are True, return the valid.\n\n    :param metrics: A string (or list of strings) in {"min_per_class_accuracy", "absolute_MCC", "tnr", "fnr", "fpr", "tpr", "precision", "accuracy", "f0point5", "f2", "f1"}\n    :param thresholds: A value (or list of values) between 0 and 1\n    :param train: Return the max per class error for training data.\n    :param valid: Return the max per class error for the validation data.\n    :return: a list of ConfusionMatrix objects (if there are more than one to return), or a single ConfusionMatrix (if there is only one)\n    '
-    tm = ModelBase._get_metrics(self, *ModelBase._train_or_valid(train, valid))
-    if (tm is None):
-        return None
-    return tm.confusion_matrix(metrics=metrics, thresholds=thresholds)
+def confusion_matrix(self, metrics=None, thresholds=None, train=False, valid=False, xval=False):
+    '\n    Get the confusion matrix for the specified metrics/thresholds\n    If all are False (default), then return the training metric value.\n    If more than one options is set to True, then return a dictionary of metrics where the keys are "train", "valid",\n    and "xval"\n\n    :param metrics: A string (or list of strings) in {"min_per_class_accuracy", "absolute_MCC", "tnr", "fnr", "fpr", "tpr", "precision", "accuracy", "f0point5", "f2", "f1"}\n    :param thresholds: thresholds parameter must be a list (i.e. [0.01, 0.5, 0.99]). If None, then the thresholds in this set of metrics will be used.\n    :param train: If train is True, then return the confusion matrix value for the training data.\n    :param valid: If valid is True, then return the confusion matrix value for the validation data.\n    :param xval:  If xval is True, then return the confusion matrix value for the cross validation data.\n    :return: The confusion matrix for this binomial model.\n    '
+    tm = ModelBase._get_metrics(self, train, valid, xval)
+    m = {}
+    for (k, v) in zip(tm.keys(), tm.values()):
+        m[k] = (None if (v is None) else v.confusion_matrix(metrics=metrics, thresholds=thresholds))
+    return (m.values()[0] if (len(m) == 1) else m)

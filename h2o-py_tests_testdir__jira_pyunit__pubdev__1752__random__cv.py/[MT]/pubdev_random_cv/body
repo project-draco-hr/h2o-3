@@ -5,6 +5,6 @@ def pubdev_random_cv(ip, port):
     predictors = ['displacement', 'power', 'weight', 'acceleration', 'year']
     gbm1 = h2o.gbm(y=cars[response_col], x=cars[predictors], nfolds=3, distribution=distribution, fold_assignment='Random')
     gbm2 = h2o.gbm(y=cars[response_col], x=cars[predictors], nfolds=3, distribution=distribution, fold_assignment='Random')
-    mse1 = gbm1.mse(valid=False)
-    mse2 = gbm2.mse(valid=False)
+    mse1 = gbm1.mse(xval=True)
+    mse2 = gbm2.mse(xval=True)
     assert (mse1 != mse2), 'The first model has an MSE of {0} and the second model has an MSE of {1}. Expected the first to be different from the second.'.format(mse1, mse2)
