@@ -1,0 +1,20 @@
+{
+  PersistManager pm=H2O.getPM();
+  OutputStream os=null;
+  try {
+    os=pm.create(_path,_force);
+    copyStream(os,4 * 1024 * 1024);
+  }
+  finally {
+    if (os != null) {
+      try {
+        os.close();
+        Log.info("Key '" + _frameName + "' was written to "+ _path+ ".");
+      }
+ catch (      Exception e) {
+        Log.err(e);
+      }
+    }
+  }
+  tryComplete();
+}

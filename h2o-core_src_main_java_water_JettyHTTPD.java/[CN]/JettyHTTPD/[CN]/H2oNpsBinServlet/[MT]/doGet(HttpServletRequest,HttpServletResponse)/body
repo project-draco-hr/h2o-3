@@ -14,8 +14,11 @@
     NodePersistentStorage nps=H2O.getNPS();
     AtomicLong length=new AtomicLong();
     InputStream is=nps.get(categoryName,keyName,length);
+    if (length.get() > (long)Integer.MAX_VALUE) {
+      throw new Exception("NPS value size exceeds Integer.MAX_VALUE");
+    }
     response.setContentType("application/octet-stream");
-    response.setContentLengthLong(length.get());
+    response.setContentLength((int)length.get());
     response.addHeader("Content-Disposition","attachment; filename=" + keyName + ".flow");
     setResponseStatus(response,HttpServletResponse.SC_OK);
     OutputStream os=response.getOutputStream();
