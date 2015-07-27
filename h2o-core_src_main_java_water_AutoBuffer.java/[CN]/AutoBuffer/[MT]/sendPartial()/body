@@ -7,7 +7,10 @@
     return _bb;
   }
   _size+=_bb.position();
-  if (_chan == null)   TimeLine.record_send(this,true);
+  if (_chan == null) {
+    _bb.putShort(0,(short)0);
+    TimeLine.record_send(this,true);
+  }
   _bb.flip();
   try {
     if (_chan == null)     tcpOpen();
