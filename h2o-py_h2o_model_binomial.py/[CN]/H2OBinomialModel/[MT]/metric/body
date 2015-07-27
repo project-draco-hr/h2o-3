@@ -1,17 +1,7 @@
-def metric(self, metric, thresholds=None, train=False, valid=False):
-    '\n    Get the metric value for a set of thresholds.\n    If both train and valid are False, return the train.\n    If both train and valid are True, return the valid.\n\n    :param metric: A string in {"min_per_class_accuracy", "absolute_MCC", "tnr", "fnr", "fpr", "tpr", "precision", "error", "accuracy", "f0point5", "f2", "f1"}\n    :param train: Return the max per class error for training data.\n    :param valid: Return the max per class error for the validation data.\n    :param thresholds: thresholds parameter must be a list (i.e. [0.01, 0.5, 0.99]). If None, then the thresholds in this set of metrics will be used.\n    :return: The metric value.\n    '
-    tm = ModelBase._get_metrics(self, *ModelBase._train_or_valid(train, valid))
-    if (tm is None):
-        return None
-    if (not thresholds):
-        thresholds = [tm.find_threshold_by_max_metric(metric)]
-    if (not isinstance(thresholds, list)):
-        raise ValueError('thresholds parameter must be a list (i.e. [0.01, 0.5, 0.99])')
-    thresh2d = stmelf._metric_json['thresholds_and_metric_scores']
-    midx = thresh2d.col_header.index(metric)
-    metrics = []
-    for t in thresholds:
-        idx = tm.find_idx_by_threshold(t)
-        row = thresh2d.cell_values[idx]
-        metrics.append([t, row[midx]])
-    return metrics
+def metric(self, metric, thresholds=None, train=False, valid=False, xval=False):
+    '\n    Get the metric value for a set of thresholds.\n    If all are False (default), then return the training metric value.\n    If more than one options is set to True, then return a dictionary of metrics where the keys are "train", "valid",\n    and "xval"\n\n    :param train: If train is True, then return the metrics for the training data.\n    :param valid: If valid is True, then return the metrics for the validation data.\n    :param xval:  If xval is True, then return the metrics for the cross validation data.\n    :return: The metrics for this binomial model.\n    '
+    tm = ModelBase._get_metrics(self, train, valid, xval)
+    m = {}
+    for (k, v) in zip(tm.keys(), tm.values()):
+        m[k] = (None if (v is None) else v.metric(metric, thresholds))
+    return (m.values()[0] if (len(m) == 1) else m)
