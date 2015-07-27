@@ -1,0 +1,22 @@
+{
+  if (mrt.minValues == null || minValues == null)   return;
+  if (mrt.maxValues == null || maxValues == null)   return;
+  for (  Map.Entry<IcedLong,IcedDouble> e : mrt.minValues.entrySet()) {
+    IcedDouble x=minValues.get(e.getKey());
+    if (x != null) {
+      x._val=Math.min(e.getValue()._val,x._val);
+    }
+ else {
+      minValues.put(e.getKey(),e.getValue());
+    }
+  }
+  for (  Map.Entry<IcedLong,IcedDouble> e : mrt.maxValues.entrySet()) {
+    IcedDouble x=maxValues.get(e.getKey());
+    if (x != null) {
+      x._val=Math.max(e.getValue()._val,x._val);
+    }
+ else {
+      maxValues.put(e.getKey(),e.getValue());
+    }
+  }
+}
