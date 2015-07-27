@@ -26,15 +26,19 @@
     System.out.println("Testcase is passed.");
   }
  catch (  IllegalArgumentException ex) {
-    ex.printStackTrace();
     System.out.println("Cannot predit testcase " + testcase_id);
     System.out.println("Testcase is failed");
-    Assert.fail("Testcase is failed");
+    ex.printStackTrace();
+    if (!isNegativeTestcase(rawInput)) {
+      Assert.fail("Testcase is failed",ex);
+    }
   }
 catch (  Exception ex) {
-    ex.printStackTrace();
     System.out.println("Testcase is failed");
-    Assert.fail("Testcase is failed.");
+    ex.printStackTrace();
+    if (!isNegativeTestcase(rawInput)) {
+      Assert.fail("Testcase is failed",ex);
+    }
   }
  finally {
     if (job != null) {
