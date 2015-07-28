@@ -1,20 +1,7 @@
-def find_idx_by_threshold(self, threshold, train=False, valid=False):
-    "\n    Retrieve the index in this metric's threshold list at which the given threshold is located.\n    If both train and valid are False, return the train.\n    If both train and valid are True, return the valid.\n\n    :param train: Return the max per class error for training data.\n    :param valid: Return the max per class error for the validation data.\n    :param threshold: Find the index of this input threshold.\n    :return: Return the index or throw a ValueError if no such index can be found.\n    "
-    tm = ModelBase._get_metrics(self, *ModelBase._train_or_valid(train, valid))
-    if (tm is None):
-        return None
-    if (not isinstance(threshold, float)):
-        raise ValueError(('Expected a float but got a ' + type(threshold)))
-    thresh2d = tm._metric_json['thresholds_and_metric_scores']
-    for (i, e) in enumerate(thresh2d.cell_values):
-        t = float(e[0])
-        if (abs((t - threshold)) < (1e-08 * max(t, threshold))):
-            return i
-    if ((threshold >= 0) and (threshold <= 1)):
-        thresholds = [float(e[0]) for (i, e) in enumerate(thresh2d.cell_values)]
-        threshold_diffs = [abs((t - threshold)) for t in thresholds]
-        closest_idx = threshold_diffs.index(min(threshold_diffs))
-        closest_threshold = thresholds[closest_idx]
-        print 'Could not find exact threshold {0}; using closest threshold found {1}.'.format(threshold, closest_threshold)
-        return closest_idx
-    raise ValueError('Threshold must be between 0 and 1, but got {0} '.format(threshold))
+def find_idx_by_threshold(self, threshold, train=False, valid=False, xval=False):
+    '\n    Retrieve the index in this metric\'s threshold list at which the given threshold is located.\n    If all are False (default), then return the training metric value.\n    If more than one options is set to True, then return a dictionary of metrics where the keys are "train", "valid",\n    and "xval"\n\n    :param train: If train is True, then return the idx_by_threshold for the training data.\n    :param valid: If valid is True, then return the idx_by_threshold for the validation data.\n    :param xval:  If xval is True, then return the idx_by_threshold for the cross validation data.\n    :return: The idx_by_threshold for this binomial model.\n    '
+    tm = ModelBase._get_metrics(self, train, valid, xval)
+    m = {}
+    for (k, v) in zip(tm.keys(), tm.values()):
+        m[k] = (None if (v is None) else v.find_idx_by_threshold(threshold))
+    return (m.values()[0] if (len(m) == 1) else m)

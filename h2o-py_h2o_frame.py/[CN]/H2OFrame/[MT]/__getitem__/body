@@ -20,5 +20,5 @@ def __getitem__(self, item):
         if allcols:
             return H2OFrame(expr=ExprNode('[', self, item[0], None))
         if (isinstance(item[0], (str, unicode, int)) and isinstance(item[1], (str, unicode, int))):
-            return H2OFrame(expr=ExprNode('[', ExprNode('[', self, None, item[1]), item[0], None))._scalar()
-        return H2OFrame(expr=ExprNode('[', ExprNode('[', self, None, item[1]), item[0], None))
+            return H2OFrame(expr=ExprNode('[', self, item[0], item[1]))._scalar()
+        return H2OFrame(expr=ExprNode('[', self, item[0], item[1]))

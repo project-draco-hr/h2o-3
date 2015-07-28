@@ -15,7 +15,7 @@
     if (centers == null)     return;
     double[][] oldCenters=null;
     while (!isDone(model,centers,oldCenters)) {
-      Lloyds task=new Lloyds(centers,means,mults,_isCats,_parms._k).doAll(vecs);
+      Lloyds task=new Lloyds(centers,means,mults,_isCats,_parms._k,hasWeightCol()).doAll(vecs);
       max_cats(task._cMeans,task._cats,_isCats);
       if (cleanupBadClusters(task,vecs,centers,means,mults))       continue;
       oldCenters=centers;
