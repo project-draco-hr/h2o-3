@@ -33,8 +33,9 @@
     dinfo=new DataInfo(Key.make(),fr,null,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false,false,false,false,false);
     DKV.put(dinfo._key,dinfo);
     int weightId=dinfo._weights ? dinfo.weightChunkId() : -1;
+    int[] numLevels=dinfo._adaptedFrame.numLevels();
     double[][] yinit=initialXY(tinfo,dinfo,na_cnt);
-    Archetypes yt=new Archetypes(ArrayUtils.transpose(yinit),true,dinfo._catOffsets,dinfo._adaptedFrame.domains());
+    Archetypes yt=new Archetypes(ArrayUtils.transpose(yinit),true,dinfo._catOffsets,numLevels);
     if (na_cnt == 0 && _parms.hasClosedForm())     initialXClosedForm(dinfo,yt,model._output._normSub,model._output._normMul);
     ObjCalc objtsk=new ObjCalc(_parms,yt,_ncolA,_ncolX,dinfo._cats,model._output._normSub,model._output._normMul,weightId,_parms._gamma_x != 0).doAll(dinfo._adaptedFrame);
     model._output._objective=objtsk._loss + _parms._gamma_x * objtsk._xold_reg + _parms._gamma_y * _parms.regularize_y(yt._archetypes);
@@ -49,7 +50,7 @@
       xtsk.doAll(dinfo._adaptedFrame);
       UpdateY ytsk=new UpdateY(_parms,yt,step / _ncolA,_ncolA,_ncolX,dinfo._cats,model._output._normSub,model._output._normMul,weightId);
       double[][] yttmp=ytsk.doAll(dinfo._adaptedFrame)._ytnew;
-      Archetypes ytnew=new Archetypes(yttmp,true,dinfo._catOffsets,dinfo._adaptedFrame.domains());
+      Archetypes ytnew=new Archetypes(yttmp,true,dinfo._catOffsets,numLevels);
       objtsk=new ObjCalc(_parms,ytnew,_ncolA,_ncolX,dinfo._cats,model._output._normSub,model._output._normMul,weightId).doAll(dinfo._adaptedFrame);
       double obj_new=objtsk._loss + _parms._gamma_x * xtsk._xreg + _parms._gamma_y * ytsk._yreg;
       model._output._avg_change_obj=(model._output._objective - obj_new) / nobs;
