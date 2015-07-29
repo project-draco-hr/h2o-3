@@ -12,13 +12,13 @@
     }
 .doAll(vec_tree(_train,0),_parms._build_tree_one_node);
   }
-  if (_parms._checkpoint) {
+  if (_parms.hasCheckpoint()) {
     Timer t=new Timer();
     new ResidualsCollector(_ncols,_nclass,numSpecialCols(),_model._output._treeKeys).doAll(_train,_parms._build_tree_one_node);
     Log.info("Reconstructing tree residuals stats from checkpointed model took " + t);
   }
   for (int tid=0; tid < _parms._ntrees; tid++) {
-    if (tid != 0 || !_parms._checkpoint) {
+    if (tid != 0 || !_parms.hasCheckpoint()) {
       double training_r2=doScoringAndSaveModel(false,false,_parms._build_tree_one_node);
       if (training_r2 >= _parms._r2_stopping)       return;
     }
