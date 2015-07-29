@@ -98,11 +98,6 @@
         if (mm1 instanceof ModelMetricsBinomial) {
           ModelMetricsBinomial mm=(ModelMetricsBinomial)(mm1);
           err.training_AUC=mm._auc;
-          err.train_confusion_matrix=mm.cm();
-        }
- else         if (mm1 instanceof ModelMetricsMultinomial) {
-          ModelMetricsMultinomial mm=(ModelMetricsMultinomial)(mm1);
-          err.train_confusion_matrix=mm.cm();
         }
         if (ftrain.numRows() != training_rows) {
           _output._training_metrics._description="Metrics reported on temporary training frame with " + ftrain.numRows() + " samples";
@@ -125,11 +120,6 @@
             if (mtest instanceof ModelMetricsBinomial) {
               ModelMetricsBinomial mm=(ModelMetricsBinomial)mtest;
               err.validation_AUC=mm._auc;
-              err.valid_confusion_matrix=mm.cm();
-            }
- else             if (mtest instanceof ModelMetricsMultinomial) {
-              ModelMetricsMultinomial mm=(ModelMetricsMultinomial)mtest;
-              err.valid_confusion_matrix=mm.cm();
             }
             if (ftest.numRows() != validation_rows) {
               _output._validation_metrics._description="Metrics reported on temporary validation frame with " + ftest.numRows() + " samples";
@@ -183,7 +173,7 @@
           _bestError=error();
           putMeAsBestModel(actual_best_model_key);
         }
-        if (keep_running && printme)         for (        String s : toString().split("\n"))         Log.info(s);
+        if (keep_running && printme)         Log.info(toString());
         if (printme)         Log.info("Time taken for scoring and diagnostics: " + PrettyPrint.msecs(err.scoring_time,true));
       }
     }
