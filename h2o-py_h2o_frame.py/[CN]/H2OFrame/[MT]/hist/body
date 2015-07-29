@@ -1,9 +1,9 @@
 def hist(self, breaks='Sturges', plot=True, **kwargs):
-    '\n    Compute a histogram over a numeric column. If breaks=="FD", the MAD is used over the IQR in computing bin width.\n    :param breaks: breaks Can be one of the following: A string: "Sturges", "Rice", "sqrt", "Doane", "FD", "Scott." A\n    single number for the number of breaks splitting the range of the vec into number of breaks bins of equal width. Or,\n    A vector of numbers giving the split points, e.g., c(-50,213.2123,9324834)\n    :param plot: A logical value indicating whether or not a plot should be generated (default is TRUE).\n    :return: if plot is True, then return None, else, an H2OFrame with these columns: breaks, counts, mids_true, mids,\n    and density\n    '
+    '\n    Compute a histogram over a numeric column. If breaks=="FD", the MAD is used over the IQR in computing bin width.\n\n    :param breaks: breaks Can be one of the following: A string: "Sturges", "Rice", "sqrt", "Doane", "FD", "Scott." A\n    single number for the number of breaks splitting the range of the vec into number of breaks bins of equal width. Or,\n    A vector of numbers giving the split points, e.g., c(-50,213.2123,9324834)\n    :param plot: A logical value indicating whether or not a plot should be generated (default is TRUE).\n    :return: if plot is True, then return None, else, an H2OFrame with these columns: breaks, counts, mids_true, mids,\n    and density\n    '
     frame = H2OFrame(expr=ExprNode('hist', self, breaks))._frame()
     total = frame['counts'].sum()
     densities = [((frame['counts'][i, :] / total)._scalar() * (1 / (frame['breaks'][i, :]._scalar() - frame['breaks'][(i - 1), :]._scalar()))) for i in range(1, frame['counts'].nrow())]
-    densities.insert(0, float('nan'))
+    densities.insert(0, 0)
     densities_frame = H2OFrame(python_obj=[[d] for d in densities])
     densities_frame.setNames(['density'])
     frame = frame.cbind(densities_frame)
