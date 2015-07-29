@@ -2,7 +2,7 @@
   if (error_count() > 0) {
     throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(this);
   }
-  return _parms._nfolds == 0 && _parms._fold_column == null ? trainModelImpl(progressUnits()) : start(new H2O.H2OCountedCompleter(){
+  return _parms._nfolds == 0 && _parms._fold_column == null ? trainModelImpl(progressUnits(),true) : start(new H2O.H2OCountedCompleter(){
     @Override protected void compute2(){
       computeCrossValidation();
       tryComplete();
@@ -12,5 +12,5 @@
       return true;
     }
   }
-,(_parms._nfolds + 1) * progressUnits());
+,(_parms._nfolds + 1) * progressUnits(),true);
 }
