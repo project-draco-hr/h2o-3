@@ -1,0 +1,13 @@
+{
+  _results=new NetworkBenchResults[MSG_SZS.length];
+  for (int i=0; i < MSG_SZS.length; ++i) {
+    long[] mrts=new long[H2O.CLOUD.size()];
+    Log.info("Network Bench, running All2All, message size = " + MSG_SZS[i] + ", message count = "+ MSG_CNT);
+    long[][] all2all=new TestAll2All(MSG_SZS[i],MSG_CNT[i]).doAllNodes()._time;
+    for (int j=0; j < H2O.CLOUD.size(); ++j) {
+      Log.info("Network Bench, running MRTask test at node " + j + ", message size = "+ MSG_SZS[i]+ ", message count = "+ MSG_CNT);
+      mrts[j]=RPC.call(H2O.CLOUD._memary[j],new TestMRTasks(MSG_SZS[i],MSG_CNT[i])).get()._time;
+    }
+    _results[i]=new NetworkBenchResults(MSG_SZS[i],MSG_CNT[i],all2all,mrts);
+  }
+}

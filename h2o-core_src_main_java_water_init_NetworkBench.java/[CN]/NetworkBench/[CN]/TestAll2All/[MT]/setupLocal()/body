@@ -1,0 +1,31 @@
+{
+  _time=new long[H2O.CLOUD.size()][];
+  final int myId=H2O.SELF.index();
+  _time[myId]=new long[H2O.CLOUD.size()];
+  Futures fs=new Futures();
+  for (int i=0; i < H2O.CLOUD.size(); ++i)   if (i != myId) {
+    final int fi=i;
+    fs.add(new RecursiveAction(){
+      @Override protected void compute(){
+        H2ONode h2o=H2O.CLOUD._memary[fi];
+        final byte[] data=new byte[_msgSz];
+        new Random().nextBytes(data);
+        long t1=System.currentTimeMillis();
+        Futures fs2=new Futures();
+        for (int j=0; j < _msgCnt; ++j)         fs2.add(RPC.call(h2o,new DTask(){
+          byte[] dd=data;
+          @Override protected void compute2(){
+            dd=null;
+            tryComplete();
+          }
+        }
+));
+        fs2.blockForPending();
+        long t2=System.currentTimeMillis();
+        _time[myId][fi]=(t2 - t1);
+      }
+    }
+.fork());
+  }
+  fs.blockForPending();
+}
