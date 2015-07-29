@@ -2,7 +2,7 @@
   Frame yinit=frame(ard(ard(1.24256408,0.7828393,-0.5209066,-0.003416473),ard(0.50786248,1.1068225,-1.2117642,2.484202941),ard(0.07163341,1.4788032,0.9989801,1.042878388)));
   GLRM job=null;
   GLRMModel model=null;
-  Frame train=null;
+  Frame train=null, score=null;
   long seed=1234;
   try {
     train=parse_test_file(Key.make("arrests.hex"),"smalldata/pca_test/USArrests.csv");
@@ -19,6 +19,7 @@
       job=new GLRM(parms);
       model=job.trainModel().get();
       Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
+      score=model.score(train);
     }
  catch (    Throwable t) {
       t.printStackTrace();
@@ -35,6 +36,7 @@
  finally {
     yinit.delete();
     if (train != null)     train.delete();
+    if (score != null)     score.delete();
     if (model != null) {
       model._parms._loading_key.get().delete();
       model.delete();
