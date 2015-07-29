@@ -1,8 +1,15 @@
 {
-  H2ONode node=H2O.CLOUD._memary[nodeidx];
-  GetLogsTask ggt=new GetLogsTask();
-  Log.trace("GetLogsTask starting to node " + nodeidx + "...");
-  new RPC<>(node,ggt).call().get();
-  Log.trace("GetLogsTask completed to node " + nodeidx);
-  bytes=ggt._bytes;
+  if (nodeidx == -1) {
+    GetLogsTask t=new GetLogsTask();
+    t.doIt();
+    bytes=t._bytes;
+  }
+ else {
+    H2ONode node=H2O.CLOUD._memary[nodeidx];
+    GetLogsTask t=new GetLogsTask();
+    Log.trace("GetLogsTask starting to node " + nodeidx + "...");
+    new RPC<>(node,t).call().get();
+    Log.trace("GetLogsTask completed to node " + nodeidx);
+    bytes=t._bytes;
+  }
 }
