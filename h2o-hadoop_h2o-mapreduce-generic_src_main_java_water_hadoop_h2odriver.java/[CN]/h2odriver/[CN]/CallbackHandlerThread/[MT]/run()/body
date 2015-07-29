@@ -24,11 +24,15 @@
       if (msg.getCloudSize() == numNodes) {
 synchronized (h2odriver.class) {
           if (!clusterIsUp) {
-            if (clusterReadyFileName != null) {
-              createClusterReadyFile(msg.getEmbeddedWebServerIp(),msg.getEmbeddedWebServerPort());
-              System.out.println("Cluster notification file (" + clusterReadyFileName + ") created.");
+            int n=numNodesReportingFullCloudSize.incrementAndGet();
+            if (n == numNodes) {
+              if (clusterReadyFileName != null) {
+                createClusterReadyFile(msg.getEmbeddedWebServerIp(),msg.getEmbeddedWebServerPort());
+                System.out.println("Cluster notification file (" + clusterReadyFileName + ") created.");
+              }
+              setClusterIpPort(msg.getEmbeddedWebServerIp(),msg.getEmbeddedWebServerPort());
+              clusterIsUp=true;
             }
-            clusterIsUp=true;
           }
         }
       }
