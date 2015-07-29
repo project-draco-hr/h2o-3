@@ -1,6 +1,7 @@
-def error(self, thresholds=None, train=False, valid=False):
-    '\n    Get the error for a set of thresholds.\n    If both train and valid are False, return the train.\n    If both train and valid are True, return the valid.\n\n    :param train: Return the error for training data.\n    :param valid: Return the error for the validation data.\n    :param thresholds: thresholds parameter must be a list (i.e. [0.01, 0.5, 0.99]). If None, then the thresholds in this set of metrics will be used.\n    :return: The error for the given set of thresholds.\n    '
-    tm = ModelBase._get_metrics(self, *ModelBase._train_or_valid(train, valid))
-    if (tm is None):
-        return None
-    return [[acc[0], (1 - acc[1])] for acc in tm.metric('accuracy', thresholds=thresholds)]
+def error(self, thresholds=None, train=False, valid=False, xval=False):
+    '\n    Get the error for a set of thresholds.\n    If all are False (default), then return the training metric value.\n    If more than one options is set to True, then return a dictionary of metrics where the keys are "train", "valid",\n    and "xval"\n\n    :param thresholds: thresholds parameter must be a list (i.e. [0.01, 0.5, 0.99]). If None, then the thresholds in this set of metrics will be used.\n    :param train: If train is True, then return the error value for the training data.\n    :param valid: If valid is True, then return the error value for the validation data.\n    :param xval:  If xval is True, then return the error value for the cross validation data.\n    :return: The error for this binomial model.\n    '
+    tm = ModelBase._get_metrics(self, train, valid, xval)
+    m = {}
+    for (k, v) in zip(tm.keys(), tm.values()):
+        m[k] = (None if (v is None) else [[acc[0], (1 - acc[1])] for acc in v.metric('accuracy', thresholds=thresholds)])
+    return (m.values()[0] if (len(m) == 1) else m)

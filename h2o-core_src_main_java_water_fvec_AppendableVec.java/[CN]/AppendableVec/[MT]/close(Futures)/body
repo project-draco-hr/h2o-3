@@ -1,7 +1,7 @@
 {
-  int nchunk=_espc.length;
+  int nchunk=_tmp_espc.length;
   DKV.remove(chunkKey(nchunk),fs);
-  while (nchunk > 1 && _espc[nchunk - 1] == 0) {
+  while (nchunk > 1 && _tmp_espc[nchunk - 1] == 0) {
     nchunk--;
     DKV.remove(chunkKey(nchunk),fs);
   }
@@ -16,14 +16,10 @@
     ctypes[NA]=0;
     if (nchunk == 0)     ctypes[ENUM]++;
   }
-  int t=-1;
-  for (int i=0; i < _timCnt.length; i++)   if (_timCnt[i] != 0)   if (t == -1)   t=i;
- else   t=-2;
-  if (t == -2)   ctypes[TIME]=0;
   int idx=0;
   for (int i=0; i < ctypes.length; i++)   if (i != NA && ctypes[i] > ctypes[idx])   idx=i;
   if (idx != ENUM)   setDomain(null);
-  for (int i=0; i < nchunk; ++i)   if (_chunkTypes[i] != idx && !(idx == ENUM && _chunkTypes[i] == NUMBER && genEnumCol))   DKV.put(chunkKey(i),new C0DChunk(Double.NaN,(int)_espc[i]),fs);
+  for (int i=0; i < nchunk; ++i)   if (_chunkTypes[i] != idx && !(idx == ENUM && _chunkTypes[i] == NUMBER && genEnumCol))   DKV.put(chunkKey(i),new C0DChunk(Double.NaN,(int)_tmp_espc[i]),fs);
   byte type;
 switch (idx) {
 case ENUM:
@@ -33,7 +29,7 @@ case NUMBER:
 type=T_NUM;
 break;
 case TIME:
-type=(byte)(T_TIME + t);
+type=T_TIME;
 break;
 case UUID:
 type=T_UUID;
@@ -49,7 +45,7 @@ long espc[]=new long[nchunk + 1];
 long x=0;
 for (int i=0; i < nchunk; i++) {
 espc[i]=x;
-x+=_espc[i];
+x+=_tmp_espc[i];
 }
 espc[nchunk]=x;
 Vec vec=new Vec(_key,espc,domain(),type);
