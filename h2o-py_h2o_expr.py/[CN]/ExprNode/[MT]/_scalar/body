@@ -1,0 +1,10 @@
+def _scalar(self):
+    res = h2o.rapids(ExprNode._collapse_sb(self._eager()))['scalar']
+    if (res == 'TRUE'):
+        return True
+    if (res == 'FALSE'):
+        return False
+    try:
+        return float(res)
+    except:
+        return res
