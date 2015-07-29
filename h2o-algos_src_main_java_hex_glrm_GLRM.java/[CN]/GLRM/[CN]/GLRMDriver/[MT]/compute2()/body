@@ -32,10 +32,11 @@
     fr=new Frame(null,vecs);
     dinfo=new DataInfo(Key.make(),fr,null,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false,false,false,false,false);
     DKV.put(dinfo._key,dinfo);
+    int weightId=dinfo._weights ? dinfo.weightChunkId() : -1;
     double[][] yinit=initialXY(tinfo,dinfo,na_cnt);
     Archetypes yt=new Archetypes(ArrayUtils.transpose(yinit),true,dinfo._catOffsets,dinfo._adaptedFrame.domains());
     if (na_cnt == 0 && _parms.hasClosedForm())     initialXClosedForm(dinfo,yt,model._output._normSub,model._output._normMul);
-    ObjCalc objtsk=new ObjCalc(dinfo,_parms,yt,_ncolA,_ncolX,model._output._normSub,model._output._normMul,_parms._gamma_x != 0).doAll(dinfo._adaptedFrame);
+    ObjCalc objtsk=new ObjCalc(_parms,yt,_ncolA,_ncolX,dinfo._cats,model._output._normSub,model._output._normMul,weightId,_parms._gamma_x != 0).doAll(dinfo._adaptedFrame);
     model._output._objective=objtsk._loss + _parms._gamma_x * objtsk._xold_reg + _parms._gamma_y * _parms.regularize_y(yt._archetypes);
     model._output._iterations=0;
     model._output._avg_change_obj=2 * TOLERANCE;
@@ -44,12 +45,12 @@
     double step=_parms._init_step_size;
     int steps_in_row=0;
     while (!isDone(model,steps_in_row,step)) {
-      UpdateX xtsk=new UpdateX(dinfo,_parms,yt,step / _ncolA,overwriteX,_ncolA,_ncolX,model._output._normSub,model._output._normMul);
+      UpdateX xtsk=new UpdateX(_parms,yt,step / _ncolA,overwriteX,_ncolA,_ncolX,dinfo._cats,model._output._normSub,model._output._normMul,weightId);
       xtsk.doAll(dinfo._adaptedFrame);
-      UpdateY ytsk=new UpdateY(dinfo,_parms,yt,step / _ncolA,_ncolA,_ncolX,model._output._normSub,model._output._normMul);
+      UpdateY ytsk=new UpdateY(_parms,yt,step / _ncolA,_ncolA,_ncolX,dinfo._cats,model._output._normSub,model._output._normMul,weightId);
       double[][] yttmp=ytsk.doAll(dinfo._adaptedFrame)._ytnew;
       Archetypes ytnew=new Archetypes(yttmp,true,dinfo._catOffsets,dinfo._adaptedFrame.domains());
-      objtsk=new ObjCalc(dinfo,_parms,ytnew,_ncolA,_ncolX,model._output._normSub,model._output._normMul).doAll(dinfo._adaptedFrame);
+      objtsk=new ObjCalc(_parms,ytnew,_ncolA,_ncolX,dinfo._cats,model._output._normSub,model._output._normMul,weightId).doAll(dinfo._adaptedFrame);
       double obj_new=objtsk._loss + _parms._gamma_x * xtsk._xreg + _parms._gamma_y * ytsk._yreg;
       model._output._avg_change_obj=(model._output._objective - obj_new) / nobs;
       model._output._iterations++;
