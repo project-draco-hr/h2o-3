@@ -1,2 +1,19 @@
 {
+  String title="Network Bench, sz = " + _msgSz + "B, cnt = "+ _msgCnt+ ", total sz = "+ 0.01 * ((int)(100 * _msgSz * _msgCnt / (1024.0 * 1024))) + "MB";
+  String[] rowHeaders=new String[H2O.CLOUD.size() + 1];
+  rowHeaders[H2O.CLOUD.size()]="MrTasks";
+  String[] colHeaders=new String[H2O.CLOUD.size()];
+  String[] colTypes=new String[H2O.CLOUD.size()];
+  String[] colFormats=new String[H2O.CLOUD.size()];
+  for (int i=0; i < H2O.CLOUD.size(); ++i) {
+    rowHeaders[i]=colHeaders[i]=H2O.CLOUD._memary[i].toString();
+    colTypes[i]="double";
+    colFormats[i]="%2f";
+  }
+  TwoDimTable td=new TwoDimTable(title,"Network benchmark results, round-trip bandwidth in MB/s",rowHeaders,colHeaders,colTypes,colFormats,"");
+  for (int i=0; i < _all2AllTimes.length; ++i) {
+    for (int j=0; j < _all2AllTimes.length; ++j)     td.set(i,j,0.01 * ((int)(_msgSz * _msgCnt / (_all2AllTimes[i][j] * 0.00001))));
+    td.set(H2O.CLOUD.size(),i,0.01 * ((int)(_msgSz * _msgCnt / (_mrtTimes[i] * 0.00001))));
+  }
+  return td;
 }
