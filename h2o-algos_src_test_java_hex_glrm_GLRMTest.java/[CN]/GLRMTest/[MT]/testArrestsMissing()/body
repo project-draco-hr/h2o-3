@@ -39,6 +39,8 @@
         sd_map.put(missing_fraction,sd_err);
         ev_map.put(missing_fraction,ev_err);
         score=model.score(train);
+        ModelMetricsGLRM mm=DKV.getGet(model._output._model_metrics[model._output._model_metrics.length - 1]);
+        Log.info("Numeric (Squared) Error Rate = " + mm._numerr + "\tCategorical Misclassification Error Rate = "+ mm._caterr);
       }
  catch (      Throwable t) {
         t.printStackTrace();
@@ -62,7 +64,7 @@
       }
     }
   }
-  sb.append("Missing Fraction --> Avg SSE in Std Dev\n");
+  sb.append("\nMissing Fraction --> Avg SSE in Std Dev\n");
   for (  String s : Arrays.toString(sd_map.entrySet().toArray()).split(","))   sb.append(s.replace("="," --> ")).append("\n");
   sb.append("\n");
   sb.append("Missing Fraction --> Avg SSE in Eigenvectors\n");
