@@ -2,20 +2,23 @@
   _time=new long[H2O.CLOUD.size()][];
   final int myId=H2O.SELF.index();
   _time[myId]=new long[H2O.CLOUD.size()];
-  Futures fs=new Futures();
-  for (int i=0; i < H2O.CLOUD.size(); ++i)   if (i != myId) {
-    final int fi=i;
-    fs.add(new RecursiveAction(){
-      @Override protected void compute(){
-        long t1=System.currentTimeMillis();
-        Futures fs2=new Futures();
-        for (int j=0; j < _msgCnt; ++j)         fs2.add(RPC.call(H2O.CLOUD._memary[fi],new SendRandomBytesTsk(_msgSz)));
-        fs2.blockForPending();
-        long t2=System.currentTimeMillis();
-        _time[myId][fi]=(t2 - t1);
+  addToPendingCount(H2O.CLOUD.size() - 1);
+  for (int i=0; i < H2O.CLOUD.size(); ++i) {
+    if (i != myId) {
+      final int fi=i;
+      H2O.submitTask(new H2OCountedCompleter(this){
+        long t1;
+        @Override protected void compute2(){
+          t1=System.currentTimeMillis();
+          addToPendingCount(_msgCnt - 1);
+          for (int j=0; j < _msgCnt; ++j)           new RPC(H2O.CLOUD._memary[fi],new SendRandomBytesTsk(_msgSz)).addCompleter(this).call();
+        }
+        @Override public void onCompletion(        CountedCompleter cc){
+          long t2=System.currentTimeMillis();
+          _time[myId][fi]=(t2 - t1);
+        }
       }
+);
     }
-.fork());
   }
-  fs.blockForPending();
 }
