@@ -1,13 +1,3 @@
 def __setitem__(self, b, c):
     "\n    Replace a column in an H2OFrame.\n\n    :param b: A 0-based index or a column name.\n    :param c: The vector that 'b' is replaced with.\n    :return: Returns this H2OFrame.\n    "
-    update_index = (-1)
-    if isinstance(b, (str, unicode)):
-        update_index = (self.col_names().index(b) if (b in self.col_names()) else self._ncols)
-    elif isinstance(b, int):
-        update_index = b
-    lhs = (ExprNode('[', self, b, None) if isinstance(b, H2OFrame) else ExprNode('[', self, None, update_index))
-    rhs = (c._frame() if isinstance(c, H2OFrame) else c)
-    col_name = (b if ((update_index == self._ncols) and isinstance(b, (str, unicode))) else (c._col_names[0] if isinstance(c, H2OFrame) else ''))
-    sb = (ExprNode(',', ExprNode('=', lhs, rhs), ExprNode('colnames=', self, update_index, col_name))._eager() if (update_index >= self.ncol()) else ExprNode('=', lhs, rhs)._eager())
-    h2o.rapids(ExprNode._collapse_sb(sb))
-    self._update()
+    raise Exception('unimplemented')
