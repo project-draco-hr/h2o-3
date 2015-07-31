@@ -4,13 +4,19 @@
   if (_vresponse != null)   _vresponse_key=_vresponse._key;
   if (_response != null)   _response_key=_response._key;
   if (_parms._min_rows < 0)   error("_min_rows","Requested min_rows must be greater than 0");
-  if (_parms._ntrees < 0 || _parms._ntrees > 100000)   error("_ntrees","Requested ntrees must be between 1 and 100000");
+  if (_parms._ntrees < 0 || _parms._ntrees > MAX_NTREES)   error("_ntrees","Requested ntrees must be between 1 and " + MAX_NTREES);
   _ntrees=_parms._ntrees;
-  if (_parms._checkpoint) {
-    Value cv=DKV.get(_parms._model_id);
+  if (_parms.hasCheckpoint()) {
+    Value cv=DKV.get(_parms._checkpoint);
     if (cv != null) {
       M checkpointModel=cv.get();
-      if (_parms._ntrees < checkpointModel._output._ntrees + 1)       error("_ntrees","Requested ntrees must be between " + checkpointModel._output._ntrees + 1+ " and 100000");
+      try {
+        _parms.validateWithCheckpoint(checkpointModel._parms);
+      }
+ catch (      H2OIllegalArgumentException e) {
+        error(e.values.get("argument").toString(),e.values.get("value").toString());
+      }
+      if (_parms._ntrees < checkpointModel._output._ntrees + 1)       error("_ntrees","If checkpoint is specified then requested ntrees must be higher than " + (checkpointModel._output._ntrees + 1));
       _ntrees=_parms._ntrees - checkpointModel._output._ntrees;
     }
   }

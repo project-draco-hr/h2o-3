@@ -1,0 +1,18 @@
+{
+  final ModelBuilder<M,P,O> j=DKV.getGet(_key);
+  assert(j._start_time == _start_time);
+  assert(j._end_time == _end_time);
+  assert(j._state == _state);
+  new TAtomic<M>(){
+    @Override public M atomic(    M old){
+      if (old != null) {
+        old._output._status=_state;
+        old._output._start_time=_start_time;
+        old._output._end_time=_end_time;
+        old._output._run_time=_end_time - _start_time;
+      }
+      return old;
+    }
+  }
+.invoke(dest());
+}
