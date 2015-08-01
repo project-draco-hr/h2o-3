@@ -1,0 +1,16 @@
+{
+  new MRTask(){
+    @Override public void map(    Chunk chks[]){
+      Random rand=RandomUtils.getRNG(_parms._seed + chks[0].start());
+      for (int row=0; row < chks[0]._len; row++) {
+        double[] xrow=ArrayUtils.gaussianVector(_ncolX,_parms._seed);
+        xrow=_parms.project_x(xrow,rand);
+        for (int c=0; c < xrow.length; c++) {
+          chks[_ncolA + c].set(row,xrow[c]);
+          chks[_ncolA + _ncolX + c].set(row,xrow[c]);
+        }
+      }
+    }
+  }
+.doAll(dinfo._adaptedFrame);
+}
