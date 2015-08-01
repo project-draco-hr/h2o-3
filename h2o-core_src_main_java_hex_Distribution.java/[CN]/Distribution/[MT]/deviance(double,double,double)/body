@@ -1,4 +1,5 @@
 {
+  f=link(f);
 switch (distribution) {
 case AUTO:
 case gaussian:
@@ -13,15 +14,13 @@ case huber:
 case laplace:
 return w * Math.abs(y - f);
 case bernoulli:
-f=link(f);
 return -2 * w * (y * f - log(1 + exp(f)));
 case poisson:
-return -2 * w * (y * log(f) - f);
+return -2 * w * (y * f - exp(f));
 case gamma:
-return 2 * w * (y * -f + log(f));
+return 2 * w * (y * exp(-f) + f);
 case tweedie:
 assert(tweediePower > 1 && tweediePower < 2);
-f=link(f);
 return 2 * w * (Math.pow(y,2 - tweediePower) / ((1 - tweediePower) * (2 - tweediePower)) - y * exp(f * (1 - tweediePower)) / (1 - tweediePower) + exp(f * (2 - tweediePower)) / (2 - tweediePower));
 default :
 throw H2O.unimpl();
