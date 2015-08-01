@@ -2,6 +2,7 @@
   Log.info("\nCollecting logs.");
   H2ONode[] members=H2O.CLOUD.members();
   byte[][] perNodeZipByteArray=new byte[members.length][];
+  byte[] clientNodeByteArray=null;
   for (int i=0; i < members.length; i++) {
     byte[] bytes;
     try {
@@ -21,10 +22,23 @@
     }
     perNodeZipByteArray[i]=bytes;
   }
+  if (H2O.ARGS.client) {
+    byte[] bytes;
+    try {
+      GetLogsFromNode g=new GetLogsFromNode();
+      g.nodeidx=-1;
+      g.doIt();
+      bytes=g.bytes;
+    }
+ catch (    Exception e) {
+      bytes=e.toString().getBytes();
+    }
+    clientNodeByteArray=bytes;
+  }
   String outputFileStem=getOutputLogStem();
   byte[] finalZipByteArray;
   try {
-    finalZipByteArray=zipLogs(perNodeZipByteArray,outputFileStem);
+    finalZipByteArray=zipLogs(perNodeZipByteArray,clientNodeByteArray,outputFileStem);
   }
  catch (  Exception e) {
     finalZipByteArray=e.toString().getBytes();
