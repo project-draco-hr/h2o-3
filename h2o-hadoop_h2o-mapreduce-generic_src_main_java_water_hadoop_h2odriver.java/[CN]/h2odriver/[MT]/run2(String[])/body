@@ -37,7 +37,11 @@
     conf.set("mapreduce.job.ubertask.enable","false");
     String mapreduceMapMemoryMb=Long.toString(processTotalPhysicalMemoryMegabytes);
     conf.set("mapreduce.map.memory.mb",mapreduceMapMemoryMb);
-    String mapChildJavaOpts="-Xms" + mapperXmx + " -Xmx"+ mapperXmx+ (enableExceptions ? " -ea" : "")+ (enableVerboseGC ? " -verbose:gc" : "")+ (enablePrintGCDetails ? " -XX:+PrintGCDetails" : "")+ (enablePrintGCTimeStamps ? " -XX:+PrintGCTimeStamps" : "")+ (enableVerboseClass ? " -verbose:class" : "")+ (enablePrintCompilation ? " -XX:+PrintCompilation" : "")+ (enableExcludeMethods ? " -XX:CompileCommand=exclude,water/fvec/NewChunk.append2slowd" : "")+ (enableLog4jDefaultInitOverride ? " -Dlog4j.defaultInitOverride=true" : "")+ (enableDebug ? " -agentlib:jdwp=transport=dt_socket,server=y,suspend=" + (enableSuspend ? "y" : "n") + ",address="+ debugPort : "");
+    StringBuilder sb=new StringBuilder().append("-Xms").append(mapperXmx).append(" -Xmx").append(mapperXmx).append((enableExceptions ? " -ea" : "")).append((enableVerboseGC ? " -verbose:gc" : "")).append((enablePrintGCDetails ? " -XX:+PrintGCDetails" : "")).append((enablePrintGCTimeStamps ? " -XX:+PrintGCTimeStamps" : "")).append((enableVerboseClass ? " -verbose:class" : "")).append((enablePrintCompilation ? " -XX:+PrintCompilation" : "")).append((enableExcludeMethods ? " -XX:CompileCommand=exclude,water/fvec/NewChunk.append2slowd" : "")).append((enableLog4jDefaultInitOverride ? " -Dlog4j.defaultInitOverride=true" : "")).append((enableDebug ? " -agentlib:jdwp=transport=dt_socket,server=y,suspend=" + (enableSuspend ? "y" : "n") + ",address="+ debugPort : ""));
+    for (    String s : extraJvmArguments) {
+      sb.append(" ").append(s);
+    }
+    String mapChildJavaOpts=sb.toString();
     conf.set("mapreduce.map.java.opts",mapChildJavaOpts);
     if (!usingYarn()) {
       conf.set("mapred.child.java.opts",mapChildJavaOpts);
