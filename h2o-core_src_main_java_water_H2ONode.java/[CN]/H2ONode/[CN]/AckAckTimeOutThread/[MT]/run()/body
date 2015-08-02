@@ -1,2 +1,39 @@
 {
+  Thread.currentThread().setPriority(Thread.MAX_PRIORITY - 1);
+  while (true) {
+    RPC.RPCCall r;
+    long currenTime=System.currentTimeMillis();
+    for (    H2ONode h2o : H2O.CLOUD._memary) {
+      if (h2o != H2O.SELF) {
+        for (        RPCCall rpc : h2o._work.values()) {
+          if ((rpc._started + rpc._retry) < currenTime) {
+            if ((!H2O.CLOUD.contains(rpc._client) && !rpc._client._heartbeat._client) || (rpc._client._heartbeat._client && rpc._retry >= HeartBeatThread.CLIENT_TIMEOUT)) {
+              rpc._client.remove_task_tracking(rpc._tsknum);
+            }
+ else             if (rpc._started + rpc._retry < currenTime) {
+              if (rpc._computed) {
+                if (rpc._computedAndReplied) {
+                  DTask dt=rpc._dt;
+                  if (dt != null) {
+                    if (++rpc._ackResendCnt % 5 == 0)                     Log.warn("Got " + rpc._ackResendCnt + " resends on ack for task # "+ rpc._tsknum+ ", class = "+ dt.getClass().getSimpleName());
+                    rpc.resend_ack();
+                  }
+                }
+              }
+ else               if (rpc._nackResendCnt == 0) {
+                ++rpc._nackResendCnt;
+                rpc.send_nack();
+              }
+            }
+          }
+        }
+      }
+    }
+    long timeElapsed=System.currentTimeMillis() - currenTime;
+    if (timeElapsed < 1000)     try {
+      Thread.sleep(1000 - timeElapsed);
+    }
+ catch (    InterruptedException e) {
+    }
+  }
 }

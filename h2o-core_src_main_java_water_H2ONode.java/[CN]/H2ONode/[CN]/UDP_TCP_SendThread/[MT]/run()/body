@@ -1,0 +1,22 @@
+{
+  try {
+    while (true) {
+      try {
+        UDPMessage m=_msgQ.take();
+        while (m != null) {
+          if (m._data.length > _bb.capacity())           throw new IllegalStateException("UDP message larger than the buffer");
+          if (_bb.remaining() < m._data.length)           sendBuffer();
+          _bb.put(m._data);
+          m=_msgQ.poll();
+        }
+        sendBuffer();
+      }
+ catch (      InterruptedException e) {
+      }
+    }
+  }
+ catch (  Throwable t) {
+    Log.err(t);
+    throw H2O.fail();
+  }
+}

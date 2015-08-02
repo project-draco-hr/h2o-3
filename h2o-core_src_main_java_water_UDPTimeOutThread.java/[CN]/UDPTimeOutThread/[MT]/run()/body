@@ -1,27 +1,24 @@
 {
   Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
   while (true) {
-    try {
-      long currentTime=System.currentTimeMillis();
-      int sentCntr=0;
-      for (      Entry<Long,RPC> e : PENDING.entrySet()) {
-        RPC t=e.getValue();
+    long currentTime=System.currentTimeMillis();
+    for (    H2ONode n : H2O.CLOUD._memary) {
+      if (n == H2O.SELF)       continue;
+      for (      RPC t : n.tasks()) {
         if (H2O.CLOUD.contains(t._target) || (t._target._heartbeat._client && t._retry < HeartBeatThread.CLIENT_TIMEOUT)) {
-          if (currentTime > (t._lastSent + t._retry) && !t.isDone() && !t._nack) {
+          if (currentTime > (t._started + t._retry) && !t.isDone() && !t._nack) {
             if (++t._resendsCnt % 10 == 0)             Log.warn("Got " + t._resendsCnt + " resends on task #"+ t._tasknum+ ", class = "+ t._dt.getClass().getSimpleName());
             t.call();
-            if (sentCntr++ == 10000) {
-              sentCntr=0;
-              Thread.sleep(1000);
-              currentTime=System.currentTimeMillis();
-            }
           }
         }
  else {
           t.cancel(true);
         }
       }
-      Thread.sleep(1000);
+    }
+    long timeElapsed=System.currentTimeMillis() - currentTime;
+    if (timeElapsed < 1000)     try {
+      Thread.sleep(1000 - timeElapsed);
     }
  catch (    InterruptedException e) {
     }
