@@ -67,21 +67,25 @@
     return KeyV3.make(fclz,Key.make(s.startsWith("\"") ? s.substring(1,s.length() - 1) : s));
   }
   if (Enum.class.isAssignableFrom(fclz))   return Enum.valueOf(fclz,s);
-  if (FrameV3.class.isAssignableFrom(fclz))   if ((s == null || s.length() == 0) && required)   throw new H2OKeyNotFoundArgumentException(field_name,s);
- else   if (!required && (s == null || s.length() == 0))   return null;
+  if (FrameV3.class.isAssignableFrom(fclz)) {
+    if ((s == null || s.length() == 0) && required)     throw new H2OKeyNotFoundArgumentException(field_name,s);
+ else     if (!required && (s == null || s.length() == 0))     return null;
  else {
-    Value v=DKV.get(s);
-    if (null == v)     return null;
-    if (!v.isFrame())     throw H2OIllegalArgumentException.wrongKeyType(field_name,s,"Frame",v.get().getClass());
-    return new FrameV3((Frame)v.get());
+      Value v=DKV.get(s);
+      if (null == v)       return null;
+      if (!v.isFrame())       throw H2OIllegalArgumentException.wrongKeyType(field_name,s,"Frame",v.get().getClass());
+      return new FrameV3((Frame)v.get());
+    }
   }
-  if (JobV3.class.isAssignableFrom(fclz))   if ((s == null || s.length() == 0) && required)   throw new H2OKeyNotFoundArgumentException(s);
- else   if (!required && (s == null || s.length() == 0))   return null;
+  if (JobV3.class.isAssignableFrom(fclz)) {
+    if ((s == null || s.length() == 0) && required)     throw new H2OKeyNotFoundArgumentException(s);
+ else     if (!required && (s == null || s.length() == 0))     return null;
  else {
-    Value v=DKV.get(s);
-    if (null == v)     return null;
-    if (!v.isJob())     throw H2OIllegalArgumentException.wrongKeyType(field_name,s,"Job",v.get().getClass());
-    return new JobV3().fillFromImpl((Job)v.get());
+      Value v=DKV.get(s);
+      if (null == v)       return null;
+      if (!v.isJob())       throw H2OIllegalArgumentException.wrongKeyType(field_name,s,"Job",v.get().getClass());
+      return new JobV3().fillFromImpl((Job)v.get());
+    }
   }
   if (FrameV3.ColSpecifierV3.class.isAssignableFrom(fclz)) {
     return new FrameV3.ColSpecifierV3(s);
