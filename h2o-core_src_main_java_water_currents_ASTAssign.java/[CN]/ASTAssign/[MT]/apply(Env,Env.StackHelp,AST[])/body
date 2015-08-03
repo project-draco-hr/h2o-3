@@ -2,7 +2,7 @@
   Frame dst=stk.track(asts[1].exec(env)).getFrame();
   Val vsrc=stk.track(asts[2].exec(env));
   ASTNumList cols=check(dst.numCols(),asts[3]);
-  ASTNumList rows=check(dst.numRows(),asts[4]);
+  Iced rows=(asts[4] instanceof ASTNumList) ? check(dst.numRows(),asts[4]) : stk.track(asts[4].exec(env)).getFrame();
   if (cols.cnt() == 1 && cols.max() - 1 == dst.numCols()) {
     dst=new Frame(dst._names.clone(),dst.vecs().clone());
     dst.add(Frame.defaultColName(dst.numCols()),dst.anyVec().makeCon(Double.NaN));

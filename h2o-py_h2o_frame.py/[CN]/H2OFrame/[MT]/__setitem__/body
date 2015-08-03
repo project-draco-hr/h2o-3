@@ -1,3 +1,22 @@
 def __setitem__(self, b, c):
-    "\n    Replace a column in an H2OFrame.\n\n    :param b: A 0-based index or a column name.\n    :param c: The vector that 'b' is replaced with.\n    :return: Returns this H2OFrame.\n    "
-    raise Exception('unimplemented')
+    "\n    Replace a column in an H2OFrame.\n\n    :param b: A 0-based index or a column name or tuple\n    :param c: The vector that 'b' is replaced with.\n    :return: Returns this H2OFrame.\n    "
+    update_index = (-1)
+    newcolname = None
+    if isinstance(b, (str, unicode)):
+        if (b not in self.col_names()):
+            newcolname = b
+            update_index = self._ncols
+        else:
+            update_index = self.col_names().index(b)
+    elif isinstance(b, int):
+        update_index = b
+    col_expr = (b[1] if isinstance(b, tuple) else update_index)
+    if isinstance(col_expr, (str, unicode)):
+        col_expr = self.col_names().index(col_expr)
+    row_expr = (b[0] if isinstance(b, tuple) else (b if isinstance(b, H2OFrame) else slice(0, self.nrow())))
+    src = (c._frame() if isinstance(c, H2OFrame) else c)
+    expr = ExprNode('=', self, src, col_expr, row_expr)
+    h2o.rapids(ExprNode._collapse_sb(expr._eager()), self._id)
+    if (newcolname is not None):
+        self.setName(update_index, newcolname)
+    self._update()
