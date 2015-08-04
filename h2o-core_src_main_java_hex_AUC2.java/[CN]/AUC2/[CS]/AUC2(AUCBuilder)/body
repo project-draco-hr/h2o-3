@@ -1,29 +1,2 @@
 {
-  _nBins=bldr._n;
-  _ths=Arrays.copyOf(bldr._ths,_nBins);
-  _tps=Arrays.copyOf(bldr._tps,_nBins);
-  _fps=Arrays.copyOf(bldr._fps,_nBins);
-  for (int i=0; i < ((_nBins) >> 1); i++) {
-    double tmp=_ths[i];
-    _ths[i]=_ths[_nBins - 1 - i];
-    _ths[_nBins - 1 - i]=tmp;
-    double tmpt=_tps[i];
-    _tps[i]=_tps[_nBins - 1 - i];
-    _tps[_nBins - 1 - i]=tmpt;
-    double tmpf=_fps[i];
-    _fps[i]=_fps[_nBins - 1 - i];
-    _fps[_nBins - 1 - i]=tmpf;
-  }
-  double p=0, n=0;
-  for (int i=0; i < _nBins; i++) {
-    p+=_tps[i];
-    _tps[i]=p;
-    n+=_fps[i];
-    _fps[i]=n;
-  }
-  _p=p;
-  _n=n;
-  _auc=compute_auc();
-  _gini=2 * _auc - 1;
-  _max_idx=DEFAULT_CM.max_criterion_idx(this);
 }
