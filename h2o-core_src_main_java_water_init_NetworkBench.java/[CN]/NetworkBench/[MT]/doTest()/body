@@ -9,10 +9,6 @@
         Log.info("Network Bench, running All2All, message size = " + MSG_SZS[i] + ", message count = "+ MSG_CNT[i]);
         long[][] all2all=new TestAll2All(MSG_SZS[i],MSG_CNT[i]).doAllNodes()._time;
         Log.info("All2All test done in " + ((System.currentTimeMillis() - t2) * 0.001) + "s");
-        for (int j=0; j < H2O.CLOUD.size(); ++j) {
-          Log.info("Network Bench, running MRTask test at node " + j + ", message size = "+ MSG_SZS[i]+ ", message count = "+ MSG_CNT[i]);
-          mrts[j]=RPC.call(H2O.CLOUD._memary[j],new TestMRTasks(MSG_SZS[i],MSG_CNT[i])).get()._time;
-        }
         _results[i]=new NetworkBenchResults(MSG_SZS[i],MSG_CNT[i],all2all,mrts);
       }
       tryComplete();
