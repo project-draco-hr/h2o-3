@@ -3,18 +3,22 @@
     IcedDouble x=minValues.get(e.getKey());
     if (x != null) {
       x._val=Math.min(e.getValue()._val,x._val);
+      minValues.replace(e.getKey(),x);
     }
  else {
-      minValues.put(e.getKey(),e.getValue());
+      assert(minValues.get(e.getKey()) == null);
+      minValues.putIfAbsent(e.getKey(),e.getValue());
     }
   }
   for (  Map.Entry<IcedLong,IcedDouble> e : mrt.maxValues.entrySet()) {
     IcedDouble x=maxValues.get(e.getKey());
     if (x != null) {
       x._val=Math.max(e.getValue()._val,x._val);
+      maxValues.replace(e.getKey(),x);
     }
  else {
-      maxValues.put(e.getKey(),e.getValue());
+      assert(maxValues.get(e.getKey()) == null);
+      maxValues.putIfAbsent(e.getKey(),e.getValue());
     }
   }
   mrt.minValues=null;

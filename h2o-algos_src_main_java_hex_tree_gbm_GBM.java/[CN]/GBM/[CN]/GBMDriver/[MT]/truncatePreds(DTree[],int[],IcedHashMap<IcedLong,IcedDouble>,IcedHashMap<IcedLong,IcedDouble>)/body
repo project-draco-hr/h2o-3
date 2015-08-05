@@ -6,13 +6,17 @@
   for (int i=0; i < tree._len - leafs[0]; i++) {
     final LeafNode node=((LeafNode)tree.node(leafs[0] + i));
     nidx._val=node.nid();
-    double nodeMax=maxValues.get(nidx)._val;
-    if (nodeMax + node._pred > Distribution.MAX_LOG) {
-      node._pred=(float)(Distribution.MAX_LOG - nodeMax);
+    IcedDouble nodeMax=maxValues.get(nidx);
+    if (nodeMax != null) {
+      if (nodeMax._val + node._pred > MAX_LOG_TRUNC) {
+        node._pred=(float)(MAX_LOG_TRUNC - nodeMax._val);
+      }
     }
-    double nodeMin=minValues.get(nidx)._val;
-    if (nodeMin + node._pred < Distribution.MIN_LOG) {
-      node._pred=(float)(Distribution.MIN_LOG - nodeMin);
+    IcedDouble nodeMin=minValues.get(nidx);
+    if (nodeMin != null) {
+      if (nodeMin._val + node._pred < MIN_LOG_TRUNC) {
+        node._pred=(float)(MIN_LOG_TRUNC - nodeMin._val);
+      }
     }
   }
 }

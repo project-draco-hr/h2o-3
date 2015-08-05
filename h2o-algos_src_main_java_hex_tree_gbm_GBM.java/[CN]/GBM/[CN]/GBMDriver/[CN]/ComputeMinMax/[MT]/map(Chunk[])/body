@@ -5,21 +5,21 @@
   Chunk offset=hasOffsetCol() ? chk_offset(chks) : new C0DChunk(0,chks[0]._len);
   Chunk tr=chk_tree(chks,0);
   Chunk nids=chk_nids(chks,0);
-  IcedLong nidx=new IcedLong(0);
   for (int row=0; row < tr._len; row++) {
     if (ys.isNA(row))     continue;
     double f=tr.atd(row) + offset.atd(row);
-    nidx._val=nids.at8(row);
+    IcedLong nidx=new IcedLong(nids.at8(row));
     IcedDouble mins=minValues.get(nidx);
     double oldMin=mins == null ? Double.MAX_VALUE : mins._val;
-    IcedDouble ff=new IcedDouble(f);
     if (f < oldMin) {
+      IcedDouble ff=new IcedDouble(f);
       if (mins == null)       minValues.put(nidx,ff);
  else       minValues.replace(nidx,ff);
     }
     IcedDouble maxs=maxValues.get(nidx);
     double oldMax=maxs == null ? -Double.MAX_VALUE : maxs._val;
     if (f > oldMax) {
+      IcedDouble ff=new IcedDouble(f);
       if (maxs == null)       maxValues.put(nidx,ff);
  else       maxValues.replace(nidx,ff);
     }

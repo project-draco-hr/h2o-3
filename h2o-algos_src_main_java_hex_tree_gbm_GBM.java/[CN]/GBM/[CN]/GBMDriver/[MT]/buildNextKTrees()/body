@@ -5,6 +5,10 @@
   fitBestConstants(ktrees,leafs,new GammaPass(ktrees,leafs,_parms._distribution).doAll(_train));
   if (_parms._distribution == Distribution.Family.gamma || _parms._distribution == Distribution.Family.poisson || _parms._distribution == Distribution.Family.tweedie) {
     ComputeMinMax minMax=new ComputeMinMax().doAll(_train);
+    assert(minMax.minValues.size() == minMax.maxValues.size());
+    Log.info("Number of leaf nodes: " + minMax.minValues.size());
+    Log.info("Min: " + java.util.Arrays.deepToString(minMax.minValues.entrySet().toArray()));
+    Log.info("Max: " + java.util.Arrays.deepToString(minMax.maxValues.entrySet().toArray()));
     truncatePreds(ktrees,leafs,minMax.minValues,minMax.maxValues);
   }
   new AddTreeContributions(ktrees).doAll(_train);
