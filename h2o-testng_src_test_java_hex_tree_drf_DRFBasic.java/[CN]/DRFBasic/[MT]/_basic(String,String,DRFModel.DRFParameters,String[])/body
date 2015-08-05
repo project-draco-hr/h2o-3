@@ -22,21 +22,25 @@
     drfModel=job.trainModel().get();
     System.out.println("Predict testcase " + testcase_id);
     score=drfModel.score(trainFrame);
-    System.out.println("Predict success.");
-    System.out.println("Testcase is passed.");
+    System.out.println("Validate testcase " + testcase_id);
+    if (FunctionUtils.isNegativeTestcase(tcHeaders,rawInput)) {
+      Assert.fail("It is negative testcase");
+    }
+ else {
+      System.out.println("Testcase is passed.");
+    }
   }
  catch (  IllegalArgumentException ex) {
-    System.out.println("Cannot predit testcase " + testcase_id);
     System.out.println("Testcase is failed");
     ex.printStackTrace();
-    if (!isNegativeTestcase(rawInput)) {
+    if (!FunctionUtils.isNegativeTestcase(tcHeaders,rawInput)) {
       Assert.fail("Testcase is failed",ex);
     }
   }
 catch (  Exception ex) {
     System.out.println("Testcase is failed");
     ex.printStackTrace();
-    if (!isNegativeTestcase(rawInput)) {
+    if (!FunctionUtils.isNegativeTestcase(tcHeaders,rawInput)) {
       Assert.fail("Testcase is failed",ex);
     }
   }

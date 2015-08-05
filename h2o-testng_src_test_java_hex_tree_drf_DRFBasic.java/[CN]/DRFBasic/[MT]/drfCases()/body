@@ -1,20 +1,34 @@
 {
-  final int firstRow=5;
+  final int firstRow=4;
   final String testcaseFilePath="h2o-testng/src/test/resources/drfCases.csv";
+  final String negTestcaseFilePath="h2o-testng/src/test/resources/drfNegCases.csv";
   Object[][] data=null;
   List<String> lines=null;
+  List<String> negLines=null;
+  List<String> allLines=new ArrayList<String>();
   try {
     lines=Files.readAllLines(find_test_file_static(testcaseFilePath).toPath(),Charset.defaultCharset());
   }
  catch (  Exception ignore) {
     System.out.println("Cannot open file: " + testcaseFilePath);
     ignore.printStackTrace();
-    return null;
   }
-  lines.removeAll(lines.subList(0,firstRow));
-  data=new Object[lines.size()][8];
+  try {
+    negLines=Files.readAllLines(find_test_file_static(negTestcaseFilePath).toPath(),Charset.defaultCharset());
+  }
+ catch (  Exception ignore) {
+    System.out.println("Cannot open file: " + negTestcaseFilePath);
+    ignore.printStackTrace();
+  }
+  if (lines != null) {
+    allLines.addAll(lines.subList(firstRow,lines.size()));
+  }
+  if (negLines != null) {
+    allLines.addAll(negLines.subList(firstRow,negLines.size()));
+  }
+  data=new Object[allLines.size()][8];
   int r=0;
-  for (  String line : lines) {
+  for (  String line : allLines) {
     String[] variables=line.trim().split(",",-1);
     data[r][0]=variables[tcHeaders.indexOf("testcase_id")];
     data[r][1]=variables[tcHeaders.indexOf("test_description")];

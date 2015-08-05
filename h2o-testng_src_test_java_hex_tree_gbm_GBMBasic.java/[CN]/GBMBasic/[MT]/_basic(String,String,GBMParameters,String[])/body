@@ -16,15 +16,26 @@
   }
   try {
     Scope.enter();
+    System.out.println("Build model ");
     job=new GBM(parameter);
+    System.out.println("Train model");
     gbmModel=job.trainModel().get();
+    System.out.println("Predict testcase " + testcase_id);
     score=gbmModel.score(trainFrame);
-    System.out.println("Test is passed.");
+    System.out.println("Validate testcase " + testcase_id);
+    if (FunctionUtils.isNegativeTestcase(tcHeaders,rawInput)) {
+      Assert.fail("It is negative testcase");
+    }
+ else {
+      System.out.println("Testcase is passed.");
+    }
   }
- catch (  IllegalArgumentException ex) {
-    System.out.println("Test is failed. It can't predict");
+ catch (  Exception ex) {
+    System.out.println("Testcase is failed.");
     ex.printStackTrace();
-    Assert.fail("Test is failed. It can't predict",ex);
+    if (!FunctionUtils.isNegativeTestcase(tcHeaders,rawInput)) {
+      Assert.fail("Testcase is failed",ex);
+    }
   }
  finally {
     if (trainFrame != null) {
