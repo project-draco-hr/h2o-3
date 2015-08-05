@@ -4,7 +4,6 @@
     StringBuilder sb=new StringBuilder();
     Vec vs[]=vecs();
     for (int i=0; i < vs.length; i++) {
-      _curChkIdx=vs[0].elem2ChunkIdx(_row);
       if (i > 0)       sb.append(',');
       if (!vs[i].isNA(_row)) {
         if (vs[i].isEnum())         sb.append('"').append(vs[i].factor(vs[i].at8(_row))).append('"');
@@ -21,6 +20,10 @@
     sb.append('\n');
     _line=sb.toString().getBytes();
     _position=0;
+    if (isLastRowOfCurrentChunk(_curChkIdx,_row)) {
+      for (      Vec v : vs)       hintFlushRemoteChunk(v,_curChkIdx);
+      _curChkIdx++;
+    }
     _row++;
   }
   return _line.length - _position;
