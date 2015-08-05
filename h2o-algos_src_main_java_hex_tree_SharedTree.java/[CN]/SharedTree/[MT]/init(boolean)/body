@@ -1,20 +1,22 @@
 {
   super.init(expensive);
-  _hasWeights=super.hasWeights();
-  _hasOffset=super.hasOffset();
-  if (_hasOffset)   error("_offset_column","Offsets are not yet supported for GBM/DRF.");
   if (H2O.ARGS.client && _parms._build_tree_one_node)   error("_build_tree_one_node","Cannot run on a single node in client mode");
   if (_vresponse != null)   _vresponse_key=_vresponse._key;
   if (_response != null)   _response_key=_response._key;
-  if (_nclass > SharedTreeModel.SharedTreeParameters.MAX_SUPPORTED_LEVELS)   error("_nclass","Too many levels in response column!");
   if (_parms._min_rows < 0)   error("_min_rows","Requested min_rows must be greater than 0");
-  if (_parms._ntrees < 0 || _parms._ntrees > 100000)   error("_ntrees","Requested ntrees must be between 1 and 100000");
+  if (_parms._ntrees < 0 || _parms._ntrees > MAX_NTREES)   error("_ntrees","Requested ntrees must be between 1 and " + MAX_NTREES);
   _ntrees=_parms._ntrees;
-  if (_parms._checkpoint) {
-    Value cv=DKV.get(_parms._model_id);
+  if (_parms.hasCheckpoint()) {
+    Value cv=DKV.get(_parms._checkpoint);
     if (cv != null) {
       M checkpointModel=cv.get();
-      if (_parms._ntrees < checkpointModel._output._ntrees + 1)       error("_ntrees","Requested ntrees must be between " + checkpointModel._output._ntrees + 1+ " and 100000");
+      try {
+        _parms.validateWithCheckpoint(checkpointModel._parms);
+      }
+ catch (      H2OIllegalArgumentException e) {
+        error(e.values.get("argument").toString(),e.values.get("value").toString());
+      }
+      if (_parms._ntrees < checkpointModel._output._ntrees + 1)       error("_ntrees","If checkpoint is specified then requested ntrees must be higher than " + (checkpointModel._output._ntrees + 1));
       _ntrees=_parms._ntrees - checkpointModel._output._ntrees;
     }
   }
@@ -25,8 +27,8 @@
   if (_parms._max_depth <= 0)   error("_max_depth","_max_depth must be > 0.");
   if (_parms._min_rows <= 0)   error("_min_rows","_min_rows must be > 0.");
   if (_train != null) {
-    double sumWeights=_train.numRows() * (hasWeights() ? _train.vec(_parms._weights_column).mean() : 1);
+    double sumWeights=_train.numRows() * (hasWeightCol() ? _train.vec(_parms._weights_column).mean() : 1);
     if (sumWeights < 2 * _parms._min_rows)     error("_min_rows","The dataset size is too small to split for min_rows=" + _parms._min_rows + ": must have at least "+ 2 * _parms._min_rows + " (weighted) rows, but have only " + sumWeights + ".");
   }
-  if (_train != null)   _ncols=_train.numCols() - 1 - (_parms._weights_column != null ? 1 : 0)- (_parms._offset_column != null ? 1 : 0);
+  if (_train != null)   _ncols=_train.numCols() - 1 - numSpecialCols();
 }

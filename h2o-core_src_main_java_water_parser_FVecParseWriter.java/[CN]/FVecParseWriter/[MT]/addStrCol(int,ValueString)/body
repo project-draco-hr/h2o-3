@@ -10,10 +10,8 @@
       long l=ParseTime.attemptTimeParse(str);
       if (l == Long.MIN_VALUE)       addInvalidCol(colIdx);
  else {
-        int timePat=ParseTime.decodePat(l);
-        l=ParseTime.decodeTime(l);
         addNumCol(colIdx,l,0);
-        _nvs[_col]._timCnt[timePat]++;
+        _nvs[_col]._timCnt++;
       }
     }
  else     if (_ctypes[colIdx] == Vec.T_UUID) {
@@ -30,7 +28,7 @@
         _nvs[colIdx].addEnum(id);
       }
  else {
-        throw new H2OParseException("Exceeded enumeration limit.  Consider reparsing this column as a string.");
+        throw new H2OParseException("Exceeded enumeration limit on column #" + (colIdx + 1) + " (using 1-based indexing).  Consider reparsing this column as a string.");
       }
     }
   }

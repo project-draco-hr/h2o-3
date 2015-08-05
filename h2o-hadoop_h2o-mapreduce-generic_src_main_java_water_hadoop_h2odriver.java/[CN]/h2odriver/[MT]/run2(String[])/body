@@ -1,5 +1,6 @@
 {
   parseArgs(args);
+  validateArgs();
   if (driverCallbackIp == null) {
     driverCallbackIp=calcMyIp();
   }
@@ -36,7 +37,11 @@
     conf.set("mapreduce.job.ubertask.enable","false");
     String mapreduceMapMemoryMb=Long.toString(processTotalPhysicalMemoryMegabytes);
     conf.set("mapreduce.map.memory.mb",mapreduceMapMemoryMb);
-    String mapChildJavaOpts="-Xms" + mapperXmx + " -Xmx"+ mapperXmx+ (enableExceptions ? " -ea" : "")+ (enableVerboseGC ? " -verbose:gc" : "")+ (enablePrintGCDetails ? " -XX:+PrintGCDetails" : "")+ (enablePrintGCTimeStamps ? " -XX:+PrintGCTimeStamps" : "")+ (enableVerboseClass ? " -verbose:class" : "")+ (enablePrintCompilation ? " -XX:+PrintCompilation" : "")+ (enableExcludeMethods ? " -XX:CompileCommand=exclude,water/fvec/NewChunk.append2slowd" : "")+ (enableLog4jDefaultInitOverride ? " -Dlog4j.defaultInitOverride=true" : "")+ (enableDebug ? " -agentlib:jdwp=transport=dt_socket,server=y,suspend=" + (enableSuspend ? "y" : "n") + ",address="+ debugPort : "");
+    StringBuilder sb=new StringBuilder().append("-Xms").append(mapperXmx).append(" -Xmx").append(mapperXmx).append((enableExceptions ? " -ea" : "")).append((enableVerboseGC ? " -verbose:gc" : "")).append((enablePrintGCDetails ? " -XX:+PrintGCDetails" : "")).append((enablePrintGCTimeStamps ? " -XX:+PrintGCTimeStamps" : "")).append((enableVerboseClass ? " -verbose:class" : "")).append((enablePrintCompilation ? " -XX:+PrintCompilation" : "")).append((enableExcludeMethods ? " -XX:CompileCommand=exclude,water/fvec/NewChunk.append2slowd" : "")).append((enableLog4jDefaultInitOverride ? " -Dlog4j.defaultInitOverride=true" : "")).append((enableDebug ? " -agentlib:jdwp=transport=dt_socket,server=y,suspend=" + (enableSuspend ? "y" : "n") + ",address="+ debugPort : ""));
+    for (    String s : extraJvmArguments) {
+      sb.append(" ").append(s);
+    }
+    String mapChildJavaOpts=sb.toString();
     conf.set("mapreduce.map.java.opts",mapChildJavaOpts);
     if (!usingYarn()) {
       conf.set("mapred.child.java.opts",mapChildJavaOpts);
@@ -63,33 +68,53 @@
   if (!usingYarn()) {
     conf.set("mapred.job.reuse.jvm.num.tasks","1");
   }
-  conf.set(h2omapper.H2O_JOBTRACKERNAME_KEY,jobtrackerName);
   conf.set(h2omapper.H2O_DRIVER_IP_KEY,driverCallbackIp);
   conf.set(h2omapper.H2O_DRIVER_PORT_KEY,Integer.toString(actualDriverCallbackPort));
-  conf.set(h2omapper.H2O_NETWORK_KEY,network);
+  addMapperArg(conf,"-name",jobtrackerName);
+  if (network.length() > 0) {
+    addMapperArg(conf,"-network",network);
+  }
   if (nthreads >= 0) {
-    conf.set(h2omapper.H2O_NTHREADS_KEY,Integer.toString(nthreads));
+    addMapperArg(conf,"-nthreads",Integer.toString(nthreads));
   }
   if (basePort >= 0) {
-    conf.set(h2omapper.H2O_BASE_PORT_KEY,Integer.toString(basePort));
+    addMapperArg(conf,"-baseport",Integer.toString(basePort));
   }
   if (beta) {
-    conf.set(h2omapper.H2O_BETA_KEY,"-beta");
+    addMapperArg(conf,"-beta");
   }
   if (enableRandomUdpDrop) {
-    conf.set(h2omapper.H2O_RANDOM_UDP_DROP_KEY,"-random_udp_drop");
-  }
-  if (licenseData != null) {
-    conf.set(h2omapper.H2O_LICENSE_DATA_KEY,licenseData);
+    addMapperArg(conf,"-random_udp_drop");
   }
   if (flowDir != null) {
-    conf.set(h2omapper.H2O_FLOW_DIR_KEY,flowDir);
+    addMapperArg(conf,"-flow_dir",flowDir);
+  }
+  if ((new File(".h2o_no_collect")).exists() || (new File(System.getProperty("user.home") + "/.h2o_no_collect")).exists()) {
+    addMapperArg(conf,"-ga_opt_out");
   }
   String hadoopVersion=calcHadoopVersion();
-  conf.set(h2omapper.H2O_HADOOP_VERSION,hadoopVersion);
-  if ((new File(".h2o_no_collect")).exists() || (new File(System.getProperty("user.home") + "/.h2o_no_collect")).exists()) {
-    conf.set(h2omapper.H2O_GA_OPTOUT,"-ga_opt_out");
+  addMapperArg(conf,"-ga_hadoop_ver",hadoopVersion);
+  if (jksPass != null) {
+    addMapperArg(conf,"-jks_pass",jksPass);
   }
+  if (hashLogin) {
+    addMapperArg(conf,"-hash_login");
+  }
+  if (ldapLogin) {
+    addMapperArg(conf,"-ldap_login");
+  }
+  addMapperArg(conf,"-user_name",userName);
+  for (  String s : extraArguments) {
+    addMapperArg(conf,s);
+  }
+  conf.set(h2omapper.H2O_MAPPER_ARGS_LENGTH,Integer.toString(mapperArgsLength));
+  if (jksFileName != null) {
+    addMapperConf(conf,"-jks","h2o.jks",jksFileName);
+  }
+  if (loginConfFileName != null) {
+    addMapperConf(conf,"-login_conf","login.conf",loginConfFileName);
+  }
+  conf.set(h2omapper.H2O_MAPPER_CONF_LENGTH,Integer.toString(mapperConfLength));
   job=new Job(conf,jobtrackerName);
   job.setJarByClass(getClass());
   job.setInputFormatClass(H2OInputFormat.class);
@@ -116,7 +141,7 @@
       Thread.sleep(3000);
       Class clazz=Class.forName("water.hadoop.H2OYarnDiagnostic");
       if (clazz != null) {
-        Method method=clazz.getMethod("diagnose",String.class,String.class,int.class,int.class,int.class);
+        @SuppressWarnings("all") Method method=clazz.getMethod("diagnose",String.class,String.class,int.class,int.class,int.class);
         String queueName;
         queueName=conf.get("mapreduce.job.queuename");
         if (queueName == null) {
@@ -154,11 +179,15 @@
   System.out.printf("H2O cluster (%d nodes) is up\n",numNodes);
   if (disown) {
     Thread.sleep(CLOUD_FORMATION_SETTLE_DOWN_SECONDS);
+    System.out.println("Open H2O Flow in your web browser: " + getClusterUrl());
     System.out.println("Disowning cluster and exiting.");
     Runtime.getRuntime().removeShutdownHook(ctrlc);
     return 0;
   }
   System.out.println("(Note: Use the -disown option to exit the driver after cluster formation)");
+  System.out.println("");
+  System.out.println("Open H2O Flow in your web browser: " + getClusterUrl());
+  System.out.println("");
   System.out.println("(Press Ctrl-C to kill the cluster)");
   System.out.println("Blocking until the H2O cluster shuts down...");
   waitForClusterToShutdown();

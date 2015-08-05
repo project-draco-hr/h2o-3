@@ -17,7 +17,7 @@ def test_GBM_basic(self):
     labelListUsed = list(labelList)
     numColsUsed = numCols
     parameters = []
-    parameters.append({'response_column': 'C55', 'ntrees': 2, 'max_depth': 10, 'min_rows': 3, 'nbins': 40, 'learn_rate': 0.2, 'loss': 'multinomial', })
+    parameters.append({'response_column': 'C55', 'ntrees': 2, 'max_depth': 10, 'min_rows': 3, 'nbins': 40, 'learn_rate': 0.2, })
     parameters.append({'response_column': 'C55', 'loss': 'multinomial', 'ntrees': 1, 'max_depth': 20, 'min_rows': 3, 'nbins': 40, 'learn_rate': 0.2, })
     model_key = 'covtype_gbm.hex'
     for p in parameters:
@@ -26,8 +26,6 @@ def test_GBM_basic(self):
         modelResult = h2o.n0.models(key=model_key)
         model = OutputObj(modelResult['models'][0]['output'], 'model')
         cmmResult = h2o.n0.compute_model_metrics(model=model_key, frame=parse_key, timeoutSecs=60)
-        cmm = OutputObj(cmmResult, 'cmm')
-        print '\nLook!, can use dot notation: cmm.cm.confusion_matrix', cmm.cm.confusion_matrix, '\n'
         vis = OutputObj(model.variable_importances, 'vis')
         visDataChopped = [v[0:9] for v in vis.data]
         names = visDataChopped[0]
@@ -40,10 +38,7 @@ def test_GBM_basic(self):
         print 'will say Regression or Classification. no Multinomial?'
         print 'model.model_category', model.model_category
         assert (model.model_category == 'Multinomial'), model.model_category
-        print 'FIX! why is mse 0 and mes_train Nan?'
-        print 'model.mse:', model.mse
-        print 'model.mse_train:', model.mse_train
-        if (1 == 1):
+        if (1 == 0):
             print ''
             for (i, c) in enumerate(cmm.cm):
                 print ('\ncmms.cm[%s]' % i), tabulate(c)

@@ -1,0 +1,16 @@
+{
+  try {
+    java.math.BigDecimal num=new java.math.BigDecimal(s);
+    T result=(T)num.getClass().getDeclaredMethod(return_type.getSimpleName() + "ValueExact",new Class[0]).invoke(num);
+    return result;
+  }
+ catch (  InvocationTargetException ite) {
+    throw new NumberFormatException("The expression's numeric value is out of the range of type " + return_type.getSimpleName());
+  }
+catch (  NoSuchMethodException nsme) {
+    throw new IllegalArgumentException(return_type.getSimpleName() + " is not an integer data type");
+  }
+catch (  IllegalAccessException iae) {
+    throw H2O.fail("Cannot parse expression as " + return_type.getSimpleName() + " (Illegal Access)");
+  }
+}

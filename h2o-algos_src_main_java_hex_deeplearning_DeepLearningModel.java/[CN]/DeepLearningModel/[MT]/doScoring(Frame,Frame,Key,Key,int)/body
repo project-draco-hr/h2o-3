@@ -10,11 +10,32 @@
   if (progressKey != null)   new Job.ProgressUpdate(msg).fork(progressKey);
   boolean keep_running;
   try {
-    if (H2O.CLOUD.size() > 1 && get_params()._train_samples_per_iteration == -2 && time_for_communication_us > 1e4) {
-      final double comm_to_work_ratio=(time_for_communication_us * 1e-3) / time_last_iter_millis;
-      final double correction=get_params()._target_ratio_comm_to_comp / comm_to_work_ratio;
-      actual_train_samples_per_iteration/=correction;
-      actual_train_samples_per_iteration=Math.max(1,actual_train_samples_per_iteration);
+    if (H2O.CLOUD.size() > 1 && get_params()._train_samples_per_iteration == -2) {
+      Log.info("Auto-tuning train_samples_per_iteration.");
+      double correction=1;
+      if (time_for_communication_us > 1e4) {
+        Log.info("  Time taken for communication: " + PrettyPrint.usecs((long)time_for_communication_us));
+        Log.info("  Time taken for Map/Reduce iteration: " + PrettyPrint.msecs((long)time_last_iter_millis,true));
+        final double comm_to_work_ratio=(time_for_communication_us * 1e-3) / time_last_iter_millis;
+        Log.info("  Ratio of network communication to computation: " + String.format("%.5f",comm_to_work_ratio));
+        Log.info("  target_comm_to_work: " + get_params()._target_ratio_comm_to_comp);
+        Log.info("Old value of train_samples_per_iteration: " + actual_train_samples_per_iteration);
+        correction=get_params()._target_ratio_comm_to_comp / comm_to_work_ratio;
+        correction=Math.max(0.1,Math.min(2,correction));
+        if (actual_train_samples_per_iteration / correction <= 10 * tspiGuess && actual_train_samples_per_iteration / correction >= 0.1 * tspiGuess) {
+          if (Math.abs(correction) < 0.8 || Math.abs(correction) > 1.2) {
+            actual_train_samples_per_iteration/=correction;
+            actual_train_samples_per_iteration=Math.max(1,actual_train_samples_per_iteration);
+            Log.info("New value of train_samples_per_iteration: " + actual_train_samples_per_iteration);
+          }
+        }
+        if (correction == 1) {
+          Log.info("Keeping value of train_samples_per_iteration the same : " + actual_train_samples_per_iteration);
+        }
+      }
+ else {
+        Log.info("Communication is faster than 10 ms. Not modifying train_samples_per_iteration: " + actual_train_samples_per_iteration);
+      }
     }
     _timeLastScoreEnter=now;
     keep_running=(epoch_counter < model_info().get_params()._epochs);
@@ -77,11 +98,6 @@
         if (mm1 instanceof ModelMetricsBinomial) {
           ModelMetricsBinomial mm=(ModelMetricsBinomial)(mm1);
           err.training_AUC=mm._auc;
-          err.train_confusion_matrix=mm.cm();
-        }
- else         if (mm1 instanceof ModelMetricsMultinomial) {
-          ModelMetricsMultinomial mm=(ModelMetricsMultinomial)(mm1);
-          err.train_confusion_matrix=mm.cm();
         }
         if (ftrain.numRows() != training_rows) {
           _output._training_metrics._description="Metrics reported on temporary training frame with " + ftrain.numRows() + " samples";
@@ -104,11 +120,6 @@
             if (mtest instanceof ModelMetricsBinomial) {
               ModelMetricsBinomial mm=(ModelMetricsBinomial)mtest;
               err.validation_AUC=mm._auc;
-              err.valid_confusion_matrix=mm.cm();
-            }
- else             if (mtest instanceof ModelMetricsMultinomial) {
-              ModelMetricsMultinomial mm=(ModelMetricsMultinomial)mtest;
-              err.valid_confusion_matrix=mm.cm();
             }
             if (ftest.numRows() != validation_rows) {
               _output._validation_metrics._description="Metrics reported on temporary validation frame with " + ftest.numRows() + " samples";
@@ -142,6 +153,7 @@
         errors=err2;
       }
       _output.errors=last_scored();
+      makeWeightsBiases(_key);
       water.util.Timer t=new Timer();
       if (_output.weights != null && _output.biases != null) {
         for (int i=0; i < _output.weights.length; ++i) {
@@ -161,7 +173,7 @@
           _bestError=error();
           putMeAsBestModel(actual_best_model_key);
         }
-        if (keep_running && printme)         for (        String s : toString().split("\n"))         Log.info(s);
+        if (keep_running && printme)         Log.info(toString());
         if (printme)         Log.info("Time taken for scoring and diagnostics: " + PrettyPrint.msecs(err.scoring_time,true));
       }
     }

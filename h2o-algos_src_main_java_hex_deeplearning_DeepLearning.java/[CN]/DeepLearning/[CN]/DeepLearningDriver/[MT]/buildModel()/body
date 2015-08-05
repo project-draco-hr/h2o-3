@@ -2,7 +2,7 @@
   Scope.enter();
   DeepLearningModel cp=null;
   if (_parms._checkpoint == null) {
-    cp=new DeepLearningModel(dest(),_parms,new DeepLearningModel.DeepLearningModelOutput(DeepLearning.this),_train,_valid);
+    cp=new DeepLearningModel(dest(),_parms,new DeepLearningModel.DeepLearningModelOutput(DeepLearning.this),_train,_valid,nclasses());
     cp.model_info().initializeMembers();
   }
  else {
@@ -33,10 +33,10 @@
       assert(actualNewP != previous.model_info().get_params());
       assert(actualNewP != newP);
       assert(actualNewP != oldP);
-      DeepLearningParameters.Sanity.update(actualNewP,newP,isClassifier());
+      DeepLearningParameters.Sanity.update(actualNewP,newP,nclasses());
       actualNewP._epochs+=previous.epoch_counter;
       Log.info("Adding " + String.format("%.3f",previous.epoch_counter) + " epochs from the checkpointed model.");
-      if (actualNewP.getNumFolds() != 0) {
+      if (actualNewP._nfolds != 0) {
         Log.info("Disabling cross-validation: Not supported when resuming training from a checkpoint.");
         H2O.unimpl("writing to n_folds field needs to be uncommented");
       }

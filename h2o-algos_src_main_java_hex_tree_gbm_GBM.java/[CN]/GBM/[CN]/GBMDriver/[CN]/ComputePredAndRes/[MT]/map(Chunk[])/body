@@ -1,0 +1,34 @@
+{
+  Chunk ys=chk_resp(chks);
+  Chunk offset=hasOffsetCol() ? chk_offset(chks) : new C0DChunk(0,chks[0]._len);
+  Chunk tr=chk_tree(chks,0);
+  Chunk wk=chk_work(chks,0);
+  double fs[]=_nclass > 1 ? new double[_nclass + 1] : null;
+  Distribution dist=new Distribution(_parms._distribution,_parms._tweedie_power);
+  for (int row=0; row < wk._len; row++) {
+    if (ys.isNA(row))     continue;
+    double f=tr.atd(row) + offset.atd(row);
+    double y=ys.atd(row);
+    if (_parms._distribution == Distribution.Family.multinomial) {
+      double weight=hasWeightCol() ? chk_weight(chks).atd(row) : 1;
+      double sum=score1(chks,weight,0.0,fs,row);
+      if (Double.isInfinite(sum)) {
+        for (int k=0; k < _nclass; k++) {
+          wk=chk_work(chks,k);
+          wk.set(row,((int)y == k ? 1f : 0f) - (Double.isInfinite(fs[k + 1]) ? 1.0f : 0.0f));
+        }
+      }
+ else {
+        for (int k=0; k < _nclass; k++) {
+          if (_model._output._distribution[k] != 0) {
+            wk=chk_work(chks,k);
+            wk.set(row,((int)y == k ? 1f : 0f) - (float)(fs[k + 1] / sum));
+          }
+        }
+      }
+    }
+ else {
+      wk.set(row,(float)dist.gradient(y,f));
+    }
+  }
+}

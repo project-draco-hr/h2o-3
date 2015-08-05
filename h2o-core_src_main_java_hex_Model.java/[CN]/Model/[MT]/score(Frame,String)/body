@@ -1,8 +1,8 @@
 {
   Frame adaptFr=new Frame(fr);
-  boolean computeMetrics=adaptFr.find(_output.responseName()) != -1;
+  boolean computeMetrics=(!isSupervised() || adaptFr.find(_output.responseName()) != -1);
   adaptTestForTrain(adaptFr,true,computeMetrics);
-  Frame output=scoreImpl(fr,adaptFr,destination_key);
+  Frame output=predictScoreImpl(fr,adaptFr,destination_key);
   Vec predicted=output.vecs()[0];
   String mdomain[]=predicted.domain();
   if (_output.isClassifier() && computeMetrics) {

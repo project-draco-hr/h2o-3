@@ -3,8 +3,9 @@
   float r=_minfo.adaDelta() ? 0 : rate(_minfo.get_processed_total()) * (1f - m);
   final int rows=_a.size();
   if (_w instanceof Storage.DenseRowMatrix) {
+    Distribution dist=(_minfo.get_params()._autoencoder && _index == _minfo.get_params()._hidden.length) ? new Distribution(params._distribution) : null;
     for (int row=0; row < rows; row++) {
-      if (_minfo.get_params()._autoencoder && _index == _minfo.get_params()._hidden.length)       _e.set(row,autoEncoderError(row));
+      if (dist != null)       _e.set(row,autoEncoderGradient(dist,row));
       float g=_a.get(row) > 0f ? _e.get(row) : 0f;
       bprop(row,g,r,m);
     }

@@ -2,6 +2,9 @@
   List<String> colHeaders=new ArrayList<>();
   List<String> colTypes=new ArrayList<>();
   List<String> colFormat=new ArrayList<>();
+  colHeaders.add("Number of Rows");
+  colTypes.add("long");
+  colFormat.add("%d");
   colHeaders.add("Number of Clusters");
   colTypes.add("long");
   colFormat.add("%d");
@@ -21,14 +24,15 @@
   colTypes.add("double");
   colFormat.add("%.5f");
   final int rows=1;
-  TwoDimTable table=new TwoDimTable("Model Summary",null,new String[rows],colHeaders.toArray(new String[colHeaders.size()]),colTypes.toArray(new String[colTypes.size()]),colFormat.toArray(new String[colFormat.size()]),"");
+  TwoDimTable table=new TwoDimTable("Model Summary",null,new String[rows],colHeaders.toArray(new String[0]),colTypes.toArray(new String[0]),colFormat.toArray(new String[0]),"");
   int row=0;
   int col=0;
+  table.set(row,col++,Math.round(_train.numRows() * (hasWeightCol() ? _train.lastVec().mean() : 1)));
   table.set(row,col++,output._centers_raw.length);
   table.set(row,col++,output._categorical_column_count);
   table.set(row,col++,output._iterations);
   table.set(row,col++,output._tot_withinss);
   table.set(row,col++,output._totss);
-  table.set(row,col,output._betweenss);
+  table.set(row,col++,output._betweenss);
   return table;
 }

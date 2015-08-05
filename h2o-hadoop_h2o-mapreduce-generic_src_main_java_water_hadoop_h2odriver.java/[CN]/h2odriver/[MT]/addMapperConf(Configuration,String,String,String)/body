@@ -1,0 +1,19 @@
+{
+  String payload="";
+  try {
+    payload=readFile(payloadFileName);
+  }
+ catch (  Exception e) {
+    StringBuilder sb=new StringBuilder();
+    sb.append("Failed to read config file (").append(payloadFileName).append(")");
+    if (e.getLocalizedMessage() != null) {
+      sb.append(": ");
+      sb.append(e.getLocalizedMessage());
+    }
+    error(sb.toString());
+  }
+  conf.set(h2omapper.H2O_MAPPER_CONF_ARG_BASE + Integer.toString(mapperConfLength),name);
+  conf.set(h2omapper.H2O_MAPPER_CONF_BASENAME_BASE + Integer.toString(mapperConfLength),value);
+  conf.set(h2omapper.H2O_MAPPER_CONF_PAYLOAD_BASE + Integer.toString(mapperConfLength),payload);
+  mapperConfLength++;
+}

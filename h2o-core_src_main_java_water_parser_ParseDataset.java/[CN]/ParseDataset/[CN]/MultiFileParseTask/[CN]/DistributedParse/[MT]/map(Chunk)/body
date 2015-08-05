@@ -1,4 +1,5 @@
 {
+  if (((Job)DKV.getGet(_jobKey)).isCancelledOrCrashed())   return;
   AppendableVec[] avs=new AppendableVec[_setup._number_columns];
   for (int i=0; i < avs.length; ++i)   avs[i]=new AppendableVec(_vg.vecKey(_vecIdStart + i),_espc,_startChunkIdx);
   FVecParseReader din=new FVecParseReader(in);
@@ -8,11 +9,11 @@ switch (_setup._parse_type) {
 case ARFF:
 case CSV:
     Categorical[] enums=enums(_eKey,_setup._number_columns);
-  p=new CsvParser(_setup);
+  p=new CsvParser(_setup,_jobKey);
 dout=new FVecParseWriter(_vg,_startChunkIdx + in.cidx(),enums,_setup._column_types,_setup._chunk_size,avs);
 break;
 case SVMLight:
-p=new SVMLightParser(_setup);
+p=new SVMLightParser(_setup,_jobKey);
 dout=new SVMLightFVecParseWriter(_vg,_vecIdStart,in.cidx() + _startChunkIdx,_setup._chunk_size,avs);
 break;
 default :
@@ -21,6 +22,5 @@ throw H2O.unimpl();
 p.parseChunk(in.cidx(),din,dout);
 (_dout=dout).close(_fs);
 Job.update(in._len,_jobKey);
-freeMem(in,0);
-freeMem(in,1);
+freeMem(in);
 }

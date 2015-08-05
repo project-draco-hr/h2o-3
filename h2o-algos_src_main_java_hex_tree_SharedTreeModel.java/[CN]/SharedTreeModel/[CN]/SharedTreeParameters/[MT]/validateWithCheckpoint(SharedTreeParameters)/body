@@ -1,0 +1,19 @@
+{
+  String[] fieldNames=getCheckpointModifiableFields();
+  Field[] allFields=this.getClass().getDeclaredFields();
+  for (  Field f : allFields) {
+    for (    String modifiableFieldName : fieldNames) {
+      if (modifiableFieldName.equals(f.getName())) {
+        continue;
+      }
+      try {
+        if (!PojoUtils.equals(this,f,checkpointParameters,checkpointParameters.getClass().getDeclaredField(f.getName()))) {
+          throw new H2OIllegalArgumentException(f.getName(),"TreeBuilder","Field cannot be modified if checkpoint is specified!");
+        }
+      }
+ catch (      NoSuchFieldException e) {
+        throw new H2OIllegalArgumentException(f.getName(),"TreeBuilder","Field is not supported by checkpoint!");
+      }
+    }
+  }
+}

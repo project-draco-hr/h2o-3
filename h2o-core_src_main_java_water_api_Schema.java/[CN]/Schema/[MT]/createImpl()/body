@@ -5,6 +5,8 @@
  catch (  Exception e) {
     String msg="Exception instantiating implementation object of class: " + this.getImplClass().toString() + " for schema class: "+ this.getClass();
     Log.err(msg + ": " + e);
-    throw H2O.fail(msg,e);
+    H2OIllegalArgumentException heae=new H2OIllegalArgumentException(msg);
+    heae.initCause(e);
+    throw heae;
   }
 }

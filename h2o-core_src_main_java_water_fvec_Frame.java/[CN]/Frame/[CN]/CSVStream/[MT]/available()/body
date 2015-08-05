@@ -1,26 +1,18 @@
 {
-  if (_position == _line.length) {
-    if (_row == numRows())     return 0;
-    StringBuilder sb=new StringBuilder();
-    Vec vs[]=vecs();
-    for (int i=0; i < vs.length; i++) {
-      if (i > 0)       sb.append(',');
-      if (!vs[i].isNA(_row)) {
-        if (vs[i].isEnum())         sb.append('"').append(vs[i].factor(vs[i].at8(_row))).append('"');
- else         if (vs[i].isUUID())         sb.append(PrettyPrint.UUID(vs[i].at16l(_row),vs[i].at16h(_row)));
- else         if (vs[i].isInt())         sb.append(vs[i].at8(_row));
- else         if (vs[i].isString())         sb.append('"').append(vs[i].atStr(new ValueString(),_row)).append('"');
- else {
-          double d=vs[i].at(_row);
-          String s=_hex_string ? Double.toHexString(d) : Double.toString(d);
-          sb.append(s);
-        }
-      }
-    }
-    sb.append('\n');
-    _line=sb.toString().getBytes();
-    _position=0;
-    _row++;
+  if (_position != _line.length) {
+    return _line.length - _position;
   }
-  return _line.length - _position;
+  if (_row == numRows()) {
+    return 0;
+  }
+  _curChkIdx=anyVec().elem2ChunkIdx(_row);
+  _line=getBytesForRow();
+  _position=0;
+  if (isLastRowOfCurrentNonEmptyChunk(_curChkIdx,_row)) {
+    for (    Vec v : vecs()) {
+      hintFlushRemoteChunk(v,_curChkIdx);
+    }
+  }
+  _row++;
+  return _line.length;
 }

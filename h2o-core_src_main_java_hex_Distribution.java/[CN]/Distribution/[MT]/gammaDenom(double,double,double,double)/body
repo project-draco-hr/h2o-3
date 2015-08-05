@@ -1,0 +1,19 @@
+{
+switch (distribution) {
+case gaussian:
+case gamma:
+    return w;
+case bernoulli:
+  double ff=y - z;
+return w * ff * (1 - ff);
+case multinomial:
+double absz=Math.abs(z);
+return w * (absz * (1 - absz));
+case poisson:
+return w * (y - z);
+case tweedie:
+return w * exp(f * (2 - tweediePower));
+default :
+throw H2O.unimpl();
+}
+}

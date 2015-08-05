@@ -1,20 +1,20 @@
 {
   _mtry=(_parms._mtries == -1) ? (isClassifier() ? Math.max((int)Math.sqrt(_ncols),1) : Math.max(_ncols / 3,1)) : _parms._mtries;
+  int ntreesFromCheckpoint=_parms.hasCheckpoint() ? ((SharedTreeModel.SharedTreeParameters)_parms._checkpoint.<SharedTreeModel>get()._parms)._ntrees : 0;
   if (!(1 <= _mtry && _mtry <= _ncols))   throw new IllegalArgumentException("Computed mtry should be in interval <1,#cols> but it is " + _mtry);
   initTreeMeasurements();
   _train.add("OUT_BAG_TREES",_response.makeZero());
   new SetWrkTask().doAll(_train);
-  if (_parms._checkpoint) {
+  if (_parms.hasCheckpoint()) {
     Timer t=new Timer();
-    new OOBScorer(_ncols,_nclass,(hasWeights() ? 1 : 0) + (hasOffset() ? 1 : 0),_parms._sample_rate,_model._output._treeKeys).doAll(_train);
+    new OOBScorer(_ncols,_nclass,numSpecialCols(),_parms._sample_rate,_model._output._treeKeys).doAll(_train);
     Log.info("Reconstructing oob stats from checkpointed model took " + t);
   }
   Random rand=createRNG(_parms._seed);
-  for (int i=0; i < _ntreesFromCheckpoint; i++)   rand.nextLong();
+  for (int i=0; i < ntreesFromCheckpoint; i++)   rand.nextLong();
   int tid;
-  DTree[] ktrees=null;
-  for (tid=0; tid < _parms._ntrees; tid++) {
-    if (tid != 0 || !_parms._checkpoint) {
+  for (tid=0; tid < _ntrees; tid++) {
+    if (tid != 0 || !_parms.hasCheckpoint()) {
       double training_r2=doScoringAndSaveModel(false,true,_parms._build_tree_one_node);
       if (training_r2 >= _parms._r2_stopping)       return;
     }

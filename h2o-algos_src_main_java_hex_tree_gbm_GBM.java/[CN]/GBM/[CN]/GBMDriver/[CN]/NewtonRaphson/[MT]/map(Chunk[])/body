@@ -1,0 +1,16 @@
+{
+  Chunk ys=chk_resp(chks);
+  Chunk offset=chk_offset(chks);
+  Chunk weight=hasWeightCol() ? chk_weight(chks) : new C0DChunk(1,chks[0]._len);
+  Distribution dist=new Distribution(Distribution.Family.bernoulli);
+  for (int row=0; row < ys._len; row++) {
+    double w=weight.atd(row);
+    if (w == 0)     continue;
+    if (ys.isNA(row))     continue;
+    double y=ys.atd(row);
+    double o=offset.atd(row);
+    double p=dist.linkInv(o + _init);
+    _num+=w * (y - p);
+    _denom+=w * p * (1. - p);
+  }
+}

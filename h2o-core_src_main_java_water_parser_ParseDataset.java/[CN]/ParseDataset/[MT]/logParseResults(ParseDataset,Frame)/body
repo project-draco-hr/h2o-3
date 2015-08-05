@@ -1,30 +1,29 @@
 {
-  try {
-    long numRows=fr.anyVec().length();
-    Log.info("Parse result for " + job.dest() + " ("+ Long.toString(numRows)+ " rows):");
-    Futures fs=new Futures();
-    Vec[] vecArr=fr.vecs();
-    for (    Vec v : vecArr)     v.startRollupStats(fs);
-    fs.blockForPending();
-    int namelen=0;
-    for (    String s : fr.names())     namelen=Math.max(namelen,s.length());
-    String format=" %" + namelen + "s %7s %12.12s %12.12s %11s %8s %6s";
-    Log.info(String.format(format,"ColV2","type","min","max","NAs","constant","numLevels"));
-    SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    for (int i=0; i < vecArr.length; i++) {
-      Vec v=vecArr[i];
-      boolean isCategorical=v.isEnum();
-      boolean isConstant=v.isConst();
-      String CStr=String.format("%" + namelen + "s:",fr.names()[i]);
-      String typeStr;
-      String minStr;
-      String maxStr;
+  long numRows=fr.anyVec().length();
+  Log.info("Parse result for " + job.dest() + " ("+ Long.toString(numRows)+ " rows):");
+  Futures fs=new Futures();
+  Vec[] vecArr=fr.vecs();
+  for (  Vec v : vecArr)   v.startRollupStats(fs);
+  fs.blockForPending();
+  int namelen=0;
+  for (  String s : fr.names())   namelen=Math.max(namelen,s.length());
+  String format=" %" + namelen + "s %7s %12.12s %12.12s %11s %8s %6s";
+  Log.info(String.format(format,"ColV2","type","min","max","NAs","constant","numLevels"));
+  SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+  for (int i=0; i < vecArr.length; i++) {
+    Vec v=vecArr[i];
+    boolean isCategorical=v.isEnum();
+    boolean isConstant=v.isConst();
+    String CStr=String.format("%" + namelen + "s:",fr.names()[i]);
+    String typeStr;
+    String minStr;
+    String maxStr;
 switch (v.get_type()) {
 case Vec.T_BAD:
-        typeStr="all_NA";
-      minStr="";
-    maxStr="";
-  break;
+      typeStr="all_NA";
+    minStr="";
+  maxStr="";
+break;
 case Vec.T_UUID:
 typeStr="UUID";
 minStr="";
@@ -46,8 +45,6 @@ minStr=v.factor(0);
 maxStr=v.factor(v.cardinality() - 1);
 break;
 case Vec.T_TIME:
-case Vec.T_TIME + 1:
-case Vec.T_TIME + 2:
 typeStr="time";
 minStr=sdf.format(v.min());
 maxStr=sdf.format(v.max());
@@ -86,7 +83,4 @@ String s=String.format(format,CStr,typeStr,minStr,maxStr,naStr,isConstantStr,num
 Log.info(s,printColumnToStdout);
 }
 Log.info(FrameUtils.chunkSummary(fr).toString());
-}
- catch (Exception ignore) {
-}
 }

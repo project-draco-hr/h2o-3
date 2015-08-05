@@ -1,0 +1,15 @@
+{
+  for (  Field f : Weaver.getWovenFields(o.getClass())) {
+    Class<?> c=f.getType();
+    if (c.isAssignableFrom(TwoDimTable.class)) {
+      try {
+        TwoDimTable t=(TwoDimTable)f.get(this);
+        f.setAccessible(true);
+        if (t != null)         sb.append(t.toString(1,false));
+      }
+ catch (      IllegalAccessException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+}
