@@ -1,17 +1,4 @@
 {
-  if (mrt.minValues == minValues)   return;
-  if (mrt.minValues == null && minValues == null)   return;
-  if (mrt.maxValues == null && maxValues == null)   return;
-  if (mrt.minValues == null && minValues != null)   return;
-  if (mrt.maxValues == null && maxValues != null)   return;
-  if (mrt.minValues != null && minValues == null) {
-    minValues=mrt.minValues;
-    return;
-  }
-  if (mrt.maxValues != null && maxValues == null) {
-    maxValues=mrt.maxValues;
-    return;
-  }
   for (  Map.Entry<IcedLong,IcedDouble> e : mrt.minValues.entrySet()) {
     IcedDouble x=minValues.get(e.getKey());
     if (x != null) {
@@ -30,4 +17,6 @@
       maxValues.put(e.getKey(),e.getValue());
     }
   }
+  mrt.minValues=null;
+  mrt.maxValues=null;
 }
