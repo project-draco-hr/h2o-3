@@ -8,10 +8,7 @@
     return _bb;
   }
   _size+=_bb.position();
-  if (_chan == null) {
-    _bb.putShort(0,(short)0);
-    TimeLine.record_send(this,true);
-  }
+  if (_chan == null)   TimeLine.record_send(this,true);
   _bb.flip();
   try {
     if (_chan == null)     tcpOpen();
@@ -26,7 +23,7 @@
     throw new AutoBufferException(e);
   }
   if (_bb.capacity() < BBP_BIG._size) {
-    BBP_SML.free(_bb);
+    if (_bb.isDirect())     BBP_SML.free(_bb);
     _bb=BBP_BIG.make();
   }
   _firstPage=false;
