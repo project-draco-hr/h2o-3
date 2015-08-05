@@ -1,0 +1,26 @@
+{
+  for (int k=0; k < _nclass; k++) {
+    final DTree tree=ktrees[k];
+    if (tree == null)     continue;
+    IcedLong nidx=new IcedLong(0);
+    for (int i=0; i < tree._len - leafs[k]; i++) {
+      LeafNode node=((LeafNode)tree.node(leafs[k] + i));
+      double pred=node._pred;
+      if (minValues != null && maxValues != null) {
+        nidx._val=node.nid();
+        if (minValues.get(nidx) != null && maxValues.get(nidx) != null) {
+          double min=minValues.get(nidx)._val;
+          if (min + pred < Distribution.MIN_LOG) {
+            pred=Distribution.MIN_LOG - min;
+            ((LeafNode)tree.node(leafs[k] + i))._pred=(float)pred;
+          }
+          double max=maxValues.get(nidx)._val;
+          if (max + pred > Distribution.MAX_LOG) {
+            pred=Distribution.MAX_LOG - max;
+            ((LeafNode)tree.node(leafs[k] + i))._pred=(float)pred;
+          }
+        }
+      }
+    }
+  }
+}

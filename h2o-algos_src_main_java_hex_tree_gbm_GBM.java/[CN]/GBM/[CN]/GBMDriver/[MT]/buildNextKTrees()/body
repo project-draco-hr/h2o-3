@@ -1,0 +1,12 @@
+{
+  final DTree[] ktrees=new DTree[_nclass];
+  int[] leafs=new int[_nclass];
+  growTrees(ktrees,leafs);
+  fitBestConstants(ktrees,leafs,new GammaPass(ktrees,leafs,_parms._distribution).doAll(_train));
+  if (_parms._distribution == Distribution.Family.gamma || _parms._distribution == Distribution.Family.poisson || _parms._distribution == Distribution.Family.tweedie) {
+    ComputeMinMax minMax=new ComputeMinMax().doAll(_train);
+    truncatePreds(ktrees,leafs,minMax.minValues,minMax.maxValues);
+  }
+  new AddTreeContributions(ktrees).doAll(_train);
+  _model._output.addKTrees(ktrees);
+}
