@@ -9,7 +9,7 @@
     if (error_count() > 0)     throw new IllegalArgumentException("Found validation errors: " + validationErrors());
     model=new GLRMModel(dest(),_parms,new GLRMModel.GLRMOutput(GLRM.this));
     model.delete_and_lock(self());
-    tinfo=new DataInfo(Key.make(),_train,_valid,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false,false,false,false);
+    tinfo=new DataInfo(Key.make(),_train,_valid,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false,false,false,false,false);
     DKV.put(tinfo._key,tinfo);
     model._output._normSub=tinfo._normSub == null ? new double[tinfo._nums] : tinfo._normSub;
     if (tinfo._normMul == null) {
@@ -26,17 +26,19 @@
     long na_cnt=0;
     for (int i=0; i < _train.numCols(); i++)     na_cnt+=_train.vec(i).naCnt();
     model._output._nobs=nobs - na_cnt;
-    Vec[] vecs=new Vec[_ncolA + 2 * _ncolX];
-    for (int i=0; i < _ncolA; i++)     vecs[i]=_train.vec(i);
-    for (int i=_ncolA; i < vecs.length; i++)     vecs[i]=_train.anyVec().makeGaus(_parms._seed);
-    fr=new Frame(null,vecs);
-    dinfo=new DataInfo(Key.make(),fr,null,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false,false,false,false);
+    fr=new Frame(_train);
+    for (int i=0; i < _ncolX; i++)     fr.add("xcol_" + i,fr.anyVec().makeZero());
+    for (int i=0; i < _ncolX; i++)     fr.add("wcol_" + i,fr.anyVec().makeZero());
+    dinfo=new DataInfo(Key.make(),fr,null,0,true,_parms._transform,DataInfo.TransformType.NONE,false,false,false,false,false,false);
     DKV.put(dinfo._key,dinfo);
-    double[][] yt=initialXY(tinfo,dinfo,na_cnt);
-    yt=ArrayUtils.transpose(yt);
+    int weightId=dinfo._weights ? dinfo.weightChunkId() : -1;
+    int[] numLevels=tinfo._adaptedFrame.numLevels();
+    double[][] yinit=initialXY(tinfo,dinfo._adaptedFrame,na_cnt);
+    Archetypes yt=new Archetypes(ArrayUtils.transpose(yinit),true,tinfo._catOffsets,numLevels);
     if (na_cnt == 0 && _parms.hasClosedForm())     initialXClosedForm(dinfo,yt,model._output._normSub,model._output._normMul);
-    ObjCalc objtsk=new ObjCalc(dinfo,_parms,yt,_ncolA,_ncolX,model._output._normSub,model._output._normMul,_parms._gamma_x != 0).doAll(dinfo._adaptedFrame);
-    model._output._objective=objtsk._loss + _parms._gamma_x * objtsk._xold_reg + _parms._gamma_y * _parms.regularize_y(yt);
+    boolean regX=_parms._regularization_x != GLRMParameters.Regularizer.None && _parms._gamma_x != 0;
+    ObjCalc objtsk=new ObjCalc(_parms,yt,_ncolA,_ncolX,dinfo._cats,model._output._normSub,model._output._normMul,weightId,regX).doAll(dinfo._adaptedFrame);
+    model._output._objective=objtsk._loss + _parms._gamma_x * objtsk._xold_reg + _parms._gamma_y * _parms.regularize_y(yt._archetypes);
     model._output._iterations=0;
     model._output._avg_change_obj=2 * TOLERANCE;
     model.update(_key);
@@ -44,16 +46,18 @@
     double step=_parms._init_step_size;
     int steps_in_row=0;
     while (!isDone(model,steps_in_row,step)) {
-      UpdateX xtsk=new UpdateX(dinfo,_parms,yt,step / _ncolA,overwriteX,_ncolA,_ncolX,model._output._normSub,model._output._normMul);
+      UpdateX xtsk=new UpdateX(_parms,yt,step / _ncolA,overwriteX,_ncolA,_ncolX,dinfo._cats,model._output._normSub,model._output._normMul,weightId);
       xtsk.doAll(dinfo._adaptedFrame);
-      UpdateY ytsk=new UpdateY(dinfo,_parms,yt,step / _ncolA,_ncolA,_ncolX,model._output._normSub,model._output._normMul);
-      double[][] ytnew=ytsk.doAll(dinfo._adaptedFrame)._ytnew;
-      objtsk=new ObjCalc(dinfo,_parms,ytnew,_ncolA,_ncolX,model._output._normSub,model._output._normMul).doAll(dinfo._adaptedFrame);
+      UpdateY ytsk=new UpdateY(_parms,yt,step / _ncolA,_ncolA,_ncolX,dinfo._cats,model._output._normSub,model._output._normMul,weightId);
+      double[][] yttmp=ytsk.doAll(dinfo._adaptedFrame)._ytnew;
+      Archetypes ytnew=new Archetypes(yttmp,true,dinfo._catOffsets,numLevels);
+      objtsk=new ObjCalc(_parms,ytnew,_ncolA,_ncolX,dinfo._cats,model._output._normSub,model._output._normMul,weightId).doAll(dinfo._adaptedFrame);
       double obj_new=objtsk._loss + _parms._gamma_x * xtsk._xreg + _parms._gamma_y * ytsk._yreg;
       model._output._avg_change_obj=(model._output._objective - obj_new) / nobs;
       model._output._iterations++;
       if (model._output._avg_change_obj > 0) {
-        model._output._archetypes=yt=ytnew;
+        yt=ytnew;
+        model._output._archetypes=yt._archetypes;
         model._output._objective=obj_new;
         step*=1.05;
         steps_in_row=Math.max(1,steps_in_row + 1);
@@ -77,12 +81,13 @@
       for (int i=0; i < _ncolX; i++)       xvecs[i]=fr.vec(idx_xold(i,_ncolA));
     }
     x=new Frame(_parms._loading_key,null,xvecs);
-    xinfo=new DataInfo(Key.make(),x,null,0,true,DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,false,false,false,false,false);
+    xinfo=new DataInfo(Key.make(),x,null,0,true,DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,false,false,false,false,false,false);
     DKV.put(x._key,x);
     DKV.put(xinfo._key,xinfo);
-    model._output._loading_key=_parms._loading_key;
-    model._output._archetypes=yt;
     model._output._step_size=step;
+    model._output._loading_key=_parms._loading_key;
+    model._output._archetypes_full=yt;
+    model._output._archetypes=yt._archetypes;
     if (_parms._recover_svd)     recoverSVD(model,xinfo);
     model.update(self());
     done();
