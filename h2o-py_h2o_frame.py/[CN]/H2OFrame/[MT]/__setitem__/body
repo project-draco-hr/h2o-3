@@ -13,10 +13,13 @@ def __setitem__(self, b, c):
     col_expr = (b[1] if isinstance(b, tuple) else update_index)
     if isinstance(col_expr, (str, unicode)):
         col_expr = self.col_names().index(col_expr)
+    if isinstance(col_expr, slice):
+        if ((col_expr.start is None) and (col_expr.stop is None)):
+            col_expr = slice(0, self.ncol())
     row_expr = (b[0] if isinstance(b, tuple) else (b if isinstance(b, H2OFrame) else slice(0, self.nrow())))
     src = (c._frame() if isinstance(c, H2OFrame) else c)
     expr = ExprNode('=', self, src, col_expr, row_expr)
     h2o.rapids(ExprNode._collapse_sb(expr._eager()), self._id)
+    self._update()
     if (newcolname is not None):
         self.setName(update_index, newcolname)
-    self._update()

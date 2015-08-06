@@ -2,20 +2,20 @@ def _model_build(x, y, validation_x, validation_y, algo_url, kwargs):
     if (algo_url == 'autoencoder'):
         if ('autoencoder' in kwargs.keys()):
             if kwargs['autoencoder']:
-                if y:
+                if (y is not None):
                     raise ValueError('`y` should not be specified for autoencoder, remove `y` input.')
                 algo_url = 'deeplearning'
-    if (not x):
+    if (x is None):
         raise ValueError('Missing features')
     x = _check_frame(x, y, y)
     if (validation_x is not None):
         validation_x = _check_frame(validation_x, validation_y, y)
     if ('weights_column' in kwargs.keys()):
-        (x, validation_x) = _add_col_to_x_and_validation_x(kwargs['weights_column'], x, validation_x, kwargs)
+        (x, validation_x) = _check_extra_col(x, validation_x, 'weights_column', kwargs)
     if ('offset_column' in kwargs.keys()):
-        (x, validation_x) = _add_col_to_x_and_validation_x(kwargs['offset_column'], x, validation_x, kwargs)
+        (x, validation_x) = _check_extra_col(x, validation_x, 'offset_column', kwargs)
     if ('fold_column' in kwargs.keys()):
-        (x, validation_x) = _add_col_to_x_and_validation_x(kwargs['fold_column'], x, validation_x, kwargs, xval=True)
+        (x, validation_x) = _check_extra_col(x, validation_x, 'fold_column', kwargs)
     kwargs['training_frame'] = x._id
     if (validation_x is not None):
         kwargs['validation_frame'] = validation_x._id
