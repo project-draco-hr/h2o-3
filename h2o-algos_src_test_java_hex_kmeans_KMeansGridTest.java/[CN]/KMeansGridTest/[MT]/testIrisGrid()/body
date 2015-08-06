@@ -1,2 +1,38 @@
 {
+  Grid grid=null;
+  Frame fr=null;
+  try {
+    fr=parse_test_file("smalldata/iris/iris_wheader.csv");
+    HashMap<String,Object[]> hyperParms=new HashMap<>();
+    hyperParms.put("_k",new Integer[]{1,2,3,4,5,6});
+    hyperParms.put("_init",new KMeans.Initialization[]{KMeans.Initialization.Random,KMeans.Initialization.PlusPlus,KMeans.Initialization.Furthest});
+    hyperParms.put("_seed",new Long[]{1L,123456789L,987654321L});
+    String[] hyperParamNames=hyperParms.keySet().toArray(new String[hyperParms.size()]);
+    Arrays.sort(hyperParamNames);
+    int hyperSpaceSize=ArrayUtils.crossProductSize(hyperParms);
+    KMeansModel.KMeansParameters params=new KMeansModel.KMeansParameters();
+    params._train=fr._key;
+    GridSearch gs=GridSearch.startGridSearch(params,hyperParms,KMEANS_MODEL_FACTORY);
+    grid=(Grid)gs.get();
+    Assert.assertEquals("Size of grid should match to size of hyper space",hyperSpaceSize,grid.getModelKeys().length);
+    String[] gridHyperNames=grid.getHyperNames();
+    Arrays.sort(gridHyperNames);
+    Assert.assertArrayEquals("Hyper parameters names should match!",hyperParamNames,gridHyperNames);
+    Map<String,Set<Object>> usedModelParams=GridTestUtils.initMap(hyperParamNames);
+    Model[] ms=grid.getModels();
+    for (    Model m : ms) {
+      KMeansModel kmm=(KMeansModel)m;
+      System.out.println(kmm._output._tot_withinss + " " + Arrays.deepToString(ArrayUtils.zip(grid.getHyperNames(),grid.getHyperValues(kmm._parms))));
+      GridTestUtils.extractParams(usedModelParams,kmm._parms,hyperParamNames);
+    }
+    GridTestUtils.assertParamsEqual("Grid models parameters have to cover specified hyper space",hyperParms,usedModelParams);
+  }
+  finally {
+    if (fr != null) {
+      fr.remove();
+    }
+    if (grid != null) {
+      grid.remove();
+    }
+  }
 }
