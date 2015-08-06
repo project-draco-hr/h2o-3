@@ -2,16 +2,23 @@
   GLRM job=null;
   GLRMModel model=null;
   Frame train=null, score=null;
+  final int[] cats=new int[]{1,3,4,5};
   try {
-    train=parse_test_file(Key.make("iris.hex"),"smalldata/iris/iris_wheader.csv");
-    GLRMParameters parms=new GLRMParameters();
+    Scope.enter();
+    train=parse_test_file(Key.make("prostate.hex"),"smalldata/logreg/prostate.csv");
+    for (int i=0; i < cats.length; i++)     Scope.track(train.replace(cats[i],train.vec(cats[i]).toEnum())._key);
+    train.remove("ID").remove();
+    DKV.put(train._key,train);
+    GLRMModel.GLRMParameters parms=new GLRMModel.GLRMParameters();
     parms._train=train._key;
-    parms._k=4;
-    parms._loss=GLRMParameters.Loss.L1;
-    parms._init=GLRM.Initialization.SVD;
-    parms._transform=DataInfo.TransformType.NONE;
-    parms._recover_svd=true;
-    parms._max_iterations=1000;
+    parms._k=8;
+    parms._gamma_x=parms._gamma_y=0.1;
+    parms._regularization_x=GLRMModel.GLRMParameters.Regularizer.L2;
+    parms._regularization_y=GLRMModel.GLRMParameters.Regularizer.L2;
+    parms._init=GLRM.Initialization.PlusPlus;
+    parms._transform=DataInfo.TransformType.STANDARDIZE;
+    parms._recover_svd=false;
+    parms._max_iterations=200;
     try {
       job=new GLRM(parms);
       model=job.trainModel().get();
@@ -39,5 +46,6 @@
       model._parms._loading_key.get().delete();
       model.delete();
     }
+    Scope.exit();
   }
 }
