@@ -5,9 +5,8 @@
   GammaPass gp=new GammaPass(ktrees,leafs,_parms._distribution).doAll(_train);
   fitBestConstants(ktrees,leafs,gp);
   if (_parms._distribution == Distribution.Family.gamma || _parms._distribution == Distribution.Family.poisson || _parms._distribution == Distribution.Family.tweedie) {
-    ComputeMinMax minMax=new ComputeMinMax().doAll(_train);
-    assert(minMax.minValues.size() == minMax.maxValues.size());
-    truncatePreds(ktrees,leafs,_parms._distribution,minMax.minValues,minMax.maxValues);
+    ComputeMinMax minMax=new ComputeMinMax(leafs[0],ktrees[0].len()).doAll(_train);
+    truncatePreds(ktrees,leafs,_parms._distribution,minMax._mins,minMax._maxs);
   }
   new AddTreeContributions(ktrees).doAll(_train);
   _model._output.addKTrees(ktrees);

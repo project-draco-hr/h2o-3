@@ -1,27 +1,18 @@
 {
-  minValues=new IcedHashMap<>();
-  maxValues=new IcedHashMap<>();
+  int _len=_end - _start;
+  _mins=new float[_len];
+  _maxs=new float[_len];
+  Arrays.fill(_mins,Float.MAX_VALUE);
+  Arrays.fill(_maxs,-Float.MAX_VALUE);
   Chunk ys=chk_resp(chks);
   Chunk offset=hasOffsetCol() ? chk_offset(chks) : new C0DChunk(0,chks[0]._len);
   Chunk preds=chk_tree(chks,0);
   Chunk nids=chk_nids(chks,0);
   for (int row=0; row < preds._len; row++) {
     if (ys.isNA(row))     continue;
-    double f=preds.atd(row) + offset.atd(row);
-    IcedLong nidx=new IcedLong(nids.at8(row));
-    IcedDouble mins=minValues.get(nidx);
-    double oldMin=mins == null ? Double.MAX_VALUE : mins._val;
-    if (f < oldMin) {
-      IcedDouble ff=new IcedDouble(f);
-      if (mins == null)       minValues.put(nidx,ff);
- else       minValues.replace(nidx,ff);
-    }
-    IcedDouble maxs=maxValues.get(nidx);
-    double oldMax=maxs == null ? -Double.MAX_VALUE : maxs._val;
-    if (f > oldMax) {
-      IcedDouble ff=new IcedDouble(f);
-      if (maxs == null)       maxValues.put(nidx,ff);
- else       maxValues.replace(nidx,ff);
-    }
+    float f=(float)(preds.atd(row) + offset.atd(row));
+    int nidx=(int)nids.at8(row);
+    _mins[nidx - _start]=Math.min(_mins[nidx - _start],f);
+    _maxs[nidx - _start]=Math.max(_maxs[nidx - _start],f);
   }
 }
