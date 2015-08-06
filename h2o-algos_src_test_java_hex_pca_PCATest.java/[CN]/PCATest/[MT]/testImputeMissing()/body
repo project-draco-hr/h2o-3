@@ -1,0 +1,40 @@
+{
+  Frame train=null;
+  double missing_fraction=0.75;
+  long seed=12345;
+  try {
+    train=parse_test_file(Key.make("arrests.hex"),"smalldata/pca_test/USArrests.csv");
+    if (missing_fraction > 0) {
+      Frame frtmp=new Frame(Key.make(),train.names(),train.vecs());
+      DKV.put(frtmp._key,frtmp);
+      FrameUtils.MissingInserter j=new FrameUtils.MissingInserter(frtmp._key,seed,missing_fraction);
+      j.execImpl();
+      j.get();
+      DKV.remove(frtmp._key);
+    }
+    PCAModel.PCAParameters parms=new PCAModel.PCAParameters();
+    parms._train=train._key;
+    parms._k=4;
+    parms._transform=DataInfo.TransformType.NONE;
+    parms._pca_method=PCAModel.PCAParameters.Method.GramSVD;
+    parms._impute_missing=true;
+    parms._seed=seed;
+    PCAModel pca=null;
+    PCA job=null;
+    try {
+      job=new PCA(parms);
+      pca=job.trainModel().get();
+    }
+  finally {
+      if (job != null)       job.remove();
+      if (pca != null)       pca.remove();
+    }
+  }
+ catch (  Throwable t) {
+    t.printStackTrace();
+    throw new RuntimeException(t);
+  }
+ finally {
+    if (train != null)     train.delete();
+  }
+}

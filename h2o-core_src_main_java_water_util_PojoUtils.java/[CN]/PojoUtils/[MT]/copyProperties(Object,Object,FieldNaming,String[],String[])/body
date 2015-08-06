@@ -4,8 +4,6 @@
   Field[] orig_fields=Weaver.getWovenFields(origin.getClass());
   for (  Field orig_field : orig_fields) {
     String origin_name=orig_field.getName();
-    if (skip_fields != null & ArrayUtils.contains(skip_fields,origin_name))     continue;
-    if (only_fields != null & !ArrayUtils.contains(only_fields,origin_name))     continue;
     String dest_name=null;
     if (field_naming == FieldNaming.CONSISTENT) {
       dest_name=origin_name;
@@ -16,8 +14,8 @@
  else     if (field_naming == FieldNaming.ORIGIN_HAS_UNDERSCORES) {
       dest_name=origin_name.substring(1);
     }
-    if (skip_fields != null & ArrayUtils.contains(skip_fields,dest_name))     continue;
-    if (only_fields != null & !ArrayUtils.contains(only_fields,dest_name))     continue;
+    if (skip_fields != null && (ArrayUtils.contains(skip_fields,origin_name) || ArrayUtils.contains(skip_fields,dest_name)))     continue;
+    if (only_fields != null && !(ArrayUtils.contains(only_fields,origin_name) || ArrayUtils.contains(only_fields,dest_name)))     continue;
     try {
       Field dest_field=null;
       for (      Field fd : dest_fields) {
