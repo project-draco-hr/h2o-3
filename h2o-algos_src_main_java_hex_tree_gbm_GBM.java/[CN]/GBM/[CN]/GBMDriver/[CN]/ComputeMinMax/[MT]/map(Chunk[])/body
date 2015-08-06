@@ -3,11 +3,11 @@
   maxValues=new IcedHashMap<>();
   Chunk ys=chk_resp(chks);
   Chunk offset=hasOffsetCol() ? chk_offset(chks) : new C0DChunk(0,chks[0]._len);
-  Chunk tr=chk_tree(chks,0);
+  Chunk preds=chk_tree(chks,0);
   Chunk nids=chk_nids(chks,0);
-  for (int row=0; row < tr._len; row++) {
+  for (int row=0; row < preds._len; row++) {
     if (ys.isNA(row))     continue;
-    double f=tr.atd(row) + offset.atd(row);
+    double f=preds.atd(row) + offset.atd(row);
     IcedLong nidx=new IcedLong(nids.at8(row));
     IcedDouble mins=minValues.get(nidx);
     double oldMin=mins == null ? Double.MAX_VALUE : mins._val;
