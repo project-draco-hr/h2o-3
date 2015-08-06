@@ -1,0 +1,17 @@
+{
+  Key<Model> key=grid.getModelKey(params);
+  if (key != null) {
+    return key.get();
+  }
+  long checksum=params.checksum();
+  Model m=null;
+  try {
+    m=(Model)(startBuildModel(params,grid).get());
+    grid.putModel(checksum,m._key);
+    grid.update(jobKey());
+  }
+ catch (  RuntimeException e) {
+    Log.warn("Grid search: model builder for parameters " + params + " failed! Exception: ",e);
+  }
+  return m;
+}

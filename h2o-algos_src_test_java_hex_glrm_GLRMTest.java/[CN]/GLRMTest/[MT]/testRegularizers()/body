@@ -1,8 +1,8 @@
 {
   Frame init=frame(ard(ard(13.2,236,58,21.2),ard(10.0,263,48,44.5),ard(8.1,294,80,31.0),ard(8.8,190,50,19.5)));
-  Frame train=null;
   GLRM job=null;
   GLRMModel model=null;
+  Frame train=null, score=null;
   long seed=1234;
   try {
     train=parse_test_file(Key.make("arrests.hex"),"smalldata/pca_test/USArrests.csv");
@@ -24,6 +24,9 @@
       model=job.trainModel().get();
       Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
       Log.info("Archetypes (Y'):\n" + ArrayUtils.pprint(model._output._archetypes));
+      score=model.score(train);
+      ModelMetricsGLRM mm=DKV.getGet(model._output._model_metrics[model._output._model_metrics.length - 1]);
+      Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
     }
  catch (    Throwable t) {
       t.printStackTrace();
@@ -31,6 +34,7 @@
     }
  finally {
       job.remove();
+      if (score != null)       score.delete();
       if (model != null) {
         model._parms._loading_key.get().delete();
         model.delete();
@@ -45,6 +49,9 @@
       model=job.trainModel().get();
       Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
       Log.info("Archetypes (Y'):\n" + ArrayUtils.pprint(model._output._archetypes));
+      score=model.score(train);
+      ModelMetricsGLRM mm=DKV.getGet(model._output._model_metrics[model._output._model_metrics.length - 1]);
+      Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
     }
  catch (    Throwable t) {
       t.printStackTrace();
@@ -52,6 +59,7 @@
     }
  finally {
       job.remove();
+      if (score != null)       score.delete();
       if (model != null) {
         model._parms._loading_key.get().delete();
         model.delete();
@@ -61,12 +69,15 @@
     parms._gamma_x=1;
     parms._gamma_y=0;
     parms._regularization_x=GLRMParameters.Regularizer.UnitOneSparse;
-    parms._regularization_y=GLRMParameters.Regularizer.L2;
+    parms._regularization_y=GLRMParameters.Regularizer.None;
     try {
       job=new GLRM(parms);
       model=job.trainModel().get();
       Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
       Log.info("Archetypes (Y'):\n" + ArrayUtils.pprint(model._output._archetypes));
+      score=model.score(train);
+      ModelMetricsGLRM mm=DKV.getGet(model._output._model_metrics[model._output._model_metrics.length - 1]);
+      Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
     }
  catch (    Throwable t) {
       t.printStackTrace();
@@ -74,6 +85,33 @@
     }
  finally {
       job.remove();
+      if (score != null)       score.delete();
+      if (model != null) {
+        model._parms._loading_key.get().delete();
+        model.delete();
+      }
+    }
+    Log.info("\nQuadratic mixture (soft k-means)");
+    parms._gamma_x=1;
+    parms._gamma_y=0;
+    parms._regularization_x=GLRMParameters.Regularizer.UnitOneSparse;
+    parms._regularization_y=GLRMParameters.Regularizer.None;
+    try {
+      job=new GLRM(parms);
+      model=job.trainModel().get();
+      Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
+      Log.info("Archetypes (Y'):\n" + ArrayUtils.pprint(model._output._archetypes));
+      score=model.score(train);
+      ModelMetricsGLRM mm=DKV.getGet(model._output._model_metrics[model._output._model_metrics.length - 1]);
+      Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
+    }
+ catch (    Throwable t) {
+      t.printStackTrace();
+      throw new RuntimeException(t);
+    }
+ finally {
+      job.remove();
+      if (score != null)       score.delete();
       if (model != null) {
         model._parms._loading_key.get().delete();
         model.delete();

@@ -1,0 +1,13 @@
+{
+  Log.info("Initializing X = AY'(YY' + gamma I)^(-1) where A = training data");
+  double[][] ygram=ArrayUtils.formGram(yt_arch._archetypes);
+  if (_parms._gamma_y > 0) {
+    for (int i=0; i < ygram.length; i++)     ygram[i][i]+=_parms._gamma_y;
+  }
+  CholeskyDecomposition yychol=regularizedCholesky(ygram,10,false);
+  if (!yychol.isSPD())   Log.warn("Initialization failed: (YY' + gamma I) is non-SPD. Setting initial X to standard normal random matrix. Results will be numerically unstable");
+ else {
+    CholMulTask cmtsk=new CholMulTask(_parms,yychol,yt_arch,_ncolA,_ncolX,dinfo._cats,normSub,normMul);
+    cmtsk.doAll(dinfo._adaptedFrame);
+  }
+}
