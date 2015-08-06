@@ -1,0 +1,31 @@
+{
+  assert(_nclass == 1);
+  final DTree tree=ktrees[0];
+  assert(tree != null);
+  IcedLong nidx=new IcedLong(0);
+  for (int i=0; i < tree._len - leafs[0]; i++) {
+    final LeafNode node=((LeafNode)tree.node(leafs[0] + i));
+    nidx._val=node.nid();
+    IcedDouble nodeMax=maxValues.get(nidx);
+    if (nodeMax != null) {
+      double val=node._pred;
+      if (dist != Distribution.Family.poisson)       val+=nodeMax._val;
+      if (val > MAX_LOG_TRUNC) {
+        Log.warn("Truncating large positive leaf prediction (log): " + node._pred + " to "+ (MAX_LOG_TRUNC - nodeMax._val));
+        node._pred=(float)(MAX_LOG_TRUNC - nodeMax._val);
+      }
+    }
+    IcedDouble nodeMin=minValues.get(nidx);
+    if (nodeMin != null) {
+      double val=node._pred;
+      if (dist != Distribution.Family.poisson)       val+=nodeMin._val;
+      if (val < MIN_LOG_TRUNC) {
+        Log.warn("Truncating large negative leaf prediction (log): " + node._pred + " to "+ (MIN_LOG_TRUNC - nodeMin._val));
+        node._pred=(float)(MIN_LOG_TRUNC - nodeMin._val);
+      }
+    }
+    if (node._pred < MIN_LOG_TRUNC && node._pred > MAX_LOG_TRUNC) {
+      Log.warn("Terminal node prediction outside of allowed interval in log-space: " + node._pred + " (should be in "+ MIN_LOG_TRUNC+ "..."+ MAX_LOG_TRUNC+ ").");
+    }
+  }
+}
