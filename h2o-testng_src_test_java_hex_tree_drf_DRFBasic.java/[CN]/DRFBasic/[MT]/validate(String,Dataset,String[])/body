@@ -1,0 +1,20 @@
+{
+  System.out.println("Validate DRFParameters object with testcase: " + input[tcHeaders.indexOf("testcase_id")]);
+  String result=null;
+  if (StringUtils.isEmpty(train_dataset_id)) {
+    result="Dataset files is empty";
+  }
+ else   if (train_dataset == null) {
+    result="Dataset characteristic file is empty";
+  }
+ else   if (!train_dataset.isAvailabel()) {
+    result="Dataset characteristic is not available";
+  }
+ else {
+    result=Param.validateAutoSetParams(params,input,tcHeaders);
+  }
+  if (result != null) {
+    result="[INVALID] " + result;
+  }
+  return result;
+}

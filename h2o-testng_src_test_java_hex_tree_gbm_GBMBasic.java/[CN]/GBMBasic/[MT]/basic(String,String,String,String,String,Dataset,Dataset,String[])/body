@@ -1,0 +1,24 @@
+{
+  GBMParameters gbmParams=null;
+  redirectStandardStreams();
+  try {
+    String invalidMessage=validate(train_dataset_id,train_dataset,rawInput);
+    if (invalidMessage != null) {
+      System.out.println(invalidMessage);
+      Assert.fail(String.format(invalidMessage));
+    }
+ else {
+      gbmParams=toGBMParameters(train_dataset_id,validate_dataset_id,train_dataset,validate_dataset,rawInput);
+      _basic(testcase_id,test_description,gbmParams,rawInput);
+    }
+  }
+  finally {
+    try {
+      Thread.sleep(100);
+    }
+ catch (    InterruptedException ex) {
+      Thread.currentThread().interrupt();
+    }
+    resetStandardStreams();
+  }
+}

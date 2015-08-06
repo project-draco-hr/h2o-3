@@ -1,0 +1,29 @@
+{
+  DRFModel.DRFParameters DRFParameter=null;
+  redirectStandardStreams();
+  try {
+    String invalidMessage=validate(train_dataset_id,train_dataset,rawInput);
+    String notImplMessage=checkImplemented(rawInput);
+    if (invalidMessage != null) {
+      System.out.println(invalidMessage);
+      Assert.fail(String.format(invalidMessage));
+    }
+ else     if (notImplMessage != null) {
+      System.out.println(notImplMessage);
+      Assert.fail(String.format(notImplMessage));
+    }
+ else {
+      DRFParameter=toDRFParameters(train_dataset_id,validate_dataset_id,train_dataset,validate_dataset,rawInput);
+      _basic(testcase_id,test_description,DRFParameter,rawInput);
+    }
+  }
+  finally {
+    try {
+      Thread.sleep(100);
+    }
+ catch (    InterruptedException ex) {
+      Thread.currentThread().interrupt();
+    }
+    resetStandardStreams();
+  }
+}
