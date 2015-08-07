@@ -1,0 +1,18 @@
+{
+  int _len=_end - _start;
+  _mins=new float[_len];
+  _maxs=new float[_len];
+  Arrays.fill(_mins,Float.MAX_VALUE);
+  Arrays.fill(_maxs,-Float.MAX_VALUE);
+  Chunk ys=chk_resp(chks);
+  Chunk offset=hasOffsetCol() ? chk_offset(chks) : new C0DChunk(0,chks[0]._len);
+  Chunk preds=chk_tree(chks,0);
+  Chunk nids=chk_nids(chks,0);
+  for (int row=0; row < preds._len; row++) {
+    if (ys.isNA(row))     continue;
+    float f=(float)(preds.atd(row) + offset.atd(row));
+    int nidx=(int)nids.at8(row);
+    _mins[nidx - _start]=Math.min(_mins[nidx - _start],f);
+    _maxs[nidx - _start]=Math.max(_maxs[nidx - _start],f);
+  }
+}
