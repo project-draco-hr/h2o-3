@@ -14,6 +14,7 @@
     double[][] centers=initial_centers(model,vecs,means,mults);
     if (centers == null)     return;
     double[][] oldCenters=null;
+    model._output._iterations=0;
     while (!isDone(model,centers,oldCenters)) {
       Lloyds task=new Lloyds(centers,means,mults,_isCats,_parms._k,hasWeightCol()).doAll(vecs);
       max_cats(task._cMeans,task._cats,_isCats);
