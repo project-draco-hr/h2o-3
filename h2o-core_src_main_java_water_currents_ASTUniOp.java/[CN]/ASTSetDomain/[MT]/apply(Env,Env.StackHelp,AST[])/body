@@ -1,0 +1,10 @@
+{
+  Frame f=stk.track(asts[1].exec(env)).getFrame();
+  if (f.numCols() != 1)   throw new IllegalArgumentException("Must be a single column. Got: " + f.numCols() + " columns.");
+  Vec v=f.anyVec().makeCopy();
+  if (!v.isEnum())   throw new IllegalArgumentException("Vector must be a factor column. Got: " + v.get_type_str());
+  String[] domains=((ASTStrList)asts[2])._strs;
+  if (domains != null && domains.length != v.domain().length)   throw new IllegalArgumentException("Number of replacement factors must equal current number of levels. Current number of levels: " + v.domain().length + " != "+ domains.length);
+  v.setDomain(domains);
+  return new ValFrame(new Frame(v));
+}
