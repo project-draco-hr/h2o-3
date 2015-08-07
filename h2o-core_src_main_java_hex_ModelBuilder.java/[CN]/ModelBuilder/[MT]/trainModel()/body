@@ -2,7 +2,7 @@
   if (error_count() > 0) {
     throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(this);
   }
-  return _parms._nfolds == 0 && _parms._fold_column == null ? trainModelImpl(progressUnits(),true) : start(new H2O.H2OCountedCompleter(){
+  return !nFoldCV() ? trainModelImpl(progressUnits(),true) : start(new H2O.H2OCountedCompleter(){
     @Override protected void compute2(){
       computeCrossValidation();
       tryComplete();
