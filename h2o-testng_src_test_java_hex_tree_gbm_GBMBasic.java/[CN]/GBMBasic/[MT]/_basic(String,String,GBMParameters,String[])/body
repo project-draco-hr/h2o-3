@@ -6,14 +6,10 @@
     p.print(parameter);
   }
   Frame trainFrame=null;
-  Frame validateFrame=null;
   GBM job=null;
   GBMModel gbmModel=null;
   Frame score=null;
   trainFrame=parameter._train.get();
-  if (parameter._valid != null) {
-    validateFrame=parameter._valid.get();
-  }
   try {
     Scope.enter();
     System.out.println("Build model ");
@@ -38,14 +34,6 @@
     }
   }
  finally {
-    if (trainFrame != null) {
-      trainFrame.remove();
-      trainFrame.delete();
-    }
-    if (validateFrame != null) {
-      validateFrame.remove();
-      validateFrame.delete();
-    }
     if (score != null) {
       score.remove();
       score.delete();

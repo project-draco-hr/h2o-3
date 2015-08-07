@@ -5,7 +5,6 @@
     p.print(glmParams);
   }
   Frame trainFrame=null;
-  Frame validateFrame=null;
   Frame betaConstraints=null;
   Key modelKey=Key.make("model");
   GLM job=null;
@@ -13,9 +12,6 @@
   Frame score=null;
   HashMap<String,Double> coef=null;
   trainFrame=glmParams._train.get();
-  if (glmParams._valid != null) {
-    validateFrame=glmParams._valid.get();
-  }
   if (glmParams._beta_constraints != null) {
     betaConstraints=glmParams._beta_constraints.get();
   }
@@ -36,12 +32,6 @@
     Assert.fail("Test is failed. It can't predict",ex);
   }
  finally {
-    if (trainFrame != null) {
-      trainFrame.delete();
-    }
-    if (validateFrame != null) {
-      validateFrame.delete();
-    }
     if (betaConstraints != null) {
       betaConstraints.delete();
     }
