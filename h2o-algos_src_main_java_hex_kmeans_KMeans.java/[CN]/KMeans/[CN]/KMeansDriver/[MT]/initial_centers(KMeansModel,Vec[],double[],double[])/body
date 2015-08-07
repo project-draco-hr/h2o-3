@@ -28,6 +28,7 @@
  else {
       centers=new double[1][model._output.nfeatures()];
       randomRow(vecs,rand,centers[0],means,mults);
+      model._output._iterations=0;
       while (model._output._iterations < 5) {
         SumSqr sqr=new SumSqr(centers,means,mults,_isCats).doAll(vecs);
         Sampler sampler=new Sampler(centers,means,mults,_isCats,sqr._sqr,_parms._k * 3,_parms._seed,hasWeightCol()).doAll(vecs);
@@ -39,7 +40,7 @@
         model.update(_key);
       }
       centers=recluster(centers,rand,_parms._k,_parms._init,_isCats);
-      model._output._iterations=-1;
+      model._output._iterations=0;
     }
   }
   return centers;
