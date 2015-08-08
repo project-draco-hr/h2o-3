@@ -14,12 +14,13 @@
     double[][] centers=initial_centers(model,vecs,means,mults);
     if (centers == null)     return;
     double[][] oldCenters=null;
+    model._output._iterations=0;
     while (!isDone(model,centers,oldCenters)) {
       Lloyds task=new Lloyds(centers,means,mults,_isCats,_parms._k,hasWeightCol()).doAll(vecs);
       max_cats(task._cMeans,task._cats,_isCats);
       if (cleanupBadClusters(task,vecs,centers,means,mults))       continue;
       oldCenters=centers;
-      centers=computeStatsFillModel(task,model,vecs,centers,means,mults);
+      centers=computeStatsFillModel(task,model,vecs,means,mults);
       model.update(_key);
       update(1);
       if (model._parms._score_each_iteration)       Log.info(model._output._model_summary);
