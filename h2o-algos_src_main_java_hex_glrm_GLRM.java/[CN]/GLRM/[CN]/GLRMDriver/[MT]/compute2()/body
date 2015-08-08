@@ -56,8 +56,7 @@
       model._output._avg_change_obj=(model._output._objective - obj_new) / nobs;
       model._output._iterations++;
       if (model._output._avg_change_obj > 0) {
-        yt=ytnew;
-        model._output._archetypes=yt._archetypes;
+        model._output._archetypes_raw=yt=ytnew;
         model._output._objective=obj_new;
         step*=1.05;
         steps_in_row=Math.max(1,steps_in_row + 1);
@@ -86,8 +85,8 @@
     DKV.put(xinfo._key,xinfo);
     model._output._step_size=step;
     model._output._loading_key=_parms._loading_key;
-    model._output._archetypes_full=yt;
-    model._output._archetypes=yt._archetypes;
+    model._output._archetypes_raw=yt;
+    model._output._archetypes=yt.buildTable(model._output._names_expanded,false);
     if (_parms._recover_svd)     recoverSVD(model,xinfo);
     model._output._training_metrics=model.scoreMetricsOnly(_parms.train());
     if (_valid != null)     model._output._validation_metrics=model.scoreMetricsOnly(_parms.valid());
