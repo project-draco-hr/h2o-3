@@ -8,10 +8,13 @@
   try {
     m=(Model)(startBuildModel(params,grid).get());
     grid.putModel(checksum,m._key);
-    grid.update(jobKey());
   }
  catch (  RuntimeException e) {
     Log.warn("Grid search: model builder for parameters " + params + " failed! Exception: ",e);
+    grid.appendFailedModelParameters(params,e.getMessage());
+  }
+ finally {
+    grid.update(jobKey());
   }
   return m;
 }
