@@ -1,6 +1,14 @@
-def __init__(self, metric_json, on_train, on_valid, on_xval, algo):
+def __init__(self, metric_json, on, algo):
     self._metric_json = metric_json
-    self._on_train = on_train
-    self._on_valid = on_valid
-    self._on_xval = on_xval
+    self._on_train = False
+    self._on_valid = False
+    self._on_xval = False
     self._algo = algo
+    if (on == 'training_metrics'):
+        self._on_train = True
+    elif (on == 'validation_metrics'):
+        self._on_valid = True
+    elif (on == 'cross_validation_metrics'):
+        self._on_xval = True
+    else:
+        raise ValueError(('on expected to be train,valid,or xval. Got: ' + str(on)))
