@@ -1,5 +1,4 @@
 def offset_poisson(ip, port):
-    h2o.init(ip, port)
     insurance = h2o.import_frame(h2o.locate('smalldata/glm_test/insurance.csv'))
     insurance['offset'] = insurance['Holders'].log()
     gbm = h2o.gbm(x=insurance[0:3], y=insurance['Claims'], distribution='poisson', ntrees=600, max_depth=1, min_rows=1, learn_rate=0.1, offset_column='offset', training_frame=insurance)

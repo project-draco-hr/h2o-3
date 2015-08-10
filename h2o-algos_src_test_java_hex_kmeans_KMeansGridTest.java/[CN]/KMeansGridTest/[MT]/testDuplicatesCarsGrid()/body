@@ -1,2 +1,31 @@
 {
+  Grid grid=null;
+  Frame fr=null;
+  try {
+    fr=parse_test_file("smalldata/iris/iris_wheader.csv");
+    fr.remove("class").remove();
+    DKV.put(fr);
+    HashMap<String,Object[]> hyperParms=new HashMap<>();
+    hyperParms.put("_k",new Integer[]{3,3,3});
+    hyperParms.put("_init",new KMeans.Initialization[]{KMeans.Initialization.Random,KMeans.Initialization.Random,KMeans.Initialization.Random});
+    hyperParms.put("_seed",new Long[]{123456789L,123456789L,123456789L});
+    KMeansModel.KMeansParameters params=new KMeansModel.KMeansParameters();
+    params._train=fr._key;
+    GridSearch gs=GridSearch.startGridSearch(params,hyperParms,KMEANS_MODEL_FACTORY);
+    grid=(Grid)gs.get();
+    Model[] models=grid.getModels();
+    assertTrue("Number of returned models has to be > 0",models.length > 0);
+    Key<Model> modelKey=models[0]._key;
+    for (    Model m : models) {
+      assertTrue("Number of constructed models has to be equal to 1",modelKey == m._key);
+    }
+  }
+  finally {
+    if (fr != null) {
+      fr.remove();
+    }
+    if (grid != null) {
+      grid.remove();
+    }
+  }
 }

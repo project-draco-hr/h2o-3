@@ -1,2 +1,101 @@
 {
+  Grid grid=null;
+  DRFModel drfRebuilt=null;
+  Frame fr=null;
+  try {
+    fr=parse_test_file("smalldata/junit/cars.csv");
+    fr.remove("name").remove();
+    Vec old=fr.remove("economy (mpg)");
+    fr.add("economy (mpg)",old);
+    DKV.put(fr);
+    HashMap<String,Object[]> hyperParms=new HashMap<>();
+    long seed=System.nanoTime();
+    Random rng=new Random(seed);
+    Integer ntreesDim=rng.nextInt(4) + 1;
+    Integer maxDepthDim=rng.nextInt(4) + 1;
+    Integer mtriesDim=rng.nextInt(4) + 1;
+    Integer sampleRateDim=rng.nextInt(4) + 1;
+    Integer[] ntreesArr=interval(1,25);
+    ArrayList<Integer> ntreesList=new ArrayList<>(Arrays.asList(ntreesArr));
+    Collections.shuffle(ntreesList);
+    Integer[] ntreesSpace=new Integer[ntreesDim];
+    for (int i=0; i < ntreesDim; i++) {
+      ntreesSpace[i]=ntreesList.get(i);
+    }
+    Integer[] maxDepthArr=interval(1,20);
+    ArrayList<Integer> maxDepthList=new ArrayList<>(Arrays.asList(maxDepthArr));
+    Collections.shuffle(maxDepthList);
+    Integer[] maxDepthSpace=new Integer[maxDepthDim];
+    for (int i=0; i < maxDepthDim; i++) {
+      maxDepthSpace[i]=maxDepthList.get(i);
+    }
+    Integer[] mtriesArr=interval(1,6);
+    ArrayList<Integer> mtriesList=new ArrayList<>(Arrays.asList(mtriesArr));
+    Collections.shuffle(mtriesList);
+    Integer[] mtriesSpace=new Integer[mtriesDim];
+    for (int i=0; i < mtriesDim; i++) {
+      mtriesSpace[i]=mtriesList.get(i);
+    }
+    Float[] sampleRateArr=interval(0.01f,0.99f,0.01f);
+    ArrayList<Float> sampleRateList=new ArrayList<>(Arrays.asList(sampleRateArr));
+    Collections.shuffle(sampleRateList);
+    Float[] sampleRateSpace=new Float[sampleRateDim];
+    for (int i=0; i < sampleRateDim; i++) {
+      sampleRateSpace[i]=sampleRateList.get(i);
+    }
+    hyperParms.put("_ntrees",ntreesSpace);
+    hyperParms.put("_max_depth",maxDepthSpace);
+    hyperParms.put("_mtries",mtriesSpace);
+    hyperParms.put("_sample_rate",sampleRateSpace);
+    DRFModel.DRFParameters params=new DRFModel.DRFParameters();
+    params._train=fr._key;
+    params._response_column="economy (mpg)";
+    GridSearch gs=GridSearch.startGridSearch(params,hyperParms,DRF_MODEL_FACTORY);
+    grid=(Grid)gs.get();
+    System.out.println("Test seed: " + seed);
+    System.out.println("ntrees search space: " + Arrays.toString(ntreesSpace));
+    System.out.println("max_depth search space: " + Arrays.toString(maxDepthSpace));
+    System.out.println("mtries search space: " + Arrays.toString(mtriesSpace));
+    System.out.println("sample_rate search space: " + Arrays.toString(sampleRateSpace));
+    Model[] ms=grid.getModels();
+    Integer numModels=ms.length;
+    System.out.println("Grid consists of " + numModels + " models");
+    assertTrue("Number of models should match hyper space size",numModels == ntreesDim * maxDepthDim * sampleRateDim* mtriesDim);
+    HashMap<String,Object[]> randomHyperParms=new HashMap<>();
+    Integer ntreeVal=ntreesSpace[rng.nextInt(ntreesSpace.length)];
+    randomHyperParms.put("_ntrees",new Integer[]{ntreeVal});
+    Integer maxDepthVal=maxDepthSpace[rng.nextInt(maxDepthSpace.length)];
+    randomHyperParms.put("_max_depth",maxDepthSpace);
+    Integer mtriesVal=mtriesSpace[rng.nextInt(mtriesSpace.length)];
+    randomHyperParms.put("_max_depth",mtriesSpace);
+    Float sampleRateVal=sampleRateSpace[rng.nextInt(sampleRateSpace.length)];
+    randomHyperParms.put("_sample_rate",sampleRateSpace);
+    params._ntrees=ntreeVal;
+    params._max_depth=maxDepthVal;
+    params._mtries=mtriesVal;
+    DRF job=null;
+    try {
+      job=new DRF(params);
+      drfRebuilt=job.trainModel().get();
+    }
+  finally {
+      if (job != null) {
+        job.remove();
+      }
+    }
+    assertTrue(job._state == water.Job.JobState.DONE);
+    double rebuiltMSE=drfRebuilt._output._scored_train[drfRebuilt._output._ntrees]._mse;
+    System.out.println("The rebuilt model's MSE: " + rebuiltMSE);
+  }
+  finally {
+    if (fr != null) {
+      fr.remove();
+    }
+    if (grid != null) {
+      grid.remove();
+    }
+    if (drfRebuilt != null) {
+      drfRebuilt.remove();
+    }
+  }
 }
