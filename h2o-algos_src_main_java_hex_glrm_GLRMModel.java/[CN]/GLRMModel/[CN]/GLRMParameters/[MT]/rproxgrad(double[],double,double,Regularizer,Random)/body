@@ -1,11 +1,12 @@
 {
   if (u == null || alpha == 0 || gamma == 0)   return u;
   double[] v=new double[u.length];
-  int idx;
 switch (regularization) {
+case None:
+    return u;
 case L2:
-    for (int i=0; i < u.length; i++)     v[i]=u[i] / (1 + 2 * alpha * gamma);
-  return v;
+  for (int i=0; i < u.length; i++)   v[i]=u[i] / (1 + 2 * alpha * gamma);
+return v;
 case L1:
 for (int i=0; i < u.length; i++) v[i]=Math.max(u[i] - alpha * gamma,0) + Math.min(u[i] + alpha * gamma,0);
 return v;
@@ -13,13 +14,32 @@ case NonNegative:
 for (int i=0; i < u.length; i++) v[i]=Math.max(u[i],0);
 return v;
 case OneSparse:
-idx=ArrayUtils.maxIndex(u,rand);
+int idx=ArrayUtils.maxIndex(u,rand);
 v[idx]=u[idx] > 0 ? u[idx] : 1e-6;
 return v;
 case UnitOneSparse:
 idx=ArrayUtils.maxIndex(u,rand);
 v[idx]=1;
 return v;
+case Simplex:
+int n=u.length;
+int[] idxs=new int[n];
+for (int i=0; i < n; i++) idxs[i]=i;
+ArrayUtils.sort(idxs,u);
+double[] ucsum=new double[n];
+ucsum[n - 1]=u[idxs[n - 1]];
+for (int i=n - 2; i >= 0; i--) ucsum[i]=ucsum[i + 1] + u[idxs[i]];
+double t=(ucsum[0] - 1) / n;
+for (int i=n - 1; i >= 1; i--) {
+double tmp=(ucsum[i] - 1) / (n - i);
+if (tmp >= u[idxs[i - 1]]) {
+t=tmp;
+break;
+}
+}
+double[] x=new double[u.length];
+for (int i=0; i < u.length; i++) x[i]=Math.max(u[i] - t,0);
+return x;
 default :
 throw new RuntimeException("Unknown regularization function " + regularization);
 }

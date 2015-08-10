@@ -1,0 +1,14 @@
+{
+  if (o == null)   throw new IllegalArgumentException("Cannot get the field from null object!");
+  Field f=null;
+  try {
+    f=o.getClass().getField(name);
+    return f.get(o);
+  }
+ catch (  NoSuchFieldException e) {
+    throw new IllegalArgumentException("Field not found: '" + name + "' on object "+ o);
+  }
+catch (  IllegalAccessException e) {
+    throw new IllegalArgumentException("Cannot get value of the field: '" + name + "' on object "+ o);
+  }
+}

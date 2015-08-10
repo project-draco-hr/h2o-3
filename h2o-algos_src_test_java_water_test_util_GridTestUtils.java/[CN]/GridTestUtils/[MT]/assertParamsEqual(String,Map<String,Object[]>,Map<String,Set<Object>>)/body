@@ -1,0 +1,12 @@
+{
+  String[] expectedNames=expected.keySet().toArray(new String[expected.size()]);
+  String[] actualNames=actual.keySet().toArray(new String[actual.size()]);
+  Assert.assertArrayEquals(message + ": names of used hyper parameters have to match",expectedNames,actualNames);
+  for (  String name : expectedNames) {
+    Object[] expectedValues=expected.get(name);
+    Arrays.sort(expectedValues);
+    Object[] actualValues=actual.get(name).toArray(new Object[0]);
+    Arrays.sort(actualValues);
+    Assert.assertArrayEquals(message + ": used hyper values have to match",expectedValues,actualValues);
+  }
+}
