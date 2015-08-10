@@ -1,0 +1,11 @@
+def _ow(name, **kwargs):
+    c = kwargs[name]
+    fr = kwargs['training_frame']
+    if ((c is None) or isinstance(c, H2OFrame)):
+        res = c
+    else:
+        if (fr is None):
+            raise ValueError('offsets/weights given, but missing frame')
+        res = fr[c]
+    kwargs[name] = (None if (res is None) else res.colnames()[0])
+    return res
