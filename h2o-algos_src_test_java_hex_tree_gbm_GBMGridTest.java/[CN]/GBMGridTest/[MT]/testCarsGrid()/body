@@ -1,5 +1,5 @@
 {
-  Grid grid=null;
+  Grid<GBMModel.GBMParameters> grid=null;
   Frame fr=null;
   Vec old=null;
   try {
@@ -12,7 +12,9 @@
     hyperParms.put("_ntrees",new Integer[]{1,2});
     hyperParms.put("_distribution",new Distribution.Family[]{Distribution.Family.multinomial});
     hyperParms.put("_max_depth",new Integer[]{1,2,5});
-    hyperParms.put("_learn_rate",new Float[]{0.01f,0.1f,0.3f});
+    Float[] legalLearnRateOpts=new Float[]{0.01f,0.1f,0.3f};
+    Float[] illegalLearnRateOpts=new Float[]{-1f};
+    hyperParms.put("_learn_rate",ArrayUtils.join(legalLearnRateOpts,illegalLearnRateOpts));
     String[] hyperParamNames=hyperParms.keySet().toArray(new String[hyperParms.size()]);
     Arrays.sort(hyperParamNames);
     int hyperSpaceSize=ArrayUtils.crossProductSize(hyperParms);
@@ -20,19 +22,27 @@
     params._train=fr._key;
     params._response_column="cylinders";
     GridSearch gs=GridSearch.startGridSearch(params,hyperParms,GBM_MODEL_FACTORY);
-    grid=(Grid)gs.get();
-    Assert.assertEquals("Size of grid should match to size of hyper space",hyperSpaceSize,grid.getModelKeys().length);
+    grid=(Grid<GBMModel.GBMParameters>)gs.get();
+    Assert.assertEquals("Size of grid (models+failures) should match to size of hyper space",hyperSpaceSize,grid.getModelCount() + grid.getFailureCount());
     String[] gridHyperNames=grid.getHyperNames();
     Arrays.sort(gridHyperNames);
     Assert.assertArrayEquals("Hyper parameters names should match!",hyperParamNames,gridHyperNames);
     Key<Model>[] mKeys=grid.getModelKeys();
-    Map<String,Set<Object>> usedModelParams=GridTestUtils.initMap(hyperParamNames);
+    Map<String,Set<Object>> usedHyperParams=GridTestUtils.initMap(hyperParamNames);
     for (    Key<Model> mKey : mKeys) {
       GBMModel gbm=(GBMModel)mKey.get();
       System.out.println(gbm._output._scored_train[gbm._output._ntrees]._mse + " " + Arrays.deepToString(ArrayUtils.zip(grid.getHyperNames(),grid.getHyperValues(gbm._parms))));
-      GridTestUtils.extractParams(usedModelParams,gbm._parms,hyperParamNames);
+      GridTestUtils.extractParams(usedHyperParams,gbm._parms,hyperParamNames);
     }
-    GridTestUtils.assertParamsEqual("Grid models parameters have to cover specified hyper space",hyperParms,usedModelParams);
+    hyperParms.put("_learn_rate",legalLearnRateOpts);
+    GridTestUtils.assertParamsEqual("Grid models parameters have to cover specified hyper space",hyperParms,usedHyperParams);
+    Map<String,Set<Object>> failedHyperParams=GridTestUtils.initMap(hyperParamNames);
+    ;
+    for (    Model.Parameters failedParams : grid.getFailedParameters()) {
+      GridTestUtils.extractParams(failedHyperParams,failedParams,hyperParamNames);
+    }
+    hyperParms.put("_learn_rate",illegalLearnRateOpts);
+    GridTestUtils.assertParamsEqual("Failed model parameters have to correspond to specified hyper space",hyperParms,failedHyperParams);
   }
   finally {
     if (old != null) {
