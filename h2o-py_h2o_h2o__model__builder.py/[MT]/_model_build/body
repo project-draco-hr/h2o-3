@@ -5,11 +5,11 @@ def _model_build(x, y, vx, vy, algo, offsets, weights, fold_column, **kwargs):
     if (vx is not None):
         vx = _check_frame(vx, vy, y)
     if (offsets is not None):
-        (x, vx) = _check_extra_col(x, vx, 'offsets', kwargs)
+        (x, vx) = _check_extra_col(x, vx, offsets)
     if (weights is not None):
-        (x, vx) = _check_extra_col(x, vx, 'weights', kwargs)
+        (x, vx) = _check_extra_col(x, vx, weights)
     if (fold_column is not None):
-        (x, vx) = _check_extra_col(x, vx, 'fold_column', kwargs)
+        (x, vx) = _check_extra_col(x, vx, fold_column)
     kwargs['training_frame'] = x._id
     if (vx is not None):
         kwargs['validation_frame'] = vx._id
