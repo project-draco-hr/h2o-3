@@ -12,13 +12,15 @@ def __init__(self, ip='localhost', port=54321, size=1, start_h2o=False, enable_a
     self._child = (getattr(__H2OCONN__, '_child') if hasattr(__H2OCONN__, '_child') else None)
     __H2OCONN__ = self
     jar_path = None
-    jarpaths = [os.path.join(sys.prefix, 'h2o_jar', 'h2o.jar'), os.path.join(os.path.sep, 'usr', 'local', 'h2o_jar', 'h2o.jar'), os.path.join(sys.prefix, 'local', 'h2o_jar', 'h2o.jar')]
+    jarpaths = [os.path.join(sys.prefix, 'h2o_jar', 'h2o.jar'), os.path.join(os.path.sep, 'usr', 'local', 'h2o_jar', 'h2o.jar'), os.path.join(sys.prefix, 'local', 'h2o_jar', 'h2o.jar'), os.path.join(site.USER_BASE, 'h2o_jar', 'h2o.jar')]
     if os.path.exists(jarpaths[0]):
         jar_path = jarpaths[0]
     elif os.path.exists(jarpaths[1]):
         jar_path = jarpaths[1]
-    else:
+    elif os.path.exists(jarpaths[2]):
         jar_path = jarpaths[2]
+    else:
+        jar_path = jarpaths[3]
     if start_h2o:
         if (not ice_root):
             ice_root = tempfile.mkdtemp()
