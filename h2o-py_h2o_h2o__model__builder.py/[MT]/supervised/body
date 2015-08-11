@@ -7,5 +7,5 @@ def supervised(kwargs):
     weights = _ow('weights_column', kwargs)
     fold_column = _ow('fold_column', kwargs)
     algo = kwargs['algo']
-    parms = {k: v for (k, v) in kwargs.items() if ((k not in ['x', 'y', 'validation_x', 'validation_y', 'algo']) and (v is not None))}
+    parms = {k: v for (k, v) in kwargs.items() if (((k not in ['x', 'y', 'validation_x', 'validation_y', 'algo']) and (v is not None)) or (k == 'validation_frame'))}
     return supervised_model_build(x, y, vx, vy, algo, offsets, weights, fold_column, parms)
