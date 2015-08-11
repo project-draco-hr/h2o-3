@@ -1,0 +1,13 @@
+{
+  Grid grid=getFromDKV("grid_id",s.grid_id.key(),Grid.class);
+  Key<Model>[] models=grid.getModelKeys();
+  KeyV3.ModelKeyV3[] modelIds=new KeyV3.ModelKeyV3[models.length];
+  for (int i=0; i < modelIds.length; i++) {
+    modelIds[i]=new KeyV3.ModelKeyV3(models[i]);
+  }
+  s.model_ids=modelIds;
+  s.hyper_names=grid.getHyperNames();
+  s.failed_params=toModelParametersSchema(grid.getFailedParameters());
+  s.failure_details=grid.getFailureDetails();
+  return s;
+}

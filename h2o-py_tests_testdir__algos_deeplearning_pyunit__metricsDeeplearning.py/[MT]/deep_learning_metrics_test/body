@@ -1,10 +1,9 @@
 def deep_learning_metrics_test(ip, port):
-    h2o.init(ip, port)
     df = h2o.import_frame(path=h2o.locate('smalldata/logreg/prostate.csv'))
     df.drop('ID')
     df['CAPSULE'] = df['CAPSULE'].asfactor()
     vol = df['VOL']
-    vol[(vol == 0), :] = float('nan')
+    vol[(vol == 0)] = float('nan')
     r = vol.runif()
     train = df[(r < 0.8)]
     test = df[(r >= 0.8)]

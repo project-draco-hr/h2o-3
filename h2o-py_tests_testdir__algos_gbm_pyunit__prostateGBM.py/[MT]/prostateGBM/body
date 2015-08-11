@@ -1,10 +1,11 @@
 def prostateGBM(ip, port):
-    h2o.init(ip, port)
     df = h2o.import_frame(path=h2o.locate('smalldata/logreg/prostate.csv'))
     df.describe()
     train = df.drop('ID')
-    train[((train['VOL'] == 0), 'VOL')] = float('nan')
-    train[((train['GLEASON'] == 0), 'GLEASON')] = float('nan')
+    vol = train['VOL']
+    vol[(vol == 0)] = None
+    gle = train['GLEASON']
+    gle[(gle == 0)] = None
     train['CAPSULE'] = train['CAPSULE'].asfactor()
     train.describe()
     my_gbm = h2o.gbm(y=train['CAPSULE'], validation_y=train['CAPSULE'], x=train[1:], validation_x=train[1:], ntrees=50, learn_rate=0.1, distribution='bernoulli')

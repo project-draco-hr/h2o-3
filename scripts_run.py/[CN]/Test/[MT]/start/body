@@ -9,6 +9,8 @@ def start(self, ip, port):
         cmd = ['python', self.test_name, '--usecloud', ((self.ip + ':') + str(self.port))]
     elif is_python_file(self.test_name):
         cmd = ['python', self.test_name, '--usecloud', ((self.ip + ':') + str(self.port))]
+    elif is_ipython_notebook(self.test_name):
+        cmd = ['python', self.notebook_runner, '--usecloud', ((self.ip + ':') + str(self.port)), '--ipynb', self.test_name]
     elif is_runit_test_file(self.test_name):
         cmd = ['R', '-f', self.test_name, '--args', ((self.ip + ':') + str(self.port))]
     elif is_javascript_test_file(self.test_name):
