@@ -3,9 +3,9 @@ def supervised(kwargs):
     (vx, vy) = (None, None)
     if ('validation_x' in kwargs):
         (vx, vy) = _supervised_frame_helper(kwargs['validation_x'], kwargs['validation_y'], kwargs['validation_frame'])
-    offsets = _ow('offset_column', **kwargs)
-    weights = _ow('weights_column', **kwargs)
-    fold_column = _ow('fold_column', **kwargs)
+    offsets = _ow('offset_column', kwargs)
+    weights = _ow('weights_column', kwargs)
+    fold_column = _ow('fold_column', kwargs)
     algo = kwargs['algo']
     parms = {k: v for (k, v) in kwargs.items() if ((k not in ['x', 'y', 'validation_x', 'validation_y', 'algo']) and (v is not None))}
     return supervised_model_build(x, y, vx, vy, algo, offsets, weights, fold_column, parms)
