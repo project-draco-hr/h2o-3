@@ -1,0 +1,34 @@
+{
+  Frame fr=null;
+  try {
+    fr=parse_test_file("smalldata/junit/cars.csv");
+    fr.remove("name").remove();
+    Vec old=fr.remove("economy (mpg)");
+    fr.add("economy (mpg)",old);
+    DKV.put(fr);
+    DRFModel.DRFParameters params1=new DRFModel.DRFParameters();
+    params1._train=fr._key;
+    params1._response_column="economy (mpg)";
+    params1._seed=-4522296119273841674L;
+    params1._mtries=3;
+    params1._max_depth=15;
+    params1._ntrees=9;
+    params1._sample_rate=0.6499997f;
+    DRFModel.DRFParameters params2=new DRFModel.DRFParameters();
+    params2._train=fr._key;
+    params2._response_column="economy (mpg)";
+    params2._seed=-4522296119273841674L;
+    params2._mtries=1;
+    params2._max_depth=1;
+    params2._ntrees=13;
+    params2._sample_rate=0.6499997f;
+    long csum1=params1.checksum();
+    long csum2=params2.checksum();
+    Assert.assertNotEquals("Checksums shoudl be different",csum1,csum2);
+  }
+  finally {
+    if (fr != null) {
+      fr.remove();
+    }
+  }
+}
