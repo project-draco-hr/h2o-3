@@ -3,14 +3,14 @@
   Random rng=new Random(seed);
   Frame train=null, score=null;
   final int[] cats=new int[]{1,3,4,5};
-  final GLRMModel.GLRMParameters.Regularizer[] regs=new GLRMModel.GLRMParameters.Regularizer[]{GLRMModel.GLRMParameters.Regularizer.L2,GLRMModel.GLRMParameters.Regularizer.L1,GLRMModel.GLRMParameters.Regularizer.NonNegative,GLRMModel.GLRMParameters.Regularizer.OneSparse,GLRMModel.GLRMParameters.Regularizer.UnitOneSparse,GLRMModel.GLRMParameters.Regularizer.Simplex};
+  final GLRMModel.GLRMParameters.Regularizer[] regs=new GLRMModel.GLRMParameters.Regularizer[]{GLRMModel.GLRMParameters.Regularizer.Quadratic,GLRMModel.GLRMParameters.Regularizer.L1,GLRMModel.GLRMParameters.Regularizer.NonNegative,GLRMModel.GLRMParameters.Regularizer.OneSparse,GLRMModel.GLRMParameters.Regularizer.UnitOneSparse,GLRMModel.GLRMParameters.Regularizer.Simplex};
   Scope.enter();
   try {
     train=parse_test_file(Key.make("prostate.hex"),"smalldata/logreg/prostate.csv");
     for (int i=0; i < cats.length; i++)     Scope.track(train.replace(cats[i],train.vec(cats[i]).toEnum())._key);
     train.remove("ID").remove();
     DKV.put(train._key,train);
-    for (    GLRMModel.GLRMParameters.Loss loss : new GLRMModel.GLRMParameters.Loss[]{GLRMModel.GLRMParameters.Loss.L2,GLRMModel.GLRMParameters.Loss.L1,GLRMModel.GLRMParameters.Loss.Huber,GLRMModel.GLRMParameters.Loss.Poisson,GLRMModel.GLRMParameters.Loss.Hinge,GLRMModel.GLRMParameters.Loss.Logistic}) {
+    for (    GLRMModel.GLRMParameters.Loss loss : new GLRMModel.GLRMParameters.Loss[]{GLRMModel.GLRMParameters.Loss.Quadratic,GLRMModel.GLRMParameters.Loss.L1,GLRMModel.GLRMParameters.Loss.Huber,GLRMModel.GLRMParameters.Loss.Poisson,GLRMModel.GLRMParameters.Loss.Hinge,GLRMModel.GLRMParameters.Loss.Logistic}) {
       for (      GLRMModel.GLRMParameters.MultiLoss multiloss : new GLRMModel.GLRMParameters.MultiLoss[]{GLRMModel.GLRMParameters.MultiLoss.Categorical,GLRMModel.GLRMParameters.MultiLoss.Ordinal}) {
         GLRMModel model=null;
         try {
