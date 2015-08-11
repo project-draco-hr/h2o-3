@@ -1,5 +1,5 @@
 def metric_accessors(ip, port):
-    cars = h2o.import_frame(path=h2o.locate('smalldata/junit/cars_20mpg.csv'))
+    cars = h2o.import_file(path=h2o.locate('smalldata/junit/cars_20mpg.csv'))
     r = cars[0].runif()
     train = cars[(r > 0.2)]
     valid = cars[(r <= 0.2)]
@@ -88,7 +88,7 @@ def metric_accessors(ip, port):
     assert (('valid' in mean_residual_deviance.keys()) and ('xval' in mean_residual_deviance.keys())), 'expected validation and cross validation metrics to be returned, but got {0}'.format(mean_residual_deviance.keys())
     assert (len(mean_residual_deviance) == 2), 'expected validation and cross validation metrics to be returned, but got {0}'.format(mean_residual_deviance.keys())
     assert (isinstance(mean_residual_deviance['valid'], float) and isinstance(mean_residual_deviance['xval'], float)), 'validation and cross validation metrics to be floats, but got {0} and {1}'.format(type(mean_residual_deviance['valid']), type(mean_residual_deviance['xval']))
-    cars = h2o.import_frame(path=h2o.locate('smalldata/junit/cars_20mpg.csv'))
+    cars = h2o.import_file(path=h2o.locate('smalldata/junit/cars_20mpg.csv'))
     cars['economy_20mpg'] = cars['economy_20mpg'].asfactor()
     r = cars[0].runif()
     train = cars[(r > 0.2)]
@@ -250,7 +250,7 @@ def metric_accessors(ip, port):
     confusion_matrix = gbm.confusion_matrix(train=True, valid=True, xval=True)
     confusion_matrix = gbm.confusion_matrix(train=False, valid=False, xval=False)
     confusion_matrix = gbm.confusion_matrix(train=False, valid=True, xval=True)
-    cars = h2o.import_frame(path=h2o.locate('smalldata/junit/cars_20mpg.csv'))
+    cars = h2o.import_file(path=h2o.locate('smalldata/junit/cars_20mpg.csv'))
     cars['cylinders'] = cars['cylinders'].asfactor()
     r = cars[0].runif()
     train = cars[(r > 0.2)]
@@ -321,7 +321,7 @@ def metric_accessors(ip, port):
     hit_ratio_table = gbm.hit_ratio_table(train=True, valid=True, xval=True)
     hit_ratio_table = gbm.hit_ratio_table(train=False, valid=False, xval=False)
     hit_ratio_table = gbm.hit_ratio_table(train=False, valid=True, xval=True)
-    iris = h2o.import_frame(path=h2o.locate('smalldata/iris/iris.csv'))
+    iris = h2o.import_file(path=h2o.locate('smalldata/iris/iris.csv'))
     km = h2o.kmeans(x=iris[0:4], nfolds=3, k=3)
     betweenss1 = km.betweenss(train=True, valid=False, xval=False)
     assert isinstance(betweenss1, float)
