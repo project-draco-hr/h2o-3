@@ -6,7 +6,4 @@ def residual_deviance(self, train=False, valid=False, xval=False):
         train = True
     if (train and valid):
         train = True
-    if train:
-        return self._model_json['output']['training_metrics'].residual_deviance()
-    else:
-        return self._model_json['output']['validation_metrics'].residual_deviance()
+    return (self._model_json['output']['training_metrics'].residual_deviance() if train else self._model_json['output']['validation_metrics'].residual_deviance())
