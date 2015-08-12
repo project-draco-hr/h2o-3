@@ -1,7 +1,6 @@
 {
   assert(_training);
-  if (_localmodel._classification)   ((Neurons.Softmax)_neurons[_neurons.length - 1]).bprop(n);
- else   if (!_localmodel.get_params()._autoencoder)   ((Neurons.Linear)_neurons[_neurons.length - 1]).bprop(n);
- else   _neurons[_neurons.length - 1].bprop();
+  assert(n > 0);
+  _neurons[_neurons.length - 1].bprop(n);
   for (int i=_neurons.length - 2; i > 0; --i)   _neurons[i].bprop();
 }
