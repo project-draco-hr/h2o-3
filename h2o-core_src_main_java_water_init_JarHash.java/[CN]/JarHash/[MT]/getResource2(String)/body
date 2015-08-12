@@ -1,21 +1,13 @@
 {
-  try {
-    for (    File f : RESOURCE_FILES) {
-      File f2=new File(f,uri);
-      if (f2.exists())       return new FileInputStream(f2);
-    }
-    ClassLoader cl=ClassLoader.getSystemClassLoader();
-    InputStream is=loadResource(uri,cl);
-    if (is == null && (cl=Thread.currentThread().getContextClassLoader()) != null) {
-      is=loadResource(uri,cl);
-    }
-    if (is == null && (cl=JarHash.class.getClassLoader()) != null) {
-      is=loadResource(uri,cl);
-    }
-    if (is != null)     return is;
+  ClassLoader cl=ClassLoader.getSystemClassLoader();
+  InputStream is=loadResource(uri,cl);
+  if (is == null && (cl=Thread.currentThread().getContextClassLoader()) != null) {
+    is=loadResource(uri,cl);
   }
- catch (  FileNotFoundException ignore) {
+  if (is == null && (cl=JarHash.class.getClassLoader()) != null) {
+    is=loadResource(uri,cl);
   }
+  if (is != null)   return is;
   Log.warn("Resource not found: " + uri);
   return null;
 }
