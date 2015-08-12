@@ -29,7 +29,9 @@
   assert(fraction <= 1.0);
   final boolean sample=(fraction < 0.999 || obs_weights || _shuffle);
   final Random skip_rng=sample ? RandomUtils.getRNG((0x8734093502429734L + _seed + offset) * (_iteration + 0x9823423497823423L)) : null;
+  final int miniBatchSize=getMiniBatchSize();
   long num_processed_rows=0;
+  int miniBatchCounter=0;
   for (int rep=0; rep < repeats; ++rep) {
     for (int row_idx=0; row_idx < nrows; ++row_idx) {
       int r=sample ? -1 : 0;
@@ -55,12 +57,18 @@
       if (!row.bad) {
         assert(row.weight > 0);
         long seed=offset + rep * nrows + r;
+        miniBatchCounter++;
         if (outputs != null && outputs.length > 0)         processRow(seed++,row,outputs);
  else         processRow(seed++,row);
       }
       num_processed_rows++;
+      if (miniBatchCounter % miniBatchSize == 0) {
+        applyMiniBatchUpdate(miniBatchCounter);
+        miniBatchCounter=0;
+      }
     }
   }
+  if (miniBatchCounter > 0)   applyMiniBatchUpdate(miniBatchCounter);
   assert(fraction != 1 || num_processed_rows == repeats * nrows);
   chunkDone(num_processed_rows);
 }

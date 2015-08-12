@@ -4,7 +4,5 @@
   final float t=target;
   final float y=_a.get(row);
   float g=(float)new Distribution(params._distribution,params._tweedie_power).gradient(t,y);
-  float m=momentum();
-  float r=_minfo.adaDelta() ? 0 : rate(_minfo.get_processed_total()) * (1f - m);
-  bprop(row,g,r,m);
+  _sumGrad+=g;
 }

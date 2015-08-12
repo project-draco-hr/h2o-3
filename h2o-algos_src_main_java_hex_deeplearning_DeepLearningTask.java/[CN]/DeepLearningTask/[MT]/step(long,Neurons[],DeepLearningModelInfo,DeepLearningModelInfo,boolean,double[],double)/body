@@ -5,11 +5,6 @@
     }
     if (minfo.get_params()._autoencoder) {
       neurons[neurons.length - 1].fprop(seed,training);
-      if (training) {
-        for (int i=neurons.length - 1; i > 0; --i) {
-          neurons[i].bprop();
-        }
-      }
     }
  else {
       if (consensus_minfo != null) {
@@ -31,7 +26,7 @@
             assert((double)(int)responses[0] == responses[0]);
             target_label=(int)responses[0];
           }
-          ((Neurons.Softmax)neurons[neurons.length - 1]).bprop(target_label);
+          ((Neurons.Softmax)neurons[neurons.length - 1]).addGradient(target_label);
         }
       }
  else {
@@ -50,11 +45,8 @@
  else {
             target_value=(float)responses[0];
           }
-          ((Neurons.Linear)neurons[neurons.length - 1]).bprop(target_value);
+          ((Neurons.Linear)neurons[neurons.length - 1]).addGradient(target_value);
         }
-      }
-      if (training) {
-        for (int i=neurons.length - 2; i > 0; --i)         neurons[i].bprop();
       }
     }
   }
