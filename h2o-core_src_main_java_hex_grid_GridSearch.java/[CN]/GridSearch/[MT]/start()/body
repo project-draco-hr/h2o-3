@@ -1,0 +1,21 @@
+{
+  final int gridSize=_hyperSpaceWalker.getHyperSpaceSize();
+  Log.info("Starting gridsearch: estimated size of search space =" + gridSize);
+  Grid<MP> grid=DKV.getGet(dest());
+  if (grid != null) {
+    grid.write_lock(jobKey());
+  }
+ else {
+    grid=new Grid<>(dest(),_hyperSpaceWalker.getParams(),_hyperSpaceWalker.getHyperParamNames(),_modelFactory.getModelName());
+    grid.delete_and_lock(jobKey());
+  }
+  final Grid<MP> gridToExpose=grid;
+  start(new H2O.H2OCountedCompleter(){
+    @Override public void compute2(){
+      gridSearch(gridToExpose);
+      tryComplete();
+    }
+  }
+,gridSize,true);
+  return this;
+}

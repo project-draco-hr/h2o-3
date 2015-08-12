@@ -1,0 +1,14 @@
+{
+  for (int k=0; k < _nclass; k++) {
+    final DTree tree=_ktrees[k];
+    if (tree == null)     continue;
+    final Chunk nids=chk_nids(chks,k);
+    final Chunk ct=chk_tree(chks,k);
+    for (int row=0; row < nids._len; row++) {
+      int nid=(int)nids.at8(row);
+      if (nid < 0)       continue;
+      ct.set(row,(float)(ct.atd(row) + ((LeafNode)tree.node(nid))._pred));
+      nids.set(row,0);
+    }
+  }
+}

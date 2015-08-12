@@ -1,14 +1,14 @@
 {
   Chunk ys=chk_resp(chks);
   Chunk offset=hasOffsetCol() ? chk_offset(chks) : new C0DChunk(0,chks[0]._len);
-  Chunk tr=chk_tree(chks,0);
+  Chunk preds=chk_tree(chks,0);
   Chunk wk=chk_work(chks,0);
   double fs[]=_nclass > 1 ? new double[_nclass + 1] : null;
   Distribution dist=new Distribution(_parms._distribution,_parms._tweedie_power);
   for (int row=0; row < wk._len; row++) {
     if (ys.isNA(row))     continue;
-    double f=tr.atd(row) + offset.atd(row);
-    double y=ys.at8(row);
+    double f=preds.atd(row) + offset.atd(row);
+    double y=ys.atd(row);
     if (_parms._distribution == Distribution.Family.multinomial) {
       double weight=hasWeightCol() ? chk_weight(chks).atd(row) : 1;
       double sum=score1(chks,weight,0.0,fs,row);

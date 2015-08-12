@@ -1,9 +1,8 @@
 def fiftycatRF(ip, port):
-    h2o.init(ip, port)
-    train = h2o.import_frame(path=h2o.locate('smalldata/gbm_test/50_cattest_train.csv'))
+    train = h2o.import_file(path=h2o.locate('smalldata/gbm_test/50_cattest_train.csv'))
     train['y'] = train['y'].asfactor()
     model = h2o.random_forest(x=train[['x1', 'x2']], y=train['y'], ntrees=50, max_depth=20, nbins=500)
-    test = h2o.import_frame(path=h2o.locate('smalldata/gbm_test/50_cattest_test.csv'))
+    test = h2o.import_file(path=h2o.locate('smalldata/gbm_test/50_cattest_test.csv'))
     preds = model.predict(test)
     preds.head()
     perf = model.model_performance(test)

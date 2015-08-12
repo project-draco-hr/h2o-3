@@ -3,7 +3,8 @@
   Cholesky xxchol=regularizedCholesky(xgram._gram);
   Matrix x_r=new Matrix(xxchol.getL()).transpose();
   x_r=x_r.times(Math.sqrt(_train.numRows()));
-  QRDecomposition yt_qr=new QRDecomposition(new Matrix(model._output._archetypes));
+  Matrix yt=new Matrix(model._output._archetypes);
+  QRDecomposition yt_qr=new QRDecomposition(yt);
   Matrix yt_r=yt_qr.getR();
   Matrix rrmul=x_r.times(yt_r.transpose());
   SingularValueDecomposition rrsvd=new SingularValueDecomposition(rrmul);

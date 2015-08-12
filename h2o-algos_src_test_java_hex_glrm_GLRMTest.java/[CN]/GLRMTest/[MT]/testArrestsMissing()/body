@@ -2,7 +2,7 @@
   double[] sval=new double[]{11.024148,6.964086,4.179904,2.915146};
   double[][] eigvec=ard(ard(-0.5358995,0.4181809,-0.3412327,0.64922780),ard(-0.5831836,0.1879856,-0.2681484,-0.74340748),ard(-0.2781909,-0.8728062,-0.3780158,0.13387773),ard(-0.5434321,-0.1673186,0.8177779,0.08902432));
   long seed=1234;
-  Frame train=null;
+  Frame train=null, score=null;
   GLRMModel model=null;
   GLRMParameters parms;
   Map<Double,Double> sd_map=new TreeMap<>();
@@ -23,7 +23,8 @@
       parms=new GLRMParameters();
       parms._train=train._key;
       parms._k=train.numCols();
-      parms._gamma_x=parms._gamma_y=0;
+      parms._regularization_x=GLRMParameters.Regularizer.L2;
+      parms._regularization_y=GLRMParameters.Regularizer.L2;
       parms._transform=DataInfo.TransformType.STANDARDIZE;
       parms._init=GLRM.Initialization.PlusPlus;
       parms._max_iterations=1000;
@@ -38,6 +39,9 @@
         Log.info("Avg SSE in Std Dev = " + sd_err + "\tAvg SSE in Eigenvectors = "+ ev_err);
         sd_map.put(missing_fraction,sd_err);
         ev_map.put(missing_fraction,ev_err);
+        score=model.score(train);
+        ModelMetricsGLRM mm=DKV.getGet(model._output._model_metrics[model._output._model_metrics.length - 1]);
+        Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
       }
  catch (      Throwable t) {
         t.printStackTrace();
@@ -45,6 +49,7 @@
       }
  finally {
         job.remove();
+        if (score != null)         score.delete();
       }
       Scope.exit();
     }
@@ -60,7 +65,7 @@
       }
     }
   }
-  sb.append("Missing Fraction --> Avg SSE in Std Dev\n");
+  sb.append("\nMissing Fraction --> Avg SSE in Std Dev\n");
   for (  String s : Arrays.toString(sd_map.entrySet().toArray()).split(","))   sb.append(s.replace("="," --> ")).append("\n");
   sb.append("\n");
   sb.append("Missing Fraction --> Avg SSE in Eigenvectors\n");
