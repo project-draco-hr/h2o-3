@@ -1,5 +1,5 @@
 def offset_gamma(ip, port):
-    insurance = h2o.import_frame(h2o.locate('smalldata/glm_test/insurance.csv'))
+    insurance = h2o.import_file(h2o.locate('smalldata/glm_test/insurance.csv'))
     insurance['offset'] = insurance['Holders'].log()
     gbm = h2o.gbm(x=insurance[0:3], y=insurance['Claims'], distribution='gamma', ntrees=600, max_depth=1, min_rows=1, learn_rate=0.1, offset_column='offset', training_frame=insurance)
     predictions = gbm.predict(insurance)

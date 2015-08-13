@@ -6,7 +6,4 @@ def residual_degrees_of_freedom(self, train=False, valid=False, xval=False):
         train = True
     if (train and valid):
         train = True
-    if train:
-        return self._model_json['output']['training_metrics'].residual_degrees_of_freedom()
-    else:
-        return self._model_json['output']['validation_metrics'].residual_degrees_of_freedom()
+    return (self._model_json['output']['training_metrics'].residual_degrees_of_freedom() if train else self._model_json['output']['validation_metrics'].residual_degrees_of_freedom())

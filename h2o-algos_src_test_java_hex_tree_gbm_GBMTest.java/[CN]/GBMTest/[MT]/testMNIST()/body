@@ -18,7 +18,7 @@
     GBM job=new GBM(parms);
     GBMModel gbm=job.trainModel().get();
     Frame pred=gbm.score(vfr);
-    double sq_err=new CompErr().doAll(vfr.lastVec(),pred.vecs()[0])._sum;
+    double sq_err=new MathUtils.SquareError().doAll(vfr.lastVec(),pred.vecs()[0])._sum;
     double mse=sq_err / pred.numRows();
     assertEquals(3.0199,mse,1e-15);
     job.remove();

@@ -2,6 +2,7 @@ def predict(self, test_data):
     '\n    Predict on a dataset.\n\n    :param test_data: Data to be predicted on.\n    :return: A new H2OFrame filled with predictions.\n    '
     if (not test_data):
         raise ValueError('Must specify test data')
+    test_data._eager()
     j = H2OConnection.post_json(((('Predictions/models/' + self._id) + '/frames/') + test_data._id))
     prediction_frame_id = j['model_metrics'][0]['predictions']['frame_id']['name']
     return h2o.get_frame(prediction_frame_id)

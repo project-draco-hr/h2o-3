@@ -1,6 +1,6 @@
 def cbind(ip, port):
-    hdf = h2o.import_frame(path=h2o.locate('smalldata/jira/pub-180.csv'))
-    otherhdf = h2o.import_frame(path=h2o.locate('smalldata/jira/v-11.csv'))
+    hdf = h2o.import_file(path=h2o.locate('smalldata/jira/pub-180.csv'))
+    otherhdf = h2o.import_file(path=h2o.locate('smalldata/jira/v-11.csv'))
     (rows, cols) = hdf.dim()
     hdf2 = hdf.cbind(hdf)
     (rows2, cols2) = hdf2.dim()
@@ -40,7 +40,7 @@ def cbind(ip, port):
     (rows, cols) = hdf.dim()
     assert ((rows == 12) and (cols == 10)), 'unexpected dimensions in result'
     assert (hdf.names() == ['colgroup', 'colgroup2', 'col1', 'col2', 'colgroup0', 'colgroup20', 'col10', 'col20', 'colgroup21', 'col11']), 'expected column names to be the same'
-    hdf = h2o.import_frame(path=h2o.locate('smalldata/jira/pub-180.csv'))
+    hdf = h2o.import_file(path=h2o.locate('smalldata/jira/pub-180.csv'))
     (rows, cols) = hdf.dim()
     hdf8 = hdf[1].cbind(hdf)
     (rows8, cols8) = hdf8.dim()
