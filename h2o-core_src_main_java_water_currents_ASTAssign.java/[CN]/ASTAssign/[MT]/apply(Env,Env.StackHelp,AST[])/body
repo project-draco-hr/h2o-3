@@ -2,21 +2,40 @@
   Frame dst=stk.track(asts[1].exec(env)).getFrame();
   Val vsrc=stk.track(asts[2].exec(env));
   ASTNumList cols=check(dst.numCols(),asts[3]);
-  Iced rows=(asts[4] instanceof ASTNumList) ? check(dst.numRows(),asts[4]) : stk.track(asts[4].exec(env)).getFrame();
   if (cols.cnt() == 1 && cols.max() - 1 == dst.numCols()) {
     dst=new Frame(dst._names.clone(),dst.vecs().clone());
     dst.add(Frame.defaultColName(dst.numCols()),dst.anyVec().makeCon(Double.NaN));
   }
   Frame slice=new ASTColSlice().apply(env,stk,new AST[]{null,new ASTFrame(dst),cols}).getFrame();
+  if (asts[4] instanceof ASTNum || asts[4] instanceof ASTNumList) {
+    ASTNumList rows=check(dst.numRows(),asts[4]);
 switch (vsrc.type()) {
 case Val.NUM:
-    assign_frame_scalar(slice,rows,vsrc.getNum());
-  break;
+      assign_frame_scalar(slice,rows,vsrc.getNum());
+    break;
+case Val.STR:
+  assign_frame_scalar(slice,rows,vsrc.getStr());
+break;
 case Val.FRM:
 assign_frame_frame(slice,rows,vsrc.getFrame());
 break;
 default :
 throw new IllegalArgumentException("Source must be a Frame or Number, but found a " + vsrc.getClass());
+}
+}
+ else {
+Frame rows=stk.track(asts[4].exec(env)).getFrame();
+switch (vsrc.type()) {
+case Val.NUM:
+assign_frame_scalar(slice,rows,vsrc.getNum());
+break;
+case Val.STR:
+throw H2O.unimpl();
+case Val.FRM:
+throw H2O.unimpl();
+default :
+throw new IllegalArgumentException("Source must be a Frame or Number, but found a " + vsrc.getClass());
+}
 }
 return new ValFrame(dst);
 }
