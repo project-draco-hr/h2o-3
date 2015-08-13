@@ -73,13 +73,20 @@
       update(1);
     }
     Vec[] xvecs=new Vec[_ncolX];
+    String[] xnames=new String[_ncolX];
     if (overwriteX) {
-      for (int i=0; i < _ncolX; i++)       xvecs[i]=fr.vec(idx_xnew(i,_ncolA,_ncolX));
+      for (int i=0; i < _ncolX; i++) {
+        xvecs[i]=fr.vec(idx_xnew(i,_ncolA,_ncolX));
+        xnames[i]="Arch" + String.valueOf(i + 1);
+      }
     }
  else {
-      for (int i=0; i < _ncolX; i++)       xvecs[i]=fr.vec(idx_xold(i,_ncolA));
+      for (int i=0; i < _ncolX; i++) {
+        xvecs[i]=fr.vec(idx_xold(i,_ncolA));
+        xnames[i]="Arch" + String.valueOf(i + 1);
+      }
     }
-    x=new Frame(_parms._loading_key,null,xvecs);
+    x=new Frame(_parms._loading_key,xnames,xvecs);
     xinfo=new DataInfo(Key.make(),x,null,0,true,DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,false,false,false,false,false,false);
     DKV.put(x._key,x);
     DKV.put(xinfo._key,xinfo);
