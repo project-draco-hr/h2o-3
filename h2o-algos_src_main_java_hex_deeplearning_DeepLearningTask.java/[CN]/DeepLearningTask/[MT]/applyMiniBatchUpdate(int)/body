@@ -1,11 +1,5 @@
 {
   assert(_training);
-  assert(n > 0);
-  _neurons[_neurons.length - 1].bpropMiniBatch(n);
-  for (int i=_neurons.length - 2; i > 0; --i)   _neurons[i].bprop();
-  for (int i=0; i < _neurons.length; ++i) {
-    Storage.DenseVector e=_neurons[i]._e;
-    if (e == null)     continue;
-    Arrays.fill(e.raw(),0);
-  }
+  applyModelUpdates(_neurons,n);
+  clearGradients();
 }

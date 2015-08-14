@@ -3,8 +3,9 @@
   final float rows=_a.size();
   float m=_minfo.adaDelta() ? 0 : momentum();
   float r=_minfo.adaDelta() ? 0 : rate(_minfo.get_processed_total()) * (1f - m);
+  float scale=1f / n;
   for (int row=0; row < rows; row++) {
-    final float g=_e.raw()[row] / n;
+    final float g=_e.raw()[row] * scale;
     bprop(row,g,r,m);
   }
 }
