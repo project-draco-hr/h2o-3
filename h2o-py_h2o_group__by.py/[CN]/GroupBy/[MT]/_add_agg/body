@@ -11,6 +11,10 @@ def _add_agg(self, op, col, name, na):
         cidx = self._fr.index(col)
     elif isinstance(col, int):
         cidx = col
+    elif isinstance(col, (tuple, list)):
+        for i in col:
+            self._add_agg(op, i, name, na)
+        return self
     else:
         raise ValueError('col must be a column name or index.')
     if (name == ''):
