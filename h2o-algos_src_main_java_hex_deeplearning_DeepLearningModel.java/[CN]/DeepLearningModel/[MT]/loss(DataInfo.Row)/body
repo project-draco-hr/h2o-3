@@ -19,8 +19,8 @@
       pred=(pred / di._normRespMul[0] + di._normRespSub[0]);
       actual=(actual / di._normRespMul[0] + di._normRespSub[0]);
     }
-    pred=new Distribution(model_info.get_params()._distribution,model_info.get_params()._tweedie_power).linkInv(pred);
-    loss=deviance(1,actual,pred);
+    Distribution dist=new Distribution(model_info.get_params()._distribution,model_info.get_params()._tweedie_power);
+    loss=dist.deviance(1,actual,dist.linkInv(pred));
   }
   for (int i=0; i < _parms._hidden.length + 1; ++i) {
     if (neurons[i]._w == null)     continue;
