@@ -2,27 +2,24 @@
   GLRM job=null;
   GLRMModel model=null;
   Frame train=null, score=null;
-  final int[] cats=new int[]{1,3,4,5};
   try {
-    Scope.enter();
-    train=parse_test_file(Key.make("prostate.hex"),"smalldata/logreg/prostate.csv");
-    for (int i=0; i < cats.length; i++)     Scope.track(train.replace(cats[i],train.vec(cats[i]).toEnum())._key);
-    train.remove("ID").remove();
-    DKV.put(train._key,train);
+    train=parse_test_file(Key.make("benign.hex"),"smalldata/logreg/benign.csv");
     GLRMParameters parms=new GLRMParameters();
     parms._train=train._key;
-    parms._k=8;
-    parms._gamma_x=parms._gamma_y=0.1;
-    parms._regularization_x=GLRMModel.GLRMParameters.Regularizer.Quadratic;
-    parms._regularization_y=GLRMModel.GLRMParameters.Regularizer.Quadratic;
-    parms._init=GLRM.Initialization.PlusPlus;
+    parms._k=12;
+    parms._loss=GLRMParameters.Loss.Quadratic;
+    parms._loss_by_col=new GLRMParameters.Loss[]{GLRMParameters.Loss.L1,GLRMParameters.Loss.Huber};
+    parms._loss_by_col_idx=new int[]{2,5};
     parms._transform=DataInfo.TransformType.STANDARDIZE;
+    parms._init=GLRM.Initialization.PlusPlus;
+    parms._min_step_size=1e-5;
     parms._recover_svd=false;
-    parms._max_iterations=200;
+    parms._max_iterations=2000;
     try {
       job=new GLRM(parms);
       model=job.trainModel().get();
       Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
+      checkLossbyCol(parms,model);
       score=model.score(train);
       ModelMetricsGLRM mm=DKV.getGet(model._output._model_metrics[model._output._model_metrics.length - 1]);
       Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
@@ -46,6 +43,5 @@
       model._parms._loading_key.get().delete();
       model.delete();
     }
-    Scope.exit();
   }
 }

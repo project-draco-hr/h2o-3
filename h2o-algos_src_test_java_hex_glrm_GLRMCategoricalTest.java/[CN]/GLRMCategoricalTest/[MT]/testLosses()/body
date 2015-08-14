@@ -3,21 +3,21 @@
   Random rng=new Random(seed);
   Frame train=null, score=null;
   final int[] cats=new int[]{1,3,4,5};
-  final GLRMModel.GLRMParameters.Regularizer[] regs=new GLRMModel.GLRMParameters.Regularizer[]{GLRMModel.GLRMParameters.Regularizer.Quadratic,GLRMModel.GLRMParameters.Regularizer.L1,GLRMModel.GLRMParameters.Regularizer.NonNegative,GLRMModel.GLRMParameters.Regularizer.OneSparse,GLRMModel.GLRMParameters.Regularizer.UnitOneSparse,GLRMModel.GLRMParameters.Regularizer.Simplex};
+  final GLRMParameters.Regularizer[] regs=new GLRMParameters.Regularizer[]{GLRMParameters.Regularizer.Quadratic,GLRMParameters.Regularizer.L1,GLRMParameters.Regularizer.NonNegative,GLRMParameters.Regularizer.OneSparse,GLRMParameters.Regularizer.UnitOneSparse,GLRMParameters.Regularizer.Simplex};
   Scope.enter();
   try {
     train=parse_test_file(Key.make("prostate.hex"),"smalldata/logreg/prostate.csv");
     for (int i=0; i < cats.length; i++)     Scope.track(train.replace(cats[i],train.vec(cats[i]).toEnum())._key);
     train.remove("ID").remove();
     DKV.put(train._key,train);
-    for (    GLRMModel.GLRMParameters.Loss loss : new GLRMModel.GLRMParameters.Loss[]{GLRMModel.GLRMParameters.Loss.Quadratic,GLRMModel.GLRMParameters.Loss.L1,GLRMModel.GLRMParameters.Loss.Huber,GLRMModel.GLRMParameters.Loss.Poisson,GLRMModel.GLRMParameters.Loss.Hinge,GLRMModel.GLRMParameters.Loss.Logistic}) {
-      for (      GLRMModel.GLRMParameters.MultiLoss multiloss : new GLRMModel.GLRMParameters.MultiLoss[]{GLRMModel.GLRMParameters.MultiLoss.Categorical,GLRMModel.GLRMParameters.MultiLoss.Ordinal}) {
+    for (    GLRMParameters.Loss loss : new GLRMParameters.Loss[]{GLRMParameters.Loss.Quadratic,GLRMParameters.Loss.L1,GLRMParameters.Loss.Huber,GLRMParameters.Loss.Poisson,GLRMParameters.Loss.Hinge,GLRMParameters.Loss.Logistic}) {
+      for (      GLRMParameters.Loss multiloss : new GLRMParameters.Loss[]{GLRMParameters.Loss.Categorical,GLRMParameters.Loss.Ordinal}) {
         GLRMModel model=null;
         try {
           Scope.enter();
           long myseed=rng.nextLong();
           Log.info("GLRM using seed = " + myseed);
-          GLRMModel.GLRMParameters parms=new GLRMModel.GLRMParameters();
+          GLRMParameters parms=new GLRMParameters();
           parms._train=train._key;
           parms._transform=DataInfo.TransformType.NONE;
           parms._k=5;
