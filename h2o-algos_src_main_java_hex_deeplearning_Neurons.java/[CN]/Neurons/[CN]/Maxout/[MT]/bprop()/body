@@ -1,10 +1,11 @@
 {
+  assert(_index < _minfo.get_params()._hidden.length);
+  assert(!_minfo.get_params()._autoencoder);
   float m=momentum();
   float r=_minfo.adaDelta() ? 0 : rate(_minfo.get_processed_total()) * (1f - m);
   if (_w instanceof Storage.DenseRowMatrix) {
     final int rows=_a.size();
     for (int row=0; row < rows; row++) {
-      assert(!_minfo.get_params()._autoencoder);
       float g=_e.get(row);
       bprop(row,g,r,m);
     }
