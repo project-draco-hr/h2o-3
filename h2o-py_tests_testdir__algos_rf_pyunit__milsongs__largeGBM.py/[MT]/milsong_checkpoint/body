@@ -8,9 +8,9 @@ def milsong_checkpoint(ip, port):
     print 'max_depth model 1: {0}'.format(max_depth1)
     print 'min_rows model 1: {0}'.format(min_rows1)
     model1 = h2o.random_forest(x=milsong_train[1:], y=milsong_train[0], ntrees=ntrees1, max_depth=max_depth1, min_rows=min_rows1, validation_x=milsong_valid[1:], validation_y=milsong_valid[0], seed=1234)
-    model_path = h2o.save_model(model1, name='delete_model', force=True)
+    model_path = h2o.save_model(model1, force=True)
     restored_model = h2o.load_model(model_path)
-    shutil.rmtree('delete_model')
+    shutil.rmtree(model_path)
     ntrees2 = (ntrees1 + 50)
     max_depth2 = max_depth1
     min_rows2 = min_rows1
