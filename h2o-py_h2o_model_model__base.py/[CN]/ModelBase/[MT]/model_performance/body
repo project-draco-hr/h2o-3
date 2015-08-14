@@ -10,6 +10,7 @@ def model_performance(self, test_data=None, train=False, valid=False):
     else:
         if (not isinstance(test_data, H2OFrame)):
             raise ValueError(('`test_data` must be of type H2OFrame.  Got: ' + type(test_data)))
+        test_data._eager()
         res = H2OConnection.post_json(((('ModelMetrics/models/' + self._id) + '/frames/') + test_data._id))
         raw_metrics = None
         for mm in res['model_metrics']:
