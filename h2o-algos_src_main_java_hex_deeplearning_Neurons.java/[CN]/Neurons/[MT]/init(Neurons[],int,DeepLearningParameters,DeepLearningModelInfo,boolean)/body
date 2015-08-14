@@ -11,7 +11,7 @@
     _origa=new Storage.DenseVector(units);
   }
   if (training && (this instanceof MaxoutDropout || this instanceof TanhDropout || this instanceof RectifierDropout|| this instanceof Input)) {
-    _dropout=this instanceof Input ? new Dropout(units,params._input_dropout_ratio) : new Dropout(units,params._hidden_dropout_ratios[_index]);
+    _dropout=this instanceof Input ? (params._input_dropout_ratio == 0 ? null : new Dropout(units,params._input_dropout_ratio)) : new Dropout(units,params._hidden_dropout_ratios[_index]);
   }
   if (!(this instanceof Input)) {
     _previous=neurons[_index];
