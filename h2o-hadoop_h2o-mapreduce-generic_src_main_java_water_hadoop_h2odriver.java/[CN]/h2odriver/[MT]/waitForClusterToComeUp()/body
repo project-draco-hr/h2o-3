@@ -3,7 +3,7 @@
   while (true) {
     if (clusterFailedToComeUp) {
       System.out.println("ERROR: At least one node failed to come up during cluster formation");
-      job.killJob();
+      killJobAndWait(job);
       return 4;
     }
     if (job.isComplete()) {
@@ -24,7 +24,7 @@
           System.out.println("NOTE: You may want to specify the -network option, which lets you specify the network interface the mappers bind to.");
           System.out.println("NOTE: Typical usage is:  -network a.b.c.d/24");
         }
-        job.killJob();
+        killJobAndWait(job);
         return CLUSTER_ERROR_TIMEOUT;
       }
     }

@@ -1,4 +1,7 @@
 {
+  if (javaMajorVersion <= 7) {
+    mapperPermSize="256m";
+  }
   parseArgs(args);
   validateArgs();
   if (driverCallbackIp == null) {
@@ -37,7 +40,7 @@
     conf.set("mapreduce.job.ubertask.enable","false");
     String mapreduceMapMemoryMb=Long.toString(processTotalPhysicalMemoryMegabytes);
     conf.set("mapreduce.map.memory.mb",mapreduceMapMemoryMb);
-    StringBuilder sb=new StringBuilder().append("-Xms").append(mapperXmx).append(" -Xmx").append(mapperXmx).append((enableExceptions ? " -ea" : "")).append((enableVerboseGC ? " -verbose:gc" : "")).append((enablePrintGCDetails ? " -XX:+PrintGCDetails" : "")).append((enablePrintGCTimeStamps ? " -XX:+PrintGCTimeStamps" : "")).append((enableVerboseClass ? " -verbose:class" : "")).append((enablePrintCompilation ? " -XX:+PrintCompilation" : "")).append((enableExcludeMethods ? " -XX:CompileCommand=exclude,water/fvec/NewChunk.append2slowd" : "")).append((enableLog4jDefaultInitOverride ? " -Dlog4j.defaultInitOverride=true" : "")).append((enableDebug ? " -agentlib:jdwp=transport=dt_socket,server=y,suspend=" + (enableSuspend ? "y" : "n") + ",address="+ debugPort : ""));
+    StringBuilder sb=new StringBuilder().append("-Xms").append(mapperXmx).append(" -Xmx").append(mapperXmx).append(((mapperPermSize != null) && (mapperPermSize.length() > 0)) ? (" -XX:PermSize=" + mapperPermSize) : "").append((enableExceptions ? " -ea" : "")).append((enableVerboseGC ? " -verbose:gc" : "")).append((enablePrintGCDetails ? " -XX:+PrintGCDetails" : "")).append((enablePrintGCTimeStamps ? " -XX:+PrintGCTimeStamps" : "")).append((enableVerboseClass ? " -verbose:class" : "")).append((enablePrintCompilation ? " -XX:+PrintCompilation" : "")).append((enableExcludeMethods ? " -XX:CompileCommand=exclude,water/fvec/NewChunk.append2slowd" : "")).append((enableLog4jDefaultInitOverride ? " -Dlog4j.defaultInitOverride=true" : "")).append((enableDebug ? " -agentlib:jdwp=transport=dt_socket,server=y,suspend=" + (enableSuspend ? "y" : "n") + ",address="+ debugPort : ""));
     for (    String s : extraJvmArguments) {
       sb.append(" ").append(s);
     }
@@ -129,9 +132,9 @@
   job.submit();
   System.out.println("Job name '" + jobtrackerName + "' submitted");
   System.out.println("JobTracker job ID is '" + job.getJobID() + "'");
-  hadoopJobID=job.getJobID().toString();
-  String applicationID=hadoopJobID.replace("job_","application_");
-  System.out.println("For YARN users, logs command is 'yarn logs -applicationId " + applicationID + "'");
+  hadoopJobId=job.getJobID().toString();
+  applicationId=hadoopJobId.replace("job_","application_");
+  maybePrintYarnLogsMessage(false);
   ctrlc=new CtrlCHandler();
   Runtime.getRuntime().addShutdownHook(ctrlc);
   System.out.printf("Waiting for H2O cluster to come up...\n");
@@ -150,7 +153,7 @@
         if (queueName == null) {
           queueName="default";
         }
-        method.invoke(null,applicationID,queueName,numNodes,(int)processTotalPhysicalMemoryMegabytes,numNodesStarted.get());
+        method.invoke(null,applicationId,queueName,numNodes,(int)processTotalPhysicalMemoryMegabytes,numNodesStarted.get());
       }
       return rv;
     }
@@ -162,9 +165,6 @@
       }
     }
     System.out.println("ERROR: H2O cluster failed to come up");
-    if (job.isComplete()) {
-      ctrlc.setComplete();
-    }
     return rv;
   }
  else   if (rv != 0) {
@@ -173,7 +173,6 @@
   }
   if (job.isComplete()) {
     System.out.println("ERROR: H2O cluster failed to come up");
-    ctrlc.setComplete();
     return 2;
   }
   System.out.printf("H2O cluster (%d nodes) is up\n",numNodes);
