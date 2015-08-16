@@ -30,15 +30,9 @@
     float meanLoss=0;
     for (int loop=0; loop < tfr.numRows(); ++loop) {
       dl.set_model_info(modelInfo.deep_clone());
-      final DataInfo.Row myRow=dl.model_info().data_info().newDenseRow();
       final DataInfo di=dl.model_info().data_info();
       final int rId=loop;
-      new MRTask(){
-        @Override public void map(        Chunk[] cs){
-          di.extractDenseRow(cs,rId,myRow);
-        }
-      }
-.doAll(di._adaptedFrame);
+      final DataInfo.Row myRow=new FrameTask.ExtractDenseRow(di,rId).doAll(di._adaptedFrame)._row;
       Neurons[] neurons=DeepLearningTask.makeNeuronsForTraining(dl.model_info());
       ((Neurons.Input)neurons[0]).setInput(-1,myRow.numVals,myRow.nBins,myRow.binIds);
       DeepLearningTask.step(-1,neurons,dl.model_info(),null,true,new double[]{myRow.response[0]},myRow.offset);
