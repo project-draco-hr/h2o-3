@@ -23,7 +23,7 @@ def cbind(ip, port):
     hdf6 = (hdf[2] <= 5).cbind((hdf[3] >= 4))
     (rows6, cols6) = hdf6.dim
     assert ((rows6 == 12) and (cols6 == 2)), 'unexpected dimensions in result'
-    hdf_names = xx.cbind(yy).names()
+    hdf_names = xx.cbind(yy).names
     assert (hdf_names == ['colgroup', 'colgroup2']), 'expected column names to be the same'
     try:
         hdf7 = hdf.cbind(otherhdf)._frame()
@@ -39,7 +39,7 @@ def cbind(ip, port):
     hdf = hdf.cbind((hdf[2] <= 5))
     (rows, cols) = hdf.dim
     assert ((rows == 12) and (cols == 10)), 'unexpected dimensions in result'
-    assert (hdf.names() == ['colgroup', 'colgroup2', 'col1', 'col2', 'colgroup0', 'colgroup20', 'col10', 'col20', 'colgroup21', 'col11']), 'expected column names to be the same'
+    assert (hdf.names == ['colgroup', 'colgroup2', 'col1', 'col2', 'colgroup0', 'colgroup20', 'col10', 'col20', 'colgroup21', 'col11']), 'expected column names to be the same'
     hdf = h2o.import_file(path=h2o.locate('smalldata/jira/pub-180.csv'))
     (rows, cols) = hdf.dim
     hdf8 = hdf[1].cbind(hdf)
@@ -54,5 +54,5 @@ def cbind(ip, port):
     (rows10, cols10) = hdf10.dim
     assert ((rows == 12) and (cols == 4)), 'unexpected dimensions in original'
     assert ((rows10 == 12) and (cols10 == 2)), 'unexpected dimensions in result'
-    hdf_names = xx.cbind(yy).names()
+    hdf_names = xx.cbind(yy).names
     assert (hdf_names == ['colgroup', 'colgroup2']), 'expected column names to be the same'
