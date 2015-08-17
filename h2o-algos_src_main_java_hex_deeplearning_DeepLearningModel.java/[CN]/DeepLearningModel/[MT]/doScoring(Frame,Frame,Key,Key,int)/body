@@ -67,8 +67,6 @@
         if (printme)         Log.info("Scoring the auto-encoder.");
 {
           final Frame mse_frame=scoreAutoEncoder(ftrain,Key.make());
-          final Vec l2=mse_frame.anyVec();
-          Log.info("Mean reconstruction error on training data: " + l2.mean() + "\n");
           mse_frame.delete();
           ModelMetrics mtrain=ModelMetrics.getFromDKV(this,ftrain);
           _output._training_metrics=mtrain;
@@ -76,8 +74,6 @@
         }
         if (ftest != null) {
           final Frame mse_frame=scoreAutoEncoder(ftest,Key.make());
-          final Vec l2=mse_frame.anyVec();
-          Log.info("Mean reconstruction error on validation data: " + l2.mean() + "\n");
           mse_frame.delete();
           ModelMetrics mtest=ModelMetrics.getFromDKV(this,ftest);
           _output._validation_metrics=mtest;
@@ -173,9 +169,9 @@
           _bestError=error();
           putMeAsBestModel(actual_best_model_key);
         }
-        if (keep_running && printme)         Log.info(toString());
-        if (printme)         Log.info("Time taken for scoring and diagnostics: " + PrettyPrint.msecs(err.scoring_time,true));
       }
+      if (keep_running && printme)       Log.info(toString());
+      if (printme)       Log.info("Time taken for scoring and diagnostics: " + PrettyPrint.msecs(err.scoring_time,true));
     }
     if (model_info().unstable()) {
       Log.warn(unstable_msg);

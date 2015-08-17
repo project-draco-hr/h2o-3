@@ -58,9 +58,9 @@
     System.out.println("mtries search space: " + Arrays.toString(mtriesSpace));
     System.out.println("sample_rate search space: " + Arrays.toString(sampleRateSpace));
     Model[] ms=grid.getModels();
-    Integer numModels=ms.length;
+    int numModels=ms.length;
     System.out.println("Grid consists of " + numModels + " models");
-    assertTrue("Number of models should match hyper space size",numModels == ntreesDim * maxDepthDim * sampleRateDim* mtriesDim);
+    assertEquals("Number of models should match hyper space size",numModels,ntreesDim * maxDepthDim * sampleRateDim* mtriesDim + grid.getFailureCount());
     HashMap<String,Object[]> randomHyperParms=new HashMap<>();
     Integer ntreeVal=ntreesSpace[rng.nextInt(ntreesSpace.length)];
     randomHyperParms.put("_ntrees",new Integer[]{ntreeVal});

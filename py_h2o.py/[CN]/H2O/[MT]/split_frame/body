@@ -1,4 +1,5 @@
 def split_frame(self, timeoutSecs=180, **kwargs):
     a = self.__do_json_request('/3/SplitFrame', cmd='post', timeout=timeoutSecs, postData=kwargs)
+    job_json = self.poll_job(a['key']['name'], timeoutSecs=timeoutSecs)
     H2O.verboseprint('\nsplit_frame result:', h2o_util.dump_json(a))
     return a

@@ -1,32 +1,20 @@
-def _model_build(x, y, validation_x, validation_y, algo_url, kwargs):
-    if (algo_url == 'autoencoder'):
-        if ('autoencoder' in kwargs.keys()):
-            if kwargs['autoencoder']:
-                if y:
-                    raise ValueError('`y` should not be specified for autoencoder, remove `y` input.')
-                algo_url = 'deeplearning'
-    if (not x):
+def _model_build(x, y, vx, vy, algo, offsets, weights, fold_column, kwargs):
+    if (x is None):
         raise ValueError('Missing features')
     x = _check_frame(x, y, y)
-    if (validation_x is not None):
-        validation_x = _check_frame(validation_x, validation_y, y)
-    if ('weights_column' in kwargs.keys()):
-        (x, validation_x) = _add_col_to_x_and_validation_x(kwargs['weights_column'], x, validation_x, kwargs)
-    if ('offset_column' in kwargs.keys()):
-        (x, validation_x) = _add_col_to_x_and_validation_x(kwargs['offset_column'], x, validation_x, kwargs)
-    if ('fold_column' in kwargs.keys()):
-        (x, validation_x) = _add_col_to_x_and_validation_x(kwargs['fold_column'], x, validation_x, kwargs, xval=True)
+    vx = _check_frame(vx, vy, y)
+    if (offsets is not None):
+        (x, vx) = _check_col(x, vx, kwargs['validation_frame'], offsets)
+    if (weights is not None):
+        (x, vx) = _check_col(x, vx, kwargs['validation_frame'], weights)
+    if (fold_column is not None):
+        (x, vx) = _check_col(x, vx, kwargs['validation_frame'], fold_column)
     kwargs['training_frame'] = x._id
-    if (validation_x is not None):
-        kwargs['validation_frame'] = validation_x._id
+    if (vx is not None):
+        kwargs['validation_frame'] = vx._id
     if (y is not None):
         kwargs['response_column'] = y._col_names[0]
     kwargs = dict([(k, (kwargs[k]._frame()._id if isinstance(kwargs[k], H2OFrame) else kwargs[k])) for k in kwargs if (kwargs[k] is not None)])
-    do_future = (('do_future' in kwargs.keys()) and kwargs['do_future'])
-    if ('do_future' in kwargs.keys()):
-        kwargs.pop('do_future')
-    future_model = H2OModelFuture(H2OJob(H2OConnection.post_json(('ModelBuilders/' + algo_url), **kwargs), job_type=(algo_url + ' Model Build')), x)
-    if do_future:
-        return future_model
-    else:
-        return _resolve_model(future_model, **kwargs)
+    do_future = (kwargs.pop('do_future') if ('do_future' in kwargs) else False)
+    future_model = H2OModelFuture(H2OJob(H2OConnection.post_json(('ModelBuilders/' + algo), **kwargs), job_type=(algo + ' Model Build')), x)
+    return (future_model if do_future else _resolve_model(future_model, **kwargs))

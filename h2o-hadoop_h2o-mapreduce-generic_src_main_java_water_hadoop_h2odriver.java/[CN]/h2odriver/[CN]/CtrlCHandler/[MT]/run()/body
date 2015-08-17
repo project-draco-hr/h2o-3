@@ -3,24 +3,13 @@
     return;
   }
   _complete=true;
-  boolean killed=false;
   try {
-    System.out.println("Attempting to clean up hadoop job...");
-    job.killJob();
-    for (int i=0; i < 5; i++) {
-      if (job.isComplete()) {
-        System.out.println("Killed.");
-        killed=true;
-        break;
-      }
-      Thread.sleep(1000);
+    if (job.isComplete()) {
+      return;
     }
   }
  catch (  Exception ignore) {
   }
- finally {
-    if (!killed) {
-      System.out.println("Kill attempt failed, please clean up job manually.");
-    }
-  }
+  killJobAndWait(job);
+  maybePrintYarnLogsMessage();
 }
