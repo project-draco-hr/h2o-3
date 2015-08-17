@@ -25,15 +25,26 @@
     System.out.println("Predict testcase " + testcaseId);
     score=model.score(trainFrame);
     System.out.println("Predict success.");
-    System.out.println("Testcase is passed.");
+    if (isNegativeTestcase) {
+      Assert.fail("It is negative testcase");
+    }
+ else {
+      System.out.println("Testcase is passed.");
+    }
   }
- catch (  IllegalArgumentException ex) {
+ catch (  Exception ex) {
+    System.out.println("Testcase is failed");
     ex.printStackTrace();
-    Assert.fail("Test is failed. It can't predict",ex);
+    if (!isNegativeTestcase) {
+      Assert.fail("Testcase is failed",ex);
+    }
   }
  finally {
     if (betaConstraints != null) {
       betaConstraints.delete();
+    }
+    if (score != null) {
+      score.delete();
     }
     if (model != null)     model.delete();
     if (job != null)     job.remove();
