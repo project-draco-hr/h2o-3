@@ -48,6 +48,9 @@
     for (int i=0; i < nums.length; ++i)     _a.set(_dinfo.numStart() + i,Double.isNaN(nums[i]) ? 0f : (float)nums[i]);
   }
   if (_dropout == null)   return;
+  if (params._autoencoder) {
+    System.arraycopy(_a.raw(),0,_origa.raw(),0,_a.raw().length);
+  }
   seed+=params._seed + 0x1337B4BE;
   _dropout.randomlySparsifyActivation(_a,seed);
   if (params._sparse) {

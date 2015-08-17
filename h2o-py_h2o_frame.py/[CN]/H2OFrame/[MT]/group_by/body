@@ -1,7 +1,3 @@
-def group_by(self, cols, aggregates, order_by=None):
-    '\n    GroupBy\n\n    :param cols: The columns to group on.\n    :param a: A dictionary of aggregates having the following shape:     {"colname":[aggregate, column, naMethod]}    e.g.: {"bikes":["count", 0, "all"]}\n    The naMethod is one of "all", "ignore", or "rm", which specifies how to handle\n    NAs that appear in columns that are being aggregated.\n\n    "all" - include NAs\n    "rm"  - exclude NAs\n    "ignore" - ignore NAs in aggregates, but count them (e.g. in denominators for mean, var, sd, etc.)\n    :param order_by: A list of column names or indices on which to order the results.\n    :return: The group by frame.\n    '
-    aggs = []
-    for k in aggregates:
-        aggs += (aggregates[k] + [str(k)])
-    aggs = h2o.ExprNode('agg', *aggs)
-    return H2OFrame(expr=ExprNode('GB', self, cols, aggs, order_by))._frame()
+def group_by(self, by, order_by=None):
+    '\n    Returns a new GroupBy object using this frame and the desired grouping columns.\n\n    :param by: The columns to group on.\n    :param order_by: A list of column names or indices on which to order the results.\n    :return: A new GroupBy object.\n    '
+    return GroupBy(self, by, order_by)

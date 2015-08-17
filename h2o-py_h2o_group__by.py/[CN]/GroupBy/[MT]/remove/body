@@ -1,0 +1,14 @@
+def remove(self, name=None, regex=None):
+    '\n    Remove an aggregate with the specified name.\n\n    :param name:  The name of the aggregate to remove.\n    :param regex: If regex is not None, name is ignored and this regex is used.\n    :return: this GroupBy object\n    '
+    if (regex is not None):
+        names = [n for n in self._aggs.keys() if (regex in n)]
+        for n in names:
+            del self._aggs[n]
+    elif (name is None):
+        self._aggs = {}
+        return self
+    else:
+        if (name not in self._aggs):
+            raise ValueError(('No such aggregate: ' + str(name)))
+        del self._aggs[name]
+    return self
