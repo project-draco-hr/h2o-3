@@ -1,0 +1,20 @@
+{
+  MP params=null;
+  Model model=null;
+  try {
+    while ((params=_hyperSpaceWalker.nextModelParameters(model)) != null) {
+      if (!isRunning()) {
+        cancel();
+        return;
+      }
+      model=buildModel(params,grid);
+    }
+    done();
+  }
+ catch (  Exception e) {
+    failed(e);
+  }
+ finally {
+    grid.unlock(jobKey());
+  }
+}

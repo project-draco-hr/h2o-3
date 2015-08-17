@@ -1,0 +1,17 @@
+{
+  String destFieldName=null;
+switch (objectNamingConvention) {
+case CONSISTENT:
+    destFieldName=fieldName;
+  break;
+case DEST_HAS_UNDERSCORES:
+if (fieldName.startsWith("_")) destFieldName=fieldName;
+ else destFieldName="_" + fieldName;
+break;
+case ORIGIN_HAS_UNDERSCORES:
+if (fieldName.startsWith("_")) destFieldName=fieldName.substring(1);
+ else throw new IllegalArgumentException("Wrong combination of options!");
+break;
+}
+setField(o,destFieldName,value);
+}

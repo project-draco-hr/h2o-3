@@ -1,2 +1,39 @@
 {
+  Grid grid=null;
+  Frame fr=null;
+  Vec old=null;
+  try {
+    fr=parse_test_file("smalldata/junit/cars_20mpg.csv");
+    fr.remove("name").remove();
+    old=fr.remove("economy");
+    fr.add("economy",old);
+    DKV.put(fr);
+    HashMap<String,Object[]> hyperParms=new HashMap<>();
+    hyperParms.put("_ntrees",new Integer[]{5,5});
+    hyperParms.put("_max_depth",new Integer[]{2,2});
+    hyperParms.put("_mtries",new Integer[]{-1,-1});
+    hyperParms.put("_sample_rate",new Float[]{.1f,.1f});
+    DRFModel.DRFParameters params=new DRFModel.DRFParameters();
+    params._train=fr._key;
+    params._response_column="economy";
+    GridSearch gs=GridSearch.startGridSearch(params,hyperParms,DRF_MODEL_FACTORY);
+    grid=(Grid)gs.get();
+    Model[] models=grid.getModels();
+    assertTrue("Number of returned models has to be > 0",models.length > 0);
+    Key<Model> modelKey=models[0]._key;
+    for (    Model m : models) {
+      assertTrue("Number of constructed models has to be equal to 1",modelKey == m._key);
+    }
+  }
+  finally {
+    if (old != null) {
+      old.remove();
+    }
+    if (fr != null) {
+      fr.remove();
+    }
+    if (grid != null) {
+      grid.remove();
+    }
+  }
 }
