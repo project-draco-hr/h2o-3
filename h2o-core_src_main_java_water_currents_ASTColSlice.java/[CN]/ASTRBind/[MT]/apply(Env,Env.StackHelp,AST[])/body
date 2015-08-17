@@ -1,55 +1,39 @@
 {
-  Val vals[]=new Val[asts.length];
-  Key<Frame> kfrs[]=new Key[asts.length];
-  double ds[]=new double[asts.length];
-  Arrays.fill(ds,Double.NaN);
-  Key<Frame>[] tkeys=new Key[asts.length];
   Frame fr=null;
-  byte[] types=null;
-  Vec.VectorGroup group=null;
   int nchks=0;
+  Val vals[]=new Val[asts.length];
   for (int i=1; i < asts.length; i++) {
-    Val val=stk.track(asts[i].exec(env));
-    vals[i]=val;
-    if (val.isFrame()) {
-      Frame fr0=val.getFrame();
-      kfrs[i]=fr0._key;
-      if (fr0._key == null)       DKV.put(new Frame(kfrs[i]=tkeys[i]=Key.make(),fr0.names(),fr0.vecs()));
-      if (fr == null) {
-        fr=fr0;
-        types=fr0.types();
-      }
-      if (fr.numCols() != fr0.numCols())       throw new IllegalArgumentException("rbind frames must have all the same columns, found " + fr.numCols() + " and "+ fr0.numCols()+ " columns.");
-      if (!Arrays.deepEquals(fr._names,fr0._names))       throw new IllegalArgumentException("rbind frames must have all the same column names, found " + Arrays.toString(fr._names) + " and "+ Arrays.toString(fr0._names));
-      if (!Arrays.equals(types,fr0.types()))       throw new IllegalArgumentException("rbind frames must have all the same column types, found " + Arrays.toString(types) + " and "+ Arrays.toString(fr0.types()));
-      nchks+=fr0.anyVec().nChunks();
-      Vec.VectorGroup gp1=fr0.anyVec().group();
-      if (group == null || group == Vec.VectorGroup.VG_LEN1)       group=gp1;
-    }
- else {
-      ds[i]=val.getNum();
-    }
-  }
-  long[] espc=new long[nchks + 1];
-  int coffset=0;
-  for (int i=1; i < vals.length; ++i) {
-    long roffset=espc[coffset];
+    vals[i]=stk.track(asts[i].exec(env));
     if (vals[i].isFrame()) {
-      long[] espc2=vals[i].getFrame().anyVec().get_espc();
-      for (int j=1; j < espc2.length; j++)       espc[coffset + j]=roffset + espc2[j];
-      coffset+=espc2.length - 1;
+      fr=vals[i].getFrame();
+      nchks+=fr.anyVec().nChunks();
     }
- else {
-      espc[coffset]=roffset + 1;
-    }
+ else     nchks++;
   }
-  Vec template=Vec.makeCon(0L,null,group,espc);
-  Key<Vec>[] kvecs=group.addVecs(fr.numCols());
-  String[][] domains=fr.domains();
-  Vec[] vecs=new Vec[kvecs.length];
-  for (int i=0; i < vecs.length; ++i)   vecs[i]=new Vec(kvecs[i],espc,domains[i],types[i]);
-  new RbindTask(kfrs,ds,espc,kvecs).doAll(template);
-  for (  Key<Frame> tkey : tkeys)   if (tkey != null)   DKV.remove(tkey);
-  String[] names=fr == null ? new String[]{Frame.defaultColName(0)} : fr._names;
-  return new ValFrame(new Frame(names,vecs));
+  if (fr == null)   fr=new Frame(new String[]{Frame.defaultColName(0)},new Vec[]{Vec.makeZero(0)});
+  final Frame frs[]=new Frame[asts.length];
+  final byte[] types=fr.types();
+  final String[][] domains=fr.domains();
+  final int ncols=fr.numCols();
+  final long[] espc=new long[nchks + 1];
+  int coffset=0;
+  for (int i=1; i < asts.length; i++) {
+    Val val=vals[i];
+    Frame fr0=val.isFrame() ? val.getFrame() : stk.track(new Frame(fr._names,Vec.makeCons(val.getNum(),1L,fr.numCols())));
+    if (fr.numCols() != fr0.numCols())     throw new IllegalArgumentException("rbind frames must have all the same columns, found " + fr.numCols() + " and "+ fr0.numCols()+ " columns.");
+    if (!Arrays.deepEquals(fr._names,fr0._names))     throw new IllegalArgumentException("rbind frames must have all the same column names, found " + Arrays.toString(fr._names) + " and "+ Arrays.toString(fr0._names));
+    if (!Arrays.equals(types,fr0.types()))     throw new IllegalArgumentException("rbind frames must have all the same column types, found " + Arrays.toString(types) + " and "+ Arrays.toString(fr0.types()));
+    if (!Arrays.deepEquals(domains,fr0.domains()))     throw new IllegalArgumentException("rbind frames must have all the same column domains, found " + Arrays.deepToString(domains) + " and "+ Arrays.deepToString(fr0.domains()));
+    frs[i]=fr0;
+    long roffset=espc[coffset];
+    long[] espc2=fr0.anyVec().get_espc();
+    for (int j=1; j < espc2.length; j++)     espc[coffset + j]=(roffset+=espc2[j]);
+    coffset+=espc2.length - 1;
+  }
+  Key[] keys=fr.anyVec().group().addVecs(fr.numCols());
+  Vec[] vecs=new Vec[keys.length];
+  for (int i=0; i < vecs.length; ++i)   vecs[i]=new Vec(keys[i],espc,domains[i],types[i]);
+  ParallelRbinds t;
+  H2O.submitTask(t=new ParallelRbinds(frs,espc,vecs)).join();
+  return new ValFrame(new Frame(fr.names(),t._vecs));
 }
