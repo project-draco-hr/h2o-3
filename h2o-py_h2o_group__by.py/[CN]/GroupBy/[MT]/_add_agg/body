@@ -3,7 +3,7 @@ def _add_agg(self, op, col, name, na):
         col = 0
         name = ('count' if (name == '') else name)
     if (col is None):
-        for i in range(self._fr.ncol()):
+        for i in range(self._fr.ncol):
             if (i not in self._by):
                 self._add_agg(op, i, name, na)
         return self
@@ -18,7 +18,7 @@ def _add_agg(self, op, col, name, na):
     else:
         raise ValueError('col must be a column name or index.')
     if (name == ''):
-        name = '{}_{}'.format(op, self._fr.col_names()[cidx])
+        name = '{}_{}'.format(op, self._fr.col_names[cidx])
     self._aggs[name] = [op, cidx, na]
     self._computed = False
     return self
