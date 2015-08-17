@@ -1,7 +1,8 @@
 {
-  if (_h2o == null && _chan == null) {
+  if ((_h2o == null && _chan == null) || (_bb.hasArray() && _bb.capacity() < MTU)) {
     byte[] ary=_bb.array();
     int newlen=ary.length << 1;
+    if (_h2o != null && newlen > MTU)     newlen=MTU;
     int oldpos=_bb.position();
     _bb=ByteBuffer.wrap(MemoryManager.arrayCopyOfRange(ary,0,newlen),oldpos,newlen - oldpos).order(ByteOrder.nativeOrder());
     return _bb;
@@ -22,7 +23,7 @@
     throw new AutoBufferException(e);
   }
   if (_bb.capacity() < BBP_BIG._size) {
-    BBP_SML.free(_bb);
+    if (_bb.isDirect())     BBP_SML.free(_bb);
     _bb=BBP_BIG.make();
   }
   _firstPage=false;
