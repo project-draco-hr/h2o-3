@@ -1,21 +1,2 @@
 {
-  _traces=new DStackTrace[H2O.CLOUD.size()];
-  if (H2O.SELF._heartbeat._client)   return;
-  Map<Thread,StackTraceElement[]> allStackTraces=Thread.getAllStackTraces();
-  String[] traces=new String[allStackTraces.size()];
-  int i=0;
-  for (  Entry<Thread,StackTraceElement[]> el : allStackTraces.entrySet()) {
-    Thread t=el.getKey();
-    SB sb=new SB().p('"').p(t.getName()).p('"');
-    if (t.isDaemon())     sb.p(" daemon");
-    sb.p(" prio=").p(t.getPriority());
-    sb.p(" tid=").p(t.getId());
-    sb.p(" java.lang.Thread.State: ").p(t.getState().toString());
-    sb.nl();
-    for (    StackTraceElement aTrace : el.getValue())     sb.p("\tat ").p(aTrace.toString()).nl();
-    String s=sb.toString();
-    Log.info(s);
-    traces[i++]=s;
-  }
-  _traces[H2O.SELF.index()]=new DStackTrace(traces);
 }
