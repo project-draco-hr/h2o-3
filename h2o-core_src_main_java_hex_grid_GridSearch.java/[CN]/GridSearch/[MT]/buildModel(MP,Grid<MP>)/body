@@ -4,18 +4,7 @@
   if (key != null) {
     return key.get();
   }
-  Model m=null;
-  try {
-    m=(Model)(startBuildModel(params,grid).get());
-    grid.putModel(checksum,m._key);
-  }
- catch (  RuntimeException e) {
-    Log.warn("Grid search: model builder for parameters " + params + " failed! Exception: ",e);
-    grid.appendFailedModelParameters(params,e.getMessage());
-  }
- finally {
-    this.update(1L);
-    grid.update(jobKey());
-  }
+  Model m=(Model)(startBuildModel(params,grid).get());
+  grid.putModel(checksum,m._key);
   return m;
 }
