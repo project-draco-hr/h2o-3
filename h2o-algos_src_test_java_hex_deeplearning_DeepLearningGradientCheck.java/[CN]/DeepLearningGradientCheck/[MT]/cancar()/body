@@ -8,79 +8,117 @@
       Scope.track(tfr.replace(tfr.find(s),tfr.vec(s).toEnum())._key);
     }
     DKV.put(tfr);
-    DeepLearningParameters parms=new DeepLearningParameters();
-    parms._train=tfr._key;
-    parms._epochs=100;
-    parms._reproducible=true;
-    parms._hidden=new int[]{20,20,20};
-    parms._response_column="Cost";
-    parms._seed=0xdecaf + 1;
-    parms._activation=DeepLearningParameters.Activation.Tanh;
-    DeepLearning job=new DeepLearning(parms);
-    dl=job.trainModel().get();
-    long seed=new Random(parms._seed).nextLong();
-    final Random rng=new Random(seed);
-    dl.score(tfr);
-    hex.ModelMetrics mm=hex.ModelMetrics.getFromDKV(dl,tfr);
-    double resdev=((ModelMetricsRegression)mm)._mean_residual_deviance;
-    Log.info("Mean residual deviance: " + resdev);
-    DeepLearningModelInfo modelInfo=dl.model_info().deep_clone();
-    long before=dl.model_info().checksum_impl();
-    float maxRelErr=0;
-    float meanLoss=0;
-    for (int loop=0; loop < tfr.numRows(); ++loop) {
-      dl.set_model_info(modelInfo.deep_clone());
-      final DataInfo di=dl.model_info().data_info();
-      final int rId=loop;
-      final DataInfo.Row myRow=new FrameTask.ExtractDenseRow(di,rId).doAll(di._adaptedFrame)._row;
-      Neurons[] neurons=DeepLearningTask.makeNeuronsForTraining(dl.model_info());
-      ((Neurons.Input)neurons[0]).setInput(-1,myRow.numVals,myRow.nBins,myRow.binIds);
-      DeepLearningTask.step(-1,neurons,dl.model_info(),null,true,new double[]{myRow.response[0]},myRow.offset);
-      long after=dl.model_info().checksum_impl();
-      assert(after == before);
-      int layer=1 + rng.nextInt(parms._hidden.length);
-      int row=rng.nextInt(dl.model_info().get_weights(layer).rows());
-      int col=rng.nextInt(dl.model_info().get_weights(layer).cols());
-      DeepLearningModelInfo.gradientCheck=new DeepLearningModelInfo.GradientCheck(layer,row,col);
-      DeepLearningTask.applyModelUpdates(neurons);
-      assert(before != dl.model_info().checksum_impl());
-      dl.set_model_info(modelInfo.deep_clone());
-      assert(before == dl.model_info().checksum_impl());
-      float bpropGradient=DeepLearningModelInfo.gradientCheck.gradient;
-      final float weight=dl.model_info().get_weights(layer).get(row,col);
-      float eps=1e-2f * weight;
-      double loss=dl.loss(myRow);
-      meanLoss+=loss;
-      long cs=dl.model_info().checksum_impl();
-      dl.model_info().get_weights(layer).set(row,col,weight + eps);
-      assert(dl.model_info().get_weights(layer).get(row,col) != weight);
-      assert(cs != dl.model_info().checksum_impl());
-      double up=dl.loss(myRow);
-      dl.model_info().get_weights(layer).set(row,col,weight - eps);
-      assert(dl.model_info().get_weights(layer).get(row,col) != weight);
-      assert(cs != dl.model_info().checksum_impl());
-      double down=dl.loss(myRow);
-      float gradient=(float)((up - down) / (2. * (double)eps));
-      gradient/=2;
-      if (gradient < 1e-5)       continue;
-      float relError=(Math.abs(bpropGradient - gradient) / Math.abs(gradient));
-      if (false) {
-        Log.info("\nRow: " + (loop + 1));
-        Log.info("loss: " + loss);
-        Log.info("weight (layer " + layer + ", row "+ row+ ", col "+ col+ "): "+ weight+ " +/- "+ eps);
-        Log.info("losses up/down: " + up + " / "+ down);
-        Log.info("=> Finite differences gradient: " + gradient);
-        Log.info("=> Back-propagation gradient  : " + bpropGradient);
-        Log.info("=> Relative error             : " + PrettyPrint.formatPct(relError));
+    Random rng=new Random(0xDECAF);
+    int count=0;
+    int failedcount=0;
+    double maxRelErr=0;
+    double meanRelErr=0;
+    for (    Distribution.Family dist : new Distribution.Family[]{Distribution.Family.gaussian,Distribution.Family.laplace,Distribution.Family.huber,Distribution.Family.gamma,Distribution.Family.poisson,Distribution.Family.tweedie,Distribution.Family.multinomial}) {
+      for (      DeepLearningParameters.Activation act : new DeepLearningParameters.Activation[]{DeepLearningParameters.Activation.Tanh,DeepLearningParameters.Activation.Rectifier}) {
+        for (        String response : new String[]{"Class","Cost"}) {
+          for (          boolean adaptive : new boolean[]{true,false}) {
+            boolean classification=response.equals("Class");
+            if (classification && dist != Distribution.Family.multinomial)             continue;
+            if (!classification && dist == Distribution.Family.multinomial)             continue;
+            DeepLearningParameters parms=new DeepLearningParameters();
+            parms._train=tfr._key;
+            parms._epochs=100;
+            parms._reproducible=true;
+            parms._hidden=new int[]{10,10,10};
+            parms._fast_mode=false;
+            parms._response_column=response;
+            parms._distribution=dist;
+            parms._max_w2=10;
+            parms._seed=0xaaabbb;
+            parms._activation=act;
+            parms._adaptive_rate=adaptive;
+            parms._rate=1e-4;
+            parms._momentum_start=0.9;
+            parms._momentum_stable=0.99;
+            DeepLearning job=new DeepLearning(parms);
+            dl=job.trainModel().get();
+            if (!classification) {
+              dl.score(tfr);
+              hex.ModelMetrics mm=hex.ModelMetrics.getFromDKV(dl,tfr);
+              double resdev=((ModelMetricsRegression)mm)._mean_residual_deviance;
+              Log.info("Mean residual deviance: " + resdev);
+            }
+            DeepLearningModelInfo modelInfo=dl.model_info().deep_clone();
+            long before=dl.model_info().checksum_impl();
+            float meanLoss=0;
+            for (int rId=0; rId < tfr.numRows(); ++rId) {
+              dl.set_model_info(modelInfo.deep_clone());
+              final DataInfo di=dl.model_info().data_info();
+              final DataInfo.Row myRow=new FrameTask.ExtractDenseRow(di,rId).doAll(di._adaptedFrame)._row;
+              long cs=dl.model_info().checksum_impl();
+              double loss=dl.loss(myRow);
+              assert(cs == before);
+              assert(before == dl.model_info().checksum_impl());
+              meanLoss+=loss;
+              for (int layer=0; layer <= parms._hidden.length; ++layer) {
+                int rows=dl.model_info().get_weights(layer).rows();
+                for (int row=0; row < rows; ++row) {
+                  int cols=dl.model_info().get_weights(layer).cols();
+                  for (int col=0; col < cols; ++col) {
+                    if (rng.nextFloat() >= SAMPLE_RATE)                     continue;
+                    dl.set_model_info(modelInfo.deep_clone());
+                    Neurons[] neurons=DeepLearningTask.makeNeuronsForTraining(dl.model_info());
+                    ((Neurons.Input)neurons[0]).setInput(-1,myRow.numVals,myRow.nBins,myRow.binIds);
+                    DeepLearningTask.step(-1,neurons,dl.model_info(),null,true,new double[]{myRow.response[0]},myRow.offset);
+                    long after=dl.model_info().checksum_impl();
+                    assert(after == before);
+                    DeepLearningModelInfo.gradientCheck=new DeepLearningModelInfo.GradientCheck(layer,row,col);
+                    DeepLearningTask.applyModelUpdates(neurons);
+                    assert(before != dl.model_info().checksum_impl());
+                    dl.set_model_info(modelInfo.deep_clone());
+                    assert(before == dl.model_info().checksum_impl());
+                    double bpropGradient=DeepLearningModelInfo.gradientCheck.gradient;
+                    final float weight=dl.model_info().get_weights(layer).get(row,col);
+                    double eps=1e-4 * Math.abs(weight);
+                    if (eps == 0)                     eps=1e-6;
+                    dl.model_info().get_weights(layer).set(row,col,(float)(weight + eps));
+                    double up=dl.loss(myRow);
+                    dl.model_info().get_weights(layer).set(row,col,(float)(weight - eps));
+                    double down=dl.loss(myRow);
+                    if (Math.abs(up - down) / Math.abs(up + down) < 1e-8) {
+                      continue;
+                    }
+                    double gradient=((up - down) / (2. * eps));
+                    double relError=2 * Math.abs(bpropGradient - gradient) / (Math.abs(gradient) + Math.abs(bpropGradient));
+                    count++;
+                    if (Math.abs(gradient) < 1e-8 || Math.abs(bpropGradient) < 1e-8) {
+                      if (Math.abs(bpropGradient - gradient) < 1e-8)                       continue;
+                    }
+                    meanRelErr+=relError;
+                    if (relError > MAX_TOLERANCE) {
+                      Log.info("\nRow: " + rId);
+                      Log.info("weight (layer " + layer + ", row "+ row+ ", col "+ col+ "): "+ weight+ " +/- "+ eps);
+                      Log.info("loss: " + loss);
+                      Log.info("losses up/down: " + up + " / "+ down);
+                      Log.info("=> Finite differences gradient: " + gradient);
+                      Log.info("=> Back-propagation gradient  : " + bpropGradient);
+                      Log.info("=> Relative error             : " + PrettyPrint.formatPct(relError));
+                      failedcount++;
+                    }
+                    maxRelErr=Math.max(maxRelErr,relError);
+                    assert(!Double.isNaN(maxRelErr));
+                  }
+                }
+              }
+            }
+            meanLoss/=tfr.numRows();
+            Log.info("Mean loss: " + meanLoss);
+            job.remove();
+            if (dl != null)             dl.delete();
+          }
+        }
       }
-      maxRelErr=Math.max(maxRelErr,relError);
     }
-    meanLoss/=tfr.numRows();
-    Log.info("Mean loss: " + meanLoss);
+    Log.info("Number of tests: " + count);
+    Log.info("Number of failed tests: " + failedcount);
+    Log.info("Mean. relative error: " + meanRelErr / count);
     Log.info("Max. relative error: " + PrettyPrint.formatPct(maxRelErr));
-    float tol=1e-2f;
-    Assert.assertTrue("Error too large: " + maxRelErr + " >= "+ tol,maxRelErr < tol);
-    job.remove();
+    Assert.assertTrue("Error too large: " + maxRelErr + " >= "+ MAX_TOLERANCE,maxRelErr < MAX_TOLERANCE);
   }
   finally {
     if (tfr != null)     tfr.remove();
