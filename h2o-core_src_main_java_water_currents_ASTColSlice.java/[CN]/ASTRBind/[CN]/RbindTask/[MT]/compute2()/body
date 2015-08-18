@@ -1,3 +1,12 @@
 {
-  throw H2O.unimpl();
+  addToPendingCount(_vecs.length - 1 - 1);
+  int[][] emaps=new int[_vecs.length][];
+  if (_vecs[1].isEnum()) {
+    throw H2O.unimpl();
+  }
+  int offset=0;
+  for (int i=1; i < _vecs.length; i++) {
+    new RbindMRTask(this,emaps[i],_v,offset).asyncExec(_vecs[i]);
+    offset+=_vecs[i].nChunks();
+  }
 }
