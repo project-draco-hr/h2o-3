@@ -1,17 +1,24 @@
 {
   Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
   while (true) {
-    try {
-      RPC t=PENDING.take();
-      if (H2O.CLOUD.contains(t._target) || (t._target._heartbeat._client && t._retry < HeartBeatThread.CLIENT_TIMEOUT)) {
-        if (!t.isDone() && !t._nack) {
-          if (++t._resendsCnt % 50 == 0)           Log.warn("Got " + t._resendsCnt + " resends on task "+ t._dt.getClass().getSimpleName());
-          t.call();
+    long currentTime=System.currentTimeMillis();
+    for (    H2ONode n : H2O.CLOUD._memary) {
+      if (n == H2O.SELF)       continue;
+      for (      RPC t : n.tasks()) {
+        if (H2O.CLOUD.contains(t._target) || (t._target._heartbeat._client && t._retry < HeartBeatThread.CLIENT_TIMEOUT)) {
+          if (currentTime > (t._started + t._retry) && !t.isDone() && !t._nack) {
+            if (++t._resendsCnt % 10 == 0)             Log.warn("Got " + t._resendsCnt + " resends on task #"+ t._tasknum+ ", class = "+ t._dt.getClass().getSimpleName());
+            t.call();
+          }
+        }
+ else {
+          t.cancel(true);
         }
       }
- else {
-        t.cancel(true);
-      }
+    }
+    long timeElapsed=System.currentTimeMillis() - currentTime;
+    if (timeElapsed < 1000)     try {
+      Thread.sleep(1000 - timeElapsed);
     }
  catch (    InterruptedException e) {
     }
