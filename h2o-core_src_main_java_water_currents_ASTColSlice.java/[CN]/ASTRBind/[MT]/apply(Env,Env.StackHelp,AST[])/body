@@ -10,7 +10,11 @@
     }
  else     nchks++;
   }
-  if (fr == null)   fr=new Frame(new String[]{Frame.defaultColName(0)},new Vec[]{Vec.makeZero(0)});
+  Vec zz=null;
+  if (fr == null) {
+    fr=new Frame(new String[]{Frame.defaultColName(0)},new Vec[]{zz=Vec.makeZero(0)});
+    if (asts.length == 1)     return new ValFrame(fr);
+  }
   final Frame frs[]=new Frame[asts.length];
   final byte[] types=fr.types();
   final String[][] domains=fr.domains();
@@ -30,7 +34,8 @@
     for (int j=1; j < espc2.length; j++)     espc[coffset + j]=(roffset+=espc2[j]);
     coffset+=espc2.length - 1;
   }
-  Key[] keys=fr.anyVec().group().addVecs(fr.numCols());
+  if (zz != null)   zz.remove();
+  Key<Vec>[] keys=fr.anyVec().group().addVecs(fr.numCols());
   Vec[] vecs=new Vec[keys.length];
   for (int i=0; i < vecs.length; ++i)   vecs[i]=new Vec(keys[i],espc,domains[i],types[i]);
   ParallelRbinds t;
