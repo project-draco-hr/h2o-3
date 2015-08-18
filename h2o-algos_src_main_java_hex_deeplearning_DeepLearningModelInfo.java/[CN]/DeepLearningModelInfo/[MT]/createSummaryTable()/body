@@ -21,13 +21,13 @@
     }
     table.set(i,4,neurons[i].params._l1);
     table.set(i,5,neurons[i].params._l2);
-    table.set(i,6,(get_params()._adaptive_rate ? mean_rate[i] : neurons[i].rate(get_processed_total())));
-    table.set(i,7,(get_params()._adaptive_rate ? rms_rate[i] : 0));
+    table.set(i,6,(get_params()._adaptive_rate ? mean_rate[i - 1] : neurons[i].rate(get_processed_total())));
+    table.set(i,7,(get_params()._adaptive_rate ? rms_rate[i - 1] : 0));
     table.set(i,8,get_params()._adaptive_rate ? 0 : neurons[i].momentum(get_processed_total()));
-    table.set(i,9,mean_weight[i]);
-    table.set(i,10,rms_weight[i]);
-    table.set(i,11,mean_bias[i]);
-    table.set(i,12,rms_bias[i]);
+    table.set(i,9,mean_weight[i - 1]);
+    table.set(i,10,rms_weight[i - 1]);
+    table.set(i,11,mean_bias[i - 1]);
+    table.set(i,12,rms_bias[i - 1]);
   }
   summaryTable=table;
   return summaryTable;

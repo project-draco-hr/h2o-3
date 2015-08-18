@@ -7,41 +7,41 @@
       mean_a[k]/=avg_activations[k].size();
     }
   }
-  for (int y=1; y < units.length; y++) {
+  for (int y=0; y < units.length - 1; y++) {
     mean_rate[y]=rms_rate[y]=0;
     mean_bias[y]=rms_bias[y]=0;
     mean_weight[y]=rms_weight[y]=0;
-    for (int u=0; u < biases[y - 1].size(); u++) {
-      mean_bias[y]+=biases[y - 1].get(u);
+    for (int u=0; u < biases[y].size(); u++) {
+      mean_bias[y]+=biases[y].get(u);
     }
-    if (rate != null)     rate[y - 1]=new float[get_weights(y - 1).raw().length];
-    for (int u=0; u < get_weights(y - 1).raw().length; u++) {
-      mean_weight[y]+=get_weights(y - 1).raw()[u];
+    if (rate != null)     rate[y]=new float[get_weights(y).raw().length];
+    for (int u=0; u < get_weights(y).raw().length; u++) {
+      mean_weight[y]+=get_weights(y).raw()[u];
       if (rate != null) {
-        final float RMS_dx=MathUtils.approxSqrt(get_ada_dx_g(y - 1).raw()[2 * u] + (float)get_params()._epsilon);
-        final float invRMS_g=MathUtils.approxInvSqrt(get_ada_dx_g(y - 1).raw()[2 * u + 1] + (float)get_params()._epsilon);
-        rate[y - 1][u]=RMS_dx * invRMS_g;
-        mean_rate[y]+=rate[y - 1][u];
+        final float RMS_dx=MathUtils.approxSqrt(get_ada_dx_g(y).raw()[2 * u] + (float)get_params()._epsilon);
+        final float invRMS_g=MathUtils.approxInvSqrt(get_ada_dx_g(y).raw()[2 * u + 1] + (float)get_params()._epsilon);
+        rate[y][u]=RMS_dx * invRMS_g;
+        mean_rate[y]+=rate[y][u];
       }
     }
-    mean_bias[y]/=biases[y - 1].size();
-    mean_weight[y]/=get_weights(y - 1).size();
-    if (rate != null)     mean_rate[y]/=rate[y - 1].length;
-    for (int u=0; u < biases[y - 1].size(); u++) {
-      final double db=biases[y - 1].get(u) - mean_bias[y];
+    mean_bias[y]/=biases[y].size();
+    mean_weight[y]/=get_weights(y).size();
+    if (rate != null)     mean_rate[y]/=rate[y].length;
+    for (int u=0; u < biases[y].size(); u++) {
+      final double db=biases[y].get(u) - mean_bias[y];
       rms_bias[y]+=db * db;
     }
-    for (int u=0; u < get_weights(y - 1).size(); u++) {
-      final double dw=get_weights(y - 1).raw()[u] - mean_weight[y];
+    for (int u=0; u < get_weights(y).size(); u++) {
+      final double dw=get_weights(y).raw()[u] - mean_weight[y];
       rms_weight[y]+=dw * dw;
       if (rate != null) {
-        final double drate=rate[y - 1][u] - mean_rate[y];
+        final double drate=rate[y][u] - mean_rate[y];
         rms_rate[y]+=drate * drate;
       }
     }
-    rms_bias[y]=MathUtils.approxSqrt(rms_bias[y] / biases[y - 1].size());
-    rms_weight[y]=MathUtils.approxSqrt(rms_weight[y] / get_weights(y - 1).size());
-    if (rate != null)     rms_rate[y]=MathUtils.approxSqrt(rms_rate[y] / rate[y - 1].length);
+    rms_bias[y]=MathUtils.approxSqrt(rms_bias[y] / biases[y].size());
+    rms_weight[y]=MathUtils.approxSqrt(rms_weight[y] / get_weights(y).size());
+    if (rate != null)     rms_rate[y]=MathUtils.approxSqrt(rms_rate[y] / rate[y].length);
     final double thresh=1e10;
     unstable|=mean_bias[y] > thresh || isNaN(mean_bias[y]) || rms_bias[y] > thresh || isNaN(rms_bias[y]) || mean_weight[y] > thresh || isNaN(mean_weight[y]) || rms_weight[y] > thresh || isNaN(rms_weight[y]);
   }

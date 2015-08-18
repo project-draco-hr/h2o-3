@@ -4,19 +4,19 @@
   ((Neurons.Input)neurons[0]).setInput(seed,myRow.numVals,myRow.nBins,myRow.binIds);
   DeepLearningTask.step(seed,neurons,model_info(),null,false,null,myRow.offset);
   double loss;
-  if (_parms._loss == DeepLearningParameters.Loss.CrossEntropy) {
+  if (model_info.get_params()._loss == DeepLearningParameters.Loss.CrossEntropy) {
     if (_parms._balance_classes)     throw H2O.unimpl();
     int actual=(int)myRow.response[0];
     double pred=neurons[neurons.length - 1]._a.get(actual);
     loss=-Math.log(Math.max(1e-15,pred));
   }
  else {
-    if (_parms._autoencoder)     throw H2O.unimpl();
+    if (model_info.get_params()._autoencoder)     throw H2O.unimpl();
     double pred=neurons[neurons.length - 1]._a.raw()[0];
     double actual=myRow.response[0];
     Distribution dist=new Distribution(model_info.get_params()._distribution,model_info.get_params()._tweedie_power);
     pred=dist.linkInv(pred);
-    loss=dist.deviance(1,actual,pred);
+    loss=0.5 * dist.deviance(1,actual,pred);
   }
   for (int i=0; i < _parms._hidden.length + 1; ++i) {
     if (neurons[i]._w == null)     continue;

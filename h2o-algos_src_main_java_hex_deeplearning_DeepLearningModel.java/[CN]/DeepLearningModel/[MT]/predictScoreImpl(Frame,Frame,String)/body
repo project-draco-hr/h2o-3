@@ -13,10 +13,10 @@
     new MRTask(){
       @Override public void map(      Chunk chks[]){
         double tmp[]=new double[_output._names.length];
-        float preds[]=new float[len];
+        double preds[]=new double[len];
         final Neurons[] neurons=DeepLearningTask.makeNeuronsForTesting(model_info);
         for (int row=0; row < chks[0]._len; row++) {
-          float p[]=score_autoencoder(chks,row,tmp,preds,neurons);
+          double p[]=score_autoencoder(chks,row,tmp,preds,neurons);
           for (int c=0; c < preds.length; c++)           chks[_output._names.length + c].set(row,p[c]);
         }
       }

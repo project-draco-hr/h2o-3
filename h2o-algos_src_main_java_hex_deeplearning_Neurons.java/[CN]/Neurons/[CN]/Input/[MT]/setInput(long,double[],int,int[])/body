@@ -13,19 +13,19 @@
         for (int c=0; c < numcat; ++c) {
           int j=cats[c];
           Random rng=RandomUtils.getRNG(params._seed + i * N + j);
-          float val=0;
+          double val=0;
           final float rnd=rng.nextFloat();
-          if (rnd < 1. / 6.)           val=(float)Math.sqrt(3);
-          if (rnd > 5. / 6.)           val=-(float)Math.sqrt(3);
+          if (rnd < 1. / 6.)           val=Math.sqrt(3);
+          if (rnd > 5. / 6.)           val=-Math.sqrt(3);
           _a.add(i,1f * val);
         }
         Random rng=RandomUtils.getRNG(params._seed + i * N + _dinfo.numStart());
         for (int n=0; n < nums.length; ++n) {
-          float val=0;
+          double val=0;
           final float rnd=rng.nextFloat();
-          if (rnd < 1. / 6.)           val=(float)Math.sqrt(3);
-          if (rnd > 5. / 6.)           val=-(float)Math.sqrt(3);
-          _a.set(i,(Double.isNaN(nums[n]) ? 0f : (float)nums[n]) * val);
+          if (rnd < 1. / 6.)           val=Math.sqrt(3);
+          if (rnd > 5. / 6.)           val=-Math.sqrt(3);
+          _a.set(i,(Double.isNaN(nums[n]) ? 0f : nums[n]) * val);
         }
       }
     }
@@ -39,13 +39,13 @@
         int hashval=murmur.hash(buf.putInt(cats[i]).array(),4,(int)params._seed);
         _a.add(Math.abs(hashval % cM),1f);
       }
-      for (int i=0; i < nums.length; ++i)       _a.set(cM + i,Double.isNaN(nums[i]) ? 0f : (float)nums[i]);
+      for (int i=0; i < nums.length; ++i)       _a.set(cM + i,Double.isNaN(nums[i]) ? 0f : nums[i]);
     }
   }
  else {
     assert(_a.size() == _dinfo.fullN());
     for (int i=0; i < numcat; ++i)     _a.set(cats[i],1f);
-    for (int i=0; i < nums.length; ++i)     _a.set(_dinfo.numStart() + i,Double.isNaN(nums[i]) ? 0f : (float)nums[i]);
+    for (int i=0; i < nums.length; ++i)     _a.set(_dinfo.numStart() + i,Double.isNaN(nums[i]) ? 0f : nums[i]);
   }
   if (_dropout == null)   return;
   if (params._autoencoder && params._input_dropout_ratio > 0) {
