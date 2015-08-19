@@ -16,7 +16,10 @@
   for (tid=0; tid < _ntrees; tid++) {
     if (tid != 0 || !_parms.hasCheckpoint()) {
       double training_r2=doScoringAndSaveModel(false,true,_parms._build_tree_one_node);
-      if (training_r2 >= _parms._r2_stopping)       return;
+      if (training_r2 >= _parms._r2_stopping) {
+        doScoringAndSaveModel(true,true,_parms._build_tree_one_node);
+        return;
+      }
     }
     Timer kb_timer=new Timer();
     buildNextKTrees(_train,_mtry,_parms._sample_rate,rand,tid);
