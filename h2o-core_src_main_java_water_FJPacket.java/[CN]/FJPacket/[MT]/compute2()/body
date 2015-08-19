@@ -1,6 +1,9 @@
 {
   _ab.getPort();
-  if (_ctrl <= UDP.udp.nack.ordinal())   UDP.udp.UDPS[_ctrl]._udp.call(_ab).close();
+  if (_ctrl <= UDP.udp.nack.ordinal()) {
+    AutoBuffer ab=UDP.udp.UDPS[_ctrl]._udp.call(_ab);
+    if (ab != null && !ab.isClosed())     ab.close();
+  }
  else   RPC.remote_exec(_ab);
   tryComplete();
 }

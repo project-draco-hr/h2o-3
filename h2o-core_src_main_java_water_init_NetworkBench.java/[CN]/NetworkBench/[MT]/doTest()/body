@@ -1,0 +1,25 @@
+{
+  long t1=System.currentTimeMillis();
+  H2O.submitTask(new H2OCountedCompleter(){
+    @Override protected void compute2(){
+      _results=new NetworkBenchResults[MSG_SZS.length];
+      for (int i=0; i < MSG_SZS.length; ++i) {
+        long t2=System.currentTimeMillis();
+        long[] mrts=new long[H2O.CLOUD.size()];
+        Log.info("Network Bench, running All2All, message size = " + MSG_SZS[i] + ", message count = "+ MSG_CNT[i]);
+        long[][] all2all=new TestAll2All(MSG_SZS[i],MSG_CNT[i]).doAllNodes()._time;
+        Log.info("All2All test done in " + ((System.currentTimeMillis() - t2) * 0.001) + "s");
+        _results[i]=new NetworkBenchResults(MSG_SZS[i],MSG_CNT[i],all2all,mrts);
+      }
+      tryComplete();
+    }
+  }
+).join();
+  for (  NetworkBenchResults r : _results) {
+    System.out.println("===================================== MSG SZ = " + r._msgSz + ", CNT = "+ r._msgCnt+ " =========================================");
+    System.out.println(r.to2dTable());
+    System.out.println();
+  }
+  Log.info("Newtork test done in " + ((System.currentTimeMillis() - t1) * 0.001) + "s");
+  return this;
+}
