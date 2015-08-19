@@ -1,0 +1,76 @@
+{
+  Frame trainFrame=null;
+  DRF drfJob=null;
+  DRFModel drfModel=null;
+  Frame score=null;
+  Key modelKey=Key.make("model");
+  GLM glmJob=null;
+  GLMModel glmModel=null;
+  HashMap<String,Double> coef=null;
+  GBM gbmJob=null;
+  GBMModel gbmModel=null;
+  trainFrame=parameter._train.get();
+  try {
+    Scope.enter();
+switch (algorithm) {
+case FunctionUtils.drf:
+      System.out.println("Build model");
+    drfJob=new DRF((DRFModel.DRFParameters)parameter);
+  System.out.println("Train model:");
+drfModel=drfJob.trainModel().get();
+System.out.println("Predict testcase");
+score=drfModel.score(trainFrame);
+break;
+case FunctionUtils.glm:
+System.out.println("Build model");
+glmJob=new GLM(modelKey,"basic glm test",(GLMParameters)parameter);
+System.out.println("Train model");
+glmModel=glmJob.trainModel().get();
+coef=glmModel.coefficients();
+System.out.println("Predict testcase ");
+score=glmModel.score(trainFrame);
+break;
+case FunctionUtils.gbm:
+System.out.println("Build model ");
+gbmJob=new GBM((GBMParameters)parameter);
+System.out.println("Train model");
+gbmModel=gbmJob.trainModel().get();
+System.out.println("Predict testcase ");
+score=gbmModel.score(trainFrame);
+break;
+}
+if (isNegativeTestcase) {
+Assert.fail("It is negative testcase");
+}
+ else {
+System.out.println("Testcase is passed.");
+}
+}
+ catch (Exception ex) {
+System.out.println("Testcase is failed");
+ex.printStackTrace();
+if (!isNegativeTestcase) {
+Assert.fail("Testcase is failed",ex);
+}
+}
+catch (AssertionError ae) {
+System.out.println("Testcase is failed");
+ae.printStackTrace();
+if (!isNegativeTestcase) {
+Assert.fail("Testcase is failed",ae);
+}
+}
+ finally {
+if (drfJob != null) {
+drfJob.remove();
+}
+if (drfModel != null) {
+drfModel.delete();
+}
+if (score != null) {
+score.remove();
+score.delete();
+}
+Scope.exit();
+}
+}

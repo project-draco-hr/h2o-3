@@ -1,0 +1,36 @@
+{
+  System.out.println("only run testcase: " + System.getProperty("testcase"));
+  final String regex=":";
+  String testcase=System.getProperty("testcase");
+  String[] array=testcase.split(regex);
+  if (array.length == 2) {
+    algorithm=array[0].trim();
+    testcaseId=array[1].trim();
+    dataSetCharacteristic=FunctionUtils.readDataSetCharacteristic();
+  }
+switch (algorithm) {
+case FunctionUtils.drf:
+    firstRow=DRFConfig.firstRow;
+  positiveTestcaseFilePath=DRFConfig.positiveTestcaseFilePath;
+negativeTestcaseFilePath=DRFConfig.negativeTestcaseFilePath;
+params=DRFConfig.params;
+tcHeaders=DRFConfig.tcHeaders;
+break;
+case FunctionUtils.glm:
+firstRow=GLMConfig.firstRow;
+positiveTestcaseFilePath=GLMConfig.positiveTestcaseFilePath;
+negativeTestcaseFilePath=GLMConfig.negativeTestcaseFilePath;
+params=GLMConfig.params;
+tcHeaders=GLMConfig.tcHeaders;
+break;
+case FunctionUtils.gbm:
+firstRow=GBMConfig.firstRow;
+positiveTestcaseFilePath=GBMConfig.positiveTestcaseFilePath;
+negativeTestcaseFilePath=GBMConfig.negativeTestcaseFilePath;
+params=GBMConfig.params;
+tcHeaders=GBMConfig.tcHeaders;
+break;
+default :
+System.out.println("do not implement for algorithm: " + algorithm);
+}
+}

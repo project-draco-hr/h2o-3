@@ -1,0 +1,70 @@
+{
+  System.out.println("Create modelParameter object with testcase: " + input[tcHeaders.indexOf(testcase_id)]);
+  Model.Parameters modelParameter=null;
+switch (algorithm) {
+case FunctionUtils.drf:
+    modelParameter=new DRFModel.DRFParameters();
+  Family fDRF=(Family)DRFConfig.familyParams.getValue(input,tcHeaders);
+if (fDRF != null) {
+  System.out.println("Set _distribution: " + fDRF);
+  modelParameter._distribution=fDRF;
+}
+break;
+case FunctionUtils.glm:
+modelParameter=new GLMParameters();
+hex.glm.GLMModel.GLMParameters.Family fGLM=(hex.glm.GLMModel.GLMParameters.Family)GLMConfig.familyOptionsParams.getValue(input,tcHeaders);
+Solver s=(Solver)GLMConfig.solverOptionsParams.getValue(input,tcHeaders);
+if (fGLM != null) {
+System.out.println("Set _family: " + fGLM);
+((GLMParameters)modelParameter)._family=fGLM;
+}
+if (s != null) {
+System.out.println("Set _solver: " + s);
+((GLMParameters)modelParameter)._solver=s;
+}
+break;
+case FunctionUtils.gbm:
+modelParameter=new GBMParameters();
+Family f=(Family)GBMConfig.familyParams.getValue(input,tcHeaders);
+if (f != null) {
+System.out.println("Set _distribution: " + f);
+modelParameter._distribution=f;
+}
+break;
+default :
+System.out.println("do not implement for algorithm: " + algorithm);
+}
+for (Param p : params) {
+if (p.isAutoSet) {
+p.parseAndSet(modelParameter,input[tcHeaders.indexOf(p.name)]);
+}
+}
+modelParameter._response_column=train_dataset.getResponseColumn();
+Frame trainFrame=null;
+Frame validateFrame=null;
+try {
+System.out.println("Create train frame: " + train_dataset_id);
+trainFrame=train_dataset.getFrame();
+if (StringUtils.isNotEmpty(train_dataset_id) && validate_dataset != null && validate_dataset.isAvailabel()) {
+System.out.println("Create validate frame: " + train_dataset_id);
+validateFrame=validate_dataset.getFrame();
+}
+}
+ catch (Exception e) {
+if (trainFrame != null) {
+trainFrame.remove();
+}
+if (validateFrame != null) {
+validateFrame.remove();
+}
+throw e;
+}
+System.out.println("Set train frame");
+modelParameter._train=trainFrame._key;
+if (validateFrame != null) {
+System.out.println("Set validate frame");
+modelParameter._valid=validateFrame._key;
+}
+System.out.println("Create success DRFParameters object.");
+return modelParameter;
+}
