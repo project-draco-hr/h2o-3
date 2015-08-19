@@ -24,7 +24,7 @@ def cv_carsRF(ip, port):
     except AssertionError:
         assert True
     num_folds = random.randint(2, 5)
-    fold_assignments = h2o.H2OFrame(python_obj=[[random.randint(0, (num_folds - 1))] for f in range(cars.nrow())])
+    fold_assignments = h2o.H2OFrame(python_obj=[[random.randint(0, (num_folds - 1))] for f in range(cars.nrow)])
     fold_assignments.setNames(['fold_assignments'])
     cars = cars.cbind(fold_assignments)
     rf = h2o.random_forest(y=cars[response_col], x=cars[predictors], training_frame=cars, fold_column='fold_assignments', keep_cross_validation_predictions=True)
@@ -38,7 +38,7 @@ def cv_carsRF(ip, port):
     assert (cv_predictions is None), 'Expected cross-validation predictions to be None, but got {0}'.format(cv_predictions)
     cv_predictions = rf._model_json['output']['cross_validation_predictions']
     assert (len(cv_predictions) == num_folds), 'Expected the same number of cross-validation predictions as folds, but got {0}'.format(len(cv_predictions))
-    rf = h2o.random_forest(y=cars[response_col], x=cars[predictors], nfolds=cars.nrow(), fold_assignment='Modulo')
+    rf = h2o.random_forest(y=cars[response_col], x=cars[predictors], nfolds=cars.nrow, fold_assignment='Modulo')
     rf1 = h2o.random_forest(y=cars[response_col], x=cars[predictors], nfolds=0, seed=1234)
     rf2 = h2o.random_forest(y=cars[response_col], x=cars[predictors], seed=1234)
     h2o.check_models(rf1, rf2)
@@ -49,7 +49,7 @@ def cv_carsRF(ip, port):
     except EnvironmentError:
         assert True
     try:
-        rf = h2o.random_forest(y=cars[response_col], x=cars[predictors], nfolds=(cars.nrow() + 1), fold_assignment='Modulo')
+        rf = h2o.random_forest(y=cars[response_col], x=cars[predictors], nfolds=(cars.nrow + 1), fold_assignment='Modulo')
         assert False, 'Expected model-build to fail when nfolds > nobs'
     except EnvironmentError:
         assert True

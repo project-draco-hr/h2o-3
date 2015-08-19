@@ -13,7 +13,7 @@ def deeplearning_autoencoder(ip, port):
     train_supervised.describe()
     ae_model = h2o.deeplearning(x=train_unsupervised[0:resp], activation='Tanh', autoencoder=True, hidden=[nfeatures], epochs=1, reproducible=True, seed=1234)
     train_supervised_features = ae_model.deepfeatures(train_supervised[0:resp]._frame(), 0)
-    assert (train_supervised_features.ncol() == nfeatures), 'Dimensionality of reconstruction is wrong!'
+    assert (train_supervised_features.ncol == nfeatures), 'Dimensionality of reconstruction is wrong!'
     drf_model = h2o.random_forest(x=train_supervised_features[0:20], y=train_supervised[resp], ntrees=10, min_rows=10, seed=1234)
     test_features = ae_model.deepfeatures(test_hex[0:resp]._frame(), 0)
     test_features = test_features.cbind(test_hex[resp])._frame()

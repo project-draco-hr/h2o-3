@@ -12,3 +12,6 @@ def __init__(self, dest_key, model_json, metrics_class):
                 model_json['output'][metric] = metrics_class(model_json['output'][metric], metric, model_json['algo'])
     if self._is_xvalidated:
         self._xval_keys = [i['name'] for i in model_json['output']['cross_validation_models']]
+    self._params = {}
+    for p in self._model_json['parameters']:
+        self._params[p['label']] = p
