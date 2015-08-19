@@ -1,13 +1,32 @@
 {
-  MP params=null;
   Model model=null;
   try {
-    while ((params=_hyperSpaceWalker.nextModelParameters(model)) != null) {
+    HyperSpaceWalker.HyperSpaceIterator<MP> it=_hyperSpaceWalker.iterator();
+    while (it.hasNext(model)) {
       if (!isRunning()) {
         cancel();
         return;
       }
-      model=buildModel(params,grid);
+      MP params=null;
+      try {
+        params=it.nextModelParameters(model);
+        try {
+          model=buildModel(params,grid);
+        }
+ catch (        RuntimeException e) {
+          Log.warn("Grid search: model builder for parameters " + params + " failed! Exception: ",e);
+          grid.appendFailedModelParameters(params,e.getMessage());
+        }
+      }
+ catch (      IllegalArgumentException e) {
+        Log.warn("Grid search: construction of model parameters failed! Exception: ",e);
+        Object[] rawParams=it.getCurrentRawParameters();
+        grid.appendFailedModelParameters(rawParams,e.getMessage());
+      }
+ finally {
+        this.update(1L);
+        grid.update(jobKey());
+      }
     }
     done();
   }
