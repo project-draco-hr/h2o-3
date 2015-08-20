@@ -1,0 +1,12 @@
+{
+  SMulTask stsk=new SMulTask(_train.numCols(),_ncolExp,model._output._ncats,_parms._nv,model._output._normSub,model._output._normMul,model._output._catOffsets,_parms._use_all_factor_levels).doAll(aqinfo._adaptedFrame);
+  double[][] qta=stsk._qta;
+  Matrix qtaJ=new Matrix(qta);
+  SingularValueDecomposition svdJ=qtaJ.svd();
+  double[][] utilde=svdJ.getU().getArray();
+  BMulTask btsk=new BMulTask(self(),qinfo,ArrayUtils.transpose(utilde)).doAll(_parms._nv,qinfo._adaptedFrame);
+  Frame u=btsk.outputFrame(model._output._u_key,null,null);
+  model._output._d=svdJ.getSingularValues();
+  model._output._v=svdJ.getV().getArray();
+  return u;
+}
