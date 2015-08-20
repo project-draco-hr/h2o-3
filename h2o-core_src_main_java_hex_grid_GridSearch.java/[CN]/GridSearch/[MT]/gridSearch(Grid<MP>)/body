@@ -30,8 +30,15 @@
     }
     done();
   }
- catch (  Exception e) {
-    failed(e);
+ catch (  Throwable e) {
+    Job thisJob=DKV.getGet(jobKey());
+    if (thisJob._state == JobState.CANCELLED) {
+      Log.info("Job " + jobKey() + " cancelled by user.");
+    }
+ else {
+      failed(e);
+      throw e;
+    }
   }
  finally {
     grid.unlock(jobKey());
