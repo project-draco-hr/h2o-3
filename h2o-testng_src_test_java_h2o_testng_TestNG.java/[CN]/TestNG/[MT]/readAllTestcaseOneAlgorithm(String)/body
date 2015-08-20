@@ -1,0 +1,31 @@
+{
+  int firstRow=0;
+  String positiveTestcaseFilePath=null;
+  String negativeTestcaseFilePath=null;
+  List<String> tcHeaders=null;
+switch (algorithm) {
+case FunctionUtils.drf:
+    firstRow=DRFConfig.firstRow;
+  positiveTestcaseFilePath=DRFConfig.positiveTestcaseFilePath;
+negativeTestcaseFilePath=DRFConfig.negativeTestcaseFilePath;
+tcHeaders=DRFConfig.tcHeaders;
+break;
+case FunctionUtils.glm:
+firstRow=GLMConfig.firstRow;
+positiveTestcaseFilePath=GLMConfig.positiveTestcaseFilePath;
+negativeTestcaseFilePath=GLMConfig.negativeTestcaseFilePath;
+tcHeaders=GLMConfig.tcHeaders;
+break;
+case FunctionUtils.gbm:
+firstRow=GBMConfig.firstRow;
+positiveTestcaseFilePath=GBMConfig.positiveTestcaseFilePath;
+negativeTestcaseFilePath=GBMConfig.negativeTestcaseFilePath;
+tcHeaders=GBMConfig.tcHeaders;
+break;
+default :
+System.out.println("do not implement for algorithm: " + algorithm);
+return null;
+}
+Object[][] result=FunctionUtils.dataProvider(dataSetCharacteristic,tcHeaders,algorithm,positiveTestcaseFilePath,negativeTestcaseFilePath,firstRow);
+return result;
+}

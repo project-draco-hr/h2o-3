@@ -1,0 +1,32 @@
+{
+  Object[][] result=null;
+  List<String> lines=null;
+  if (StringUtils.isEmpty(fileName)) {
+    return null;
+  }
+  try {
+    lines=Files.readAllLines(TestNGUtil.find_test_file_static(fileName).toPath(),Charset.defaultCharset());
+  }
+ catch (  Exception ignore) {
+    System.out.println("Cannot open file: " + fileName);
+    ignore.printStackTrace();
+    return null;
+  }
+  lines.removeAll(lines.subList(0,firstRow));
+  result=new Object[lines.size()][9];
+  int r=0;
+  for (  String line : lines) {
+    String[] variables=line.trim().split(",",-1);
+    result[r][0]=variables[tcHeaders.indexOf(testcase_id)];
+    result[r][1]=variables[tcHeaders.indexOf(test_description)];
+    result[r][2]=variables[tcHeaders.indexOf(train_dataset_id)];
+    result[r][3]=variables[tcHeaders.indexOf(validate_dataset_id)];
+    result[r][4]=dataSetCharacteristic.get(variables[tcHeaders.indexOf(train_dataset_id)]);
+    result[r][5]=dataSetCharacteristic.get(variables[tcHeaders.indexOf(validate_dataset_id)]);
+    result[r][6]=algorithm;
+    result[r][7]=isNegativeTestcase;
+    result[r][8]=variables;
+    r++;
+  }
+  return result;
+}

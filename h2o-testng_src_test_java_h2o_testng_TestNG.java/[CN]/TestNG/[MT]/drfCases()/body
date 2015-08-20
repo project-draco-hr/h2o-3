@@ -1,0 +1,24 @@
+{
+  Object[][] result=null;
+  Object[][] data=readAllTestcase(algorithm);
+  if (data == null || data.length == 0) {
+    return null;
+  }
+  if (StringUtils.isNotEmpty(testcaseId)) {
+    result=new Object[1][data[0].length];
+    int i=0;
+    for (i=0; i < data.length; i++) {
+      if (testcaseId.equals(data[i][0])) {
+        result[0]=data[i];
+        break;
+      }
+    }
+    if (i == data.length) {
+      System.out.println("Can not find testcase_id:" + testcaseId);
+      return null;
+    }
+    return result;
+  }
+  result=removeAllTestcase(data,size);
+  return result;
+}
