@@ -2,10 +2,7 @@
   assert(_minfo.get_params()._autoencoder && _index == _minfo.get_params()._hidden.length);
   Distribution dist=new Distribution(params._distribution);
   final int rows=_a.size();
-  if (_w instanceof Storage.DenseRowMatrix) {
-    for (int row=0; row < rows; row++) {
-      _e.set(row,autoEncoderGradient(dist,row));
-    }
+  for (int row=0; row < rows; row++) {
+    _e.set(row,autoEncoderGradient(dist,row));
   }
- else   throw H2O.unimpl("Only DenseRowMatrix is implemented for AutoEncoder (Must have sparse=false and col_major=false).");
 }
