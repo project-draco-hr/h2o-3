@@ -1,60 +1,28 @@
 {
-  _a=_dvec;
   Arrays.fill(_a.raw(),0f);
   if (params._max_categorical_features < _dinfo.fullN() - _dinfo._nums) {
     assert(nums.length == _dinfo._nums);
     final int M=nums.length + params._max_categorical_features;
-    final boolean random_projection=false;
-    final boolean hash_trick=true;
-    if (random_projection) {
-      final int N=_dinfo.fullN();
-      assert(_a.size() == M);
-      for (int i=0; i < M; ++i) {
-        for (int c=0; c < numcat; ++c) {
-          int j=cats[c];
-          Random rng=RandomUtils.getRNG(params._seed + i * N + j);
-          float val=0;
-          final float rnd=rng.nextFloat();
-          if (rnd < 1. / 6.)           val=(float)Math.sqrt(3);
-          if (rnd > 5. / 6.)           val=-(float)Math.sqrt(3);
-          _a.add(i,1f * val);
-        }
-        Random rng=RandomUtils.getRNG(params._seed + i * N + _dinfo.numStart());
-        for (int n=0; n < nums.length; ++n) {
-          float val=0;
-          final float rnd=rng.nextFloat();
-          if (rnd < 1. / 6.)           val=(float)Math.sqrt(3);
-          if (rnd > 5. / 6.)           val=-(float)Math.sqrt(3);
-          _a.set(i,(Double.isNaN(nums[n]) ? 0f : (float)nums[n]) * val);
-        }
-      }
+    assert(_a.size() == M);
+    final int cM=params._max_categorical_features;
+    assert(_a.size() == M);
+    MurmurHash murmur=MurmurHash.getInstance();
+    for (int i=0; i < numcat; ++i) {
+      ByteBuffer buf=ByteBuffer.allocate(4);
+      int hashval=murmur.hash(buf.putInt(cats[i]).array(),4,(int)params._seed);
+      _a.add(Math.abs(hashval % cM),1f);
     }
- else     if (hash_trick) {
-      assert(_a.size() == M);
-      final int cM=params._max_categorical_features;
-      assert(_a.size() == M);
-      MurmurHash murmur=MurmurHash.getInstance();
-      for (int i=0; i < numcat; ++i) {
-        ByteBuffer buf=ByteBuffer.allocate(4);
-        int hashval=murmur.hash(buf.putInt(cats[i]).array(),4,(int)params._seed);
-        _a.add(Math.abs(hashval % cM),1f);
-      }
-      for (int i=0; i < nums.length; ++i)       _a.set(cM + i,Double.isNaN(nums[i]) ? 0f : (float)nums[i]);
-    }
+    for (int i=0; i < nums.length; ++i)     _a.set(cM + i,Double.isNaN(nums[i]) ? 0f : nums[i]);
   }
  else {
     assert(_a.size() == _dinfo.fullN());
     for (int i=0; i < numcat; ++i)     _a.set(cats[i],1f);
-    for (int i=0; i < nums.length; ++i)     _a.set(_dinfo.numStart() + i,Double.isNaN(nums[i]) ? 0f : (float)nums[i]);
+    for (int i=0; i < nums.length; ++i)     _a.set(_dinfo.numStart() + i,Double.isNaN(nums[i]) ? 0f : nums[i]);
   }
   if (_dropout == null)   return;
-  if (params._autoencoder) {
+  if (params._autoencoder && params._input_dropout_ratio > 0) {
     System.arraycopy(_a.raw(),0,_origa.raw(),0,_a.raw().length);
   }
   seed+=params._seed + 0x1337B4BE;
   _dropout.randomlySparsifyActivation(_a,seed);
-  if (params._sparse) {
-    _svec=new Storage.SparseVector(_dvec);
-    _a=_svec;
-  }
 }

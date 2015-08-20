@@ -1,15 +1,10 @@
 {
   assert(_index < _minfo.get_params()._hidden.length);
-  float m=momentum();
+  float m=_minfo.adaDelta() ? 0 : momentum();
   float r=_minfo.adaDelta() ? 0 : rate(_minfo.get_processed_total()) * (1f - m);
   final int rows=_a.size();
-  if (_w instanceof Storage.DenseRowMatrix) {
-    for (int row=0; row < rows; row++) {
-      float g=_a.get(row) > 0f ? _e.get(row) : 0f;
-      bprop(row,g,r,m);
-    }
-  }
- else {
-    bprop_sparse(r,m);
+  for (int row=0; row < rows; row++) {
+    double g=_a.get(row) > 0f ? _e.get(row) : 0f;
+    bprop(row,g,r,m);
   }
 }

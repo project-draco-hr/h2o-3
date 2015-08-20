@@ -31,7 +31,7 @@
     sb.i(1).p("public String getHeader() { return \"" + getHeader() + "\"; }").nl();
   }
   sb.i(1).p("// Storage for neuron activation values.").nl();
-  sb.i(1).p("public static final float[][] ACTIVATION = new float[][] {").nl();
+  sb.i(1).p("public static final double[][] ACTIVATION = new double[][] {").nl();
   for (int i=0; i < neurons.length; i++) {
     String colInfoClazz=mname + "_Activation_" + i;
     sb.i(2).p("/* ").p(neurons[i].getClass().getSimpleName()).p(" */ ");
@@ -39,11 +39,11 @@
     if (i != neurons.length - 1)     sb.p(',');
     sb.nl();
     fileContextSB.i().p("// Neuron activation values for ").p(neurons[i].getClass().getSimpleName()).p(" layer").nl();
-    JCodeGen.toClassWithArray(fileContextSB,null,colInfoClazz,new float[layers[i]]);
+    JCodeGen.toClassWithArray(fileContextSB,null,colInfoClazz,new double[layers[i]]);
   }
   sb.i(1).p("};").nl();
   sb.i(1).p("// Neuron bias values.").nl();
-  sb.i(1).p("public static final float[][] BIAS = new float[][] {").nl();
+  sb.i(1).p("public static final double[][] BIAS = new double[][] {").nl();
   for (int i=0; i < neurons.length; i++) {
     String colInfoClazz=mname + "_Bias_" + i;
     sb.i(2).p("/* ").p(neurons[i].getClass().getSimpleName()).p(" */ ");
@@ -51,7 +51,7 @@
     if (i != neurons.length - 1)     sb.p(',');
     sb.nl();
     fileContextSB.i().p("// Neuron bias values for ").p(neurons[i].getClass().getSimpleName()).p(" layer").nl();
-    float[] bias=i == 0 ? null : new float[model_info().get_biases(i - 1).size()];
+    double[] bias=i == 0 ? null : new double[model_info().get_biases(i - 1).size()];
     if (i > 0) {
       for (int j=0; j < bias.length; ++j)       bias[j]=model_info().get_biases(i - 1).get(j);
     }
