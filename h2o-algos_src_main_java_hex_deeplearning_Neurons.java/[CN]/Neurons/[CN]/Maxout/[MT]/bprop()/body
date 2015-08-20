@@ -1,7 +1,6 @@
 {
-  assert(_index < _minfo.get_params()._hidden.length);
-  assert(!_minfo.get_params()._autoencoder);
-  float m=momentum();
+  assert(_index != params._hidden.length);
+  float m=_minfo.adaDelta() ? 0 : momentum();
   float r=_minfo.adaDelta() ? 0 : rate(_minfo.get_processed_total()) * (1f - m);
   if (_w instanceof Storage.DenseRowMatrix) {
     final int rows=_a.size();
