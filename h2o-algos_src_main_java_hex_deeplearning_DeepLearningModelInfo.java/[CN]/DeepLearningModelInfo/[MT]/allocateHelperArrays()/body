@@ -1,22 +1,14 @@
 {
   if (has_momenta()) {
     dense_row_weights_momenta=new Storage.DenseRowMatrix[dense_row_weights.length];
-    dense_col_weights_momenta=new Storage.DenseColMatrix[dense_col_weights.length];
     if (dense_row_weights[0] != null)     dense_row_weights_momenta[0]=new Storage.DenseRowMatrix(units[1],units[0]);
- else     dense_col_weights_momenta[0]=new Storage.DenseColMatrix(units[1],units[0]);
     for (int i=1; i < dense_row_weights_momenta.length; ++i)     dense_row_weights_momenta[i]=new Storage.DenseRowMatrix(units[i + 1],units[i]);
     biases_momenta=new Storage.DenseVector[biases.length];
     for (int i=0; i < biases_momenta.length; ++i)     biases_momenta[i]=new Storage.DenseVector(units[i + 1]);
   }
  else   if (adaDelta()) {
     dense_row_ada_dx_g=new Storage.DenseRowMatrix[dense_row_weights.length];
-    dense_col_ada_dx_g=new Storage.DenseColMatrix[dense_col_weights.length];
-    if (dense_row_weights[0] != null) {
-      dense_row_ada_dx_g[0]=new Storage.DenseRowMatrix(units[1],2 * units[0]);
-    }
- else {
-      dense_col_ada_dx_g[0]=new Storage.DenseColMatrix(2 * units[1],units[0]);
-    }
+    dense_row_ada_dx_g[0]=new Storage.DenseRowMatrix(units[1],2 * units[0]);
     for (int i=1; i < dense_row_ada_dx_g.length; ++i) {
       dense_row_ada_dx_g[i]=new Storage.DenseRowMatrix(units[i + 1],2 * units[i]);
     }
