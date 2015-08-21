@@ -1,5 +1,5 @@
 {
-  if (hasOffsetCol() && _parms._distribution == Distributions.Family.bernoulli) {
+  if (hasOffsetCol() && _parms._distribution == Distribution.Family.bernoulli) {
     _initialPrediction=getInitialValueBernoulliOffset(_train);
   }
   _model._output._init_f=_initialPrediction;
@@ -12,17 +12,21 @@
     }
 .doAll(vec_tree(_train,0),_parms._build_tree_one_node);
   }
-  if (_parms._checkpoint) {
+  if (_parms.hasCheckpoint()) {
     Timer t=new Timer();
     new ResidualsCollector(_ncols,_nclass,numSpecialCols(),_model._output._treeKeys).doAll(_train,_parms._build_tree_one_node);
     Log.info("Reconstructing tree residuals stats from checkpointed model took " + t);
   }
-  for (int tid=0; tid < _parms._ntrees; tid++) {
-    if (tid != 0 || !_parms._checkpoint) {
+  for (int tid=0; tid < _ntrees; tid++) {
+    if (tid != 0 || !_parms.hasCheckpoint()) {
       double training_r2=doScoringAndSaveModel(false,false,_parms._build_tree_one_node);
-      if (training_r2 >= _parms._r2_stopping)       return;
+      if (training_r2 >= _parms._r2_stopping) {
+        doScoringAndSaveModel(true,false,_parms._build_tree_one_node);
+        return;
+      }
     }
-    new ComputePredAndRes().doAll(_train,_parms._build_tree_one_node);
+    ComputePredAndRes cpr=new ComputePredAndRes();
+    cpr.doAll(_train,_parms._build_tree_one_node);
     Timer kb_timer=new Timer();
     buildNextKTrees();
     Log.info((tid + 1) + ". tree was built in " + kb_timer.toString());

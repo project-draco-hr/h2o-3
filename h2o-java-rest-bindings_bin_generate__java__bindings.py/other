@@ -1,4 +1,4 @@
-import sys, pprint, argparse, string, errno, sets
+import sys, pprint, argparse, string, errno, sets, re
 sys.path.insert(1, '../../py')
 import h2o, h2o_util
 import os
@@ -18,27 +18,16 @@ if (len(args.usecloud) > 0):
     args.port = int(arr[1])
 h2o.H2O.verboseprint('connecting to: ', args.host, ':', args.port)
 a_node = h2o.H2O(args.host, args.port)
-endpoints_result = a_node.endpoints()
-endpoints = endpoints_result['routes']
-print 'creating the endpoint bindings in {}. . .'.format(args.dest)
-if h2o.H2O.verbose:
-    print 'Endpoints: '
-    pp.pprint(endpoints)
-endpoints_meta = []
-schemas = sets.Set()
-for num in range(len(endpoints)):
-    meta = a_node.endpoint_by_number(num)['routes'][0]
-    endpoints_meta.append(meta)
-    schemas.add(meta['input_schema'])
-    schemas.add(meta['output_schema'])
-    url_pattern = meta['url_pattern']
+print 'creating the Java bindings in {}. . .'.format(args.dest)
 enums = {}
 all_schemas = a_node.schemas()['schemas']
+all_schemas_map = {}
 for schema in all_schemas:
     if ('void' == schema['name']):
         continue
     schema_name = schema['name']
     pojo_name = schema_name
+    all_schemas_map[schema_name] = schema
     save_full = ((((args.dest + os.sep) + 'water/bindings/pojos/') + pojo_name) + '.java')
     save_dir = os.path.dirname(save_full)
     try:
@@ -61,3 +50,34 @@ for (name, values) in enums.iteritems():
     with open(save_full, 'w') as the_file:
         for line in generate_enum(name, values):
             the_file.write(('%s\n' % line))
+endpoints_result = a_node.endpoints()
+endpoints = endpoints_result['routes']
+if h2o.H2O.verbose:
+    print 'Endpoints: '
+    pp.pprint(endpoints)
+endpoints_meta = []
+for num in range(len(endpoints)):
+    meta = a_node.endpoint_by_number(num)['routes'][0]
+    endpoints_meta.append(meta)
+retrofitProxies = generate_retrofit_proxies(endpoints_meta, all_schemas_map)
+for (entity, proxy) in retrofitProxies.iteritems():
+    save_full = ((((args.dest + os.sep) + 'water/bindings/proxies/retrofit/') + entity) + '.java')
+    save_dir = os.path.dirname(save_full)
+    try:
+        os.makedirs(save_dir)
+    except OSError as exception:
+        if (exception.errno != errno.EEXIST):
+            raise
+    with open(save_full, 'w') as the_file:
+        for line in proxy:
+            the_file.write(('%s\n' % line))
+retrofit_example = '\npackage water.bindings.proxies.retrofit;\n\nimport retrofit.*;\nimport retrofit.http.*;\nimport water.bindings.pojos.*;\n\npublic class Example {\n\n    public static void main (String[] args) {\n        RestAdapter restAdapter = new RestAdapter.Builder()\n            .setEndpoint("http://localhost:54321")\n            .build();\n\n        Frames framesService = restAdapter.create(Frames.class);\n        Models modelsService = restAdapter.create(Models.class);\n\n        FramesV3 all_frames = framesService.list();\n        ModelsV3 all_models = modelsService.list();\n    }\n}\n'
+save_full = ((((args.dest + os.sep) + 'water/bindings/proxies/retrofit/') + 'Example') + '.java')
+save_dir = os.path.dirname(save_full)
+try:
+    os.makedirs(save_dir)
+except OSError as exception:
+    if (exception.errno != errno.EEXIST):
+        raise
+with open(save_full, 'w') as the_file:
+    the_file.write(('%s\n' % retrofit_example))

@@ -43,6 +43,13 @@
       }
       extraMemPercent=Integer.parseInt(args[i]);
     }
+ else     if (s.equals("-mapperPermSize")) {
+      i++;
+      if (i >= args.length) {
+        usage();
+      }
+      mapperPermSize=args[i];
+    }
  else     if (s.equals("-driverif")) {
       i++;
       if (i >= args.length) {
@@ -149,6 +156,11 @@
       enablePrintGCDetails=true;
       enablePrintGCTimeStamps=true;
     }
+ else     if (s.equals("-nogc")) {
+      enableVerboseGC=false;
+      enablePrintGCDetails=false;
+      enablePrintGCTimeStamps=false;
+    }
  else     if (s.equals("-flow_dir")) {
       i++;
       if (i >= args.length) {
@@ -162,6 +174,13 @@
         usage();
       }
       extraArguments.add(args[i]);
+    }
+ else     if (s.equals("-JJ")) {
+      i++;
+      if (i >= args.length) {
+        usage();
+      }
+      extraJvmArguments.add(args[i]);
     }
  else     if (s.equals("-jks")) {
       i++;
@@ -178,11 +197,10 @@
       jksPass=args[i];
     }
  else     if (s.equals("-hash_login")) {
-      i++;
-      if (i >= args.length) {
-        usage();
-      }
       hashLogin=true;
+    }
+ else     if (s.equals("-ldap_login")) {
+      ldapLogin=true;
     }
  else     if (s.equals("-login_conf")) {
       i++;

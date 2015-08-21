@@ -4,7 +4,9 @@
   _tasks=new Pass2Task[_grps.length];
   _keys=new Key[_grps.length];
   for (int i=0; i < _grps.length; ++i) {
-    (_tasks[i]=new Pass2Task(this,i % numnodes,_grps[i],_fr._key)).fork();
-    _keys[i]=_tasks[i]._key;
+    int nodeID=i % numnodes;
+    H2ONode n=H2O.CLOUD.members()[nodeID];
+    Key key=Key.make(n);
+    (_tasks[i]=new Pass2Task(this,nodeID,_grps[i],_fr._key,n,_keys[i]=key)).fork();
   }
 }

@@ -1,6 +1,5 @@
 def ecologyGBM(ip, port):
-    h2o.init(ip, port)
-    ecology_train = h2o.import_frame(path=h2o.locate('smalldata/gbm_test/ecology_model.csv'))
+    ecology_train = h2o.import_file(path=h2o.locate('smalldata/gbm_test/ecology_model.csv'))
     ntrees = 100
     max_depth = 5
     min_rows = 10
@@ -12,7 +11,7 @@ def ecologyGBM(ip, port):
     gbm_h2o = h2o.gbm(x=ecology_train[2:], y=ecology_train['Angaus'], ntrees=ntrees, learn_rate=learn_rate, max_depth=max_depth, min_rows=min_rows, distribution='bernoulli')
     gbm_sci = ensemble.GradientBoostingClassifier(learning_rate=learn_rate, n_estimators=ntrees, max_depth=max_depth, min_samples_leaf=min_rows, max_features=None)
     gbm_sci.fit(trainDataFeatures[:, np.newaxis], trainDataResponse)
-    ecology_test = h2o.import_frame(path=h2o.locate('smalldata/gbm_test/ecology_eval.csv'))
+    ecology_test = h2o.import_file(path=h2o.locate('smalldata/gbm_test/ecology_eval.csv'))
     testData = np.genfromtxt(h2o.locate('smalldata/gbm_test/ecology_eval.csv'), delimiter=',', dtype=None, names=('Angaus', 'SegSumT', 'SegTSeas', 'SegLowFlow', 'DSDist', 'DSMaxSlope', 'USAvgT', 'USRainDays', 'USSlope', 'USNative', 'DSDam', 'Method', 'LocSed'), skip_header=1, missing_values='NA', filling_values=np.nan)
     testDataResponse = testData['Angaus']
     testDataFeatures = testData[['SegSumT', 'SegTSeas', 'SegLowFlow', 'DSDist', 'DSMaxSlope', 'USAvgT', 'USRainDays', 'USSlope', 'USNative', 'DSDam', 'Method', 'LocSed']]

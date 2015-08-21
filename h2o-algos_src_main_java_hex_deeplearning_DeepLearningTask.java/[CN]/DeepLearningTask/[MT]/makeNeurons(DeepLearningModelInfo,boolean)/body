@@ -20,16 +20,16 @@ case RectifierWithDropout:
 neurons[i + 1]=params._autoencoder && i == h.length ? new Neurons.Rectifier(n) : new Neurons.RectifierDropout(n);
 break;
 case Maxout:
-neurons[i + 1]=new Neurons.Maxout(n);
+neurons[i + 1]=new Neurons.Maxout((short)2,n);
 break;
 case MaxoutWithDropout:
-neurons[i + 1]=params._autoencoder && i == h.length ? new Neurons.Maxout(n) : new Neurons.MaxoutDropout(n);
+neurons[i + 1]=params._autoencoder && i == h.length ? new Neurons.Maxout((short)2,n) : new Neurons.MaxoutDropout((short)2,n);
 break;
 }
 }
 if (!params._autoencoder) {
 if (minfo._classification) neurons[neurons.length - 1]=new Neurons.Softmax(minfo.units[minfo.units.length - 1]);
- else neurons[neurons.length - 1]=new Neurons.Linear(1);
+ else neurons[neurons.length - 1]=new Neurons.Linear();
 }
 for (int i=0; i < neurons.length; i++) {
 neurons[i].init(neurons,i,params,minfo,training);

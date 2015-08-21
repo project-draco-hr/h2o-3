@@ -2,7 +2,7 @@
   Scope.enter();
   DeepLearningModel cp=null;
   if (_parms._checkpoint == null) {
-    cp=new DeepLearningModel(dest(),_parms,new DeepLearningModel.DeepLearningModelOutput(DeepLearning.this),_train,_valid);
+    cp=new DeepLearningModel(dest(),_parms,new DeepLearningModel.DeepLearningModelOutput(DeepLearning.this),_train,_valid,nclasses());
     cp.model_info().initializeMembers();
   }
  else {
@@ -21,7 +21,7 @@
       cp=new DeepLearningModel(dest(),_parms,previous,false,dinfo);
       cp.write_lock(self());
       if (!Arrays.equals(cp._output._names,previous._output._names)) {
-        throw new IllegalArgumentException("Predictor columns of the training data must be the same as for the checkpointed model. Check ignored columns.");
+        throw new IllegalArgumentException("Number of (non-constant) predictor columns of the training data must be the same as for the checkpointed model. Check ignored columns (or disable ignore_const_cols).");
       }
       if (!Arrays.deepEquals(cp._output._domains,previous._output._domains)) {
         throw new IllegalArgumentException("Categorical factor levels of the training data must be the same as for the checkpointed model.");
@@ -33,7 +33,7 @@
       assert(actualNewP != previous.model_info().get_params());
       assert(actualNewP != newP);
       assert(actualNewP != oldP);
-      DeepLearningParameters.Sanity.update(actualNewP,newP,isClassifier());
+      DeepLearningParameters.Sanity.update(actualNewP,newP,nclasses());
       actualNewP._epochs+=previous.epoch_counter;
       Log.info("Adding " + String.format("%.3f",previous.epoch_counter) + " epochs from the checkpointed model.");
       if (actualNewP._nfolds != 0) {

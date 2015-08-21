@@ -1,0 +1,35 @@
+{
+  Frame tfr=null, vfr=null;
+  DeepLearningModel dl=null;
+  for (  Distribution.Family dist : new Distribution.Family[]{AUTO,gaussian,poisson,gamma,tweedie}) {
+    Scope.enter();
+    try {
+      tfr=parse_test_file("smalldata/glm_test/cancar_logIn.csv");
+      for (      String s : new String[]{"Merit","Class"}) {
+        Scope.track(tfr.replace(tfr.find(s),tfr.vec(s).toEnum())._key);
+      }
+      DKV.put(tfr);
+      DeepLearningParameters parms=new DeepLearningParameters();
+      parms._train=tfr._key;
+      parms._epochs=1;
+      parms._reproducible=true;
+      parms._hidden=new int[]{50,50};
+      parms._response_column="Cost";
+      parms._seed=0xdecaf;
+      parms._distribution=dist;
+      DeepLearning job=new DeepLearning(parms);
+      dl=job.trainModel().get();
+      ModelMetricsRegression mm=(ModelMetricsRegression)dl._output._training_metrics;
+      if (dist == gaussian || dist == AUTO)       Assert.assertEquals(mm._mean_residual_deviance,mm._MSE,1e-6);
+ else       Assert.assertTrue(mm._mean_residual_deviance != mm._MSE);
+      Assert.assertTrue(dl.testJavaScoring(tfr,dl.score(tfr),1e-5));
+      job.remove();
+    }
+  finally {
+      if (tfr != null)       tfr.remove();
+      if (vfr != null)       vfr.remove();
+      if (dl != null)       dl.delete();
+      Scope.exit();
+    }
+  }
+}

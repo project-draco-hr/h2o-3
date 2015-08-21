@@ -39,6 +39,9 @@
     tspi=Math.min(tspi,(mp._single_node_mode ? 1 : H2O.CLOUD.size()) * numRows * 10);
     if (tspi > numRows && Math.abs(tspi % numRows) / (double)numRows < 0.2)     tspi=tspi - tspi % numRows;
     tspi=Math.min(tspi,(long)(mp._epochs * numRows / 10));
+    if (H2O.CLOUD.size() == 1 || mp._single_node_mode) {
+      tspi=Math.min(tspi,10 * (int)(1e6 / time_per_row_us));
+    }
     tspi=Math.max(1,tspi);
     if (!mp._quiet_mode) {
       Log.info("Auto-tuning parameter 'train_samples_per_iteration':");

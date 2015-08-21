@@ -1,9 +1,8 @@
 def download_csv(data, filename):
-    '\n  Download an H2O data set to a CSV file on the local disk.\n  Warning: Files located on the H2O server may be very large! Make\n  sure you have enough hard drive space to accommodate the entire file.\n\n  :param data: an H2OFrame object to be downloaded.\n  :param filename:A string indicating the name that the CSV file should be\n  should be saved to.\n  :return: None\n  '
+    '\n  Download an H2O data set to a CSV file on the local disk.\n\n  Warning: Files located on the H2O server may be very large! Make sure you have enough hard drive space to accommodate the entire file.\n\n  :param data: An H2OFrame object to be downloaded.\n  :param filename: A string indicating the name that the CSV file should be should be saved to.\n  :return: None\n  '
+    data._eager()
     if (not isinstance(data, H2OFrame)):
         raise (ValueError, ('`data` argument must be an H2OFrame, but got ' + type(data)))
     url = 'http://{}:{}/3/DownloadDataset?frame_id={}'.format(H2OConnection.ip(), H2OConnection.port(), data._id)
     with open(filename, 'w') as f:
-        response = urllib2.urlopen(url)
-        f.write(response.read())
-        f.close()
+        f.write(urllib2.urlopen(url).read())

@@ -4,7 +4,7 @@
   bodySb.i().p("java.util.Arrays.fill(preds,0);").nl();
   final int cats=model_info().data_info()._cats;
   final int nums=model_info().data_info()._nums;
-  if (nums > 0)   bodySb.i().p("java.util.Arrays.fill(NUMS,0f);").nl();
+  if (nums > 0)   bodySb.i().p("java.util.Arrays.fill(NUMS,0);").nl();
   if (cats > 0)   bodySb.i().p("java.util.Arrays.fill(CATS,0);").nl();
   bodySb.i().p("int i = 0, ncats = 0;").nl();
   if (cats > 0) {
@@ -30,11 +30,11 @@
   }
   bodySb.i().p("java.util.Arrays.fill(ACTIVATION[0],0);").nl();
   if (cats > 0) {
-    bodySb.i().p("for (i=0; i<ncats; ++i) ACTIVATION[0][CATS[i]] = 1f;").nl();
+    bodySb.i().p("for (i=0; i<ncats; ++i) ACTIVATION[0][CATS[i]] = 1;").nl();
   }
   if (nums > 0) {
     bodySb.i().p("for (i=0; i<NUMS.length; ++i) {").nl();
-    bodySb.i(1).p("ACTIVATION[0][CATOFFSETS[CATOFFSETS.length-1] + i] = Double.isNaN(NUMS[i]) ? 0f : (float) NUMS[i];").nl();
+    bodySb.i(1).p("ACTIVATION[0][CATOFFSETS[CATOFFSETS.length-1] + i] = Double.isNaN(NUMS[i]) ? 0 : NUMS[i];").nl();
     bodySb.i().p("}").nl();
   }
   boolean tanh=(p._activation == DeepLearningParameters.Activation.Tanh || p._activation == DeepLearningParameters.Activation.TanhWithDropout);
@@ -42,17 +42,17 @@
   boolean maxout=(p._activation == DeepLearningParameters.Activation.Maxout || p._activation == DeepLearningParameters.Activation.MaxoutWithDropout);
   final String stopping=p._autoencoder ? "(i<=ACTIVATION.length-1)" : "(i<ACTIVATION.length-1)";
   bodySb.i().p("for (i=1; i<ACTIVATION.length; ++i) {").nl();
-  bodySb.i(1).p("java.util.Arrays.fill(ACTIVATION[i],0f);").nl();
+  bodySb.i(1).p("java.util.Arrays.fill(ACTIVATION[i],0);").nl();
   if (maxout) {
-    bodySb.i(1).p("float rmax = 0;").nl();
+    bodySb.i(1).p("double rmax = 0;").nl();
     bodySb.i(1).p("for (int r=0; r<ACTIVATION[i].length; ++r) {").nl();
     bodySb.i(2).p("final int cols = ACTIVATION[i-1].length;").nl();
-    bodySb.i(2).p("float cmax = Float.NEGATIVE_INFINITY;").nl();
+    bodySb.i(2).p("double cmax = Float.NEGATIVE_INFINITY;").nl();
     bodySb.i(2).p("for (int c=0; c<cols; ++c) {").nl();
     bodySb.i(3).p("if " + stopping + " cmax = Math.max(ACTIVATION[i-1][c] * WEIGHT[i][r*cols+c], cmax);").nl();
     bodySb.i(3).p("else ACTIVATION[i][r] += ACTIVATION[i-1][c] * WEIGHT[i][r*cols+c];").nl();
     bodySb.i(2).p("}").nl();
-    bodySb.i(2).p("if " + stopping + " ACTIVATION[i][r] = Float.isInfinite(cmax) ? 0f : cmax;").nl();
+    bodySb.i(2).p("if " + stopping + " ACTIVATION[i][r] = Double.isInfinite(cmax) ? 0f : cmax;").nl();
     bodySb.i(2).p("ACTIVATION[i][r] += BIAS[i][r];").nl();
     bodySb.i(2).p("if " + stopping + " rmax = Math.max(rmax, ACTIVATION[i][r]);").nl();
     bodySb.i(1).p("}").nl();
@@ -66,11 +66,11 @@
     bodySb.i(1).p("int multiple = (cols/8)*8-1;").nl();
     bodySb.i(1).p("int idx = 0;").nl();
     bodySb.i(1).p("float[] a = WEIGHT[i];").nl();
-    bodySb.i(1).p("float[] x = ACTIVATION[i-1];").nl();
-    bodySb.i(1).p("float[] y = BIAS[i];").nl();
-    bodySb.i(1).p("float[] res = ACTIVATION[i];").nl();
+    bodySb.i(1).p("double[] x = ACTIVATION[i-1];").nl();
+    bodySb.i(1).p("double[] y = BIAS[i];").nl();
+    bodySb.i(1).p("double[] res = ACTIVATION[i];").nl();
     bodySb.i(1).p("for (int row=0; row<rows; ++row) {").nl();
-    bodySb.i(2).p("float psum0 = 0, psum1 = 0, psum2 = 0, psum3 = 0, psum4 = 0, psum5 = 0, psum6 = 0, psum7 = 0;").nl();
+    bodySb.i(2).p("double psum0 = 0, psum1 = 0, psum2 = 0, psum3 = 0, psum4 = 0, psum5 = 0, psum6 = 0, psum7 = 0;").nl();
     bodySb.i(2).p("for (int col = 0; col < multiple; col += 8) {").nl();
     bodySb.i(3).p("int off = idx + col;").nl();
     bodySb.i(3).p("psum0 += a[off    ] * x[col    ];").nl();
@@ -92,10 +92,10 @@
     bodySb.i(1).p("if " + stopping + " {").nl();
     bodySb.i(2).p("for (int r=0; r<ACTIVATION[i].length; ++r) {").nl();
     if (tanh) {
-      bodySb.i(3).p("ACTIVATION[i][r] = 1f - 2f / (1f + (float)Math.exp(2*ACTIVATION[i][r]));").nl();
+      bodySb.i(3).p("ACTIVATION[i][r] = 1 - 2 / (1 + Math.exp(2*ACTIVATION[i][r]));").nl();
     }
  else     if (relu) {
-      bodySb.i(3).p("ACTIVATION[i][r] = Math.max(0f, ACTIVATION[i][r]);").nl();
+      bodySb.i(3).p("ACTIVATION[i][r] = Math.max(0, ACTIVATION[i][r]);").nl();
     }
   }
   if (p._hidden_dropout_ratios != null) {
@@ -107,17 +107,17 @@
   if (!maxout)   bodySb.i(1).p("}").nl();
   if (_output.isClassifier()) {
     bodySb.i(1).p("if (i == ACTIVATION.length-1) {").nl();
-    bodySb.i(2).p("float max = ACTIVATION[i][0];").nl();
+    bodySb.i(2).p("double max = ACTIVATION[i][0];").nl();
     bodySb.i(2).p("for (int r=1; r<ACTIVATION[i].length; r++) {").nl();
     bodySb.i(3).p("if (ACTIVATION[i][r]>max) max = ACTIVATION[i][r];").nl();
     bodySb.i(2).p("}").nl();
-    bodySb.i(2).p("float scale = 0f;").nl();
+    bodySb.i(2).p("double scale = 0;").nl();
     bodySb.i(2).p("for (int r=0; r<ACTIVATION[i].length; r++) {").nl();
-    bodySb.i(3).p("ACTIVATION[i][r] = (float) Math.exp(ACTIVATION[i][r] - max);").nl();
+    bodySb.i(3).p("ACTIVATION[i][r] = Math.exp(ACTIVATION[i][r] - max);").nl();
     bodySb.i(3).p("scale += ACTIVATION[i][r];").nl();
     bodySb.i(2).p("}").nl();
     bodySb.i(2).p("for (int r=0; r<ACTIVATION[i].length; r++) {").nl();
-    bodySb.i(3).p("if (Float.isNaN(ACTIVATION[i][r]))").nl();
+    bodySb.i(3).p("if (Double.isNaN(ACTIVATION[i][r]))").nl();
     bodySb.i(4).p("throw new RuntimeException(\"Numerical instability, predicted NaN.\");").nl();
     bodySb.i(3).p("ACTIVATION[i][r] /= scale;").nl();
     bodySb.i(3).p("preds[r+1] = ACTIVATION[i][r];").nl();
@@ -133,6 +133,7 @@
  else {
       bodySb.i(2).p("preds[1] = ACTIVATION[i][0];").nl();
     }
+    bodySb.i(2).p("preds[1] = " + new Distribution(model_info.get_params()._distribution,model_info.get_params()._tweedie_power).linkInvString("preds[1]") + ";").nl();
     bodySb.i(2).p("if (Double.isNaN(preds[1])) throw new RuntimeException(\"Predicted regression target NaN!\");").nl();
     bodySb.i(1).p("}").nl();
     bodySb.i().p("}").nl();
@@ -140,7 +141,7 @@
  else {
     bodySb.i(1).p("if (i == ACTIVATION.length-1) {").nl();
     bodySb.i(2).p("for (int r=0; r<ACTIVATION[i].length; r++) {").nl();
-    bodySb.i(3).p("if (Float.isNaN(ACTIVATION[i][r]))").nl();
+    bodySb.i(3).p("if (Double.isNaN(ACTIVATION[i][r]))").nl();
     bodySb.i(4).p("throw new RuntimeException(\"Numerical instability, reconstructed NaN.\");").nl();
     bodySb.i(3).p("preds[r] = ACTIVATION[i][r];").nl();
     bodySb.i(2).p("}").nl();
@@ -160,6 +161,6 @@
     bodySb.ip("preds[0] = hex.genmodel.GenModel.getPrediction(preds, data, " + defaultThreshold() + ");").nl();
   }
  else {
-    bodySb.ip("preds[0] = (float)preds[1];").nl();
+    bodySb.ip("preds[0] = preds[1];").nl();
   }
 }

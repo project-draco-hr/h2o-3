@@ -1,0 +1,14 @@
+def system_file(name):
+    '\n    Finds the full file names of data files in the h2o package.\n\n    :param name: File to search for\n    :return: Absolute path\n    '
+    h2o_data_paths = [os.path.join(sys.prefix, 'h2o_data', name), os.path.join(site.USER_BASE, 'h2o_data', name)]
+    h2o_data_path = None
+    for path in h2o_data_paths:
+        if os.path.exists(path):
+            h2o_data_path = path
+            break
+    if (h2o_data_path is None):
+        if (name == 'prostate.csv'):
+            h2o_data_path = h2o.locate(os.path.join('smalldata', 'prostate', name))
+    if ((h2o_data_path is None) or (not os.path.exists(h2o_data_path))):
+        raise (ValueError, (('This demo depends on ' + name) + ' which could not be found'))
+    return h2o_data_path

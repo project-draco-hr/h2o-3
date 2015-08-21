@@ -1,7 +1,5 @@
 def __init__(self, ip='localhost', port=54321, size=1, start_h2o=False, enable_assertions=False, license=None, max_mem_size_GB=None, min_mem_size_GB=None, ice_root=None, strict_version_check=True):
     '\n    Instantiate the package handle to the H2O cluster.\n    :param ip: An IP address, default is "localhost"\n    :param port: A port, default is 54321\n    :param size: THe expected number of h2o instances (ignored if start_h2o is True)\n    :param start_h2o: A boolean dictating whether this module should start the H2O jvm. An attempt is made anyways if _connect fails.\n    :param enable_assertions: If start_h2o, pass `-ea` as a VM option.s\n    :param license: If not None, is a path to a license file.\n    :param max_mem_size_GB: Maximum heap size (jvm option Xmx) in gigabytes.\n    :param min_mem_size_GB: Minimum heap size (jvm option Xms) in gigabytes.\n    :param ice_root: A temporary directory (default location is determined by tempfile.mkdtemp()) to hold H2O log files.\n    :return: None\n    '
-    if ('H2O_DISABLE_STRICT_VERSION_CHECK' in os.environ):
-        strict_version_check = False
     port = as_int(port)
     if (not (isinstance(port, int) and (0 <= port <= sys.maxint))):
         raise ValueError(('Port out of range, ' + port))
@@ -14,10 +12,15 @@ def __init__(self, ip='localhost', port=54321, size=1, start_h2o=False, enable_a
     self._child = (getattr(__H2OCONN__, '_child') if hasattr(__H2OCONN__, '_child') else None)
     __H2OCONN__ = self
     jar_path = None
-    if os.path.exists(os.path.join(sys.prefix, 'h2o_jar/h2o.jar')):
-        jar_path = os.path.join(sys.prefix, 'h2o_jar', 'h2o.jar')
+    jarpaths = [os.path.join(sys.prefix, 'h2o_jar', 'h2o.jar'), os.path.join(os.path.sep, 'usr', 'local', 'h2o_jar', 'h2o.jar'), os.path.join(sys.prefix, 'local', 'h2o_jar', 'h2o.jar'), os.path.join(site.USER_BASE, 'h2o_jar', 'h2o.jar')]
+    if os.path.exists(jarpaths[0]):
+        jar_path = jarpaths[0]
+    elif os.path.exists(jarpaths[1]):
+        jar_path = jarpaths[1]
+    elif os.path.exists(jarpaths[2]):
+        jar_path = jarpaths[2]
     else:
-        jar_path = os.path.join(sys.prefix, 'local', 'h2o_jar', 'h2o.jar')
+        jar_path = jarpaths[3]
     if start_h2o:
         if (not ice_root):
             ice_root = tempfile.mkdtemp()
@@ -38,7 +41,10 @@ def __init__(self, ip='localhost', port=54321, size=1, start_h2o=False, enable_a
                 cld = self._start_local_h2o_jar(max_mem_size_GB, min_mem_size_GB, enable_assertions, license, ice_root, jar_path)
             else:
                 print 'No jar file found. Could not start local instance.'
-                print ('No h2o jar found at: ' + jar_path)
+                print 'Jar Paths searched: '
+                for jp in jarpaths:
+                    print ('\t' + jp)
+                print 
                 raise
     __H2OCONN__._cld = cld
     ver_h2o = cld['version']

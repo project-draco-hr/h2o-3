@@ -1,10 +1,13 @@
 {
   AST ary=E.parse();
   AST a=E.parse();
-  if (a instanceof ASTString)   _matches=new String[]{((ASTString)a)._s};
- else   if (a instanceof ASTStringList)   _matches=((ASTStringList)a)._s;
+  if (a instanceof ASTString)   _strsTable=new String[]{((ASTString)a)._s};
+ else   if (a instanceof ASTStringList)   _strsTable=((ASTStringList)a)._s;
+ else   if (a instanceof ASTNum)   _dblsTable=new double[]{((ASTNum)a)._d};
+ else   if (a instanceof ASTDoubleList)   _dblsTable=((ASTDoubleList)a)._d;
  else   throw new IllegalArgumentException("`table` expected to be either a String or an slist. Got: " + a.getClass());
-  Arrays.sort(_matches);
+  if (_strsTable != null)   Arrays.sort(_strsTable);
+ else   Arrays.sort(_dblsTable);
   AST nm=E.parse();
   if (nm instanceof ASTNum)   _nomatch=((ASTNum)nm)._d;
  else   throw new IllegalArgumentException("Argument `nomatch` expected a number. Got: " + nm.getClass());
