@@ -1,0 +1,75 @@
+{
+  int cnt=0;
+  Chunk wChunk=chunks[cnt++];
+  Chunk zChunk=chunks[cnt++];
+  Chunk ztildaChunk=chunks[cnt++];
+  Chunk filterChunk=chunks[cnt++];
+  Chunk xpChunk=null, xChunk=null;
+  _temp=new double[_betaold.length];
+  if (_interceptnew) {
+    xChunk=new C0DChunk(1,chunks[0]._len);
+    xpChunk=chunks[cnt++];
+  }
+ else {
+    if (_interceptold) {
+      xChunk=chunks[cnt++];
+      xpChunk=new C0DChunk(1,chunks[0]._len);
+    }
+ else {
+      xChunk=chunks[cnt++];
+      xpChunk=chunks[cnt++];
+    }
+  }
+  for (int i=0; i < chunks[0]._len; ++i) {
+    double betanew=0;
+    double betaold=0;
+    ++_nobs;
+    if (filterChunk.atd(i) == 1)     continue;
+    int observation_level=0, observation_level_p=0;
+    double val=1, valp=1;
+    if (_cat_num == 1) {
+      observation_level=(int)xChunk.at8(i);
+      if (_catLvls_old != null)       observation_level=Arrays.binarySearch(_catLvls_old,observation_level);
+      observation_level_p=(int)xpChunk.at8(i);
+      if (_catLvls_new != null)       observation_level_p=Arrays.binarySearch(_catLvls_new,observation_level_p);
+      if (_skipFirst) {
+        observation_level--;
+        observation_level_p--;
+      }
+    }
+ else     if (_cat_num == 2) {
+      val=xChunk.atd(i);
+      if (_normMulold != null && _normSubold != null)       val=(val - _normSubold[0]) * _normMulold[0];
+      observation_level_p=(int)xpChunk.at8(i);
+      if (_catLvls_new != null)       observation_level_p=Arrays.binarySearch(_catLvls_new,observation_level_p);
+      if (_skipFirst) {
+        observation_level_p--;
+      }
+    }
+ else     if (_cat_num == 3) {
+      val=xChunk.atd(i);
+      if (_normMulold != null && _normSubold != null)       val=(val - _normSubold[0]) * _normMulold[0];
+      valp=xpChunk.atd(i);
+      if (_normMulnew != null && _normSubnew != null)       valp=(valp - _normSubnew[0]) * _normMulnew[0];
+    }
+ else     if (_cat_num == 4) {
+      observation_level=(int)xChunk.at8(i);
+      if (_catLvls_old != null)       observation_level=Arrays.binarySearch(_catLvls_old,observation_level);
+      if (_skipFirst) {
+        observation_level--;
+      }
+      valp=xpChunk.atd(i);
+      if (_normMulnew != null && _normSubnew != null)       valp=(valp - _normSubnew[0]) * _normMulnew[0];
+    }
+    if (observation_level >= 0)     betaold=_betaold[observation_level];
+    if (observation_level_p >= 0)     betanew=_betanew[observation_level_p];
+    if (_interceptnew) {
+      ztildaChunk.set(i,ztildaChunk.atd(i) - betaold + valp * betanew);
+      _temp[0]+=wChunk.atd(i) * (zChunk.atd(i) - ztildaChunk.atd(i));
+    }
+ else {
+      ztildaChunk.set(i,ztildaChunk.atd(i) - val * betaold + valp * betanew);
+      if (observation_level >= 0)       _temp[observation_level]+=wChunk.atd(i) * val * (zChunk.atd(i) - ztildaChunk.atd(i));
+    }
+  }
+}
