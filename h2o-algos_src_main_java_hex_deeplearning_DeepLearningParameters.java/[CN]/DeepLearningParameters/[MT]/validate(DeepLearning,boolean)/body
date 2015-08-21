@@ -65,7 +65,7 @@
   }
  else {
     if (_autoencoder && _loss == Loss.CrossEntropy)     dl.error("_loss","Cannot use CrossEntropy loss for auto-encoder.");
-    if (!classification && _loss == Loss.CrossEntropy)     dl.error("_loss","For CrossEntropy loss, the response must be categorical.");
+    if (!classification && _loss == Loss.CrossEntropy)     dl.error("_loss",technote(2,"For CrossEntropy loss, the response must be categorical."));
   }
   if (!classification && _loss == Loss.CrossEntropy)   dl.error("_loss","For CrossEntropy loss, the response must be categorical. Either select Automatic, MeanSquare, Absolute or Huber loss for regression, or use a categorical response.");
   if (classification) {
@@ -76,7 +76,7 @@ case laplace:
 case tweedie:
 case gamma:
 case poisson:
-      dl.error("_distribution",_distribution + " distribution is not allowed for classification.");
+      dl.error("_distribution",technote(2,_distribution + " distribution is not allowed for classification."));
     break;
 case AUTO:
 case bernoulli:
@@ -89,7 +89,7 @@ default :
 switch (_distribution) {
 case multinomial:
 case bernoulli:
-dl.error("_distribution",_distribution + " distribution is not allowed for regression.");
+dl.error("_distribution",technote(2,_distribution + " distribution is not allowed for regression."));
 break;
 case tweedie:
 case gamma:
