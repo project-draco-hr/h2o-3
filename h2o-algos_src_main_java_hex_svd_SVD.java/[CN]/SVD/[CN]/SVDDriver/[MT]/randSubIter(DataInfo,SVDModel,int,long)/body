@@ -1,0 +1,14 @@
+{
+  double[][] gt=ArrayUtils.gaussianArray(_parms._nv,_ncolExp,seed);
+  RandSubInit rtsk=new RandSubInit(self(),dinfo,gt);
+  rtsk.doAll(dinfo._adaptedFrame);
+  Frame yinit=rtsk.outputFrame(Key.make(),null,null);
+  DataInfo yinfo=new DataInfo(Key.make(),yinit,null,0,true,DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true,false,false,false,false,false);
+  DKV.put(yinfo._key,yinfo);
+  GramTask gtsk=new GramTask(self(),yinfo);
+  gtsk.doAll(yinfo._adaptedFrame);
+  Matrix ygram=new Matrix(gtsk._gram.getXX());
+  CholeskyDecomposition chol=new CholeskyDecomposition(ygram);
+  for (int q=0; q < iters; q++) {
+  }
+}
