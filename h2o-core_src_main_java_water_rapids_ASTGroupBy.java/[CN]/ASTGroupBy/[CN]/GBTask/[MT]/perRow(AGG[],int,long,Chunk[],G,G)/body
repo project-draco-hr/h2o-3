@@ -12,9 +12,11 @@
     if ((type=agg[i]._type) == AGG.T_N)     continue;
     if (c != null)     if (!agg[i].isAll() && c[col].isNA(chkRow))     continue;
     long bits=-1;
+    int domLvl=-1;
     if (c != null) {
       if (c[col].isNA(chkRow))       continue;
       bits=Double.doubleToRawLongBits(c[col].atd(chkRow));
+      if (c[col].vec().isEnum())       domLvl=(int)c[col].at8(chkRow);
     }
     if (type == AGG.T_ND) {
       continue;
@@ -41,6 +43,9 @@ setFirst(g,c == null ? that._f[i] : chkRow + rowOffset,i);
 break;
 case AGG.T_L:
 setLast(g,c == null ? that._l[i] : chkRow + rowOffset,i);
+break;
+case AGG.T_MODE:
+setMode(g,c == null ? that._m[i] : null,domLvl,i);
 break;
 default :
 throw new IllegalArgumentException("Unsupported aggregation type: " + type);
