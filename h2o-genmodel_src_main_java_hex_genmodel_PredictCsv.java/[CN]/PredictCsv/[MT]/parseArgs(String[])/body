@@ -1,0 +1,43 @@
+{
+  for (int i=0; i < args.length; i++) {
+    String s=args[i];
+switch (s) {
+case "--model":
+      i++;
+    if (i >= args.length)     usage();
+  modelClassName=args[i];
+break;
+case "--input":
+i++;
+if (i >= args.length) usage();
+inputCSVFileName=args[i];
+break;
+case "--output":
+i++;
+if (i >= args.length) usage();
+outputCSVFileName=args[i];
+break;
+case "--header":
+haveHeaders=1;
+break;
+default :
+System.out.println("ERROR: Bad parameter: " + s);
+usage();
+}
+}
+if (haveHeaders != 1) {
+usage();
+}
+if (modelClassName == null) {
+System.out.println("ERROR: model not specified");
+usage();
+}
+if (inputCSVFileName == null) {
+System.out.println("ERROR: input not specified");
+usage();
+}
+if (outputCSVFileName == null) {
+System.out.println("ERROR: output not specified");
+usage();
+}
+}
