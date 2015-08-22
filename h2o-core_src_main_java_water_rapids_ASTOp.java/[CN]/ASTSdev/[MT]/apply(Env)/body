@@ -4,9 +4,22 @@
   }
  else {
     Frame fr=env.peekAry();
-    if (fr.vecs().length > 1)     throw new IllegalArgumentException("sd does not apply to multiple cols.");
-    if (fr.vecs()[0].isEnum())     throw new IllegalArgumentException("sd only applies to numeric vector.");
-    double sig=Math.sqrt(ASTVar.getVar(fr.anyVec(),_narm));
-    env.poppush(1,new ValNum(sig));
+    if (fr.numCols() > 1) {
+      Futures fs=new Futures();
+      Key key=Vec.VectorGroup.VG_LEN1.addVecs(1)[0];
+      AppendableVec v=new AppendableVec(key);
+      NewChunk chunk=new NewChunk(v,0);
+      for (int i=0; i < fr.numCols(); ++i)       chunk.addNum(fr.vec(i).sigma());
+      chunk.close(0,fs);
+      Vec vec=v.close(fs);
+      fs.blockForPending();
+      Frame fr2=new Frame(Key.make(),new String[]{"C1"},new Vec[]{vec});
+      DKV.put(fr2);
+      env.pushAry(fr2);
+    }
+ else {
+      double sig=Math.sqrt(ASTVar.getVar(fr.anyVec(),_narm));
+      env.poppush(1,new ValNum(sig));
+    }
   }
 }

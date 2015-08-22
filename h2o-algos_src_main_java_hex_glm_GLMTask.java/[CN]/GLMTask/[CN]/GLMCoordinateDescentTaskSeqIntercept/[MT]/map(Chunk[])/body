@@ -1,0 +1,12 @@
+{
+  int cnt=0;
+  Chunk wChunk=chunks[cnt++];
+  Chunk zChunk=chunks[cnt++];
+  Chunk filterChunk=chunks[cnt++];
+  Row r=_dinfo.newDenseRow();
+  for (int i=0; i < chunks[0]._len; ++i) {
+    if (filterChunk.atd(i) == 1)     continue;
+    _dinfo.extractDenseRow(chunks,i,r);
+    _temp=wChunk.at8(i) * (zChunk.atd(i) - r.innerProduct(_betaold));
+  }
+}

@@ -1,37 +1,24 @@
 {
-  float max=0;
   final int rows=_a.size();
-  if (_previous._a instanceof Storage.DenseVector) {
-    for (int row=0; row < rows; row++) {
-      _a.set(row,0);
-      if (!training || _dropout == null || _dropout.unit_active(row)) {
-        _a.set(row,Float.NEGATIVE_INFINITY);
-        for (int i=0; i < _previous._a.size(); i++)         _a.set(row,Math.max(_a.get(row),_w.get(row,i) * _previous._a.get(i)));
-        if (Float.isInfinite(-_a.get(row)))         _a.set(row,0);
-        _a.add(row,_b.get(row));
-        max=Math.max(_a.get(row),max);
-      }
-    }
-    if (max > 1)     ArrayUtils.div(_a.raw(),max);
-  }
- else {
-    Storage.SparseVector x=(Storage.SparseVector)_previous._a;
-    for (int row=0; row < _a.size(); row++) {
-      _a.set(row,0);
-      if (!training || _dropout == null || _dropout.unit_active(row)) {
-        float mymax=Float.NEGATIVE_INFINITY;
-        int start=x.begin()._idx;
-        int end=x.end()._idx;
-        for (int it=start; it < end; ++it) {
-          mymax=Math.max(mymax,_w.get(row,x._indices[it]) * x._values[it]);
+  for (int row=0; row < rows; row++) {
+    _a.set(row,0);
+    if (!training || _dropout == null || _dropout.unit_active(row)) {
+      double mymax=Double.NEGATIVE_INFINITY;
+      final int cols=_previous._a.size();
+      for (int col=0; col < cols; col++) {
+        double val=_w.get(row,col) * _previous._a.get(col);
+        if (val > mymax) {
+          mymax=val;
+          _maxIncoming[row]=col;
         }
-        _a.set(row,mymax);
-        if (Float.isInfinite(-_a.get(row)))         _a.set(row,0);
-        _a.add(row,_b.get(row));
-        max=Math.max(_a.get(row),max);
       }
+      _a.set(row,mymax);
+      if (Double.isInfinite(-_a.get(row))) {
+        _maxIncoming[row]=-1;
+        _a.set(row,0);
+      }
+      _a.add(row,_b.get(row));
     }
-    if (max > 1f)     ArrayUtils.div(_a.raw(),max);
   }
   compute_sparsity();
 }

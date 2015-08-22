@@ -1,11 +1,13 @@
 {
-  long cs=parameters._seed;
-  cs^=size() * get_processed_total();
-  cs^=(long)(2234.3424 * ArrayUtils.sum(mean_bias));
-  cs*=(long)(9234.1343 * ArrayUtils.sum(rms_bias));
-  cs^=(long)(9723.9734 * ArrayUtils.sum(mean_weight));
-  cs*=(long)(9234.1783 * ArrayUtils.sum(rms_weight));
-  cs^=(long)(4273.2344 * (Math.E + ArrayUtils.sum(mean_rate)));
-  cs*=(long)(3378.1999 * (Math.PI + ArrayUtils.sum(rms_rate)));
-  return cs;
+  computeStats();
+  Random rng=new Random(0xDECAFBBB);
+  double cs=Double.longBitsToDouble(get_params()._seed);
+  cs+=size() * get_processed_total();
+  for (  double d : mean_bias)   cs+=(rng.nextDouble() * (d + 123.23));
+  for (  double d : rms_bias)   cs+=(rng.nextDouble() * (d + 123.23));
+  for (  double d : mean_weight)   cs+=(rng.nextDouble() * (d + 123.23));
+  for (  double d : rms_weight)   cs+=(rng.nextDouble() * (d + 123.23));
+  for (  double d : mean_rate)   cs+=(rng.nextDouble() * (d + 123.23));
+  for (  double d : rms_rate)   cs+=(rng.nextDouble() * (d + 123.23));
+  return Double.doubleToRawLongBits(cs);
 }
