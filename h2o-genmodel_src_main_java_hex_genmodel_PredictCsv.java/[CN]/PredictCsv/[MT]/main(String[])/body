@@ -18,49 +18,57 @@
   int lineNum=0;
   String line;
   String[] inputColumnNames=new String[0];
-  while ((line=input.readLine()) != null) {
-    lineNum++;
-    if (lineNum == 1) {
-      inputColumnNames=parseHeaderRow(line);
-      continue;
-    }
-    RowData row=parseDataRow(line,inputColumnNames);
-    ModelCategory category=model.getModelCategory();
-    if (category == ModelCategory.Binomial) {
-      BinomialModelPrediction p=model.predictBinomial(row);
-      output.write(p.label);
-      output.write(",");
-      for (int i=0; i < p.classProbabilities.length; i++) {
-        if (i > 0) {
-          output.write(",");
-        }
-        output.write(Double.toHexString(p.classProbabilities[i]));
+  try {
+    while ((line=input.readLine()) != null) {
+      lineNum++;
+      if (lineNum == 1) {
+        inputColumnNames=parseHeaderRow(line);
+        continue;
       }
-    }
- else     if (category == ModelCategory.Multinomial) {
-      MultinomialModelPrediction p=model.predictMultinomial(row);
-      output.write(p.label);
-      output.write(",");
-      for (int i=0; i < p.classProbabilities.length; i++) {
-        if (i > 0) {
-          output.write(",");
+      RowData row=parseDataRow(line,inputColumnNames);
+      ModelCategory category=model.getModelCategory();
+      if (category == ModelCategory.Binomial) {
+        BinomialModelPrediction p=model.predictBinomial(row);
+        output.write(p.label);
+        output.write(",");
+        for (int i=0; i < p.classProbabilities.length; i++) {
+          if (i > 0) {
+            output.write(",");
+          }
+          output.write(h2oDoubleToString(p.classProbabilities[i]));
         }
-        output.write(Double.toHexString(p.classProbabilities[i]));
       }
-    }
- else     if (category == ModelCategory.Regression) {
-      RegressionModelPrediction p=model.predictRegression(row);
-      output.write(Double.toHexString(p.value));
-    }
- else     if (category == ModelCategory.Clustering) {
-      ClusteringModelPrediction p=model.predictClustering(row);
-      output.write(Integer.toHexString(p.cluster));
-    }
+ else       if (category == ModelCategory.Multinomial) {
+        MultinomialModelPrediction p=model.predictMultinomial(row);
+        output.write(p.label);
+        output.write(",");
+        for (int i=0; i < p.classProbabilities.length; i++) {
+          if (i > 0) {
+            output.write(",");
+          }
+          output.write(h2oDoubleToString(p.classProbabilities[i]));
+        }
+      }
+ else       if (category == ModelCategory.Regression) {
+        RegressionModelPrediction p=model.predictRegression(row);
+        output.write(h2oDoubleToString(p.value));
+      }
+ else       if (category == ModelCategory.Clustering) {
+        ClusteringModelPrediction p=model.predictClustering(row);
+        output.write(h2oDoubleToString(p.cluster));
+      }
  else {
-      System.out.println("Unknown model category: " + category.toString());
-      System.exit(1);
+        System.out.println("Unknown model category: " + category.toString());
+        System.exit(1);
+      }
+      output.write("\n");
     }
-    output.write("\n");
+  }
+ catch (  Exception e) {
+    System.out.println("Caught exception on line " + lineNum);
+    System.out.println("");
+    e.printStackTrace();
+    System.exit(1);
   }
   output.close();
   input.close();
