@@ -3,17 +3,17 @@
   for (int row=0; row < rows; row++) {
     _a.set(row,0);
     if (!training || _dropout == null || _dropout.unit_active(row)) {
-      double mymax=Double.NEGATIVE_INFINITY;
+      float mymax=Float.NEGATIVE_INFINITY;
       final int cols=_previous._a.size();
       for (int col=0; col < cols; col++) {
-        double val=_w.get(row,col) * _previous._a.get(col);
+        float val=_w.get(row,col) * _previous._a.get(col);
         if (val > mymax) {
           mymax=val;
           _maxIncoming[row]=col;
         }
       }
       _a.set(row,mymax);
-      if (Double.isInfinite(-_a.get(row))) {
+      if (Float.isInfinite(-_a.get(row))) {
         _maxIncoming[row]=-1;
         _a.set(row,0);
       }

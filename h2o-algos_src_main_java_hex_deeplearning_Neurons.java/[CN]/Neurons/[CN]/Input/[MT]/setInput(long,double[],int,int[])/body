@@ -12,12 +12,12 @@
       int hashval=murmur.hash(buf.putInt(cats[i]).array(),4,(int)params._seed);
       _a.add(Math.abs(hashval % cM),1f);
     }
-    for (int i=0; i < nums.length; ++i)     _a.set(cM + i,Double.isNaN(nums[i]) ? 0f : nums[i]);
+    for (int i=0; i < nums.length; ++i)     _a.set(cM + i,Double.isNaN(nums[i]) ? 0f : (float)nums[i]);
   }
  else {
     assert(_a.size() == _dinfo.fullN());
     for (int i=0; i < numcat; ++i)     _a.set(cats[i],1f);
-    for (int i=0; i < nums.length; ++i)     _a.set(_dinfo.numStart() + i,Double.isNaN(nums[i]) ? 0f : nums[i]);
+    for (int i=0; i < nums.length; ++i)     _a.set(_dinfo.numStart() + i,Double.isNaN(nums[i]) ? 0f : (float)nums[i]);
   }
   if (_dropout == null)   return;
   if (params._autoencoder && params._input_dropout_ratio > 0) {

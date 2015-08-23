@@ -11,15 +11,9 @@
       DeepLearningParameters p=new DeepLearningParameters();
       p._model_id=Key.make("dl_mnist_model");
       p._train=frame._key;
-      p._valid=vframe._key;
       p._response_column="C785";
-      p._activation=DeepLearningParameters.Activation.RectifierWithDropout;
-      p._hidden=new int[]{800,800};
-      p._train_samples_per_iteration=-1;
-      p._input_dropout_ratio=0.2;
-      p._mini_batch_size=1;
-      p._shuffle_training_data=true;
-      p._epochs=500;
+      p._hidden=new int[]{1024,1024,1024};
+      p._epochs=100;
       int ci=frame.find("C785");
       Scope.track(frame.replace(ci,frame.vecs()[ci].toEnum())._key);
       Scope.track(vframe.replace(ci,vframe.vecs()[ci].toEnum())._key);
