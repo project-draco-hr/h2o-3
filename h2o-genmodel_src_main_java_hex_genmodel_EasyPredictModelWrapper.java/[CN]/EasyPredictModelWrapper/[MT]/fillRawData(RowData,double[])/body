@@ -1,30 +1,10 @@
 {
-  String[] modelColumnNames=getNames();
-  HashMap<String,Integer> modelColumnNameToIndexMap=new HashMap<>();
-  for (int i=0; i < modelColumnNames.length; i++) {
-    modelColumnNameToIndexMap.put(modelColumnNames[i],i);
-  }
-  HashMap<Integer,HashMap<String,Integer>> domainMap=new HashMap<>();
-  for (int i=0; i < getNumCols(); i++) {
-    String[] domainValues=getDomainValues(i);
-    if (domainValues != null) {
-      HashMap<String,Integer> m=new HashMap<>();
-      for (int j=0; j < domainValues.length; j++) {
-        m.put(domainValues[j],j);
-      }
-      domainMap.put(i,m);
-    }
-  }
-  double[] rawdata=new double[nfeatures()];
-  for (int i=0; i < rawdata.length; i++) {
-    rawdata[i]=Double.NaN;
-  }
   for (  String dataColumnName : data.keySet()) {
     Integer index=modelColumnNameToIndexMap.get(dataColumnName);
     if (index == null) {
       continue;
     }
-    String[] domainValues=getDomainValues(index);
+    String[] domainValues=m.getDomainValues(index);
     if (domainValues == null) {
       double value;
       Object o=data.get(dataColumnName);
@@ -38,7 +18,7 @@
  else {
         throw new PredictUnknownTypeException("Unknown object type " + o.getClass().getName());
       }
-      rawdata[index]=value;
+      rawData[index]=value;
     }
  else {
       Object o=data.get(dataColumnName);
@@ -50,13 +30,11 @@
           throw new PredictUnknownCategoricalLevelException("Unknown categorical level (" + dataColumnName + ","+ levelName+ ")");
         }
         double value=levelIndex;
-        rawdata[index]=value;
+        rawData[index]=value;
       }
  else {
         throw new PredictUnknownTypeException("Unknown object type " + o.getClass().getName());
       }
     }
   }
-  preds=score0(rawdata,preds);
-  return preds;
 }
