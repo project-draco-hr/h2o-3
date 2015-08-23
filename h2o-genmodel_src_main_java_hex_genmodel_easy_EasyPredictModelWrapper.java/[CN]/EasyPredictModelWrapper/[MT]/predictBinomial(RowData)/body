@@ -1,0 +1,11 @@
+{
+  double[] preds=preamble(ModelCategory.Binomial,data);
+  BinomialModelPrediction p=new BinomialModelPrediction();
+  p.classProbabilities=new double[m.getNumResponseClasses()];
+  double d=preds[0];
+  p.labelIndex=(int)d;
+  String[] domainValues=m.getDomainValues(m.getResponseIdx());
+  p.label=domainValues[p.labelIndex];
+  System.arraycopy(preds,1,p.classProbabilities,0,p.classProbabilities.length);
+  return p;
+}
