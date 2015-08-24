@@ -1,0 +1,15 @@
+{
+  NonBlockingHashMap<G,String> gs=new NonBlockingHashMap<>();
+  G gWork=new G(_gbCols.length,_aggs.length);
+  G gOld;
+  for (int row=0; row < cs[0]._len; row++) {
+    gWork.fill(row,cs,_gbCols);
+    if (gs.putIfAbsent(gWork,"") == null) {
+      gOld=gWork;
+      gWork=new G(_gbCols.length,_aggs.length);
+    }
+ else     gOld=gs.getk(gWork);
+    for (int i=0; i < _aggs.length; i++)     gOld._ds[i]=_aggs[i].op(gOld._ds[i],cs,row);
+  }
+  reduce(_gss,gs);
+}
