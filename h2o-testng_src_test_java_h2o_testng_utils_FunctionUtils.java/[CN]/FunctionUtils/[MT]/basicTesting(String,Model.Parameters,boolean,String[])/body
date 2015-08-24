@@ -3,6 +3,7 @@
   Frame score=null;
   DRF drfJob=null;
   DRFModel drfModel=null;
+  ModelMetrics modelMetrics=null;
   Key modelKey=Key.make("model");
   GLM glmJob=null;
   GLMModel glmModel=null;
@@ -20,6 +21,7 @@ case FunctionUtils.drf:
 drfModel=drfJob.trainModel().get();
 System.out.println("Predict testcase");
 score=drfModel.score(trainFrame);
+modelMetrics=drfModel._output._training_metrics;
 break;
 case FunctionUtils.glm:
 System.out.println("Build model");
@@ -29,6 +31,7 @@ glmModel=glmJob.trainModel().get();
 coef=glmModel.coefficients();
 System.out.println("Predict testcase ");
 score=glmModel.score(trainFrame);
+modelMetrics=glmModel._output._training_metrics;
 break;
 case FunctionUtils.gbm:
 System.out.println("Build model ");
@@ -37,6 +40,7 @@ System.out.println("Train model");
 gbmModel=gbmJob.trainModel().get();
 System.out.println("Predict testcase ");
 score=gbmModel.score(trainFrame);
+modelMetrics=gbmModel._output._training_metrics;
 break;
 }
 if (isNegativeTestcase) {
@@ -44,6 +48,13 @@ Assert.fail("It is negative testcase");
 }
  else {
 System.out.println("Testcase is passed.");
+System.out.println("MSE: " + modelMetrics._MSE);
+if (modelMetrics.auc() != null) {
+System.out.println("AUC: " + modelMetrics.auc()._auc);
+}
+ else {
+System.out.println("AUC: NA");
+}
 }
 }
  catch (Exception ex) {
