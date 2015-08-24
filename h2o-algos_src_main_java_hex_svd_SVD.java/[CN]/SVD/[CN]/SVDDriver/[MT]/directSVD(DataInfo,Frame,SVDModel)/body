@@ -1,0 +1,18 @@
+{
+  final int ncolA=dinfo._adaptedFrame.numCols();
+  Vec[] vecs=new Vec[ncolA + _parms._nv];
+  for (int i=0; i < ncolA; i++)   vecs[i]=dinfo._adaptedFrame.vec(i);
+  for (int i=0; i < _parms._nv; i++)   vecs[ncolA + i]=dinfo._adaptedFrame.anyVec().makeZero();
+  Frame aqFr=new Frame(vecs);
+  SMulTask stsk=new SMulTask(ncolA,_ncolExp,model._output._ncats,_parms._nv,model._output._normSub,model._output._normMul,model._output._catOffsets,_parms._use_all_factor_levels).doAll(aqFr);
+  double[][] qta=ArrayUtils.transpose(stsk._atq);
+  Matrix qtaJ=new Matrix(qta);
+  SingularValueDecomposition svdJ=qtaJ.svd();
+  double[][] utilde=svdJ.getU().getArray();
+  DataInfo qinfo=new DataInfo(Key.make(),qfrm,null,true,DataInfo.TransformType.NONE,false,false,false);
+  BMulTask btsk=new BMulTask(self(),qinfo,ArrayUtils.transpose(utilde)).doAll(_parms._nv,qinfo._adaptedFrame);
+  Frame u=btsk.outputFrame(model._output._u_key,null,null);
+  model._output._d=svdJ.getSingularValues();
+  model._output._v=svdJ.getV().getArray();
+  return u;
+}
