@@ -1,11 +1,2 @@
 {
-  String pattern=asts[1].exec(env).getStr();
-  String replacement=asts[2].exec(env).getStr();
-  Frame fr=stk.track(asts[3].exec(env)).getFrame();
-  boolean ignoreCase=asts[4].exec(env).getNum() == 1;
-  if (fr.numCols() != 1)   throw new IllegalArgumentException("sub works on a single column at a time.");
-  String[] doms=fr.anyVec().domain();
-  for (int i=0; i < doms.length; ++i)   doms[i]=ignoreCase ? doms[i].toLowerCase(Locale.ENGLISH).replaceFirst(pattern,replacement) : doms[i].replaceFirst(pattern,replacement);
-  Vec v=fr.anyVec().makeCopy(doms);
-  return new ValFrame(new Frame(v));
 }
