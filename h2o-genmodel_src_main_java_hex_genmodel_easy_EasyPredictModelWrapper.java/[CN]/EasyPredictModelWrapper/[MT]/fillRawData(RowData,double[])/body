@@ -1,0 +1,40 @@
+{
+  for (  String dataColumnName : data.keySet()) {
+    Integer index=modelColumnNameToIndexMap.get(dataColumnName);
+    if (index == null) {
+      continue;
+    }
+    String[] domainValues=m.getDomainValues(index);
+    if (domainValues == null) {
+      double value;
+      Object o=data.get(dataColumnName);
+      if (o instanceof String) {
+        String s=(String)o;
+        value=Double.parseDouble(s);
+      }
+ else       if (o instanceof Double) {
+        value=(Double)o;
+      }
+ else {
+        throw new PredictUnknownTypeException("Unknown object type " + o.getClass().getName());
+      }
+      rawData[index]=value;
+    }
+ else {
+      Object o=data.get(dataColumnName);
+      if (o instanceof String) {
+        String levelName=(String)o;
+        HashMap<String,Integer> columnDomainMap=domainMap.get(index);
+        Integer levelIndex=columnDomainMap.get(levelName);
+        if (levelIndex == null) {
+          throw new PredictUnknownCategoricalLevelException("Unknown categorical level (" + dataColumnName + ","+ levelName+ ")");
+        }
+        double value=levelIndex;
+        rawData[index]=value;
+      }
+ else {
+        throw new PredictUnknownTypeException("Unknown object type " + o.getClass().getName());
+      }
+    }
+  }
+}
