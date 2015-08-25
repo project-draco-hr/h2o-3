@@ -1,0 +1,36 @@
+{
+  SVDModel model=null;
+  Frame train=null;
+  try {
+    train=parse_test_file(Key.make("arrests.hex"),"smalldata/pca_test/USArrests.csv");
+    SVDModel.SVDParameters parms=new SVDModel.SVDParameters();
+    parms._train=train._key;
+    parms._nv=4;
+    parms._seed=1234;
+    parms._only_v=false;
+    parms._transform=DataInfo.TransformType.NONE;
+    parms._svd_method=SVDParameters.Method.Probabilistic;
+    SVD job=new SVD(parms);
+    try {
+      model=job.trainModel().get();
+    }
+ catch (    Throwable t) {
+      t.printStackTrace();
+      throw new RuntimeException(t);
+    }
+ finally {
+      job.remove();
+    }
+  }
+ catch (  Throwable t) {
+    t.printStackTrace();
+    throw new RuntimeException(t);
+  }
+ finally {
+    if (train != null)     train.delete();
+    if (model != null) {
+      if (model._parms._keep_u)       model._output._u_key.get().delete();
+      model.delete();
+    }
+  }
+}
