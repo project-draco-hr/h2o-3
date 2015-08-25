@@ -12,8 +12,10 @@
   final boolean fast_mode=params._fast_mode;
   final int cols=_previous._a.size();
   double avg_grad2=0;
+  final int idx=row * cols;
   for (int col=0; col < cols; col++) {
-    final int w=linearIndexMatrix(row,col);
+    int w=idx + col;
+    if (_k != 0)     w=_k * w + _maxIncoming[row];
     final double weight=_w.raw()[w];
     if (update_prev)     _previous._e.add(col,partial_grad * weight);
     final double previous_a=_previous._a.get(col);

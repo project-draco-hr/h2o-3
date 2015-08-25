@@ -7,15 +7,17 @@
     if (!training || _dropout == null || _dropout.unit_active(row)) {
       final int cols=_previous._a.size();
       double[] activations=new double[_k];
+      short maxK=0;
       for (short k=0; k < _k; k++) {
         activations[k]=0;
         for (int col=0; col < cols; col++) {
           activations[k]+=_w.raw()[_k * (row * cols + col) + k] * _previous._a.get(col);
         }
         activations[k]+=_b.raw()[_k * row + k];
+        if (activations[k] > activations[maxK])         maxK=k;
       }
-      _maxIncoming[row]=0;
-      _a.set(row,activations[_maxIncoming[row]]);
+      _maxIncoming[row]=maxK;
+      _a.set(row,activations[maxK]);
     }
   }
   compute_sparsity();
