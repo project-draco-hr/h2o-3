@@ -7,7 +7,8 @@
   if (orderby.isEmpty())   orderby=new ASTNumList(0,gbCols.length);
  else   throw H2O.unimpl();
   final int[] ordCols=orderby.expand4();
-  final AGG[] aggs=new AGG[(asts.length - 1) / 3];
+  int naggs=(asts.length - 4) / 3;
+  final AGG[] aggs=new AGG[naggs];
   for (int idx=4; idx < asts.length; idx+=3) {
     FCN fcn=FCN.valueOf(asts[idx].exec(env).getFun().str());
     ASTNumList col=check(ncols,asts[idx + 1]);
@@ -15,7 +16,6 @@
     NAHandling na=NAHandling.valueOf(asts[idx + 2].exec(env).getStr().toUpperCase());
     aggs[(idx - 4) / 3]=new AGG(fcn,(int)col.min(),na);
   }
-  aggs[aggs.length - 1]=new AGG(FCN.nrow,0,NAHandling.ALL);
   long start=System.currentTimeMillis();
   GBTask p1=new GBTask(gbCols,aggs).doAll(fr);
   final G[] grps=p1._gss.keySet().toArray(new G[p1._gss.size()]);
@@ -34,7 +34,7 @@
     }
   }
 );
-  final int nCols=gbCols.length + aggs.length;
+  final int nCols=gbCols.length + naggs;
   String[] names=new String[nCols];
   String[][] domains=new String[nCols][];
   for (int i=0; i < gbCols.length; i++) {
@@ -50,12 +50,11 @@
         G g=grps[i + start];
         int j;
         for (j=0; j < g._gs.length; j++)         ncs[j].addNum(g._gs[j]);
-        for (int a=0; a < aggs.length - 1; a++)         ncs[j++].addNum(aggs[a]._fcn.postPass(g._ds,a));
+        for (int a=0; a < aggs.length; a++)         ncs[j++].addNum(aggs[a]._fcn.postPass(g._ds[a],g._ns[a]));
       }
     }
   }
 .doAll(nCols,v).outputFrame(names,domains);
-  f.remove(nCols - 1).remove();
   v.remove();
   return new ValFrame(f);
 }
