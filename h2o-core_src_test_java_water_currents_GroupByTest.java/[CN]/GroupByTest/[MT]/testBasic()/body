@@ -3,7 +3,16 @@
   String tree="(GB a.hex [1] [] mean 2 \"all\")";
   try {
     fr=checkTree(tree);
-    throw H2O.unimpl();
+    Assert.assertEquals(2,fr.numCols());
+    Assert.assertEquals(23,fr.numRows());
+    Assert.assertEquals(2.0,fr.vec(0).at(0),Math.ulp(1));
+    Assert.assertEquals(3.5,fr.vec(1).at(0),Math.ulp(1));
+    Assert.assertEquals(2.2,fr.vec(0).at(1),Math.ulp(1));
+    Assert.assertEquals(4.5,fr.vec(1).at(1),Math.ulp(1));
+    Assert.assertEquals(2.8,fr.vec(0).at(7),Math.ulp(1));
+    Assert.assertEquals(5.042857142857143,fr.vec(1).at(7),Math.ulp(1));
+    Assert.assertEquals(4.4,fr.vec(0).at(22),Math.ulp(1));
+    Assert.assertEquals(1.5,fr.vec(1).at(22),Math.ulp(1));
   }
   finally {
     if (fr != null)     fr.delete();
