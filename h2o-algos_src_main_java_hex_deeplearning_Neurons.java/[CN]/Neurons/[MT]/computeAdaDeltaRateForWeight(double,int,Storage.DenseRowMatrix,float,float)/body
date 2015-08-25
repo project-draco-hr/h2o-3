@@ -1,6 +1,7 @@
 {
-  ada_dx_g.raw()[2 * w + 1]=(float)(rho * ada_dx_g.raw()[2 * w + 1] + (1 - rho) * grad * grad);
+  final double grad2=grad * grad;
+  ada_dx_g.raw()[2 * w + 1]=(float)(rho * ada_dx_g.raw()[2 * w + 1] + (1 - rho) * grad2);
   final float rate=MathUtils.approxSqrt((ada_dx_g.raw()[2 * w] + eps) / (ada_dx_g.raw()[2 * w + 1] + eps));
-  ada_dx_g.raw()[2 * w]=(float)(rho * ada_dx_g.raw()[2 * w] + (1 - rho) * rate * rate* grad* grad);
+  ada_dx_g.raw()[2 * w]=(float)(rho * ada_dx_g.raw()[2 * w] + (1 - rho) * rate * rate* grad2);
   return rate;
 }

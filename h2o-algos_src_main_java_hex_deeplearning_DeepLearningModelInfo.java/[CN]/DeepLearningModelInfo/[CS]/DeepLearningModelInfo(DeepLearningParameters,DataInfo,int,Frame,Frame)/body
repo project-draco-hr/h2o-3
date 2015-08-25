@@ -56,15 +56,20 @@
       Log.warn("===================================================================================================================================");
     }
   }
+  int[] mult=new int[layers + 1];
+  for (int i=0; i < layers; ++i) {
+    mult[i]=(get_params()._activation == DeepLearningParameters.Activation.Maxout || get_params()._activation == DeepLearningParameters.Activation.MaxoutWithDropout) ? 2 : 1;
+  }
+  mult[layers]=1;
   dense_row_weights=new Storage.DenseRowMatrix[layers + 1];
-  dense_row_weights[0]=new Storage.DenseRowMatrix(units[1],units[0]);
-  for (int i=1; i <= layers; ++i)   dense_row_weights[i]=new Storage.DenseRowMatrix(units[i + 1],units[i]);
+  dense_row_weights[0]=new Storage.DenseRowMatrix(mult[0] * units[1],units[0]);
+  for (int i=1; i <= layers; ++i)   dense_row_weights[i]=new Storage.DenseRowMatrix(mult[i] * units[i + 1],units[i]);
   biases=new Storage.DenseVector[layers + 1];
-  for (int i=0; i <= layers; ++i)   biases[i]=new Storage.DenseVector(units[i + 1]);
+  for (int i=0; i <= layers; ++i)   biases[i]=new Storage.DenseVector(mult[i] * units[i + 1]);
   if (get_params()._autoencoder && get_params()._sparsity_beta > 0) {
     avg_activations=new Storage.DenseVector[layers];
     mean_a=new double[layers];
-    for (int i=0; i < layers; ++i)     avg_activations[i]=new Storage.DenseVector(units[i + 1]);
+    for (int i=0; i < layers; ++i)     avg_activations[i]=new Storage.DenseVector(mult[i] * units[i + 1]);
   }
   allocateHelperArrays();
   mean_rate=new double[units.length - 1];
