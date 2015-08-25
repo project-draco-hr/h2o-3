@@ -3,8 +3,8 @@
   Vec[] vecs=new Vec[ncolA + _parms._nv];
   for (int i=0; i < ncolA; i++)   vecs[i]=dinfo._adaptedFrame.vec(i);
   for (int i=0; i < _parms._nv; i++)   vecs[ncolA + i]=dinfo._adaptedFrame.anyVec().makeZero();
-  Frame aqFr=new Frame(vecs);
-  SMulTask stsk=new SMulTask(ncolA,_ncolExp,model._output._ncats,_parms._nv,model._output._normSub,model._output._normMul,model._output._catOffsets,_parms._use_all_factor_levels).doAll(aqFr);
+  Frame aqfrm=new Frame(vecs);
+  SMulTask stsk=new SMulTask(ncolA,_ncolExp,model._output._ncats,_parms._nv,model._output._normSub,model._output._normMul,model._output._catOffsets,_parms._use_all_factor_levels).doAll(aqfrm);
   double[][] qta=ArrayUtils.transpose(stsk._atq);
   Matrix qtaJ=new Matrix(qta);
   SingularValueDecomposition svdJ=qtaJ.svd();
