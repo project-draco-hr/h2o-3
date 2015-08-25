@@ -1,0 +1,14 @@
+{
+  int totStrLen=0;
+  for (  ValueString dom : domain)   totStrLen+=dom.length();
+  final byte[] packedDom=MemoryManager.malloc1(4 + (domain.length << 2) + totStrLen,false);
+  UnsafeUtils.set4(packedDom,0,domain.length);
+  int i=4;
+  for (  ValueString dom : domain) {
+    UnsafeUtils.set4(packedDom,i,dom.length());
+    i+=4;
+    byte[] buf=dom.getBuffer();
+    for (int j=0; j < buf.length; j++)     packedDom[i++]=buf[j];
+  }
+  return packedDom;
+}
