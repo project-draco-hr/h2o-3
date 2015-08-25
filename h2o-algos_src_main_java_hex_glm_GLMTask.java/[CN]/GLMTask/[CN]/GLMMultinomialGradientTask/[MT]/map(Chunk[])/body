@@ -1,0 +1,37 @@
+{
+  Row row=_dinfo.newDenseRow();
+  final int P=_beta[0].length;
+  double[] exps=MemoryManager.malloc8d(_beta.length);
+  double[] grad=new double[_beta.length * P];
+  for (int r=0; r < chks[0]._len; ++r) {
+    _dinfo.extractDenseRow(chks,r,row);
+    if (row.bad)     continue;
+    double sumExp=0;
+    for (int c=0; c < _beta.length; ++c) {
+      exps[c]=Math.exp(row.innerProduct(_beta[c]));
+      sumExp+=exps[c];
+    }
+    double reg=1.0 / sumExp;
+    for (int c=0; c < _beta.length; ++c) {
+      double val=exps[c] * reg;
+      for (int i=0; i < _dinfo._cats; ++i) {
+        int id=row.binIds[i];
+        grad[c * P + id]-=val;
+      }
+      int off=_dinfo.numStart();
+      for (int i=0; i < _dinfo._nums; ++i) {
+        grad[c * P + i + off]-=row.numVals[i] * val;
+      }
+    }
+    int c=(int)row.response(0);
+    for (int i=0; i < _dinfo._cats; ++i) {
+      int id=row.binIds[i];
+      grad[c * P + id]+=1;
+    }
+    int off=_dinfo.numStart();
+    for (int i=0; i < _dinfo._nums; ++i) {
+      grad[c * P + i + off]+=row.numVals[i];
+    }
+  }
+  _gradient=grad;
+}
