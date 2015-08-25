@@ -1,0 +1,25 @@
+{
+  Frame _fr=DKV.getGet(_frKey);
+  if (!MultiFileParseTask._enums.containsKey(_parseCatMapsKey)) {
+    tryComplete();
+    return;
+  }
+  final Categorical[] parseCatMaps=MultiFileParseTask._enums.get(_parseCatMapsKey);
+  int[][] _nodeOrdMaps=new int[_eColCnt][];
+  int catColIdx=0;
+  for (int colIdx=0; colIdx < parseCatMaps.length; colIdx++) {
+    if (parseCatMaps[colIdx].size() != 0) {
+      _nodeOrdMaps[catColIdx]=MemoryManager.malloc4(parseCatMaps[colIdx].maxId() + 1);
+      Arrays.fill(_nodeOrdMaps[catColIdx],-1);
+      final ValueString[] unifiedDomain=ValueString.toValueString(_fr.vec(colIdx).domain());
+      for (int i=0; i < unifiedDomain.length; i++) {
+        if (parseCatMaps[colIdx].containsKey(unifiedDomain[i])) {
+          _nodeOrdMaps[catColIdx][parseCatMaps[colIdx].getTokenId(unifiedDomain[i])]=i;
+        }
+      }
+      catColIdx++;
+    }
+  }
+  DKV.put(Key.make(_parseCatMapsKey.toString() + "parseCatMapNode" + H2O.SELF.index()),new CategoricalUpdateMap(_nodeOrdMaps));
+  tryComplete();
+}
