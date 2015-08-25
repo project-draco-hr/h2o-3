@@ -1,6 +1,16 @@
 {
   String s=filter.toLowerCase();
-  if (s.startsWith("hdfs:") || s.startsWith("s3:") || s.startsWith("s3n:")|| s.startsWith("s3a:")|| s.startsWith("maprfs:")) {
+  if (s.startsWith("http:") || s.startsWith("https:")) {
+    if (httpUrlExists(filter)) {
+      ArrayList<String> arrayList=new ArrayList<>();
+      arrayList.add(filter);
+      return arrayList;
+    }
+ else {
+      return new ArrayList<>();
+    }
+  }
+ else   if (s.startsWith("hdfs:") || s.startsWith("s3:") || s.startsWith("s3n:")|| s.startsWith("s3a:")|| s.startsWith("maprfs:")) {
     if (I[Value.HDFS] == null) {
       throw new H2OIllegalArgumentException("HDFS, S3, S3N, and S3A support is not configured");
     }
