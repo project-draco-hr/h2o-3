@@ -1,15 +1,15 @@
 {
   IcedHashMap<G,String> gs=new IcedHashMap<>();
-  G gWork=new G(_gbCols.length,_aggs.length);
+  G gWork=new G(_gbCols.length,_aggs);
   G gOld;
   for (int row=0; row < cs[0]._len; row++) {
     gWork.fill(row,cs,_gbCols);
     if (gs.putIfAbsent(gWork,"") == null) {
       gOld=gWork;
-      gWork=new G(_gbCols.length,_aggs.length);
+      gWork=new G(_gbCols.length,_aggs);
     }
  else     gOld=gs.getk(gWork);
     for (int i=0; i < _aggs.length; i++)     _aggs[i].op(gOld._ds,gOld._ns,i,cs[_aggs[i]._col].atd(row));
   }
-  reduce(_gss,gs);
+  reduce(gs);
 }
