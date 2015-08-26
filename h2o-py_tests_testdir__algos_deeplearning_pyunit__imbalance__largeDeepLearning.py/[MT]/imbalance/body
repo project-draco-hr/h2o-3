@@ -6,8 +6,8 @@ def imbalance(ip, port):
     print hh_imbalanced
     hh_balanced = h2o.deeplearning(x=covtype[0:54], y=covtype[54], l1=1e-05, activation='Rectifier', loss='CrossEntropy', hidden=[200, 200], epochs=1, training_frame=covtype, balance_classes=True, reproducible=True, seed=1234)
     print hh_balanced
-    class_6_err_imbalanced = hh_imbalanced.confusion_matrix(covtype).cell_values[5][7]
-    class_6_err_balanced = hh_balanced.confusion_matrix(covtype).cell_values[5][7]
+    class_6_err_imbalanced = hh_imbalanced.logloss()
+    class_6_err_balanced = hh_balanced.logloss()
     if (class_6_err_imbalanced < class_6_err_balanced):
         print '--------------------'
         print ''
