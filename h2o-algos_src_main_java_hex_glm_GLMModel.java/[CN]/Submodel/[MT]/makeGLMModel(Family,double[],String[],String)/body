@@ -6,7 +6,7 @@
   parms._standardize=false;
   parms._prior=-1;
   parms._train=null;
-  GLMModel m=new GLMModel(Key.make(),parms,null,fam == Family.binomial ? .5 : 0,Double.NaN,Double.NaN,-1,false,false);
+  GLMModel m=fam == Family.multinomial ? new GLMModelMultinomial(Key.make(),parms,null,0,Double.NaN,Double.NaN,-1,false,false) : new GLMModel(Key.make(),parms,null,fam == Family.binomial ? .5 : 0,Double.NaN,Double.NaN,-1,false,false);
   predictors=ArrayUtils.append(predictors,new String[]{response});
   m._output._names=predictors;
   m._output._coefficient_names=predictors;

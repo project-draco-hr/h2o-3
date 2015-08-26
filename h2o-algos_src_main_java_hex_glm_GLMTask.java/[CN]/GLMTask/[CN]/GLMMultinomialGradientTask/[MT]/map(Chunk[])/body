@@ -1,19 +1,32 @@
 {
+  int rank=0;
+  Chunk rowFilter=_rowFilter != null ? _rowFilter.chunkForChunkIdx(chks[0].cidx()) : new C0DChunk(0,chks[0]._len);
+  for (int i=0; i < _beta.length; ++i)   for (int j=0; j < _beta[i].length; ++j)   if (_beta[i][j] != 0)   ++rank;
+  _val=new GLMValidation(_dinfo._adaptedFrame.lastVec().domain(),0,new GLMParameters(Family.multinomial),rank,0,_validate);
   Row row=_dinfo.newDenseRow();
   final int P=_beta[0].length;
   double[] exps=MemoryManager.malloc8d(_beta.length);
   double[] grad=new double[_beta.length * P];
   for (int r=0; r < chks[0]._len; ++r) {
+    if (rowFilter.at8(r) == 1)     continue;
     _dinfo.extractDenseRow(chks,r,row);
     if (row.bad)     continue;
+    int y=(int)row.response(0);
+    ++_nobs;
+    _wsum+=row.weight;
     double sumExp=0;
     for (int c=0; c < _beta.length; ++c) {
       exps[c]=Math.exp(row.innerProduct(_beta[c]));
       sumExp+=exps[c];
     }
+    sumExp=Math.max(Double.MIN_NORMAL,sumExp);
+    double l=-row.innerProduct(_beta[y]) - Math.log(sumExp);
+    if (Double.isInfinite(l))     System.out.println("haha");
+    _val.add(Double.NaN,row.weight * .5 * l,Double.NaN,Double.NaN);
+    _likelihood+=l;
     double reg=1.0 / sumExp;
     for (int c=0; c < _beta.length; ++c) {
-      double val=exps[c] * reg;
+      double val=row.weight * exps[c] * reg;
       for (int i=0; i < _dinfo._cats; ++i) {
         int id=row.binIds[i];
         grad[c * P + id]-=val;
@@ -23,14 +36,13 @@
         grad[c * P + i + off]-=row.numVals[i] * val;
       }
     }
-    int c=(int)row.response(0);
     for (int i=0; i < _dinfo._cats; ++i) {
       int id=row.binIds[i];
-      grad[c * P + id]+=1;
+      grad[y * P + id]+=row.weight;
     }
     int off=_dinfo.numStart();
     for (int i=0; i < _dinfo._nums; ++i) {
-      grad[c * P + i + off]+=row.numVals[i];
+      grad[y * P + i + off]+=row.weight * row.numVals[i];
     }
   }
   _gradient=grad;

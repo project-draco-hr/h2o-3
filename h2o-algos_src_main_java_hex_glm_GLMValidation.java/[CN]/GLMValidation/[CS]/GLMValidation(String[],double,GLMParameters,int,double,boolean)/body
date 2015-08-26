@@ -1,0 +1,22 @@
+{
+  super(domain);
+  _rank=rank;
+  _parms=parms;
+  _threshold=threshold;
+  _computeMetrics=computeMetrics;
+  _ymu=parms._intercept ? ymu : parms._family == Family.binomial ? .5 : 0;
+  _ymuLink=_parms.link(ymu);
+  if (_computeMetrics) {
+switch (_parms._family) {
+case binomial:
+      _metricBuilder=new MetricBuilderBinomial(domain);
+    break;
+case multinomial:
+  _metricBuilder=new MetricBuilderMultinomial(domain.length,domain);
+break;
+default :
+_metricBuilder=new MetricBuilderRegression();
+break;
+}
+}
+}

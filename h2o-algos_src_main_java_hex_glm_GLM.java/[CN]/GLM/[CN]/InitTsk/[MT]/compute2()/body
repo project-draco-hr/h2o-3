@@ -1,10 +1,10 @@
 {
-  new YMUTask(_dinfo,_dinfo._adaptedFrame.anyVec().makeZero(),new H2OCallback<YMUTask>(this){
+  new YMUTask(_dinfo,_dinfo._adaptedFrame.anyVec().makeZero(),nclasses(),new H2OCallback<YMUTask>(this){
     @Override public void callback(    final YMUTask ymut){
       _rowFilter=ymut._fVec;
-      _ymu=_parms._intercept ? ymut._ymu : 0;
+      _yMu=_parms._intercept ? ymut._yMu : new double[nclasses()];
       _wsum=ymut._wsum;
-      _ymuLink=_parms._intercept ? _parms.link(_ymu) : 0;
+      _ymuLink=(_parms._intercept && _parms._family != Family.multinomial) ? _parms.link(_yMu[0]) : 0;
       _yMin=ymut._yMin;
       _yMax=ymut._yMax;
       _nobs=ymut._nobs;
