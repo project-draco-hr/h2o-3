@@ -43,6 +43,6 @@ def weights_vi(ip, port):
     [combined_dataset_python.append(r) for r in dataset2_python_weighted]
     combined_dataset_h2o = h2o.H2OFrame(python_obj=combined_dataset_python)
     combined_dataset_h2o.setNames(['response', 'p1', 'p2', 'p3', 'weights'])
-    model_combined_dataset = h2o.deeplearning(x=combined_dataset_h2o[['p1', 'p2', 'p3']], y=combined_dataset_h2o['response'], training_frame=combined_dataset_h2o, variable_importances=True, weights_column='weights', hidden=[1], reproducible=True, seed=1234, activation='Tanh')
+    model_combined_dataset = h2o.deeplearning(x=combined_dataset_h2o[['p1', 'p2', 'p3']], y=combined_dataset_h2o['response'], training_frame=combined_dataset_h2o, variable_importances=True, weights_column='weights', hidden=[1], reproducible=True, seed=123, activation='Tanh')
     varimp_combined = tuple([p[0] for p in model_combined_dataset.varimp(return_list=True)])
     assert (varimp_combined == ('p3', 'p1', 'p2')), "Expected the following relative variable importance on the combined dataset: ('p3', 'p1', 'p2'), but got: {0}".format(varimp_combined)

@@ -1,0 +1,15 @@
+{
+  Vec foldVec=e.popAry().anyVec().makeZero();
+  if (_seed == -1)   _seed=new Random().nextLong();
+  new MRTask(){
+    @Override public void map(    Chunk c){
+      long start=c.start();
+      for (int i=0; i < c._len; ++i) {
+        int fold=Math.abs(getRNG(start + _seed + i).nextInt()) % _nfolds;
+        c.set(i,fold);
+      }
+    }
+  }
+.doAll(foldVec);
+  e.pushAry(new Frame(foldVec));
+}
