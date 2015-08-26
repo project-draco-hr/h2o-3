@@ -1,7 +1,7 @@
 {
   _mtry=(_parms._mtries == -1) ? (isClassifier() ? Math.max((int)Math.sqrt(_ncols),1) : Math.max(_ncols / 3,1)) : _parms._mtries;
   int ntreesFromCheckpoint=_parms.hasCheckpoint() ? ((SharedTreeModel.SharedTreeParameters)_parms._checkpoint.<SharedTreeModel>get()._parms)._ntrees : 0;
-  if (!(1 <= _mtry && _mtry <= _ncols))   throw new IllegalArgumentException("Computed mtry should be in interval <1,#cols> but it is " + _mtry);
+  if (!(1 <= _mtry && _mtry <= _ncols))   throw new IllegalArgumentException("Computed mtry should be in interval <1," + _ncols + "> but it is "+ _mtry);
   initTreeMeasurements();
   _train.add("OUT_BAG_TREES",_response.makeZero());
   new SetWrkTask().doAll(_train);
