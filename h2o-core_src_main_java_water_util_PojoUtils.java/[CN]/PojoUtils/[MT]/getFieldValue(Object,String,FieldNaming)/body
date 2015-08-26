@@ -1,0 +1,14 @@
+{
+  if (o == null)   throw new IllegalArgumentException("Cannot get the field from null object!");
+  String destName=fieldNaming.toDest(name);
+  try {
+    Field f=o.getClass().getField(destName);
+    return f.get(o);
+  }
+ catch (  NoSuchFieldException e) {
+    throw new IllegalArgumentException("Field not found: '" + name + "/"+ destName+ "' on object "+ o);
+  }
+catch (  IllegalAccessException e) {
+    throw new IllegalArgumentException("Cannot get value of the field: '" + name + "/"+ destName+ "' on object "+ o);
+  }
+}
