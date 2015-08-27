@@ -1,0 +1,20 @@
+{
+  System.out.println("Validate DRFParameters object with testcase: " + rawInput.get(CommonHeaders.testcase_id));
+  String result=null;
+  if (StringUtils.isEmpty(train_dataset_id)) {
+    result="In testcase, train dataset id is empty";
+  }
+ else   if (train_dataset == null) {
+    result=String.format("Dataset id %s do not have in dataset characteristic",train_dataset_id);
+  }
+ else   if (!train_dataset.isAvailabel()) {
+    result="Dataset characteristic is not available";
+  }
+ else {
+    result=Param.validateAutoSetParams(params,rawInput);
+  }
+  if (result != null) {
+    result="[INVALID] " + result;
+  }
+  return result;
+}
