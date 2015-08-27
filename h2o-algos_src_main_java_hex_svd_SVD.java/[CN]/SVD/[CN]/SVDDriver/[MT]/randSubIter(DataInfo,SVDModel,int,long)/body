@@ -26,7 +26,6 @@
     Arrays.fill(normMulY,1.0);
     QRfromChol qrtsk=new QRfromChol(chol,gtsk._nobs,_parms._nv,_parms._nv,normSubY,normMulY);
     qrtsk.doAll(yqfrm);
-    System.out.println(qrtsk._err);
     int iters=0;
     long qobs=dinfo._adaptedFrame.numRows() * _parms._nv;
     while (qrtsk._err / qobs > TOLERANCE && iters < max_iterations) {
@@ -44,7 +43,6 @@
       qrtsk=new QRfromChol(chol,gtsk._nobs,_parms._nv,_parms._nv,normSubY,normMulY);
       qrtsk.doAll(yqfrm);
       iters++;
-      System.out.println(qrtsk._err);
     }
     qfrm=ayqfrm.extractFrame(ncolA + _parms._nv,ayqfrm.numCols());
     qfrm=new Frame(Key.make(),qfrm.names(),qfrm.vecs());
