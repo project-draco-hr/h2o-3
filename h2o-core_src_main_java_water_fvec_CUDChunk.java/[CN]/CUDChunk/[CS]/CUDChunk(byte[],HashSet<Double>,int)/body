@@ -2,16 +2,17 @@
   numUniques=hs.size();
   set_len(len);
   _mem=MemoryManager.malloc1(computeByteSize(numUniques,_len),false);
+  UnsafeUtils.set4(_mem,0,_len);
+  UnsafeUtils.set4(_mem,4,numUniques);
   int j=0;
-  for (  Double d : hs)   UnsafeUtils.set8d(_mem,j++ << 3,d);
+  for (  Double d : hs)   UnsafeUtils.set8d(_mem,8 + (j++ << 3),d);
   for (int i=0; i < len; ++i) {
     double d=UnsafeUtils.get8d(bs,i << 3);
     int pos=-1;
-    for (j=0; j < numUniques; ++j)     if (Double.compare(d,UnsafeUtils.get8d(_mem,j << 3)) == 0)     pos=j;
+    for (j=0; j < numUniques; ++j)     if (Double.compare(d,UnsafeUtils.get8d(_mem,8 + (j << 3))) == 0)     pos=j;
     assert(pos >= 0);
     assert((byte)pos == pos);
-    UnsafeUtils.set1(_mem,(numUniques << 3) + i,(byte)pos);
+    UnsafeUtils.set1(_mem,8 + (numUniques << 3) + i,(byte)pos);
   }
-  UnsafeUtils.set4(_mem,(numUniques << 3) + len,numUniques);
   _start=-1;
 }
