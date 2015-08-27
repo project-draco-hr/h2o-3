@@ -3,6 +3,7 @@
   Frame yinit=null, ybig=null, qfrm=null, ayqfrm=null;
   final int ncolA=dinfo._adaptedFrame.numCols();
   try {
+    update(1,"Initializing random subspace of training data Y");
     double[][] gt=ArrayUtils.gaussianArray(_parms._nv,_ncolExp,seed);
     RandSubInit rtsk=new RandSubInit(self(),dinfo,gt);
     rtsk.doAll(_parms._nv,dinfo._adaptedFrame);
@@ -15,6 +16,7 @@
     Frame aqfrm=ayqfrm.subframe(0,ncolA);
     aqfrm.add(ayqfrm.subframe(ncolA + _parms._nv,ayqfrm.numCols()));
     ybig=ayfrm.subframe(ncolA,ayfrm.numCols());
+    update(1,"Computing QR factorization of Y");
     yinfo=new DataInfo(Key.make(),ybig,null,true,DataInfo.TransformType.NONE,true,false,false);
     DKV.put(yinfo._key,yinfo);
     GramTask gtsk=new GramTask(self(),yinfo);
@@ -29,6 +31,7 @@
     int iters=0;
     long qobs=dinfo._adaptedFrame.numRows() * _parms._nv;
     while (qrtsk._err / qobs > TOLERANCE && iters < max_iterations) {
+      update(1,"Iteration " + String.valueOf(iters + 1) + " of randomized subspace iteration");
       SMulTask stsk=new SMulTask(ncolA,_ncolExp,model._output._ncats,_parms._nv,model._output._normSub,model._output._normMul,model._output._catOffsets,_parms._use_all_factor_levels);
       stsk.doAll(aqfrm);
       Matrix ysmall=new Matrix(stsk._atq);

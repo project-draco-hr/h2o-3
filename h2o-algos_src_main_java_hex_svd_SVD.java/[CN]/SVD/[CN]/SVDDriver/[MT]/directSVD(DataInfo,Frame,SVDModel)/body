@@ -7,11 +7,14 @@
     for (int i=0; i < ncolA; i++)     vecs[i]=dinfo._adaptedFrame.vec(i);
     for (int i=0; i < _parms._nv; i++)     vecs[ncolA + i]=qfrm.vec(i);
     Frame aqfrm=new Frame(vecs);
+    update(1,"Forming small matrix B = Q'A for direct SVD");
     SMulTask stsk=new SMulTask(ncolA,_ncolExp,model._output._ncats,_parms._nv,model._output._normSub,model._output._normMul,model._output._catOffsets,_parms._use_all_factor_levels);
     stsk.doAll(aqfrm);
     double[][] qta=ArrayUtils.transpose(stsk._atq);
+    update(1,"Calculating SVD of small matrix locally");
     Matrix qtaJ=new Matrix(qta);
     SingularValueDecomposition svdJ=qtaJ.svd();
+    update(1,"Forming distributed orthonormal matrix U");
     if (!_parms._only_v && _parms._keep_u) {
       model._output._u_key=Key.make(_parms._u_name);
       double[][] svdJ_u=svdJ.getU().getArray();
