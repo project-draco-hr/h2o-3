@@ -1,15 +1,16 @@
 {
-  if (!folder.canRead())   return;
-  File[] files=folder.listFiles();
+  if (!path.canRead())   return;
+  File[] files=path.listFiles();
   if (files != null) {
     for (    File f : files) {
       if (!f.canRead())       continue;
-      if (f.isHidden() && !folder.isHidden())       continue;
+      if (f.length() == 0)       continue;
+      if (f.isHidden() && !path.isHidden())       continue;
       if (f.isDirectory())       addFolder(f,filesInProgress);
  else       filesInProgress.add(f);
     }
   }
- else {
-    filesInProgress.add(folder);
+ else   if (path.length() > 0) {
+    filesInProgress.add(path);
   }
 }
