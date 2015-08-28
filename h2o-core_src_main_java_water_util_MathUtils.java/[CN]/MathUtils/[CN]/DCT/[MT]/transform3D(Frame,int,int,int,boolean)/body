@@ -1,0 +1,15 @@
+{
+  initCheck(input,height,width,depth);
+  return new MRTask(){
+    @Override public void map(    Chunk[] cs,    NewChunk[] ncs){
+      double[][][] a=new double[height][width][depth];
+      for (int row=0; row < cs[0]._len; ++row) {
+        for (int i=0; i < height; ++i)         for (int j=0; j < width; ++j)         for (int k=0; k < depth; ++k)         a[i][j][k]=cs[i * (width * depth) + j * depth + k].atd(row);
+        if (!inverse)         new DoubleDCT_3D(height,width,depth).forward(a,true);
+ else         new DoubleDCT_3D(height,width,depth).inverse(a,true);
+        for (int i=0; i < height; ++i)         for (int j=0; j < width; ++j)         for (int k=0; k < depth; ++k)         ncs[i].addNum(a[i][j][k]);
+      }
+    }
+  }
+.doAll(input.numCols(),input).outputFrame();
+}

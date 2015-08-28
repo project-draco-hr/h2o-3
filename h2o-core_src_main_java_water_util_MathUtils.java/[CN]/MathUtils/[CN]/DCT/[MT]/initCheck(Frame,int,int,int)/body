@@ -1,0 +1,9 @@
+{
+  ConcurrencyUtils.setNumberOfThreads(1);
+  if (width < 1 || height < 1 || depth < 1)   throw new H2OIllegalArgumentException("dimensions must be >= 1");
+  if (width * height * depth != input.numCols())   throw new H2OIllegalArgumentException("dimensions HxWxD must match the # columns of the frame");
+  for (  Vec v : input.vecs()) {
+    if (v.naCnt() > 0)     throw new H2OIllegalArgumentException("DCT can not be computed on rows with missing values");
+    if (!v.isNumeric())     throw new H2OIllegalArgumentException("DCT can only be computed on numeric columns");
+  }
+}
