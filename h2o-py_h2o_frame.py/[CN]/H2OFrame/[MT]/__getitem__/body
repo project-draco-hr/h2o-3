@@ -3,7 +3,7 @@ def __getitem__(self, item):
     if isinstance(item, (int, str, unicode, list)):
         return H2OFrame(expr=ExprNode('cols', self, item))
     elif isinstance(item, slice):
-        item = slice(item.start, min(self.ncol(), item.stop))
+        item = slice(item.start, min(self.ncol, item.stop))
         return H2OFrame(expr=ExprNode('cols', self, item))
     elif isinstance(item, H2OFrame):
         return H2OFrame(expr=ExprNode('rows', self, item))

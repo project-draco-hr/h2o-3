@@ -3,9 +3,9 @@ def all_confusion_matrix_funcs(ip, port):
     train = [True, False]
     valid = [True, False]
     print 'PARSING TRAINING DATA'
-    air_train = h2o.import_frame(path=h2o.locate('smalldata/airlines/AirlinesTrain.csv.zip'))
+    air_train = h2o.import_file(path=h2o.locate('smalldata/airlines/AirlinesTrain.csv.zip'))
     print 'PARSING TESTING DATA'
-    air_test = h2o.import_frame(path=h2o.locate('smalldata/airlines/AirlinesTest.csv.zip'))
+    air_test = h2o.import_file(path=h2o.locate('smalldata/airlines/AirlinesTest.csv.zip'))
     print 
     print 'RUNNING FIRST GBM: '
     print 
@@ -23,9 +23,9 @@ def all_confusion_matrix_funcs(ip, port):
 
     def count_check(cm, m, t, v):
         if v:
-            assert ((((cm[0][0] + cm[0][1]) + cm[1][0]) + cm[1][1]) == air_test.nrow()), 'incorrect confusion matrix elements: {0}, {1}, {2}, {3}. Should sum to {4}. metric/thresh: {5}, train: {6}, valid: {7}'.format(cm[0][0], cm[0][1], cm[1][0], cm[1][1], air_test.nrow(), m, t, v)
+            assert ((((cm[0][0] + cm[0][1]) + cm[1][0]) + cm[1][1]) == air_test.nrow), 'incorrect confusion matrix elements: {0}, {1}, {2}, {3}. Should sum to {4}. metric/thresh: {5}, train: {6}, valid: {7}'.format(cm[0][0], cm[0][1], cm[1][0], cm[1][1], air_test.nrow, m, t, v)
         else:
-            assert ((((cm[0][0] + cm[0][1]) + cm[1][0]) + cm[1][1]) == air_train.nrow()), 'incorrect confusion matrix elements: {0}, {1}, {2}, {3}. Should sum to {4}. metric/thresh: {5}, train: {6}, valid: {7}'.format(cm[0][0], cm[0][1], cm[1][0], cm[1][1], air_train.nrow(), m, t, v)
+            assert ((((cm[0][0] + cm[0][1]) + cm[1][0]) + cm[1][1]) == air_train.nrow), 'incorrect confusion matrix elements: {0}, {1}, {2}, {3}. Should sum to {4}. metric/thresh: {5}, train: {6}, valid: {7}'.format(cm[0][0], cm[0][1], cm[1][0], cm[1][1], air_train.nrow, m, t, v)
     for m in metrics:
         for t in train:
             for v in valid:
@@ -56,7 +56,7 @@ def all_confusion_matrix_funcs(ip, port):
     for r in range(7):
         for c in range(7):
             cm_count += cm.cell_values[r][c]
-    assert (cm_count == air_test.nrow()), 'incorrect confusion matrix elements. Should sum to {0}, but got {1}'.format(air_test.nrow(), cm_count)
+    assert (cm_count == air_test.nrow), 'incorrect confusion matrix elements. Should sum to {0}, but got {1}'.format(air_test.nrow, cm_count)
     bin_perf = gbm_bin.model_performance(valid=True)
     for metric in metrics:
         cm = bin_perf.confusion_matrix(metrics=metric).to_list()
@@ -80,4 +80,4 @@ def all_confusion_matrix_funcs(ip, port):
     for r in range(7):
         for c in range(7):
             cm_count += cm.cell_values[r][c]
-    assert (cm_count == air_test.nrow()), 'incorrect confusion matrix elements. Should sum to {0}, but got {1}'.format(air_test.nrow(), cm_count)
+    assert (cm_count == air_test.nrow), 'incorrect confusion matrix elements. Should sum to {0}, but got {1}'.format(air_test.nrow, cm_count)

@@ -1,12 +1,11 @@
-def head(self, rows=10, cols=200, show=False, **kwargs):
-    "\n    Analgous to R's `head` call on a data.frame. Display a digestible chunk of the H2OFrame starting from the beginning.\n\n    :param rows: Number of rows to display.\n    :param cols: Number of columns to display.\n    :param show: Display the output.\n    :param kwargs: Extra arguments passed from other methods.\n    :return: None\n    "
+def head(self, rows=10, cols=200, show=False, as_pandas=False):
+    "\n    Analgous to R's `head` call on a data.frame. Display a digestible chunk of the H2OFrame starting from the beginning.\n\n    :param rows: Number of rows to display.\n    :param cols: Number of columns to display.\n    :param show: Display the output.\n    :param as_pandas: Display with pandas frame.\n    :return: None\n    "
     self._eager()
-    nrows = min(self.nrow(), rows)
-    ncols = min(self.ncol(), cols)
-    colnames = self.names()[0:ncols]
-    head = self[0:10, 0:ncols]
-    res = head.as_data_frame(False)[1:]
+    nrows = min(self.nrow, rows)
+    ncols = min(self.ncol, cols)
+    colnames = self.names[:ncols]
+    head = self[0:nrows, 0:ncols]
+    res = head.as_data_frame(as_pandas)[1:]
     if show:
-        print 'First {} rows and first {} columns: '.format(nrows, ncols)
-        h2o.H2ODisplay(res, colnames)
-    return head
+        self._do_show(as_pandas, res, colnames)
+    return (res if as_pandas else head)

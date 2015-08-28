@@ -1,0 +1,8 @@
+def lazy_import(path):
+    '\n  Import a single file or collection of files.\n\n  :param path: A path to a data file (remote or local).\n  :return: A new H2OFrame\n  '
+    if isinstance(path, (list, tuple)):
+        return [_import(p)[0] for p in path]
+    elif os.path.isdir(path):
+        return _import(path)
+    else:
+        return [_import(path)[0]]
