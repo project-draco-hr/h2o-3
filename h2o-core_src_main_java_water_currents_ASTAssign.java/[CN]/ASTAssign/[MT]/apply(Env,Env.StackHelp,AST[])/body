@@ -3,9 +3,9 @@
   Val vsrc=stk.track(asts[2].exec(env));
   ASTNumList cols=check(dst.numCols(),asts[3]);
   if (cols.cnt() == 1 && cols.max() - 1 == dst.numCols()) {
+    String newColName=asts.length == 6 ? asts[5].exec(env).getStr() : Frame.defaultColName(dst.numCols());
     dst=new Frame(dst._names.clone(),dst.vecs().clone());
-    dst.add(asts[5].exec(env).getStr(),dst.anyVec().makeCon(Double.NaN));
-    if (asts.length != 6)     throw new IllegalArgumentException("assign requires args (= dst src col_expr row_expr \"colname\")");
+    dst.add(newColName,dst.anyVec().makeCon(Double.NaN));
   }
  else {
     if (asts.length != 5)     throw new IllegalArgumentException("assign requires args (= dst src col_expr row_expr)");

@@ -1,7 +1,7 @@
 def impute(self, column, method='mean', combine_method='interpolate', by=None, inplace=True):
     '\n    Impute a column in this H2OFrame.\n\n    :param column: The column to impute\n    :param method: How to compute the imputation value.\n    :param combine_method: For even samples and method="median", how to combine quantiles.\n    :param by: Columns to group-by for computing imputation value per groups of columns.\n    :param inplace: Impute inplace?\n    :return: the imputed frame.\n    '
-    if isinstance(column, (str, unicode)):
+    if isinstance(column, basestring):
         column = self._find_idx(column)
-    if isinstance(by, (str, unicode)):
+    if isinstance(by, basestring):
         by = self._find_idx(by)
     return H2OFrame(expr=ExprNode('h2o.impute', self, column, method, combine_method, by, inplace))._frame()
