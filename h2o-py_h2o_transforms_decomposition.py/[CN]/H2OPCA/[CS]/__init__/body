@@ -1,0 +1,6 @@
+def __init__(self, n_components=None, max_iterations=None, seed=None, use_all_factor_levels=False, pca_method=('GramSVD', 'Power', 'GLRM')):
+    '\n    :param n_components: The number of components to compute.\n    :param max_iterations: Max iterations in each power loop. Capped at 1e6.\n    :param seed: Used for initializing right singular vectors at the start of each power iteration.\n    :param use_all_factor_levels: A boolean value indicating whether all factor levels should be\n           included in each categorical column expansion. If FALSE, the indicator column\n           correpsonding to the first level of every categorical variable will be dropped.\n    :param pca_method: Method used to compute PCA. Power and GLRM are still experimental.\n    :return: An instance of H2OPCA transform.\n    '
+    self.parms = locals()
+    self.parms = {k: v for (k, v) in self.parms.iteritems() if (k != 'self')}
+    self.parms['pca_method'] = ('GramSVD' if isinstance(pca_method, tuple) else pca_method)
+    self.pca_model = None

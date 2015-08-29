@@ -3,5 +3,7 @@ def pop(self, i):
     if isinstance(i, basestring):
         i = self._find_idx(i)
     col = H2OFrame(expr=ExprNode('pop', self, i))._frame()
+    if self._keep:
+        col.keep()
     self._update()
     return col
