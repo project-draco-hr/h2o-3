@@ -1,9 +1,8 @@
 {
   if (env.isNum())   return;
   Frame fr=env.popAry();
-  if (fr.numCols() > 1 && fr.numRows() > 1)   throw new IllegalArgumentException("mean does not apply to multiple cols.");
-  for (  Vec v : fr.vecs())   if (v.isEnum())   throw new IllegalArgumentException("mean only applies to numeric vector.");
-  if (fr.numCols() > 1) {
+  for (  Vec v : fr.vecs())   if (v.isEnum())   throw new IllegalArgumentException("mean only applies to numeric columns.");
+  if (fr.numCols() > 1 && fr.numRows() == 1) {
     double mean=0;
     double rows=0;
     for (    Vec v : fr.vecs()) {
@@ -14,6 +13,19 @@
       }
     }
     env.push(new ValNum(mean / rows));
+  }
+ else   if (fr.numCols() > 1) {
+    Futures fs=new Futures();
+    Key key=Vec.VectorGroup.VG_LEN1.addVecs(1)[0];
+    AppendableVec v=new AppendableVec(key);
+    NewChunk chunk=new NewChunk(v,0);
+    for (int i=0; i < fr.numCols(); ++i)     chunk.addNum(fr.vec(i).mean());
+    chunk.close(0,fs);
+    Vec vec=v.close(fs);
+    fs.blockForPending();
+    Frame fr2=new Frame(Key.make(),new String[]{"C1"},new Vec[]{vec});
+    DKV.put(fr2);
+    env.pushAry(fr2);
   }
  else {
     Vec v=fr.anyVec();

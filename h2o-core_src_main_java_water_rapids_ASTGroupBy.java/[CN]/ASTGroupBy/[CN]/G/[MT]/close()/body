@@ -1,8 +1,15 @@
 {
+  _avs=_sum == null ? null : new double[_NAMethod.length];
+  _vars=(_sum == null || _ss == null) ? null : new double[_avs.length];
+  _sdevs=_vars == null ? null : new double[_vars.length];
   for (int i=0; i < _NAMethod.length; ++i) {
     long n=_NAMethod[i] == AGG.T_RM ? _N - _NA[i] : _N;
-    _avs[i]=_sum[i] / n;
-    _vars[i]=(_ss[i] - (_sum[i] * _sum[i]) / n) / n;
-    _sdevs[i]=Math.sqrt(_vars[i]);
+    if (_avs != null)     _avs[i]=_sum[i] / n;
+    if (_vars != null)     _vars[i]=(_ss[i] - (_sum[i] * _sum[i]) / n) / n;
+    if (_sdevs != null)     _sdevs[i]=Math.sqrt(_vars[i]);
+  }
+  if (_m != null && _aggs != null) {
+    _mode=new String[_NAMethod.length];
+    for (int i=0; i < _m.length; ++i)     if (_m[i] != null)     _mode[i]=_aggs[i]._domainsForMode[ArrayUtils.maxIndex(_m[i])];
   }
 }
