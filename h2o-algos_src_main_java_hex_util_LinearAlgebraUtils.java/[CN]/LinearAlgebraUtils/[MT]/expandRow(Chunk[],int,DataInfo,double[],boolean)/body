@@ -12,10 +12,8 @@
   int chk_cnt=dinfo._cats;
   int exp_cnt=dinfo.numStart();
   for (int col=0; col < dinfo._nums; col++) {
-    double x=chks[chk_cnt].atd(row_in_chunk);
-    if (Double.isNaN(x) && dinfo._imputeMissing)     x=dinfo._numMeans[col];
-    if (dinfo._normSub != null && dinfo._normMul != null)     x=(x - dinfo._normSub[col]) * dinfo._normMul[col];
-    tmp[exp_cnt]=x;
+    double x=chks[col].atd(row_in_chunk);
+    tmp[exp_cnt]=modify_numeric ? modifyNumeric(x,col,dinfo) : x;
     exp_cnt++;
     chk_cnt++;
   }

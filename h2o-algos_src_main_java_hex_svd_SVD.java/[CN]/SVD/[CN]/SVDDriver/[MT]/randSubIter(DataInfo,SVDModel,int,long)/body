@@ -29,7 +29,7 @@
     long qobs=dinfo._adaptedFrame.numRows() * _parms._nv;
     while (qrtsk._err / qobs > TOLERANCE && iters < max_iterations) {
       update(1,"Iteration " + String.valueOf(iters + 1) + " of randomized subspace iteration");
-      SMulTask stsk=new SMulTask(ncolA,_ncolExp,model._output._ncats,_parms._nv,model._output._normSub,model._output._normMul,model._output._catOffsets,_parms._use_all_factor_levels);
+      SMulTask stsk=new SMulTask(dinfo,_parms._nv);
       stsk.doAll(aqfrm);
       Matrix ysmall=new Matrix(stsk._atq);
       QRDecomposition ysmall_qr=new QRDecomposition(ysmall);
