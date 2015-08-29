@@ -1,3 +1,10 @@
 def _scalar(self):
     self._eager()
-    return H2OFrame._get_scalar(self._data)
+    if (self._data is None):
+        res = self.as_data_frame(False)[1:]
+        if (len(res) == 1):
+            return H2OFrame._get_scalar(res[0][0])
+        else:
+            return [H2OFrame._get_scalar(r[0]) for r in res]
+    else:
+        return H2OFrame._get_scalar(self._data)

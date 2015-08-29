@@ -1,0 +1,9 @@
+{
+  Frame fr=stk.track(asts[1].exec(env)).getFrame();
+  if (fr.numCols() == 1)   return new ValStr(fr.anyVec().isString() ? "TRUE" : "FALSE");
+  double ds[]=new double[fr.numCols()];
+  for (int i=0; i < fr.numCols(); i++)   ds[i]=fr.vec(i).isString() ? 1 : 0;
+  Vec vec=Vec.makeVec(ds,fr.anyVec().group().addVec());
+  vec.setDomain(new String[]{"TRUE","FALSE"});
+  return new ValFrame(new Frame(new String[]{"is.character"},new Vec[]{vec}));
+}
