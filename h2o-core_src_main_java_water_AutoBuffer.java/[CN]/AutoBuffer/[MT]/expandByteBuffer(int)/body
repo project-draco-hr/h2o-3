@@ -1,0 +1,16 @@
+{
+  int needed=sizeHint - _bb.remaining() + _bb.capacity();
+  if ((_h2o == null && _chan == null) || (_bb.hasArray() && needed < MTU)) {
+    byte[] ary=_bb.array();
+    int newLen=1 << (water.util.MathUtils.log2(needed) + 1);
+    int oldpos=_bb.position();
+    _bb=ByteBuffer.wrap(MemoryManager.arrayCopyOfRange(ary,0,newLen),oldpos,newLen - oldpos).order(ByteOrder.nativeOrder());
+  }
+ else {
+    int oldPos=_bb.position();
+    _bb.flip();
+    _bb=BBP_BIG.make().put(_bb);
+    _bb.position(oldPos);
+  }
+  return _bb;
+}
