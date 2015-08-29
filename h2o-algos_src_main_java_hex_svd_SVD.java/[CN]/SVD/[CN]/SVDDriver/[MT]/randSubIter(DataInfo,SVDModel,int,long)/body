@@ -23,10 +23,7 @@
     gtsk.doAll(yinfo._adaptedFrame);
     Matrix ygram=new Matrix(gtsk._gram.getXX());
     CholeskyDecomposition chol=new CholeskyDecomposition(ygram);
-    double[] normSubY=new double[_parms._nv];
-    double[] normMulY=new double[_parms._nv];
-    Arrays.fill(normMulY,1.0);
-    QRfromChol qrtsk=new QRfromChol(chol,gtsk._nobs,_parms._nv,_parms._nv,normSubY,normMulY);
+    QRfromChol qrtsk=new QRfromChol(yinfo,chol,gtsk._nobs,_parms._nv);
     qrtsk.doAll(yqfrm);
     int iters=0;
     long qobs=dinfo._adaptedFrame.numRows() * _parms._nv;
@@ -37,13 +34,13 @@
       Matrix ysmall=new Matrix(stsk._atq);
       QRDecomposition ysmall_qr=new QRDecomposition(ysmall);
       double[][] ysmall_q=ysmall_qr.getQ().getArray();
-      BMulInPlaceTask tsk=new BMulInPlaceTask(ArrayUtils.transpose(ysmall_q),ncolA,_ncolExp,model._output._ncats,model._output._normSub,model._output._normMul,model._output._catOffsets,_parms._use_all_factor_levels);
+      BMulInPlaceTask tsk=new BMulInPlaceTask(dinfo,ArrayUtils.transpose(ysmall_q));
       tsk.doAll(ayfrm);
       gtsk=new GramTask(self(),yinfo);
       gtsk.doAll(yinfo._adaptedFrame);
       ygram=new Matrix(gtsk._gram.getXX());
       chol=new CholeskyDecomposition(ygram);
-      qrtsk=new QRfromChol(chol,gtsk._nobs,_parms._nv,_parms._nv,normSubY,normMulY);
+      qrtsk=new QRfromChol(yinfo,chol,gtsk._nobs,_parms._nv);
       qrtsk.doAll(yqfrm);
       iters++;
     }

@@ -1,0 +1,23 @@
+{
+  int cidx;
+  for (int col=0; col < dinfo._cats; col++) {
+    double x=chks[col].atd(row_in_chunk);
+    if (Double.isNaN(x)) {
+      if (dinfo._catMissing[col] == 0)       continue;
+ else       cidx=dinfo._catOffsets[col + 1] - 1;
+    }
+ else     cidx=dinfo.getCategoricalId(col,(int)x);
+    if (cidx >= 0)     tmp[cidx]=1;
+  }
+  int chk_cnt=dinfo._cats;
+  int exp_cnt=dinfo.numStart();
+  for (int col=0; col < dinfo._nums; col++) {
+    double x=chks[chk_cnt].atd(row_in_chunk);
+    if (Double.isNaN(x) && dinfo._imputeMissing)     x=dinfo._numMeans[col];
+    if (dinfo._normSub != null && dinfo._normMul != null)     x=(x - dinfo._normSub[col]) * dinfo._normMul[col];
+    tmp[exp_cnt]=x;
+    exp_cnt++;
+    chk_cnt++;
+  }
+  return tmp;
+}
