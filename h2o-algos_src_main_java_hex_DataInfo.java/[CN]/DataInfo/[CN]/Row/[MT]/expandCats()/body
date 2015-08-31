@@ -1,0 +1,15 @@
+{
+  if (isSparse() || _responses > 0)   throw H2O.unimpl();
+  int N=fullN();
+  int numStart=numStart();
+  double[] res=new double[N + (_intercept ? 1 : 0)];
+  for (int i=0; i < nBins; ++i)   res[binIds[i]]=1;
+  if (numIds == null) {
+    for (int i=0; i < numVals.length; ++i)     res[numStart + i]=numVals[i];
+  }
+ else {
+    for (int i=0; i < nNums; ++i)     res[numIds[i]]=numVals[i];
+  }
+  if (_intercept)   res[res.length - 1]=1;
+  return res;
+}
