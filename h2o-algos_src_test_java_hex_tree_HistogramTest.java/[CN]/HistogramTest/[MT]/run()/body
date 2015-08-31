@@ -1,0 +1,33 @@
+{
+  Futures fs=new Futures();
+  long seed=0xDECAF;
+  Log.info("Histogram size: " + BUCKETS);
+  Log.info("Threads: " + THREADS);
+  Log.info("Loops per Thread: " + THREAD_LOOPS);
+  Histo hist=new Histo(BUCKETS);
+  for (int i=0; i < THREADS; ++i)   fs.add(H2O.submitTask(new Filler(hist,seed + i)));
+  fs.blockForPending();
+  Histo hist2=new Histo(BUCKETS);
+  for (int i=0; i < THREADS; ++i)   fs.add(H2O.submitTask(new Filler(hist2,seed + i)));
+  fs.blockForPending();
+  double maxRelErrorDD=0;
+  for (int i=0; i < hist._sumsD.length; ++i) {
+    maxRelErrorDD=Math.max(Math.abs(hist._sumsD[i] - hist2._sumsD[i]) / Math.abs(hist._sumsD[i]),maxRelErrorDD);
+  }
+  Log.info("Max rel. error between D and D: " + maxRelErrorDD);
+  assert(!Arrays.equals(hist._sumsD,hist2._sumsD));
+  double maxRelErrorFF=0;
+  for (int i=0; i < hist._sumsF.length; ++i) {
+    maxRelErrorFF=Math.max(Math.abs(hist._sumsF[i] - hist2._sumsF[i]) / Math.abs(hist._sumsF[i]),maxRelErrorFF);
+  }
+  Log.info("Max rel. error between F and F: " + maxRelErrorFF);
+  assert(maxRelErrorDD > maxRelErrorFF);
+  double maxRelErrorDF=0;
+  for (  Histo h : new Histo[]{hist,hist2}) {
+    for (int i=0; i < h._sumsD.length; ++i) {
+      maxRelErrorDF=Math.max(Math.abs(h._sumsD[i] - h._sumsF[i]) / Math.abs(h._sumsD[i]),maxRelErrorDF);
+    }
+  }
+  Log.info("Max rel. error between D and F: " + maxRelErrorDF);
+  assert(maxRelErrorDF < 1e-6);
+}

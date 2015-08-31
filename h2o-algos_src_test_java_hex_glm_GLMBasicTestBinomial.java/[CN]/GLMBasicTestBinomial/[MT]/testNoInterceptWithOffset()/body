@@ -37,7 +37,7 @@
   params._intercept=false;
   params._beta_epsilon=1e-6;
   try {
-    for (    Solver s : new Solver[]{Solver.AUTO,Solver.IRLSM,Solver.L_BFGS}) {
+    for (    Solver s : new Solver[]{Solver.AUTO,Solver.IRLSM,Solver.L_BFGS,Solver.COORDINATE_DESCENT_NAIVE,Solver.COORDINATE_DESCENT}) {
       Frame scoreTrain=null, scoreTest=null;
       try {
         params._solver=s;
@@ -52,13 +52,14 @@
         assertEquals(290,GLMTest.nullDOF(model),0);
         assertEquals(286,GLMTest.resDOF(model),0);
         assertEquals(321,GLMTest.aic(model),1e-1);
-        assertEquals(88.72363,GLMTest.residualDevianceTest(model),1e-4);
+        boolean CD=(s == Solver.COORDINATE_DESCENT || s == Solver.COORDINATE_DESCENT_NAIVE);
+        assertEquals(88.72363,GLMTest.residualDevianceTest(model),CD ? 1e-2 : 1e-4);
         try {
           scoreTrain=model.score(_prostateTrain);
           assertTrue("shoul've thrown IAE",false);
         }
  catch (        IllegalArgumentException iae) {
-          assertTrue(iae.getMessage().contains("Test dataset is missing offset vector"));
+          assertTrue(iae.getMessage().contains("Test/Validation dataset is missing offset vector"));
         }
         hex.ModelMetricsBinomialGLM mmTrain=(ModelMetricsBinomialGLM)hex.ModelMetricsBinomial.getFromDKV(model,fTrain);
         hex.AUC2 adata=mmTrain._auc;
@@ -78,7 +79,7 @@
         assertEquals(model._output._validation_metrics._MSE,mmTest._MSE,1e-8);
         assertEquals(((ModelMetricsBinomialGLM)model._output._validation_metrics)._resDev,mmTest._resDev,1e-8);
         Vec preds=scoreTest.vec("p1");
-        for (int i=0; i < pred_test.length; ++i)         assertEquals(pred_test[i],preds.at(i),1e-6);
+        for (int i=0; i < pred_test.length; ++i)         assertEquals(pred_test[i],preds.at(i),CD ? 1e-4 : 1e-6);
       }
   finally {
         if (model != null)         model.delete();
