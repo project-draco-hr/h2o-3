@@ -10,7 +10,9 @@
   int naggs=(asts.length - 4) / 3;
   final AGG[] aggs=new AGG[naggs];
   for (int idx=4; idx < asts.length; idx+=3) {
-    FCN fcn=FCN.valueOf(asts[idx].exec(env).getFun().str());
+    Val v=asts[idx].exec(env);
+    String fn=v instanceof ValFun ? v.getFun().str() : v.getStr();
+    FCN fcn=FCN.valueOf(fn);
     ASTNumList col=check(ncols,asts[idx + 1]);
     if (col.cnt() != 1)     throw new IllegalArgumentException("Group-By functions take only a single column");
     int agg_col=(int)col.min();
