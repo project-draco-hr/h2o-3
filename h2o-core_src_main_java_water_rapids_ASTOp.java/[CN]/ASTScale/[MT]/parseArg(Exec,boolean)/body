@@ -1,56 +1,12 @@
 {
   if (center) {
-    String[] centers=E.peek() == '{' ? E.xpeek('{').parseString('}').split(";") : null;
-    if (centers == null) {
-      AST a;
-      try {
-        AST e=E.parse();
-        a=E._env.lookup((ASTId)e);
-      }
- catch (      ClassCastException e) {
-        e.printStackTrace();
-        throw new IllegalArgumentException("Expected %TRUE or %FALSE. Got: " + e.getClass());
-      }
-      try {
-        _center=((ASTNum)a).dbl() == 1;
-        _centers=null;
-      }
- catch (      ClassCastException e) {
-        e.printStackTrace();
-        throw new IllegalArgumentException("Expected to get a number for the `center` argument after the lookup. Got: " + a.getClass());
-      }
-    }
- else {
-      for (int i=0; i < centers.length; ++i)       centers[i]=centers[i].replace("\"","").replace("\'","");
-      _centers=new double[centers.length];
-      for (int i=0; i < centers.length; ++i)       _centers[i]=Double.valueOf(centers[i]);
-    }
+    AST a=E.parse();
+    if (a instanceof ASTId)     _center=((ASTNum)E._env.lookup((ASTId)a))._d == 1;
+ else     if (a instanceof ASTDoubleList)     _centers=((ASTDoubleList)a)._d;
   }
  else {
-    if (!E.skipWS().hasNext())     throw new IllegalArgumentException("End of input unexpected. Badly formed AST.");
-    String[] centers=E.peek() == '{' ? E.xpeek('{').parseString('}').split(";") : null;
-    if (centers == null) {
-      AST a;
-      try {
-        a=E._env.lookup((ASTId)E.skipWS().parse());
-      }
- catch (      ClassCastException e) {
-        e.printStackTrace();
-        throw new IllegalArgumentException("Expected to get an ASTId. Badly formed AST.");
-      }
-      try {
-        _scale=((ASTNum)a).dbl() == 1;
-        _scales=null;
-      }
- catch (      ClassCastException e) {
-        e.printStackTrace();
-        throw new IllegalArgumentException("Expected to get a number for the `scale` argument.");
-      }
-    }
- else {
-      for (int i=0; i < centers.length; ++i)       centers[i]=centers[i].replace("\"","").replace("\'","");
-      _scales=new double[centers.length];
-      for (int i=0; i < centers.length; ++i)       _scales[i]=Double.valueOf(centers[i]);
-    }
+    AST a=E.parse();
+    if (a instanceof ASTId)     _scale=((ASTNum)E._env.lookup((ASTId)a))._d == 1;
+ else     if (a instanceof ASTDoubleList)     _scales=((ASTDoubleList)a)._d;
   }
 }
