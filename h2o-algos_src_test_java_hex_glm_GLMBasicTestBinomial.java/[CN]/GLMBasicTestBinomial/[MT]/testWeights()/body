@@ -62,13 +62,8 @@
         assertEquals(1217,GLMTest.aic(model),1);
         assertEquals(0.1604573,model._output._training_metrics._MSE,1e-5);
         assertEquals(0.8348088,GLMTest.auc(model),1e-4);
-        try {
-          scoreTrain=model.score(_prostateTrain);
-          assertTrue("shoul've thrown IAE",false);
-        }
- catch (        IllegalArgumentException iae) {
-          assertTrue(iae.getMessage().contains("Test dataset is missing weights vector"));
-        }
+        scoreTrain=model.score(_prostateTrain);
+        scoreTrain.delete();
         Frame f=new Frame(_prostateTrain);
         f.remove("CAPSULE");
         scoreTrain=model.score(f);
