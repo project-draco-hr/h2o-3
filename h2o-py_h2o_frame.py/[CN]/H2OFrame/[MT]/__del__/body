@@ -1,3 +1,6 @@
 def __del__(self):
+    if (not H2OFrame.COUNTING):
+        H2OFrame.dropped_instances.append(self._id)
+        return
     if ((not self._keep) and self._computed):
         h2o.remove(self)
