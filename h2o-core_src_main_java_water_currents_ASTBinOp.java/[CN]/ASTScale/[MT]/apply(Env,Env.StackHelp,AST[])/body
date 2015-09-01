@@ -23,5 +23,13 @@
  else     if (d == 1)     mults=fr.mults();
  else     throw new IllegalArgumentException("Only true or false allowed");
   }
-  throw H2O.unimpl();
+  final double[] fmeans=means;
+  final double[] fmults=mults;
+  new MRTask(){
+    @Override public void map(    Chunk[] cs){
+      for (int i=0; i < cs.length; i++)       for (int row=0; row < cs[i]._len; row++)       cs[i].set(row,(cs[i].atd(row) - fmeans[i]) * fmults[i]);
+    }
+  }
+.doAll(fr);
+  return new ValFrame(fr);
 }
