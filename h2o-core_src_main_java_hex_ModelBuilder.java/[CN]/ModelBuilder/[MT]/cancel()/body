@@ -1,12 +1,12 @@
 {
   super.cancel();
-  if (cvModelBuildersKey == null)   return;
-  for (int i=0; i < cvModelBuildersKey.length; ++i) {
-    ModelBuilder<M,P,O> mb=DKV.getGet(cvModelBuildersKey[i]);
-    if (mb != null) {
-      Log.info("Cancelling CV model " + mb);
-      mb.cancel();
-      assert(mb.isCancelledOrCrashed());
+  if (cvModelBuilderKeys != null) {
+    for (int i=0; i < cvModelBuilderKeys.length; ++i) {
+      ModelBuilder<M,P,O> mb=DKV.getGet(cvModelBuilderKeys[i]);
+      if (mb != null) {
+        assert(mb.cvModelBuilderKeys == null);
+        mb.cancel();
+      }
     }
   }
 }
