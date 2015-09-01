@@ -5,7 +5,7 @@
   Random rand=RandomUtils.getRNG(_seed + cs[0].start());
   ClusterDist cd=new ClusterDist();
   for (int row=0; row < cs[0]._len; row++) {
-    data(values,cs,row,_means,_mults);
+    data(values,cs,row,_means,_mults,_modes);
     double sqr=minSqr(_centers,values,_isCats,cd);
     if (_probability * sqr > rand.nextDouble() * _sqr)     list.add(values.clone());
   }
@@ -13,4 +13,5 @@
   list.toArray(_sampled);
   _centers=null;
   _means=_mults=null;
+  _modes=null;
 }
