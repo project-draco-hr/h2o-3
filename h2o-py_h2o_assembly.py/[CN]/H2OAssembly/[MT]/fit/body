@@ -1,0 +1,8 @@
+def fit(self, X, **fit_params):
+    self.in_colnames = X.names
+    rez = [self._pre_transform(X, None, **fit_params)[0]]
+    for i in self.fuzed:
+        rez.append(i.assembly._pre_transform(i.x, None, i.params)[0])
+    result = reduce((lambda x, y: x.cbind(y)), rez)
+    self.out_colnames = result.names
+    return result

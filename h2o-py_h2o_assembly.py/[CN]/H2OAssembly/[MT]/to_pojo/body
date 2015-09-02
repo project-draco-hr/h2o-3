@@ -1,0 +1,12 @@
+def to_pojo(self, pojo_name=None):
+    if (pojo_name is None):
+        pojo_name = 'GeneratedMungingPojo'
+    classes = []
+    steps = []
+    init_steps = ''
+    for (i, name) in enumerate(self.names):
+        step = self.named_steps[name]
+        classes.append(step.gen_class(name))
+        init_steps += ('\n          _steps[%s] = %s' % (i, step.gen_step(name)))
+    classes = '\n'.join(classes)
+    return ('\n    class %s extends GenMunger {\n\n        public %s() {\n          _steps = new Step[%s];\n          %s\n        }\n      %s\n    }\n    ' % (pojo_name, pojo_name, (len(self.steps) - 1), init_steps, classes))
