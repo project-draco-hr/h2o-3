@@ -20,10 +20,8 @@
     NAHandling na=NAHandling.valueOf(asts[idx + 2].exec(env).getStr().toUpperCase());
     aggs[(idx - 4) / 3]=new AGG(fcn,agg_col,na,(int)fr.vec(agg_col).max() + 1);
   }
-  long start=System.currentTimeMillis();
-  GBTask p1=new GBTask(gbCols,aggs).doAll(fr);
-  final G[] grps=p1._gss.keySet().toArray(new G[p1._gss.size()]);
-  Log.info("Group By Task done in " + (System.currentTimeMillis() - start) / 1000. + " (s)");
+  IcedHashMap<G,String> gss=doGroups(fr,gbCols,aggs);
+  final G[] grps=gss.keySet().toArray(new G[gss.size()]);
   Arrays.sort(grps,new java.util.Comparator<G>(){
     @Override public int compare(    G g1,    G g2){
       for (      int i : ordCols) {

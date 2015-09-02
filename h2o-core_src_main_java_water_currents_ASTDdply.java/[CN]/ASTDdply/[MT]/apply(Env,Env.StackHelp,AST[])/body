@@ -1,0 +1,17 @@
+{
+  Frame fr=stk.track(asts[1].exec(env)).getFrame();
+  int ncols=fr.numCols();
+  ASTNumList groupby=ASTGroup.check(ncols,asts[2]);
+  int[] gbCols=groupby.expand4();
+  AST fun=asts[3].exec(env).getFun();
+  IcedHashMap<ASTGroup.G,String> gss=ASTGroup.doGroups(fr,gbCols,ASTGroup.aggNRows());
+  int gnum=0;
+  for (  ASTGroup.G g : gss.keySet())   g._dss[0][0]=gnum++;
+  Vec[] vgrps=new BuildGroup(gbCols,gss).doAll(gss.size(),fr).close();
+  RemoteRapids[] remoteTasks=new RemoteRapids[vgrps.length];
+  Futures fs=new Futures();
+  for (int i=0; i < vgrps.length; i++)   fs.add(RPC.call(vgrps[i]._key.home_node(),remoteTasks[i]=new RemoteRapids(vgrps[i]._key,fun)));
+  fs.blockForPending();
+  String fname=(fr._key == null ? Key.rand() : fr._key.toString()) + "_ddply";
+  throw H2O.unimpl();
+}
