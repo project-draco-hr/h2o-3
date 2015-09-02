@@ -1,0 +1,34 @@
+{
+  if (_responseData == null)   return null;
+  int predN=_countData.length;
+  int respN=_countData[0].length;
+  String tableHeader="Tabulation between '" + _predictor + "' vs '"+ _response+ "'";
+  String[] rowHeaders=new String[predN * respN];
+  String[] colHeaders=new String[3];
+  String[] colTypes=new String[colHeaders.length];
+  String[] colFormats=new String[colHeaders.length];
+  colHeaders[0]=_predictor;
+  colHeaders[1]=_response;
+  Vec pred=DKV.getGet(_predVec);
+  Vec resp=DKV.getGet(_respVec);
+  colTypes[0]="string";
+  colFormats[0]="%s";
+  colTypes[1]="string";
+  colFormats[1]="%s";
+  colHeaders[2]="volume";
+  colTypes[2]="double";
+  colFormats[2]="%f";
+  TwoDimTable table=new TwoDimTable(tableHeader,null,rowHeaders,colHeaders,colTypes,colFormats,null);
+  for (int p=0; p < predN; ++p) {
+    String plabel=labelForBin(pred,p);
+    for (int r=0; r < respN; ++r) {
+      String rlabel=labelForBin(resp,r);
+      for (int c=0; c < 3; ++c) {
+        table.set(r * predN + p,0,plabel);
+        table.set(r * predN + p,1,rlabel);
+        table.set(r * predN + p,2,_countData[p][r]);
+      }
+    }
+  }
+  return table;
+}
