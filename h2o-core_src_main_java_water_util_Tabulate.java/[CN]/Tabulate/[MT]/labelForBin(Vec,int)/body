@@ -1,0 +1,10 @@
+{
+  int missing=v.naCnt() > 0 ? 1 : 0;
+  if (missing == 1 && b == 0)   return "missing(NA)";
+  if (missing == 1)   b--;
+  if (v.isEnum())   return v.domain()[b];
+  int bins=bins(Arrays.equals(v._key._kb,_respVec._kb));
+  if (v.isInt() && (v.max() - v.min() + 1) <= bins)   return Integer.toString((int)(v.min() + b));
+  double d=(v.max() - v.min()) / bins;
+  return String.format("%5f",v.min() + (b + 0.5) * d);
+}
