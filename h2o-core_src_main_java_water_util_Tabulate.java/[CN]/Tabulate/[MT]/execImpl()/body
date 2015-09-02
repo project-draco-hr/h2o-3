@@ -34,6 +34,7 @@
   }
   if (y != null && y.cardinality() > 2)   warn("_response","Response column has more than two factor levels - mean response depends on lexicographic order of factors!");
   Vec w=_dataset.vec(_weight);
+  if (w != null && (!w.isNumeric() && w.min() < 0))   error("_weight","Observation weights must be numeric with values >= 0");
   if (error_count() > 0) {
     Tabulate.this.updateValidationMessages();
     throw new H2OIllegalArgumentException(validationErrors());
@@ -43,7 +44,7 @@
   Tabulate sp=w != null ? new CoOccurrence(this).doAll(x,y,w)._sp : new CoOccurrence(this).doAll(x,y)._sp;
   _count_table=sp.tabulationTwoDimTable();
   _response_table=sp.responseCharTwoDimTable();
-  Log.info(_count_table);
-  Log.info(_response_table);
+  Log.info(_count_table.toString(2,false));
+  Log.info(_response_table.toString(2,false));
   return sp;
 }
