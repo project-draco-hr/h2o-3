@@ -3,15 +3,15 @@
   SVDModel model=null;
   Frame train=null, score=null;
   try {
-    train=parse_test_file(Key.make("arrests.hex"),"smalldata/logreg/benign.csv");
+    train=parse_test_file(Key.make("benign.hex"),"smalldata/logreg/benign.csv");
     SVDModel.SVDParameters parms=new SVDModel.SVDParameters();
     parms._train=train._key;
     parms._nv=5;
-    parms._only_v=false;
     parms._keep_u=true;
     parms._transform=DataInfo.TransformType.DEMEAN;
     parms._svd_method=SVDParameters.Method.Probabilistic;
     parms._impute_missing=true;
+    parms._max_iterations=20;
     SVD job=new SVD(parms);
     try {
       model=job.trainModel().get();
