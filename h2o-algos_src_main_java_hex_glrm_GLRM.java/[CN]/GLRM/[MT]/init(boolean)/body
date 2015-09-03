@@ -12,9 +12,8 @@
   if (_train == null)   return;
   if (_train.numCols() < 2)   error("_train","_train must have more than one column");
   _ncolY=_train.numColsExp(true,false);
-  int k_min=(int)Math.min(_ncolY,_train.numRows());
   if (_ncolY > MAX_COLS_EXPANDED)   warn("_train","_train has " + _ncolY + " columns when categoricals are expanded. Algorithm may be slow.");
-  if (_parms._k < 1 || _parms._k > k_min)   error("_k","_k must be between 1 and " + k_min + " inclusive");
+  if (_parms._k < 1 || _parms._k > _ncolY)   error("_k","_k must be between 1 and " + _ncolY + " inclusive");
   if (null != _parms._user_points) {
     if (_parms._init != GLRM.Initialization.User)     error("_init","init must be 'User' if providing user-specified points");
     if (_parms._user_points.get().numCols() != _train.numCols())     error("_user_points","The user-specified points must have the same number of columns (" + _train.numCols() + ") as the training observations");
@@ -32,13 +31,16 @@
       if (zero_vec == _train.numCols())       error("_user_points","The user-specified points cannot all be zero");
     }
   }
+  for (int i=0; i < _train.numCols(); i++) {
+    if (_train.vec(i).isString() || _train.vec(i).isUUID())     throw H2O.unimpl("GLRM cannot handle String or UUID data");
+  }
   if (null != _parms._loss_by_col) {
     if (_parms._loss_by_col.length > _train.numCols())     error("_loss_by_col","Number of loss functions specified must be <= " + _train.numCols());
  else     if (_parms._loss_by_col.length == _train.numCols())     _lossFunc=_parms._loss_by_col;
  else     if (null == _parms._loss_by_col_idx || _parms._loss_by_col.length != _parms._loss_by_col_idx.length)     error("_loss_by_col_idx","Must specify same number of column indices as loss functions");
  else {
       _lossFunc=new GLRMParameters.Loss[_train.numCols()];
-      for (int i=0; i < _lossFunc.length; i++)       _lossFunc[i]=_train.vec(i).isNumeric() ? _parms._loss : _parms._multi_loss;
+      for (int i=0; i < _lossFunc.length; i++)       _lossFunc[i]=_train.vec(i).isEnum() ? _parms._multi_loss : _parms._loss;
       for (int i=0; i < _parms._loss_by_col.length; i++) {
         int cidx=_parms._loss_by_col_idx[i];
         if (cidx < 0 || cidx >= _train.numCols())         error("_loss_by_col_idx","Column index " + cidx + " must be in [0,"+ _train.numCols()+ ")");
@@ -52,7 +54,7 @@
     if (null != _parms._loss_by_col_idx)     error("_loss_by_col","Must specify loss function for each column");
  else {
       _lossFunc=new GLRMParameters.Loss[_train.numCols()];
-      for (int i=0; i < _lossFunc.length; i++)       _lossFunc[i]=_train.vec(i).isNumeric() ? _parms._loss : _parms._multi_loss;
+      for (int i=0; i < _lossFunc.length; i++)       _lossFunc[i]=_train.vec(i).isEnum() ? _parms._multi_loss : _parms._loss;
     }
   }
   _ncolX=_parms._k;
