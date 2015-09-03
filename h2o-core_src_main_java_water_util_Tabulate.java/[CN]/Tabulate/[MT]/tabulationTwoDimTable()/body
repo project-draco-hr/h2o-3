@@ -9,8 +9,6 @@
   String[] colFormats=new String[colHeaders.length];
   colHeaders[0]=_predictor;
   colHeaders[1]=_response;
-  Vec pred=DKV.getGet(_predVec);
-  Vec resp=DKV.getGet(_respVec);
   colTypes[0]="string";
   colFormats[0]="%s";
   colTypes[1]="string";
@@ -20,9 +18,9 @@
   colFormats[2]="%f";
   TwoDimTable table=new TwoDimTable(tableHeader,null,rowHeaders,colHeaders,colTypes,colFormats,null);
   for (int p=0; p < predN; ++p) {
-    String plabel=labelForBin(pred,p);
+    String plabel=labelForBin(0,p);
     for (int r=0; r < respN; ++r) {
-      String rlabel=labelForBin(resp,r);
+      String rlabel=labelForBin(1,r);
       for (int c=0; c < 3; ++c) {
         table.set(r * predN + p,0,plabel);
         table.set(r * predN + p,1,rlabel);
