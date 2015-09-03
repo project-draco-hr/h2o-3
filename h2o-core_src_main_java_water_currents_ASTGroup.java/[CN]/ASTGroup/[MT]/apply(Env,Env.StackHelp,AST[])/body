@@ -36,16 +36,9 @@
     }
   }
 );
-  final int nCols=gbCols.length + naggs;
-  String[] names=new String[nCols];
-  String[][] domains=new String[nCols][];
-  for (int i=0; i < gbCols.length; i++) {
-    names[i]=fr.name(gbCols[i]);
-    domains[i]=fr.domains()[gbCols[i]];
-  }
-  for (int i=0; i < aggs.length; i++)   names[i + gbCols.length]=aggs[i]._fcn.toString() + "_" + fr.name(aggs[i]._col);
-  Vec v=Vec.makeZero(grps.length);
-  Frame f=new MRTask(){
+  String[] fcnames=new String[aggs.length];
+  for (int i=0; i < aggs.length; i++)   fcnames[i]=aggs[i]._fcn.toString() + "_" + fr.name(aggs[i]._col);
+  MRTask mrfill=new MRTask(){
     @Override public void map(    Chunk[] c,    NewChunk[] ncs){
       int start=(int)c[0].start();
       for (int i=0; i < c[0]._len; ++i) {
@@ -56,7 +49,7 @@
       }
     }
   }
-.doAll(nCols,v).outputFrame(names,domains);
-  v.remove();
+;
+  Frame f=buildOutput(gbCols,naggs,fr,fcnames,grps.length,mrfill);
   return new ValFrame(f);
 }
