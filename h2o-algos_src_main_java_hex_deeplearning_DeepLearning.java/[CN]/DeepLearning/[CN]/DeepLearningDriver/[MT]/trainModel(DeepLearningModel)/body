@@ -96,7 +96,11 @@
       Log.info("==============================================================================================================================================================================");
     }
   }
-  finally {
+ catch (  RuntimeException ex) {
+    failed(ex);
+    throw ex;
+  }
+ finally {
     if (model != null) {
       model.deleteElasticAverageModels();
       model.unlock(self());
