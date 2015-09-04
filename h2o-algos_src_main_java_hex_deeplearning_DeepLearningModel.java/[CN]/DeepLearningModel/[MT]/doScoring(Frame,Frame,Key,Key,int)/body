@@ -54,7 +54,6 @@
       }
       final boolean printme=!get_params()._quiet_mode;
       _timeLastScoreStart=now;
-      model_info().computeStats();
       DeepLearningScoring err=new DeepLearningScoring();
       err.training_time_ms=run_time;
       err.epoch_counter=epoch_counter;
@@ -173,7 +172,6 @@
       if (printme)       Log.info("Time taken for scoring and diagnostics: " + PrettyPrint.msecs(err.scoring_time,true));
     }
     if (model_info().unstable()) {
-      Log.warn(unstable_msg);
       keep_running=false;
     }
  else     if ((_output.isClassifier() && last_scored().scored_train._classError <= get_params()._classification_stop) || (!_output.isClassifier() && last_scored().scored_train._mse <= get_params()._regression_stop)) {
