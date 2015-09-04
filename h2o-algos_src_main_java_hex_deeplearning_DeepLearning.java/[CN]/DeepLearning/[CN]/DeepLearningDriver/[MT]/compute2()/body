@@ -1,6 +1,6 @@
 {
   try {
-    byte[] cs=new AutoBuffer().put(_parms).buf();
+    long cs=_parms.checksum();
     Scope.enter();
     init(true);
     _parms.read_lock_frames(DeepLearning.this);
@@ -9,21 +9,17 @@
       throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(DeepLearning.this);
     }
     buildModel();
-    byte[] cs2=new AutoBuffer().put(_parms).buf();
-    assert(Arrays.equals(cs,cs2));
-    done();
-  }
- catch (  Throwable t) {
+    long cs2=_parms.checksum();
+    assert(cs == cs2);
     Job thisJob=DKV.getGet(_key);
-    if (thisJob._state == JobState.CANCELLED) {
+    if (thisJob != null && thisJob._state == JobState.CANCELLED) {
       Log.info("Job cancelled by user.");
     }
  else {
-      failed(t);
-      throw t;
+      done();
     }
   }
- finally {
+  finally {
     updateModelOutput();
     _parms.read_unlock_frames(DeepLearning.this);
     Scope.exit();

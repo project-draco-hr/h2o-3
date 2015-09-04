@@ -12,10 +12,8 @@ def plot(self, type='roc', **kwargs):
     if (type not in ['roc']):
         raise ValueError('type {0} is not supported'.format(type))
     if (type == 'roc'):
-        fpr_idx = self._metric_json['thresholds_and_metric_scores'].col_header.index('fpr')
-        tpr_idx = self._metric_json['thresholds_and_metric_scores'].col_header.index('tpr')
-        x_axis = [x[fpr_idx] for x in self._metric_json['thresholds_and_metric_scores'].cell_values]
-        y_axis = [y[tpr_idx] for y in self._metric_json['thresholds_and_metric_scores'].cell_values]
+        x_axis = self.fprs
+        y_axis = self.tprs
         plt.xlabel('False Positive Rate (FPR)')
         plt.ylabel('True Positive Rate (TPR)')
         plt.title('ROC Curve')

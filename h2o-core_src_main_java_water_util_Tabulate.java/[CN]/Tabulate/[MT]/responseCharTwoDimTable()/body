@@ -1,27 +1,26 @@
 {
-  if (_responseData == null)   return null;
-  String tableHeader="Characteristics between '" + _predictor + "' and '"+ _response+ "'";
-  int predN=_countData.length;
+  if (_response_data == null)   return null;
+  String tableHeader="Mean value of '" + _response + "' and (weighted) counts for '"+ _predictor+ "' values";
+  int predN=_count_data.length;
   String[] rowHeaders=new String[predN];
   String[] colHeaders=new String[3];
   String[] colTypes=new String[colHeaders.length];
   String[] colFormats=new String[colHeaders.length];
-  Vec pred=DKV.getGet(_predVec);
   colHeaders[0]=_predictor;
   colTypes[0]="string";
   colFormats[0]="%s";
   colHeaders[1]="mean " + _response;
   colTypes[2]="double";
   colFormats[2]="%f";
-  colHeaders[2]="volume";
+  colHeaders[2]="counts";
   colTypes[1]="double";
   colFormats[1]="%f";
   TwoDimTable table=new TwoDimTable(tableHeader,null,rowHeaders,colHeaders,colTypes,colFormats,null);
   for (int p=0; p < predN; ++p) {
-    String plabel=labelForBin(pred,p);
+    String plabel=labelForBin(0,p);
     table.set(p,0,plabel);
-    table.set(p,1,_responseData[p][0]);
-    table.set(p,2,_responseData[p][1]);
+    table.set(p,1,_response_data[p][0]);
+    table.set(p,2,_response_data[p][1]);
   }
   return table;
 }
