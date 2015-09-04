@@ -1,4 +1,5 @@
 {
+  String testcaseStatus="passed";
   RecordingTestcase rt=new RecordingTestcase();
   Param[] params=null;
   Model.Parameters modelParameter=null;
@@ -34,10 +35,13 @@ Assert.fail(String.format(notImplMessage));
  else {
 modelParameter=FunctionUtils.toModelParameter(params,algorithm,train_dataset_id,validate_dataset_id,train_dataset,validate_dataset,rawInput);
 FunctionUtils.basicTesting(algorithm,modelParameter,isNegativeTestcase);
-System.out.println(rawInput);
 }
 }
-  finally {
+ catch (AssertionError ae) {
+testcaseStatus="failed";
+throw ae;
+}
+ finally {
 System.out.println("Total Memory used in testcase:" + (rt.getUsedMemory() / RecordingTestcase.MB) + "MB");
 System.out.println("Total Time used in testcase:" + (rt.getTimeRecording()) + "millis");
 try {
@@ -47,5 +51,6 @@ Thread.sleep(100);
 Thread.currentThread().interrupt();
 }
 resetStandardStreams();
+Reporter.log("Testcase is " + testcaseStatus,true);
 }
 }
