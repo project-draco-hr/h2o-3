@@ -1,7 +1,8 @@
 {
+  final DateTimeZone dtz=ParseTime.getTimezone();
   if (!env.isAry()) {
     double d=env.peekDbl();
-    if (!Double.isNaN(d))     d=op(new MutableDateTime((long)d));
+    if (!Double.isNaN(d))     d=op(new MutableDateTime((long)d,dtz));
     env.poppush(1,new ValNum(d));
     return;
   }
@@ -9,7 +10,7 @@
   final ASTTimeOp uni=this;
   Frame fr2=new MRTask(){
     @Override public void map(    Chunk chks[],    NewChunk nchks[]){
-      MutableDateTime dt=new MutableDateTime(0);
+      MutableDateTime dt=new MutableDateTime(0,dtz);
       for (int i=0; i < nchks.length; i++) {
         NewChunk n=nchks[i];
         Chunk c=chks[i];
