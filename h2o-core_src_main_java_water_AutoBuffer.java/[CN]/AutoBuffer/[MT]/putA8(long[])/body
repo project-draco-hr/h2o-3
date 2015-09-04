@@ -30,12 +30,13 @@
   }
   put1(8);
   int sofar=x;
+  if ((y - sofar) * 8 > _bb.remaining())   expandByteBuffer(ary.length * 8);
   while (sofar < y) {
-    LongBuffer sb=_bb.asLongBuffer();
-    int len=Math.min(y - sofar,sb.remaining());
-    sb.put(ary,sofar,len);
+    LongBuffer lb=_bb.asLongBuffer();
+    int len=Math.min(y - sofar,lb.remaining());
+    lb.put(ary,sofar,len);
     sofar+=len;
-    _bb.position(_bb.position() + sb.position() * 8);
+    _bb.position(_bb.position() + lb.position() * 8);
     if (sofar < y)     sendPartial();
   }
   return this;
