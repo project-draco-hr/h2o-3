@@ -1,0 +1,38 @@
+{
+  Frame tfr=null, vfr=null;
+  DeepLearningModel dl=null;
+  Scope.enter();
+  try {
+    tfr=parse_test_file("./smalldata/junit/two_spiral.csv");
+    for (    String s : new String[]{"Class"}) {
+      Scope.track(tfr.replace(tfr.find(s),tfr.vec(s).toEnum())._key);
+    }
+    DKV.put(tfr);
+    DeepLearningParameters parms=new DeepLearningParameters();
+    parms._train=tfr._key;
+    parms._response_column="Class";
+    parms._epochs=0.1;
+    parms._reproducible=true;
+    parms._hidden=new int[]{10,10,10,10,10,10,10,10,10,10,10,10,10,10,10};
+    parms._initial_weight_distribution=DeepLearningParameters.InitialWeightDistribution.Uniform;
+    parms._initial_weight_scale=1e10;
+    parms._seed=0xdecaf;
+    DeepLearning job=new DeepLearning(parms);
+    try {
+      dl=job.trainModel().get();
+      Assert.fail("Should toss exception instead of reaching here");
+    }
+ catch (    RuntimeException de) {
+      assertTrue(de.getMessage().contains("Trying to predict with an unstable model."));
+    }
+ finally {
+      job.remove();
+    }
+  }
+  finally {
+    if (tfr != null)     tfr.remove();
+    if (vfr != null)     vfr.remove();
+    if (dl != null)     dl.delete();
+    Scope.exit();
+  }
+}
