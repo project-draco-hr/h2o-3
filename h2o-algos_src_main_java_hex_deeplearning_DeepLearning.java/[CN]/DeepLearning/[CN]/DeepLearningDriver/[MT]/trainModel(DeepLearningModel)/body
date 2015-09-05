@@ -96,13 +96,20 @@
       Log.info("==============================================================================================================================================================================");
     }
   }
-  finally {
+ catch (  RuntimeException ex) {
+    Log.err(ex);
+    failed(ex);
+    throw ex;
+  }
+ finally {
     if (model != null) {
       model.deleteElasticAverageModels();
       model.unlock(self());
       if (model.actual_best_model_key != null) {
         assert(model.actual_best_model_key != model._key);
         DKV.remove(model.actual_best_model_key);
+      }
+      if (_state == JobState.FAILED) {
       }
     }
     for (    Frame f : _delete_me)     f.delete();
