@@ -91,8 +91,13 @@
     }
     if (!_parms._quiet_mode) {
       Log.info("==============================================================================================================================================================================");
-      Log.info("Finished training the Deep Learning model (" + iteration + " Map/Reduce iterations)");
-      Log.info(model);
+      if (isCancelledOrCrashed()) {
+        Log.info("Deep Learning model training was interrupted.");
+      }
+ else {
+        Log.info("Finished training the Deep Learning model (" + iteration + " Map/Reduce iterations)");
+        Log.info(model);
+      }
       Log.info("==============================================================================================================================================================================");
     }
   }
