@@ -3,7 +3,7 @@
   Frame yqfrm=null;
   try {
     update(1,"Initializing random subspace of training data Y");
-    double[][] gt=ArrayUtils.gaussianArray(_parms._nv,_ncolExp,seed);
+    double[][] gt=ArrayUtils.gaussianArray(_parms._nv,_ncolExp,_parms._seed);
     RandSubInit rtsk=new RandSubInit(self(),dinfo,gt);
     rtsk.doAll(_parms._nv,dinfo._adaptedFrame);
     yqfrm=rtsk.outputFrame(Key.make(),null,null);
@@ -13,9 +13,10 @@
     yinfo=new DataInfo(Key.make(),yqfrm,null,true,DataInfo.TransformType.NONE,true,false,false);
     DKV.put(yinfo._key,yinfo);
     LinearAlgebraUtils.computeQInPlace(self(),yinfo);
-    int iters=0;
-    while (iters < max_iterations) {
-      update(1,"Iteration " + String.valueOf(iters + 1) + " of randomized subspace iteration");
+    model._output._iterations=0;
+    while (model._output._iterations < _parms._max_iterations) {
+      if (!isRunning())       break;
+      update(1,"Iteration " + String.valueOf(model._output._iterations + 1) + " of randomized subspace iteration");
       SMulTask stsk=new SMulTask(dinfo,_parms._nv);
       stsk.doAll(aqfrm);
       Matrix ysmall=new Matrix(stsk._atq);
@@ -24,7 +25,8 @@
       BMulInPlaceTask tsk=new BMulInPlaceTask(dinfo,ArrayUtils.transpose(qtilde));
       tsk.doAll(aqfrm);
       LinearAlgebraUtils.computeQInPlace(self(),yinfo);
-      iters++;
+      model._output._iterations++;
+      model.update(self());
     }
   }
  catch (  Throwable t) {

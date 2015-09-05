@@ -4,7 +4,7 @@
   final int ncolA=dinfo._adaptedFrame.numCols();
   try {
     update(1,"Initializing random subspace of training data Y");
-    double[][] gt=ArrayUtils.gaussianArray(_parms._nv,_ncolExp,seed);
+    double[][] gt=ArrayUtils.gaussianArray(_parms._nv,_ncolExp,_parms._seed);
     RandSubInit rtsk=new RandSubInit(self(),dinfo,gt);
     rtsk.doAll(_parms._nv,dinfo._adaptedFrame);
     ybig=rtsk.outputFrame(Key.make(),null,null);
@@ -18,11 +18,13 @@
     update(1,"Computing QR factorization of Y");
     yinfo=new DataInfo(Key.make(),ybig,null,true,DataInfo.TransformType.NONE,true,false,false);
     DKV.put(yinfo._key,yinfo);
-    double qerr=LinearAlgebraUtils.computeQ(self(),yinfo,yqfrm);
-    int iters=0;
+    LinearAlgebraUtils.computeQ(self(),yinfo,yqfrm);
+    model._output._iterations=0;
     long qobs=dinfo._adaptedFrame.numRows() * _parms._nv;
-    while (qerr / qobs > TOLERANCE && iters < max_iterations) {
-      update(1,"Iteration " + String.valueOf(iters + 1) + " of randomized subspace iteration");
+    double qerr=2 * TOLERANCE * qobs;
+    while ((model._output._iterations < 10 || qerr / qobs > TOLERANCE) && model._output._iterations < _parms._max_iterations) {
+      if (!isRunning())       break;
+      update(1,"Iteration " + String.valueOf(model._output._iterations + 1) + " of randomized subspace iteration");
       SMulTask stsk=new SMulTask(dinfo,_parms._nv);
       stsk.doAll(aqfrm);
       Matrix ysmall=new Matrix(stsk._atq);
@@ -31,7 +33,8 @@
       BMulInPlaceTask tsk=new BMulInPlaceTask(dinfo,ArrayUtils.transpose(ysmall_q));
       tsk.doAll(ayfrm);
       qerr=LinearAlgebraUtils.computeQ(self(),yinfo,yqfrm);
-      iters++;
+      model._output._iterations++;
+      model.update(self());
     }
     qfrm=ayqfrm.extractFrame(ncolA + _parms._nv,ayqfrm.numCols());
     qfrm=new Frame(Key.make(),qfrm.names(),qfrm.vecs());
