@@ -173,10 +173,7 @@
     if (keep_running && printme)     Log.info(toString());
     if (printme)     Log.info("Time taken for scoring and diagnostics: " + PrettyPrint.msecs(err.scoring_time,true));
   }
-  if (model_info().unstable()) {
-    keep_running=false;
-  }
- else   if ((_output.isClassifier() && last_scored().scored_train._classError <= get_params()._classification_stop) || (!_output.isClassifier() && last_scored().scored_train._mse <= get_params()._regression_stop)) {
+  if ((_output.isClassifier() && last_scored().scored_train._classError <= get_params()._classification_stop) || (!_output.isClassifier() && last_scored().scored_train._mse <= get_params()._regression_stop)) {
     Log.info("Achieved requested predictive accuracy on the training data. Model building completed.");
     keep_running=false;
   }
