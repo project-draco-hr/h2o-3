@@ -21,7 +21,8 @@
     DeepLearning job=new DeepLearning(parms);
     dl=job.trainModel().get();
     ModelMetricsAutoEncoder mm=(ModelMetricsAutoEncoder)dl._output._training_metrics;
-    Assert.assertEquals(mm._MSE,0.10820468552102394,1e-8);
+    Assert.assertEquals(0.0712931422088762,mm._MSE,1e-2);
+    Assert.assertTrue(dl.testJavaScoring(tfr,dl.score(tfr),1e-5));
     job.remove();
   }
   finally {

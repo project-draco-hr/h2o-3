@@ -1,16 +1,10 @@
 {
-  float m=momentum();
+  assert(_index < _minfo.get_params()._hidden.length);
+  float m=_minfo.adaDelta() ? 0 : momentum();
   float r=_minfo.adaDelta() ? 0 : rate(_minfo.get_processed_total()) * (1f - m);
-  if (_w instanceof Storage.DenseRowMatrix) {
-    final int rows=_a.size();
-    Distribution dist=(_minfo.get_params()._autoencoder && _index == _minfo.get_params()._hidden.length) ? new Distribution(params._distribution) : null;
-    for (int row=0; row < rows; row++) {
-      if (dist != null)       _e.set(row,autoEncoderGradient(dist,row));
-      float g=_e.get(row) * (1f - _a.get(row) * _a.get(row));
-      bprop(row,g,r,m);
-    }
-  }
- else {
-    bprop_sparse(r,m);
+  final int rows=_a.size();
+  for (int row=0; row < rows; row++) {
+    double g=_e.get(row) * (1 - _a.get(row) * _a.get(row));
+    bprop(row,g,r,m);
   }
 }

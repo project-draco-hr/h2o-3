@@ -1,4 +1,4 @@
-def offsets_and_distributions(ip, port):
+def offsets_and_distributions():
     cars = h2o.upload_file(h2o.locate('smalldata/junit/cars_20mpg.csv'))
     cars = cars[(cars['economy_20mpg'].isna() == 0)]
     cars['economy_20mpg'] = cars['economy_20mpg'].asfactor()
@@ -7,8 +7,6 @@ def offsets_and_distributions(ip, port):
     cars = cars.cbind(offset)
     insurance = h2o.import_file(h2o.locate('smalldata/glm_test/insurance.csv'))
     insurance['offset'] = insurance['Holders'].log()
-    dl = h2o.deeplearning(x=cars[2:8], y=cars['economy_20mpg'], distribution='bernoulli', offset_column='x1', training_frame=cars)
-    predictions = dl.predict(cars)
     dl = h2o.deeplearning(x=insurance[0:3], y=insurance['Claims'], distribution='gamma', offset_column='offset', training_frame=insurance)
     predictions = dl.predict(insurance)
     dl = h2o.deeplearning(x=insurance[0:3], y=insurance['Claims'], distribution='gaussian', offset_column='offset', training_frame=insurance)

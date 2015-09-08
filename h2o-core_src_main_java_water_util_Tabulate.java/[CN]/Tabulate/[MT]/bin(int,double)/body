@@ -1,0 +1,18 @@
+{
+  if (Double.isNaN(val)) {
+    return 0;
+  }
+  int b;
+  int bins=bins(v);
+  if (_stats[v]._isEnum) {
+    assert((int)val == val);
+    b=(int)val;
+  }
+ else {
+    double d=(_stats[v]._max - _stats[v]._min) / bins;
+    b=(int)((val - _stats[v]._min) / d);
+    assert(b >= 0 && b <= bins);
+    b=Math.min(b,bins - 1);
+  }
+  return b + _stats[v]._missing;
+}

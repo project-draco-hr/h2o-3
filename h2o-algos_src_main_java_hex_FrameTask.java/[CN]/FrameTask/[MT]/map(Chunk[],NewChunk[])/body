@@ -1,5 +1,5 @@
 {
-  if (_jobKey != null && !Job.isRunning(_jobKey))   throw new JobCancelledException();
+  if (_jobKey != null && !Job.isRunning(_jobKey))   return;
   final int nrows=chunks[0]._len;
   final long offset=chunks[0].start();
   boolean doWork=chunkInit();
@@ -28,8 +28,16 @@
   final float fraction=(float)(_useFraction * relative_chunk_weight) / repeats;
   assert(fraction <= 1.0);
   final boolean sample=(fraction < 0.999 || obs_weights || _shuffle);
-  final Random skip_rng=sample ? RandomUtils.getRNG((0x8734093502429734L + _seed + offset) * (_iteration + 0x9823423497823423L)) : null;
+  final long chunkSeed=(0x8734093502429734L + _seed + offset) * (_iteration + 0x9823423497823423L);
+  final Random skip_rng=sample ? RandomUtils.getRNG(chunkSeed) : null;
+  int[] shufIdx=skip_rng == null ? null : new int[nrows];
+  if (skip_rng != null) {
+    for (int i=0; i < nrows; ++i)     shufIdx[i]=i;
+    ArrayUtils.shuffleArray(shufIdx,skip_rng);
+  }
+  final int miniBatchSize=getMiniBatchSize();
   long num_processed_rows=0;
+  int miniBatchCounter=0;
   for (int rep=0; rep < repeats; ++rep) {
     for (int row_idx=0; row_idx < nrows; ++row_idx) {
       int r=sample ? -1 : 0;
@@ -41,10 +49,10 @@
         assert(r == 0 || weight_map[r] > weight_map[r - 1]);
       }
  else       if (r == -1) {
-        do {
+        r=shufIdx[row_idx];
+        while (obs_weights && ((r == 0 && weight_map[r] == 0) || (r > 0 && weight_map[r] == weight_map[r - 1]))) {
           r=skip_rng.nextInt(nrows);
         }
- while (obs_weights && ((r == 0 && weight_map[0] == 0) || (r > 0 && weight_map[r] == weight_map[r - 1])));
       }
  else {
         assert(!obs_weights);
@@ -55,12 +63,18 @@
       if (!row.bad) {
         assert(row.weight > 0);
         long seed=offset + rep * nrows + r;
+        miniBatchCounter++;
         if (outputs != null && outputs.length > 0)         processRow(seed++,row,outputs);
  else         processRow(seed++,row);
       }
       num_processed_rows++;
+      if (miniBatchCounter > 0 && miniBatchCounter % miniBatchSize == 0) {
+        applyMiniBatchUpdate(miniBatchCounter);
+        miniBatchCounter=0;
+      }
     }
   }
+  if (miniBatchCounter > 0)   applyMiniBatchUpdate(miniBatchCounter);
   assert(fraction != 1 || num_processed_rows == repeats * nrows);
   chunkDone(num_processed_rows);
 }

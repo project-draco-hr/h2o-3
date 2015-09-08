@@ -1,0 +1,73 @@
+{
+  if (_packedDomains == null) {
+    _packedDomains=other._packedDomains;
+  }
+ else   if (other._packedDomains != null) {
+    H2OCountedCompleter[] domtasks=new H2OCountedCompleter[_catColIdxs.length];
+    for (int i=0; i < _catColIdxs.length; i++) {
+      final int fi=i;
+      final GatherCategoricalDomainsTask fOther=other;
+      H2O.submitTask(domtasks[i]=new H2OCountedCompleter(){
+        @Override public void compute2(){
+          final byte[] thisDom=_packedDomains[fi];
+          final byte[] otherDom=fOther._packedDomains[fi];
+          final int tLen=UnsafeUtils.get4(thisDom,0), oLen=UnsafeUtils.get4(otherDom,0);
+          int tDomLen=UnsafeUtils.get4(thisDom,4);
+          int oDomLen=UnsafeUtils.get4(otherDom,4);
+          ValueString tCat=new ValueString(thisDom,8,tDomLen);
+          ValueString oCat=new ValueString(otherDom,8,oDomLen);
+          int ti=0, oi=0, tbi=8, obi=8, mbi=4, mergeLen=0;
+          byte[] mergedDom=new byte[thisDom.length + otherDom.length];
+          while (ti < tLen && oi < oLen) {
+            int x=tCat.compareTo(oCat);
+            if (x <= 0) {
+              UnsafeUtils.set4(mergedDom,mbi,tDomLen);
+              mbi+=4;
+              for (int j=0; j < tDomLen; j++)               mergedDom[mbi++]=thisDom[tbi++];
+              tDomLen=UnsafeUtils.get4(thisDom,tbi);
+              tbi+=4;
+              tCat.set(thisDom,tbi,tDomLen);
+              ti++;
+              if (x == 0) {
+                obi+=oDomLen;
+                oDomLen=UnsafeUtils.get4(otherDom,obi);
+                obi+=4;
+                oCat.set(otherDom,obi,oDomLen);
+                oi++;
+              }
+            }
+ else {
+              UnsafeUtils.set4(mergedDom,mbi,oDomLen);
+              mbi+=4;
+              for (int j=0; j < oDomLen; j++)               mergedDom[mbi++]=otherDom[obi++];
+              oDomLen=UnsafeUtils.get4(otherDom,obi);
+              obi+=4;
+              oCat.set(otherDom,obi,oDomLen);
+              oi++;
+            }
+            mergeLen++;
+          }
+          if (ti < tLen) {
+            tbi-=4;
+            int remainder=thisDom.length - tbi;
+            System.arraycopy(thisDom,tbi,mergedDom,mbi,remainder);
+            mbi+=remainder;
+            mergeLen+=tLen - ti;
+          }
+ else {
+            obi-=4;
+            int remainder=otherDom.length - obi;
+            System.arraycopy(otherDom,obi,mergedDom,mbi,remainder);
+            mbi+=remainder;
+            mergeLen+=oLen - oi;
+          }
+          _packedDomains[fi]=Arrays.copyOf(mergedDom,mbi);
+          UnsafeUtils.set4(_packedDomains[fi],0,mergeLen);
+          tryComplete();
+        }
+      }
+);
+    }
+    for (int i=0; i < _catColIdxs.length; i++)     if (domtasks[i] != null)     domtasks[i].join();
+  }
+}

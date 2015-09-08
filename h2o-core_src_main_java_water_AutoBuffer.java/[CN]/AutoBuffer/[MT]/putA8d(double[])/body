@@ -1,13 +1,14 @@
 {
   if (ary == null)   return putInt(-1);
   putInt(ary.length);
+  if (ary.length * 8 > _bb.remaining())   expandByteBuffer(ary.length * 8);
   int sofar=0;
   while (sofar < ary.length) {
-    DoubleBuffer sb=_bb.asDoubleBuffer();
-    int len=Math.min(ary.length - sofar,sb.remaining());
-    sb.put(ary,sofar,len);
+    DoubleBuffer db=_bb.asDoubleBuffer();
+    int len=Math.min(ary.length - sofar,db.remaining());
+    db.put(ary,sofar,len);
     sofar+=len;
-    _bb.position(_bb.position() + sb.position() * 8);
+    _bb.position(_bb.position() + db.position() * 8);
     if (sofar < ary.length)     sendPartial();
   }
   return this;

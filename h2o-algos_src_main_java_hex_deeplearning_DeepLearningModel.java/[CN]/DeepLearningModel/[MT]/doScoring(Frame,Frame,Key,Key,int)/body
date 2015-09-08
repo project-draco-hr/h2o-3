@@ -5,7 +5,7 @@
   run_time+=time_last_iter_millis;
   Job.Progress prog=DKV.getGet(progressKey);
   float progress=prog == null ? 0 : prog.progress();
-  String msg="Iteration " + String.format("%,d",iteration) + ": Training at "+ String.format("%,d",model_info().get_processed_total() * 1000 / run_time)+ " samples/s..."+ (progress == 0 ? "" : " Estimated time left: " + PrettyPrint.msecs((long)(run_time * (1. - progress) / progress),true));
+  String msg="Map/Reduce Iteration " + String.format("%,d",iteration) + ": Training at "+ String.format("%,d",model_info().get_processed_total() * 1000 / run_time)+ " samples/s..."+ (progress == 0 ? "" : " Estimated time left: " + PrettyPrint.msecs((long)(run_time * (1. - progress) / progress),true));
   ((Job)DKV.getGet(job_key)).update(actual_train_samples_per_iteration);
   if (progressKey != null)   new Job.ProgressUpdate(msg).fork(progressKey);
   boolean keep_running;
@@ -44,7 +44,6 @@
     if (!keep_running || sinceLastPrint > get_params()._score_interval * 1000) {
       _timeLastPrintStart=now;
       if (!get_params()._quiet_mode) {
-        if (iteration >= 1)         Log.info("Map/Reduce iteration #" + String.format("%,d",iteration));
         Log.info("Training time: " + PrettyPrint.msecs(run_time,true) + ". Processed "+ String.format("%,d",model_info().get_processed_total())+ " samples"+ " ("+ String.format("%.3f",epoch_counter)+ " epochs)."+ " Speed: "+ String.format("%,d",1000 * model_info().get_processed_total() / run_time)+ " samples/sec.\n");
         Log.info(msg);
       }
@@ -55,7 +54,7 @@
       }
       final boolean printme=!get_params()._quiet_mode;
       _timeLastScoreStart=now;
-      if (get_params()._diagnostics)       model_info().computeStats();
+      model_info().computeStats();
       DeepLearningScoring err=new DeepLearningScoring();
       err.training_time_ms=run_time;
       err.epoch_counter=epoch_counter;
@@ -67,8 +66,6 @@
         if (printme)         Log.info("Scoring the auto-encoder.");
 {
           final Frame mse_frame=scoreAutoEncoder(ftrain,Key.make());
-          final Vec l2=mse_frame.anyVec();
-          Log.info("Mean reconstruction error on training data: " + l2.mean() + "\n");
           mse_frame.delete();
           ModelMetrics mtrain=ModelMetrics.getFromDKV(this,ftrain);
           _output._training_metrics=mtrain;
@@ -76,8 +73,6 @@
         }
         if (ftest != null) {
           final Frame mse_frame=scoreAutoEncoder(ftest,Key.make());
-          final Vec l2=mse_frame.anyVec();
-          Log.info("Mean reconstruction error on validation data: " + l2.mean() + "\n");
           mse_frame.delete();
           ModelMetrics mtest=ModelMetrics.getFromDKV(this,ftest);
           _output._validation_metrics=mtest;
@@ -173,9 +168,9 @@
           _bestError=error();
           putMeAsBestModel(actual_best_model_key);
         }
-        if (keep_running && printme)         Log.info(toString());
-        if (printme)         Log.info("Time taken for scoring and diagnostics: " + PrettyPrint.msecs(err.scoring_time,true));
       }
+      if (keep_running && printme)       Log.info(toString());
+      if (printme)       Log.info("Time taken for scoring and diagnostics: " + PrettyPrint.msecs(err.scoring_time,true));
     }
     if (model_info().unstable()) {
       Log.warn(unstable_msg);

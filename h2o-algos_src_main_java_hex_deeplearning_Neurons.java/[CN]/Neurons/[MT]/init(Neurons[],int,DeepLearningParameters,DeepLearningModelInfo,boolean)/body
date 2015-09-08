@@ -3,12 +3,17 @@
   params=(DeepLearningParameters)p.clone();
   params._hidden_dropout_ratios=minfo.get_params()._hidden_dropout_ratios;
   params._rate*=Math.pow(params._rate_decay,index - 1);
+  params._distribution=minfo.get_params()._distribution;
+  _dist=new Distribution(params._distribution,params._tweedie_power);
   _a=new Storage.DenseVector(units);
-  if (!(this instanceof Output) && !(this instanceof Input)) {
+  if (!(this instanceof Input)) {
     _e=new Storage.DenseVector(units);
   }
+ else   if (params._autoencoder && params._input_dropout_ratio > 0) {
+    _origa=new Storage.DenseVector(units);
+  }
   if (training && (this instanceof MaxoutDropout || this instanceof TanhDropout || this instanceof RectifierDropout|| this instanceof Input)) {
-    _dropout=this instanceof Input ? new Dropout(units,params._input_dropout_ratio) : new Dropout(units,params._hidden_dropout_ratios[_index]);
+    _dropout=this instanceof Input ? (params._input_dropout_ratio == 0 ? null : new Dropout(units,params._input_dropout_ratio)) : new Dropout(units,params._hidden_dropout_ratios[_index]);
   }
   if (!(this instanceof Input)) {
     _previous=neurons[_index];
