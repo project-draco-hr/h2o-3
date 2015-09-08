@@ -1,11 +1,9 @@
 {
-  String testcaseStatus="passed";
   RecordingTestcase rt=new RecordingTestcase();
   Param[] params=null;
   Model.Parameters modelParameter=null;
   String invalidMessage=null;
   String notImplMessage=null;
-  redirectStandardStreams();
 switch (algorithm) {
 case FunctionUtils.drf:
     params=DRFConfig.params;
@@ -17,7 +15,7 @@ case FunctionUtils.glm:
 params=GLMConfig.params;
 break;
 default :
-System.out.println("do not implement for algorithm: " + algorithm);
+Reporter.log("do not implement for algorithm: " + algorithm);
 }
 try {
 invalidMessage=FunctionUtils.validate(params,train_dataset_id,train_dataset,rawInput);
@@ -25,11 +23,11 @@ if (FunctionUtils.drf.equals(algorithm)) {
 notImplMessage=FunctionUtils.checkImplemented(rawInput);
 }
 if (StringUtils.isNotEmpty(invalidMessage)) {
-System.out.println(invalidMessage);
+Reporter.log(invalidMessage,true);
 Assert.fail(String.format(invalidMessage));
 }
  else if (StringUtils.isNotEmpty(notImplMessage)) {
-System.out.println(notImplMessage);
+Reporter.log(notImplMessage,true);
 Assert.fail(String.format(notImplMessage));
 }
  else {
@@ -37,20 +35,14 @@ modelParameter=FunctionUtils.toModelParameter(params,algorithm,train_dataset_id,
 FunctionUtils.basicTesting(algorithm,modelParameter,isNegativeTestcase);
 }
 }
- catch (AssertionError ae) {
-testcaseStatus="failed";
-throw ae;
-}
- finally {
-System.out.println("Total Memory used in testcase:" + (rt.getUsedMemory() / RecordingTestcase.MB) + "MB");
-System.out.println("Total Time used in testcase:" + (rt.getTimeRecording()) + "millis");
+  finally {
+Reporter.log("Total Memory used in testcase:" + (rt.getUsedMemory() / RecordingTestcase.MB) + "MB");
+Reporter.log("Total Time used in testcase:" + (rt.getTimeRecording()) + "millis");
 try {
 Thread.sleep(100);
 }
  catch (InterruptedException ex) {
 Thread.currentThread().interrupt();
 }
-resetStandardStreams();
-Reporter.log("Testcase is " + testcaseStatus,true);
 }
 }

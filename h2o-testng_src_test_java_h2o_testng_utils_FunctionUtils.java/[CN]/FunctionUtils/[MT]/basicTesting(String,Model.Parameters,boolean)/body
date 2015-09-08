@@ -1,4 +1,5 @@
 {
+  String testcaseStatus="passed";
   Frame trainFrame=null;
   Frame score=null;
   DRF drfJob=null;
@@ -15,63 +16,74 @@
     Scope.enter();
 switch (algorithm) {
 case FunctionUtils.drf:
-      System.out.println("Build model");
+      Reporter.log("Build model",true);
     drfJob=new DRF((DRFModel.DRFParameters)parameter);
-  System.out.println("Train model:");
+  Reporter.log("Train model:",true);
 drfModel=drfJob.trainModel().get();
-System.out.println("Predict testcase");
+Reporter.log("Predict testcase",true);
 score=drfModel.score(trainFrame);
 modelMetrics=drfModel._output._training_metrics;
 break;
 case FunctionUtils.glm:
-System.out.println("Build model");
+Reporter.log("Build model",true);
 glmJob=new GLM(modelKey,"basic glm test",(GLMParameters)parameter);
-System.out.println("Train model");
+Reporter.log("Train model",true);
 glmModel=glmJob.trainModel().get();
 coef=glmModel.coefficients();
-System.out.println("Predict testcase ");
+Reporter.log("Predict testcase",true);
 score=glmModel.score(trainFrame);
 modelMetrics=glmModel._output._training_metrics;
 break;
 case FunctionUtils.gbm:
-System.out.println("Build model ");
+Reporter.log("Build model",true);
 gbmJob=new GBM((GBMParameters)parameter);
-System.out.println("Train model");
+Reporter.log("Train model",true);
 gbmModel=gbmJob.trainModel().get();
-System.out.println("Predict testcase ");
+Reporter.log("Predict testcase",true);
 score=gbmModel.score(trainFrame);
 modelMetrics=gbmModel._output._training_metrics;
 break;
 }
 if (isNegativeTestcase) {
+testcaseStatus="failed";
+Reporter.log("It is negative testcase",true);
 Assert.fail("It is negative testcase");
 }
  else {
-System.out.println("Testcase is passed.");
-System.out.println("MSE: " + modelMetrics._MSE);
+Reporter.log("Testcase is passed.");
+Reporter.log("MSE: " + modelMetrics._MSE);
 if (modelMetrics.auc() != null) {
-System.out.println("AUC: " + modelMetrics.auc()._auc);
+Reporter.log("AUC: " + modelMetrics.auc()._auc);
 }
  else {
-System.out.println("AUC: NA");
+Reporter.log("AUC: NA");
 }
 }
 }
  catch (Exception ex) {
-System.out.println("Testcase is failed");
-ex.printStackTrace();
+Reporter.log("Testcase is failed");
+Reporter.log(ExceptionUtils.getStackTrace(ex));
 if (!isNegativeTestcase) {
+testcaseStatus="failed";
 Assert.fail("Testcase is failed",ex);
+}
+ else {
+Reporter.log("This is negative testcase");
 }
 }
 catch (AssertionError ae) {
-System.out.println("Testcase is failed");
-ae.printStackTrace();
+Reporter.log("Testcase is failed");
+Reporter.log(ExceptionUtils.getStackTrace(ae));
 if (!isNegativeTestcase) {
+testcaseStatus="failed";
 Assert.fail("Testcase is failed",ae);
+}
+ else {
+Reporter.log("This is negative testcase");
 }
 }
  finally {
+Reporter.log("Testcase is " + testcaseStatus,true);
 if (drfJob != null) {
 drfJob.remove();
 }

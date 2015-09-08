@@ -1,23 +1,24 @@
 {
+  Reporter.log("Read file: " + fileName,true);
   Object[][] result=null;
   List<String> lines=null;
   String[] hearderRow=null;
   if (StringUtils.isEmpty(fileName)) {
-    System.out.println("Not found file: " + fileName);
+    Reporter.log("File Not found: " + fileName,true);
     return null;
   }
   try {
     lines=Files.readAllLines(TestNGUtil.find_test_file_static(fileName).toPath(),Charset.defaultCharset());
   }
  catch (  Exception ignore) {
-    System.out.println("Cannot open file: " + fileName);
+    Reporter.log("Cannot open file: " + fileName,true);
     ignore.printStackTrace();
     return null;
   }
   lines.removeAll(lines.subList(0,indexRowHeader - 1));
   hearderRow=lines.remove(0).split(regexToSplitTestcase,-1);
   if (!validateTestcaseFile(listHeaders,fileName,hearderRow)) {
-    System.out.println("Testcase file is wrong format");
+    Reporter.log("Testcase file is wrong format",true);
     return null;
   }
   result=new Object[lines.size()][9];
@@ -36,5 +37,6 @@
     result[r][8]=rawInput;
     r++;
   }
+  Reporter.log("Read file successful",true);
   return result;
 }

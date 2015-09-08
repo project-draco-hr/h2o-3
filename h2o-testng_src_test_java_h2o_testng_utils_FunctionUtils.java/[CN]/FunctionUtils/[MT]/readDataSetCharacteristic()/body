@@ -11,22 +11,22 @@
   File file=null;
   List<String> lines=null;
   try {
-    System.out.println("read dataset characteristic");
+    Reporter.log("read dataset characteristic",true);
     file=TestNGUtil.find_test_file_static(dataSetCharacteristicFilePath);
     lines=Files.readAllLines(file.toPath(),Charset.defaultCharset());
   }
  catch (  Exception e) {
-    System.out.println("Cannot open dataset characteristic file: " + dataSetCharacteristicFilePath);
+    Reporter.log("Cannot open dataset characteristic file: " + dataSetCharacteristicFilePath,true);
     e.printStackTrace();
   }
   for (  String line : lines) {
-    System.out.println("read line: " + line);
+    Reporter.log("read line: " + line);
     String[] arr=line.trim().split(",",-1);
     if (arr.length < numCols) {
-      System.out.println("length of line is short");
+      Reporter.log("length of line is short",true);
     }
  else {
-      System.out.println("parse to DataSet object");
+      Reporter.log("parse to DataSet object");
       Dataset dataset=new Dataset(arr[dataSetId],arr[dataSetDirectory],arr[fileName],arr[responseColumn],arr[columnNames],arr[columnTypes]);
       result.put(arr[dataSetId],dataset);
     }
