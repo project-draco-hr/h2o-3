@@ -1,0 +1,10 @@
+def varimp(self, return_list=False):
+    '\n    Pretty print the variable importances, or return them in a list\n    :param return_list: if True, then return the variable importances in an list (ordered from most important to least\n    important). Each entry in the list is a 4-tuple of (variable, relative_importance, scaled_importance, percentage).\n    :return: None or ordered list\n    '
+    model = self._model_json['output']
+    if (('variable_importances' in model.keys()) and model['variable_importances']):
+        if (not return_list):
+            return model['variable_importances'].show()
+        else:
+            return model['variable_importances'].cell_values
+    else:
+        print "Warning: This model doesn't have variable importances"

@@ -1,0 +1,8 @@
+def remove_vecs(self, cols):
+    '\n    :param cols: Drop these columns.\n    :return: A frame with the columns dropped.\n    '
+    self._eager()
+    is_char = all([isinstance(i, basestring) for i in cols])
+    if is_char:
+        cols = [self._find_idx(col) for col in cols]
+    cols = sorted(cols)
+    return H2OFrame(expr=ExprNode('removeVecs', self, cols))._frame()

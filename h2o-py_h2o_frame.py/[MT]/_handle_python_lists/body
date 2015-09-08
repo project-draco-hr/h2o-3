@@ -1,0 +1,9 @@
+def _handle_python_lists(python_obj):
+    cols = len(python_obj)
+    lol = _is_list_of_lists(python_obj)
+    if lol:
+        _check_lists_of_lists(python_obj)
+        cols = max([len(l) for l in python_obj])
+    header = _gen_header(cols)
+    data_to_write = ([dict(zip(header, row)) for row in python_obj] if lol else [dict(zip(header, python_obj))])
+    return (header, data_to_write)

@@ -1,0 +1,8 @@
+def remove(object):
+    '\n  Remove object from H2O. This is a "hard" delete of the object. It removes all subparts.\n\n  :param object: The object pointing to the object to be removed.\n  :return: None\n  '
+    if (object is None):
+        raise ValueError('remove with no object is not supported, for your protection')
+    if isinstance(object, H2OFrame):
+        H2OConnection.delete(('DKV/' + object._id))
+    if isinstance(object, str):
+        H2OConnection.delete(('DKV/' + object))
