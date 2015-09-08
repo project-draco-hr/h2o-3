@@ -1,0 +1,14 @@
+def transform(self, X, y=None, **params):
+    if ((self.params == None) or (self.params == {})):
+        if (self.col is not None):
+            res = self.fun(X[self.col])
+        else:
+            res = self.fun(X)
+    elif (self.col is not None):
+        res = self.fun(X[self.col], **self.params)
+    else:
+        res = self.fun(X, **self.params)
+    if self.append:
+        return X.cbind(res)._frame()
+    X[self.col] = res
+    return X

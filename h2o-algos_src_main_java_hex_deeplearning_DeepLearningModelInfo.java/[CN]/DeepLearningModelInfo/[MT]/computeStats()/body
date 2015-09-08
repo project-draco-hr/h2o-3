@@ -43,8 +43,7 @@
     rms_weight[y]=MathUtils.approxSqrt(rms_weight[y] / get_weights(y).size());
     if (rate != null)     rms_rate[y]=MathUtils.approxSqrt(rms_rate[y] / rate[y].length);
     final double thresh=1e10;
-    final double bthresh=1000;
-    unstable|=isNaN(mean_bias[y]) || isNaN(rms_bias[y]) || Math.abs(mean_weight[y]) > thresh || isNaN(mean_weight[y]) || rms_weight[y] > thresh || isNaN(rms_weight[y]);
-    bogus|=Math.abs(mean_bias[y]) > bthresh || rms_bias[y] > bthresh;
+    final double bthresh=1e5;
+    unstable|=isNaN(mean_bias[y]) || isNaN(rms_bias[y]) || isNaN(mean_weight[y])|| isNaN(rms_weight[y])|| Math.abs(mean_weight[y]) > thresh || rms_weight[y] > thresh || Math.abs(mean_bias[y]) > bthresh || rms_bias[y] > bthresh;
   }
 }
