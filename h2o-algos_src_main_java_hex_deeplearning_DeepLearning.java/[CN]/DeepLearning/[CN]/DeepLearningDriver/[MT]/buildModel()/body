@@ -43,25 +43,29 @@
   }
   trainModel(cp);
   List<Key> keep=new ArrayList<>();
-  keep.add(dest());
-  keep.add(cp.model_info().data_info()._key);
-  keep.add(cp._output._training_metrics._key);
-  if (cp._output._validation_metrics != null) {
-    keep.add(cp._output._validation_metrics._key);
-  }
-  if (cp._output.weights != null && cp._output.biases != null) {
-    for (    Key k : Arrays.asList(cp._output.weights)) {
-      keep.add(k);
-      for (      Vec vk : ((Frame)DKV.getGet(k)).vecs()) {
-        keep.add(vk._key);
+  try {
+    keep.add(dest());
+    keep.add(cp.model_info().data_info()._key);
+    keep.add(cp._output._training_metrics._key);
+    if (cp._output._validation_metrics != null) {
+      keep.add(cp._output._validation_metrics._key);
+    }
+    if (cp._output.weights != null && cp._output.biases != null) {
+      for (      Key k : Arrays.asList(cp._output.weights)) {
+        keep.add(k);
+        for (        Vec vk : ((Frame)DKV.getGet(k)).vecs()) {
+          keep.add(vk._key);
+        }
+      }
+      for (      Key k : Arrays.asList(cp._output.biases)) {
+        keep.add(k);
+        for (        Vec vk : ((Frame)DKV.getGet(k)).vecs()) {
+          keep.add(vk._key);
+        }
       }
     }
-    for (    Key k : Arrays.asList(cp._output.biases)) {
-      keep.add(k);
-      for (      Vec vk : ((Frame)DKV.getGet(k)).vecs()) {
-        keep.add(vk._key);
-      }
-    }
   }
-  Scope.exit(keep.toArray(new Key[0]));
+  finally {
+    Scope.exit(keep.toArray(new Key[0]));
+  }
 }

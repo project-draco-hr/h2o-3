@@ -62,6 +62,7 @@
     if (!mp._quiet_mode)     Log.info("Initial model:\n" + model.model_info());
     if (_parms._autoencoder) {
       new ProgressUpdate("Scoring null model of autoencoder...").fork(_progressKey);
+      Log.info("Scoring the null model of the autoencoder.");
       model.doScoring(trainScoreFrame,validScoreFrame,self(),null,0);
     }
     model.update(self());
@@ -72,8 +73,8 @@
     do {
       model.set_model_info(mp._epochs == 0 ? model.model_info() : H2O.CLOUD.size() > 1 && mp._replicate_training_data ? (mp._single_node_mode ? new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model),++iteration).doAll(Key.make(H2O.SELF)).model_info() : new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model),++iteration).doAllNodes().model_info()) : new DeepLearningTask(self(),model.model_info(),rowFraction(train,mp,model),++iteration).doAll(train).model_info());
     }
- while (model.doScoring(trainScoreFrame,validScoreFrame,self(),_progressKey,iteration));
-    if (!isCancelledOrCrashed() && _parms._overwrite_with_best_model && model.actual_best_model_key != null && _parms._nfolds == 0) {
+ while (isRunning() && model.doScoring(trainScoreFrame,validScoreFrame,self(),_progressKey,iteration));
+    if (isRunning() && _parms._overwrite_with_best_model && model.actual_best_model_key != null && _parms._nfolds == 0) {
       DeepLearningModel best_model=DKV.getGet(model.actual_best_model_key);
       if (best_model != null && best_model.error() < model.error() && Arrays.equals(best_model.model_info().units,model.model_info().units)) {
         if (!_parms._quiet_mode) {
@@ -90,17 +91,17 @@
     }
     if (!_parms._quiet_mode) {
       Log.info("==============================================================================================================================================================================");
-      Log.info("Finished training the Deep Learning model (" + iteration + " Map/Reduce iterations)");
-      Log.info(model);
+      if (isCancelledOrCrashed()) {
+        Log.info("Deep Learning model training was interrupted.");
+      }
+ else {
+        Log.info("Finished training the Deep Learning model (" + iteration + " Map/Reduce iterations)");
+        Log.info(model);
+      }
       Log.info("==============================================================================================================================================================================");
     }
   }
- catch (  Throwable ex) {
-    model=DKV.get(dest()).get();
-    Log.info("Deep Learning model building was cancelled.");
-    throw new RuntimeException(ex);
-  }
- finally {
+  finally {
     if (model != null) {
       model.deleteElasticAverageModels();
       model.unlock(self());
