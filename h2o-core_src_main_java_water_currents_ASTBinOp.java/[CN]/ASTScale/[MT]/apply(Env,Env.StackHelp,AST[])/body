@@ -18,10 +18,16 @@
     if (mults.length != ncols)     throw new IllegalArgumentException("Numlist must be the same length as the columns of the Frame");
   }
  else {
-    double d=asts[3].exec(env).getNum();
-    if (d == 0)     Arrays.fill(mults=new double[ncols],1.0);
- else     if (d == 1)     mults=fr.mults();
- else     throw new IllegalArgumentException("Only true or false allowed");
+    Val v=asts[3].exec(env);
+    if (v instanceof ValFrame) {
+      mults=toArray(v.getFrame().anyVec());
+    }
+ else {
+      double d=v.getNum();
+      if (d == 0)       Arrays.fill(mults=new double[ncols],1.0);
+ else       if (d == 1)       mults=fr.mults();
+ else       throw new IllegalArgumentException("Only true or false allowed");
+    }
   }
   final double[] fmeans=means;
   final double[] fmults=mults;
