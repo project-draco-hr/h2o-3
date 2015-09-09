@@ -1,0 +1,19 @@
+{
+  float atmp[]=new float[_ncolA];
+  double xtmp[]=new double[_ncolX];
+  double preds[]=new double[_ncolA];
+  _mb=GLRMModel.this.makeMetricBuilder(null);
+  if (_save_imputed) {
+    for (int row=0; row < chks[0]._len; row++) {
+      double p[]=impute_data(chks,row,xtmp,preds);
+      compute_metrics(chks,row,atmp,p);
+      for (int c=0; c < preds.length; c++)       chks[_ncolA + _ncolX + c].set(row,p[c]);
+    }
+  }
+ else {
+    for (int row=0; row < chks[0]._len; row++) {
+      double p[]=impute_data(chks,row,xtmp,preds);
+      compute_metrics(chks,row,atmp,p);
+    }
+  }
+}

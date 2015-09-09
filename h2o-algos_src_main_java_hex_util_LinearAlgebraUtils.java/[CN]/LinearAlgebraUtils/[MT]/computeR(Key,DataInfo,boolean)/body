@@ -1,0 +1,9 @@
+{
+  Gram.GramTask gtsk=new Gram.GramTask(jobKey,yinfo);
+  gtsk.doAll(yinfo._adaptedFrame);
+  Matrix ygram=new Matrix(gtsk._gram.getXX());
+  CholeskyDecomposition chol=new CholeskyDecomposition(ygram);
+  double[][] L=chol.getL().getArray();
+  ArrayUtils.mult(L,Math.sqrt(gtsk._nobs));
+  return transpose ? L : ArrayUtils.transpose(L);
+}
