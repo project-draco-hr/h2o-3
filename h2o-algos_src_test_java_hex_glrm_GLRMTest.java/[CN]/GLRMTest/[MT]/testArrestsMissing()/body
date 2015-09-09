@@ -23,8 +23,9 @@
       parms=new GLRMParameters();
       parms._train=train._key;
       parms._k=train.numCols();
-      parms._regularization_x=GLRMParameters.Regularizer.L2;
-      parms._regularization_y=GLRMParameters.Regularizer.L2;
+      parms._loss=GLRMParameters.Loss.Quadratic;
+      parms._regularization_x=GLRMParameters.Regularizer.None;
+      parms._regularization_y=GLRMParameters.Regularizer.None;
       parms._transform=DataInfo.TransformType.STANDARDIZE;
       parms._init=GLRM.Initialization.PlusPlus;
       parms._max_iterations=1000;
@@ -35,13 +36,14 @@
         model=job.trainModel().get();
         Log.info(100 * missing_fraction + "% missing values: Objective = " + model._output._objective);
         double sd_err=errStddev(sval,model._output._singular_vals) / parms._k;
-        double ev_err=errEigvec(eigvec,model._output._eigenvectors) / parms._k;
+        double ev_err=errEigvec(eigvec,model._output._eigenvectors_raw) / parms._k;
         Log.info("Avg SSE in Std Dev = " + sd_err + "\tAvg SSE in Eigenvectors = "+ ev_err);
         sd_map.put(missing_fraction,sd_err);
         ev_map.put(missing_fraction,ev_err);
         score=model.score(train);
         ModelMetricsGLRM mm=DKV.getGet(model._output._model_metrics[model._output._model_metrics.length - 1]);
         Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
+        Assert.assertEquals(model._output._objective,mm._numerr,TOLERANCE);
       }
  catch (      Throwable t) {
         t.printStackTrace();
@@ -60,7 +62,7 @@
  finally {
       if (train != null)       train.delete();
       if (model != null) {
-        model._parms._loading_key.get().delete();
+        model._output._loading_key.get().delete();
         model.delete();
       }
     }
