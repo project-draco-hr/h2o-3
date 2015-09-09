@@ -3,7 +3,12 @@
   URI uri=p.toUri();
   try {
     FileSystem fs=FileSystem.get(uri,CONF);
-    return fs.mkdirs(p);
+    if (fs.exists(p)) {
+      return false;
+    }
+ else {
+      return fs.mkdirs(p);
+    }
   }
  catch (  IOException e) {
     throw new HDFSIOException(path,CONF.toString(),e);
