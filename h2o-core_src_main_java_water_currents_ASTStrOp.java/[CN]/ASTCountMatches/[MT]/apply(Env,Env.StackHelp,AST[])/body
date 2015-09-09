@@ -1,6 +1,8 @@
 {
   Frame fr=stk.track(asts[1].exec(env)).getFrame();
-  String pattern=asts[2].exec(env).getStr();
+  String[] pattern;
+  if (asts[2] instanceof ASTStrList)   pattern=((ASTStrList)asts[2])._strs;
+ else   pattern=new String[]{asts[2].exec(env).getStr()};
   if (fr.numCols() != 1)   throw new IllegalArgumentException("countmatches requires a single column.");
   final int[] matchCounts=countMatches(fr.anyVec().domain(),pattern);
   Frame fr2=new MRTask(){
@@ -15,6 +17,6 @@
       }
     }
   }
-.doAll(1,fr).outputFrame(null,null,null);
-  return new ValFrame(fr);
+.doAll(1,fr).outputFrame();
+  return new ValFrame(fr2);
 }
