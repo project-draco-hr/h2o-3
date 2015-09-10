@@ -69,11 +69,11 @@
     model._timeLastScoreEnter=System.currentTimeMillis();
     Log.info("Starting to train the Deep Learning model.");
     new ProgressUpdate("Training...").fork(_progressKey);
-    int iteration=0;
+    int iteration=1;
     do {
-      model.set_model_info(mp._epochs == 0 ? model.model_info() : H2O.CLOUD.size() > 1 && mp._replicate_training_data ? (mp._single_node_mode ? new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model),++iteration).doAll(Key.make(H2O.SELF)).model_info() : new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model),++iteration).doAllNodes().model_info()) : new DeepLearningTask(self(),model.model_info(),rowFraction(train,mp,model),++iteration).doAll(train).model_info());
+      model.set_model_info(mp._epochs == 0 ? model.model_info() : H2O.CLOUD.size() > 1 && mp._replicate_training_data ? (mp._single_node_mode ? new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model),iteration).doAll(Key.make(H2O.SELF)).model_info() : new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model),iteration).doAllNodes().model_info()) : new DeepLearningTask(self(),model.model_info(),rowFraction(train,mp,model),iteration).doAll(train).model_info());
     }
- while (isRunning() && model.doScoring(trainScoreFrame,validScoreFrame,self(),_progressKey,iteration));
+ while (isRunning() && model.doScoring(trainScoreFrame,validScoreFrame,self(),_progressKey,iteration++));
     if (isRunning() && _parms._overwrite_with_best_model && model.actual_best_model_key != null && _parms._nfolds == 0) {
       DeepLearningModel best_model=DKV.getGet(model.actual_best_model_key);
       if (best_model != null && best_model.error() < model.error() && Arrays.equals(best_model.model_info().units,model.model_info().units)) {
@@ -85,7 +85,7 @@
         mi.set_processed_local(model.model_info().get_processed_local());
         model.set_model_info(mi);
         model.update(self());
-        model.doScoring(trainScoreFrame,validScoreFrame,self(),_progressKey,-1);
+        model.doScoring(trainScoreFrame,validScoreFrame,self(),_progressKey,iteration);
         assert(best_model.error() == model.error());
       }
     }
