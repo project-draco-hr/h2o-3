@@ -22,6 +22,14 @@ AST ast=asts[5];
 ASTNumList by2;
 if (ast instanceof ASTNumList) by2=(ASTNumList)ast;
  else if (ast instanceof ASTNum) by2=new ASTNumList(((ASTNum)ast)._d.getNum());
+ else if (ast instanceof ASTStrList) {
+String[] names=((ASTStrList)ast)._strs;
+double[] list=new double[names.length];
+int i=0;
+for (String name : ((ASTStrList)ast)._strs) list[i++]=fr.find(name);
+Arrays.sort(list);
+by2=new ASTNumList(list);
+}
  else throw new IllegalArgumentException("Requires a number-list, but found a " + ast.getClass());
 final ASTNumList by=by2;
 final boolean inplace=asts[6].exec(env).getNum() == 1;
