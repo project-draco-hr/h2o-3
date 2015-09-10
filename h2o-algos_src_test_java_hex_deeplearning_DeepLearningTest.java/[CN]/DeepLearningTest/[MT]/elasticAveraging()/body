@@ -5,17 +5,19 @@
   DeepLearningModel[] models=new DeepLearningModel[N];
   dl=new DeepLearningParameters();
   Scope.enter();
-  boolean covtype=true;
+  boolean covtype=new Random().nextBoolean();
   if (covtype) {
     frTrain=parse_test_file("./smalldata/covtype/covtype.20k.data");
     Vec resp=frTrain.lastVec().toEnum();
-    frTrain.remove(frTrain.vecs().length - 1).remove();
+    Vec v=frTrain.remove(frTrain.vecs().length - 1);
+    if (v != null)     v.remove();
     frTrain.add("Response",resp);
   }
  else {
     frTrain=parse_test_file("./bigdata/server/HIGGS.csv");
     Vec resp=frTrain.vecs()[0].toEnum();
-    frTrain.remove(0).remove();
+    Vec v=frTrain.remove(0);
+    if (v != null)     v.remove();
     frTrain.prepend("Response",resp);
   }
   DKV.put(frTrain);
@@ -59,7 +61,7 @@
     if (models[1] != null)     Log.info("With elastic averaging:    error=" + models[1]._output._training_metrics.cm().err());
   }
   finally {
-    if (frTrain != null)     frTrain.remove();
+    frTrain.remove();
     for (int i=0; i < N; ++i)     if (models[i] != null)     models[i].delete();
     Scope.exit();
   }
