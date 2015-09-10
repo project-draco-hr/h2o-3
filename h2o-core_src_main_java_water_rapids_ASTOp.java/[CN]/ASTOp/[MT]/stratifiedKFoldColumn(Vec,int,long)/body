@@ -5,11 +5,11 @@
   final long[] seeds=new long[nClass];
   for (int i=0; i < nClass; ++i)   seeds[i]=getRNG(seed + i).nextLong();
   return new MRTask(){
-    private int getFoldId(    int absoluteRow,    long seed){
+    private int getFoldId(    long absoluteRow,    long seed){
       return Math.abs(getRNG(absoluteRow + seed).nextInt()) % nfolds;
     }
     @Override public void map(    Chunk[] y){
-      int start=(int)y[0].start();
+      long start=y[0].start();
       for (int testFold=0; testFold < nfolds; ++testFold) {
         for (int classLabel=0; classLabel < nClass; ++classLabel) {
           for (int row=0; row < y[0]._len; ++row) {
