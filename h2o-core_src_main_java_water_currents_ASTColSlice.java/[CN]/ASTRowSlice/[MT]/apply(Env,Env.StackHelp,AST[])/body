@@ -2,18 +2,18 @@
   Frame fr=stk.track(asts[1].exec(env)).getFrame();
   Frame returningFrame;
   if (asts[2] instanceof ASTNumList) {
-    ASTNumList nums=(ASTNumList)asts[2];
-    final long[] ls=nums.expand8Sort();
+    final ASTNumList nums=(ASTNumList)asts[2];
+    final long[] ls=nums._isList ? nums.expand8Sort() : null;
     returningFrame=new MRTask(){
       @Override public void map(      Chunk[] cs,      NewChunk[] ncs){
-        if (ls.length == 0)         return;
+        if (nums.cnt() == 0)         return;
         long start=cs[0].start();
         long end=start + cs[0]._len;
-        long min=ls[0], max=ls[ls.length - 1];
+        double min=ls == null ? nums.min() : ls[0], max=ls == null ? nums.max() - 1 : ls[ls.length - 1];
         if (!(max < start || min > end)) {
           long startOffset=(min > start ? (long)min : start);
           for (int i=(int)(startOffset - start); i < cs[0]._len; ++i) {
-            if (Arrays.binarySearch(ls,start + i) >= 0) {
+            if ((ls != null && Arrays.binarySearch(ls,start + i) >= 0) || (nums.has(start + i))) {
               for (int c=0; c < cs.length; ++c) {
                 if (cs[c] instanceof CStrChunk)                 ncs[c].addStr(cs[c],i);
  else                 if (cs[c] instanceof C16Chunk)                 ncs[c].addUUID(cs[c],i);

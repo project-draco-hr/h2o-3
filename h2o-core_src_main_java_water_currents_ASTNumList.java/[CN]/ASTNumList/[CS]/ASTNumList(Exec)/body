@@ -38,5 +38,8 @@
     _strides[i]=strides.get(i);
     if (_cnts[i] != 1)     isList=false;
   }
+  _isList=isList;
   if (!isList)   for (int i=1; i < _bases.length; i++)   if (_bases[i - 1] >= _bases[i])   throw new IllegalArgumentException("Bases must be monotonically increasing");
+  _isEx=_bases.length > 0 && _bases[0] < 0;
+  if (_isEx)   for (int i=0; i < _bases.length; i++)   _bases[i]=-1 * _bases[i] - 1;
 }
