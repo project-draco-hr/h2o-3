@@ -9,7 +9,7 @@
   ((Job)DKV.getGet(job_key)).update(actual_train_samples_per_iteration);
   if (progressKey != null)   new Job.ProgressUpdate(msg).fork(progressKey);
   boolean keep_running;
-  if (H2O.CLOUD.size() > 1 && get_params()._train_samples_per_iteration == -2 && iteration > 0) {
+  if (H2O.CLOUD.size() > 1 && get_params()._train_samples_per_iteration == -2 && iteration != 0) {
     Log.info("Auto-tuning train_samples_per_iteration.");
     if (time_for_communication_us > 1e4) {
       Log.info("  Time taken for communication: " + PrettyPrint.usecs((long)time_for_communication_us));
@@ -34,7 +34,7 @@
     }
   }
   _timeLastScoreEnter=now;
-  keep_running=(epoch_counter < model_info().get_params()._epochs);
+  keep_running=(epoch_counter < model_info().get_params()._epochs) && !stopped_early;
   final long sinceLastScore=now - _timeLastScoreStart;
   final long sinceLastPrint=now - _timeLastPrintStart;
   if (!keep_running || sinceLastPrint > get_params()._score_interval * 1000) {
@@ -170,6 +170,7 @@
   }
   if ((_output.isClassifier() && last_scored().scored_train._classError <= get_params()._classification_stop) || (!_output.isClassifier() && last_scored().scored_train._mse <= get_params()._regression_stop)) {
     Log.info("Achieved requested predictive accuracy on the training data. Model building completed.");
+    stopped_early=true;
     keep_running=false;
   }
   update(job_key);
