@@ -21,17 +21,19 @@
       dl.error("_nfolds","N-fold cross-validation is not supported for Autoencoder.");
     }
   }
-  if (_activation != Activation.TanhWithDropout && _activation != Activation.MaxoutWithDropout && _activation != Activation.RectifierWithDropout)   dl.hide("_hidden_dropout_ratios","hidden_dropout_ratios requires a dropout activation function.");
-  if (_hidden_dropout_ratios == null) {
+  if (_activation != Activation.TanhWithDropout && _activation != Activation.MaxoutWithDropout && _activation != Activation.RectifierWithDropout) {
+    dl.hide("_hidden_dropout_ratios","hidden_dropout_ratios requires a dropout activation function.");
   }
- else   if (_hidden_dropout_ratios.length != _hidden.length) {
-    dl.error("_hidden_dropout_ratios","Must have " + _hidden.length + " hidden layer dropout ratios.");
-  }
- else   if (_activation != Activation.TanhWithDropout && _activation != Activation.MaxoutWithDropout && _activation != Activation.RectifierWithDropout) {
-    if (!_quiet_mode)     dl.hide("_hidden_dropout_ratios","Ignoring hidden_dropout_ratios because a non-dropout activation function was specified.");
-  }
- else   if (ArrayUtils.maxValue(_hidden_dropout_ratios) >= 1 || ArrayUtils.minValue(_hidden_dropout_ratios) < 0) {
-    dl.error("_hidden_dropout_ratios","Hidden dropout ratios must be >= 0 and <1.");
+  if (_hidden_dropout_ratios != null) {
+    if (_hidden_dropout_ratios.length != _hidden.length) {
+      dl.error("_hidden_dropout_ratios","Must have " + _hidden.length + " hidden layer dropout ratios.");
+    }
+ else     if (_activation != Activation.TanhWithDropout && _activation != Activation.MaxoutWithDropout && _activation != Activation.RectifierWithDropout) {
+      if (!_quiet_mode)       dl.hide("_hidden_dropout_ratios","Ignoring hidden_dropout_ratios because a non-dropout activation function was specified.");
+    }
+ else     if (ArrayUtils.maxValue(_hidden_dropout_ratios) >= 1 || ArrayUtils.minValue(_hidden_dropout_ratios) < 0) {
+      dl.error("_hidden_dropout_ratios","Hidden dropout ratios must be >= 0 and <1.");
+    }
   }
   if (_input_dropout_ratio < 0 || _input_dropout_ratio >= 1)   dl.error("_input_dropout_ratio","Input dropout must be >= 0 and <1.");
   if (_score_duty_cycle < 0 || _score_duty_cycle > 1)   dl.error("_score_duty_cycle","Score duty cycle must be >= 0 and <=1.");
