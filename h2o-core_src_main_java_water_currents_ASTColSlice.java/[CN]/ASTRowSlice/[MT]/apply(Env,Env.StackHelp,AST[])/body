@@ -1,9 +1,25 @@
 {
   Frame fr=stk.track(asts[1].exec(env)).getFrame();
   Frame returningFrame;
+  long nrows=fr.numRows();
   if (asts[2] instanceof ASTNumList) {
     ASTNumList nums=(ASTNumList)asts[2];
-    final long[] ls=nums.expand8Sort();
+    long[] rows=nums.expand8Sort();
+    if (rows.length == 0) {
+    }
+ else     if (rows[0] >= 0) {
+      if (rows[rows.length - 1] > nrows)       throw new IllegalArgumentException("Row must be an integer from 0 to " + (nrows - 1));
+    }
+ else {
+      BitSet bs=new BitSet((int)nrows);
+      for (int i=0; i < rows.length; i++) {
+        int idx=(int)(-rows[i] - 1);
+        if (idx >= 0 && idx < nrows)         bs.set(idx);
+      }
+      rows=new long[(int)nrows - bs.cardinality()];
+      for (int i=bs.nextClearBit(0), j=0; i < nrows; i=bs.nextClearBit(i + 1))       rows[j++]=i;
+    }
+    final long[] ls=rows;
     returningFrame=new MRTask(){
       @Override public void map(      Chunk[] cs,      NewChunk[] ncs){
         if (ls.length == 0)         return;
