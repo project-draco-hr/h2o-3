@@ -16,7 +16,8 @@
     gbm=job.trainModel().get();
     Frame res=gbm.score(v);
     int[] ps=new int[(int)v.numRows()];
-    for (int i=0; i < ps.length; i++)     ps[i]=(int)res.vecs()[0].at8(i);
+    Vec.Reader vr=res.vecs()[0].new Reader();
+    for (int i=0; i < ps.length; i++)     ps[i]=(int)vr.at8(i);
     Assert.assertArrayEquals("",ps,new int[]{1,1,2,2,1,2,3,1,2});
     hex.ModelMetricsMultinomial mm=hex.ModelMetricsMultinomial.getFromDKV(gbm,parms.valid());
     Assert.assertTrue(mm.r2() > 0.5);

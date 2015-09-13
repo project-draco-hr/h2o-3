@@ -2,6 +2,8 @@
   if (vacts.min() < 0 || vacts.max() > 1 || !vacts.isInt())   throw new IllegalArgumentException("Actuals are either 0 or 1");
   if (vprob.min() < 0 || vprob.max() > 1)   throw new IllegalArgumentException("Probabilities are between 0 and 1");
   Pair[] ps=new Pair[(int)vprob.length()];
-  for (int i=0; i < ps.length; i++)   ps[i]=new Pair(vprob.at(i),(byte)vacts.at8(i));
+  Vec.Reader rprob=vprob.new Reader();
+  Vec.Reader racts=vacts.new Reader();
+  for (int i=0; i < ps.length; i++)   ps[i]=new Pair(rprob.at(i),(byte)racts.at8(i));
   return perfectAUC(ps);
 }
