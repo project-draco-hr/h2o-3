@@ -1,13 +1,23 @@
 {
-  if (min() <= v && v < max()) {
+  boolean isEx=false;
+  double[] bases=Arrays.copyOf(_bases,_bases.length);
+  double min=min();
+  double max=max();
+  if (min < 0) {
+    for (int i=0; i < bases.length; ++i)     bases[i]=-1 * bases[i] - 1;
+    min=bases[0];
+    max=bases[bases.length - 1] + _cnts[_cnts.length - 1] * _strides[_strides.length - 1];
+    isEx=true;
+  }
+  if (min <= v && v < max) {
     int[][] res=new int[2][];
-    bsearch(v,res);
-    if (res[0] != null)     return true;
+    bsearch(bases,v,res);
+    if (res[0] != null)     return !isEx;
  else {
       int lb=res[1][0], ub=res[1][1];
-      if (_bases[lb] <= v && v < _bases[lb] + _cnts[lb])       return true;
-      if (_bases[ub] <= v && v < _bases[ub] + _cnts[ub])       return true;
+      if (bases[lb] <= v && v < bases[lb] + _cnts[lb])       return !isEx;
+      if (bases[ub] <= v && v < bases[ub] + _cnts[ub])       return !isEx;
     }
   }
-  return false;
+  return isEx;
 }
