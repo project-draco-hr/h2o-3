@@ -9,12 +9,18 @@
   double[] in=neurons[0]._a.raw();
   double[] out=neurons[neurons.length - 1]._a.raw();
   assert(in.length == out.length);
-  double l2=0;
-  for (int i=0; i < in.length; ++i)   l2+=Math.pow((out[i] - in[i]),2);
-  l2/=in.length;
-  if (preds != null) {
+  if (reconstruction) {
     model_info().data_info().unScaleNumericals(out,out);
     System.arraycopy(out,0,preds,0,out.length);
   }
-  return l2;
+ else   if (reconstruction_error_per_feature) {
+    for (int i=0; i < in.length; ++i)     preds[i]=Math.pow((out[i] - in[i]),2);
+  }
+ else {
+    assert(preds.length == 1);
+    double l2=0;
+    for (int i=0; i < in.length; ++i)     l2+=Math.pow((out[i] - in[i]),2);
+    l2/=in.length;
+    preds[0]=l2;
+  }
 }
