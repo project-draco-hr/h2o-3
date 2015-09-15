@@ -1,0 +1,16 @@
+{
+  Frame fr=stk.track(asts[1].exec(env)).getFrame();
+  if (fr.numCols() != 1)   throw new IllegalArgumentException("`setLevel` works on a single column at a time.");
+  String[] doms=fr.anyVec().domain().clone();
+  if (doms == null)   throw new IllegalArgumentException("Cannot set the level on a non-factor column!");
+  String lvl=asts[2].exec(env).getStr();
+  final int idx=Arrays.asList(doms).indexOf(lvl);
+  if (idx == -1)   throw new IllegalArgumentException("Did not find level `" + lvl + "` in the column.");
+  Frame fr2=new MRTask(){
+    @Override public void map(    Chunk c,    NewChunk nc){
+      for (int i=0; i < c._len; ++i)       nc.addNum(idx);
+    }
+  }
+.doAll(1,fr.anyVec()).outputFrame(null,fr.names(),fr.domains());
+  return new ValFrame(fr2);
+}

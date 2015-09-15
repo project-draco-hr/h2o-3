@@ -61,14 +61,14 @@
     if (get_params()._autoencoder) {
       if (printme)       Log.info("Scoring the auto-encoder.");
 {
-        final Frame mse_frame=scoreAutoEncoder(ftrain,Key.make());
+        final Frame mse_frame=scoreAutoEncoder(ftrain,Key.make(),false);
         mse_frame.delete();
         ModelMetrics mtrain=ModelMetrics.getFromDKV(this,ftrain);
         _output._training_metrics=mtrain;
         err.scored_train=new ScoreKeeper(mtrain);
       }
       if (ftest != null) {
-        final Frame mse_frame=scoreAutoEncoder(ftest,Key.make());
+        final Frame mse_frame=scoreAutoEncoder(ftest,Key.make(),false);
         mse_frame.delete();
         ModelMetrics mtest=ModelMetrics.getFromDKV(this,ftest);
         _output._validation_metrics=mtest;
@@ -84,7 +84,7 @@
       hex.ModelMetrics mtrain=ModelMetrics.getFromDKV(this,ftrain);
       _output._training_metrics=mtrain;
       err.scored_train=new ScoreKeeper(mtrain);
-      hex.ModelMetrics mtest=null;
+      hex.ModelMetrics mtest;
       hex.ModelMetricsSupervised mm1=(ModelMetricsSupervised)ModelMetrics.getFromDKV(this,ftrain);
       if (mm1 instanceof ModelMetricsBinomial) {
         ModelMetricsBinomial mm=(ModelMetricsBinomial)(mm1);
@@ -102,11 +102,9 @@
       if (ftest != null) {
         Frame validPred=score(ftest);
         validPred.delete();
-        if (ftest != null) {
-          mtest=ModelMetrics.getFromDKV(this,ftest);
-          _output._validation_metrics=mtest;
-          err.scored_valid=new ScoreKeeper(mtest);
-        }
+        mtest=ModelMetrics.getFromDKV(this,ftest);
+        _output._validation_metrics=mtest;
+        err.scored_valid=new ScoreKeeper(mtest);
         if (mtest != null) {
           if (mtest instanceof ModelMetricsBinomial) {
             ModelMetricsBinomial mm=(ModelMetricsBinomial)mtest;

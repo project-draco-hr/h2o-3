@@ -27,10 +27,13 @@
 switch (foldAssignmentScheme) {
 case AUTO:
 case Random:
-      foldAssignment=ASTOp.kfoldColumn(foldAssignment,N,seed);
+      foldAssignment=ASTKFold.kfoldColumn(foldAssignment,N,seed);
     break;
 case Modulo:
-  foldAssignment=ASTOp.moduloKfoldColumn(foldAssignment,N);
+  foldAssignment=ASTKFold.moduloKfoldColumn(foldAssignment,N);
+break;
+case Stratified:
+foldAssignment=ASTKFold.stratifiedKFoldColumn(response(),N,seed);
 break;
 default :
 throw H2O.unimpl();

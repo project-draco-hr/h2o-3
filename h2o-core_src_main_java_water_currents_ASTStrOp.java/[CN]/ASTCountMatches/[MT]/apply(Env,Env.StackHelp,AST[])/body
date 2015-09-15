@@ -1,0 +1,22 @@
+{
+  Frame fr=stk.track(asts[1].exec(env)).getFrame();
+  String[] pattern;
+  if (asts[2] instanceof ASTStrList)   pattern=((ASTStrList)asts[2])._strs;
+ else   pattern=new String[]{asts[2].exec(env).getStr()};
+  if (fr.numCols() != 1)   throw new IllegalArgumentException("countmatches requires a single column.");
+  final int[] matchCounts=countMatches(fr.anyVec().domain(),pattern);
+  Frame fr2=new MRTask(){
+    @Override public void map(    Chunk[] cs,    NewChunk[] ncs){
+      Chunk c=cs[0];
+      for (int i=0; i < c._len; ++i) {
+        if (!c.isNA(i)) {
+          int idx=(int)c.at8(i);
+          ncs[0].addNum(matchCounts[idx]);
+        }
+ else         ncs[i].addNA();
+      }
+    }
+  }
+.doAll(1,fr).outputFrame();
+  return new ValFrame(fr2);
+}
