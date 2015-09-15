@@ -1,0 +1,22 @@
+{
+  if (ncols != 1 || !v1.isInt())   return null;
+  long spanl=(long)v1.max() - (long)v1.min() + 1;
+  if (spanl > 100000)   return null;
+  final long cnts[]=new FastCnt((long)v1.min(),(int)spanl).doAll(v1)._cnts;
+  Vec dataLayoutVec=Vec.makeCon(0,cnts.length);
+  Frame fr=new MRTask(){
+    @Override public void map(    Chunk cs[],    NewChunk nc0,    NewChunk nc1){
+      final Chunk c=cs[0];
+      for (int i=0; i < c._len; ++i) {
+        int idx=(int)(i + c.start());
+        if (cnts[idx] > 0) {
+          nc0.addNum(idx);
+          nc1.addNum(cnts[idx]);
+        }
+      }
+    }
+  }
+.doAll(2,dataLayoutVec).outputFrame(new String[]{colname,"Count"},new String[][]{v1.domain(),null});
+  dataLayoutVec.remove();
+  return new ValFrame(fr);
+}

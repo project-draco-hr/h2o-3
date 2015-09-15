@@ -1,0 +1,17 @@
+{
+  for (  Key k : H2O.localKeySet()) {
+    Value val=H2O.raw_get(k);
+    if (val.isFrame()) {
+      Frame fr=val.get();
+      Vec vecs[]=fr.vecs();
+      for (int i=0; i < vecs.length; i++) {
+        Vec v=vecs[i];
+        if (DKV.get(v._key) == null) {
+          System.err.println("Frame " + fr._key + " in the DKV, is missing Vec "+ v._key+ ", name="+ fr._names[i]);
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+}

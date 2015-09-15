@@ -1,0 +1,15 @@
+{
+  Frame fr=null;
+  String tree="(rbind 99 98)";
+  try {
+    fr=checkTree(tree);
+    Assert.assertEquals(2,fr.numRows());
+    Assert.assertEquals(1,fr.numCols());
+    Assert.assertEquals(99,fr.vec(0).at(0),Math.ulp(1));
+    Assert.assertEquals(98,fr.vec(0).at(1),Math.ulp(1));
+  }
+  finally {
+    if (fr != null)     fr.delete();
+    Keyed.remove(Key.make("a.hex"));
+  }
+}

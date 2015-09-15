@@ -1,0 +1,20 @@
+{
+  Frame fr=null;
+  try {
+    String tree="(h2o.impute hex 1 \"mean\" \"low\" [] TRUE)";
+    fr=chkTree(tree,"smalldata/junit/cars.csv");
+    chkDim(fr,8,406);
+    Assert.assertEquals(0,fr.vec(1).naCnt());
+    Assert.assertEquals(23.51,fr.vec(1).at(26),1e-1);
+    fr.delete();
+    tree="(h2o.impute hex 1 \"mean\" \"low\" [7] TRUE)";
+    fr=chkTree(tree,"smalldata/junit/cars.csv");
+    chkDim(fr,8,406);
+    Assert.assertEquals(0,fr.vec(1).naCnt());
+    Assert.assertEquals(17.69,fr.vec(1).at(26),1e-1);
+  }
+  finally {
+    if (fr != null)     fr.delete();
+    Keyed.remove(Key.make("hex"));
+  }
+}

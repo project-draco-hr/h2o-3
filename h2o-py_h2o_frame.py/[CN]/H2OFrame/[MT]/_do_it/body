@@ -1,5 +1,8 @@
 def _do_it(self, sb):
     if self._computed:
-        sb += ['%', (self._id + ' ')]
+        if (self.dim == [1, 1]):
+            sb += [str(self._scalar()), ' ']
+        else:
+            sb += [(self._id + ' ')]
     else:
         sb += (self._eager(True) if (len(gc.get_referrers(self)) >= H2OFrame.MAGIC_REF_COUNT) else self._eager(False))
