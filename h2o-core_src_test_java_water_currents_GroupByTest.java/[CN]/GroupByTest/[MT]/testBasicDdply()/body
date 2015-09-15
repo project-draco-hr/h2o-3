@@ -1,0 +1,23 @@
+{
+  Frame fr=null;
+  String tree="(ddply hex [1] { x . (mean (cols x 2) TRUE)})";
+  try {
+    fr=chkTree(tree,"smalldata/iris/iris_wheader.csv");
+    chkDim(fr,2,23);
+    chkFr(fr,0,0,2.0);
+    chkFr(fr,1,0,3.5);
+    chkFr(fr,0,1,2.2);
+    chkFr(fr,1,1,4.5);
+    chkFr(fr,0,7,2.8);
+    chkFr(fr,1,7,5.042857142857143);
+    chkFr(fr,0,22,4.4);
+    chkFr(fr,1,22,1.5);
+    fr.delete();
+    fr=chkTree("(ddply hex [1] { x . (sum (* (cols x 2) (cols x 3)))})","smalldata/iris/iris_wheader.csv");
+    chkDim(fr,2,23);
+  }
+  finally {
+    if (fr != null)     fr.delete();
+    Keyed.remove(Key.make("hex"));
+  }
+}

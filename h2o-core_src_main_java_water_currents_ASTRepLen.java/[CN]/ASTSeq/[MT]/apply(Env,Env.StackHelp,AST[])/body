@@ -1,0 +1,21 @@
+{
+  double from=asts[1].exec(env).getNum();
+  double to=asts[2].exec(env).getNum();
+  double by=asts[3].exec(env).getNum();
+  double delta=to - from;
+  if (delta == 0 && to == 0)   throw new IllegalArgumentException("Expected `to` and `from` to have nonzero difference.");
+ else {
+    double n=delta / by;
+    if (n < 0)     throw new IllegalArgumentException("wrong sign in 'by' argument");
+ else     if (n > Double.MAX_VALUE)     throw new IllegalArgumentException("'by' argument is much too small");
+    Futures fs=new Futures();
+    AppendableVec av=new AppendableVec(Vec.newKey());
+    NewChunk nc=new NewChunk(av,0);
+    int len=(int)n + 1;
+    for (int r=0; r < len; r++)     nc.addNum(from + r * by);
+    nc.close(0,fs);
+    Vec vec=av.close(fs);
+    fs.blockForPending();
+    return new ValFrame(new Frame(vec));
+  }
+}

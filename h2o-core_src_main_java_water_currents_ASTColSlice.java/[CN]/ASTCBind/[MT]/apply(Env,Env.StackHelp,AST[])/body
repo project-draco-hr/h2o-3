@@ -1,0 +1,38 @@
+{
+  Val vals[]=new Val[asts.length];
+  Vec vec=null;
+  for (int i=1; i < asts.length; i++) {
+    vals[i]=stk.track(asts[i].exec(env));
+    if (vals[i].isFrame()) {
+      Vec anyvec=vals[i].getFrame().anyVec();
+      if (anyvec == null)       continue;
+      if (vec == null)       vec=anyvec;
+ else       if (vec.length() != anyvec.length())       throw new IllegalArgumentException("cbind frames must have all the same rows, found " + vec.length() + " and "+ anyvec.length()+ " rows.");
+    }
+  }
+  boolean clean=false;
+  if (vec == null) {
+    vec=Vec.makeZero(1);
+    clean=true;
+  }
+  Frame fr=new Frame();
+  for (int i=1; i < asts.length; i++) {
+switch (vals[i].type()) {
+case Val.FRM:
+      fr.add(fr.makeCompatible(vals[i].getFrame()));
+    break;
+case Val.FUN:
+  throw H2O.unimpl();
+case Val.STR:
+throw H2O.unimpl();
+case Val.NUM:
+double d=vals[i].getNum();
+fr.add(Double.toString(d),vec.makeCon(d));
+break;
+default :
+throw H2O.unimpl();
+}
+}
+if (clean) vec.remove();
+return new ValFrame(fr);
+}
