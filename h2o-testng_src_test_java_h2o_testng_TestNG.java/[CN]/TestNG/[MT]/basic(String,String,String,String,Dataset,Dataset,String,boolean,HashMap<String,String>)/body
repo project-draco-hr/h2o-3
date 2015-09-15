@@ -34,7 +34,7 @@ Assert.fail(String.format(notImplMessage));
 }
  else {
 modelParameter=FunctionUtils.toModelParameter(params,algorithm,train_dataset_id,validate_dataset_id,train_dataset,validate_dataset,rawInput);
-FunctionUtils.basicTesting(algorithm,modelParameter,isNegativeTestcase);
+FunctionUtils.basicTesting(algorithm,modelParameter,isNegativeTestcase,rawInput);
 }
 }
  catch (AssertionError ae) {
@@ -45,6 +45,7 @@ throw ae;
 System.out.println("Total Memory used in testcase:" + (rt.getUsedMemory() / RecordingTestcase.MB) + "MB");
 System.out.println("Total Time used in testcase:" + (rt.getTimeRecording()) + "millis");
 resetStandardStreams();
-Reporter.log("Testcase " + testcaseStatus,true);
+testcaseStatus=String.format("Testcase %s %s",rawInput.get(CommonHeaders.testcase_id),testcaseStatus);
+Reporter.log(testcaseStatus,true);
 }
 }

@@ -1,0 +1,35 @@
+{
+  if (!config.isUsedDB()) {
+    System.out.println("Program is configured don't use database");
+    return false;
+  }
+  final String testcaseId=rawInput.get(CommonHeaders.testcase_id);
+  final String trainingFrameId=rawInput.get(CommonHeaders.train_dataset_id);
+  final String validationFrameId=rawInput.get(CommonHeaders.validate_dataset_id);
+  final String currentTime="NOW()";
+  final String interpreterVersion="JVM";
+  final String machineName=H2O.ABV.compiledBy();
+  final String gitHashNumber=H2O.ABV.lastCommitHash();
+  final String source=H2O.ABV.projectVersion();
+  final String tuned_or_defaults=rawInput.get(MySQL.tuned_or_defaults);
+  int totalHosts=0;
+  int cpusPerHost=0;
+  int totalNodes=0;
+  MySQLConnection connection=new MySQLConnection();
+  Statement statement=null;
+  String sql=String.format("insert into %s values('%s','%s','%s','%s','%s',%s,'%s','%s',%s,%s,%s,'%s','%s','%s','%s')",config.getTableName(),testcaseId,trainingFrameId,validationFrameId,metricType,result,currentTime,interpreterVersion,machineName,totalHosts,cpusPerHost,totalNodes,source,rawInput.toString(),gitHashNumber,tuned_or_defaults);
+  try {
+    statement=connection.createStatement();
+    statement.executeUpdate(sql);
+  }
+ catch (  Exception ex) {
+    System.out.println("Can't insert into table: " + config.getTableName());
+    ex.printStackTrace();
+    return false;
+  }
+ finally {
+    connection.closeConnection();
+  }
+  System.out.println("The result is saved successfully in database");
+  return true;
+}

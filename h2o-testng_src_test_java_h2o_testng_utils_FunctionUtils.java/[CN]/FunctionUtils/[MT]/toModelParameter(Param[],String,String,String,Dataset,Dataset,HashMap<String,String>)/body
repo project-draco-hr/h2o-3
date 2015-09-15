@@ -1,5 +1,6 @@
 {
   System.out.println("Create modelParameter object with testcase: " + rawInput.get(CommonHeaders.testcase_id));
+  boolean isTunedValue=false;
   Model.Parameters modelParameter=null;
 switch (algorithm) {
 case FunctionUtils.drf:
@@ -34,7 +35,13 @@ break;
 default :
 System.out.println("can not parse to object parameter with algorithm: " + algorithm);
 }
-Param.setAutoSetParams(modelParameter,params,rawInput);
+isTunedValue=Param.setAutoSetParams(modelParameter,params,rawInput);
+if (isTunedValue) {
+rawInput.put(MySQL.tuned_or_defaults,MySQL.tuned);
+}
+ else {
+rawInput.put(MySQL.tuned_or_defaults,MySQL.defaults);
+}
 modelParameter._response_column=train_dataset.getResponseColumn();
 Frame trainFrame=null;
 Frame validateFrame=null;

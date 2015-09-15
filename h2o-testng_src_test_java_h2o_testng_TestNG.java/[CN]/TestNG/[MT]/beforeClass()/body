@@ -1,4 +1,5 @@
 {
+  String dbConfigFilePath=System.getProperty("dbConfigFilePath");
   algorithm=System.getProperty("algorithm");
   size=System.getProperty("size");
   testcaseId=System.getProperty("testcaseId");
@@ -7,5 +8,9 @@
     size="";
   }
   dataSetCharacteristic=FunctionUtils.readDataSetCharacteristic();
+  if (StringUtils.isNotEmpty(dbConfigFilePath)) {
+    MySQLConfig.initConfig().setConfigFilePath(dbConfigFilePath);
+    MySQL.createTable();
+  }
   System.out.println(String.format("run TestNG with algorithm: %s, size: %s, testcaseId: %s",algorithm,size,testcaseId));
 }

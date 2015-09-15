@@ -1,0 +1,22 @@
+{
+  File configFile=new File(dbConfigFilePath);
+  if (!configFile.exists()) {
+    System.out.println("Database config file not found");
+    System.exit(-1);
+  }
+  properties=new Properties();
+  try {
+    properties.load(new BufferedReader(new FileReader(configFile)));
+  }
+ catch (  FileNotFoundException ex) {
+    System.out.println("Database config file not found");
+    ex.printStackTrace();
+    System.exit(-1);
+  }
+catch (  IOException ex) {
+    System.out.println("Can not read config file");
+    ex.printStackTrace();
+    System.exit(-1);
+  }
+  System.out.println("Loaded database config file successfully");
+}
