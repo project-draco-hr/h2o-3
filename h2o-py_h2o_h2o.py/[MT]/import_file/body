@@ -1,3 +1,5 @@
-def import_file(path=None):
-    '\n  Import a frame from a file (remote or local machine). If you run H2O on Hadoop, you can access to HDFS\n\n  Parameters\n  ----------\n  path : str\n    A path specifying the location of the data to import.\n\n  :return: A new H2OFrame\n  '
-    return H2OFrame(file_path=path)
+def import_file(path=None, destination_frame='', parse=True, header=((-1), 0, 1), sep='', col_names=None, col_types=None, na_strings=None):
+    '\n  Import a frame from a file (remote or local machine). If you run H2O on Hadoop, you can access to HDFS\n\n  Parameters\n  ----------\n  path : str\n    A path specifying the location of the data to import.\n  destination_frame :\n    (Optional) The unique hex key assigned to the imported file. If none is given, a key will automatically be generated.\n  parse :\n    (Optional) A logical value indicating whether the file should be parsed after import.\n  header :\n   (Optional) -1 means the first line is data, 0 means guess, 1 means first line is header.\n  sep :\n    (Optional) The field separator character. Values on each line of the file are separated by this character. If sep = "", the parser will automatically detect the separator.\n  col_names :\n    (Optional) A list of column names for the file.\n  col_types :\n    (Optional) A list of types to specify whether columns should be forced to a certain type upon import parsing.\n  na_strings :\n    (Optional) A list of strings which are to be interpreted as missing values.\n  :return: A new H2OFrame\n  '
+    if (not parse):
+        return lazy_import(path)
+    return H2OFrame(file_path=path, destination_frame=destination_frame, header=header, separator=sep, column_names=col_names, column_types=col_types, na_strings=na_strings)
