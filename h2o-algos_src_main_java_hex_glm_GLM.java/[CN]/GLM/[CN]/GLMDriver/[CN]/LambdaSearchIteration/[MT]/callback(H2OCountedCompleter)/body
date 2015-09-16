@@ -1,2 +1,17 @@
 {
+  int rank=0;
+  for (int i=0; i < _tInfos[0]._beta.length - (_dinfo._intercept ? 1 : 0); ++i)   if (_tInfos[0]._beta[i] != 0)   ++rank;
+  if (_parms._family != Family.multinomial) {
+    Log.info("Solution at lambda = " + _parms._lambda[_lambdaId] + " has "+ rank+ " nonzeros, gradient err = "+ _tInfos[0].gradientCheck(_parms._lambda[_lambdaId],_parms._alpha[0]));
+    Log.info(_model.toString());
+  }
+  update(_tInfos[0]._workPerLambda,"lambda = " + _lambdaId + ", iteration = "+ _tInfos[0]._iter+ ", got "+ rank+ "nonzeros");
+  ++_lambdaId;
+  if (_tInfos[0]._iter < _parms._max_iterations && _lambdaId < _parms._lambda.length && _tInfos[0]._stopCnt < 3) {
+    double currentLambda=_parms._lambda[_lambdaId - 1];
+    double nextLambda=_parms._lambda[_lambdaId];
+    _tInfos[0].adjustToNewLambda(currentLambda,nextLambda,_parms._alpha[0],_dinfo._intercept);
+    getCompleter().addToPendingCount(1);
+    new GLMSingleLambdaTsk(new LambdaSearchIteration((H2OCountedCompleter)getCompleter()),_tInfos[0]).fork();
+  }
 }
