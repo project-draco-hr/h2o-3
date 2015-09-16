@@ -1,0 +1,10 @@
+{
+  if (pojoName == null)   pojoName="GeneratedMungingPojo";
+  StringBuilder sb=new StringBuilder("class " + pojoName + " extends GenMunger {\n"+ "  public "+ pojoName+ "() {\n"+ "    _steps = new Step["+ _steps.size()+ "];\n");
+  int i=0;
+  for (  String stepName : _steps.keySet())   sb.append("    _steps[" + (i++) + "] = new "+ stepName+ "();\n");
+  sb.append("  }\n");
+  for (  String stepName : _steps.keySet())   sb.append(_steps.get(stepName).genClass(stepName));
+  sb.append("}\n");
+  return sb;
+}
