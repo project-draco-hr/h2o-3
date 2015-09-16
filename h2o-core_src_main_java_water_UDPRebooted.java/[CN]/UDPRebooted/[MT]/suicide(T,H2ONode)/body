@@ -6,9 +6,7 @@ case none:
 case reboot:
   return;
 case shutdown:
-closeAll();
-Log.info("Orderly shutdown command from " + killer);
-H2O.exit(0);
+Log.warn("Orderly shutdown should be handled via ShutdownTsk. Message is from outside of the cloud? Ignoring it.");
 return;
 case oom:
 m="Out of Memory, Heap Space exceeded, increase Heap Size,";
@@ -26,7 +24,7 @@ default :
 m="Received kill " + cause;
 break;
 }
-closeAll();
+H2O.closeAll();
 Log.err(m + " from " + killer);
 H2O.die("Exiting.");
 }

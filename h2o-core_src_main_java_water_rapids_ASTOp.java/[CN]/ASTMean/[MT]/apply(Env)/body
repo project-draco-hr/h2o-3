@@ -29,6 +29,10 @@
   }
  else {
     Vec v=fr.anyVec();
+    if (v.isEnum()) {
+      env.push(new ValNum(Double.NaN));
+      return;
+    }
     if (_narm || v.naCnt() == 0)     env.push(new ValNum(v.mean()));
  else {
       MeanNARMTask t=new MeanNARMTask(false).doAll(v);

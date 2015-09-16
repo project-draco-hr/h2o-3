@@ -2,15 +2,28 @@
   if (error_count() > 0) {
     throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(this);
   }
-  return !nFoldCV() ? trainModelImpl(progressUnits(),true) : start(new H2O.H2OCountedCompleter(){
-    @Override protected void compute2(){
-      computeCrossValidation();
-      tryComplete();
-    }
-    @Override public boolean onExceptionalCompletion(    Throwable ex,    CountedCompleter caller){
-      failed(ex);
-      return true;
-    }
+  if (!nFoldCV()) {
+    return trainModelImpl(progressUnits(),true);
   }
-,(_parms._nfolds + 1) * progressUnits(),true);
+ else {
+    int work;
+    if (_parms._fold_column != null) {
+      Vec fc=train().vec(_parms._fold_column);
+      work=((int)fc.max() - (int)fc.min()) + 1;
+    }
+ else {
+      work=_parms._nfolds + 1;
+    }
+    return start(new H2O.H2OCountedCompleter(){
+      @Override protected void compute2(){
+        computeCrossValidation();
+        tryComplete();
+      }
+      @Override public boolean onExceptionalCompletion(      Throwable ex,      CountedCompleter caller){
+        failed(ex);
+        return true;
+      }
+    }
+,work * progressUnits(),true);
+  }
 }

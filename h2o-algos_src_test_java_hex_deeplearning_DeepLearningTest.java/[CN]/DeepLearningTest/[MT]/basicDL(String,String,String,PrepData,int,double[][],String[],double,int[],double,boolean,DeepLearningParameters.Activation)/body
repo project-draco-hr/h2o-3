@@ -30,7 +30,7 @@
   finally {
       if (job != null)       job.remove();
     }
-    Assert.assertTrue(job._state == Job.JobState.DONE);
+    assertTrue(job._state == Job.JobState.DONE);
     hex.ModelMetrics mm;
     if (fnametest != null) {
       frTest=parse_test_file(fnametest);
@@ -44,19 +44,19 @@
     test=parse_test_file(fnametrain);
     res=model.score(test);
     if (classification) {
-      Assert.assertTrue("Expected: " + Arrays.deepToString(expCM) + ", Got: "+ Arrays.deepToString(mm.cm()._cm),Arrays.deepEquals(mm.cm()._cm,expCM));
+      assertTrue("Expected: " + Arrays.deepToString(expCM) + ", Got: "+ Arrays.deepToString(mm.cm()._cm),Arrays.deepEquals(mm.cm()._cm,expCM));
       String[] cmDom=model._output._domains[model._output._domains.length - 1];
       Assert.assertArrayEquals("CM domain differs!",expRespDom,cmDom);
       Log.info("\nTraining CM:\n" + mm.cm().toASCII());
       Log.info("\nTraining CM:\n" + hex.ModelMetrics.getFromDKV(model,test).cm().toASCII());
     }
  else {
-      Assert.assertTrue("Expected: " + expMSE + ", Got: "+ mm.mse(),expMSE == mm.mse());
+      assertTrue("Expected: " + expMSE + ", Got: "+ mm.mse(),expMSE == mm.mse());
       Log.info("\nOOB Training MSE: " + mm.mse());
       Log.info("\nTraining MSE: " + hex.ModelMetrics.getFromDKV(model,test).mse());
     }
     hex.ModelMetrics.getFromDKV(model,test);
-    Assert.assertTrue(model.testJavaScoring(test,res,1e-5));
+    assertTrue(model.testJavaScoring(test,res,1e-5));
   }
   finally {
     if (frTrain != null)     frTrain.remove();

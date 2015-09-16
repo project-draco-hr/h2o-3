@@ -25,7 +25,7 @@ def run_tests(self, nopass):
             print 'ERROR: runnerSetupPackage.R not found.'
             print ''
             sys.exit(1)
-        cmd = ['R', '--quiet', '-f', runner_setup_package_r]
+        cmd = ['R', '--vanilla', '--quiet', '-f', runner_setup_package_r]
         if (self.path_to_tar is not None):
             print ('Using R TAR located at: ' + self.path_to_tar)
             cmd += ['--args', self.path_to_tar]
@@ -88,7 +88,8 @@ def run_tests(self, nopass):
         self._report_test_result(completed_test, nopass)
         ip_of_completed_test = completed_test.get_ip()
         port_of_completed_test = completed_test.get_port()
-        self._start_next_test_on_ip_port(ip_of_completed_test, port_of_completed_test)
+        if self._h2o_exists_and_healthy(ip_of_completed_test, port_of_completed_test):
+            self._start_next_test_on_ip_port(ip_of_completed_test, port_of_completed_test)
     while (len(self.tests_running) > 0):
         if self.terminated:
             return

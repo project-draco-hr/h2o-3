@@ -21,7 +21,7 @@
       cp=new DeepLearningModel(dest(),_parms,previous,false,dinfo);
       cp.write_lock(self());
       if (!Arrays.equals(cp._output._names,previous._output._names)) {
-        throw new IllegalArgumentException("Number of (non-constant) predictor columns of the training data must be the same as for the checkpointed model. Check ignored columns (or disable ignore_const_cols).");
+        throw new IllegalArgumentException("The columns of the training data must be the same as for the checkpointed model. Check ignored columns (or disable ignore_const_cols).");
       }
       if (!Arrays.deepEquals(cp._output._domains,previous._output._domains)) {
         throw new IllegalArgumentException("Categorical factor levels of the training data must be the same as for the checkpointed model.");
@@ -34,12 +34,7 @@
       assert(actualNewP != newP);
       assert(actualNewP != oldP);
       DeepLearningParameters.Sanity.update(actualNewP,newP,nclasses());
-      actualNewP._epochs+=previous.epoch_counter;
       Log.info("Adding " + String.format("%.3f",previous.epoch_counter) + " epochs from the checkpointed model.");
-      if (actualNewP._nfolds != 0) {
-        Log.info("Disabling cross-validation: Not supported when resuming training from a checkpoint.");
-        H2O.unimpl("writing to n_folds field needs to be uncommented");
-      }
       cp.update(self());
     }
   finally {
@@ -48,25 +43,29 @@
   }
   trainModel(cp);
   List<Key> keep=new ArrayList<>();
-  keep.add(dest());
-  keep.add(cp.model_info().data_info()._key);
-  keep.add(cp._output._training_metrics._key);
-  if (cp._output._validation_metrics != null) {
-    keep.add(cp._output._validation_metrics._key);
-  }
-  if (cp._output.weights != null && cp._output.biases != null) {
-    for (    Key k : Arrays.asList(cp._output.weights)) {
-      keep.add(k);
-      for (      Vec vk : ((Frame)DKV.getGet(k)).vecs()) {
-        keep.add(vk._key);
+  try {
+    keep.add(dest());
+    keep.add(cp.model_info().data_info()._key);
+    keep.add(cp._output._training_metrics._key);
+    if (cp._output._validation_metrics != null) {
+      keep.add(cp._output._validation_metrics._key);
+    }
+    if (cp._output.weights != null && cp._output.biases != null) {
+      for (      Key k : Arrays.asList(cp._output.weights)) {
+        keep.add(k);
+        for (        Vec vk : ((Frame)DKV.getGet(k)).vecs()) {
+          keep.add(vk._key);
+        }
+      }
+      for (      Key k : Arrays.asList(cp._output.biases)) {
+        keep.add(k);
+        for (        Vec vk : ((Frame)DKV.getGet(k)).vecs()) {
+          keep.add(vk._key);
+        }
       }
     }
-    for (    Key k : Arrays.asList(cp._output.biases)) {
-      keep.add(k);
-      for (      Vec vk : ((Frame)DKV.getGet(k)).vecs()) {
-        keep.add(vk._key);
-      }
-    }
   }
-  Scope.exit(keep.toArray(new Key[0]));
+  finally {
+    Scope.exit(keep.toArray(new Key[0]));
+  }
 }

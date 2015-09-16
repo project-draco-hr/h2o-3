@@ -5,14 +5,14 @@
   double[] offset_test=new double[]{+1.20479170,-1.42996530,-1.42996530,-1.42996530,-0.39771185,-0.39771185,-0.39771185,-0.39771185,-0.06143251,-0.06143251,-0.06143251,-0.39771185,-0.39771185,-0.39771185,-0.06143251,-1.42996530,-0.39771185,+0.86851236,-0.06143251,+1.20479170,-1.42996530,+1.20479170,-0.06143251,-0.06143251,+1.20479170,+0.14967191,-0.39771185,-0.39771185,-0.39771185,+0.14967191,-0.39771185,-1.42996530,-0.97885903,-0.39771185,-2.01111248,-1.42996530,-0.39771185,-0.06143251,-0.39771185,+0.14967191,+0.14967191,-0.06143251,+0.14967191,-1.42996530,-0.06143251,+1.20479170,-0.06143251,-0.06143251,-0.39771185,+1.41589611,-0.39771185,-1.42996530,+0.14967191,-1.42996530,+0.14967191,-1.42996530,-0.06143251,-1.42996530,-0.43147527,+0.86851236,-0.39771185,-0.39771185,-0.06143251,-0.06143251,-0.39771185,-0.06143251,-1.42996530,-0.39771185,-0.06143251,-0.39771185,+0.14967191,+1.41589611,-0.39771185,-0.39771185,+1.41589611,+0.14967191,-0.64257969,-1.42996530,+0.14967191,-0.06143251,-1.42996530,-1.42996530,-0.39771185,-1.42996530,-1.42996530,-0.39771185,-0.39771185,+0.14967191,-0.39771185,-0.39771185};
   double[] pred_test=new double[]{+0.904121393,+0.208967788,+0.430064980,+0.063563661,+0.420390154,+0.300577441,+0.295405224,+0.629308103,+0.324441281,+0.563699642,+0.639184514,+0.082179963,+0.462563464,+0.344521206,+0.351577428,+0.339043527,+0.435998848,+0.977492380,+0.581711493,+0.974570868,+0.143071580,+0.619404446,+0.362033860,+0.570068411,+0.978069860,+0.562268311,+0.158184617,+0.608996256,+0.162259728,+0.578987913,+0.289325534,+0.286251414,+0.749507189,+0.469565216,+0.069466938,+0.112383575,+0.481307819,+0.398935638,+0.589102941,+0.337382932,+0.409333118,+0.366674225,+0.640036454,+0.263683222,+0.779866040,+0.635071654,+0.377463657,+0.518320766,+0.322693268,+0.833778660,+0.459703088,+0.115189180,+0.694175044,+0.132131043,+0.402412653,+0.270949939,+0.353738040,+0.256239963,+0.467322078,+0.956569336,+0.172230761,+0.265478787,+0.559113124,+0.248798085,+0.140841191,+0.607922656,+0.113752627,+0.289291072,+0.241123681,+0.290387448,+0.782068785,+0.927494110,+0.176397617,+0.263745527,+0.992043885,+0.653252457,+0.385483627,+0.222333476,+0.537344319,+0.202589973,+0.334941144,+0.172066050,+0.292733797,+0.001169431,+0.114393635,+0.153848294,+0.632500120,+0.387718306,+0.269126887,+0.564594040};
   Vec offsetVecTrain=_prostateTrain.anyVec().makeZero();
-  Vec.Writer vw=offsetVecTrain.open();
-  for (int i=0; i < offset_train.length; ++i)   vw.set(i,offset_train[i]);
-  vw.close();
-  Vec offsetVecTest=_prostateTest.anyVec().makeZero();
-  vw=offsetVecTest.open();
-  for (int i=0; i < offset_test.length; ++i)   vw.set(i,offset_test[i]);
-  vw.close();
-  Key fKeyTrain=Key.make("prostate_with_offset_train");
+  try (Vec.Writer vw=offsetVecTrain.open()){
+    for (int i=0; i < offset_train.length; ++i)     vw.set(i,offset_train[i]);
+  }
+   Vec offsetVecTest=_prostateTest.anyVec().makeZero();
+  try (Vec.Writer vw=offsetVecTest.open()){
+    for (int i=0; i < offset_test.length; ++i)     vw.set(i,offset_test[i]);
+  }
+   Key fKeyTrain=Key.make("prostate_with_offset_train");
   Key fKeyTest=Key.make("prostate_with_offset_test");
   Frame fTrain=new Frame(fKeyTrain,new String[]{"offset"},new Vec[]{offsetVecTrain});
   fTrain.add(_prostateTrain.names(),_prostateTrain.vecs());
@@ -59,7 +59,7 @@
           assertTrue("shoul've thrown IAE",false);
         }
  catch (        IllegalArgumentException iae) {
-          assertTrue(iae.getMessage().contains("Test dataset is missing offset vector"));
+          assertTrue(iae.getMessage().contains("Test/Validation dataset is missing offset vector"));
         }
         hex.ModelMetricsBinomialGLM mmTrain=(ModelMetricsBinomialGLM)hex.ModelMetricsBinomial.getFromDKV(model,fTrain);
         hex.AUC2 adata=mmTrain._auc;
@@ -78,7 +78,7 @@
         assertEquals(model._output._validation_metrics.auc()._auc,adata._auc,1e-8);
         assertEquals(model._output._validation_metrics._MSE,mmTest._MSE,1e-8);
         assertEquals(((ModelMetricsBinomialGLM)model._output._validation_metrics)._resDev,mmTest._resDev,1e-8);
-        Vec preds=scoreTest.vec("p1");
+        Vec.Reader preds=scoreTest.vec("p1").new Reader();
         for (int i=0; i < pred_test.length; ++i)         assertEquals(pred_test[i],preds.at(i),CD ? 1e-4 : 1e-6);
       }
   finally {

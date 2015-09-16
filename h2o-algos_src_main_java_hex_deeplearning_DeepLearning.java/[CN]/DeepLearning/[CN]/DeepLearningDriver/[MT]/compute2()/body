@@ -1,7 +1,6 @@
 {
   try {
-    byte[] cs=new AutoBuffer().put(_parms).buf();
-    Scope.enter();
+    long cs=_parms.checksum();
     init(true);
     _parms.read_lock_frames(DeepLearning.this);
     if (error_count() > 0) {
@@ -9,9 +8,9 @@
       throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(DeepLearning.this);
     }
     buildModel();
-    byte[] cs2=new AutoBuffer().put(_parms).buf();
-    assert(Arrays.equals(cs,cs2));
-    done();
+    if (isRunning())     done();
+    long cs2=_parms.checksum();
+    assert(cs == cs2);
   }
  catch (  Throwable t) {
     Job thisJob=DKV.getGet(_key);
@@ -19,6 +18,7 @@
       Log.info("Job cancelled by user.");
     }
  else {
+      t.printStackTrace();
       failed(t);
       throw t;
     }
@@ -26,7 +26,6 @@
  finally {
     updateModelOutput();
     _parms.read_unlock_frames(DeepLearning.this);
-    Scope.exit();
   }
   tryComplete();
 }

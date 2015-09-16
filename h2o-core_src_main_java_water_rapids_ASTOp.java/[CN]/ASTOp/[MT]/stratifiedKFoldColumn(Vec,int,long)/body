@@ -1,0 +1,25 @@
+{
+  if (!(y.isEnum() || (y.isNumeric() && y.isInt())))   throw new IllegalArgumentException("stratification only applies to integer and categorical columns. Got: " + y.get_type_str());
+  final long[] classes=new Vec.CollectDomain().doAll(y).domain();
+  final int nClass=y.isNumeric() ? classes.length : y.domain().length;
+  final long[] seeds=new long[nClass];
+  for (int i=0; i < nClass; ++i)   seeds[i]=getRNG(seed + i).nextLong();
+  return new MRTask(){
+    private int getFoldId(    long absoluteRow,    long seed){
+      return Math.abs(getRNG(absoluteRow + seed).nextInt()) % nfolds;
+    }
+    @Override public void map(    Chunk[] y){
+      long start=y[0].start();
+      for (int testFold=0; testFold < nfolds; ++testFold) {
+        for (int classLabel=0; classLabel < nClass; ++classLabel) {
+          for (int row=0; row < y[0]._len; ++row) {
+            if (y[0].at8(row) == (classes == null ? classLabel : classes[classLabel])) {
+              if (testFold == getFoldId(start + row,seeds[classLabel]))               y[1].set(row,testFold);
+            }
+          }
+        }
+      }
+    }
+  }
+.doAll(new Frame(y,y.makeZero()))._fr.vec(1);
+}
