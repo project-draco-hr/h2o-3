@@ -3,15 +3,15 @@
   document=docBuilder.newDocument();
   testSuiteElement=document.createElement("testsuite");
   document.appendChild(testSuiteElement);
-  testSuiteElement.setAttribute("name",testSuiteName);
-  testSuiteElement.setAttribute("timestamp",dateFormat.format(new Date(testSuiteStartTime)));
-  testSuiteElement.setAttribute("hostname",InetAddress.getLocalHost().getHostName());
+  testSuiteElement.setAttribute("name",StringEscapeUtils.escapeXml(testSuiteName));
+  testSuiteElement.setAttribute("timestamp",StringEscapeUtils.escapeXml(dateFormat.format(new Date(testSuiteStartTime))));
+  testSuiteElement.setAttribute("hostname",StringEscapeUtils.escapeXml(InetAddress.getLocalHost().getHostName()));
   Element propertiesElement=document.createElement("properties");
   testSuiteElement.appendChild(propertiesElement);
   for (  String name : System.getProperties().stringPropertyNames()) {
     Element propertyElement=document.createElement("property");
-    propertyElement.setAttribute("name",name);
-    propertyElement.setAttribute("value",System.getProperty(name));
+    propertyElement.setAttribute("name",StringEscapeUtils.escapeXml(name));
+    propertyElement.setAttribute("value",StringEscapeUtils.escapeXml(System.getProperty(name)));
     propertiesElement.appendChild(propertyElement);
   }
   testCount=0;
