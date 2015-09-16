@@ -1,9 +1,10 @@
 {
+  boolean isTestSuccessfully=false;
   Frame trainFrame=null;
   Frame score=null;
+  ModelMetrics modelMetrics=null;
   DRF drfJob=null;
   DRFModel drfModel=null;
-  ModelMetrics modelMetrics=null;
   Key modelKey=Key.make("model");
   GLM glmJob=null;
   GLMModel glmModel=null;
@@ -43,22 +44,18 @@ score=gbmModel.score(trainFrame);
 modelMetrics=gbmModel._output._training_metrics;
 break;
 }
-if (isNegativeTestcase) {
-Assert.fail("It is negative testcase");
-}
- else {
+isTestSuccessfully=true;
+if (!isNegativeTestcase) {
 System.out.println("Testcase passed.");
 System.out.println("MSE: " + modelMetrics._MSE);
+MySQL.save("MSE",String.valueOf(modelMetrics._MSE),rawInput);
 if (modelMetrics.auc() != null) {
 System.out.println("AUC: " + modelMetrics.auc()._auc);
+MySQL.save("AUC",String.valueOf(modelMetrics.auc()._auc),rawInput);
 }
  else {
 System.out.println("AUC: NA");
 }
-}
-MySQL.save("MSE",String.valueOf(modelMetrics._MSE),rawInput);
-if (modelMetrics.auc() != null) {
-MySQL.save("AUC",String.valueOf(modelMetrics.auc()._auc),rawInput);
 }
 }
  catch (Exception ex) {
@@ -105,5 +102,9 @@ score.remove();
 score.delete();
 }
 Scope.exit();
+}
+if (isNegativeTestcase && isTestSuccessfully) {
+System.out.println("It is negative testcase");
+Assert.fail("It is negative testcase");
 }
 }
