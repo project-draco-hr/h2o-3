@@ -1,0 +1,15 @@
+{
+  final double[] fmeans=means;
+  final double[] fmults=ArrayUtils.invert(sdevs);
+  return new MRTask(){
+    @Override public void map(    Chunk[] cs,    NewChunk[] ncs){
+      double[] in=new double[cs.length];
+      for (int row=0; row < cs[0]._len; row++) {
+        for (int col=0; col < cs.length; col++)         in[col]=cs[col].atd(row);
+        GenModel.scaleInPlace(fmeans,fmults,in);
+        for (int col=0; col < ncs.length; col++)         ncs[col].addNum(in[col]);
+      }
+    }
+  }
+.doAll(f.numCols(),f).outputFrame(f.names(),f.domains());
+}
