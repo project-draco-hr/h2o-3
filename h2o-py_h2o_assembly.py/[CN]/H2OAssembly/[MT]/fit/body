@@ -4,5 +4,6 @@ def fit(self, fr, **fit_params):
         res.append(step[1].to_rest(step[0]))
     res = ','.join([_quoted(r.replace('"', "'")) for r in res])
     res = (('[' + res) + ']')
-    j = H2OConnection.post_json(url_suffix='Assembly', assembly=res, frame=fr._id, _rest_version=99)
-    return get_frame(j['result'])
+    j = H2OConnection.post_json(url_suffix='Assembly', steps=res, frame=fr._id, _rest_version=99)
+    self.id = j['assembly']['name']
+    return get_frame(j['result']['name'])
