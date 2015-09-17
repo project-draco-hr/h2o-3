@@ -1,0 +1,16 @@
+{
+  HashMap<String,Object> out=new HashMap<>();
+  for (  String K : _params.keySet()) {
+    Object V=_params.get(K);
+    if (deep && V instanceof Transform) {
+      HashMap<String,Object> deepItems=((Transform)V).getParams(true);
+      for (      String dK : deepItems.keySet()) {
+        Object o=deepItems.remove(dK);
+        deepItems.put(K + ":" + dK,o);
+      }
+      out.putAll(deepItems);
+    }
+    out.put(K,V);
+  }
+  return out;
+}

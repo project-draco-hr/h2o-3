@@ -88,7 +88,8 @@ def run_tests(self, nopass):
         self._report_test_result(completed_test, nopass)
         ip_of_completed_test = completed_test.get_ip()
         port_of_completed_test = completed_test.get_port()
-        self._start_next_test_on_ip_port(ip_of_completed_test, port_of_completed_test)
+        if self._h2o_exists_and_healthy(ip_of_completed_test, port_of_completed_test):
+            self._start_next_test_on_ip_port(ip_of_completed_test, port_of_completed_test)
     while (len(self.tests_running) > 0):
         if self.terminated:
             return

@@ -1,0 +1,16 @@
+{
+  if (_dist != mrt._dist) {
+    NonBlockingHashMap<Double,Integer> l=_dist;
+    NonBlockingHashMap<Double,Integer> r=mrt._dist;
+    if (l.size() < r.size()) {
+      l=r;
+      r=_dist;
+    }
+    for (    Double v : r.keySet()) {
+      Integer oldVal=l.putIfAbsent(v,r.get(v));
+      if (oldVal != null)       l.put(v,oldVal + r.get(v));
+    }
+    _dist=l;
+    mrt._dist=null;
+  }
+}

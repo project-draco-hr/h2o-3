@@ -1,0 +1,23 @@
+{
+  for (int i=0; i < c0._len; i++) {
+    double d0=c0.atd(i);
+    if (Double.isNaN(d0))     continue;
+    long l0=Double.doubleToRawLongBits(d0);
+    double d1=c1.atd(i);
+    if (Double.isNaN(d1))     continue;
+    long l1=Double.doubleToRawLongBits(d1);
+    NonBlockingHashMapLong<AtomicLong> col1s=_col0s.get(l0);
+    if (col1s == null) {
+      col1s=new NonBlockingHashMapLong<>();
+      NonBlockingHashMapLong<AtomicLong> old=_col0s.putIfAbsent(l0,col1s);
+      if (old != null)       col1s=old;
+    }
+    AtomicLong cnt=col1s.get(l1);
+    if (cnt == null) {
+      cnt=new AtomicLong();
+      AtomicLong old=col1s.putIfAbsent(l1,cnt);
+      if (old != null)       cnt=old;
+    }
+    cnt.incrementAndGet();
+  }
+}

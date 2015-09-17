@@ -1,0 +1,16 @@
+{
+  Frame res=new MRTask(){
+    @Override public void map(    Chunk chks[],    NewChunk nc){
+      double ds[]=new double[chks.length];
+      AST[] asts=new AST[]{fun,new ASTRow(ds)};
+      for (int row=0; row < chks[0]._len; row++) {
+        for (int col=0; col < chks.length; col++)         ds[col]=chks[col].atd(row);
+        try (Env.StackHelp stk_inner=env.stk()){
+          nc.addNum(fun.apply(env,stk_inner,asts).getNum());
+        }
+       }
+    }
+  }
+.doAll(1,fr).outputFrame();
+  return new ValFrame(res);
+}

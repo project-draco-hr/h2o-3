@@ -1,8 +1,12 @@
 def parse(setup, h2o_name, first_line_is_header=((-1), 0, 1)):
     '\n  Trigger a parse; blocking; removeFrame just keep the Vecs.\n\n  Parameters\n  ----------\n  setup : dict \n    The result of calling parse_setup.\n  h2o_name : H2OFrame\n    The name of the H2O Frame on the back end.\n  first_line_is_header : int\n    -1 means data, 0 means guess, 1 means header.\n\n:return: A new parsed object\n  '
     p = {'destination_frame': h2o_name, 'parse_type': None, 'separator': None, 'single_quotes': None, 'check_header': None, 'number_columns': None, 'chunk_size': None, 'delete_on_done': True, 'blocking': False, }
+    if setup['destination_frame']:
+        setup['destination_frame'] = _quoted(setup['destination_frame'])
     if isinstance(first_line_is_header, tuple):
         first_line_is_header = setup['check_header']
+    if isinstance(setup['separator'], basestring):
+        setup['separator'] = ord(setup['separator'])
     if setup['column_names']:
         setup['column_names'] = [_quoted(name) for name in setup['column_names']]
         p['column_names'] = None
