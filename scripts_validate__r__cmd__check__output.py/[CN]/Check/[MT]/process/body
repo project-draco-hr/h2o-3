@@ -1,14 +1,24 @@
 def process(self):
     f = open(self.file_name, 'r')
-    allowed_regex_list = ['^\\* using log directory', '^\\* using R version', '^\\* using R Under development', '^\\* using platform', '^\\* using session charset', '^\\* using option .*', '^\\* checking .* \\.\\.\\. OK', '^\\* checking extension type \\.\\.\\. Package', '^\\* this is package', '^\\* checking CRAN incoming feasibility \\.\\.\\.', '^\\*\\* found \\\\donttest examples: .*', '^Maintainer:', '^New maintainer:', '^\\s*Tom Kraljevic', '^Insufficient package version .*', '^\\Days since last update: .*', '^Old maintainer\\(s\\):', '^\\s*Anqi Fu', '^NOTE: There was 1 note.', '^\\n', '^New submission', '^Package was archived on CRAN', '^CRAN repository db overrides:', '^  X-CRAN-Comment: Archived on 2014-09-23 as did not comply with CRAN', '^    policies on use of multiple threads.', '^\\* checking installed package size ... NOTE', '^  installed size is .*Mb', '^  sub-directories of 1Mb or more:', '^    java  .*Mb', '^NOTE: There were 2 notes.', '^Status: 1 WARNING, 1 NOTE', '^Status: 1 WARNING, .* NOTEs', '^Status: 2 NOTEs', '^Status: 1 NOTE', '^See', '^ .*/h2o-r/h2o\\.Rcheck/00check\\.log.*', '^for details.', '^  Running .*', '^ OK', "^Package has FOSS license, installs .class/.jar but has no 'java' directory.", '^\\* DONE', '^The Date field is over a month old.*', "^Checking URLs requires 'libcurl' support in the R build"]
+    allowed_regex_list = ['^\\* using log directory', '^\\* using R version', '^\\* using R Under development', '^\\* using platform', '^\\* using session charset', '^\\* using option.*', '^\\* checking .* \\.\\.\\. OK', '^\\* checking extension type \\.\\.\\. Package', '^\\* this is package', '^\\* checking CRAN incoming feasibility \\.\\.\\.', '^\\*\\* found \\\\donttest examples: .*', '^\\* checking package namespace information .*', '^Maintainer:', '^New maintainer:', '^\\s*Tom Kraljevic', '^Insufficient package version .*', '^\\Days since last update: .*', '^Old maintainer\\(s\\):', '^\\s*Anqi Fu', '^NOTE: There was 1 note.', '^\\n', '^New submission', '^Package was archived on CRAN', '^CRAN repository db overrides:', '^  X-CRAN-Comment: Archived on 2014-09-23 as did not comply with CRAN', '^    policies on use of multiple threads.', '^\\* checking installed package size ... NOTE', '^\\* checking R code for possible problems ... NOTE', '^  installed size is .*Mb', '^  sub-directories of 1Mb or more:', '^    java  .*Mb', '^NOTE: There were 2 notes.', '^Status: 1 WARNING, 1 NOTE', '^Status: 1 WARNING, .* NOTEs', '^Status: 2 NOTEs', '^Status: 1 NOTE', '^See', '^ .*/h2o-r/h2o\\.Rcheck/00check\\.log.*', '^for details.', '^  Running .*', '^ OK', "^Package has FOSS license, installs .class/.jar but has no 'java' directory.", '^\\* DONE', '^The Date field is over a month old.*', "^Checking URLs requires 'libcurl' support in the R build"]
     s = f.readline()
+    special_note = False
     while (len(s) > 0):
+        checking = '^\\* checking.*'
+        if (special_note and (re.search(checking, s) is not None)):
+            special_note = False
+        if special_note:
+            s = f.readline()
+            self.lineno = (self.lineno + 1)
+            continue
         self.lineno = (self.lineno + 1)
         allowed = False
         for regex in allowed_regex_list:
             match_groups = re.search(regex, s)
             if (match_groups is not None):
                 allowed = True
+                if (regex == '^\\* checking R code for possible problems ... NOTE'):
+                    special_note = True
                 break
         if (not allowed):
             self.parse_error('Illegal output found', s, f)
