@@ -1,2 +1,0 @@
-def gen_class(self, step_name):
-    return ('\n      public static class %s extends Step<%s> {\n        private final String[] _cols = new String[]{%s};\n        %s() {_append=false;}\n        @Override public RowData transform(RowData row) {\n          RowData colSelection = new RowData();\n          for( String s: _cols)\n            colSelection.put(s, row.get(s));\n          return colSelection;\n        }\n      }\n    ' % (step_name, step_name, (('"' + '","'.join(self.cols)) + '"'), step_name))

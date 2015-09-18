@@ -1,0 +1,18 @@
+{
+  Frame fr=stk.track(asts[1].exec(env)).getFrame();
+  if (fr.numCols() == 1) {
+    if (!fr.anyVec().isNumeric())     return new ValNum(Double.NaN);
+    return new ValNum(fr.anyVec().sigma());
+  }
+  Futures fs=new Futures();
+  Key key=Vec.VectorGroup.VG_LEN1.addVecs(1)[0];
+  AppendableVec v=new AppendableVec(key);
+  NewChunk chunk=new NewChunk(v,0);
+  for (int i=0; i < fr.numCols(); ++i)   chunk.addNum(fr.vec(i).isNumeric() ? fr.vec(i).sigma() : Double.NaN);
+  chunk.close(0,fs);
+  Vec vec=v.close(fs);
+  fs.blockForPending();
+  Frame fr2=new Frame(Key.make(),new String[]{"C1"},new Vec[]{vec});
+  DKV.put(fr2);
+  return new ValFrame(fr2);
+}

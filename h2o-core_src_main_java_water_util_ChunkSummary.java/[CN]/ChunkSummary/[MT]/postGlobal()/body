@@ -1,28 +1,2 @@
 {
-  if (chunk_counts == null || chunk_byte_sizes == null || byte_size_per_node == null)   return;
-  assert(total_row_count == _fr.numRows());
-  total_chunk_byte_size=0;
-  total_chunk_count=0;
-  for (int j=0; j < chunkTypes.length; ++j) {
-    total_chunk_byte_size+=chunk_byte_sizes[j];
-    total_chunk_count+=chunk_counts[j];
-  }
-  long check=0;
-  for (  Vec v : _fr.vecs())   check+=v.nChunks();
-  assert(total_chunk_count == check);
-  double[] res=MathUtils.min_max_mean_stddev(byte_size_per_node);
-  byte_size_per_node_min=res[0];
-  byte_size_per_node_max=res[1];
-  byte_size_per_node_mean=res[2];
-  byte_size_per_node_stddev=res[3];
-  res=MathUtils.min_max_mean_stddev(row_count_per_node);
-  row_count_per_node_min=res[0];
-  row_count_per_node_max=res[1];
-  row_count_per_node_mean=res[2];
-  row_count_per_node_stddev=res[3];
-  res=MathUtils.min_max_mean_stddev(chunk_count_per_col_per_node);
-  chunk_count_per_col_per_node_min=res[0];
-  chunk_count_per_col_per_node_max=res[1];
-  chunk_count_per_col_per_node_mean=res[2];
-  chunk_count_per_col_per_node_stddev=res[3];
 }
