@@ -17,7 +17,12 @@
  else {
     assert(_a.size() == _dinfo.fullN());
     for (int i=0; i < numcat; ++i)     _a.set(cats[i],1f);
-    for (int i=0; i < nums.length; ++i)     _a.set(_dinfo.numStart() + i,Double.isNaN(nums[i]) ? 0f : nums[i]);
+    if (numIds != null) {
+      for (int i=0; i < numIds.length; ++i)       _a.set(numIds[i],Double.isNaN(nums[i]) ? 0f : nums[i]);
+    }
+ else {
+      for (int i=0; i < nums.length; ++i)       _a.set(_dinfo.numStart() + i,Double.isNaN(nums[i]) ? 0f : nums[i]);
+    }
   }
   if (_dropout == null)   return;
   if (params._autoencoder && params._input_dropout_ratio > 0) {
