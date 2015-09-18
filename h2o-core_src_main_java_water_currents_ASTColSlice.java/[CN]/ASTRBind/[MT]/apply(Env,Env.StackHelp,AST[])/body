@@ -33,10 +33,35 @@
     coffset+=espc2.length - 1;
   }
   if (zz != null)   zz.remove();
+  HashMap<String,Integer>[] dmap=new HashMap[types.length];
+  String[][] domains=new String[types.length][];
+  int[][][] emaps=new int[types.length][][];
+  for (int k=0; k < types.length; ++k) {
+    dmap[k]=new HashMap<>();
+    int c=0;
+    byte t=types[k];
+    if (t == Vec.T_ENUM) {
+      int[][] maps=new int[frs.length][];
+      for (int i=1; i < frs.length; i++) {
+        maps[i]=new int[frs[i].vec(k).domain().length];
+        for (int j=0; j < maps[i].length; j++) {
+          String s=frs[i].vec(k).domain()[j];
+          if (!dmap[k].containsKey(s))           dmap[k].put(s,maps[i][j]=c++);
+ else           maps[i][j]=dmap[k].get(s);
+        }
+      }
+      emaps[k]=maps;
+    }
+ else {
+      emaps[k]=new int[frs.length][];
+    }
+    domains[k]=c == 0 ? null : new String[c];
+    for (    Map.Entry<String,Integer> e : dmap[k].entrySet())     domains[k][e.getValue()]=e.getKey();
+  }
   Key<Vec>[] keys=fr.anyVec().group().addVecs(fr.numCols());
   Vec[] vecs=new Vec[fr.numCols()];
-  for (int i=0; i < vecs.length; i++)   vecs[i]=new Vec(keys[i],espc,null,types[i]);
+  for (int i=0; i < vecs.length; i++)   vecs[i]=new Vec(keys[i],espc,domains[i],types[i]);
   ParallelRbinds t;
-  H2O.submitTask(t=new ParallelRbinds(frs,espc,vecs)).join();
+  H2O.submitTask(t=new ParallelRbinds(frs,espc,vecs,emaps)).join();
   return new ValFrame(new Frame(fr.names(),t._vecs));
 }
