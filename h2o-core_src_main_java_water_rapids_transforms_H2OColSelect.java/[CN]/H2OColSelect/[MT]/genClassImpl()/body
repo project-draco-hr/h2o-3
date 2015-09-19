@@ -1,3 +1,8 @@
 {
-  return "    private final String[] _cols = {" + _cols + "};\n"+ "    @Override public RowData transform(RowData row) {\n"+ "      RowData colSelect = new RowData();\n"+ "      for(String s: _cols) \n"+ "        colSelect.put(s, row.get(s));\n"+ "      return colSelect;\n"+ "    }\n"+ "  }\n";
+  StringBuilder sb=new StringBuilder();
+  sb.append("    @Override public RowData transform(RowData row) {\n");
+  sb.append("      RowData colSelect = new RowData();\n");
+  for (  String s : _cols)   sb.append("      colSelect.put(\"" + s + "\", row.get(\""+ s+ "\"));\n");
+  sb.append("      return colSelect;\n").append("    }\n");
+  return sb.toString();
 }
