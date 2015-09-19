@@ -16,6 +16,12 @@ case java:
 if (s instanceof H2OErrorV3) {
   return new Response(http_response_header,MIME_JSON,s.toJsonString());
 }
+if (s instanceof AssemblyV99) {
+Assembly ass=DKV.getGet(((AssemblyV99)s).assembly_id);
+Response r=new Response(http_response_header,MIME_DEFAULT_BINARY,ass.toJava(((AssemblyV99)s).pojo_name));
+r.addHeader("Content-Disposition","attachment; filename=\"" + JCodeGen.toJavaId(((AssemblyV99)s).pojo_name) + ".java\"");
+return r;
+}
 if (!(s instanceof ModelsBase)) {
 throw new H2OIllegalArgumentException("Cannot generate java for type: " + s.getClass().getSimpleName());
 }

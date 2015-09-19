@@ -1,7 +1,7 @@
 {
   String stepName=name();
   StringBuilder sb=new StringBuilder();
-  String s="public static class " + stepName + " extends Step<"+ stepName+ "> {\n"+ "  private final String[] _cols = new String[]{"+ _cols+ "};\n"+ "  "+ stepName+ "() { _inplace=true; }\n"+ "  @Override public RowData transform(RowData row) {\n"+ "    RowData colSelect = new RowData();\n"+ "    for(String s: _cols) \n"+ "      colSelect.put(s, row.get(s));\n"+ "    return colSelect;\n"+ "  }\n"+ "}\n";
+  String s="  class " + stepName + " extends Step<"+ stepName+ "> {\n"+ "    private final String[] _cols = {"+ _cols+ "};\n"+ "    public "+ stepName+ "() { }\n"+ "    @Override public RowData transform(RowData row) {\n"+ "      RowData colSelect = new RowData();\n"+ "      for(String s: _cols) \n"+ "        colSelect.put(s, row.get(s));\n"+ "      return colSelect;\n"+ "    }\n"+ "  }\n";
   sb.append(s);
   return sb;
 }
