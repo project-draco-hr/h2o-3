@@ -1,0 +1,14 @@
+{
+  String stepName=name();
+  StringBuilder sb=new StringBuilder();
+  String s="  class " + stepName + " extends Step<"+ stepName+ "> {\n";
+  sb.append(s);
+  if (_params.size() > 0)   sb.append("    private final HashMap<String, String[]> _params = new HashMap<>();\n");
+  for (  String k : _params.keySet()) {
+    String v=_params.get(k).toJavaString();
+    sb.append("    _params.put(\"" + k + "\", new String[]{"+ v+ "});\n");
+  }
+  String s3="    public " + stepName + "() { } \n"+ "    @Override public RowData transform(RowData row) {\n"+ "      row.put(\""+ _newCol+ "\", GenModel."+ _fun+ "(row.get(\""+ _oldCol+ "\"), _params);\n"+ "      return row;\n"+ "    }\n"+ "  }\n";
+  sb.append(s3);
+  return sb;
+}
