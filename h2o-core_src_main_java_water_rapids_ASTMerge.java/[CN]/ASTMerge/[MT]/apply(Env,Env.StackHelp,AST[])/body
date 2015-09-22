@@ -1,14 +1,33 @@
 {
   Frame l=stk.track(asts[1].exec(env)).getFrame();
   Frame r=stk.track(asts[2].exec(env)).getFrame();
-  boolean allLeft=asts[3].exec(env).getNum() == 1;
-  boolean allRite=asts[4].exec(env).getNum() == 1;
+  String[] bynames=l._names;
+  if (asts[3] instanceof ASTStr) {
+    bynames=new String[]{asts[3].str()};
+  }
+ else   if (asts[3] instanceof ASTNum) {
+    bynames=new String[]{l.names()[(int)((ASTNum)asts[3])._v.getNum()]};
+  }
+ else   if (asts[3] instanceof ASTStrList) {
+    bynames=((ASTStrList)asts[3])._strs;
+  }
+ else   if (asts[3] instanceof ASTNumList) {
+    ASTNumList colIdxs=((ASTNumList)asts[3]);
+    if (!colIdxs.isEmpty()) {
+      int[] idxs=colIdxs.expand4();
+      bynames=new String[idxs.length];
+      for (int i=0; i < idxs.length; ++i)       bynames[i]=l.names()[i];
+    }
+  }
+  boolean allLeft=asts[4].exec(env).getNum() == 1;
+  boolean allRite=asts[5].exec(env).getNum() == 1;
   int ncols=0;
-  for (int i=0; i < l._names.length; i++) {
-    int idx=r.find(l._names[i]);
-    if (idx != -1) {
-      l.swap(i,ncols);
-      r.swap(idx,ncols);
+  for (int i=0; i < bynames.length; i++) {
+    int lidx=l.find(bynames[i]);
+    int ridx=r.find(bynames[i]);
+    if (ridx != -1 && lidx != -1) {
+      l.swap(lidx,ncols);
+      r.swap(ridx,ncols);
       Vec lv=l.vecs()[ncols];
       Vec rv=r.vecs()[ncols];
       if (lv.get_type() != rv.get_type())       throw new IllegalArgumentException("Merging columns must be the same type, column " + l._names[ncols] + " found types "+ lv.get_type_str()+ " and "+ rv.get_type_str());

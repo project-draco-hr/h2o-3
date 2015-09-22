@@ -5,7 +5,11 @@
     boolean added=_ms._rows.add(row);
     if (!added) {
       Row other=_ms._rows.get(row);
-      throw H2O.unimpl();
+      if (!row.rowEquals(other)) {
+        added=_ms._rows.add(row.reHash());
+        if (!added)         throw H2O.unimpl("Failed to add duplicate key (unequal rows): (" + row._row + ","+ other._row+ ")");
+      }
+ else       throw H2O.unimpl("Found entirely duplicate rows in make hash: (" + row._row + ","+ other._row+ ")");
     }
   }
 }
