@@ -1,0 +1,11 @@
+{
+  ASTNumList dim;
+  if (ast instanceof ASTNumList)   dim=(ASTNumList)ast;
+ else   if (ast instanceof ASTNum)   dim=new ASTNumList(((ASTNum)ast)._v.getNum());
+ else   if (ast instanceof ASTStr)   dim=new ASTNumList(dst.find(ast.str()));
+ else   if (ast instanceof ASTStrList)   dim=new ASTNumList(dst.find(((ASTStrList)ast)._strs));
+ else   throw new IllegalArgumentException("Requires a number-list, but found a " + ast.getClass());
+  if (dim.isEmpty())   return new ASTNumList(0,dstX);
+  if (!(0 <= dim.min() && dim.max() - 1 < dstX) && !(1 == dim.cnt() && dim.max() - 1 == dstX))   throw new IllegalArgumentException("Selection must be an integer from 0 to " + dstX);
+  return dim;
+}
