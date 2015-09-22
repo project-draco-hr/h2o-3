@@ -6,10 +6,9 @@ def header():
     fhex_header_unspecified = h2o.import_file(h2o.locate(path))
     try:
         h2o.import_file(h2o.locate(path), header=2)
+        assert False
     except ValueError:
         pass
-    else:
-        assert False
     assert (fhex_header_true._nrows == (fhex_header_false._nrows - 1))
-    assert ((fhex_header_unknown._nrows == fhex_header_false._nrows) or fhex_header_true._nrows)
-    assert ((fhex_header_unspecified._nrows == fhex_header_false._nrows) or fhex_header_true._nrows)
+    assert ((fhex_header_unknown._nrows == fhex_header_false._nrows) or (fhex_header_unknown._nrows == fhex_header_true._nrows))
+    assert ((fhex_header_unspecified._nrows == fhex_header_false._nrows) or (fhex_header_unspecified._nrows == fhex_header_true._nrows))
