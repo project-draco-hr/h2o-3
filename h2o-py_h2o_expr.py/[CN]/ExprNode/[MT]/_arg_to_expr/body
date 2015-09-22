@@ -6,7 +6,7 @@ def _arg_to_expr(arg):
         return '{}'.format(('TRUE' if arg else 'FALSE'))
     elif isinstance(arg, (int, float)):
         return '{}'.format(('NaN' if math.isnan(arg) else arg))
-    elif isinstance(arg, (unicode, str)):
+    elif isinstance(arg, basestring):
         return (('"' + arg) + '"')
     elif isinstance(arg, slice):
         return '[{}:{}]'.format((0 if (arg.start is None) else arg.start), ('NaN' if ((arg.stop is None) or math.isnan(arg.stop)) else (arg.stop if (arg.start is None) else (arg.stop - arg.start))))

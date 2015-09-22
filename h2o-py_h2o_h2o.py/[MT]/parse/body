@@ -14,7 +14,11 @@ def parse(setup, h2o_name, first_line_is_header=((-1), 0, 1)):
         setup['column_types'] = [_quoted(name) for name in setup['column_types']]
         p['column_types'] = None
     if setup['na_strings']:
-        setup['na_strings'] = [([_quoted(na) for na in col] if (col is not None) else []) for col in setup['na_strings']]
+        if _is_list_of_lists(setup['na_strings']):
+            setup['na_strings'] = [([_quoted(na) for na in col] if (col is not None) else []) for col in setup['na_strings']]
+        else:
+            setup['na_strings'] = [_quoted(na) for na in setup['na_strings']]
+            setup['na_strings'] = (('"' + str(list(itertools.repeat(setup['na_strings'], len(setup['column_types']))))) + '"')
         p['na_strings'] = None
     p.update({k: v for (k, v) in setup.iteritems() if (k in p)})
     p['check_header'] = first_line_is_header

@@ -1,7 +1,7 @@
 {
   Frame dst=stk.track(asts[1].exec(env)).getFrame();
   Val vsrc=stk.track(asts[2].exec(env));
-  ASTNumList cols=check(dst.numCols(),asts[3]);
+  ASTNumList cols=check(dst.numCols(),asts[3],dst);
   if (cols.cnt() == 1 && cols.max() - 1 == dst.numCols()) {
     String newColName=asts.length == 6 ? asts[5].exec(env).getStr() : Frame.defaultColName(dst.numCols());
     dst=new Frame(dst._names.clone(),dst.vecs().clone());
@@ -12,7 +12,7 @@
   }
   Frame slice=new ASTColSlice().apply(env,stk,new AST[]{null,new ASTFrame(dst),cols}).getFrame();
   if (asts[4] instanceof ASTNum || asts[4] instanceof ASTNumList) {
-    ASTNumList rows=check(dst.numRows(),asts[4]);
+    ASTNumList rows=check(dst.numRows(),asts[4],dst);
 switch (vsrc.type()) {
 case Val.NUM:
       assign_frame_scalar(slice,rows,vsrc.getNum());
