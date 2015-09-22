@@ -1,6 +1,6 @@
 {
   _gram=new Gram(_dinfo.fullN(),_dinfo.largestCat(),_dinfo._nums,_dinfo._cats,true);
-  _etas=new double[_beta_multinomial.length];
+  if (_params._family == Family.multinomial)   _etas=new double[_beta_multinomial.length];
   if (_validate) {
     int rank=0;
     if (_beta != null)     for (    double d : _beta)     if (d != 0)     ++rank;
@@ -12,4 +12,9 @@
   if (_params._family == Family.binomial && _validate) {
     _ti=new int[2];
   }
+  if (_params._family == Family.multinomial) {
+    _sparseOffsets=new double[_beta_multinomial.length];
+    for (int i=0; i < _beta_multinomial.length; ++i)     _sparseOffsets[i]=GLM.sparseOffset(_beta_multinomial[i],_dinfo);
+  }
+ else   _sparseOffset=GLM.sparseOffset(_beta,_dinfo);
 }
