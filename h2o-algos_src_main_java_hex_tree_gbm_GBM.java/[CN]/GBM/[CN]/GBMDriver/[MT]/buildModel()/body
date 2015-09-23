@@ -1,4 +1,7 @@
 {
+  _mtry=(_parms._mtries == -1) ? _ncols : _parms._mtries;
+  if (!(1 <= _mtry && _mtry <= _ncols))   throw new IllegalArgumentException("Computed mtry should be in interval <1," + _ncols + "> but it is "+ _mtry);
+  _train.add("OUT_BAG_TREES",_response.makeZero());
   if (hasOffsetCol() && _parms._distribution == Distribution.Family.bernoulli) {
     _initialPrediction=getInitialValueBernoulliOffset(_train);
   }
@@ -12,26 +15,29 @@
     }
 .doAll(vec_tree(_train,0),_parms._build_tree_one_node);
   }
+  int ntreesFromCheckpoint=_parms.hasCheckpoint() ? ((SharedTreeModel.SharedTreeParameters)_parms._checkpoint.<SharedTreeModel>get()._parms)._ntrees : 0;
   if (_parms.hasCheckpoint()) {
     Timer t=new Timer();
-    new ResidualsCollector(_ncols,_nclass,numSpecialCols(),_model._output._treeKeys).doAll(_train,_parms._build_tree_one_node);
-    Log.info("Reconstructing tree residuals stats from checkpointed model took " + t);
+    new OOBScorer(_ncols,_nclass,numSpecialCols(),_parms._sample_rate,_model._output._treeKeys).doAll(_train,_parms._build_tree_one_node);
+    Log.info("Reconstructing oob stats from checkpointed model took " + t);
   }
+  Random rand=createRNG(_parms._seed);
+  for (int i=0; i < ntreesFromCheckpoint; i++)   rand.nextLong();
+  final boolean oob=_parms._sample_rate < 1;
   for (int tid=0; tid < _ntrees; tid++) {
     if (tid != 0 || !_parms.hasCheckpoint()) {
-      double training_r2=doScoringAndSaveModel(false,false,_parms._build_tree_one_node);
+      double training_r2=doScoringAndSaveModel(false,oob,_parms._build_tree_one_node);
       if (training_r2 >= _parms._r2_stopping) {
         doScoringAndSaveModel(true,false,_parms._build_tree_one_node);
         return;
       }
     }
-    ComputePredAndRes cpr=new ComputePredAndRes();
-    cpr.doAll(_train,_parms._build_tree_one_node);
+    new ComputePredAndRes().doAll(_train,_parms._build_tree_one_node);
     Timer kb_timer=new Timer();
-    buildNextKTrees();
+    buildNextKTrees(rand);
     Log.info((tid + 1) + ". tree was built in " + kb_timer.toString());
     GBM.this.update(1);
     if (!isRunning())     return;
   }
-  doScoringAndSaveModel(true,false,_parms._build_tree_one_node);
+  doScoringAndSaveModel(true,oob,_parms._build_tree_one_node);
 }
