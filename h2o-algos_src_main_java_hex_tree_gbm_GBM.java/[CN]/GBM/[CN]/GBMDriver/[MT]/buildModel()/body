@@ -18,6 +18,7 @@
   int ntreesFromCheckpoint=_parms.hasCheckpoint() ? ((SharedTreeModel.SharedTreeParameters)_parms._checkpoint.<SharedTreeModel>get()._parms)._ntrees : 0;
   if (_parms.hasCheckpoint()) {
     Timer t=new Timer();
+    new ResidualsCollector(_ncols,_nclass,numSpecialCols(),_model._output._treeKeys).doAll(_train,_parms._build_tree_one_node);
     new OOBScorer(_ncols,_nclass,numSpecialCols(),_parms._sample_rate,_model._output._treeKeys).doAll(_train,_parms._build_tree_one_node);
     Log.info("Reconstructing oob stats from checkpointed model took " + t);
   }
@@ -28,7 +29,7 @@
     if (tid != 0 || !_parms.hasCheckpoint()) {
       double training_r2=doScoringAndSaveModel(false,oob,_parms._build_tree_one_node);
       if (training_r2 >= _parms._r2_stopping) {
-        doScoringAndSaveModel(true,false,_parms._build_tree_one_node);
+        doScoringAndSaveModel(true,oob,_parms._build_tree_one_node);
         return;
       }
     }
