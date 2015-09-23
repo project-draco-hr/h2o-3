@@ -12,7 +12,8 @@
   }
   Frame slice=new ASTColSlice().apply(env,stk,new AST[]{null,new ASTFrame(dst),cols}).getFrame();
   if (asts[4] instanceof ASTNum || asts[4] instanceof ASTNumList) {
-    ASTNumList rows=check(dst.numRows(),asts[4],dst);
+    ASTNumList rows=asts[4] instanceof ASTNum ? new ASTNumList(((ASTNum)asts[4])._v.getNum()) : ((ASTNumList)asts[4]);
+    if (rows.isEmpty())     rows=new ASTNumList(0,dst.numRows());
 switch (vsrc.type()) {
 case Val.NUM:
       assign_frame_scalar(slice,rows,vsrc.getNum());
