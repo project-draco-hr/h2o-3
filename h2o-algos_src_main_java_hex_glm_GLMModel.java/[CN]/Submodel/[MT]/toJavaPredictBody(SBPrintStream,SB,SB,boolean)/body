@@ -1,0 +1,39 @@
+{
+  final int nclass=_output.nclasses();
+  String mname=JCodeGen.toJavaId(_key.toString());
+  JCodeGen.toClassWithArray(classCtx,"static","BETA",beta());
+  JCodeGen.toStaticVar(classCtx,"CATOFFS",dinfo()._catOffsets,"Categorical Offsets");
+  body.ip("double eta = 0.0;").nl();
+  body.ip("final double [] b = BETA.VALUES;").nl();
+  if (!_parms._use_all_factor_levels) {
+    body.ip("for(int i = 0; i < CATOFFS.length-1; ++i) if(data[i] != 0) {").nl();
+    body.ip("  int ival = (int)data[i] - 1;").nl();
+    body.ip("  if(ival != data[i] - 1) throw new IllegalArgumentException(\"categorical value out of range\");").nl();
+    body.ip("  ival += CATOFFS[i];").nl();
+    body.ip("  if(ival < CATOFFS[i + 1])").nl();
+    body.ip("    eta += b[ival];").nl();
+  }
+ else {
+    body.ip("for(int i = 0; i < CATOFFS.length-1; ++i) {").nl();
+    body.ip("  int ival = (int)data[i];").nl();
+    body.ip("  if(ival != data[i]) throw new IllegalArgumentException(\"categorical value out of range\");").nl();
+    body.ip("  ival += CATOFFS[i];").nl();
+    body.ip("  if(ival < CATOFFS[i + 1])").nl();
+    body.ip("    eta += b[ival];").nl();
+  }
+  body.ip("}").nl();
+  final int noff=dinfo().numStart() - dinfo()._cats;
+  body.ip("for(int i = ").p(dinfo()._cats).p("; i < b.length-1-").p(noff).p("; ++i)").nl();
+  body.ip("  eta += b[").p(noff).p("+i]*data[i];").nl();
+  body.ip("eta += b[b.length-1]; // reduce intercept").nl();
+  body.ip("double mu = hex.genmodel.GenModel.GLM_").p(_parms._link.toString()).p("Inv(eta");
+  body.p(");").nl();
+  if (_parms._family == Family.binomial) {
+    body.ip("preds[0] = (mu > ").p(_output._threshold).p(") ? 1 : 0").p("; // threshold given by ROC").nl();
+    body.ip("preds[1] = 1.0 - mu; // class 0").nl();
+    body.ip("preds[2] =       mu; // class 1").nl();
+  }
+ else {
+    body.ip("preds[0] = mu;").nl();
+  }
+}

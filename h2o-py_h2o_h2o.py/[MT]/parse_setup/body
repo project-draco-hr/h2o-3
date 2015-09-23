@@ -1,6 +1,22 @@
-def parse_setup(raw_frames):
-    '\n  :param raw_frames: A collection of imported file frames\n  :return: A ParseSetup "object"\n  '
+def parse_setup(raw_frames, destination_frame='', header=((-1), 0, 1), separator='', column_names=None, column_types=None, na_strings=None):
+    '\n\n  Parameters\n  ----------\n\n  raw_frames : H2OFrame\n    A collection of imported file frames\n  destination_frame :\n    (Optional) The unique hex key assigned to the imported file. If none is given, a key will automatically be generated.\n  parse :\n    (Optional) A logical value indicating whether the file should be parsed after import.\n  header :\n    (Optional) -1 means the first line is data, 0 means guess, 1 means first line is header.\n  sep :\n    (Optional) The field separator character. Values on each line of the file are separated by this character. If sep = "", the parser will automatically detect the separator.\n  col_names :\n    (Optional) A list of column names for the file.\n  col_types :\n    (Optional) A list of types to specify whether columns should be forced to a certain type upon import parsing.\n  na_strings :\n    (Optional) A list of strings which are to be interpreted as missing values.\n  :return: A ParseSetup "object"\n  '
     if isinstance(raw_frames, unicode):
         raw_frames = [raw_frames]
     j = H2OConnection.post_json(url_suffix='ParseSetup', source_frames=[_quoted(id) for id in raw_frames])
+    if destination_frame:
+        j['destination_frame'] = destination_frame
+    if (not isinstance(header, tuple)):
+        if (header not in ((-1), 0, 1)):
+            raise ValueError('header should be -1, 0, or 1')
+        j['check_header'] = header
+    if separator:
+        if ((not isinstance(separator, basestring)) or (len(separator) != 1)):
+            raise ValueError('separator should be a single character string')
+        j['separator'] = separator
+    if column_names:
+        j['column_names'] = column_names
+    if column_types:
+        j['column_types'] = column_types
+    if na_strings:
+        j['na_strings'] = na_strings
     return j

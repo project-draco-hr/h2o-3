@@ -1,0 +1,7 @@
+def transform(self, X, y=None, **params):
+    res = H2OColOp._transform_helper(X, params)
+    if self.inplace:
+        X[self.col] = res
+    else:
+        return X.cbind(res)._frame()
+    return X

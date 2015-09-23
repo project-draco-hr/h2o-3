@@ -1,7 +1,7 @@
 {
-  if (model_info().unstable()) {
-    Log.warn(unstable_msg);
-    throw new UnsupportedOperationException("Trying to predict with an unstable model. " + unstable_msg);
+  if (model_info().isUnstable()) {
+    Log.err(unstable_msg);
+    throw new UnsupportedOperationException(unstable_msg);
   }
   Neurons[] neurons=DeepLearningTask.makeNeuronsForTesting(model_info);
   ((Neurons.Input)neurons[0]).setInput(-1,data);
@@ -16,8 +16,8 @@
     preds[0]=-1;
   }
  else {
-    if (model_info().data_info()._normRespMul != null)     preds[0]=((double)out[0] / model_info().data_info()._normRespMul[0] + model_info().data_info()._normRespSub[0]);
- else     preds[0]=(double)out[0];
+    if (model_info().data_info()._normRespMul != null)     preds[0]=(out[0] / model_info().data_info()._normRespMul[0] + model_info().data_info()._normRespSub[0]);
+ else     preds[0]=out[0];
     preds[0]=new Distribution(model_info.get_params()._distribution,model_info.get_params()._tweedie_power).linkInv(preds[0]);
     if (Double.isNaN(preds[0]))     throw new RuntimeException("Predicted regression target NaN!");
   }
