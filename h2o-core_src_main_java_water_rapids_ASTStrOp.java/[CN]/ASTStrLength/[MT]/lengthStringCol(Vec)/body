@@ -1,7 +1,16 @@
 {
   Vec res=new MRTask(){
     @Override public void map(    Chunk chk,    NewChunk newChk){
-      ((CStrChunk)chk).length(newChk);
+      if (((CStrChunk)chk)._isAllASCII) {
+        ((CStrChunk)chk).asciiLength(newChk);
+      }
+ else {
+        ValueString vs=new ValueString();
+        for (int i=0; i < chk._len; i++) {
+          if (chk.isNA(i))           newChk.addNA();
+ else           newChk.addNum(chk.atStr(vs,i).toString().length(),0);
+        }
+      }
     }
   }
 .doAll(1,vec).outputFrame().anyVec();
