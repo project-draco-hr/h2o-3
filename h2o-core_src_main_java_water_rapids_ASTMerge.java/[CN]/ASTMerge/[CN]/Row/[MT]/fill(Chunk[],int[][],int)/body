@@ -1,0 +1,15 @@
+{
+  long l, hash=0;
+  for (int i=0; i < _keys.length; i++) {
+    if (chks[i].isNA(row))     l=0;
+ else {
+      l=chks[i].at8(row);
+      hash+=(enum_maps == null || enum_maps[i] == null) ? l : enum_maps[i][(int)l];
+    }
+    _keys[i]=l;
+  }
+  _hash=(int)(hash ^ (hash >> 32));
+  _dup=false;
+  _row=chks[0].start() + row;
+  return this;
+}
