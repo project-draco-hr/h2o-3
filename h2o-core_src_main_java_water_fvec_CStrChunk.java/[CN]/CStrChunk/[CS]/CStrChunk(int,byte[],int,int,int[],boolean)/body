@@ -1,9 +1,12 @@
 {
   _start=-1;
   _valstart=_OFF + (idxLen << 2);
+  _isAllASCII=isAllASCII;
   set_len(idxLen);
   _mem=MemoryManager.malloc1(CStrChunk._OFF + idxLen * 4 + sslen,false);
   UnsafeUtils.set4(_mem,0,CStrChunk._OFF + idxLen * 4);
+  if (_isAllASCII)   UnsafeUtils.set1(_mem,4,(byte)1);
+ else   UnsafeUtils.set1(_mem,4,(byte)0);
   for (int i=0; i < sparseLen; ++i)   UnsafeUtils.set4(_mem,CStrChunk._OFF + 4 * i,strIdx[i]);
   for (int i=sparseLen; i < idxLen; ++i)   UnsafeUtils.set4(_mem,CStrChunk._OFF + 4 * i,-1);
   for (int i=0; i < sslen; ++i)   _mem[CStrChunk._OFF + idxLen * 4 + i]=ss[i];
