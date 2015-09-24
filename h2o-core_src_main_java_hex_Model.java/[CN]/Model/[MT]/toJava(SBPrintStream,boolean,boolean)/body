@@ -1,5 +1,5 @@
 {
-  SB fileContext=new SB();
+  CodeGeneratorPipeline fileCtx=new CodeGeneratorPipeline();
   String modelName=JCodeGen.toJavaId(_key.toString());
   sb.p("/*").nl();
   sb.p("  Licensed under the Apache License, Version 2.0").nl();
@@ -43,15 +43,16 @@
   sb.p("@ModelPojo(name=\"").p(modelName).p("\", algorithm=\"").p(algo).p("\")").nl();
   sb.p("public class ").p(modelName).p(" extends GenModel {").nl().ii(1);
   sb.ip("public hex.ModelCategory getModelCategory() { return hex.ModelCategory." + _output.getModelCategory() + "; }").nl();
-  toJavaInit(sb,fileContext).nl();
-  toJavaNAMES(sb,fileContext);
+  toJavaInit(sb,fileCtx).nl();
+  toJavaNAMES(sb,fileCtx);
   toJavaNCLASSES(sb);
-  toJavaDOMAINS(sb,fileContext);
+  toJavaDOMAINS(sb,fileCtx);
   toJavaPROB(sb);
   toJavaSuper(modelName,sb);
   sb.p("  public String getUUID() { return Long.toString(" + checksum() + "L); }").nl();
-  toJavaPredict(sb,fileContext,verboseCode);
+  toJavaPredict(sb,fileCtx,verboseCode);
   sb.p("}").nl().di(1);
-  sb.p(fileContext).nl();
+  fileCtx.generate(sb);
+  sb.nl();
   return sb;
 }
