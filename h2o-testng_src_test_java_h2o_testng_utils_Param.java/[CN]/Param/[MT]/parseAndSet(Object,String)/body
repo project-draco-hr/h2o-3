@@ -1,13 +1,13 @@
 {
   value=value.trim();
   Object v=null;
+  if ("".equals(value)) {
+    return false;
+  }
   if ("boolean".equals(type)) {
     v=parseBoolean(value);
   }
  else {
-    if ("".equals(value)) {
-      return false;
-    }
 switch (type) {
 case "String":
       v=value;
@@ -36,8 +36,11 @@ Class<?> clazz=params.getClass();
 while (clazz != null) {
 try {
 Field field=clazz.getDeclaredField(name);
-System.out.println("Set " + name + ": "+ value);
+Object oldValue=field.get(params);
+if (!v.equals(oldValue)) {
+System.out.println("Set " + name + ": "+ v);
 field.set(params,v);
+}
 return true;
 }
  catch (NoSuchFieldException e) {

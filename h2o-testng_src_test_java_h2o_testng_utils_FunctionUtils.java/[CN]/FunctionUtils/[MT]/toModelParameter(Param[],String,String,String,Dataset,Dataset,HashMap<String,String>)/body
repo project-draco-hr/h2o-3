@@ -9,6 +9,7 @@ case FunctionUtils.drf:
 if (drfFamily != null) {
   System.out.println("Set _distribution: " + drfFamily);
   modelParameter._distribution=drfFamily;
+  isTunedValue=true;
 }
 break;
 case FunctionUtils.glm:
@@ -18,10 +19,12 @@ Solver s=(Solver)GLMConfig.solverOptionsParams.getValue(rawInput);
 if (glmFamily != null) {
 System.out.println("Set _family: " + glmFamily);
 ((GLMParameters)modelParameter)._family=glmFamily;
+isTunedValue=true;
 }
 if (s != null) {
 System.out.println("Set _solver: " + s);
 ((GLMParameters)modelParameter)._solver=s;
+isTunedValue=true;
 }
 break;
 case FunctionUtils.gbm:
@@ -30,12 +33,13 @@ Family gbmFamily=(Family)GBMConfig.familyParams.getValue(rawInput);
 if (gbmFamily != null) {
 System.out.println("Set _distribution: " + gbmFamily);
 modelParameter._distribution=gbmFamily;
+isTunedValue=true;
 }
 break;
 default :
 System.out.println("can not parse to object parameter with algorithm: " + algorithm);
 }
-isTunedValue=Param.setAutoSetParams(modelParameter,params,rawInput);
+isTunedValue|=Param.setAutoSetParams(modelParameter,params,rawInput);
 if (isTunedValue) {
 rawInput.put(MySQL.tuned_or_defaults,MySQL.tuned);
 }

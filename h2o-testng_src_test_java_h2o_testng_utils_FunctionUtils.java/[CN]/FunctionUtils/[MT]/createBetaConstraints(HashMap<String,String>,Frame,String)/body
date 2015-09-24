@@ -9,7 +9,7 @@
   String betaConstraintsString="names, lower_bounds, upper_bounds\n";
   List<String> predictorNames=Arrays.asList(trainFrame._names);
   for (  String name : predictorNames) {
-    if (!name.equals(responseColumn)) {
+    if (!name.equals(responseColumn) && !trainFrame.vec(name).isConst()) {
       if (trainFrame.vec(name).isEnum()) {
         for (        String level : trainFrame.vec(name).domain()) {
           betaConstraintsString+=String.format("%s.%s,%s,%s\n",name,level,lowerBound,upperBound);
