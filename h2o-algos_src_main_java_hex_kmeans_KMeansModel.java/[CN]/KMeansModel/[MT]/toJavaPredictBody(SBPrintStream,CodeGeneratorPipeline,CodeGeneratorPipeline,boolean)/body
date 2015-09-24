@@ -1,0 +1,22 @@
+{
+  if (_parms._standardize) {
+    classCtx.add(new CodeGenerator(){
+      @Override public void generate(      JCodeSB out){
+        JCodeGen.toStaticVar(out,"MEANS",_output._normSub,"Column means of training data");
+        JCodeGen.toStaticVar(out,"MULTS",_output._normMul,"Reciprocal of column standard deviations of training data");
+        JCodeGen.toStaticVar(out,"CENTERS",_output._centers_std_raw,"Normalized cluster centers[K][features]");
+      }
+    }
+);
+    body.ip("preds[0] = KMeans_closest(CENTERS,data,DOMAINS,MEANS,MULTS);").nl();
+  }
+ else {
+    classCtx.add(new CodeGenerator(){
+      @Override public void generate(      JCodeSB out){
+        JCodeGen.toStaticVar(out,"CENTERS",_output._centers_raw,"Denormalized cluster centers[K][features]");
+      }
+    }
+);
+    body.ip("preds[0] = KMeans_closest(CENTERS,data,DOMAINS,null,null);").nl();
+  }
+}
