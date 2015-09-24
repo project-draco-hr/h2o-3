@@ -1,8 +1,8 @@
 {
   _best_lambda_idx=l;
   if (_multinomial) {
-    if (_global_beta_multinomial == null)     _global_beta_multinomial=new double[nclasses()][];
-    for (int i=0; i < _global_beta_multinomial.length; ++i)     _global_beta_multinomial[i]=_dinfo.denormalizeBeta(_submodels[l].betaMultinomial[i]);
+    _global_beta_multinomial=getNormBetaMultinomial(l);
+    for (int i=0; i < _global_beta_multinomial.length; ++i)     _global_beta_multinomial[i]=_dinfo.denormalizeBeta(_global_beta_multinomial[i]);
   }
  else {
     if (_global_beta == null)     _global_beta=MemoryManager.malloc8d(_coefficient_names.length);
