@@ -35,22 +35,34 @@
     allLeft=allRite;
     allRite=tmp;
   }
-  int[][] enum_maps=new int[ncols][];
   int[][] id_maps=new int[ncols][];
   for (int i=0; i < ncols; i++) {
     Vec lv=walked.vecs()[i];
     if (lv.isEnum()) {
       EnumWrappedVec ewv=new EnumWrappedVec(lv.domain(),hashed.vecs()[i].domain());
-      int[] ids=enum_maps[i]=ewv.enum_map();
+      int[] ids=ewv.enum_map();
       DKV.remove(ewv._key);
       id_maps[i]=new int[ids.length];
       for (int j=0; j < ids.length; j++)       id_maps[i][j]=j;
     }
   }
-  walked=walked.deepCopy(null);
-  Key uniq=new MergeSet(ncols,id_maps,allRite).doAll(hashed)._uniq;
-  String[] names=Arrays.copyOfRange(hashed._names,ncols,hashed._names.length);
-  String[][] domains=Arrays.copyOfRange(hashed.domains(),ncols,hashed.domains().length);
-  Frame res=new DoJoin(ncols,uniq,hashed,allLeft,allRite).doAll(hashed.numCols() - ncols,walked).outputFrame(names,domains);
-  return new ValFrame(walked.add(res));
+  MergeSet ms;
+  Key uniq=(ms=new MergeSet(ncols,id_maps,allRite).doAll(hashed))._uniq;
+  if (ms._dup && allRite) {
+    String[] names=Arrays.copyOf(walked.names(),walked.numCols() + hashed.numCols() - ncols);
+    System.arraycopy(hashed.names(),ncols,names,walked.numCols(),hashed.numCols() - ncols);
+    String[][] domains=Arrays.copyOf(walked.domains(),walked.numCols() + hashed.numCols() - ncols);
+    System.arraycopy(hashed.domains(),ncols,domains,walked.numCols(),hashed.numCols() - ncols);
+    return new ValFrame(new AllRiteWithDupJoin(ncols,uniq,hashed,allLeft,allRite).doAll(walked.numCols() + hashed.numCols() - ncols,walked).outputFrame(names,domains));
+  }
+ else   if (!ms._dup && allLeft) {
+    walked=walked.deepCopy(null);
+    String[] names=Arrays.copyOfRange(hashed._names,ncols,hashed._names.length);
+    String[][] domains=Arrays.copyOfRange(hashed.domains(),ncols,hashed.domains().length);
+    Frame res=new AllLeftNoDupe(ncols,uniq,hashed,allLeft,allRite).doAll(hashed.numCols() - ncols,walked).outputFrame(names,domains);
+    return new ValFrame(walked.add(res));
+  }
+ else {
+    throw H2O.unimpl();
+  }
 }
