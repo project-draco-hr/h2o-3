@@ -33,8 +33,14 @@
       response.setHeader(key,value);
     }
     OutputStream os=response.getOutputStream();
-    InputStream is=resp.data;
-    FileUtils.copyStream(is,os,1024);
+    if (resp instanceof NanoHTTPD.StreamResponse) {
+      NanoHTTPD.StreamResponse ssr=(NanoHTTPD.StreamResponse)resp;
+      ssr.streamWriter.writeTo(os);
+    }
+ else {
+      InputStream is=resp.data;
+      FileUtils.copyStream(is,os,1024);
+    }
   }
   finally {
     logRequest(method,request,response);

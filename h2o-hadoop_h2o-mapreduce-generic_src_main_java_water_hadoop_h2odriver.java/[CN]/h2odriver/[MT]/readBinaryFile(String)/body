@@ -1,0 +1,26 @@
+{
+  ByteArrayOutputStream ous=null;
+  InputStream ios=null;
+  try {
+    byte[] buffer=new byte[4096];
+    ous=new ByteArrayOutputStream();
+    ios=new FileInputStream(new File(fileName));
+    int read;
+    while ((read=ios.read(buffer)) != -1) {
+      ous.write(buffer,0,read);
+    }
+  }
+  finally {
+    try {
+      if (ous != null)       ous.close();
+    }
+ catch (    IOException ignore) {
+    }
+    try {
+      if (ios != null)       ios.close();
+    }
+ catch (    IOException ignore) {
+    }
+  }
+  return ous.toByteArray();
+}
