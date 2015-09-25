@@ -1,16 +1,6 @@
 {
+  final IcedHashMap<Row,String> rows=_rows;
   final int len=chks[0]._len;
   Row row=new Row(_ncols);
-  for (int i=0; i < len; i++) {
-    boolean added=_rows.add(row.fill(chks,_id_maps,i));
-    if (!added) {
-      if (_allRite) {
-        _dup=true;
-        _rows.get(row).atomicAddDup(row._row);
-      }
-    }
- else {
-      row=new Row(_ncols);
-    }
-  }
+  for (int i=0; i < len; i++)   if (add(rows,row.fill(chks,_id_maps,i)))   row=new Row(_ncols);
 }
