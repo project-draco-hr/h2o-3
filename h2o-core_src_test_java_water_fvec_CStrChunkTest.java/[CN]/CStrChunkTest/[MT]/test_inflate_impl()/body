@@ -1,20 +1,20 @@
 {
   for (int l=0; l < 2; ++l) {
     NewChunk nc=new NewChunk(null,0);
-    ValueString[] vals=new ValueString[1000001];
+    BufferedString[] vals=new BufferedString[1000001];
     for (int i=0; i < vals.length; i++) {
-      vals[i]=new ValueString();
+      vals[i]=new BufferedString();
       vals[i].setTo("Foo" + i);
     }
     if (l == 1)     nc.addNA();
-    for (    ValueString v : vals)     nc.addStr(v);
+    for (    BufferedString v : vals)     nc.addStr(v);
     nc.addNA();
     Chunk cc=nc.compress();
     Assert.assertEquals(vals.length + 1 + l,cc._len);
     Assert.assertTrue(cc instanceof CStrChunk);
     if (l == 1)     Assert.assertTrue(cc.isNA(0));
     if (l == 1)     Assert.assertTrue(cc.isNA_abs(0));
-    ValueString vs=new ValueString();
+    BufferedString vs=new BufferedString();
     for (int i=0; i < vals.length; ++i)     Assert.assertEquals(vals[i],cc.atStr(vs,l + i));
     for (int i=0; i < vals.length; ++i)     Assert.assertEquals(vals[i],cc.atStr_abs(vs,l + i));
     Assert.assertTrue(cc.isNA(vals.length + l));
