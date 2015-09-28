@@ -6,12 +6,15 @@ def report_summary(self, nopass):
     failed = 0
     notrun = 0
     total = 0
+    h2o_internal_failed = 0
     true_fail_list = []
     terminated_list = []
     for test in self.tests:
         if test.get_passed():
             passed += 1
         else:
+            if test.get_h2o_internal():
+                h2o_internal_failed += 1
             if test.get_nopass(nopass):
                 nopass_but_tolerate += 1
             if test.get_nofeature(nopass):
@@ -43,6 +46,8 @@ def report_summary(self, nopass):
     self._log(('Passed:                  ' + str(passed)))
     self._log(('Did not pass:            ' + str(failed)))
     self._log(('Did not complete:        ' + str(notrun)))
+    self._log(('H2O INTERNAL tests:      ' + str(self.h2o_internal_counter)))
+    self._log(('H2O INTERNAL failures:   ' + str(h2o_internal_failed)))
     self._log(('Tolerated NOPASS:        ' + str(nopass_but_tolerate)))
     self._log(('Tolerated NOFEATURE:     ' + str(nofeature_but_tolerate)))
     self._log(('NOPASS tests skipped:    ' + str(self.nopass_counter)))
