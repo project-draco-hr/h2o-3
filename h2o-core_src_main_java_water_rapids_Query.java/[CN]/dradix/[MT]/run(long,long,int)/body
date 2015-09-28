@@ -1,0 +1,54 @@
+{
+  if (len < 200) {
+    insert(start,(int)len);
+    return;
+  }
+  int batch=0;
+  byte _xbatch[]=_x[batch];
+  long thisHist[]=_counts[Byte];
+  int idx=(int)start * _keySize + _keySize - Byte - 1;
+  int which=-1;
+  for (long i=0; i < len; i++) {
+    which=0xff & _xbatch[idx];
+    thisHist[which]++;
+    idx+=_keySize;
+  }
+  if (thisHist[which] == len) {
+    thisHist[which]=0;
+    if (Byte == 0)     push(len);
+ else     run(start,len,Byte - 1);
+    return;
+  }
+  long rollSum=0;
+  for (int c=0; c < 256; c++) {
+    long tmp=thisHist[c];
+    if (tmp == 0)     continue;
+    thisHist[c]=rollSum;
+    rollSum+=tmp;
+  }
+  long _obatch[]=_o[batch];
+  byte _xtmpbatch[]=_xtmp[batch];
+  long _otmpbatch[]=_otmp[batch];
+  idx=(int)start * _keySize + _keySize - Byte - 1;
+  for (int i=0; i < len; i++) {
+    long target=thisHist[0xff & _xbatch[idx]]++;
+    _otmpbatch[(int)(target)]=_obatch[(int)start + i];
+    System.arraycopy(_xbatch,((int)start + i) * _keySize,_xtmpbatch,(int)target * _keySize,_keySize);
+    idx+=_keySize;
+  }
+  System.arraycopy(_otmpbatch,0,_obatch,(int)start,(int)len);
+  System.arraycopy(_xtmpbatch,0,_xbatch,(int)start * _keySize,(int)len * _keySize);
+  long itmp=0;
+  for (int i=0; i < 256; i++) {
+    if (thisHist[i] == 0)     continue;
+    long thisgrpn=thisHist[i] - itmp;
+    if (thisgrpn == 1 || Byte == 0) {
+      push(thisgrpn);
+    }
+ else {
+      run(start + itmp,thisgrpn,Byte - 1);
+    }
+    itmp=thisHist[i];
+    thisHist[i]=0;
+  }
+}
