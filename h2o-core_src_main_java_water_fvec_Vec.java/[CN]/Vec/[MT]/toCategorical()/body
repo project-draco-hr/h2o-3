@@ -1,0 +1,8 @@
+{
+  if (isCategorical())   return makeCopy(domain());
+  if (!isInt())   throw new IllegalArgumentException("Categorical conversion only works on integer columns");
+  int min=(int)min(), max=(int)max();
+  long dom[]=(min >= 0 && max < Integer.MAX_VALUE - 4) ? new CollectDomainFast(max).doAll(this).domain() : new CollectDomain().doAll(this).domain();
+  if (dom.length > Categorical.MAX_CATEGORICAL_COUNT)   throw new IllegalArgumentException("Column domain is too large to be represented as an categorical: " + dom.length + " > "+ Categorical.MAX_CATEGORICAL_COUNT);
+  return copyOver(dom);
+}

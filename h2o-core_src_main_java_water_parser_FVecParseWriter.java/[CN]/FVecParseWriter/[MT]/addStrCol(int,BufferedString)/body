@@ -1,0 +1,35 @@
+{
+  if (colIdx < _nvs.length) {
+    if (_ctypes[colIdx] == Vec.T_NUM) {
+      addInvalidCol(colIdx);
+      return;
+    }
+    if (_ctypes[colIdx] == Vec.T_BAD && ParseTime.isTime(str))     _ctypes[colIdx]=Vec.T_TIME;
+    if (_ctypes[colIdx] == Vec.T_BAD && ParseUUID.isUUID(str))     _ctypes[colIdx]=Vec.T_UUID;
+    if (_ctypes[colIdx] == Vec.T_TIME) {
+      long l=ParseTime.attemptTimeParse(str);
+      if (l == Long.MIN_VALUE)       addInvalidCol(colIdx);
+ else {
+        addNumCol(colIdx,l,0);
+        _nvs[_col]._timCnt++;
+      }
+    }
+ else     if (_ctypes[colIdx] == Vec.T_UUID) {
+      long[] uuid=ParseUUID.attemptUUIDParse(str);
+      if (colIdx < _nCols)       _nvs[_col=colIdx].addUUID(uuid[0],uuid[1]);
+    }
+ else     if (_ctypes[colIdx] == Vec.T_STR) {
+      _nvs[_col=colIdx].addStr(str);
+    }
+ else {
+      if (!_categoricals[colIdx].isMapFull()) {
+        int id=_categoricals[_col=colIdx].addKey(str);
+        if (_ctypes[colIdx] == Vec.T_BAD && id > 1)         _ctypes[colIdx]=Vec.T_CAT;
+        _nvs[colIdx].addCategorical(id);
+      }
+ else {
+        throw new H2OParseException("Exceeded categorical limit on column #" + (colIdx + 1) + " (using 1-based indexing).  Consider reparsing this column as a string.");
+      }
+    }
+  }
+}
