@@ -1,0 +1,14 @@
+{
+  if (!yes.isRow() || !no.isRow())   throw H2O.unimpl();
+  double[] test=tst.getRow();
+  double[] True=yes.getRow();
+  double[] False=no.getRow();
+  double[] ds=new double[test.length];
+  String[] ns=new String[test.length];
+  for (int i=0; i < test.length; ++i) {
+    ns[i]="C" + (i + 1);
+    if (Double.isNaN(test[i]))     ds[i]=Double.NaN;
+ else     ds[i]=test[i] == 0 ? False[i] : True[i];
+  }
+  return new ValRow(ds,ns);
+}
