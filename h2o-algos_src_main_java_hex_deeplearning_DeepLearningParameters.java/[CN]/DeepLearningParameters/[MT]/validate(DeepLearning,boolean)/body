@@ -60,14 +60,14 @@
   }
   if (_loss == null) {
     if (expensive || dl.nclasses() != 0) {
-      dl.error("_loss","Loss function must be specified. Try CrossEntropy for categorical response (classification), MeanSquare, Absolute or Huber for numerical response (regression).");
+      dl.error("_loss","Loss function must be specified. Try CrossEntropy for categorical response (classification), Quadratic, Absolute or Huber for numerical response (regression).");
     }
   }
  else {
     if (_autoencoder && _loss == Loss.CrossEntropy)     dl.error("_loss","Cannot use CrossEntropy loss for auto-encoder.");
     if (!classification && _loss == Loss.CrossEntropy)     dl.error("_loss",technote(2,"For CrossEntropy loss, the response must be categorical."));
   }
-  if (!classification && _loss == Loss.CrossEntropy)   dl.error("_loss","For CrossEntropy loss, the response must be categorical. Either select Automatic, MeanSquare, Absolute or Huber loss for regression, or use a categorical response.");
+  if (!classification && _loss == Loss.CrossEntropy)   dl.error("_loss","For CrossEntropy loss, the response must be categorical. Either select Automatic, Quadratic, Absolute or Huber loss for regression, or use a categorical response.");
   if (classification) {
 switch (_distribution) {
 case gaussian:

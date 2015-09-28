@@ -1,0 +1,29 @@
+{
+  double[] dist=new double[centers.length];
+  double sum=0, inv_sum=0;
+  for (int cluster=0; cluster < centers.length; cluster++) {
+    dist[cluster]=KMeans_distance(centers[cluster],point,domains,means,mults);
+    sum+=dist[cluster];
+    inv_sum+=1.0 / dist[cluster];
+  }
+  double[] ratios=new double[centers.length];
+  if (sum == 0) {
+    Random rng=new Random();
+    int idx=rng.nextInt(centers.length);
+    ratios[idx]=1;
+  }
+ else {
+    int idx=-1;
+    for (int cluster=0; cluster < centers.length; cluster++) {
+      if (dist[cluster] == 0) {
+        idx=cluster;
+        break;
+      }
+    }
+    if (idx == -1) {
+      for (int cluster=0; cluster < centers.length; cluster++)       ratios[cluster]=1.0 / (dist[cluster] * inv_sum);
+    }
+ else     ratios[idx]=1;
+  }
+  return ratios;
+}
