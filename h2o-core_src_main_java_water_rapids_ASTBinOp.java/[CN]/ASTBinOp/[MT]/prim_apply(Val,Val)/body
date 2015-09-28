@@ -40,9 +40,11 @@ case Val.ROW:
 double dslf[]=left.getRow();
 switch (rite.type()) {
 case Val.NUM:
-throw H2O.unimpl();
+double[] right=new double[dslf.length];
+Arrays.fill(right,rite.getNum());
+return row_op_row(dslf,right,left.getNames());
 case Val.ROW:
-return row_op_row(dslf,rite.getRow());
+return row_op_row(dslf,rite.getRow(),rite.getNames());
 default :
 throw H2O.fail();
 }

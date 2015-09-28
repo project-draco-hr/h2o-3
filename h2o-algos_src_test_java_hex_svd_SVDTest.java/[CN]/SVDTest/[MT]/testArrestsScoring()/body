@@ -13,6 +13,7 @@
     parms._svd_method=SVDParameters.Method.Power;
     parms._only_v=false;
     parms._keep_u=false;
+    parms._save_v_frame=false;
     try {
       job=new SVD(parms);
       model=job.trainModel().get();
@@ -37,6 +38,9 @@
     if (train != null)     train.delete();
     if (score != null)     score.delete();
     if (scoreR != null)     scoreR.delete();
-    if (model != null)     model.delete();
+    if (model != null) {
+      if (model._parms._save_v_frame)       model._output._v_key.get().delete();
+      model.delete();
+    }
   }
 }
