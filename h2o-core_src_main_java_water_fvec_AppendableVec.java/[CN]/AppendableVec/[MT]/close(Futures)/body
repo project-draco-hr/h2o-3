@@ -7,23 +7,23 @@
   }
   int[] ctypes=new int[STRING + 1];
   for (int i=0; i < nchunk; ++i)   ctypes[_chunkTypes[i]]++;
-  boolean genEnumCol=false;
-  if (ctypes[ENUM] == 0 && ctypes[TIME] == 0 && ctypes[UUID] == 0 && ctypes[STRING] == 0)   genEnumCol=true;
-  if (domain() != null && (genEnumCol || ctypes[ENUM] > ctypes[NUMBER])) {
-    ctypes[ENUM]+=ctypes[NUMBER];
+  boolean genCatCol=false;
+  if (ctypes[CATEGORICAL] == 0 && ctypes[TIME] == 0 && ctypes[UUID] == 0 && ctypes[STRING] == 0)   genCatCol=true;
+  if (domain() != null && (genCatCol || ctypes[CATEGORICAL] > ctypes[NUMBER])) {
+    ctypes[CATEGORICAL]+=ctypes[NUMBER];
     ctypes[NUMBER]=0;
-    ctypes[ENUM]+=ctypes[NA];
+    ctypes[CATEGORICAL]+=ctypes[NA];
     ctypes[NA]=0;
-    if (nchunk == 0)     ctypes[ENUM]++;
+    if (nchunk == 0)     ctypes[CATEGORICAL]++;
   }
   int idx=0;
   for (int i=0; i < ctypes.length; i++)   if (i != NA && ctypes[i] > ctypes[idx])   idx=i;
-  if (idx != ENUM)   setDomain(null);
-  for (int i=0; i < nchunk; ++i)   if (_chunkTypes[i] != idx && !(idx == ENUM && _chunkTypes[i] == NUMBER && genEnumCol))   DKV.put(chunkKey(i),new C0DChunk(Double.NaN,(int)_tmp_espc[i]),fs);
+  if (idx != CATEGORICAL)   setDomain(null);
+  for (int i=0; i < nchunk; ++i)   if (_chunkTypes[i] != idx && !(idx == CATEGORICAL && _chunkTypes[i] == NUMBER && genCatCol))   DKV.put(chunkKey(i),new C0DChunk(Double.NaN,(int)_tmp_espc[i]),fs);
   byte type;
 switch (idx) {
-case ENUM:
-    type=T_ENUM;
+case CATEGORICAL:
+    type=T_CAT;
   break;
 case NUMBER:
 type=T_NUM;

@@ -1,10 +1,7 @@
 {
-  if (_ss == null) {
-    _ss=MemoryManager.malloc1((str.length() + 1) * 4);
-  }
-  while (_ss.length < (_sslen + str.length() + 1)) {
-    _ss=MemoryManager.arrayCopyOf(_ss,_ss.length << 1);
-  }
-  for (  byte b : str.getBytes())   _ss[_sslen++]=b;
+  byte[] bytes=str.getBytes(Charsets.UTF_8);
+  if (_ss == null)   _ss=MemoryManager.malloc1((bytes.length + 1) * 4);
+  while (_ss.length < (_sslen + bytes.length + 1))   _ss=MemoryManager.arrayCopyOf(_ss,_ss.length << 1);
+  for (  byte b : bytes)   _ss[_sslen++]=b;
   _ss[_sslen++]=(byte)0;
 }

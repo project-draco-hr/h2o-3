@@ -3,7 +3,7 @@
   String[] _domains=((ASTStrList)asts[2])._strs;
   if (f.numCols() != 1)   throw new IllegalArgumentException("Must be a single column. Got: " + f.numCols() + " columns.");
   Vec v=f.anyVec();
-  if (!v.isEnum())   throw new IllegalArgumentException("Vector must be a factor column. Got: " + v.get_type_str());
+  if (!v.isCategorical())   throw new IllegalArgumentException("Vector must be a factor column. Got: " + v.get_type_str());
   if (_domains != null && _domains.length != v.domain().length) {
     Vec.CollectDomainFast t=new Vec.CollectDomainFast((int)v.max());
     t.doAll(v);
@@ -14,7 +14,7 @@
         for (int i=0; i < c._len; ++i) {
           if (!c.isNA(i)) {
             long num=Arrays.binarySearch(dom,c.at8(i));
-            if (num < 0)             throw new IllegalArgumentException("Could not find the enum value!");
+            if (num < 0)             throw new IllegalArgumentException("Could not find the categorical value!");
             c.set(i,num);
           }
         }
