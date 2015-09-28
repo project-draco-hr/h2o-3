@@ -26,14 +26,14 @@
   Assert.assertTrue(fr3.numRows() == 1);
   Assert.assertTrue(fr3.vecs()[0].isUUID());
   fr3.delete();
-  String[] enumDataset=new String[]{"Foo-bar"};
-  Key k4=makeByteVec(enumDataset);
+  String[] categoricalDataset=new String[]{"Foo-bar"};
+  Key k4=makeByteVec(categoricalDataset);
   Key r4=Key.make();
   ParseDataset.parse(r4,k4);
   Frame fr4=DKV.get(r4).get();
   Assert.assertTrue(fr4.numCols() == 1);
   Assert.assertTrue(fr4.numRows() == 1);
-  Assert.assertTrue(fr4.vecs()[0].isEnum());
+  Assert.assertTrue(fr4.vecs()[0].isCategorical());
   String[] dom=fr4.vecs()[0].domain();
   Assert.assertTrue(dom.length == 1);
   Assert.assertEquals("Foo-bar",dom[0]);
