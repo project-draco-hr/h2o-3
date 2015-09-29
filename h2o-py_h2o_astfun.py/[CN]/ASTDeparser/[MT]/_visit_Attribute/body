@@ -1,0 +1,6 @@
+@staticmethod
+def _visit_Attribute(attr_node):
+    op = attr_node.attr
+    obj = ASTDeparser(attr_node.value).deparse()
+    default_args = inspect.getargspec(getattr(frame.H2OFrame, op))[3]
+    return expr.ExprNode(op, obj, *default_args)

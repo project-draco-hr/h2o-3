@@ -1,0 +1,34 @@
+{
+  List<String> colHeaders=new ArrayList<>();
+  List<String> colTypes=new ArrayList<>();
+  List<String> colFormat=new ArrayList<>();
+  colHeaders.add("Timestamp");
+  colTypes.add("string");
+  colFormat.add("%s");
+  colHeaders.add("Duration");
+  colTypes.add("string");
+  colFormat.add("%s");
+  colHeaders.add("Iteration");
+  colTypes.add("long");
+  colFormat.add("%d");
+  colHeaders.add("Step Size");
+  colTypes.add("double");
+  colFormat.add("%.5f");
+  colHeaders.add("Avg. Change in Objective");
+  colTypes.add("double");
+  colFormat.add("%.5f");
+  final int rows=output._training_time_ms.length;
+  TwoDimTable table=new TwoDimTable("Scoring History",null,new String[rows],colHeaders.toArray(new String[0]),colTypes.toArray(new String[0]),colFormat.toArray(new String[0]),"");
+  for (int row=0; row < rows; row++) {
+    int col=0;
+    assert(row < table.getRowDim());
+    assert(col < table.getColDim());
+    DateTimeFormatter fmt=DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    table.set(row,col++,fmt.print(output._training_time_ms[row]));
+    table.set(row,col++,PrettyPrint.msecs(output._training_time_ms[row] - _start_time,true));
+    table.set(row,col++,row);
+    table.set(row,col++,output._history_step_size[row]);
+    table.set(row,col++,output._history_avg_change_obj[row]);
+  }
+  return table;
+}

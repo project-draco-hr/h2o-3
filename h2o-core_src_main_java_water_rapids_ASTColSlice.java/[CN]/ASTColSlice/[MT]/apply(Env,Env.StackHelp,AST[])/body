@@ -1,5 +1,10 @@
 {
-  Frame fr=stk.track(asts[1].exec(env)).getFrame();
+  Val v=stk.track(asts[1].exec(env));
+  if (v instanceof ValRow) {
+    ValRow vv=(ValRow)v;
+    return vv.slice(asts[2].columns(vv._names));
+  }
+  Frame fr=v.getFrame();
   int[] cols=asts[2].columns(fr.names());
   Frame fr2=new Frame();
   if (cols.length == 0) {
