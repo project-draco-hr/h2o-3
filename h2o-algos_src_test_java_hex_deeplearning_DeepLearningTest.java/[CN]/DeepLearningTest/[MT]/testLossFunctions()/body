@@ -1,12 +1,12 @@
 {
   Frame tfr=null, vfr=null;
   DeepLearningModel dl=null;
-  for (  DeepLearningParameters.Loss loss : new DeepLearningParameters.Loss[]{DeepLearningParameters.Loss.Automatic,DeepLearningParameters.Loss.MeanSquare,DeepLearningParameters.Loss.Huber,DeepLearningParameters.Loss.Absolute}) {
+  for (  DeepLearningParameters.Loss loss : new DeepLearningParameters.Loss[]{DeepLearningParameters.Loss.Automatic,DeepLearningParameters.Loss.Quadratic,DeepLearningParameters.Loss.Huber,DeepLearningParameters.Loss.Absolute}) {
     Scope.enter();
     try {
       tfr=parse_test_file("smalldata/glm_test/cancar_logIn.csv");
       for (      String s : new String[]{"Merit","Class"}) {
-        Scope.track(tfr.replace(tfr.find(s),tfr.vec(s).toEnum())._key);
+        Scope.track(tfr.replace(tfr.find(s),tfr.vec(s).toCategorical())._key);
       }
       DKV.put(tfr);
       DeepLearningParameters parms=new DeepLearningParameters();
@@ -20,7 +20,7 @@
       DeepLearning job=new DeepLearning(parms);
       dl=job.trainModel().get();
       ModelMetricsRegression mm=(ModelMetricsRegression)dl._output._training_metrics;
-      if (loss == DeepLearningParameters.Loss.Automatic || loss == DeepLearningParameters.Loss.MeanSquare)       Assert.assertEquals(mm._mean_residual_deviance,mm._MSE,1e-6);
+      if (loss == DeepLearningParameters.Loss.Automatic || loss == DeepLearningParameters.Loss.Quadratic)       Assert.assertEquals(mm._mean_residual_deviance,mm._MSE,1e-6);
  else       assertTrue(mm._mean_residual_deviance != mm._MSE);
       assertTrue(dl.testJavaScoring(tfr,dl.score(tfr),1e-5));
       job.remove();

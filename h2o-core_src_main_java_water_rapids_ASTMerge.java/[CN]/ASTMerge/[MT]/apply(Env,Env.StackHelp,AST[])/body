@@ -12,7 +12,7 @@
       Vec lv=l.vecs()[ncols];
       Vec rv=r.vecs()[ncols];
       if (lv.get_type() != rv.get_type())       throw new IllegalArgumentException("Merging columns must be the same type, column " + l._names[ncols] + " found types "+ lv.get_type_str()+ " and "+ rv.get_type_str());
-      if (lv.isString())       throw new IllegalArgumentException("Cannot merge Strings; flip toEnum first");
+      if (lv.isString())       throw new IllegalArgumentException("Cannot merge Strings; flip toCategorical first");
       if (lv.isNumeric() && !lv.isInt())       throw new IllegalArgumentException("Equality tests on doubles rarely work, please round to integers only before merging");
       ncols++;
     }
@@ -38,9 +38,9 @@
   int[][] id_maps=new int[ncols][];
   for (int i=0; i < ncols; i++) {
     Vec lv=walked.vecs()[i];
-    if (lv.isEnum()) {
-      EnumWrappedVec ewv=new EnumWrappedVec(lv.domain(),hashed.vecs()[i].domain());
-      int[] ids=ewv.enum_map();
+    if (lv.isCategorical()) {
+      CategoricalWrappedVec ewv=new CategoricalWrappedVec(lv.domain(),hashed.vecs()[i].domain());
+      int[] ids=ewv.getDomainMap();
       DKV.remove(ewv._key);
       id_maps[i]=new int[ids.length];
       for (int j=0; j < ids.length; j++)       id_maps[i][j]=j;
@@ -55,6 +55,7 @@
     }
   }
 .doAllNodes();
+  if (rows == null)   return sortingMerge(walked,hashed,allLeft,allRite,ncols,id_maps);
   if (allLeft && !(allRite && ms._dup)) {
     walked=walked.deepCopy(null);
     String[] names=Arrays.copyOfRange(hashed._names,ncols,hashed._names.length);
