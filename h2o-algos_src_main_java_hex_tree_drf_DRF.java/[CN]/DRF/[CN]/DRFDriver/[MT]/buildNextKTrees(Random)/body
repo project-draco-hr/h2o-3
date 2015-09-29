@@ -1,9 +1,0 @@
-{
-  final DTree[] ktrees=new DTree[_nclass];
-  int[] leafs=new int[_nclass];
-  growTrees(ktrees,leafs,rand);
-  CollectPreds cp=new CollectPreds(ktrees,leafs,_model.defaultThreshold()).doAll(_train,_parms._build_tree_one_node);
-  if (isClassifier())   asVotes(_treeMeasuresOnOOB).append(cp.rightVotes,cp.allRows);
- else   asSSE(_treeMeasuresOnOOB).append(cp.sse,cp.allRows);
-  _model._output.addKTrees(ktrees);
-}

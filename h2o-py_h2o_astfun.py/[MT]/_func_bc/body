@@ -1,0 +1,22 @@
+def _func_bc(nargs, idx, ops, keys):
+    args = []
+    while (nargs > 0):
+        if (nargs >= 256):
+            (arg, idx) = _opcode_read_arg(idx, ops, keys)
+            args.insert(0, arg)
+            idx -= 1
+            nargs -= 256
+        else:
+            (arg, idx) = _opcode_read_arg(idx, ops, keys)
+            args.insert(0, arg)
+            nargs -= 1
+    op = ops[idx][1][0]
+    if (op == 'ceil'):
+        op = 'ceiling'
+    idx -= 1
+    if is_bytecode_instruction(ops[idx][0]):
+        (arg, idx) = _opcode_read_arg(idx, ops, keys)
+        args.insert(0, arg)
+    elif is_load_fast(ops[idx][0]):
+        args.insert(0, _load_fast(ops[idx][1][0]))
+    return [expr.ExprNode(op, *args), (idx - 1)]
