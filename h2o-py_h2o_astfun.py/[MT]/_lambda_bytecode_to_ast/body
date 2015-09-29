@@ -1,0 +1,22 @@
+def _lambda_bytecode_to_ast(co, ops):
+    s = (len(ops) - 1)
+    keys = [o[0] for o in ops]
+    result = (([ASTId('{')] + [ASTId(arg) for arg in co.co_varnames]) + [ASTId('.')])
+    instr = keys[s]
+    if (instr == 'RETURN_VALUE'):
+        s -= 1
+        instr = keys[s]
+    if is_bytecode_instruction(instr):
+        (body, s) = _opcode_read_arg(s, ops, keys)
+    else:
+        raise ValueError(('unimpl bytecode instr: ' + instr))
+    if (s > 0):
+        print 'Dumping disassembled code: '
+        for i in range(len(ops)):
+            if (i == s):
+                print i, (' --> ' + str(ops[i]))
+            else:
+                print i, str(ops[i]).rjust(5)
+        raise ValueError(('Unexpected bytecode disassembly @ ' + str(s)))
+    result += ([body] + [ASTId('}')])
+    return result

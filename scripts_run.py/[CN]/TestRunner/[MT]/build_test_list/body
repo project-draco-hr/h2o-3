@@ -1,4 +1,4 @@
-def build_test_list(self, test_group, run_small, run_medium, run_large, run_xlarge, nopass):
+def build_test_list(self, test_group, run_small, run_medium, run_large, run_xlarge, nopass, nointernal):
     '\n        Recursively find the list of tests to run and store them in the object.\n        Fills in self.tests and self.tests_not_started.\n\n        @param test_group: Name of the test group of tests to run.\n        @return:  none\n        '
     if self.terminated:
         return
@@ -22,6 +22,7 @@ def build_test_list(self, test_group, run_small, run_medium, run_large, run_xlar
             is_xlarge = False
             is_nopass = False
             is_nofeature = False
+            is_h2o_internal = False
             if ('xlarge' in f):
                 is_xlarge = True
             elif ('medium' in f):
@@ -34,6 +35,8 @@ def build_test_list(self, test_group, run_small, run_medium, run_large, run_xlar
                 is_nopass = True
             if ('NOFEATURE' in f):
                 is_nofeature = True
+            if ('INTERNAL' in f):
+                is_h2o_internal = True
             if (is_small and (not run_small)):
                 continue
             if (is_medium and (not run_medium)):
@@ -54,4 +57,8 @@ def build_test_list(self, test_group, run_small, run_medium, run_large, run_xlar
                 test_short_dir = self._calc_test_short_dir(os.path.join(root, f))
                 if ((test_group.lower() not in test_short_dir) and (test_group.lower() not in f)):
                     continue
+            if is_h2o_internal:
+                if nointernal:
+                    continue
+                self.h2o_internal_counter += 1
             self.add_test(os.path.join(root, f))
