@@ -1,5 +1,5 @@
 {
-  Frame tfr=null, vfr=null;
+  Frame tfr=null, vfr=null, res=null;
   GBMModel gbm=null;
   for (  Distribution.Family dist : new Distribution.Family[]{Distribution.Family.AUTO,Distribution.Family.gaussian,Distribution.Family.poisson,Distribution.Family.gamma,Distribution.Family.tweedie}) {
     Scope.enter();
@@ -22,7 +22,7 @@
       parms._learn_rate=1e-3f;
       GBM job=new GBM(parms);
       gbm=job.trainModel().get();
-      Frame res=gbm.score(vfr);
+      res=gbm.score(vfr);
       Assert.assertTrue(gbm.testJavaScoring(vfr,res,1e-15));
       res.remove();
       ModelMetricsRegression mm=(ModelMetricsRegression)gbm._output._training_metrics;
@@ -31,6 +31,7 @@
   finally {
       if (tfr != null)       tfr.remove();
       if (vfr != null)       vfr.remove();
+      if (res != null)       res.remove();
       if (gbm != null)       gbm.delete();
       Scope.exit();
     }
