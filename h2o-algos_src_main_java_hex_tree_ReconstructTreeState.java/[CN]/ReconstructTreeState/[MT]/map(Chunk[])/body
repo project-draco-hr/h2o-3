@@ -7,7 +7,8 @@
   for (int tidx=0; tidx < ntrees; tidx++) {
     Random rng=rngForTree(_trees[tidx],coobt.cidx());
     for (int row=0; row < coobt._len; row++) {
-      if (rng.nextFloat() >= _rate || Double.isNaN(cys.atd(row))) {
+      boolean sampleRow=rng.nextFloat() >= _rate || Double.isNaN(cys.atd(row));
+      if (!_oob || sampleRow) {
         for (int i=0; i < _ncols; i++)         data[i]=chks[i].atd(row);
         Arrays.fill(preds,0);
         score0(data,preds,_trees[tidx]);
@@ -17,11 +18,11 @@
           if (preds[1 + c] != 0) {
             Chunk ctree=chk_tree(chks,c);
             long count=coobt.at8(row);
-            if (_nclass >= 2)             ctree.set(row,(float)(ctree.atd(row) * count + prediction) / (count + 1));
+            if (_oob && _nclass >= 2)             ctree.set(row,(float)(ctree.atd(row) * count + prediction) / (count + 1));
  else             ctree.set(row,(float)(ctree.atd(row) + prediction));
           }
         }
-        coobt.set(row,coobt.atd(row) + 1);
+        if (sampleRow)         coobt.set(row,coobt.atd(row) + 1);
       }
     }
   }
