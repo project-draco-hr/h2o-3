@@ -3,7 +3,7 @@
   double[] sval=new double[]{11.024148,6.964086,4.179904,2.915146};
   double[][] eigvec=ard(ard(-0.5358995,0.4181809,-0.3412327,0.64922780),ard(-0.5831836,0.1879856,-0.2681484,-0.74340748),ard(-0.2781909,-0.8728062,-0.3780158,0.13387773),ard(-0.5434321,-0.1673186,0.8177779,0.08902432));
   GLRMModel model=null;
-  Frame train=null, score=null;
+  Frame train=null;
   try {
     train=parse_test_file(Key.make("arrests.hex"),"smalldata/pca_test/USArrests.csv");
     GLRMParameters parms=new GLRMParameters();
@@ -19,8 +19,8 @@
     try {
       model=job.trainModel().get();
       Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
-      score=model.score(train);
-      ModelMetricsGLRM mm=DKV.getGet(model._output._model_metrics[model._output._model_metrics.length - 1]);
+      model.score(train).delete();
+      ModelMetricsGLRM mm=(ModelMetricsGLRM)ModelMetrics.getFromDKV(model,train);
       Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
       Assert.assertEquals(model._output._objective,mm._numerr,TOLERANCE);
     }
@@ -39,7 +39,6 @@
  finally {
     yinit.delete();
     if (train != null)     train.delete();
-    if (score != null)     score.delete();
     if (model != null) {
       model._output._loading_key.get().delete();
       model.delete();
