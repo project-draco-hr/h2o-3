@@ -1,30 +1,31 @@
 {
   for (int j=0; j < cols; ++j) {
     for (int i=0; i < rows; ++i) {
-switch (j % 3) {
-case 0:
-        raw[j][i]=i % 200;
-      break;
-case 1:
-    raw[j][i]=i % 500;
-  break;
-case 2:
-raw[j][i]=i * Integer.MAX_VALUE;
-break;
-case 3:
-raw[j][i]=i == 17 ? 1 : 0;
-break;
-}
-}
-}
-for (int j=0; j < cols; ++j) {
-chunks[j]=new NewChunk(raw[j]).compress();
-Log.info("Column " + j + " compressed into: "+ chunks[j].getClass().toString());
-}
-raw();
-rawInverted();
-chunks();
-chunksInverted();
-chunks3();
-bulk();
+      raw[j][i]=get(j,i);
+    }
+  }
+  for (int j=0; j < cols; ++j) {
+    chunks[j]=new NewChunk(raw[j]).compress();
+    Log.info("Column " + j + " compressed into: "+ chunks[j].getClass().toString());
+  }
+  Log.info("COLS: " + cols);
+  Log.info("ROWS: " + rows);
+  Log.info("REPS: " + rep);
+  raw();
+  raw();
+  chunks();
+  chunks();
+  chunksInline();
+  chunksInline();
+  mrtask(false);
+  mrtask(false);
+  bulk();
+  bulk();
+  Log.info("Now doing funny stuff.\n\n");
+  mrtask(true);
+  mrtask(true);
+  chunksInverted();
+  chunksInverted();
+  rawInverted();
+  rawInverted();
 }
