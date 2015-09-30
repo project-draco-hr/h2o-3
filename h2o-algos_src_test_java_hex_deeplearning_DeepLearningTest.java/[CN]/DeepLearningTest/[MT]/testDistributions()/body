@@ -1,5 +1,5 @@
 {
-  Frame tfr=null, vfr=null;
+  Frame tfr=null, vfr=null, fr2=null;
   DeepLearningModel dl=null;
   for (  Distribution.Family dist : new Distribution.Family[]{AUTO,gaussian,poisson,gamma,tweedie}) {
     Scope.enter();
@@ -22,13 +22,14 @@
       ModelMetricsRegression mm=(ModelMetricsRegression)dl._output._training_metrics;
       if (dist == gaussian || dist == AUTO)       Assert.assertEquals(mm._mean_residual_deviance,mm._MSE,1e-6);
  else       assertTrue(mm._mean_residual_deviance != mm._MSE);
-      assertTrue(dl.testJavaScoring(tfr,dl.score(tfr),1e-5));
+      assertTrue(dl.testJavaScoring(tfr,fr2=dl.score(tfr),1e-5));
       job.remove();
     }
   finally {
       if (tfr != null)       tfr.remove();
       if (vfr != null)       vfr.remove();
       if (dl != null)       dl.delete();
+      if (fr2 != null)       fr2.delete();
       Scope.exit();
     }
   }
