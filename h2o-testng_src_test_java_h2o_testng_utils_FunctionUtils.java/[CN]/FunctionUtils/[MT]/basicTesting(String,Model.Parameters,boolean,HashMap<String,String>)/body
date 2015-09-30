@@ -2,6 +2,7 @@
   boolean isTestSuccessfully=false;
   Frame trainFrame=null;
   Frame score=null;
+  Model.Output modelOutput=null;
   ModelMetrics modelMetrics=null;
   DRF drfJob=null;
   DRFModel drfModel=null;
@@ -22,7 +23,7 @@ case FunctionUtils.drf:
 drfModel=drfJob.trainModel().get();
 System.out.println("Predict testcase");
 score=drfModel.score(trainFrame);
-modelMetrics=drfModel._output._training_metrics;
+modelOutput=drfModel._output;
 break;
 case FunctionUtils.glm:
 System.out.println("Build model");
@@ -32,7 +33,7 @@ glmModel=glmJob.trainModel().get();
 coef=glmModel.coefficients();
 System.out.println("Predict testcase ");
 score=glmModel.score(trainFrame);
-modelMetrics=glmModel._output._training_metrics;
+modelOutput=glmModel._output;
 break;
 case FunctionUtils.gbm:
 System.out.println("Build model ");
@@ -41,12 +42,19 @@ System.out.println("Train model");
 gbmModel=gbmJob.trainModel().get();
 System.out.println("Predict testcase ");
 score=gbmModel.score(trainFrame);
-modelMetrics=gbmModel._output._training_metrics;
+modelOutput=gbmModel._output;
 break;
+}
+if (modelOutput.isClassifier() && !Param.parseBoolean(rawInput.get(CommonHeaders.classification))) {
+Assert.fail("This is regression testcase");
+}
+ else if (!modelOutput.isClassifier() && Param.parseBoolean(rawInput.get(CommonHeaders.classification))) {
+Assert.fail("This is classification testcase");
 }
 isTestSuccessfully=true;
 if (!isNegativeTestcase) {
 System.out.println("Testcase passed.");
+modelMetrics=modelOutput._training_metrics;
 System.out.println("MSE: " + modelMetrics._MSE);
 if (modelMetrics.auc() != null) {
 System.out.println("AUC: " + modelMetrics.auc()._auc);
@@ -62,7 +70,7 @@ MySQL.save(String.valueOf(modelMetrics._MSE),"0",rawInput);
 System.out.println("Testcase failed");
 ex.printStackTrace();
 if (!isNegativeTestcase) {
-Assert.fail("Testcase failed",ex);
+Assert.fail(ex.getMessage(),ex);
 }
  else {
 System.out.println("This is negative testcase");
@@ -72,7 +80,7 @@ catch (AssertionError ae) {
 System.out.println("Testcase failed");
 ae.printStackTrace();
 if (!isNegativeTestcase) {
-Assert.fail("Testcase failed",ae);
+Assert.fail(ae.getMessage(),ae);
 }
  else {
 System.out.println("This is negative testcase");
