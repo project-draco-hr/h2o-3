@@ -1,5 +1,5 @@
 {
-  Frame tfr=null, vfr=null;
+  Frame tfr=null, vfr=null, fr2=null;
   DeepLearningModel dl=null;
   for (  DeepLearningParameters.Loss loss : new DeepLearningParameters.Loss[]{DeepLearningParameters.Loss.Automatic,DeepLearningParameters.Loss.Quadratic,DeepLearningParameters.Loss.Huber,DeepLearningParameters.Loss.Absolute}) {
     Scope.enter();
@@ -22,13 +22,14 @@
       ModelMetricsRegression mm=(ModelMetricsRegression)dl._output._training_metrics;
       if (loss == DeepLearningParameters.Loss.Automatic || loss == DeepLearningParameters.Loss.Quadratic)       Assert.assertEquals(mm._mean_residual_deviance,mm._MSE,1e-6);
  else       assertTrue(mm._mean_residual_deviance != mm._MSE);
-      assertTrue(dl.testJavaScoring(tfr,dl.score(tfr),1e-5));
+      assertTrue(dl.testJavaScoring(tfr,fr2=dl.score(tfr),1e-5));
       job.remove();
     }
   finally {
       if (tfr != null)       tfr.remove();
       if (vfr != null)       vfr.remove();
       if (dl != null)       dl.delete();
+      if (fr2 != null)       fr2.remove();
       Scope.exit();
     }
   }
