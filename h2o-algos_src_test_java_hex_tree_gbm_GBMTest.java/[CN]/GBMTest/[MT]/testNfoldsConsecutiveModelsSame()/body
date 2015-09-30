@@ -36,8 +36,14 @@
   finally {
     if (tfr != null)     tfr.remove();
     if (old != null)     old.remove();
-    if (gbm1 != null)     gbm1.delete();
-    if (gbm2 != null)     gbm2.delete();
+    if (gbm1 != null) {
+      gbm1.deleteCrossValidationModels();
+      gbm1.delete();
+    }
+    if (gbm2 != null) {
+      gbm2.deleteCrossValidationModels();
+      gbm2.delete();
+    }
     Scope.exit();
   }
 }
