@@ -3,7 +3,11 @@
   double sum=0;
   for (int r=0; r < rep; ++r) {
     if (r == rep / 10)     start=System.currentTimeMillis();
-    sum+=loop3(chunks[0],chunks[1],chunks[2]);
+    for (int j=0; j < cols; ++j) {
+      for (int i=0; i < rows; ++i) {
+        sum+=chunks[j].atd(i);
+      }
+    }
   }
   long done=System.currentTimeMillis();
   Log.info("Sum: " + sum);
@@ -12,6 +16,6 @@
     siz+=chunks[j].byteSize();
   }
   Log.info("Data size: " + PrettyPrint.bytes(siz));
-  Log.info("Time to access via atd(): " + PrettyPrint.msecs(done - start,true));
+  Log.info("Time for INLINE chunks atd(): " + PrettyPrint.msecs(done - start,true));
   Log.info("");
 }
