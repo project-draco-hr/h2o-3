@@ -1,21 +1,20 @@
 {
   Frame fr=stk.track(asts[1].exec(env)).getFrame();
-  Vec v;
   if (fr.numCols() != 1)   throw new IllegalArgumentException("Unique applies to a single column only.");
+  Vec v;
   if (fr.anyVec().isCategorical()) {
     v=Vec.makeSeq(0,(long)fr.anyVec().domain().length,true);
     v.setDomain(fr.anyVec().domain());
     DKV.put(v);
   }
  else {
-    UniqTask t=new UniqTask().doAll(fr);
-    int nUniq=t._uniq.size();
-    final ASTGroup.G[] uniq=t._uniq.keySet().toArray(new ASTGroup.G[nUniq]);
-    v=Vec.makeZero(nUniq);
+    IcedHashMap<ASTGroup.GKX,String> gs=ASTGroup.findGroups(fr);
+    final ASTGroup.GK0[] gkxs=ASTGroup.sortGroups(gs);
+    v=Vec.makeZero(gkxs.length);
     new MRTask(){
       @Override public void map(      Chunk c){
         int start=(int)c.start();
-        for (int i=0; i < c._len; ++i)         c.set(i,uniq[i + start]._gs[0]);
+        for (int i=0; i < c._len; i++)         c.set(i,gkxs[i + start]._d0);
       }
     }
 .doAll(v);

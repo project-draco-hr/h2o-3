@@ -1,0 +1,10 @@
+{
+  long start=System.currentTimeMillis();
+  HashingGroup p1=new HashingGroup(GKX.init(fr_keys.numCols())).doAll(fr_keys);
+  if (p1._kill._killed) {
+    Log.info("FindGroups aborted after " + (System.currentTimeMillis() - start) / 1000. + " (s) due to size, switching to sorting GroupBy");
+    return null;
+  }
+  Log.info("FindGroups done in " + (System.currentTimeMillis() - start) / 1000. + " (s)");
+  return p1._gs;
+}
