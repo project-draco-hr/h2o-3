@@ -1,0 +1,44 @@
+{
+  long lLow=lLowIn, lUpp=lUppIn, rLow=rLowIn, rUpp=rUppIn;
+  long mid, tmpLow, tmpUpp;
+  long lr=lLow + (lUpp - lLow) / 2;
+  while (rLow < rUpp - 1) {
+    mid=rLow + (rUpp - rLow) / 2;
+    int cmp=keycmp(_leftKey,lr,_rightKey,mid);
+    if (cmp < 0) {
+      rUpp=mid;
+    }
+ else     if (cmp > 0) {
+      rLow=mid;
+    }
+ else {
+      tmpLow=mid;
+      tmpUpp=mid;
+      while (tmpLow < rUpp - 1) {
+        mid=tmpLow + (rUpp - tmpLow) / 2;
+        if (keycmp(_leftKey,lr,_rightKey,mid) == 0)         tmpLow=mid;
+ else         rUpp=mid;
+      }
+      while (rLow < tmpUpp - 1) {
+        mid=rLow + (tmpUpp - rLow) / 2;
+        if (keycmp(_leftKey,lr,_rightKey,mid) == 0)         tmpUpp=mid;
+ else         rLow=mid;
+      }
+      break;
+    }
+  }
+  tmpLow=lr + 1;
+  while (tmpLow < lUpp && keycmp(_leftKey,tmpLow,_leftKey,lr) == 0)   tmpLow++;
+  lUpp=tmpLow;
+  tmpUpp=lr - 1;
+  while (tmpUpp > lLow && keycmp(_leftKey,tmpUpp,_leftKey,lr) == 0)   tmpUpp--;
+  lLow=tmpUpp;
+  long len=rUpp - rLow - 1;
+  if (len > 1)   _allLen1=false;
+  for (long j=lLow + 1; j < lUpp; j++) {
+    _retFirst[(int)j]=rLow + 1;
+    _retLen[(int)j]=len;
+  }
+  if (lLow > lLowIn && rLow > rLowIn)   bmerge_r(lLowIn,lLow + 1,rLowIn,rLow + 1);
+  if (lUpp < lUppIn && rUpp < rUppIn)   bmerge_r(lUpp - 1,lUppIn,rUpp - 1,rUppIn);
+}
