@@ -17,8 +17,7 @@
     aggs[(idx - 3) / 3]=new AGG(fcn,agg_col,na,(int)fr.vec(agg_col).max() + 1);
   }
   IcedHashMap<G,String> gss=doGroups(fr,gbCols,aggs);
-  if (gss == null)   return sortingGroup(fr,gbCols,aggs);
-  final G[] grps=gss.keySet().toArray(new G[gss.size()]);
+  final G[] grps=(gss == null || _testing_force_sorted) ? sortingGroup(fr,gbCols,aggs) : gss.keySet().toArray(new G[gss.size()]);
   Arrays.sort(grps,new java.util.Comparator<G>(){
     @Override public int compare(    G g1,    G g2){
       for (int i=0; i < ncols; i++) {
