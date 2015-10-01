@@ -1,6 +1,6 @@
 {
-  for (  double d : rs._mins)   min(d);
-  for (  double d : rs._maxs)   max(d);
+  for (  double d : rs._mins)   if (!Double.isNaN(d))   min(d);
+  for (  double d : rs._maxs)   if (!Double.isNaN(d))   max(d);
   _naCnt+=rs._naCnt;
   _nzCnt+=rs._nzCnt;
   _pinfs+=rs._pinfs;
@@ -12,7 +12,8 @@
   }
  else   if (rs._rows != 0) {
     _mean=(_mean * _rows + rs._mean * rs._rows) / (_rows + rs._rows);
-    _sigma=_sigma + rs._sigma + delta * delta * _rows* rs._rows / (_rows + rs._rows);
+    double dd=rs._sigma + delta * delta * _rows* rs._rows / (_rows + rs._rows);
+    if (!Double.isNaN(dd))     _sigma+=dd;
   }
   _rows+=rs._rows;
   _size+=rs._size;

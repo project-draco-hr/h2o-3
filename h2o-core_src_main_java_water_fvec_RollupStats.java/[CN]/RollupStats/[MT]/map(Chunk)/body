@@ -1,7 +1,5 @@
 {
   _size=c.byteSize();
-  Arrays.fill(_mins,Double.MAX_VALUE);
-  Arrays.fill(_maxs,-Double.MAX_VALUE);
   boolean isUUID=c._vec.isUUID();
   boolean isString=c._vec.isString();
   BufferedString tmpStr=new BufferedString();
@@ -18,12 +16,21 @@
     if (d == Double.POSITIVE_INFINITY)     _pinfs++;
  else     if (d == Double.NEGATIVE_INFINITY)     _ninfs++;
  else {
-      if (d != 0)       _nzCnt=c._len;
+      if (d != 0 || Double.isNaN(d))       _nzCnt=c._len;
       _mean=d;
       _rows=c._len;
     }
     _isInt=((long)d) == d;
     _sigma=0;
+    return this;
+  }
+  if (c instanceof C0DChunk && c.isNA_impl(0)) {
+    if ((c instanceof C0DChunk && c.isNA_impl(0))) {
+      _sigma=0;
+      _mean=0;
+      _naCnt=c._len;
+      _nzCnt=c._len;
+    }
     return this;
   }
   if (min == 0 && max == 1) {
@@ -32,8 +39,8 @@
     for (int i=c.nextNZ(-1); i < c._len; i=c.nextNZ(i))     if (c.isNA(i))     nans++;
  else     if (c.at8(i) == 0)     zs++;
     int os=c._len - zs - nans;
-    _nzCnt=os;
-    _naCnt=nans;
+    _nzCnt+=os;
+    _naCnt+=nans;
     for (int i=0; i < Math.min(_mins.length,zs); i++) {
       min(0);
       max(0);
@@ -42,9 +49,10 @@
       min(1);
       max(1);
     }
-    _rows=zs + os;
+    _rows+=zs + os;
     _mean=(double)os / _rows;
     _sigma=zs * (0.0 - _mean) * (0.0 - _mean) + os * (1.0 - _mean) * (1.0 - _mean);
+    assert(!Double.isNaN(_sigma));
     return this;
   }
   if (isUUID) {
@@ -69,54 +77,31 @@
     }
   }
  else {
-    double sum=0;
-    for (int i=c.nextNZ(-1); i < c._len; i=c.nextNZ(i)) {
-      double d=c.atd(i);
-      if (Double.isNaN(d))       _naCnt++;
- else {
-        l=c.hasFloat() ? Double.doubleToRawLongBits(d) : c.at8(i);
-        if (d == Double.POSITIVE_INFINITY)         _pinfs++;
- else         if (d == Double.NEGATIVE_INFINITY)         _ninfs++;
- else {
-          if (d != 0)           _nzCnt++;
-          min(d);
-          max(d);
-          sum+=d;
-          _rows++;
-          if (_isInt && ((long)d) != d)           _isInt=false;
-        }
+    if (c.isSparse()) {
+      int zeros=c._len - c.sparseLen();
+      for (int i=0; i < Math.min(_mins.length,zeros); i++) {
+        min(0);
+        max(0);
       }
-      if (l != 0)       checksum^=(17 * (start + i)) ^ 23 * l;
+      _rows+=zeros;
     }
-    if (Double.isNaN(_mean))     _mean=sum;
- else     _mean+=sum;
+    if (c instanceof C1Chunk)     checksum=new RollupStatsHelpers(this).numericChunkRollup((C1Chunk)c,start,checksum);
+ else     if (c instanceof C1SChunk)     checksum=new RollupStatsHelpers(this).numericChunkRollup((C1SChunk)c,start,checksum);
+ else     if (c instanceof C1NChunk)     checksum=new RollupStatsHelpers(this).numericChunkRollup((C1NChunk)c,start,checksum);
+ else     if (c instanceof C2Chunk)     checksum=new RollupStatsHelpers(this).numericChunkRollup((C2Chunk)c,start,checksum);
+ else     if (c instanceof C2SChunk)     checksum=new RollupStatsHelpers(this).numericChunkRollup((C2SChunk)c,start,checksum);
+ else     if (c instanceof C4SChunk)     checksum=new RollupStatsHelpers(this).numericChunkRollup((C4SChunk)c,start,checksum);
+ else     if (c instanceof C4FChunk)     checksum=new RollupStatsHelpers(this).numericChunkRollup((C4FChunk)c,start,checksum);
+ else     if (c instanceof C4Chunk)     checksum=new RollupStatsHelpers(this).numericChunkRollup((C4Chunk)c,start,checksum);
+ else     if (c instanceof C8Chunk)     checksum=new RollupStatsHelpers(this).numericChunkRollup((C8Chunk)c,start,checksum);
+ else     if (c instanceof C8DChunk)     checksum=new RollupStatsHelpers(this).numericChunkRollup((C8DChunk)c,start,checksum);
+ else     checksum=new RollupStatsHelpers(this).numericChunkRollup(c,start,checksum);
   }
   _checksum=checksum;
-  if (c.isSparse()) {
-    int zeros=c._len - c.sparseLen();
-    for (int i=0; i < Math.min(_mins.length,zeros); i++) {
-      min(0);
-      max(0);
-    }
-    _rows+=zeros;
-  }
   if (isUUID || isString) {
     Arrays.fill(_mins,Double.NaN);
     Arrays.fill(_maxs,Double.NaN);
     _mean=_sigma=Double.NaN;
-  }
- else   if (!Double.isNaN(_mean) && _rows > 0) {
-    final double mean=_mean=_mean / _rows;
-    int zeros=c._len - c.sparseLen();
-    double sigma=mean * mean * zeros;
-    for (int i=c.nextNZ(-1); i < c._len; i=c.nextNZ(i)) {
-      double d=c.atd(i);
-      if (!Double.isNaN(d)) {
-        d-=mean;
-        sigma+=d * d;
-      }
-    }
-    _sigma=sigma;
   }
   return this;
 }
