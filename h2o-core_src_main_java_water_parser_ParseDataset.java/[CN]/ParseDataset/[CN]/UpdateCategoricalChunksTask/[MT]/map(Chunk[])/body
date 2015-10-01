@@ -1,5 +1,6 @@
 {
   CategoricalUpdateMap temp=DKV.getGet(Key.make(_parseCatMapsKey.toString() + "parseCatMapNode" + _chunk2ParseNodeMap[chks[0].cidx()]));
+  if (temp == null || temp.map == null)   throw new H2OIllegalValueException("Missing categorical update map",this);
   int[][] _parse2GlobalCatMaps=temp.map;
   final int cidx=chks[0].cidx();
   for (int i=0; i < chks.length; ++i) {
@@ -12,7 +13,8 @@
         if (_parse2GlobalCatMaps[i][old] < 0)         throw new H2OParseException("Error in unifying categorical values. This is typically " + "caused by unrecognized characters in the data.\n The problem categorical value " + "occurred in the " + PrettyPrint.withOrdinalIndicator(i + 1) + " categorical col, "+ PrettyPrint.withOrdinalIndicator(chk.start() + j)+ " row.");
         chk.set(j,_parse2GlobalCatMaps[i][old]);
       }
+      chk.close(cidx,_fs);
+      Log.trace("Updated domains for " + PrettyPrint.withOrdinalIndicator(i + 1) + " categorical column.");
     }
-    chk.close(cidx,_fs);
   }
 }
