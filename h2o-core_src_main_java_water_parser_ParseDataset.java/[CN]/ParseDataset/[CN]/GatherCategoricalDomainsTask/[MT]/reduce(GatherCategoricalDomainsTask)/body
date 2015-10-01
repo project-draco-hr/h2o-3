@@ -63,6 +63,8 @@
           }
           _packedDomains[fi]=Arrays.copyOf(mergedDom,mbi);
           UnsafeUtils.set4(_packedDomains[fi],0,mergeLen);
+          Log.trace("Merged domain length is " + mergeLen + " for the "+ PrettyPrint.withOrdinalIndicator(fi + 1)+ " categorical column.");
+          ;
           tryComplete();
         }
       }
@@ -70,4 +72,5 @@
     }
     for (int i=0; i < _catColIdxs.length; i++)     if (domtasks[i] != null)     domtasks[i].join();
   }
+  Log.trace("Done merging domains.");
 }
