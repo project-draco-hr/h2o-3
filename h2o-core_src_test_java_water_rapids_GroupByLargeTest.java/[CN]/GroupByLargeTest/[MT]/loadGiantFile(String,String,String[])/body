@@ -1,0 +1,9 @@
+{
+  File f=new File(fname);
+  if (f == null || !f.exists())   return null;
+  NFSFileVec nfs=NFSFileVec.make(f);
+  Key[] fkeys=new Key[]{nfs._key};
+  ParseSetup ps=ParseSetup.guessSetup(fkeys,false,1);
+  ps.setColumnTypes(coltypes);
+  return ParseDataset.parse(Key.make(keyname),fkeys,true,ps);
+}

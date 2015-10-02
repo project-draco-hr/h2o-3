@@ -1,0 +1,27 @@
+{
+  Log.info("Avito: Russian Craigslist Ad Click");
+  String datapath="../SixSense/";
+  Frame tss=null, sif=null, gb=null;
+  try {
+    Log.info("Load search training data");
+    tss=loadGiantFile(datapath + "trainSearchStream_20M.csv","tss.hex",new String[]{"numeric","numeric","enum","enum","numeric","enum"});
+    System.out.println(tss);
+    Log.info("Load search data");
+    sif=loadGiantFile(datapath + "Searchinfo.tsv","sinfo.hex",new String[]{"numeric","time","numeric","numeric","enum","numeric","numeric","numeric","string"});
+    System.out.println(sif);
+    Log.info("Cleanup search data: replace marker values with None/missing, and convert to factors");
+    Exec.exec("(= sinfo.hex NA \"CategoryID\" (== (cols sinfo.hex \"CategoryID\") 500001))",false);
+    sif.replace(sif.find("CategoryID"),sif.vec("CategoryID").toCategorical()).remove();
+    Exec.exec("(= sinfo.hex NA \"LocationID\" (== (cols sinfo.hex \"LocationID\") 250001))",false);
+    sif.replace(sif.find("LocationID"),sif.vec("LocationID").toCategorical()).remove();
+    System.out.println(sif);
+    Log.info("GroupBy on SearchId; count searchs per user; popular searchs are more predictive");
+    gb=Exec.exec("(GB sinfo.hex \"SearchID\" nrow \"SearchID\" \"rm\")").getFrame();
+    System.out.println(gb);
+  }
+  finally {
+    if (tss != null)     tss.delete();
+    if (sif != null)     sif.delete();
+    if (gb != null)     sif.delete();
+  }
+}

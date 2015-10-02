@@ -1,7 +1,7 @@
 {
   Frame fr=stk.track(asts[1].exec(env)).getFrame();
   final int ncols=fr.numCols();
-  ASTNumList groupby=check(ncols,asts[2]);
+  ASTNumList groupby=check(fr,asts[2]);
   final Frame fr_keys=gbFrame(fr,groupby.expand4());
   final int ngbCols=fr_keys.numCols();
   int naggs=(asts.length - 3) / 3;
@@ -11,7 +11,7 @@
     Val v=asts[idx].exec(env);
     String fn=v instanceof ValFun ? v.getFun().str() : v.getStr();
     FCN fcn=FCN.valueOf(fn);
-    ASTNumList col=check(ncols,asts[idx + 1]);
+    ASTNumList col=check(fr,asts[idx + 1]);
     if (col.cnt() != 1)     throw new IllegalArgumentException("Group-By functions take only a single column");
     int agg_col=(int)col.min();
     if (fcn == FCN.mode && !fr.vec(agg_col).isCategorical())     throw new IllegalArgumentException("Mode only allowed on categorical columns");
@@ -20,7 +20,7 @@
     naggcols+=agg.ncols();
   }
   IcedHashMap<GKX,String> gs=findGroups(fr_keys);
-  long grs[][]=(gs == null || _testing_force_sorted) ? sortingGroup(fr) : null;
+  long grs[][]=(gs == null || _testing_force_sorted) ? sortingGroup(fr_keys) : null;
   long nlgrps=grs == null ? gs.size() : ArrayUtils.maxValue(grs[0]);
   if (nlgrps > Integer.MAX_VALUE)   throw H2O.unimpl();
   int ngrps=(int)nlgrps;
