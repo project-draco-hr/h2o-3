@@ -24,16 +24,18 @@
   long nlgrps=grs == null ? gs.size() : ArrayUtils.maxValue(grs[0]);
   if (nlgrps > Integer.MAX_VALUE)   throw H2O.unimpl();
   int ngrps=(int)nlgrps;
-  final double[][] dss=new double[naggcols][ngrps];
+  double[][] dss=new double[naggcols][ngrps];
   for (int a=0; a < naggs; a++) {
     double d=aggs[a]._fcn.initVal();
     if (d != 0)     Arrays.fill(dss[aggs[a]._aggcol],d);
   }
-  final long[][] nrows=new long[naggs][ngrps];
+  long[][] nrows=new long[naggs][ngrps];
   GK0[] gkxs0;
   if (grs == null) {
     gkxs0=sortGroups(gs);
-    new HashingCompute(gs,aggs,ngbCols,dss,nrows).doAll(new Frame(fr_keys).add(fr));
+    HashingCompute hc=new HashingCompute(gs,aggs,ngbCols,dss,nrows).doAll(new Frame(fr_keys).add(fr));
+    dss=hc._dss;
+    nrows=hc._nrows;
   }
  else {
     throw H2O.unimpl();
@@ -41,6 +43,8 @@
   final GK0[] gkxs=gkxs0;
   String[] fcnames=new String[aggs.length];
   for (int i=0; i < aggs.length; i++)   fcnames[i]=aggs[i]._fcn.toString() + "_" + fr.name(aggs[i]._col);
+  final double[][] fdss=dss;
+  final long[][] fnrows=nrows;
   MRTask mrfill=new MRTask(){
     @Override public void map(    Chunk[] c,    NewChunk[] ncs){
       final int start=(int)c[0].start();
@@ -49,7 +53,7 @@
         int gnum=i + start;
         GK0 gk0=gkxs[gnum];
         gk0.setkey(ncs);
-        for (int a=0; a < aggs.length; a++)         ncs[a + ngbCols].addNum(aggs[a].postPass(dss,gnum,nrows[a][gnum]));
+        for (int a=0; a < aggs.length; a++)         ncs[a + ngbCols].addNum(aggs[a].postPass(fdss,gnum,fnrows[a][gnum]));
       }
     }
   }
