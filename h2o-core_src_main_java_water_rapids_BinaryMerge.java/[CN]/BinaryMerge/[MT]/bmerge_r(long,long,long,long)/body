@@ -34,10 +34,12 @@
   while (tmpUpp > lLow && keycmp(_leftKey,tmpUpp,_leftKey,lr) == 0)   tmpUpp--;
   lLow=tmpUpp;
   long len=rUpp - rLow - 1;
-  if (len > 1)   _allLen1=false;
-  for (long j=lLow + 1; j < lUpp; j++) {
-    _retFirst[(int)j]=rLow + 1;
-    _retLen[(int)j]=len;
+  if (len > 0) {
+    if (len > 1)     _allLen1=false;
+    for (long j=lLow + 1; j < lUpp; j++) {
+      _retFirst[(int)j]=rLow + 1;
+      _retLen[(int)j]=len;
+    }
   }
   if (lLow > lLowIn && rLow > rLowIn)   bmerge_r(lLowIn,lLow + 1,rLowIn,rLow + 1);
   if (lUpp < lUppIn && rUpp < rUppIn)   bmerge_r(lUpp - 1,lUppIn,rUpp - 1,rUppIn);

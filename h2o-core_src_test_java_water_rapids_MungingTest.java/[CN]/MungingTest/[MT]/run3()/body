@@ -1,0 +1,30 @@
+{
+  System.out.println("Running run3 ...");
+  NFSFileVec nfs=NFSFileVec.make(find_test_file("/home/mdowle/devtestdata/step1.csv"));
+  Frame rightFrame=ParseDataset.parse(Key.make(),nfs._key);
+  nfs=NFSFileVec.make(find_test_file("/home/mdowle/devtestdata/step1_subset.csv"));
+  Frame leftFrame=ParseDataset.parse(Key.make(),nfs._key);
+  System.out.println("Loaded two files, now calling order ...");
+  Frame rightJoinCols=new Frame(rightFrame.vec(0),rightFrame.vec(1));
+  Frame leftJoinCols=new Frame(leftFrame.vec(0),leftFrame.vec(1));
+  ArrayList rightIndex=new Query(rightJoinCols,rightFrame.vec(3),false)._returnList;
+  ArrayList leftIndex=new Query(leftJoinCols,leftFrame.vec(0),false)._returnList;
+  for (int i=0; i < 256; i++) {
+    long[][] x=((long[][][])leftIndex.get(0))[i];
+    int lenx=x == null ? 0 : x[0].length;
+    if (lenx > 0) {
+      long[][] y=((long[][][])rightIndex.get(0))[i];
+      int leny=y == null ? 0 : y[0].length;
+      if (leny > 0) {
+        BinaryMerge bm=new BinaryMerge(((byte[][][])leftIndex.get(1))[i],((byte[][][])rightIndex.get(1))[i],(long)lenx,(long)leny,7);
+        for (int j=0; j < lenx; j++) {
+          System.out.print("Left row" + x[0][j] + " matches to right row(s): ");
+          for (int k=0; k < bm._retLen[j]; k++)           System.out.print(y[0][(int)bm._retFirst[j] + k] + " ");
+          System.out.println();
+        }
+      }
+    }
+  }
+  leftFrame.delete();
+  rightFrame.delete();
+}
