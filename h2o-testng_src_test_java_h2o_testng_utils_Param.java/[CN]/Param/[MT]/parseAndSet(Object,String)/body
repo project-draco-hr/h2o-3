@@ -4,16 +4,15 @@
   if ("".equals(value)) {
     return false;
   }
-  if ("boolean".equals(type)) {
-    v=parseBoolean(value);
-  }
- else {
 switch (type) {
+case "boolean":
+    v=parseBoolean(value);
+  break;
 case "String":
-      v=value;
-    break;
+v=value;
+break;
 case "String[]":
-  v=new String[]{value};
+v=new String[]{value};
 break;
 case "double":
 v=Double.parseDouble(value);
@@ -27,10 +26,12 @@ break;
 case "float":
 v=Float.parseFloat(value);
 break;
+case "Key":
+v=Key.make(value);
+break;
 default :
 System.out.println("Unrecognized type: " + type);
 break;
-}
 }
 Class<?> clazz=params.getClass();
 while (clazz != null) {
