@@ -1,0 +1,18 @@
+{
+  super(name,ast,inplace,newNames);
+  _fun=_ast._asts[0].str();
+  _oldCol=((ASTExec)_ast._asts[1])._asts[2].str();
+  String[] args=_ast.getArgs();
+  if (args != null && args.length > 1) {
+    for (int i=1; i < args.length; ++i) {
+      if (_ast._asts[i + 1] instanceof ASTExec) {
+        if (!isBinaryOp(_fun))         throw H2O.unimpl("unimpl: " + lookup(_fun));
+        _leftIsCol=args[i].equals("leftArg");
+        _riteIsCol=!_leftIsCol;
+        _binCol=((ASTExec)_ast._asts[i + 1])._asts[2].str();
+        _params.put(args[i],AST.newASTStr(((ASTExec)_ast._asts[i + 1])._asts[2].str()));
+      }
+ else       _params.put(args[i],(ASTParameter)_ast._asts[i + 1]);
+    }
+  }
+}

@@ -1,4 +1,11 @@
 {
   String typeCast=_inTypes[ArrayUtils.indexOf(_inNames,_oldCol)].equals("Numeric") ? "double" : "String";
-  return "    @Override public RowData transform(RowData row) {\n" + "      row.put(\"" + _newCol + "\", GenMunger."+ _fun+ "(("+ typeCast+ ")row.get(\""+ _oldCol+ "\"), _params));\n"+ "      return row;\n"+ "    }\n";
+  StringBuilder sb=new StringBuilder("    @Override public RowData transform(RowData row) {\n");
+  if (_leftIsCol || _riteIsCol)   sb.append("      _params.put(\"" + (_leftIsCol ? "leftArg" : "rightArg") + "\", new String[]{row.get(\""+ _binCol+ "\")}; // writer over the previous value");
+  sb.append("      " + _newColTypes + (_multiColReturn ? "[]" : "")+ " res = GenMunger."+ lookup(_fun)+ "(("+ typeCast+ ")row.get(\""+ _oldCol+ "\"), _params));\n");
+  for (int i=0; i < _newCol.length; ++i) {
+    sb.append("      row.put(\"" + _newCol[i] + "\", res"+ (_multiColReturn ? "[" + i + "]" : "")+ ");\n");
+  }
+  sb.append("      return row;\n" + "    }\n");
+  return sb.toString();
 }
