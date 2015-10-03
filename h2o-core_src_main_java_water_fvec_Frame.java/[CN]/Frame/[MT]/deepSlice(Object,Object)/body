@@ -74,7 +74,7 @@
       }
     }
     Futures fs=new Futures();
-    AppendableVec av=new AppendableVec(Vec.newKey());
+    AppendableVec av=new AppendableVec(Vec.newKey(),Vec.T_NUM);
     int r=0;
     int c=0;
     while (r < rows.length) {
@@ -85,7 +85,7 @@
       }
       nc.close(c++,fs);
     }
-    Vec c0=av.close(fs);
+    Vec c0=av.layout_and_close(fs);
     fs.blockForPending();
     Frame ff=new Frame(new String[]{"rownames"},new Vec[]{c0});
     Frame fr2=new Slice(c2,this).doAll(c2.length,ff).outputFrame(names(c2),domains(c2));

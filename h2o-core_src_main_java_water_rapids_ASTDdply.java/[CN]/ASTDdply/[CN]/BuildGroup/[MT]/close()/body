@@ -1,7 +1,8 @@
 {
   Futures fs=new Futures();
   Vec[] vgrps=new Vec[_gss.size()];
-  for (int i=0; i < vgrps.length; i++)   vgrps[i]=_appendables[i].close(fs);
+  final int rowLayout=_appendables[0].compute_rowLayout();
+  for (int i=0; i < vgrps.length; i++)   vgrps[i]=_appendables[i].close(rowLayout,fs);
   fs.blockForPending();
   return vgrps;
 }

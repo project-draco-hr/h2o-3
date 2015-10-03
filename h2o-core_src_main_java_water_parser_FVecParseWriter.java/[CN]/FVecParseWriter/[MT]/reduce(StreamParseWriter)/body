@@ -1,18 +1,14 @@
 {
   FVecParseWriter dout=(FVecParseWriter)sdout;
-  if (dout == null)   return this;
   _nCols=Math.max(_nCols,dout._nCols);
   _nChunks+=dout._nChunks;
-  if (dout != null && _vecs != dout._vecs) {
+  if (_vecs != dout._vecs) {
     if (dout._vecs.length > _vecs.length) {
-      AppendableVec[] v=_vecs;
+      AppendableVec[] tmpv=_vecs;
       _vecs=dout._vecs;
-      for (int i=1; i < _vecs.length; ++i)       _vecs[i]._tmp_espc=_vecs[0]._tmp_espc;
-      dout._vecs=v;
+      dout._vecs=tmpv;
     }
-    for (int i=0; i < dout._vecs.length; ++i) {
-      _vecs[i].reduce(dout._vecs[i]);
-    }
+    for (int i=0; i < dout._vecs.length; ++i)     _vecs[i].reduce(dout._vecs[i]);
   }
   return this;
 }

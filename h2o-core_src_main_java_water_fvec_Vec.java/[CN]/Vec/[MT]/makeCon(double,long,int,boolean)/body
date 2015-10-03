@@ -3,7 +3,8 @@
   long[] espc=new long[nchunks + 1];
   for (int i=0; i < nchunks; i++)   espc[i]=((long)i) << log_rows_per_chunk;
   espc[nchunks]=len;
-  Vec v0=makeCon(x,VectorGroup.VG_LEN1,espc);
+  VectorGroup vg=VectorGroup.VG_LEN1;
+  Vec v0=makeCon(x,vg,ESPC.rowLayout(vg._key,espc));
   int chunks=(int)Math.min(4 * H2O.NUMCPUS * H2O.CLOUD.size(),v0.length());
   if (redistribute && v0.nChunks() < chunks && v0.length() > 10 * chunks) {
     Key newKey=Key.make(Key.rand() + ".makeConRebalance" + chunks);
