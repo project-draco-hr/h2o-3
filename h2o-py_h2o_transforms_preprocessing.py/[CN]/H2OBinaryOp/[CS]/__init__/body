@@ -1,5 +1,7 @@
-def __init__(self, op, col, inplace=True, left=None, right=None, **params):
-    super(H2OBinaryOp, self).__init__(op, col, inplace, **params)
+def __init__(self, op, col, inplace=True, new_col_name=None, left=None, right=None, **params):
+    super(H2OBinaryOp, self).__init__(op, col, inplace, new_col_name, **params)
+    self.left_is_col = isinstance(left, H2OCol)
+    self.right_is_col = isinstance(right, H2OCol)
     self.left = left
     self.right = right
     if ((left is None) and (right is None)):
