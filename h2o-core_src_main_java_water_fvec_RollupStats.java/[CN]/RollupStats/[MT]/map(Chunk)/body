@@ -74,14 +74,6 @@
     }
   }
  else {
-    if (c.isSparse()) {
-      int zeros=c._len - c.sparseLen();
-      for (int i=0; i < Math.min(_mins.length,zeros); i++) {
-        min(0);
-        max(0);
-      }
-      _rows+=zeros;
-    }
     if (c instanceof C1Chunk)     checksum=new RollupStatsHelpers(this).numericChunkRollup((C1Chunk)c,start,checksum);
  else     if (c instanceof C1SChunk)     checksum=new RollupStatsHelpers(this).numericChunkRollup((C1SChunk)c,start,checksum);
  else     if (c instanceof C1NChunk)     checksum=new RollupStatsHelpers(this).numericChunkRollup((C1NChunk)c,start,checksum);
@@ -93,6 +85,21 @@
  else     if (c instanceof C8Chunk)     checksum=new RollupStatsHelpers(this).numericChunkRollup((C8Chunk)c,start,checksum);
  else     if (c instanceof C8DChunk)     checksum=new RollupStatsHelpers(this).numericChunkRollup((C8DChunk)c,start,checksum);
  else     checksum=new RollupStatsHelpers(this).numericChunkRollup(c,start,checksum);
+    if (c.isSparse()) {
+      int zeros=c._len - c.sparseLen();
+      if (zeros > 0) {
+        for (int i=0; i < Math.min(_mins.length,zeros); i++) {
+          min(0);
+          max(0);
+        }
+        double zeromean=0;
+        double zeroM2=0;
+        double delta=_mean - zeromean;
+        _mean=(_mean * _rows + zeromean * zeros) / (_rows + zeros);
+        _sigma+=zeroM2 + delta * delta * _rows* zeros / (_rows + zeros);
+        _rows+=zeros;
+      }
+    }
   }
   _checksum=checksum;
   if (isUUID || isString) {
