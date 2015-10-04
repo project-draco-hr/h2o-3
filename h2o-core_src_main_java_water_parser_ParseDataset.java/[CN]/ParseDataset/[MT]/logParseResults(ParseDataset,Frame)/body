@@ -7,8 +7,8 @@
   fs.blockForPending();
   int namelen=0;
   for (  String s : fr.names())   namelen=Math.max(namelen,s.length());
-  String format=" %" + namelen + "s %7s %12.12s %12.12s %11s %8s %6s";
-  Log.info(String.format(format,"ColV2","type","min","max","NAs","constant","cardinality"));
+  String format=" %" + namelen + "s %7s %12.12s %12.12s %12.12s %12.12s %11s %8s %6s";
+  Log.info(String.format(format,"ColV2","type","min","max","mean","sigma","NAs","constant","cardinality"));
   SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
   for (int i=0; i < vecArr.length; i++) {
     Vec v=vecArr[i];
@@ -18,6 +18,8 @@
     String typeStr;
     String minStr;
     String maxStr;
+    String meanStr="";
+    String sigmaStr="";
 switch (v.get_type()) {
 case Vec.T_BAD:
       typeStr="all_NA";
@@ -38,6 +40,8 @@ case Vec.T_NUM:
 typeStr="numeric";
 minStr=String.format("%g",v.min());
 maxStr=String.format("%g",v.max());
+meanStr=String.format("%g",v.mean());
+sigmaStr=String.format("%g",v.sigma());
 break;
 case Vec.T_CAT:
 typeStr="factor";
@@ -79,7 +83,7 @@ printColumnToStdout=true;
 }
 }
 if (printLogSeparatorToStdout) Log.info("Additional column information only sent to log file...");
-String s=String.format(format,CStr,typeStr,minStr,maxStr,naStr,isConstantStr,numLevelsStr);
+String s=String.format(format,CStr,typeStr,minStr,maxStr,meanStr,sigmaStr,naStr,isConstantStr,numLevelsStr);
 Log.info(s,printColumnToStdout);
 }
 Log.info(FrameUtils.chunkSummary(fr).toString());
