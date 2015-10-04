@@ -7,12 +7,15 @@ def parse(setup, h2o_name, first_line_is_header=((-1), 0, 1)):
         first_line_is_header = setup['check_header']
     if isinstance(setup['separator'], basestring):
         setup['separator'] = ord(setup['separator'])
+    if setup['column_types']:
+        if isinstance(setup['column_types'], dict):
+            setup['column_types'] = [_quoted(setup['column_types'][name]) for name in setup['column_names']]
+        else:
+            setup['column_types'] = [_quoted(name) for name in setup['column_types']]
+        p['column_types'] = None
     if setup['column_names']:
         setup['column_names'] = [_quoted(name) for name in setup['column_names']]
         p['column_names'] = None
-    if setup['column_types']:
-        setup['column_types'] = [_quoted(name) for name in setup['column_types']]
-        p['column_types'] = None
     if setup['na_strings']:
         if _is_list_of_lists(setup['na_strings']):
             setup['na_strings'] = [([_quoted(na) for na in col] if (col is not None) else []) for col in setup['na_strings']]
