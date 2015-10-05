@@ -45,6 +45,9 @@ def __init__(self, test_root_dir, use_cloud, use_cloud2, use_client, cloud_confi
             cloud = H2OUseCloud(node_num, c[0], c[1])
             self.clouds.append(cloud)
             node_num += 1
+    elif r_demo:
+        cloud = H2OCloud(0, False, 1, h2o_jar, self.base_port, xmx, self.output_dir)
+        self.clouds.append(cloud)
     else:
         for i in range(self.num_clouds):
             cloud = H2OCloud(i, self.use_client, self.nodes_per_cloud, h2o_jar, self.base_port, xmx, self.output_dir)
