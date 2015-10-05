@@ -1,12 +1,10 @@
-def tail(self, rows=10, cols=200, show=False, as_pandas=False):
-    "\n    Analgous to R's `tail` call on a data.frame. Display a digestible chunk of the H2OFrame starting from the end.\n\n    :param rows: Number of rows to display.\n    :param cols: Number of columns to display.\n    :param show:\n    :param as_pandas: \n    :return: None\n    "
+def tail(self, rows=10, cols=200, show=False, use_pandas=False):
+    "\n    Analogous to R's `tail` call on a data.frame. Display a digestible chunk of the H2OFrame starting from the end.\n\n    :param rows: Number of rows starting from the bottommost to display in their original order.\n    :param cols: Number of columns starting from the leftmost to display.\n    :param show: A flag specifying whether or not to display the output.\n    :param use_pandas: A flag specifying whether or not to return a pandas DataFrame.\n    :return: A local python object (a list of lists of strings, each list is a row, if use_pandas=False, otherwise a pandas\n     DataFrame) containing this H2OFrame instance's data.\n    "
     self._eager()
     nrows = min(self.nrow, rows)
     ncols = min(self.ncol, cols)
-    start_idx = max((self.nrow - nrows), 0)
-    tail = self[start_idx:(start_idx + nrows), :ncols]
-    res = tail.as_data_frame(False)
-    colnames = res.pop(0)
+    start_idx = ((self.nrow - nrows) if (rows is not None) else 0)
+    res = self.as_data_frame(skiprows=range(1, (start_idx + 1)), ncols=ncols, use_pandas=use_pandas)
     if show:
-        self._do_show(as_pandas, res, colnames)
-    return tail
+        self._do_show(res, use_pandas)
+    return res
