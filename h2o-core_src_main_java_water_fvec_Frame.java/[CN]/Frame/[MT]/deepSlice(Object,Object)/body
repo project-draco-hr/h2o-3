@@ -40,9 +40,9 @@
         for (        NewChunk nc : nchks)         nc.addNA();
       }
     }
-.doAll(c2.length,this).outputFrame(names(c2),domains(c2));
+.doAll(types(c2),this).outputFrame(names(c2),domains(c2));
   }
-  if (orows == null)   return new DeepSlice(null,c2,vecs()).doAll(c2.length,this).outputFrame(names(c2),domains(c2));
+  if (orows == null)   return new DeepSlice(null,c2,vecs()).doAll(types(c2),this).outputFrame(names(c2),domains(c2));
  else   if (orows instanceof long[]) {
     final long CHK_ROWS=1000000;
     final long[] rows=(long[])orows;
@@ -64,13 +64,13 @@
         }
 .doAll(v0).getResult()._fr.anyVec();
         Keyed.remove(v0._key);
-        Frame slicedFrame=new DeepSlice(rows,c2,vecs()).doAll(c2.length,this.add("select_vec",v)).outputFrame(names(c2),domains(c2));
+        Frame slicedFrame=new DeepSlice(rows,c2,vecs()).doAll(types(c2),this.add("select_vec",v)).outputFrame(names(c2),domains(c2));
         Keyed.remove(v._key);
         Keyed.remove(this.remove(this.numCols() - 1)._key);
         return slicedFrame;
       }
  else {
-        return new DeepSlice(rows.length == 0 ? null : rows,c2,vecs()).doAll(c2.length,this).outputFrame(names(c2),domains(c2));
+        return new DeepSlice(rows.length == 0 ? null : rows,c2,vecs()).doAll(types(c2),this).outputFrame(names(c2),domains(c2));
       }
     }
     Futures fs=new Futures();
@@ -88,7 +88,7 @@
     Vec c0=av.layout_and_close(fs);
     fs.blockForPending();
     Frame ff=new Frame(new String[]{"rownames"},new Vec[]{c0});
-    Frame fr2=new Slice(c2,this).doAll(c2.length,ff).outputFrame(names(c2),domains(c2));
+    Frame fr2=new Slice(c2,this).doAll(types(c2),ff).outputFrame(names(c2),domains(c2));
     Keyed.remove(c0._key);
     Keyed.remove(av._key);
     ff.delete();
@@ -104,5 +104,5 @@
   vecs[c2.length]=frows.anyVec();
   names[c2.length]="predicate";
   Frame ff=new Frame(names,vecs);
-  return new DeepSelect().doAll(c2.length,ff).outputFrame(names(c2),domains(c2));
+  return new DeepSelect().doAll(types(c2),ff).outputFrame(names(c2),domains(c2));
 }

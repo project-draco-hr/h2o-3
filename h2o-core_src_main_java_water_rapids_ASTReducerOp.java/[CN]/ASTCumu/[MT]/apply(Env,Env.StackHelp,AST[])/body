@@ -3,7 +3,7 @@
   if (f.numCols() != 1)   throw new IllegalArgumentException("Must give a single numeric column.");
   if (!f.anyVec().isNumeric())   throw new IllegalArgumentException("Column must be numeric.");
   CumuTask t=new CumuTask(f.anyVec().nChunks(),init());
-  t.doAll(1,f.anyVec());
+  t.doAll(new byte[]{Vec.T_NUM},f.anyVec());
   final double[] chkCumu=t._chkCumu;
   Vec cumuVec=t.outputFrame().anyVec();
   new MRTask(){
