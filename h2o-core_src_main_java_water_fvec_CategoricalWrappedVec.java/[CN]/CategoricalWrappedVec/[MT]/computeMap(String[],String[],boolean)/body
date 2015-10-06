@@ -1,0 +1,54 @@
+{
+  if (from == to || Arrays.equals(from,to)) {
+    _map=ArrayUtils.seq(0,to.length);
+    setDomain(to);
+    return;
+  }
+  if (from == null) {
+    setDomain(to);
+    if (fromIsBad) {
+      _map=new int[0];
+      return;
+    }
+    int min=Integer.valueOf(to[0]);
+    int max=Integer.valueOf(to[to.length - 1]);
+    Vec mvec=masterVec();
+    if (!(mvec.isInt() && mvec.min() >= min && mvec.max() <= max))     throw new NumberFormatException();
+    if (Integer.valueOf(to[0]) < 0) {
+      _p=Math.max(0,max);
+      _map=new int[(_p) + (-1 * min) + 1];
+      for (int i=0; i < to.length; ++i) {
+        int v=Integer.valueOf(to[i]);
+        if (v < 0)         v=-1 * v + _p;
+        _map[v]=i;
+      }
+      return;
+    }
+    _map=new int[max + 1];
+    for (int i=0; i < to.length; i++)     _map[Integer.valueOf(to[i])]=i;
+    return;
+  }
+  _map=new int[from.length];
+  if (to == null) {
+    for (int i=0; i < from.length; i++)     _map[i]=Integer.valueOf(from[i]);
+    return;
+  }
+  HashMap<String,Integer> h=new HashMap<>();
+  for (int i=0; i < to.length; i++)   h.put(to[i],i);
+  String[] ss=to;
+  int extra=to.length;
+  int actualLen=extra;
+  for (int j=0; j < from.length; j++) {
+    Integer x=h.get(from[j]);
+    if (x != null)     _map[j]=x;
+ else {
+      _map[j]=extra++;
+      if (extra > ss.length) {
+        ss=Arrays.copyOf(ss,2 * ss.length);
+      }
+      ss[extra - 1]=from[j];
+      actualLen=extra;
+    }
+  }
+  setDomain(Arrays.copyOf(ss,actualLen));
+}

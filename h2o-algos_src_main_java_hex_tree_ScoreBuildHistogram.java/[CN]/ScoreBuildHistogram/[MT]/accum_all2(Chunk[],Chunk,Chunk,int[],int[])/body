@@ -4,19 +4,24 @@
   double bins[]=new double[Math.max(_nbins,_nbins_cats)];
   double sums[]=new double[Math.max(_nbins,_nbins_cats)];
   double ssqs[]=new double[Math.max(_nbins,_nbins_cats)];
-  for (int c=0; c < _ncols; c++) {
+  int binslen=bins.length;
+  int cols=_ncols;
+  int hcslen=hcs.length;
+  for (int c=0; c < cols; c++) {
     Chunk chk=chks[c];
-    for (int n=0; n < hcs.length; n++) {
-      final DHistogram rh=((DHistogram)hcs[n][c]);
+    for (int n=0; n < hcslen; n++) {
+      final DHistogram rh=hcs[n][c];
       if (rh == null)       continue;
+      double[] rhbins=rh._bins;
+      int rhbinslen=rhbins.length;
       final int lo=n == 0 ? 0 : nh[n - 1];
       final int hi=nh[n];
       float min=rh._min2;
       float max=rh._maxIn;
-      if (rh._bins.length >= bins.length) {
-        bins=new double[rh._bins.length];
-        sums=new double[rh._bins.length];
-        ssqs=new double[rh._bins.length];
+      if (rhbinslen >= binslen) {
+        bins=new double[rhbinslen];
+        sums=new double[rhbinslen];
+        ssqs=new double[rhbinslen];
       }
       for (int xrow=lo; xrow < hi; xrow++) {
         int row=rows[xrow];
@@ -27,15 +32,17 @@
         if (col_data > max)         max=col_data;
         int b=rh.bin(col_data);
         double resp=wrks.atd(row);
+        double wy=w * resp;
         bins[b]+=w;
-        sums[b]+=w * resp;
-        ssqs[b]+=w * resp * resp;
+        sums[b]+=wy;
+        ssqs[b]+=wy * resp;
       }
       rh.setMin(min);
       rh.setMax(max);
-      for (int b=0; b < rh._bins.length; b++) {
+      int len=rhbinslen;
+      for (int b=0; b < len; b++) {
         if (bins[b] != 0) {
-          AtomicUtils.DoubleArray.add(rh._bins,b,bins[b]);
+          AtomicUtils.DoubleArray.add(rhbins,b,bins[b]);
           bins[b]=0;
         }
         if (sums[b] != 0) {

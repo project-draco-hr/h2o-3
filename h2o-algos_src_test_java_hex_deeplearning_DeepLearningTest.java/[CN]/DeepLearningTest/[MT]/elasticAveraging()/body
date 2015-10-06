@@ -8,16 +8,14 @@
   boolean covtype=new Random().nextBoolean();
   if (covtype) {
     frTrain=parse_test_file("./smalldata/covtype/covtype.20k.data");
-    Vec resp=frTrain.lastVec().toEnum();
-    Vec v=frTrain.remove(frTrain.vecs().length - 1);
-    if (v != null)     v.remove();
+    Vec resp=frTrain.lastVec().toCategoricalVec();
+    frTrain.remove(frTrain.vecs().length - 1).remove();
     frTrain.add("Response",resp);
   }
  else {
-    frTrain=parse_test_file("./smalldata/testng/higgs_test_5k.csv");
-    Vec resp=frTrain.vecs()[0].toEnum();
-    Vec v=frTrain.remove(0);
-    if (v != null)     v.remove();
+    frTrain=parse_test_file("./bigdata/server/HIGGS.csv");
+    Vec resp=frTrain.vecs()[0].toCategoricalVec();
+    frTrain.remove(0).remove();
     frTrain.prepend("Response",resp);
   }
   DKV.put(frTrain);

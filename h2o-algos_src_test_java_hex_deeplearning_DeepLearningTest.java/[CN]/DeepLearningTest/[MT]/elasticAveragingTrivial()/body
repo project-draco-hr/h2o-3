@@ -8,9 +8,8 @@
   try {
     for (int i=0; i < N; ++i) {
       frTrain=parse_test_file("./smalldata/covtype/covtype.20k.data");
-      Vec resp=frTrain.lastVec().toEnum();
-      Vec v=frTrain.remove(frTrain.vecs().length - 1);
-      if (v != null)       v.remove();
+      Vec resp=frTrain.lastVec().toCategoricalVec();
+      frTrain.remove(frTrain.vecs().length - 1).remove();
       frTrain.add("Response",resp);
       DKV.put(frTrain);
       dl._train=frTrain._key;

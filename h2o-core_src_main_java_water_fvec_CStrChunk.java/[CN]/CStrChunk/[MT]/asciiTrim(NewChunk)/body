@@ -1,0 +1,18 @@
+{
+  nc=this.inflate_impl(nc);
+  for (int i=0; i < _len; i++) {
+    int j=0;
+    int off=UnsafeUtils.get4(_mem,(i << 2) + _OFF);
+    if (off != NA) {
+      while (_mem[_valstart + off + j] > 0 && _mem[_valstart + off + j] < 0x21)       j++;
+      if (j > 0)       nc._is[i]=off + j;
+      while (_mem[_valstart + off + j] != 0)       j++;
+      j--;
+      while (_mem[_valstart + off + j] > 0 && _mem[_valstart + off + j] < 0x21) {
+        nc._ss[off + j]=0;
+        j--;
+      }
+    }
+  }
+  return nc;
+}

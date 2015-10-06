@@ -1,0 +1,15 @@
+{
+  long l, hash=0;
+  for (int i=0; i < _keys.length; i++) {
+    if (chks[i].isNA(row))     l=0;
+ else {
+      l=chks[i].at8(row);
+      l=(cat_maps == null || cat_maps[i] == null) ? l : cat_maps[i][(int)l];
+      hash+=l;
+    }
+    _keys[i]=l;
+  }
+  _hash=(int)(hash ^ (hash >> 32));
+  _row=chks[0].start() + row;
+  return this;
+}

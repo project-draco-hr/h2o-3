@@ -1,8 +1,8 @@
 {
-  if (!MultiFileParseTask._enums.containsKey(_k))   return;
+  if (!MultiFileParseTask._categoricals.containsKey(_k))   return;
   _packedDomains=new byte[_catColIdxs.length][];
-  final ValueString[][] _perColDomains=new ValueString[_catColIdxs.length][];
-  final Categorical[] _colCats=MultiFileParseTask._enums.get(_k);
+  final BufferedString[][] _perColDomains=new BufferedString[_catColIdxs.length][];
+  final Categorical[] _colCats=MultiFileParseTask._categoricals.get(_k);
   int i=0;
   for (  int col : _catColIdxs) {
     _colCats[col].convertToUTF8(col + 1);
@@ -11,4 +11,5 @@
     _packedDomains[i]=packDomain(_perColDomains[i]);
     i++;
   }
+  Log.trace("Done locally collecting domains on each node.");
 }

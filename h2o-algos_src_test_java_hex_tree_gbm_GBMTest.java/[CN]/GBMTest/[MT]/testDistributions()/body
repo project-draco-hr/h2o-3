@@ -1,5 +1,5 @@
 {
-  Frame tfr=null, vfr=null;
+  Frame tfr=null, vfr=null, res=null;
   GBMModel gbm=null;
   for (  Distribution.Family dist : new Distribution.Family[]{Distribution.Family.AUTO,Distribution.Family.gaussian,Distribution.Family.poisson,Distribution.Family.gamma,Distribution.Family.tweedie}) {
     Scope.enter();
@@ -7,8 +7,8 @@
       tfr=parse_test_file("smalldata/glm_test/cancar_logIn.csv");
       vfr=parse_test_file("smalldata/glm_test/cancar_logIn.csv");
       for (      String s : new String[]{"Merit","Class"}) {
-        Scope.track(tfr.replace(tfr.find(s),tfr.vec(s).toEnum())._key);
-        Scope.track(vfr.replace(vfr.find(s),vfr.vec(s).toEnum())._key);
+        Scope.track(tfr.replace(tfr.find(s),tfr.vec(s).toCategoricalVec())._key);
+        Scope.track(vfr.replace(vfr.find(s),vfr.vec(s).toCategoricalVec())._key);
       }
       DKV.put(tfr);
       DKV.put(vfr);
@@ -22,14 +22,16 @@
       parms._learn_rate=1e-3f;
       GBM job=new GBM(parms);
       gbm=job.trainModel().get();
-      Frame res=gbm.score(vfr);
+      res=gbm.score(vfr);
       Assert.assertTrue(gbm.testJavaScoring(vfr,res,1e-15));
+      res.remove();
       ModelMetricsRegression mm=(ModelMetricsRegression)gbm._output._training_metrics;
       job.remove();
     }
   finally {
       if (tfr != null)       tfr.remove();
       if (vfr != null)       vfr.remove();
+      if (res != null)       res.remove();
       if (gbm != null)       gbm.delete();
       Scope.exit();
     }

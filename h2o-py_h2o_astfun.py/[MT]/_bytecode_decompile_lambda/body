@@ -1,0 +1,27 @@
+def _bytecode_decompile_lambda(co):
+    code = co.co_code
+    n = len(code)
+    i = 0
+    ops = []
+    while (i < n):
+        c = code[i]
+        op = ord(c)
+        args = []
+        i += 1
+        if (op >= HAVE_ARGUMENT):
+            oparg = (ord(code[i]) + (ord(code[(i + 1)]) * 256))
+            i += 2
+            if (op in hasconst):
+                args.append(co.co_consts[oparg])
+            elif (op in hasname):
+                args.append(co.co_names[oparg])
+            elif (op in hasjrel):
+                raise ValueError('unimpl: op in hasjrel')
+            elif (op in haslocal):
+                args.append(co.co_varnames[oparg])
+            elif (op in hascompare):
+                args.append(cmp_op[oparg])
+            elif is_func(opname[op]):
+                args.append(oparg)
+        ops.append([opname[op], args])
+    return _lambda_bytecode_to_ast(co, ops)

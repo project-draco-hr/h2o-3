@@ -1,6 +1,11 @@
 import urllib2
-import sys
+import sys, os
 sys.path.insert(1, '..')
 import h2o
 from tests import utils
-'\nHere is some testing infrastructure for running the pyunit tests in conjunction with run.py.\n\nrun.py issues an ip and port as a string:  "<ip>:<port>".\nThe expected value of sys_args[1] is "<ip>:<port>"\n\nAll tests MUST have the following structure:\n\nimport sys\nsys.path.insert(1, "..")  # may vary depending on this test\'s position relative to h2o-py\nimport h2o, tests\n\ndef my_test(ip=None, port=None):\n  ...test filling...\n\nif __name__ == "__main__":\n  tests.run_test(sys.argv, my_test)\n\nSo each test must have an ip and port\n'
+_H2O_IP_ = '127.0.0.1'
+_H2O_PORT_ = 54321
+_ON_JENKINS_HADOOP_ = False
+_H2O_INTERNAL_HDFS_NAME_NODE_ = None
+_IPYNB_ = None
+'\nHere is some testing infrastructure for running the pyunit tests in conjunction with run.py.\n\nrun.py issues an ip and port as a string:  "<ip>:<port>".\nThe expected value of sys_args[1] is "<ip>:<port>"\n\nAll tests MUST have the following structure:\n\nimport sys\nsys.path.insert(1, "..")  # may vary depending on this test\'s position relative to h2o-py\nimport h2o, tests\n\ndef my_test():\n  ...test filling...\n\nif __name__ == "__main__":\n  tests.run_test(sys.argv, my_test)\n\nSo each test must have an ip and port\n'

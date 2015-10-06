@@ -1,11 +1,11 @@
 {
-  Frame tfr=null;
+  Frame tfr=null, vfr=null, fr2=null;
   DeepLearningModel dl=null;
   Scope.enter();
   try {
     tfr=parse_test_file("smalldata/glm_test/cancar_logIn.csv");
     for (    String s : new String[]{"Merit","Class"}) {
-      Scope.track(tfr.replace(tfr.find(s),tfr.vec(s).toEnum())._key);
+      Scope.track(tfr.replace(tfr.find(s),tfr.vec(s).toCategoricalVec())._key);
     }
     DKV.put(tfr);
     DeepLearningParameters parms=new DeepLearningParameters();
@@ -22,12 +22,13 @@
     dl=job.trainModel().get();
     ModelMetricsAutoEncoder mm=(ModelMetricsAutoEncoder)dl._output._training_metrics;
     Assert.assertEquals(0.0712931422088762,mm._MSE,1e-2);
-    assertTrue(dl.testJavaScoring(tfr,dl.score(tfr),1e-5));
+    assertTrue(dl.testJavaScoring(tfr,fr2=dl.score(tfr),1e-5));
     job.remove();
   }
   finally {
     if (tfr != null)     tfr.remove();
     if (dl != null)     dl.delete();
+    if (fr2 != null)     fr2.delete();
     Scope.exit();
   }
 }

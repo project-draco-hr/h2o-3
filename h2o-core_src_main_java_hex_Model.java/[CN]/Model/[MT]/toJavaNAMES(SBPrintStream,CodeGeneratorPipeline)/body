@@ -1,0 +1,14 @@
+{
+  final String modelName=JCodeGen.toJavaId(_key.toString());
+  final String namesHolderClassName="NamesHolder_" + modelName;
+  sb.i().p("// ").p("Names of columns used by model.").nl();
+  sb.i().p("public static final String[] NAMES = " + namesHolderClassName + ".VALUES;").nl();
+  fileCtx.add(new CodeGenerator(){
+    @Override public void generate(    JCodeSB out){
+      out.i().p("// The class representing training column names").nl();
+      JCodeGen.toClassWithArray(out,null,namesHolderClassName,Arrays.copyOf(_output._names,_output.nfeatures()));
+    }
+  }
+);
+  return sb;
+}

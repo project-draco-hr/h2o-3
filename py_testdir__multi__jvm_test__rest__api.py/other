@@ -168,8 +168,8 @@ h2o_util.assertKeysExistAndNonNull(col, '', ['label', 'missing_count', 'zero_cou
 h2o_util.assertKeysExist(col, '', ['domain', 'string_data'])
 assert (col['mins'][0] == 43), 'FAIL: Failed to find 43 as the first min for AGE.'
 assert (col['maxs'][0] == 79), 'FAIL: Failed to find 79 as the first max for AGE.'
-assert (col['mean'] == 66.03947368421052), 'FAIL: Failed to find 66.03947368421052 as the mean for AGE.'
-assert (col['sigma'] == 6.527071269173308), 'FAIL: Failed to find 6.527071269173308 as the sigma for AGE.'
+assert (abs((col['mean'] - 66.03947368421052)) < 1e-08), 'FAIL: Failed to find 66.03947368421052 as the mean for AGE.'
+assert (abs((col['sigma'] - 6.527071269173308)) < 1e-08), 'FAIL: Failed to find 6.527071269173308 as the sigma for AGE.'
 assert (col['type'] == 'int'), 'FAIL: Failed to find int as the type for AGE.'
 assert (col['data'][0] == 65), 'FAIL: Failed to find 65 as the first data for AGE.'
 assert (col['precision'] == (-1)), 'FAIL: Failed to find -1 as the precision for AGE.'
@@ -200,7 +200,7 @@ first = a_node.frames(key=splits['destination_frames'][0]['name'])['frames'][0]
 second = a_node.frames(key=splits['destination_frames'][1]['name'])['frames'][0]
 assert (first['rows'] == 190), ('FAIL: 50/50 SplitFrame yielded the wrong number of rows.  Expected: 190; got: ' + first['rows'])
 assert (second['rows'] == 190), ('FAIL: 50/50 SplitFrame yielded the wrong number of rows.  Expected: 190; got: ' + second['rows'])
-models_to_build = [ModelSpec.for_dataset('kmeans_prostate', 'kmeans', datasets['prostate_clustering'], {'k': 2, }), ModelSpec.for_dataset('glm_prostate_regression', 'glm', datasets['prostate_regression'], {'family': 'gaussian', }), ModelSpec.for_dataset('glm_prostate_binomial', 'glm', datasets['prostate_binomial'], {'family': 'binomial', }), ModelSpec.for_dataset('deeplearning_prostate_regression', 'deeplearning', datasets['prostate_regression'], {'epochs': 1, 'loss': 'MeanSquare', }), ModelSpec.for_dataset('deeplearning_airlines_binomial', 'deeplearning', datasets['airlines_binomial'], {'epochs': 1, 'hidden': [10, 10], 'loss': 'CrossEntropy', }), ModelSpec.for_dataset('deeplearning_iris_multinomial', 'deeplearning', datasets['iris_multinomial'], {'epochs': 1, 'loss': 'CrossEntropy', }), ModelSpec.for_dataset('gbm_prostate_regression', 'gbm', datasets['prostate_regression'], {'ntrees': 5, 'distribution': 'gaussian', }), ModelSpec.for_dataset('gbm_airlines_binomial', 'gbm', datasets['airlines_binomial'], {'ntrees': 5, 'distribution': 'multinomial', }), ModelSpec.for_dataset('gbm_iris_multinomial', 'gbm', datasets['iris_multinomial'], {'ntrees': 5, 'distribution': 'multinomial', })]
+models_to_build = [ModelSpec.for_dataset('kmeans_prostate', 'kmeans', datasets['prostate_clustering'], {'k': 2, }), ModelSpec.for_dataset('glm_prostate_regression', 'glm', datasets['prostate_regression'], {'family': 'gaussian', }), ModelSpec.for_dataset('glm_prostate_binomial', 'glm', datasets['prostate_binomial'], {'family': 'binomial', }), ModelSpec.for_dataset('deeplearning_prostate_regression', 'deeplearning', datasets['prostate_regression'], {'epochs': 1, 'loss': 'Quadratic', }), ModelSpec.for_dataset('deeplearning_airlines_binomial', 'deeplearning', datasets['airlines_binomial'], {'epochs': 1, 'hidden': [10, 10], 'loss': 'CrossEntropy', }), ModelSpec.for_dataset('deeplearning_iris_multinomial', 'deeplearning', datasets['iris_multinomial'], {'epochs': 1, 'loss': 'CrossEntropy', }), ModelSpec.for_dataset('gbm_prostate_regression', 'gbm', datasets['prostate_regression'], {'ntrees': 5, 'distribution': 'gaussian', }), ModelSpec.for_dataset('gbm_airlines_binomial', 'gbm', datasets['airlines_binomial'], {'ntrees': 5, 'distribution': 'multinomial', }), ModelSpec.for_dataset('gbm_iris_multinomial', 'gbm', datasets['iris_multinomial'], {'ntrees': 5, 'distribution': 'multinomial', })]
 built_models = {}
 for model_spec in models_to_build:
     model = model_spec.build_and_validate_model(a_node)

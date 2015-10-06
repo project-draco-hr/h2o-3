@@ -1,5 +1,5 @@
 {
-  if (!(y.isEnum() || (y.isNumeric() && y.isInt())))   throw new IllegalArgumentException("stratification only applies to integer and categorical columns. Got: " + y.get_type_str());
+  if (!(y.isCategorical() || (y.isNumeric() && y.isInt())))   throw new IllegalArgumentException("stratification only applies to integer and categorical columns. Got: " + y.get_type_str());
   final long[] classes=new Vec.CollectDomain().doAll(y).domain();
   final int nClass=y.isNumeric() ? classes.length : y.domain().length;
   final long[] seeds=new long[nClass];

@@ -14,9 +14,9 @@
     histogram_stride=histogram_bins == null ? 0 : vec.stride();
     percentiles=histogram_bins == null ? null : vec.pctiles();
   }
-  type=vec.isEnum() ? "enum" : vec.isUUID() ? "uuid" : vec.isString() ? "string" : (vec.isInt() ? (vec.isTime() ? "time" : "int") : "real");
+  type=vec.isCategorical() ? "enum" : vec.isUUID() ? "uuid" : vec.isString() ? "string" : (vec.isInt() ? (vec.isTime() ? "time" : "int") : "real");
   domain=vec.domain();
-  if (vec.isEnum()) {
+  if (vec.isCategorical()) {
     domain_cardinality=domain.length;
   }
  else {
@@ -30,8 +30,8 @@
   }
  else   if (vec.isString()) {
     string_data=new String[len];
-    ValueString vstr=new ValueString();
-    for (int i=0; i < len; i++)     string_data[i]=vec.isNA(off + i) ? null : vec.atStr(vstr,off + i).toString();
+    BufferedString tmpStr=new BufferedString();
+    for (int i=0; i < len; i++)     string_data[i]=vec.isNA(off + i) ? null : vec.atStr(tmpStr,off + i).toString();
     data=null;
   }
  else {

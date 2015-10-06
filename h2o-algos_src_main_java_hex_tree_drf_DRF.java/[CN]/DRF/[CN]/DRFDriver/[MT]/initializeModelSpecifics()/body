@@ -1,0 +1,23 @@
+{
+  _mtry=(_parms._mtries == -1) ? (isClassifier() ? Math.max((int)Math.sqrt(_ncols),1) : Math.max(_ncols / 3,1)) : _parms._mtries;
+  if (!(1 <= _mtry && _mtry <= _ncols))   throw new IllegalArgumentException("Computed mtry should be in interval <1," + _ncols + "> but it is "+ _mtry);
+  _initialPrediction=isClassifier() ? 0 : getInitialValue();
+  initTreeMeasurements();
+  new MRTask(){
+    @Override public void map(    Chunk chks[]){
+      Chunk cy=chk_resp(chks);
+      for (int i=0; i < cy._len; i++) {
+        if (cy.isNA(i))         continue;
+        if (isClassifier()) {
+          int cls=(int)cy.at8(i);
+          chk_work(chks,cls).set(i,1L);
+        }
+ else {
+          float pred=(float)cy.atd(i);
+          chk_work(chks,0).set(i,pred);
+        }
+      }
+    }
+  }
+.doAll(_train);
+}
