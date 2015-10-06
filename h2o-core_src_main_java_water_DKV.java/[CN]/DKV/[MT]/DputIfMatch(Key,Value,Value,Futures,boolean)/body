@@ -1,5 +1,6 @@
 {
   if (old != null && !key.home())   old.startRemotePut();
+  if (val == null)   val=Value.makeNull(key);
   Value res=H2O.putIfMatch(key,val,old);
   if (res != old)   return res;
   if (old != null && old == val) {
@@ -12,7 +13,8 @@
   }
   Paxos.lockCloud(key);
   if (key.home()) {
-    if (old != null)     old.lockAndInvalidate(H2O.SELF,fs);
+    if (old != null)     old.lockAndInvalidate(H2O.SELF,val,fs);
+ else     val.lowerActiveGetCount(null);
   }
  else {
     TaskPutKey.put(key.home_node(),key,val,fs,dontCache);
