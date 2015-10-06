@@ -1,7 +1,10 @@
 {
   ++_nChunks;
   if (_nvs == null)   return this;
-  for (  NewChunk nv : _nvs)   nv.close(_cidx,fs);
+  for (int i=0; i < _nvs.length; i++) {
+    _nvs[i].close(_cidx,fs);
+    _nvs[i]=null;
+  }
   _nvs=null;
   return this;
 }
