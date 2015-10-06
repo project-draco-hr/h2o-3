@@ -1,13 +1,15 @@
 {
   try {
     byte[] bytes=new byte[buffer_size];
-    for (; ; ) {
+    while (is.available() > 0) {
       int count=is.read(bytes,0,buffer_size);
       if (count <= 0)       break;
       os.write(bytes,0,count);
     }
   }
- catch (  Exception ex) {
+ catch (  EofException eofe) {
+  }
+catch (  Exception ex) {
     throw new RuntimeException(ex);
   }
 }
