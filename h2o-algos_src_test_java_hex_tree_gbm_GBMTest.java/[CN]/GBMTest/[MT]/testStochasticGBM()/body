@@ -8,18 +8,15 @@
     for (    float col_sample_rate : col_sample_rates) {
       Scope.enter();
       try {
-        tfr=parse_test_file("./smalldata/junit/cars.csv");
-        for (        String s : new String[]{"name"}) {
-          tfr.remove(s).remove();
-        }
+        tfr=parse_test_file("./smalldata/gbm_test/ecology_model.csv");
         DKV.put(tfr);
         GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
         parms._train=tfr._key;
-        parms._response_column="cylinders";
+        parms._response_column="Angaus";
         parms._seed=234;
         parms._min_rows=2;
-        parms._max_depth=5;
-        parms._ntrees=50;
+        parms._max_depth=10;
+        parms._ntrees=10;
         parms._col_sample_rate=col_sample_rate;
         parms._sample_rate=sample_rate;
         GBM job=new GBM(parms);
