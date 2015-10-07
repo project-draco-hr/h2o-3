@@ -11,11 +11,13 @@ def additional_parameters():
         assert (col_summary[i]['type'] == c_types[i])
     dest_frame = 'dev29&hex%'
     c_names = ['a', 'b', 'c']
-    c_types = {'c': 'string', 'a': 'enum', 'b': 'enum', }
+    c_types = {'c': 'string', 'a': 'string', }
     fhex = h2o.import_file(tests.locate('smalldata/jira/hexdev_29.csv'), destination_frame=dest_frame, col_names=c_names, col_types=c_types)
     fhex.describe()
     assert (fhex._id == dest_frame.replace('%', '.').replace('&', '.'))
     assert (fhex.col_names == c_names)
     col_summary = h2o.frame(fhex._id)['frames'][0]['columns']
     for i in range(len(col_summary)):
-        assert (col_summary[i]['type'] == c_types[c_names[i]])
+        name = c_names[i]
+        if (name in c_types):
+            assert (col_summary[i]['type'] == c_types[name])
