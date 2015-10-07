@@ -6,10 +6,5 @@
     RollupStats rs=val.get(RollupStats.class);
     if (rs.isMutating())     return;
   }
-  new TAtomic<RollupStats>(){
-    @Override protected RollupStats atomic(    RollupStats rs){
-      return rs != null && rs.isMutating() ? null : RollupStats.makeMutating();
-    }
-  }
-.invoke(rskey);
+  new SetMutating().invoke(rskey);
 }
