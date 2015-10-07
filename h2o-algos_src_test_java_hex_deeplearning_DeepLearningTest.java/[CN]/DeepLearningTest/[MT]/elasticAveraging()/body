@@ -5,7 +5,7 @@
   DeepLearningModel[] models=new DeepLearningModel[N];
   dl=new DeepLearningParameters();
   Scope.enter();
-  boolean covtype=true;
+  boolean covtype=new Random().nextBoolean();
   if (covtype) {
     frTrain=parse_test_file("./smalldata/covtype/covtype.20k.data");
     Vec resp=frTrain.lastVec().toCategoricalVec();
@@ -36,6 +36,7 @@
       dl._quiet_mode=false;
       dl._max_w2=10;
       dl._l1=1e-5;
+      dl._reproducible=true;
       dl._replicate_training_data=false;
       dl._force_load_balance=true;
       dl._epochs=1;
@@ -59,7 +60,7 @@
     if (models[1] != null)     Log.info("With elastic averaging:    error=" + models[1]._output._training_metrics.cm().err());
   }
   finally {
-    if (frTrain != null)     frTrain.remove();
+    frTrain.remove();
     for (int i=0; i < N; ++i)     if (models[i] != null)     models[i].delete();
     Scope.exit();
   }

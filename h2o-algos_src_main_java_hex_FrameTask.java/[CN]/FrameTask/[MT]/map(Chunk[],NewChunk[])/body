@@ -6,14 +6,21 @@
   if (!doWork)   return;
   final boolean obs_weights=_dinfo._weights && !_fr.vecs()[_dinfo.weightChunkId()].isConst();
   final double global_weight_sum=obs_weights ? _fr.vecs()[_dinfo.weightChunkId()].mean() * _fr.numRows() : 0;
-  DataInfo.Row row=_dinfo.newDenseRow();
+  DataInfo.Row row=null;
+  DataInfo.Row[] rows=null;
+  if (_sparse) {
+    rows=_dinfo.extractSparseRows(chunks,0);
+  }
+ else {
+    row=_dinfo.newDenseRow();
+  }
   double[] weight_map=null;
   double relative_chunk_weight=1;
   if (obs_weights) {
     weight_map=new double[nrows];
     double weight_sum=0;
     for (int i=0; i < nrows; ++i) {
-      row=_dinfo.extractDenseRow(chunks,i,row);
+      row=_sparse ? rows[i] : _dinfo.extractDenseRow(chunks,i,row);
       weight_sum+=row.weight;
       weight_map[i]=weight_sum;
       assert(i == 0 || row.weight == 0 || weight_map[i] > weight_map[i - 1]);
@@ -59,7 +66,7 @@
         r=row_idx;
       }
       assert(r >= 0 && r <= nrows);
-      row=_dinfo.extractDenseRow(chunks,r,row);
+      row=_sparse ? rows[r] : _dinfo.extractDenseRow(chunks,r,row);
       if (!row.bad) {
         assert(row.weight > 0);
         long seed=offset + rep * nrows + r;
