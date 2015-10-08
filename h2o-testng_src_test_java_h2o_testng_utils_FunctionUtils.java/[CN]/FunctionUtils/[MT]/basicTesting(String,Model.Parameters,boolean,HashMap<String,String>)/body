@@ -1,5 +1,6 @@
 {
   boolean isTestSuccessfully=false;
+  Vec trainResponseColumnVec=null;
   Frame trainFrame=null;
   Frame score=null;
   Model.Output modelOutput=null;
@@ -62,31 +63,22 @@ MySQL.save(String.valueOf(modelMetrics._MSE),String.valueOf(modelMetrics.auc()._
 }
  else {
 System.out.println("AUC: NA");
-MySQL.save(String.valueOf(modelMetrics._MSE),"0",rawInput);
+MySQL.save(String.valueOf(modelMetrics._MSE),null,rawInput);
 }
 }
 }
  catch (Exception ex) {
-System.out.println("Testcase failed");
-ex.printStackTrace();
-if (!isNegativeTestcase) {
-Assert.fail(ex.getMessage(),ex);
-}
- else {
-System.out.println("This is negative testcase");
-}
+handleTestcaseFailed(isNegativeTestcase,ex,rawInput,algorithm);
 }
 catch (AssertionError ae) {
-System.out.println("Testcase failed");
-ae.printStackTrace();
-if (!isNegativeTestcase) {
-Assert.fail(ae.getMessage(),ae);
-}
- else {
-System.out.println("This is negative testcase");
-}
+handleTestcaseFailed(isNegativeTestcase,ae,rawInput,algorithm);
 }
  finally {
+if (trainResponseColumnVec != null) {
+trainFrame.vec(parameter._response_column).remove();
+trainFrame.remove(parameter._response_column);
+trainFrame.add(parameter._response_column,trainResponseColumnVec);
+}
 if (drfJob != null) {
 drfJob.remove();
 }

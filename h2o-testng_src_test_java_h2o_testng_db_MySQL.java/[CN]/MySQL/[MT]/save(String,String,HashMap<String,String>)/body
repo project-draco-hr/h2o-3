@@ -15,9 +15,17 @@
   int totalHosts=0;
   int cpusPerHost=0;
   int totalNodes=0;
+  if (mse_result == null || mse_result.toLowerCase().equals("na") || mse_result.toLowerCase().equals("nan")) {
+    mse_result="NULL";
+  }
+  if (auc_result == null || auc_result.toLowerCase().equals("na") || auc_result.toLowerCase().equals("nan")) {
+    auc_result="NULL";
+  }
   MySQLConnection connection=new MySQLConnection();
   Statement statement=null;
-  String sql=String.format("insert into %s values('%s','%s','%s','%s','%s',%s,'%s','%s',%s,%s,%s,'%s','%s','%s','%s')",config.getTableName(),testcaseId,trainingFrameId,validationFrameId,mse_result,auc_result,currentTime,interpreterVersion,machineName,totalHosts,cpusPerHost,totalNodes,source,rawInput.toString(),gitHashNumber,tuned_or_defaults);
+  String sql=String.format("insert into %s values('%s','%s','%s',%s,%s,%s,'%s','%s',%s,%s,%s,'%s','%s','%s','%s')",config.getTableName(),testcaseId,trainingFrameId,validationFrameId,mse_result,auc_result,currentTime,interpreterVersion,machineName,totalHosts,cpusPerHost,totalNodes,source,rawInput.toString(),gitHashNumber,tuned_or_defaults);
+  System.out.println("saved script SQL:");
+  System.out.println(sql);
   try {
     statement=connection.createStatement();
     statement.executeUpdate(sql);
