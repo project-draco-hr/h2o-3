@@ -17,27 +17,27 @@
         if (f.get(this) != null) {
           if (c.getComponentType() == Integer.TYPE) {
             int[] arr=(int[])f.get(this);
-            xs=xs + P * (long)Arrays.hashCode(arr);
+            xs=xs * P + (long)Arrays.hashCode(arr);
           }
  else           if (c.getComponentType() == Float.TYPE) {
             float[] arr=(float[])f.get(this);
-            xs=xs + P * (long)Arrays.hashCode(arr);
+            xs=xs * P + (long)Arrays.hashCode(arr);
           }
  else           if (c.getComponentType() == Double.TYPE) {
             double[] arr=(double[])f.get(this);
-            xs=xs + P * (long)Arrays.hashCode(arr);
+            xs=xs * P + (long)Arrays.hashCode(arr);
           }
  else           if (c.getComponentType() == Long.TYPE) {
             long[] arr=(long[])f.get(this);
-            xs=xs + P * (long)Arrays.hashCode(arr);
+            xs=xs * P + (long)Arrays.hashCode(arr);
           }
  else {
             Object[] arr=(Object[])f.get(this);
-            xs=xs + P * (long)Arrays.deepHashCode(arr);
+            xs=xs * P + (long)Arrays.deepHashCode(arr);
           }
         }
  else {
-          xs=xs + P;
+          xs=xs * P;
         }
       }
  catch (      IllegalAccessException e) {
@@ -52,10 +52,10 @@ catch (      ClassCastException t) {
         f.setAccessible(true);
         Object value=f.get(this);
         if (value != null) {
-          xs=xs + P * (long)(value.hashCode());
+          xs=xs * P + (long)(value.hashCode());
         }
  else {
-          xs=xs + P;
+          xs=xs * P + P;
         }
       }
  catch (      IllegalAccessException e) {
