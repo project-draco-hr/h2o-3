@@ -1,0 +1,14 @@
+def build_and_validate_model(self, a_node):
+    before = time.time()
+    if isVerbose():
+        print ((((((('About to build: ' + self['dest_key']) + ', a ') + self['algo']) + ' model on frame: ') + self['frame_key']) + ' with params: ') + repr(self['params']))
+    result = a_node.build_model(algo=self['algo'], model_id=self['dest_key'], training_frame=self['frame_key'], parameters=self['params'], timeoutSecs=240)
+    validate_model_builder_result(result, self['params'], self['dest_key'])
+    model = validate_model_exists(a_node, self['dest_key'])
+    validate_actual_parameters(self['params'], model['parameters'], self['frame_key'], None)
+    assert ('output' in model), ('FAIL: Failed to find output object in model: ' + self['dest_key'])
+    assert ('model_category' in model['output']), ('FAIL: Failed to find model_category in model: ' + self['dest_key'])
+    assert (model['output']['model_category'] == self['model_category']), ((((('FAIL: Expected model_category: ' + self['model_category']) + ' but got: ') + model['output']['model_category']) + ' for model: ') + self['dest_key'])
+    if isVerbose():
+        print (((('Done building: ' + self['dest_key']) + ' (') + str((time.time() - before))) + ')')
+    return model

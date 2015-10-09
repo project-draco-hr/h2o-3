@@ -2,12 +2,12 @@
   Vec vec=null;
   try {
     Futures fs=new Futures();
-    AppendableVec av=new AppendableVec(Vec.newKey());
+    AppendableVec av=new AppendableVec(Vec.newKey(),Vec.T_NUM);
     long ls[]=new long[]{0,0,0,0};
     int xs[]=new int[]{0,0,0,0};
     NewChunk nv=new NewChunk(av,0,ls,xs,null,null);
     nv.close(0,fs);
-    vec=av.close(fs);
+    vec=av.layout_and_close(fs);
     fs.blockForPending();
     assertEquals(nv._len,vec.length());
     Chunk c0=vec.chunkForChunkIdx(0);
