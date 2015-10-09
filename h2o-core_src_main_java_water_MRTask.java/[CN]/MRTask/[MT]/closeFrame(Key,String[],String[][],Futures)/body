@@ -1,14 +1,14 @@
 {
-  if (_noutputs == 0)   return null;
-  Vec[] vecs=new Vec[_noutputs];
-  for (int i=0; i < _noutputs; ++i) {
-    if (_appendables == null)     vecs[i]=_fr.anyVec().makeZero();
+  if (_output_types == null)   return null;
+  final int noutputs=_output_types.length;
+  Vec[] vecs=new Vec[noutputs];
+  if (_appendables == null)   for (int i=0; i < noutputs; i++)   vecs[i]=_fr.anyVec().makeZero();
  else {
+    int rowLayout=_appendables[0].compute_rowLayout();
+    for (int i=0; i < noutputs; i++) {
       _appendables[i].setDomain(domains == null ? null : domains[i]);
-      vecs[i]=_appendables[i].close(fs);
+      vecs[i]=_appendables[i].close(rowLayout,fs);
     }
   }
-  Frame fr=new Frame(key,names,vecs);
-  if (key != null)   DKV.put(fr,fs);
-  return fr;
+  return new Frame(key,names,vecs);
 }

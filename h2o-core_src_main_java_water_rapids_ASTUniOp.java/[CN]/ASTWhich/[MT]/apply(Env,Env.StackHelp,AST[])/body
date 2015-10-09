@@ -5,13 +5,13 @@
     for (int i=0; i < in.length; ++i)     in[i]=f.vecs()[i].at(0) == 1 ? i : -1;
     Futures fs=new Futures();
     Key key=Vec.VectorGroup.VG_LEN1.addVecs(1)[0];
-    AppendableVec v=new AppendableVec(key);
+    AppendableVec v=new AppendableVec(key,Vec.T_NUM);
     NewChunk chunk=new NewChunk(v,0);
     for (    double d : in) {
       if (d != -1)       chunk.addNum(d);
     }
     chunk.close(0,fs);
-    Vec vec=v.close(fs);
+    Vec vec=v.layout_and_close(fs);
     fs.blockForPending();
     return new ValFrame(new Frame(vec));
   }
@@ -21,6 +21,6 @@
       for (int i=0; i < c._len; ++i)       if (c.at8(i) == 1)       nc.addNum(start + i);
     }
   }
-.doAll(1,f.anyVec()).outputFrame();
+.doAll(new byte[]{Vec.T_NUM},f.anyVec()).outputFrame();
   return new ValFrame(f2);
 }
