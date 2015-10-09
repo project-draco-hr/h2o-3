@@ -1,0 +1,17 @@
+{
+  boolean[] confirmations=new boolean[H2O.CLOUD.size()];
+  confirmations[H2O.SELF.index()]=true;
+  Futures fs=new Futures();
+  for (  H2ONode n : H2O.CLOUD._memary) {
+    if (n != H2O.SELF)     fs.add(new RPC(n,new ShutdownTsk(H2O.SELF,n.index(),1000,confirmations)).call());
+  }
+  if (timeout > 0)   try {
+    Thread.sleep(timeout);
+  }
+ catch (  Exception ignore) {
+  }
+ else   fs.blockForPending();
+  int failedToShutdown=0;
+  for (  boolean b : confirmations)   if (!b)   failedToShutdown++;
+  return failedToShutdown;
+}

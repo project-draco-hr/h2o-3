@@ -6,5 +6,6 @@
   espc[0]=0;
   for (int i=1; i < nchunks; i++)   espc[i]=redistribute ? espc[i - 1] + len / nchunks : ((long)i) << log_rows_per_chunk;
   espc[nchunks]=len;
-  return makeCon(x,VectorGroup.VG_LEN1,espc);
+  VectorGroup vg=VectorGroup.VG_LEN1;
+  return makeCon(x,vg,ESPC.rowLayout(vg._key,espc));
 }
