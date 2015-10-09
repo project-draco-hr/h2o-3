@@ -21,8 +21,8 @@ def parse_setup(raw_frames, destination_frame='', header=((-1), 0, 1), separator
         j['column_names'] = column_names
     if column_types:
         if isinstance(column_types, dict):
-            if (not j['column_names']):
-                raise ValueError('column names should be specified')
+            if (j['column_names'] is None):
+                j['column_names'] = _gen_header(j['number_columns'])
             if (not set(column_types.keys()).issubset(set(j['column_names']))):
                 raise ValueError('names specified in col_types is not a subset of the column names')
             idx = 0
