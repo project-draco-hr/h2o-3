@@ -3,8 +3,8 @@
   int cnt=0;
   if (leaked_keys > 0) {
     for (    Key k : H2O.localKeySet()) {
-      Value value=H2O.raw_get(k);
-      if (value.isVecGroup() || k == Job.LIST || (value.isJob() && value.<Job>get().isStopped())) {
+      Value value=Value.STORE_get(k);
+      if (value == null || value.isVecGroup() || value.isESPCGroup() || k == Job.LIST || (value.isJob() && value.<Job>get().isStopped())) {
         leaked_keys--;
       }
  else {
@@ -20,6 +20,7 @@
     }
     @Override public void setupLocal(){
       H2O.raw_clear();
+      water.fvec.Vec.ESPC.clear();
     }
   }
 .doAllNodes();
