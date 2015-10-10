@@ -1,13 +1,16 @@
 {
   updateModelOutput();
   try {
+    for (    Vec v : _garbage) {
+      System.out.println("removing " + v._key);
+      v.remove();
+    }
     _parms.read_unlock_frames(GLM.this);
   }
  catch (  Throwable t) {
   }
   if (null != _dinfo)   DKV.remove(_dinfo._key);
   if (_validDinfo != null)   DKV.remove(_validDinfo._key);
-  if (_rowFilter != null)   _rowFilter.remove();
   if (_tInfos != null && _tInfos[0] != null) {
     if (_tInfos[0]._wVec != null)     _tInfos[0]._wVec.remove();
     if (_tInfos[0]._zVec != null)     _tInfos[0]._zVec.remove();
