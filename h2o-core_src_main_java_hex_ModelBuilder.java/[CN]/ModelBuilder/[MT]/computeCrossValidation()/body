@@ -93,7 +93,6 @@ cvModelBuilderKeys=new Key[N];
 ModelBuilder<M,P,O>[] cvModelBuilders=new ModelBuilder[N];
 for (int i=0; i < N; ++i) {
 if (isCancelledOrCrashed()) break;
-Log.info("Building cross-validation model " + (i + 1) + " / "+ N+ ".");
 cvModelBuilders[i]=(ModelBuilder<M,P,O>)this.clone();
 cvModelBuilderKeys[i]=Key.make(_key.toString() + "_cv" + i);
 cvModelBuilders[i]._key=cvModelBuilderKeys[i];
@@ -106,6 +105,18 @@ cvModelBuilders[i]._parms._train=cvTrain[i]._key;
 cvModelBuilders[i]._parms._valid=cvValid[i]._key;
 cvModelBuilders[i]._parms._fold_assignment=Model.Parameters.FoldAssignmentScheme.AUTO;
 cvModelBuilders[i].modifyParmsForCrossValidationSplits(i,N,_parms._model_id);
+}
+for (int i=0; i < N; ++i) {
+cvModelBuilders[i].init(false);
+if (cvModelBuilders[i].error_count() > 0) {
+_messages=cvModelBuilders[i]._messages;
+updateValidationMessages();
+throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(cvModelBuilders[i]);
+}
+}
+for (int i=0; i < N; ++i) {
+if (isCancelledOrCrashed()) break;
+Log.info("Building cross-validation model " + (i + 1) + " / "+ N+ ".");
 cvModelBuilders[i]._start_time=System.currentTimeMillis();
 cvModelBuilders[i].trainModelImpl(-1,true);
 if (!async) cvModelBuilders[i].block();

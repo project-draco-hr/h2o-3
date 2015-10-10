@@ -23,6 +23,7 @@
     ModelMetricsRegressionGLM mm=(ModelMetricsRegressionGLM)ModelMetrics.getFromDKV(model1,fr);
     Assert.assertEquals(((ModelMetricsRegressionGLM)model1._output._training_metrics)._resDev,mm._resDev,1e-4);
     Assert.assertEquals(((ModelMetricsRegressionGLM)model1._output._training_metrics)._resDev,mm._MSE * score1.numRows(),1e-4);
+    score1.delete();
     mm.remove();
     res=model1.score(fr);
     Assert.assertTrue(model1.testJavaScoring(fr,res,1e-15));

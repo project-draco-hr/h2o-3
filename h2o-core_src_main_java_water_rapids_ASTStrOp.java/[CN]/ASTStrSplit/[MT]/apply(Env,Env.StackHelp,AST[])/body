@@ -1,7 +1,7 @@
 {
   Frame fr=stk.track(asts[1].exec(env)).getFrame();
   String split=asts[2].exec(env).getStr();
-  if (fr.numCols() != 1)   throw new IllegalArgumentException("strsplit requires a single column.");
+  if (fr.numCols() != 1)   throw new IllegalArgumentException("strsplit() requires a single column.");
   final String[] old_domains=fr.anyVec().domain();
   final String[][] new_domains=newDomains(old_domains,split);
   final String regex=split;
@@ -24,6 +24,6 @@
       }
     }
   }
-.doAll(new_domains.length,fr).outputFrame(null,null,new_domains);
+.doAll_numericResult(new_domains.length,fr).outputFrame(null,null,new_domains);
   return new ValFrame(fr2);
 }

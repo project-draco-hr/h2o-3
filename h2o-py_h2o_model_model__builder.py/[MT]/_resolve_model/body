@@ -1,0 +1,22 @@
+def _resolve_model(future_model, **kwargs):
+    future_model.poll()
+    if ('_rest_version' in kwargs.keys()):
+        model_json = H2OConnection.get_json(('Models/' + future_model.job.dest_key), _rest_version=kwargs['_rest_version'])['models'][0]
+    else:
+        model_json = H2OConnection.get_json(('Models/' + future_model.job.dest_key))['models'][0]
+    model_type = model_json['output']['model_category']
+    if (model_type == 'Binomial'):
+        model = H2OBinomialModel(future_model.job.dest_key, model_json)
+    elif (model_type == 'Clustering'):
+        model = H2OClusteringModel(future_model.job.dest_key, model_json)
+    elif (model_type == 'Regression'):
+        model = H2ORegressionModel(future_model.job.dest_key, model_json)
+    elif (model_type == 'Multinomial'):
+        model = H2OMultinomialModel(future_model.job.dest_key, model_json)
+    elif (model_type == 'AutoEncoder'):
+        model = H2OAutoEncoderModel(future_model.job.dest_key, model_json)
+    elif (model_type == 'DimReduction'):
+        model = H2ODimReductionModel(future_model.job.dest_key, model_json)
+    else:
+        raise NotImplementedError(model_type)
+    return model

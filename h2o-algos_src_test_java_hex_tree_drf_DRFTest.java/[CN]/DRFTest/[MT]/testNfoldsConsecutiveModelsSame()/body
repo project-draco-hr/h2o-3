@@ -9,7 +9,7 @@
     tfr.remove("name").remove();
     tfr.remove("economy").remove();
     old=tfr.remove("economy_20mpg");
-    tfr.add("economy_20mpg",old.toEnum());
+    tfr.add("economy_20mpg",old.toCategoricalVec());
     DKV.put(tfr);
     DRFModel.DRFParameters parms=new DRFModel.DRFParameters();
     parms._train=tfr._key;
@@ -35,8 +35,14 @@
   finally {
     if (tfr != null)     tfr.remove();
     if (old != null)     old.remove();
-    if (drf1 != null)     drf1.delete();
-    if (drf2 != null)     drf2.delete();
+    if (drf1 != null) {
+      drf1.deleteCrossValidationModels();
+      drf1.delete();
+    }
+    if (drf2 != null) {
+      drf2.deleteCrossValidationModels();
+      drf2.delete();
+    }
     Scope.exit();
   }
 }

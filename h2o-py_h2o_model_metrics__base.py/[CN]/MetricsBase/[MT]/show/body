@@ -8,6 +8,7 @@ def show(self):
     types_w_r2 = ((['ModelMetricsBinomial', 'ModelMetricsRegression'] + types_w_glm) + types_w_mult)
     types_w_mean_residual_deviance = ['ModelMetricsRegressionGLM', 'ModelMetricsRegression']
     types_w_logloss = (types_w_bin + types_w_mult)
+    types_w_dim = ['ModelMetricsGLRM']
     print 
     print ((metric_type + ': ') + self._algo)
     reported_on = '** Reported on {} data. **'
@@ -46,3 +47,6 @@ def show(self):
         print ('Total Sum of Square Error to Grand Mean: ' + str(self.totss()))
         print ('Between Cluster Sum of Square Error: ' + str(self.betweenss()))
         self._metric_json['centroid_stats'].show()
+    if (metric_type in types_w_dim):
+        print ('Sum of Squared Error (Numeric): ' + str(self.num_err()))
+        print ('Misclassification Error (Categorical): ' + str(self.cat_err()))

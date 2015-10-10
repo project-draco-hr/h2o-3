@@ -1,7 +1,7 @@
 {
   GLMModel gm=(GLMModel)m;
   computeAIC();
-  ModelMetrics metrics=_metrics == null ? _metricBuilder.makeModelMetrics(m,f) : _metrics;
+  ModelMetrics metrics=_metricBuilder.makeModelMetrics(gm,f);
   if (_parms._family == Family.binomial) {
     ModelMetricsBinomial metricsBinommial=(ModelMetricsBinomial)metrics;
     metrics=new ModelMetricsBinomialGLM(m,f,metrics._MSE,_domain,metricsBinommial._sigma,metricsBinommial._auc,metricsBinommial._logloss,residualDeviance(),nullDeviance(),_aic,nullDOF(),resDOF());
@@ -14,6 +14,5 @@
     ModelMetricsRegression metricsRegression=(ModelMetricsRegression)metrics;
     metrics=new ModelMetricsRegressionGLM(m,f,metricsRegression._MSE,metricsRegression._sigma,residualDeviance(),residualDeviance() / _wcount,nullDeviance(),_aic,nullDOF(),resDOF());
   }
-  DKV.put(metrics._key,metrics);
   return gm._output.addModelMetrics(metrics);
 }

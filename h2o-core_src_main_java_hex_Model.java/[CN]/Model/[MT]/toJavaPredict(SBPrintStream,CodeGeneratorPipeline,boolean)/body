@@ -1,0 +1,15 @@
+{
+  ccsb.nl();
+  ccsb.ip("// Pass in data in a double[], pre-aligned to the Model's requirements.").nl();
+  ccsb.ip("// Jam predictions into the preds[] array; preds[0] is reserved for the").nl();
+  ccsb.ip("// main prediction (class for classifiers or value for regression),").nl();
+  ccsb.ip("// and remaining columns hold a probability distribution for classifiers.").nl();
+  ccsb.ip("public final double[] score0( double[] data, double[] preds ) {").nl();
+  CodeGeneratorPipeline classCtx=new CodeGeneratorPipeline();
+  toJavaPredictBody(ccsb.ii(1),classCtx,fileCtx,verboseCode);
+  ccsb.ip("return preds;").nl();
+  ccsb.di(1).ip("}").nl();
+  classCtx.generate(ccsb.ii(1));
+  ccsb.di(1);
+  return ccsb;
+}

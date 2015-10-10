@@ -12,7 +12,7 @@
       Vec lv=l.vecs()[ncols];
       Vec rv=r.vecs()[ncols];
       if (lv.get_type() != rv.get_type())       throw new IllegalArgumentException("Merging columns must be the same type, column " + l._names[ncols] + " found types "+ lv.get_type_str()+ " and "+ rv.get_type_str());
-      if (lv.isString())       throw new IllegalArgumentException("Cannot merge Strings; flip toEnum first");
+      if (lv.isString())       throw new IllegalArgumentException("Cannot merge Strings; flip toCategoricalVec first");
       if (lv.isNumeric() && !lv.isInt())       throw new IllegalArgumentException("Equality tests on doubles rarely work, please round to integers only before merging");
       ncols++;
     }
@@ -35,22 +35,38 @@
     allLeft=allRite;
     allRite=tmp;
   }
-  int[][] enum_maps=new int[ncols][];
   int[][] id_maps=new int[ncols][];
   for (int i=0; i < ncols; i++) {
     Vec lv=walked.vecs()[i];
-    if (lv.isEnum()) {
-      EnumWrappedVec ewv=new EnumWrappedVec(lv.domain(),hashed.vecs()[i].domain());
-      int[] ids=enum_maps[i]=ewv.enum_map();
-      DKV.remove(ewv._key);
-      id_maps[i]=new int[ids.length];
-      for (int j=0; j < ids.length; j++)       id_maps[i][j]=j;
+    if (lv.isCategorical())     id_maps[i]=CategoricalWrappedVec.computeMap(hashed.vecs()[i].domain(),lv.domain());
+  }
+  final MergeSet ms=new MergeSet(ncols,id_maps,allRite).doAll(hashed);
+  final Key uniq=ms._uniq;
+  IcedHashMap<Row,String> rows=MergeSet.MERGE_SETS.get(uniq)._rows;
+  new MRTask(){
+    @Override public void setupLocal(){
+      MergeSet.MERGE_SETS.remove(uniq);
     }
   }
-  walked=walked.deepCopy(null);
-  Key uniq=new MergeSet(ncols,id_maps,allRite).doAll(hashed)._uniq;
-  String[] names=Arrays.copyOfRange(hashed._names,ncols,hashed._names.length);
-  String[][] domains=Arrays.copyOfRange(hashed.domains(),ncols,hashed.domains().length);
-  Frame res=new DoJoin(ncols,uniq,hashed,allLeft,allRite).doAll(hashed.numCols() - ncols,walked).outputFrame(names,domains);
-  return new ValFrame(walked.add(res));
+.doAllNodes();
+  if (rows == null)   return sortingMerge(walked,hashed,allLeft,allRite,ncols,id_maps);
+  if (allLeft && !(allRite && ms._dup)) {
+    walked=walked.deepCopy(null);
+    String[] names=Arrays.copyOfRange(hashed._names,ncols,hashed._names.length);
+    String[][] domains=Arrays.copyOfRange(hashed.domains(),ncols,hashed.domains().length);
+    byte[] types=Arrays.copyOfRange(hashed.types(),ncols,hashed.numCols());
+    Frame res=new AllLeftNoDupe(ncols,rows,hashed,allRite).doAll(types,walked).outputFrame(names,domains);
+    return new ValFrame(walked.add(res));
+  }
+  if (!allRite) {
+    String[] names=Arrays.copyOf(walked.names(),walked.numCols() + hashed.numCols() - ncols);
+    System.arraycopy(hashed.names(),ncols,names,walked.numCols(),hashed.numCols() - ncols);
+    String[][] domains=Arrays.copyOf(walked.domains(),walked.numCols() + hashed.numCols() - ncols);
+    System.arraycopy(hashed.domains(),ncols,domains,walked.numCols(),hashed.numCols() - ncols);
+    byte[] types=walked.types();
+    types=Arrays.copyOf(types,types.length + hashed.numCols() - ncols);
+    System.arraycopy(hashed.types(),ncols,types,walked.numCols(),hashed.numCols() - ncols);
+    return new ValFrame(new AllRiteWithDupJoin(ncols,rows,hashed,allLeft).doAll(types,walked).outputFrame(names,domains));
+  }
+  throw H2O.unimpl();
 }

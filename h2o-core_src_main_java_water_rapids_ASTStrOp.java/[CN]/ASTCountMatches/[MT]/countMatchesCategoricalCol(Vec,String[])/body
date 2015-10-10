@@ -1,0 +1,16 @@
+{
+  final int[] matchCounts=countDomainMatches(vec.domain(),pattern);
+  return new MRTask(){
+    @Override public void map(    Chunk[] cs,    NewChunk[] ncs){
+      Chunk c=cs[0];
+      for (int i=0; i < c._len; ++i) {
+        if (!c.isNA(i)) {
+          int idx=(int)c.at8(i);
+          ncs[0].addNum(matchCounts[idx]);
+        }
+ else         ncs[i].addNA();
+      }
+    }
+  }
+.doAll_numericResult(1,new Frame(vec)).outputFrame().anyVec();
+}

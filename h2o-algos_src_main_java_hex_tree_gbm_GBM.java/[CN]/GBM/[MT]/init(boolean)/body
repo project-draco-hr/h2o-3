@@ -1,6 +1,5 @@
 {
   super.init(expensive);
-  double mean=0;
   if (expensive) {
     if (error_count() > 0) {
       GBM.this.updateValidationMessages();
@@ -18,14 +17,13 @@
     if (hasOffsetCol() && _parms._distribution == Distribution.Family.bernoulli) {
       if (_offset.max() > 1)       error("_offset_column","Offset cannot be larger than 1 for Bernoulli distribution.");
     }
-    _initialPrediction=_nclass > 2 ? 0 : getInitialValue();
   }
 switch (_parms._distribution) {
 case bernoulli:
     if (_nclass != 2)     error("_distribution",H2O.technote(2,"Binomial requires the response to be a 2-class categorical"));
   break;
 case multinomial:
-if (!isClassifier()) error("_distribution",H2O.technote(2,"Multinomial requires an enum response."));
+if (!isClassifier()) error("_distribution",H2O.technote(2,"Multinomial requires an categorical response."));
 break;
 case poisson:
 if (isClassifier()) error("_distribution",H2O.technote(2,"Poisson requires the response to be numeric."));
@@ -45,4 +43,5 @@ default :
 error("_distribution","Invalid distribution: " + _parms._distribution);
 }
 if (!(0. < _parms._learn_rate && _parms._learn_rate <= 1.0)) error("_learn_rate","learn_rate must be between 0 and 1");
+if (!(0. < _parms._col_sample_rate && _parms._col_sample_rate <= 1.0)) error("_col_sample_rate","col_sample_rate must be between 0 and 1");
 }

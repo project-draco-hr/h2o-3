@@ -1,5 +1,5 @@
 {
-  Frame tfr=null, vfr=null;
+  Frame tfr=null, pred=null;
   Scope.enter();
   try {
     tfr=parse_test_file("smalldata/junit/weights.csv");
@@ -16,7 +16,7 @@
     parms._epochs=10;
     DeepLearning job=new DeepLearning(parms);
     DeepLearningModel dl=job.trainModel().get();
-    dl.score(parms.train());
+    pred=dl.score(parms.train());
     hex.ModelMetricsBinomial mm=hex.ModelMetricsBinomial.getFromDKV(dl,parms.train());
     assertEquals(0.7777777777777778,mm.auc()._auc,1e-8);
     double mse=dl._output._training_metrics.mse();
@@ -26,7 +26,7 @@
   }
   finally {
     if (tfr != null)     tfr.remove();
-    if (vfr != null)     vfr.remove();
+    if (pred != null)     pred.remove();
   }
   Scope.exit();
 }

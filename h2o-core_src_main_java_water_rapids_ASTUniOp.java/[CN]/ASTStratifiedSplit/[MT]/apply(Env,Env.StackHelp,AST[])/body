@@ -2,7 +2,7 @@
   Frame fr=stk.track(asts[1].exec(env)).getFrame();
   if (fr.numCols() != 1)   throw new IllegalArgumentException("Must give a single column to stratify against. Got: " + fr.numCols() + " columns.");
   Vec y=fr.anyVec();
-  if (!(y.isEnum() || (y.isNumeric() && y.isInt())))   throw new IllegalArgumentException("stratification only applies to integer and categorical columns. Got: " + y.get_type_str());
+  if (!(y.isCategorical() || (y.isNumeric() && y.isInt())))   throw new IllegalArgumentException("stratification only applies to integer and categorical columns. Got: " + y.get_type_str());
   final double testFrac=asts[2].exec(env).getNum();
   long seed=(long)asts[3].exec(env).getNum();
   seed=seed == -1 ? new Random().nextLong() : seed;
@@ -27,5 +27,5 @@
       }
     }
   }
-.doAll(1,y).outputFrame(new String[]{"test_train_split"},new String[][]{dom}));
+.doAll_numericResult(1,new Frame(y)).outputFrame(new String[]{"test_train_split"},new String[][]{dom}));
 }
