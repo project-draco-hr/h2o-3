@@ -28,7 +28,7 @@
       if (sentinel != 0xef)       throw H2O.fail("missing eom sentinel when opening new tcp channel");
       H2ONode h2o=H2ONode.intern(sock.socket().getInetAddress(),port);
       if (chanType == 1) {
-        Log.info("starting new UDP-TCP receiver thread connected to " + sock.getRemoteAddress());
+        Log.info("starting new UDP-TCP receiver thread connected to " + sock.socket().getRemoteSocketAddress());
         new UDP_TCP_ReaderThread(h2o,sock).start();
       }
  else       if (chanType == 2)       new TCPReaderThread(sock,new AutoBuffer(sock)).start();
