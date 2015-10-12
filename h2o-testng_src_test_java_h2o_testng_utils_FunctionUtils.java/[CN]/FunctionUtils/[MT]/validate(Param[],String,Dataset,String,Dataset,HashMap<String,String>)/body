@@ -1,6 +1,8 @@
 {
   System.out.println("Validate Parameters object with testcase: " + rawInput.get(CommonHeaders.testcase_id));
   String result=null;
+  String verifyTrainDSMessage=validateTestcaseType(train_dataset,rawInput);
+  String verifyValidateDSMessage=validateTestcaseType(validate_dataset,rawInput);
   if (StringUtils.isEmpty(train_dataset_id)) {
     result="In testcase, train dataset id is empty";
   }
@@ -12,6 +14,12 @@
   }
  else   if (StringUtils.isNotEmpty(validate_dataset_id) && (validate_dataset == null || !validate_dataset.isAvailabel())) {
     result=String.format("Dataset id %s is not available in dataset characteristic",validate_dataset_id);
+  }
+ else   if (verifyTrainDSMessage != null) {
+    result=verifyTrainDSMessage;
+  }
+ else   if (verifyValidateDSMessage != null) {
+    result=verifyValidateDSMessage;
   }
  else {
     result=Param.validateAutoSetParams(params,rawInput);
