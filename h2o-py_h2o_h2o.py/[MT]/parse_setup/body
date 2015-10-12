@@ -1,22 +1,68 @@
 def parse_setup(raw_frames, destination_frame='', header=((-1), 0, 1), separator='', column_names=None, column_types=None, na_strings=None):
-    '\n\n  Parameters\n  ----------\n\n  raw_frames : H2OFrame\n    A collection of imported file frames\n  destination_frame :\n    (Optional) The unique hex key assigned to the imported file. If none is given, a key will automatically be generated.\n  parse :\n    (Optional) A logical value indicating whether the file should be parsed after import.\n  header :\n    (Optional) -1 means the first line is data, 0 means guess, 1 means first line is header.\n  sep :\n    (Optional) The field separator character. Values on each line of the file are separated by this character. If sep = "", the parser will automatically detect the separator.\n  col_names :\n    (Optional) A list of column names for the file.\n  col_types :\n    (Optional) A list of types to specify whether columns should be forced to a certain type upon import parsing.\n  na_strings :\n    (Optional) A list of strings which are to be interpreted as missing values.\n  :return: A ParseSetup "object"\n  '
+    '\n\n  Parameters\n  ----------\n\n  raw_frames : H2OFrame\n    A collection of imported file frames\n  destination_frame : str, optional\n    The unique hex key assigned to the imported file. If none is given, a key will automatically be generated.\n  parse : boolean, optional\n    A logical value indicating whether the file should be parsed after import.\n  header : int, optional\n   -1 means the first line is data, 0 means guess, 1 means first line is header.\n  sep : str, optional\n    The field separator character. Values on each line of the file are separated by this character. If sep = "", the parser will automatically detect the separator.\n  col_names : list, optional\n    A list of column names for the file.\n  col_types : list or dict, optional\n    A list of types or a dictionary of column names to types to specify whether columns should be forced to a certain type upon import parsing. If a list, the types for elements that are None will be guessed.\n  na_strings : list or dict, optional\n    A list of strings, or a list of lists of strings (one list per column), or a dictionary of column names to strings which are to be interpreted as missing values.\n  :return: A ParseSetup "object"\n  '
     if isinstance(raw_frames, unicode):
         raw_frames = [raw_frames]
     j = H2OConnection.post_json(url_suffix='ParseSetup', source_frames=[_quoted(id) for id in raw_frames])
     if destination_frame:
-        j['destination_frame'] = destination_frame
-    if (not isinstance(header, tuple)):
+        j['destination_frame'] = _quoted(destination_frame).replace('%', '.').replace('&', '.')
+    if (header != ((-1), 0, 1)):
         if (header not in ((-1), 0, 1)):
             raise ValueError('header should be -1, 0, or 1')
         j['check_header'] = header
     if separator:
         if ((not isinstance(separator, basestring)) or (len(separator) != 1)):
             raise ValueError('separator should be a single character string')
-        j['separator'] = separator
+        j['separator'] = ord(separator)
     if column_names:
+        if (not isinstance(column_names, list)):
+            raise ValueError('col_names should be a list')
+        if (len(column_names) != len(j['column_types'])):
+            raise ValueError('length of col_names should be equal to the number of columns')
         j['column_names'] = column_names
     if column_types:
+        if isinstance(column_types, dict):
+            if (not j['column_names']):
+                raise ValueError('column names should be specified')
+            if (not set(column_types.keys()).issubset(set(j['column_names']))):
+                raise ValueError('names specified in col_types is not a subset of the column names')
+            idx = 0
+            column_types_list = []
+            for name in j['column_names']:
+                if (name in column_types):
+                    column_types_list.append(column_types[name])
+                else:
+                    column_types_list.append(j['column_types'][idx])
+                idx += 1
+            column_types = column_types_list
+        elif isinstance(column_types, list):
+            if (len(column_types) != len(j['column_types'])):
+                raise ValueError('length of col_types should be equal to the number of columns')
+            column_types = [(column_types[i] if column_types[i] else j['column_types'][i]) for i in range(len(column_types))]
+        else:
+            raise ValueError('col_types should be a list of types or a dictionary of column names to types')
         j['column_types'] = column_types
     if na_strings:
-        j['na_strings'] = na_strings
+        if isinstance(na_strings, dict):
+            if (not j['column_names']):
+                raise ValueError('column names should be specified')
+            if (not set(na_strings.keys()).issubset(set(j['column_names']))):
+                raise ValueError('names specified in na_strings is not a subset of the column names')
+            j['na_strings'] = [[] for _ in range(len(j['column_names']))]
+            for (name, na) in na_strings.items():
+                idx = j['column_names'].index(name)
+                if isinstance(na, basestring):
+                    na = [na]
+                for n in na:
+                    j['na_strings'][idx].append(_quoted(n))
+        elif _is_list_of_lists(na_strings):
+            if (len(na_strings) != len(j['column_types'])):
+                raise ValueError('length of na_strings should be equal to the number of columns')
+            j['na_strings'] = [([_quoted(na) for na in col] if (col is not None) else []) for col in na_strings]
+        elif isinstance(na_strings, list):
+            j['na_strings'] = ([[_quoted(na) for na in na_strings]] * len(j['column_types']))
+        else:
+            raise ValueError('na_strings should be a list, a list of lists (one list per column), or a dictionary of column names to strings which are to be interpreted as missing values')
+    if j['column_names']:
+        j['column_names'] = map(_quoted, j['column_names'])
+    j['column_types'] = map(_quoted, j['column_types'])
     return j

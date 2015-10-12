@@ -1,9 +1,11 @@
 {
-  final Key rskey=rollupStatsKey();
-  Value val=DKV.get(rollupStatsKey());
-  if (val != null) {
-    RollupStats rs=val.get(RollupStats.class);
-    if (rs.isMutating())     DKV.remove(rskey,fs);
+  if (writable()) {
+    final Key rskey=rollupStatsKey();
+    Value val=DKV.get(rollupStatsKey());
+    if (val != null) {
+      RollupStats rs=val.get(RollupStats.class);
+      if (rs.isMutating())       DKV.remove(rskey,fs);
+    }
   }
   return fs;
 }

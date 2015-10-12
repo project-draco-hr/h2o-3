@@ -1,11 +1,10 @@
 def hexdev_394():
     path = tests.locate('smalldata/covtype/covtype.20k.data')
-    trainraw = h2o.lazy_import(path)
-    tsetup = h2o.parse_setup(trainraw)
-    tsetup['column_types'][10] = 'ENUM'
-    tsetup['column_types'][11] = 'ENUM'
-    tsetup['column_types'][12] = 'ENUM'
-    train = h2o.parse_raw(tsetup)
+    c_types = ([None] * 55)
+    c_types[10] = 'enum'
+    c_types[11] = 'enum'
+    c_types[12] = 'enum'
+    train = h2o.import_file(path, col_types=c_types)
     cols = train.col_names
     x_cols = [colname for colname in cols if (colname != 'C55')]
     x_cols

@@ -1,6 +1,8 @@
 def start(self, ip, port):
     '\n        Start the test in a non-blocking fashion.\n\n        @param ip: IP address of cloud to run on.\n        @param port: Port of cloud to run on.\n        @return: none\n        '
     global g_on_jenk_hadoop
+    global g_hdfs_name_node
+    global g_r_demo
     if (self.cancelled or self.terminated):
         return
     self.start_seconds = time.time()
@@ -9,15 +11,17 @@ def start(self, ip, port):
     if (is_python_test_file(self.test_name) or is_python_file(self.test_name)):
         cmd = ['python', self.test_name, '--usecloud', ((self.ip + ':') + str(self.port))]
         if g_on_jenk_hadoop:
-            cmd = (cmd + ['--onJenkHadoop'])
+            cmd = (cmd + ['--onJenkHadoop', g_hdfs_name_node])
     elif is_ipython_notebook(self.test_name):
         cmd = ['python', self.notebook_runner, '--usecloud', ((self.ip + ':') + str(self.port)), '--ipynb', self.test_name]
         if g_on_jenk_hadoop:
-            cmd = (cmd + ['--onJenkHadoop'])
+            cmd = (cmd + ['--onJenkHadoop', g_hdfs_name_node])
     elif is_runit_test_file(self.test_name):
         cmd = ['R', '-f', self.test_name, '--args', '--usecloud', ((self.ip + ':') + str(self.port))]
         if g_on_jenk_hadoop:
-            cmd = (cmd + ['--onJenkHadoop'])
+            cmd = (cmd + ['--onJenkHadoop', g_hdfs_name_node])
+    elif (is_rdemo(self.test_name) and g_r_demo):
+        cmd = ['R', '-f', self.test_name]
     elif is_javascript_test_file(self.test_name):
         cmd = ['phantomjs', self.test_name, '--host', ((self.ip + ':') + str(self.port)), '--timeout', str(g_phantomjs_to), '--packs', g_phantomjs_packs]
     else:

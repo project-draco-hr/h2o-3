@@ -6,7 +6,7 @@
     try {
       tfr=parse_test_file("smalldata/glm_test/cancar_logIn.csv");
       for (      String s : new String[]{"Merit","Class"}) {
-        Scope.track(tfr.replace(tfr.find(s),tfr.vec(s).toCategorical())._key);
+        Scope.track(tfr.replace(tfr.find(s),tfr.vec(s).toCategoricalVec())._key);
       }
       DKV.put(tfr);
       DeepLearningParameters parms=new DeepLearningParameters();
@@ -27,7 +27,6 @@
     }
   finally {
       if (tfr != null)       tfr.remove();
-      if (vfr != null)       vfr.remove();
       if (dl != null)       dl.delete();
       if (fr2 != null)       fr2.remove();
       Scope.exit();
