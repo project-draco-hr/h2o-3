@@ -4,7 +4,7 @@ def tail(self, rows=10, cols=200, show=True, use_pandas=False):
     nrows = min(self.nrow, rows)
     ncols = min(self.ncol, cols)
     start_idx = ((self.nrow - nrows) if (rows is not None) else 0)
-    res = self[start_idx:nrows, 0:ncols].as_data_frame(skiprows=range(1, (start_idx + 1)), ncols=ncols, use_pandas=use_pandas)
+    res = self[start_idx:self.nrow, :ncols].as_data_frame(use_pandas=use_pandas)
     if show:
         self._do_show(res, use_pandas)
     else:
