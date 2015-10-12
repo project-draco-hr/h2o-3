@@ -1,11 +1,27 @@
 {
-  xi*=_keySize;
-  yi*=_keySize;
-  int len=_keySize;
-  while (len > 1 && x[0][(int)xi] == y[0][(int)yi]) {
-    xi++;
-    yi++;
-    len--;
+  xi*=_leftKeySize;
+  yi*=_rightKeySize;
+  int i=0, xlen=0, ylen=0, diff=0;
+  while (i < _numJoinCols && xlen == 0) {
+    xlen=_leftFieldSizes[i];
+    ylen=_rightFieldSizes[i];
+    if (xlen != ylen) {
+      while (xlen > ylen && x[0][(int)xi] == 0) {
+        xi++;
+        xlen--;
+      }
+      while (ylen > xlen && y[0][(int)yi] == 0) {
+        yi++;
+        ylen--;
+      }
+      if (xlen != ylen)       return (xlen - ylen);
+    }
+    while (xlen > 0 && (diff=x[0][(int)xi] - y[0][(int)yi]) == 0) {
+      xi++;
+      yi++;
+      xlen--;
+    }
+    i++;
   }
-  return ((x[0][(int)xi] & 0xFF) - (y[0][(int)yi] & 0xFF));
+  return diff;
 }
