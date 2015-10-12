@@ -28,10 +28,5 @@ def as_data_frame(self, nrows=None, skiprows=None, ncols=None, use_pandas=True):
         return df
     else:
         cr = csv.reader(response)
-        rows = []
-        for row in cr:
-            rows.append(([''] if (row == []) else row[:ncols]))
-        if (not skiprows):
-            return rows[:(None if (nrows is None) else (nrows + 1))]
-        else:
-            return ([rows[0]] + rows[(skiprows[(-1)] + 1):])
+        rows = [([''] if (row == []) else row[:ncols]) for row in cr]
+        return (([rows[0]] + rows[(skiprows[(-1)] + 1):]) if skiprows else rows[:(None if (nrows is None) else (nrows + 1))])
