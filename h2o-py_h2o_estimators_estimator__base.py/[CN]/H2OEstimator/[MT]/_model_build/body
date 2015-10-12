@@ -1,0 +1,27 @@
+def _model_build(self, x, y, tframe, vframe, algo, kwargs):
+    kwargs['training_frame'] = tframe
+    if (vframe is not None):
+        kwargs['validation_frame'] = vframe
+    if (y is not None):
+        kwargs['response_column'] = tframe[y].names[0]
+    kwargs = dict([(k, (kwargs[k]._frame().frame_id if isinstance(kwargs[k], H2OFrame) else kwargs[k])) for k in kwargs if (kwargs[k] is not None)])
+    model = H2OJob(H2OConnection.post_json(('ModelBuilders/' + algo), **kwargs), job_type=(algo + ' Model Build')).poll()
+    if ('_rest_version' in kwargs.keys()):
+        model_json = H2OConnection.get_json(('Models/' + model.dest_key), _rest_version=kwargs['_rest_version'])['models'][0]
+    else:
+        model_json = H2OConnection.get_json(('Models/' + model.dest_key))['models'][0]
+    model_type = model_json['output']['model_category']
+    if (model_type == 'Binomial'):
+        self._make_model(model.dest_key, model_json, H2OBinomialModelMetrics)
+    elif (model_type == 'Clustering'):
+        self._make_model(model.dest_key, model_json, H2OClusteringModelMetrics)
+    elif (model_type == 'Regression'):
+        self._make_model(model.dest_key, model_json, H2ORegressionModelMetrics)
+    elif (model_type == 'Multinomial'):
+        self._make_model(model.dest_key, model_json, H2OMultinomialModelMetrics)
+    elif (model_type == 'AutoEncoder'):
+        self._make_model(model.dest_key, model_json, H2OAutoEncoderModelMetrics)
+    elif (model_type == 'DimReduction'):
+        self._make_model(model.dest_key, model_json, H2ODimReductionModelMetrics)
+    else:
+        raise NotImplementedError(model_type)
