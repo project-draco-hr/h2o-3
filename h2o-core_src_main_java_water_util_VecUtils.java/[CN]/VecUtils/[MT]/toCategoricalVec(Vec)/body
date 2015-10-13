@@ -4,5 +4,5 @@
   int min=(int)src.min(), max=(int)src.max();
   long dom[]=(min >= 0 && max < Integer.MAX_VALUE - 4) ? new CollectDomainFast(max).doAll(src).domain() : new CollectDomain().doAll(src).domain();
   if (dom.length > Categorical.MAX_CATEGORICAL_COUNT)   throw new IllegalArgumentException("Column domain is too large to be represented as an categorical: " + dom.length + " > "+ Categorical.MAX_CATEGORICAL_COUNT);
-  return copyOver(src,dom);
+  return copyOver(src,Vec.T_CAT,dom);
 }
