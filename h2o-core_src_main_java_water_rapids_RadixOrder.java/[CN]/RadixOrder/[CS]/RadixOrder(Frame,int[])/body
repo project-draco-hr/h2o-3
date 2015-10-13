@@ -1,2 +1,32 @@
 {
+  System.out.println("Calling RadixCount ...");
+  long t0=System.nanoTime();
+  _biggestBit=new int[whichCols.length];
+  _bytesUsed=new int[whichCols.length];
+  for (int i=0; i < whichCols.length; i++) {
+    Vec col=DF.vec(whichCols[i]);
+    _biggestBit[i]=1 + (int)Math.floor(Math.log(col.max()) / Math.log(2));
+    _bytesUsed[i]=(int)Math.ceil(_biggestBit[i] / 8.0);
+  }
+  new RadixCount(DF._key,_biggestBit[0],whichCols[0]).doAll(DF.vec(whichCols[0]));
+  System.out.println("Time of MSB count: " + (System.nanoTime() - t0) / 1e9);
+  int keySize=ArrayUtils.sum(_bytesUsed);
+  int batchSize=MAXVECBYTE / Math.max(keySize,8);
+  System.out.println("Time to allocate o[][] and x[][]: " + (System.nanoTime() - t0) / 1e9);
+  t0=System.nanoTime();
+  new MoveByFirstByte(DF._key,_biggestBit[0],keySize,batchSize,_bytesUsed,whichCols).doAll(DF.vecs(whichCols));
+  System.out.println("Time to MoveByFirstByte: " + (System.nanoTime() - t0) / 1e9);
+  t0=System.nanoTime();
+  long nGroup[]=new long[257];
+  Futures fs=new Futures();
+  _o=new long[256][][];
+  _x=new byte[256][][];
+  for (int i=0; i < 256; i++) {
+    H2ONode node=MoveByFirstByte.ownerOfMSB(i);
+    SingleThreadRadixOrder radixOrder=new RPC<>(node,new SingleThreadRadixOrder(batchSize,keySize,nGroup,i)).call().get();
+    _o[i]=radixOrder._o;
+    _x[i]=radixOrder._x;
+  }
+  fs.blockForPending();
+  System.out.println("Time for all calls to SingleThreadRadixOrder: " + (System.nanoTime() - t0) / 1e9);
 }

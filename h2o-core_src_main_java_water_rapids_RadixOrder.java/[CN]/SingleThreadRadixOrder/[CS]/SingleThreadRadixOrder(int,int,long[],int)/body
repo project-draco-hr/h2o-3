@@ -1,0 +1,31 @@
+{
+  MoveByFirstByte.MSBHeader[] msbh=new MoveByFirstByte.MSBHeader[H2O.CLOUD.size()];
+  int sumBatch=0;
+  for (int n=0; n < H2O.CLOUD.size(); ++n) {
+    msbh[n]=DKV.getGet(MoveByFirstByte.getMSBHeaderKey(MSBvalue,n));
+    if (msbh[n] == null)     continue;
+    sumBatch+=msbh[n]._nbatch;
+  }
+  if (sumBatch == 0)   return;
+  int finalB=0;
+  _o=new long[sumBatch][];
+  _x=new byte[sumBatch][];
+  _len=0;
+  MoveByFirstByte.OXWrapper ox[]=new MoveByFirstByte.OXWrapper[H2O.CLOUD.size()];
+  for (int n=0; n < H2O.CLOUD.size(); ++n) {
+    if (msbh[n] == null)     continue;
+    for (int b=0; b < msbh[n]._nbatch; ++b) {
+      ox[n]=DKV.getGet(MoveByFirstByte.getIndexKeyForMSB(MSBvalue,b,n));
+      _len+=ox[n]._o.length;
+      _o[finalB]=ox[n]._o;
+      _x[finalB]=ox[n]._x;
+      finalB++;
+    }
+  }
+  _batchSize=batchSize;
+  _keySize=keySize;
+  _nGroup=nGroup;
+  _MSBvalue=MSBvalue;
+  keytmp=new byte[_keySize];
+  _counts=new long[keySize][256];
+}

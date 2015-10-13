@@ -7,24 +7,15 @@
     leftExtent>>=-bitShift;
     rightExtent<<=-bitShift;
   }
-  for (int i=0; i < leftExtent; i++) {
-    long leftLen=leftIndex._MSBhist[i];
-    if (leftLen > 0) {
-      int jbase=i >> bitShift;
-      for (int k=0; k < rightExtent; k++) {
-        int j=jbase + k;
-        long rightLen=rightIndex._MSBhist[j];
-        if (rightLen > 0) {
-          BinaryMerge bm=new BinaryMerge(leftIndex._x[i],rightIndex._x[j],leftLen,rightLen,leftIndex._bytesUsed,rightIndex._bytesUsed);
-          long lefto[][]=leftIndex._o[i];
-          long righto[][]=rightIndex._o[j];
-          for (int lr=0; lr < leftLen; lr++) {
-            System.out.print("Left row" + lefto[0][lr] + " matches to right row(s): ");
-            for (int rr=0; rr < bm._retLen[lr]; rr++)             System.out.print(righto[0][(int)bm._retFirst[lr] + rr] + " ");
-            System.out.println();
-          }
-        }
-      }
+  for (int leftMSB=0; leftMSB < leftExtent; leftMSB++) {
+    int rightMSBBase=leftMSB >> bitShift;
+    for (int k=0; k < rightExtent; k++) {
+      int rightMSB=rightMSBBase + k;
+      H2ONode leftNode=MoveByFirstByte.ownerOfMSB(leftMSB);
+      H2ONode rightNode=MoveByFirstByte.ownerOfMSB(rightMSB);
+      BinaryMerge bm=new RPC<>(rightNode,new BinaryMerge(leftMSB,rightMSB,leftNode.index(),leftIndex._bytesUsed,rightIndex._bytesUsed)).call().get();
+      long lefto[][]=leftIndex._o[leftMSB];
+      long righto[][]=rightIndex._o[rightMSB];
     }
   }
 }
