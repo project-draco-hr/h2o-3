@@ -1,12 +1,24 @@
 {
   DeepLearningParameters dl;
   Frame frTrain=null;
+  Frame frTest=null;
   DeepLearningModel model=null;
   dl=new DeepLearningParameters();
   Scope.enter();
   try {
-    frTrain=parse_test_file("/users/arno/good.svm");
+    frTrain=parse_test_file("/users/arno/good10.svm");
     Scope.track(frTrain.replace(frTrain.find("C1"),VecUtils.toCategoricalVec(frTrain.vec("C1")))._key);
+    frTest=parse_test_file("/users/arno/good10.tsv");
+    frTest.remove(frTest.find("C1"));
+    Vec response=VecUtils.toCategoricalVec(frTest.vec("C2"));
+    frTest.remove(frTest.find("C2"));
+    frTest.prepend("C2",frTest.anyVec().makeCon(0));
+    frTest.add("C1",response);
+    frTest._names=new String[frTest.numCols()];
+    for (int i=0; i < frTest._names.length; ++i) {
+      frTest._names[i]="C" + (i + 1);
+    }
+    DKV.put(frTest);
     dl._train=frTrain._key;
     dl._response_column="C1";
     dl._epochs=1;
@@ -20,7 +32,19 @@
       Log.info(model._output);
       Frame pred;
       assertTrue(model.testJavaScoring(frTrain,pred=model.score(frTrain),1e-5));
-      pred.delete();
+      pred.remove();
+      model._key=Key.make();
+      DKV.put(model);
+      assertTrue(model.testJavaScoring(frTest,pred=model.score(frTest),1e-5));
+      pred.remove();
+      model._key=Key.make();
+      DKV.put(model);
+      assertTrue(model.testJavaScoring(frTest,pred=model.score(frTrain),1e-5));
+      pred.remove();
+      model._key=Key.make();
+      DKV.put(model);
+      assertTrue(model.testJavaScoring(frTrain,pred=model.score(frTest),1e-5));
+      pred.remove();
     }
   finally {
       if (job != null)       job.remove();
@@ -29,6 +53,7 @@
   }
   finally {
     if (frTrain != null)     frTrain.remove();
+    if (frTest != null)     frTest.remove();
     if (model != null)     model.delete();
     Scope.exit();
   }
