@@ -8,13 +8,13 @@
   boolean covtype=new Random().nextBoolean();
   if (covtype) {
     frTrain=parse_test_file("./smalldata/covtype/covtype.20k.data");
-    Vec resp=frTrain.lastVec().toCategoricalVec();
+    Vec resp=VecUtils.toCategoricalVec(frTrain.lastVec());
     frTrain.remove(frTrain.vecs().length - 1).remove();
     frTrain.add("Response",resp);
   }
  else {
     frTrain=parse_test_file("./bigdata/server/HIGGS.csv");
-    Vec resp=frTrain.vecs()[0].toCategoricalVec();
+    Vec resp=VecUtils.toCategoricalVec(frTrain.vecs()[0]);
     frTrain.remove(0).remove();
     frTrain.prepend("Response",resp);
   }
