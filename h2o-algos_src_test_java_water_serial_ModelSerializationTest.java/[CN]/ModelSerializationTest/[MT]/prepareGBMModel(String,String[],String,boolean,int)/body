@@ -2,7 +2,7 @@
   Frame f=parse_test_file(dataset);
   try {
     if (classification && !f.vec(response).isCategorical()) {
-      f.replace(f.find(response),f.vec(response).toCategoricalVec()).remove();
+      f.replace(f.find(response),VecUtils.toCategoricalVec(f.vec(response))).remove();
       DKV.put(f._key,f);
     }
     GBMModel.GBMParameters gbmParams=new GBMModel.GBMParameters();
