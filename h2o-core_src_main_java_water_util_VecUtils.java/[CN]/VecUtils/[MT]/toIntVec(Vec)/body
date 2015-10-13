@@ -1,0 +1,21 @@
+{
+  if (src.isInt() && src.domain() == null)   return copyOver(src,null);
+  if (!src.isCategorical())   throw new IllegalArgumentException("toIntVec conversion only works on categorical and Int vecs");
+  boolean useDomain=false;
+  Vec newVec=copyOver(src,null);
+  try {
+    Integer.parseInt(src.domain()[0]);
+    useDomain=true;
+  }
+ catch (  NumberFormatException e) {
+  }
+  if (useDomain) {
+    new MRTask(){
+      @Override public void map(      Chunk c){
+        for (int i=0; i < c._len; ++i)         if (!c.isNA(i))         c.set(i,Integer.parseInt(src.domain()[(int)c.at8(i)]));
+      }
+    }
+.doAll(newVec);
+  }
+  return newVec;
+}
