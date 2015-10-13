@@ -1,8 +1,16 @@
 {
   Frame ary=stk.track(asts[1].exec(env)).getFrame();
-  if (ary.numCols() != 1)   throw new IllegalArgumentException("character requires a single column");
-  Vec v0=ary.anyVec();
-  Vec v1=v0.isString() ? null : VecUtils.toStringVec(v0);
-  Frame fr=new Frame(ary._names,new Vec[]{v1 == null ? v0.makeCopy(null) : v1});
-  return new ValFrame(fr);
+  Vec[] nvecs=new Vec[ary.numCols()];
+  Vec vv;
+  for (int c=0; c < nvecs.length; ++c) {
+    vv=ary.vec(c);
+    try {
+      nvecs[c]=VecUtils.toStringVec(vv);
+    }
+ catch (    Exception e) {
+      VecUtils.deleteVecs(nvecs,c);
+      throw e;
+    }
+  }
+  return new ValFrame(new Frame(ary._names,nvecs));
 }
