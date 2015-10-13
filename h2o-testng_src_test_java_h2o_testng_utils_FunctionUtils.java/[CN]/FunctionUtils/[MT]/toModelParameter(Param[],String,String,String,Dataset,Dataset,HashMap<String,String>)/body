@@ -36,6 +36,38 @@ modelParameter._distribution=gbmFamily;
 isTunedValue=true;
 }
 break;
+case FunctionUtils.dl:
+modelParameter=new DeepLearningParameters();
+Family dlDistribution=(Family)DeepLearningConfig.distributionOptionsParams.getValue(rawInput);
+if (dlDistribution != null) {
+System.out.println("Set _distribution: " + dlDistribution);
+modelParameter._distribution=dlDistribution;
+isTunedValue=true;
+}
+DeepLearningParameters.Activation dlActivation=(DeepLearningParameters.Activation)DeepLearningConfig.activationOptionsParams.getValue(rawInput);
+if (dlActivation != null) {
+System.out.println("Set _activation: " + dlActivation);
+((DeepLearningParameters)modelParameter)._activation=dlActivation;
+isTunedValue=true;
+}
+DeepLearningParameters.Loss dlLoss=(DeepLearningParameters.Loss)DeepLearningConfig.lossOptionsParams.getValue(rawInput);
+if (dlLoss != null) {
+System.out.println("Set _activation: " + dlLoss);
+((DeepLearningParameters)modelParameter)._loss=dlLoss;
+}
+DeepLearningParameters.InitialWeightDistribution dlInitialWeightDistribution=(DeepLearningParameters.InitialWeightDistribution)DeepLearningConfig.initialWeightDistributionOptionsParams.getValueKey(rawInput,"_initial_weight_distribution");
+if (dlInitialWeightDistribution != null) {
+System.out.println("Set _initial_weight_distribution: " + dlInitialWeightDistribution);
+((DeepLearningParameters)modelParameter)._initial_weight_distribution=dlInitialWeightDistribution;
+isTunedValue=true;
+}
+DeepLearningParameters.MissingValuesHandling dlMissingValuesHandling=(DeepLearningParameters.MissingValuesHandling)DeepLearningConfig.missingValuesHandlingOptionsParams.getValueKey(rawInput,"_missing_values_handling");
+if (dlMissingValuesHandling != null) {
+System.out.println("Set _missing_values_handling: " + dlMissingValuesHandling);
+((DeepLearningParameters)modelParameter)._missing_values_handling=dlMissingValuesHandling;
+isTunedValue=true;
+}
+break;
 default :
 System.out.println("can not parse to object parameter with algorithm: " + algorithm);
 }

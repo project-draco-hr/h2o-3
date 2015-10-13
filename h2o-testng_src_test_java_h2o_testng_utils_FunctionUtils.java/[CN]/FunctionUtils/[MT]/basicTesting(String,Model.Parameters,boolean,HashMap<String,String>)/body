@@ -12,6 +12,8 @@
   HashMap<String,Double> coef=null;
   GBM gbmJob=null;
   GBMModel gbmModel=null;
+  DeepLearning dlJob=null;
+  DeepLearningModel dlModel=null;
   trainFrame=parameter._train.get();
   try {
     Scope.enter();
@@ -43,6 +45,15 @@ gbmModel=gbmJob.trainModel().get();
 System.out.println("Predict testcase ");
 score=gbmModel.score(trainFrame);
 modelOutput=gbmModel._output;
+break;
+case FunctionUtils.dl:
+System.out.println("Build model ");
+dlJob=new DeepLearning((DeepLearningParameters)parameter);
+System.out.println("Train model");
+dlModel=dlJob.trainModel().get();
+System.out.println("Predict testcase ");
+score=dlModel.score(trainFrame);
+modelOutput=dlModel._output;
 break;
 }
 if (modelOutput.isClassifier() && !Param.parseBoolean(rawInput.get(CommonHeaders.classification))) {
@@ -90,6 +101,12 @@ gbmJob.remove();
 }
 if (gbmModel != null) {
 gbmModel.delete();
+}
+if (dlJob != null) {
+dlJob.remove();
+}
+if (dlModel != null) {
+dlModel.delete();
 }
 if (score != null) {
 score.remove();
