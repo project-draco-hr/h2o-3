@@ -1,0 +1,33 @@
+{
+  SingleThreadRadixOrder.MSBHeader leftMSBHeader=DKV.getGet(getMSBHeaderKey(leftFrame,leftMSB));
+  SingleThreadRadixOrder.MSBHeader rightMSBHeader=DKV.getGet(getMSBHeaderKey(rightFrame,rightMSB));
+  if (leftMSBHeader == null || rightMSBHeader == null)   return;
+  _leftBatchSize=leftMSBHeader._batchSize;
+  _rightBatchSize=rightMSBHeader._batchSize;
+  _leftKey=new byte[leftMSBHeader._nBatch][];
+  _leftOrder=new long[leftMSBHeader._nBatch][];
+  for (int b=0; b < leftMSBHeader._nBatch; ++b) {
+    MoveByFirstByte.OXWrapper leftOXPair=DKV.getGet(MoveByFirstByte.getIndexKeyForMSB(leftMSB,b,leftNodeIdx));
+    _leftKey[b]=leftOXPair._x;
+    _leftOrder[b]=leftOXPair._o;
+  }
+  _leftN=leftMSBHeader._numRows;
+  _rightKey=new byte[rightMSBHeader._nBatch][];
+  _rightOrder=new long[rightMSBHeader._nBatch][];
+  for (int b=0; b < rightMSBHeader._nBatch; ++b) {
+    MoveByFirstByte.OXWrapper rightOXPair=DKV.getGet(MoveByFirstByte.getIndexKeyForMSB(rightMSB,b,H2O.SELF.index()));
+    _rightKey[b]=rightOXPair._x;
+    _rightOrder[b]=rightOXPair._o;
+  }
+  _rightN=rightMSBHeader._numRows;
+  _retFirst=new long[(int)_leftN];
+  _retLen=new long[(int)_leftN];
+  _leftNodeIdx=leftNodeIdx;
+  _leftFieldSizes=leftFieldSizes;
+  _rightFieldSizes=rightFieldSizes;
+  _leftKeyNCol=_leftFieldSizes.length;
+  _rightKeyNCol=_rightFieldSizes.length;
+  _leftKeySize=ArrayUtils.sum(leftFieldSizes);
+  _rightKeySize=ArrayUtils.sum(rightFieldSizes);
+  _numJoinCols=Math.min(_leftKeyNCol,_rightKeyNCol);
+}

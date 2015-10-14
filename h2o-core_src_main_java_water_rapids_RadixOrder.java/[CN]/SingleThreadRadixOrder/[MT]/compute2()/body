@@ -1,9 +1,15 @@
 {
-  if (_len != 0) {
-    run(0,_len,_keySize - 1);
+  if (_numRows != 0) {
+    run(0,_numRows,_keySize - 1);
+    _counts=null;
+    keytmp=null;
+    _nGroup=null;
+    MSBHeader msbh=new MSBHeader(_o.length,_numRows,_batchSize);
+    DKV.put(getMSBHeaderKey(_fr,_MSBvalue),msbh);
+    for (int b=0; b < _o.length; ++b) {
+      MoveByFirstByte.OXWrapper oxPair=new MoveByFirstByte.OXWrapper(_o[b],_x[b]);
+      DKV.put(MoveByFirstByte.getIndexKeyForMSB(_MSBvalue,b,H2O.SELF.index()),oxPair);
+    }
   }
-  _counts=null;
-  keytmp=null;
-  _nGroup=null;
   tryComplete();
 }
