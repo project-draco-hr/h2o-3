@@ -1,0 +1,18 @@
+@staticmethod
+def _metrics_class(model_json):
+    model_type = model_json['output']['model_category']
+    if (model_type == 'Binomial'):
+        metrics_class = H2OBinomialModelMetrics
+    elif (model_type == 'Clustering'):
+        metrics_class = H2OClusteringModelMetrics
+    elif (model_type == 'Regression'):
+        metrics_class = H2ORegressionModelMetrics
+    elif (model_type == 'Multinomial'):
+        metrics_class = H2OMultinomialModelMetrics
+    elif (model_type == 'AutoEncoder'):
+        metrics_class = H2OAutoEncoderModelMetrics
+    elif (model_type == 'DimReduction'):
+        metrics_class = H2ODimReductionModelMetrics
+    else:
+        raise NotImplementedError(model_type)
+    return metrics_class
