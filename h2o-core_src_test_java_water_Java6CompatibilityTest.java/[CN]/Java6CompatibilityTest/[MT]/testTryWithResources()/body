@@ -1,0 +1,24 @@
+{
+class TestCloseableResource implements Closeable {
+    boolean testCalled=false;
+    boolean closedCalled=false;
+    public void test(){
+      testCalled=true;
+      throw new TestException();
+    }
+    @Override public void close(){
+      closedCalled=true;
+      throw new OnCloseException();
+    }
+  }
+  TestCloseableResource referenceToResource=null;
+  try (TestCloseableResource resource=new TestCloseableResource()){
+    referenceToResource=resource;
+    resource.test();
+  }
+ catch (  Throwable t) {
+    Assert.assertEquals(true,referenceToResource.testCalled);
+    Assert.assertEquals(true,referenceToResource.closedCalled);
+    throw t;
+  }
+}
