@@ -3,9 +3,9 @@ def _model_build(self, x, y, tframe, vframe, algo, kwargs):
     if (vframe is not None):
         kwargs['validation_frame'] = vframe
     if (y is not None):
-        kwargs['response_column'] = tframe[y].names[0]
-    ignored_columns = list((set(tframe.names) - set((x + [y]))))
-    kwargs['ignored_columns'] = (None if (ignored_columns == []) else ignored_columns)
+        kwargs['response_column'] = y = tframe[y].names[0]
+    ignored_columns = list((set(tframe.names) - set((tframe[x].names + [y]))))
+    kwargs['ignored_columns'] = (None if (ignored_columns == []) else [h2o.h2o._quoted(col) for col in ignored_columns])
     kwargs = dict([(k, (kwargs[k]._frame().frame_id if isinstance(kwargs[k], H2OFrame) else kwargs[k])) for k in kwargs if (kwargs[k] is not None)])
     model = H2OJob(H2OConnection.post_json(('ModelBuilders/' + algo), **kwargs), job_type=(algo + ' Model Build')).poll()
     if ('_rest_version' in kwargs.keys()):
