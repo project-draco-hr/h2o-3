@@ -1,5 +1,5 @@
-def parse_setup(raw_frames, destination_frame='', header=((-1), 0, 1), separator='', column_names=None, column_types=None, na_strings=None):
-    '\n\n  During parse setup, the H2O cluster will make several guesses about the attributes of\n  the data. This method allows a user to perform corrective measures by updating the\n  returning dictionary from this method. This dictionary is then fed into `parse_raw` to\n  produce the H2OFrame instance.\n\n  Parameters\n  ----------\n\n    raw_frames : H2OFrame\n      A collection of imported file frames\n    destination_frame : str, optional\n      The unique hex key assigned to the imported file. If none is given, a key will\n      automatically be generated.\n    parse : bool, optional\n      A logical value indicating whether the file should be parsed after import.\n    header : int, optional\n     -1 means the first line is data, 0 means guess, 1 means first line is header.\n    sep : str, optional\n      The field separator character. Values on each line of the file are separated by this\n       character. If sep = "", the parser will automatically detect the separator.\n    col_names : list, optional\n      A list of column names for the file.\n    col_types : list or dict, optional\n      A list of types or a dictionary of column names to types to specify whether\n      columns should be forced to a certain type upon import parsing. If a list, the\n      types for elements that are None will be guessed.\n    na_strings : list or dict, optional\n      A list of strings, or a list of lists of strings (one list per column), or a\n      dictionary of column names to strings which are to be interpreted as missing values.\n\n  Returns\n  -------\n    A dictionary is returned containing all of the guesses made by the H2O back end.\n  '
+def parse_setup(raw_frames, destination_frame='', header=((-1), 0, 1), separator='', col_names=None, col_types=None, na_strings=None):
+    '\n\n  During parse setup, the H2O cluster will make several guesses about the attributes of\n  the data. This method allows a user to perform corrective measures by updating the\n  returning dictionary from this method. This dictionary is then fed into `parse_raw` to\n  produce the H2OFrame instance.\n\n  Parameters\n  ----------\n\n    raw_frames : H2OFrame\n      A collection of imported file frames\n    destination_frame : str, optional\n      The unique hex key assigned to the imported file. If none is given, a key will\n      automatically be generated.\n    parse : bool, optional\n      A logical value indicating whether the file should be parsed after import.\n    header : int, optional\n     -1 means the first line is data, 0 means guess, 1 means first line is header.\n    sep : str, optional\n      The field separator character. Values on each line of the file are separated by this\n       character. If sep = "", the parser will automatically detect the separator.\n    col_names : list, optional\n      A list of column names for the file.\n    col_types : list or dict, optional\n      A list of types or a dictionary of column names to types to specify whether columns\n      should be forced to a certain type upon import parsing. If a list, the types for\n      elements that are None will be guessed. The possible types a column may have are:\n          "unknown" - this will force the column to be parsed as all NA\n          "uuid"    - the values in the column must be true UUID or will be parsed as NA\n          "string"  - force the column to be parsed as a string\n          "numeric" - force the column to be parsed as numeric. H2O will handle the\n                      compression of the numeric data in the optimal manner.\n          "enum"    - force the column to be parsed as a categorical column.\n          "time"    - force the column to be parsed as a time column. H2O will attempt to\n                      parse the following list of date time formats.\n                        date:\n                          "yyyy-MM-dd"\n                          "yyyy MM dd"\n                          "dd-MMM-yy"\n                          "dd MMM yy"\n                        time:\n                          "HH:mm:ss"\n                          "HH:mm:ss:SSS"\n                          "HH:mm:ss:SSSnnnnnn"\n                          "HH.mm.ss"\n                          "HH.mm.ss.SSS"\n                          "HH.mm.ss.SSSnnnnnn"\n                      Times can also contain "AM" or "PM".\n      A list of strings, or a list of lists of strings (one list per column), or a\n      dictionary of column names to strings which are to be interpreted as missing values.\n\n  Returns\n  -------\n    A dictionary is returned containing all of the guesses made by the H2O back end.\n  '
     if isinstance(raw_frames, unicode):
         raw_frames = [raw_frames]
     j = H2OConnection.post_json(url_suffix='ParseSetup', source_frames=[_quoted(id) for id in raw_frames])
@@ -13,31 +13,31 @@ def parse_setup(raw_frames, destination_frame='', header=((-1), 0, 1), separator
         if ((not isinstance(separator, basestring)) or (len(separator) != 1)):
             raise ValueError('separator should be a single character string')
         j['separator'] = ord(separator)
-    if column_names:
-        if (not isinstance(column_names, list)):
+    if col_names:
+        if (not isinstance(col_names, list)):
             raise ValueError('col_names should be a list')
-        if (len(column_names) != len(j['column_types'])):
+        if (len(col_names) != len(j['column_types'])):
             raise ValueError('length of col_names should be equal to the number of columns')
-        j['column_names'] = column_names
-    if column_types:
-        if isinstance(column_types, dict):
+        j['column_names'] = col_names
+    if col_types:
+        if isinstance(col_types, dict):
             if (j['column_names'] is None):
                 j['column_names'] = _gen_header(j['number_columns'])
-            if (not set(column_types.keys()).issubset(set(j['column_names']))):
+            if (not set(col_types.keys()).issubset(set(j['column_names']))):
                 raise ValueError('names specified in col_types is not a subset of the column names')
             idx = 0
             column_types_list = []
             for name in j['column_names']:
-                if (name in column_types):
-                    column_types_list.append(column_types[name])
+                if (name in col_types):
+                    column_types_list.append(col_types[name])
                 else:
                     column_types_list.append(j['column_types'][idx])
                 idx += 1
             column_types = column_types_list
-        elif isinstance(column_types, list):
-            if (len(column_types) != len(j['column_types'])):
+        elif isinstance(col_types, list):
+            if (len(col_types) != len(j['column_types'])):
                 raise ValueError('length of col_types should be equal to the number of columns')
-            column_types = [(column_types[i] if column_types[i] else j['column_types'][i]) for i in range(len(column_types))]
+            column_types = [(col_types[i] if col_types[i] else j['column_types'][i]) for i in range(len(col_types))]
         else:
             raise ValueError('col_types should be a list of types or a dictionary of column names to types')
         j['column_types'] = column_types
