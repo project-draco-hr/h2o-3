@@ -11,13 +11,10 @@ def cv_carsDL():
     else:
         response_col = 'economy'
     print 'Response column: {0}'.format(response_col)
-    from h2o.estimators.deeplearning import H2ODeepLearningEstimator
-    dl = H2ODeepLearningEstimator(nfolds=random.randint(3, 10), fold_assignment='Modulo')
-    dl.train(X=predictors, y=response_col, training_frame=cars)
+    dl = h2o.deeplearning(y=cars[response_col], x=cars[predictors], nfolds=random.randint(3, 10), fold_assignment='Modulo')
     nfolds = random.randint(3, 10)
-    dl1 = H2ODeepLearningEstimator(nfolds=nfolds, fold_assignment='Random')
-    dl1.train(X=predictors, y=response_col, training_frame=cars)
-    dl2 = H2ODeepLearningEstimator(nfolds=nfolds, fold_assignment='Random')
+    dl1 = h2o.deeplearning(y=cars[response_col], x=cars[predictors], nfolds=nfolds, fold_assignment='Random')
+    dl2 = h2o.deeplearning(y=cars[response_col], x=cars[predictors], nfolds=nfolds, fold_assignment='Random')
     try:
         tests.check_models(dl1, dl2, True)
         assert False, 'Expected models to be different over repeated Random runs'
