@@ -1,0 +1,8 @@
+def plot(self, timestep='AUTO', metric='AUTO', **kwargs):
+    '\n    Plots training set (and validation set if available) scoring history for an H2ORegressionModel. The timestep and metric\n    arguments are restricted to what is available in its scoring history.\n\n    :param timestep: A unit of measurement for the x-axis.\n    :param metric: A unit of measurement for the y-axis.\n    :return: A scoring history plot.\n    '
+    if (self._model_json['algo'] in ('deeplearning', 'drf', 'gbm')):
+        if (metric == 'AUTO'):
+            metric = 'MSE'
+        elif (metric not in ('MSE', 'deviance', 'r2')):
+            raise ValueError('metric for H2ORegressionModel must be one of: AUTO, MSE, deviance, r2')
+    self._plot(timestep=timestep, metric=metric, **kwargs)

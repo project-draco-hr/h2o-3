@@ -1,7 +1,17 @@
 {
-  Frame fr=stk.track(asts[1].exec(env)).getFrame();
-  if (fr.numCols() != 1)   throw new IllegalArgumentException("as.factor requires a single column");
-  Vec v0=fr.anyVec();
-  if (!v0.isCategorical())   v0=v0.toCategoricalVec();
-  return new ValFrame(new Frame(fr._names,new Vec[]{v0}));
+  Frame ary=stk.track(asts[1].exec(env)).getFrame();
+  Vec[] nvecs=new Vec[ary.numCols()];
+  for (  Vec v : ary.vecs())   if (!(v.isCategorical() || v.isString() || v.isNumeric()))   throw new IllegalArgumentException("asfactor() requires a string, categorical, or numeric column. " + "Received " + ary.anyVec().get_type_str() + ". Please convert column to a string or categorical first.");
+  Vec vv;
+  for (int c=0; c < nvecs.length; ++c) {
+    vv=ary.vec(c);
+    try {
+      nvecs[c]=vv.toCategoricalVec();
+    }
+ catch (    Exception e) {
+      VecUtils.deleteVecs(nvecs,c);
+      throw e;
+    }
+  }
+  return new ValFrame(new Frame(ary._names,nvecs));
 }
