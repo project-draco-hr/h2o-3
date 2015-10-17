@@ -1,0 +1,14 @@
+{
+  Job.Progress prog=DKV.getGet(progressKey);
+  double progress=prog == null ? 0 : prog.progress();
+  String msg="Map/Reduce Iterations: " + String.format("%,d",iteration) + ". Speed: "+ String.format("%,d",(int)(model_info().get_processed_total() * 1000. / (run_time - scoring_time)))+ " samples/sec."+ (progress == 0 ? "" : " Estimated time left: " + PrettyPrint.msecs((long)(run_time * (1. - progress) / progress),true));
+  ((Job)DKV.getGet(job_key)).update(actual_train_samples_per_iteration);
+  if (progressKey != null)   new Job.ProgressUpdate(msg).fork(progressKey);
+  if (!keep_running || sinceLastPrint > get_params()._score_interval * 1000) {
+    _timeLastPrintStart=now;
+    if (!get_params()._quiet_mode) {
+      Log.info("Training time: " + PrettyPrint.msecs(run_time,true) + " (scoring: "+ PrettyPrint.msecs(scoring_time,true)+ "). "+ "Processed "+ String.format("%,d",model_info().get_processed_total())+ " samples"+ " ("+ String.format("%.3f",epoch_counter)+ " epochs).\n");
+      Log.info(msg);
+    }
+  }
+}
