@@ -1,0 +1,18 @@
+def _install_h2o_py_whl(self, h2o_r_pkg_path):
+    '\n        Installs h2o wheel from the specified location.\n        '
+    self._log('')
+    self._log('Setting up Python H2O package...')
+    out_file_name = os.path.join(self.output_dir, 'pythonSetup.out.txt')
+    out = open(out_file_name, 'w')
+    cmd = ['pip', 'install', self.path_to_whl, '--force-reinstall']
+    child = subprocess.Popen(args=cmd, stdout=out, stderr=subprocess.STDOUT)
+    rv = child.wait()
+    if self.terminated:
+        return
+    if (rv != 0):
+        print ''
+        print 'ERROR: Python setup failed.'
+        print (('       (See ' + out_file_name) + ')')
+        print ''
+        sys.exit(1)
+    out.close()
