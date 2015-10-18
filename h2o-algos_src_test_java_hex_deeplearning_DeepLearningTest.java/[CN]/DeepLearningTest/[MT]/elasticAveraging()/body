@@ -5,7 +5,7 @@
   DeepLearningModel[] models=new DeepLearningModel[N];
   dl=new DeepLearningParameters();
   Scope.enter();
-  boolean covtype=new Random().nextBoolean();
+  boolean covtype=true;
   if (covtype) {
     frTrain=parse_test_file("./smalldata/covtype/covtype.20k.data");
     Vec resp=frTrain.lastVec().toCategoricalVec();
@@ -36,14 +36,14 @@
       dl._quiet_mode=false;
       dl._max_w2=10;
       dl._l1=1e-5;
-      dl._reproducible=true;
+      dl._reproducible=false;
       dl._replicate_training_data=false;
       dl._force_load_balance=true;
-      dl._epochs=1;
+      dl._epochs=10;
       dl._train_samples_per_iteration=frTrain.numRows() / 100;
       dl._elastic_averaging=i == 1;
       dl._elastic_averaging_moving_rate=0.999;
-      dl._elastic_averaging_regularization=1e-3;
+      dl._elastic_averaging_regularization=1e-4;
       DeepLearning job=null;
       try {
         job=new DeepLearning(dl);
