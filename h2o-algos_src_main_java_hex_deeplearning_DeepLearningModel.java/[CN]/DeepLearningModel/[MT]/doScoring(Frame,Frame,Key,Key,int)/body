@@ -1,16 +1,16 @@
 {
   final long now=System.currentTimeMillis();
-  epoch_counter=(double)model_info().get_processed_total() / training_rows;
-  final double time_last_iter_millis=now - _timeLastIterationEnter;
-  run_time+=time_last_iter_millis;
+  total_run_time+=now - time_of_start;
+  final double time_since_last_iter=now - _timeLastIterationEnter;
   _timeLastIterationEnter=now;
+  epoch_counter=(double)model_info().get_processed_total() / training_rows;
   boolean keep_running;
-  if (H2O.CLOUD.size() > 1 && get_params()._train_samples_per_iteration == -2 && iteration != 0) {
+  if (H2O.CLOUD.size() > 1 && get_params()._train_samples_per_iteration == -2 && iteration > 1) {
     Log.info("Auto-tuning train_samples_per_iteration.");
     if (time_for_communication_us > 1e4) {
       Log.info("  Time taken for communication: " + PrettyPrint.usecs((long)time_for_communication_us));
-      Log.info("  Time taken for Map/Reduce iteration: " + PrettyPrint.msecs((long)time_last_iter_millis,true));
-      final double comm_to_work_ratio=(time_for_communication_us * 1e-3) / time_last_iter_millis;
+      Log.info("  Time taken for Map/Reduce iteration: " + PrettyPrint.msecs((long)time_since_last_iter,true));
+      final double comm_to_work_ratio=(time_for_communication_us * 1e-3) / time_since_last_iter;
       Log.info("  Ratio of network communication to computation: " + String.format("%.5f",comm_to_work_ratio));
       Log.info("  target_comm_to_work: " + get_params()._target_ratio_comm_to_comp);
       Log.info("Old value of train_samples_per_iteration: " + actual_train_samples_per_iteration);
@@ -36,10 +36,10 @@
       new Job.ProgressUpdate("Scoring on " + ftrain.numRows() + " training samples"+ (ftest != null ? (", " + ftest.numRows() + " validation samples") : "")).fork(progressKey);
     }
     final boolean printme=!get_params()._quiet_mode;
-    _timeLastScoreStart=now;
+    _timeLastScoreStart=System.currentTimeMillis();
     model_info().computeStats();
     DeepLearningScoring err=new DeepLearningScoring();
-    err.training_time_ms=run_time;
+    err.training_time_ms=total_run_time;
     err.epoch_counter=epoch_counter;
     err.training_samples=(double)model_info().get_processed_total();
     err.validation=ftest != null;
@@ -119,11 +119,8 @@
     }
     _timeLastScoreEnd=System.currentTimeMillis();
     err.scoring_time=_timeLastScoreEnd - _timeLastScoreStart;
-    if (iteration == 1) {
-      run_time+=err.scoring_time;
-      err.training_time_ms=run_time;
-    }
-    scoring_time+=err.scoring_time;
+    err.training_time_ms+=err.scoring_time;
+    total_scoring_time+=err.scoring_time;
     if (errors == null) {
       errors=new DeepLearningScoring[]{err};
     }
@@ -162,13 +159,17 @@
     if (keep_running && printme)     Log.info(toString());
     if (printme)     Log.info("Time taken for scoring and diagnostics: " + PrettyPrint.msecs(err.scoring_time,true));
   }
-  final long sinceLastPrint=now - _timeLastPrintStart;
-  progressUpdate(progressKey,job_key,iteration,keep_running,now,sinceLastPrint);
   if ((_output.isClassifier() && last_scored().scored_train._classError <= get_params()._classification_stop) || (!_output.isClassifier() && last_scored().scored_train._mse <= get_params()._regression_stop)) {
     Log.info("Achieved requested predictive accuracy on the training data. Model building completed.");
     stopped_early=true;
     keep_running=false;
   }
+  if (iteration == 1) {
+    long firstScoring=System.currentTimeMillis() - _timeLastIterationEnter;
+    total_run_time+=firstScoring;
+    last_scored().training_time_ms=total_run_time;
+  }
+  progressUpdate(progressKey,job_key,iteration,keep_running);
   update(job_key);
   return keep_running;
 }
