@@ -1,0 +1,24 @@
+def check_story(story_name, paragraphs):
+    h2o.log_and_echo('------------------------------------------------------------')
+    h2o.log_and_echo('')
+    h2o.log_and_echo('CHECKING: {0}'.format(story_name))
+    h2o.log_and_echo('')
+    h2o.log_and_echo('------------------------------------------------------------')
+    story = []
+    for p in paragraphs:
+        with open(p, 'r') as f:
+            story = (story + f.readlines())
+    remove_lines = []
+    for (idx, l) in enumerate(story):
+        if ('h2o.init' in l):
+            remove_lines.append(idx)
+    story = [i for (j, i) in enumerate(story) if (j not in remove_lines)]
+    print story
+    story_file = os.path.join(results_dir(), (((test_name() + '.') + story_name) + '.code'))
+    with open(story_file, 'w') as f:
+        f.writelines(story)
+    with open(story_file, 'r') as s:
+        booklet = s.read()
+    booklet_c = compile(booklet, '<string>', 'exec')
+    p = {}
+    exec booklet_c in p

@@ -4,14 +4,13 @@ def h2o_test_setup(sys_args):
     parse_args(sys_args)
     sys.path.insert(1, h2o_py_dir)
     import h2o
-    from tests import pyunit_utils, pydemo_utils
-    set_pkg_attrs(pyunit_utils)
-    if (_IS_PYUNIT_ or _IS_IPYNB_):
+    from tests import pyunit_utils, pydemo_utils, pybooklet_utils
+    set_pyunit_pkg_attrs(pyunit_utils)
+    set_pybooklet_pkg_attrs(pybooklet_utils)
+    if (_IS_PYUNIT_ or _IS_IPYNB_ or _IS_PYBOOKLET_):
         pass
     elif _IS_PYDEMO_:
         raise (NotImplementedError, 'pydemos are not supported at this time')
-    elif _IS_PYBOOKLET_:
-        raise (NotImplementedError, 'pybooklets are not supported at this time')
     else:
         raise (EnvironmentError, 'Unrecognized test type. Must be of type ipynb, pydemo, pyunit, or pybooklet, but got: {0}'.format(_TEST_NAME_))
     print '[{0}] {1}\n'.format(strftime('%Y-%m-%d %H:%M:%S', gmtime()), 'Connect to h2o on IP: {0} PORT: {1}'.format(_H2O_IP_, _H2O_PORT_))
@@ -26,3 +25,5 @@ def h2o_test_setup(sys_args):
         pydemo_utils.ipy_notebook_exec(_TEST_NAME_)
     elif _IS_PYUNIT_:
         pyunit_utils.pyunit_exec(_TEST_NAME_, h2o_py_dir)
+    elif _IS_PYBOOKLET_:
+        pybooklet_utils.pybooklet_exec(_TEST_NAME_, h2o_py_dir)
