@@ -11,8 +11,8 @@ def _upload_python_object(self, python_obj, **kwargs):
     (tmp_handle, tmp_path) = tempfile.mkstemp(suffix='.csv')
     tmp_file = os.fdopen(tmp_handle, 'wb')
     csv_writer = csv.DictWriter(tmp_file, fieldnames=header, restval=None, dialect='excel', extrasaction='ignore', delimiter=',')
-    if isinstance(python_obj, (dict, collections.OrderedDict)):
-        csv_writer.writeheader()
+    if (not kwargs['column_names']):
+        kwargs['column_names'] = header
     csv_writer.writerows(data_to_write)
     tmp_file.close()
     self._upload_raw_data(tmp_path, **kwargs)
