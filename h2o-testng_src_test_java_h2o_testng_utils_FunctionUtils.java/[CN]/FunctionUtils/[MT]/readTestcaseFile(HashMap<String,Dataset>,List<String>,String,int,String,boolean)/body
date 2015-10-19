@@ -1,30 +1,48 @@
 {
+  System.out.println("Read testcase: " + fileName);
   Object[][] result=null;
-  List<String> lines=null;
+  CSVReader csvReader=null;
+  List<String[]> contents=null;
   String[] hearderRow=null;
   if (StringUtils.isEmpty(fileName)) {
     System.out.println("Not found file: " + fileName);
     return null;
   }
   try {
-    lines=Files.readAllLines(TestNGUtil.find_test_file_static(fileName).toPath(),Charset.defaultCharset());
+    csvReader=new CSVReader(new FileReader(TestNGUtil.find_test_file_static(fileName)));
   }
  catch (  Exception ignore) {
     System.out.println("Cannot open file: " + fileName);
     ignore.printStackTrace();
     return null;
   }
-  lines.removeAll(lines.subList(0,indexRowHeader - 1));
-  hearderRow=lines.remove(0).split(regexToSplitTestcase,-1);
+  try {
+    contents=csvReader.readAll();
+  }
+ catch (  IOException e) {
+    System.out.println("Cannot read content from CSV file");
+    e.printStackTrace();
+    return null;
+  }
+ finally {
+    try {
+      csvReader.close();
+    }
+ catch (    IOException e) {
+      System.out.println("Cannot close CSV file");
+      e.printStackTrace();
+    }
+  }
+  contents.removeAll(contents.subList(0,indexRowHeader - 1));
+  hearderRow=contents.remove(0);
   if (!validateTestcaseFile(listHeaders,fileName,hearderRow)) {
     System.out.println("Testcase file is wrong format");
     return null;
   }
-  result=new Object[lines.size()][9];
+  result=new Object[contents.size()][9];
   int r=0;
-  for (  String line : lines) {
-    String[] variables=line.trim().split(regexToSplitTestcase,-1);
-    HashMap<String,String> rawInput=parseToHashMap(listHeaders,hearderRow,variables);
+  for (  String[] line : contents) {
+    HashMap<String,String> rawInput=parseToHashMap(listHeaders,hearderRow,line);
     result[r][0]=rawInput.get(CommonHeaders.testcase_id);
     result[r][1]=rawInput.get(CommonHeaders.test_description);
     result[r][2]=rawInput.get(CommonHeaders.train_dataset_id);
