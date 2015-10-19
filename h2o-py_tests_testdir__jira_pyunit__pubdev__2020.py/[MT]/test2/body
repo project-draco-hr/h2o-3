@@ -1,0 +1,7 @@
+def test2():
+    df = h2o.upload_file(tests.locate('smalldata/jira/pubdev_2020.csv'))
+    splits = df.split_frame(ratios=[0.5, 0.25])
+    assert (df.nrow == ((splits[0].nrow + splits[1].nrow) + splits[2].nrow))
+    assert (splits[0].nrow > 0)
+    assert (splits[1].nrow > 0)
+    assert (splits[2].nrow > 0)
