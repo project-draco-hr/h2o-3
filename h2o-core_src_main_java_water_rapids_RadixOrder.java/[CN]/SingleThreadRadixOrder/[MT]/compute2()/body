@@ -4,13 +4,11 @@
     _counts=null;
     keytmp=null;
     _nGroup=null;
-    MSBHeader msbh=new MSBHeader(_o.length,_numRows,_batchSize);
-    Log.info("Putting MSB header for Frame " + _fr._key + " for MSB "+ _MSBvalue);
-    DKV.put(getMSBHeaderKey(_fr._key,_MSBvalue),msbh);
+    OXHeader msbh=new OXHeader(_o.length,_numRows,_batchSize);
+    DKV.put(getSortedOXHeaderKey(_fr._key,_MSBvalue),msbh);
     for (int b=0; b < _o.length; ++b) {
       MoveByFirstByte.OXbatch ox=new MoveByFirstByte.OXbatch(_o[b],_x[b]);
-      Log.info("Putting OX header for Frame " + _fr._key + " for MSB "+ _MSBvalue);
-      DKV.put(MoveByFirstByte.getOXbatchKey(_fr._key,_MSBvalue,H2O.SELF.index(),b),ox);
+      DKV.put(MoveByFirstByte.getSortedOXbatchKey(_fr._key,_MSBvalue,b),ox);
     }
   }
   tryComplete();
