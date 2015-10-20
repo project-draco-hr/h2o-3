@@ -1,10 +1,8 @@
-def head(self, rows=10, cols=200, show=True, use_pandas=False):
-    "\n    Analogous to R's `head` call on a data.frame. Display a digestible chunk of the H2OFrame starting from the beginning.\n\n    :param rows: Number of rows starting from the topmost to display.\n    :param cols: Number of columns starting from the leftmost to display.\n    :param show: A flag specifying whether or not to display the output. If True, return None.\n    :param use_pandas: A flag specifying whether or not to return a pandas DataFrame.\n    :return: A local python object (a list of lists of strings, each list is a row, if use_pandas=False, otherwise a\n    pandas DataFrame) containing this H2OFrame instance's data. If show = True, print only and return None.\n    "
-    self._eager()
+def head(self, rows=10, cols=200):
+    "\n    Analogous to R's `head` call on a data.frame. Return a digestible chunk of the H2OFrame starting from the beginning.\n    :param rows: Number of rows starting from the topmost\n    :param cols: Number of columns starting from the leftmost\n    :return: A local python object (a list of lists of strings, each list is a row, first list is col_names)\n    "
     nrows = min(self.nrow, rows)
     ncols = min(self.ncol, cols)
-    res = self[:nrows, :ncols].as_data_frame(use_pandas=use_pandas)
-    if show:
-        self._do_show(res, use_pandas)
-    else:
-        return res
+    x = self._fetch_rows(0, nrows)
+    if (ncols == self.ncol):
+        return x
+    raise ValueError('unimpl: trim cols')

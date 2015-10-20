@@ -1,12 +1,13 @@
-def _do_show(self, fr, use_pandas):
-    print 'H2OFrame with {} rows and {} columns: '.format(self.nrow, self.ncol)
+@staticmethod
+def _do_show(nrow, ncol, data, use_pandas):
+    print 'H2OFrame with {} rows and {} columns: '.format(nrow, ncol)
     if use_pandas:
         import pandas
         pandas.options.display.max_rows = 20
         if h2o.H2ODisplay._in_ipy():
             from IPython.display import display
-            display(fr)
+            display(data)
         else:
-            print fr
+            print data
     else:
-        h2o.H2ODisplay(fr[1:], fr[0])
+        h2o.H2ODisplay(data[1:], data[0])

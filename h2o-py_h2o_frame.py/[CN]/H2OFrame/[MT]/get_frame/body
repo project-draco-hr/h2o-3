@@ -1,8 +1,13 @@
 @staticmethod
-def get_frame(frame_id):
-    res = h2o.H2OConnection.get_json(('Frames/' + urllib.quote(frame_id)))['frames'][0]
+def get_frame(frame_id, rows=10):
+    '\n    Create an H2OFrame mapped to an existing id in the cluster, and cache "rows" rows\n    :return: Created H2OFrame\n    '
+    res = h2o.H2OConnection.get_json(((('Frames/' + urllib.quote(frame_id)) + '?row_count=') + str(rows)))['frames'][0]
     fr = H2OFrame('Frame', res['frame_id']['name'], False, res['rows'], res['total_column_count'])
-    fr._col_names = [c['label'] for c in res['columns']]
+    nrow = res['row_count']
+    data = [(c['data'] or c['string_data']) for c in res['columns']]
+    trans = zip(*data)
+    col_names = [c['label'] for c in res['columns']]
+    fr._data = ([col_names] + trans)
     types = [c['type'] for c in res['columns']]
-    fr._types = dict(zip(fr._col_names, types))
+    fr._types = dict(zip(col_names, types))
     return fr
