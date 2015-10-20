@@ -1,5 +1,5 @@
 def cv_carsRF():
-    cars = h2o.import_file(path=tests.locate('smalldata/junit/cars_20mpg.csv'))
+    cars = h2o.import_file(path=pyunit_utils.locate('smalldata/junit/cars_20mpg.csv'))
     problem = random.sample(range(3), 1)[0]
     predictors = ['displacement', 'power', 'weight', 'acceleration', 'year']
     if (problem == 1):
@@ -14,12 +14,12 @@ def cv_carsRF():
     nfolds = random.randint(3, 10)
     rf1 = h2o.random_forest(y=cars[response_col], x=cars[predictors], nfolds=nfolds, fold_assignment='Modulo', seed=1234)
     rf2 = h2o.random_forest(y=cars[response_col], x=cars[predictors], nfolds=nfolds, fold_assignment='Modulo', seed=1234)
-    tests.check_models(rf1, rf2, True)
+    pyunit_utils.check_models(rf1, rf2, True)
     nfolds = random.randint(3, 10)
     rf1 = h2o.random_forest(y=cars[response_col], x=cars[predictors], nfolds=nfolds, fold_assignment='Random')
     rf2 = h2o.random_forest(y=cars[response_col], x=cars[predictors], nfolds=nfolds, fold_assignment='Random')
     try:
-        tests.check_models(rf1, rf2, True)
+        pyunit_utils.check_models(rf1, rf2, True)
         assert False, 'Expected models to be different over repeated Random runs'
     except AssertionError:
         assert True
@@ -39,7 +39,7 @@ def cv_carsRF():
     rf = h2o.random_forest(y=cars[response_col], x=cars[predictors], nfolds=cars.nrow, fold_assignment='Modulo')
     rf1 = h2o.random_forest(y=cars[response_col], x=cars[predictors], nfolds=0, seed=1234)
     rf2 = h2o.random_forest(y=cars[response_col], x=cars[predictors], seed=1234)
-    tests.check_models(rf1, rf2)
+    pyunit_utils.check_models(rf1, rf2)
     rf = h2o.random_forest(y=cars[response_col], x=cars[predictors], nfolds=random.randint(3, 10), validation_y=cars[response_col], validation_x=cars[predictors])
     try:
         rf = h2o.random_forest(y=cars[response_col], x=cars[predictors], nfolds=random.sample([(-1), 1], 1)[0])

@@ -1,18 +1,18 @@
 def kmeans_mllib():
-    hadoop_namenode_is_accessible = tests.hadoop_namenode_is_accessible()
+    hadoop_namenode_is_accessible = pyunit_utils.hadoop_namenode_is_accessible()
     if hadoop_namenode_is_accessible:
-        hdfs_name_node = tests.hadoop_namenode()
+        hdfs_name_node = pyunit_utils.hadoop_namenode()
         hdfs_cross_file = '/datasets/runit/BigCross.data'
         print 'Import BigCross.data from HDFS'
         url = 'hdfs://{0}{1}'.format(hdfs_name_node, hdfs_cross_file)
         cross_h2o = h2o.import_file(url)
         n = cross_h2o.nrow
-        err_mllib = np.genfromtxt(tests.locate('smalldata/mllib_bench/bigcross_wcsse.csv'), delimiter=',', skip_header=1)
+        err_mllib = np.genfromtxt(pyunit_utils.locate('smalldata/mllib_bench/bigcross_wcsse.csv'), delimiter=',', skip_header=1)
         ncent = [int(err_mllib[r][0]) for r in range(len(err_mllib))]
         for k in ncent:
             print 'Run k-means++ with k = {0} and max_iterations = 10'.format(k)
             cross_km = h2o.kmeans(training_frame=cross_h2o, x=cross_h2o, k=k, init='PlusPlus', max_iterations=10, standardize=False)
-            clust_mllib = np.genfromtxt(tests.locate((('smalldata/mllib_bench/bigcross_centers_' + str(k)) + '.csv')), delimiter=',').tolist()
+            clust_mllib = np.genfromtxt(pyunit_utils.locate((('smalldata/mllib_bench/bigcross_centers_' + str(k)) + '.csv')), delimiter=',').tolist()
             clust_h2o = cross_km.centers()
             clust_mllib.sort(key=(lambda x: x[0]))
             clust_h2o.sort(key=(lambda x: x[0]))

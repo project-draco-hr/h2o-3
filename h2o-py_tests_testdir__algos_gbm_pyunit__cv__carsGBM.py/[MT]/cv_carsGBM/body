@@ -1,5 +1,5 @@
 def cv_carsGBM():
-    cars = h2o.import_file(path=tests.locate('smalldata/junit/cars_20mpg.csv'))
+    cars = h2o.import_file(path=pyunit_utils.locate('smalldata/junit/cars_20mpg.csv'))
     problem = random.sample(range(3), 1)[0]
     predictors = ['displacement', 'power', 'weight', 'acceleration', 'year']
     if (problem == 1):
@@ -18,12 +18,12 @@ def cv_carsGBM():
     nfolds = random.randint(3, 10)
     gbm1 = h2o.gbm(y=cars[response_col], x=cars[predictors], nfolds=nfolds, distribution=distribution, ntrees=5, fold_assignment='Modulo')
     gbm2 = h2o.gbm(y=cars[response_col], x=cars[predictors], nfolds=nfolds, distribution=distribution, ntrees=5, fold_assignment='Modulo')
-    tests.check_models(gbm1, gbm2, True)
+    pyunit_utils.check_models(gbm1, gbm2, True)
     nfolds = random.randint(3, 10)
     gbm1 = h2o.gbm(y=cars[response_col], x=cars[predictors], nfolds=nfolds, distribution=distribution, ntrees=5, fold_assignment='Random')
     gbm2 = h2o.gbm(y=cars[response_col], x=cars[predictors], nfolds=nfolds, distribution=distribution, ntrees=5, fold_assignment='Random')
     try:
-        tests.check_models(gbm1, gbm2, True)
+        pyunit_utils.check_models(gbm1, gbm2, True)
         assert False, 'Expected models to be different over repeated Random runs'
     except AssertionError:
         assert True
@@ -43,7 +43,7 @@ def cv_carsGBM():
     gbm = h2o.gbm(y=cars[response_col], x=cars[predictors], nfolds=cars.nrow, distribution=distribution, ntrees=5, fold_assignment='Modulo')
     gbm1 = h2o.gbm(y=cars[response_col], x=cars[predictors], nfolds=0, distribution=distribution, ntrees=5)
     gbm2 = h2o.gbm(y=cars[response_col], x=cars[predictors], distribution=distribution, ntrees=5)
-    tests.check_models(gbm1, gbm2)
+    pyunit_utils.check_models(gbm1, gbm2)
     gbm = h2o.gbm(y=cars[response_col], x=cars[predictors], nfolds=random.randint(3, 10), validation_y=cars[response_col], ntrees=5, validation_x=cars[predictors], distribution=distribution)
     try:
         gbm = h2o.gbm(y=cars[response_col], x=cars[predictors], nfolds=random.sample([(-1), 1], 1)[0], ntrees=5, distribution=distribution)

@@ -1,0 +1,49 @@
+def parse_args(args):
+    global _H2O_IP_
+    global _H2O_PORT_
+    global _ON_HADOOP_
+    global _HADOOP_NAMENODE_
+    global _IS_IPYNB_
+    global _IS_PYDEMO_
+    global _IS_PYUNIT_
+    global _IS_PYBOOKLET_
+    global _RESULTS_DIR_
+    global _TEST_NAME_
+    i = 1
+    while (i < len(args)):
+        s = args[i]
+        if ((s == '--usecloud') or (s == '--uc')):
+            i = (i + 1)
+            if (i > len(args)):
+                usage()
+            argsplit = args[i].split(':')
+            _H2O_IP_ = argsplit[0]
+            _H2O_PORT_ = int(argsplit[1])
+        elif (s == '--hadoopNamenode'):
+            i = (i + 1)
+            if (i > len(args)):
+                usage()
+            _HADOOP_NAMENODE_ = args[i]
+        elif (s == '--onHadoop'):
+            _ON_HADOOP_ = True
+        elif (s == '--ipynb'):
+            _IS_IPYNB_ = True
+        elif (s == '--pyDemo'):
+            _IS_PYDEMO_ = True
+        elif (s == '--pyUnit'):
+            _IS_PYUNIT_ = True
+        elif (s == '--pyBooklet'):
+            _IS_PYBOOKLET_ = True
+        elif (s == '--resultsDir'):
+            i = (i + 1)
+            if (i > len(args)):
+                usage()
+            _RESULTS_DIR_ = args[i]
+        elif (s == '--testName'):
+            i = (i + 1)
+            if (i > len(args)):
+                usage()
+            _TEST_NAME_ = args[i]
+        else:
+            unknownArg(s)
+        i = (i + 1)

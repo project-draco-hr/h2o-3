@@ -4,7 +4,7 @@ def glrm_set_loss_by_col_rand():
     NUM_COLS = [1, 5, 6, 7]
     CAT_COLS = [0, 2, 3, 4]
     print 'Importing prostate_cat.csv data...'
-    prostateH2O = h2o.upload_file(tests.locate('smalldata/prostate/prostate_cat.csv'), na_strings=(['NA'] * 8))
+    prostateH2O = h2o.upload_file(pyunit_utils.locate('smalldata/prostate/prostate_cat.csv'), na_strings=(['NA'] * 8))
     prostateH2O.describe()
     loss_all = [(rd.sample(NUM_LOSS, k=1)[0] if (x in NUM_COLS) else rd.sample(CAT_LOSS, k=1)[0]) for x in xrange(0, 8)]
     print (('Run GLRM with loss_by_col = [' + ', '.join(loss_all)) + ']')

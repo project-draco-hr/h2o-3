@@ -1,5 +1,5 @@
 def cv_carsGLM():
-    cars = h2o.import_file(path=tests.locate('smalldata/junit/cars_20mpg.csv'))
+    cars = h2o.import_file(path=pyunit_utils.locate('smalldata/junit/cars_20mpg.csv'))
     problem = random.sample(range(3), 1)[0]
     predictors = ['displacement', 'power', 'weight', 'acceleration', 'year']
     if (problem == 1):
@@ -17,12 +17,12 @@ def cv_carsGLM():
     nfolds = random.randint(3, 10)
     glm1 = h2o.glm(y=cars[response_col], x=cars[predictors], nfolds=nfolds, family=family, fold_assignment='Modulo')
     glm2 = h2o.glm(y=cars[response_col], x=cars[predictors], nfolds=nfolds, family=family, fold_assignment='Modulo')
-    tests.check_models(glm1, glm2, True)
+    pyunit_utils.check_models(glm1, glm2, True)
     nfolds = random.randint(3, 10)
     glm1 = h2o.glm(y=cars[response_col], x=cars[predictors], nfolds=nfolds, family=family, fold_assignment='Random')
     glm2 = h2o.glm(y=cars[response_col], x=cars[predictors], nfolds=nfolds, family=family, fold_assignment='Random')
     try:
-        tests.check_models(glm1, glm2, True)
+        pyunit_utils.check_models(glm1, glm2, True)
         assert False, 'Expected models to be different over repeated Random runs'
     except AssertionError:
         assert True
@@ -41,7 +41,7 @@ def cv_carsGLM():
     assert (len(cv_predictions) == num_folds), 'Expected the same number of cross-validation predictions as folds, but got {0}'.format(len(cv_predictions))
     glm1 = h2o.glm(y=cars[response_col], x=cars[predictors], nfolds=0, family=family)
     glm2 = h2o.glm(y=cars[response_col], x=cars[predictors], family=family)
-    tests.check_models(glm1, glm2)
+    pyunit_utils.check_models(glm1, glm2)
     glm = h2o.glm(y=cars[response_col], x=cars[predictors], nfolds=random.randint(3, 10), validation_y=cars[response_col], validation_x=cars[predictors], family=family)
     try:
         glm = h2o.glm(y=cars[response_col], x=cars[predictors], nfolds=random.sample([(-1), 1], 1)[0], family=family)

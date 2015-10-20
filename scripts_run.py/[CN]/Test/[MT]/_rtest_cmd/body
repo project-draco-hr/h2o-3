@@ -1,0 +1,13 @@
+def _rtest_cmd(self, test_name, ip, port, on_hadoop, hadoop_namenode):
+    cmd = ['R', '-f', g_r_test_setup, '--args', '--usecloud', ((ip + ':') + str(port)), '--resultsDir', g_output_dir, '--testName', test_name]
+    if is_runit(test_name):
+        if on_hadoop:
+            cmd = (cmd + ['--onHadoop'])
+        if hadoop_namenode:
+            cmd = (cmd + ['--hadoopNamenode', hadoop_namenode])
+        cmd = (cmd + ['--rUnit'])
+    elif is_rdemo(test_name):
+        cmd = (cmd + ['--rDemo'])
+    else:
+        cmd = (cmd + ['--rBooklet'])
+    return cmd
