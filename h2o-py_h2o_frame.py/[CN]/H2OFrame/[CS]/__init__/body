@@ -10,13 +10,14 @@ def __init__(self, python_obj=None, file_path=None, raw_id=None, expr=None, dest
     self._computed = False
     self._ast = None
     self._data = None
+    kwargs = {k: v for (k, v) in locals().items() if (k in ['destination_frame', 'header', 'separator', 'column_names', 'column_types', 'na_strings'])}
     if (expr is not None):
         self._ast = expr
     elif (python_obj is not None):
-        self._upload_python_object(python_obj)
+        self._upload_python_object(python_obj, **kwargs)
     elif (file_path is not None):
-        self._import_parse(file_path, destination_frame, header, separator, column_names, column_types, na_strings)
+        self._import_parse(file_path, **kwargs)
     elif (raw_id is not None):
-        self._handle_text_key(raw_id)
+        self._handle_text_key(raw_id, **kwargs)
     else:
         pass
