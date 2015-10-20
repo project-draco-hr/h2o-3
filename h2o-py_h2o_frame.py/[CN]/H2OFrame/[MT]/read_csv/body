@@ -1,0 +1,15 @@
+@staticmethod
+def read_csv(file_path, destination_frame, header=((-1), 0, 1), separator='', column_names=None, column_types=None, na_strings=None):
+    rawkey = h2o.lazy_import(file_path)
+    setup = h2o.parse_setup(rawkey, destination_frame, header, separator, column_names, column_types, na_strings)
+    parse = h2o._parse(setup)
+    destination_frame = parse['destination_frame']['name']
+    res = H2OFrame.get_frame(destination_frame)
+    nrows = res._nrows
+    ncols = res._ncols
+    thousands_sep = h2o.H2ODisplay.THOUSANDS
+    if isinstance(file_path, str):
+        print 'Imported {}. Parsed {} rows and {} cols'.format(file_path, thousands_sep.format(nrows), thousands_sep.format(ncols))
+    else:
+        h2o.H2ODisplay([[('File' + str((i + 1))), f] for (i, f) in enumerate(file_path)], None, 'Parsed {} rows and {} cols'.format(thousands_sep.format(nrows), thousands_sep.format(ncols)))
+    res

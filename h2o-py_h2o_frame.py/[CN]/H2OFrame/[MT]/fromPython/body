@@ -1,4 +1,5 @@
-def _upload_python_object(self, python_obj):
+@staticmethod
+def fromPython(python_obj):
     '\n    Properly handle native python data types. For a discussion of the rules and\n    permissible data types please refer to the main documentation for H2OFrame.\n\n    :param python_obj: A tuple, list, dict, collections.OrderedDict\n    :return: None\n    '
     if isinstance(python_obj, (list, tuple)):
         (header, data_to_write) = _handle_python_lists(python_obj)
@@ -14,5 +15,6 @@ def _upload_python_object(self, python_obj):
     csv_writer.writeheader()
     csv_writer.writerows(data_to_write)
     tmp_file.close()
-    self._upload_raw_data(tmp_path)
+    res = read_csv(tmp_path, _py_tmp_key())
     os.remove(tmp_path)
+    res
