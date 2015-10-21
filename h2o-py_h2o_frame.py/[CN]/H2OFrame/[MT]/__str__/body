@@ -4,5 +4,8 @@ def __str__(self):
         return str(self._data)
     d = collections.OrderedDict()
     for (k, v) in self._data.iteritems():
-        d[k] = v['data']
+        x = d[k] = v['data']
+        domain = v['domain']
+        if domain:
+            d[k] = [domain[int(idx)] for idx in x]
     return tabulate.tabulate(d, headers='keys')
