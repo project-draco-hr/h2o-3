@@ -1,0 +1,13 @@
+def _fill_rows(self, raw_json):
+    if self._data:
+        raise NotImplementedError
+    else:
+        self._data = collections.OrderedDict()
+        for c in raw_json['columns']:
+            c.pop('__meta')
+            c.pop('domain_cardinality')
+            sdata = c.pop('string_data')
+            if sdata:
+                c['data'] = sdata
+            self._data[c.pop('label')] = c
+        return self

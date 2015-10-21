@@ -1,8 +1,10 @@
 def _fetch_rows(self, off, nrows):
+    if isinstance(self._ast, list):
+        raise NotImplementedError
     if self._data:
-        if ((off == 0) and ((len(self._data) - 1) >= nrows)):
-            return self._data[:(nrows + 1)]
-    print off
-    print nrows
-    print self._data
-    raise ValueError('unimpl')
+        last = (off + nrows)
+        col = self._data.itervalues().next()
+        if (last <= len(col['data'])):
+            return self._data
+    res = h2o.H2OConnection.get_json(((((('Frames/' + urllib.quote(frame_id)) + '?row_offset=') + str(off)) + '&row_count=') + str(nrows)))['frames'][0]
+    return self._fill_rows(res)._data
