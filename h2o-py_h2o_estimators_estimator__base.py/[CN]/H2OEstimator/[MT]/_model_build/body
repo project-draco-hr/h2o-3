@@ -17,7 +17,11 @@ def _model_build(self, x, y, tframe, vframe, kwargs):
     kwargs['ignored_columns'] = (None if (ignored_columns == []) else [h2o.h2o._quoted(col) for col in ignored_columns])
     kwargs = dict([(k, (kwargs[k]._frame().frame_id if isinstance(kwargs[k], H2OFrame) else kwargs[k])) for k in kwargs if (kwargs[k] is not None)])
     algo = self._compute_algo()
-    model = H2OJob(H2OConnection.post_json(('ModelBuilders/' + algo), **kwargs), job_type=(algo + ' Model Build')).poll()
+    model = H2OJob(H2OConnection.post_json(('ModelBuilders/' + algo), **kwargs), job_type=(algo + ' Model Build'))
+    if self._future:
+        self._job = model
+        return
+    model.poll()
     if ('_rest_version' in kwargs.keys()):
         model_json = H2OConnection.get_json(('Models/' + model.dest_key), _rest_version=kwargs['_rest_version'])['models'][0]
     else:
