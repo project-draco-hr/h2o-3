@@ -1,11 +1,2 @@
 def __str__(self):
-    '\n    Pretty tabulated string of all the cached data, and column names\n    '
-    if (not isinstance(self._data, dict)):
-        return str(self._data)
-    d = collections.OrderedDict()
-    for (k, v) in self._data.iteritems():
-        x = d[k] = v['data']
-        domain = v['domain']
-        if domain:
-            d[k] = [domain[int(idx)] for idx in x]
-    return tabulate.tabulate(d, headers='keys')
+    return self._tabulate('simple', False)

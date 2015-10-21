@@ -1,22 +1,7 @@
 def summary(self):
-    '\n    Generate summary of the frame on a per-Vec basis.\n\n    :return: None\n    '
-    self._eager()
-    fr_sum = h2o.H2OConnection.get_json((('Frames/' + urllib.quote(self._id)) + '/summary'))['frames'][0]
-    type = ['type']
-    mins = ['mins']
-    mean = ['mean']
-    maxs = ['maxs']
-    sigma = ['sigma']
-    zeros = ['zero_count']
-    miss = ['missing_count']
-    for v in fr_sum['columns']:
-        type.append(v['type'])
-        mins.append((v['mins'][0] if (v is not None) else v['mins']))
-        mean.append(v['mean'])
-        maxs.append((v['maxs'][0] if (v is not None) else v['maxs']))
-        sigma.append(v['sigma'])
-        zeros.append(v['zero_count'])
-        miss.append(v['missing_count'])
-    table = [type, mins, maxs, mean, sigma, zeros, miss]
-    headers = self._col_names
-    h2o.H2ODisplay(table, ([''] + headers), 'Column-by-Column Summary')
+    '\n    Summary: show(), plus includes min/mean/max/sigma and other rollup data\n    :return: None\n    '
+    if h2o.H2ODisplay._in_ipy():
+        import IPython.display
+        IPython.display.display_html(self._tabulate('html', True), raw=True)
+    else:
+        print self._tabulate('simple', True)
