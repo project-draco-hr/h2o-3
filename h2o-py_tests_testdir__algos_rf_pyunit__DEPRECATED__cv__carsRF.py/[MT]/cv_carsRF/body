@@ -12,6 +12,18 @@ def cv_carsRF():
     else:
         response_col = 'economy'
     print 'Response column: {0}'.format(response_col)
+    nfolds = random.randint(3, 10)
+    rf1 = h2o.random_forest(y=cars[response_col], x=cars[predictors], nfolds=nfolds, fold_assignment='Modulo', seed=1234)
+    rf2 = h2o.random_forest(y=cars[response_col], x=cars[predictors], nfolds=nfolds, fold_assignment='Modulo', seed=1234)
+    pyunit_utils.check_models(rf1, rf2, True)
+    nfolds = random.randint(3, 10)
+    rf1 = h2o.random_forest(y=cars[response_col], x=cars[predictors], nfolds=nfolds, fold_assignment='Random')
+    rf2 = h2o.random_forest(y=cars[response_col], x=cars[predictors], nfolds=nfolds, fold_assignment='Random')
+    try:
+        pyunit_utils.check_models(rf1, rf2, True)
+        assert False, 'Expected models to be different over repeated Random runs'
+    except AssertionError:
+        assert True
     num_folds = random.randint(2, 5)
     fold_assignments = h2o.H2OFrame(python_obj=[[random.randint(0, (num_folds - 1)) for f in range(cars.nrow)]])
     fold_assignments.set_names(['fold_assignments'])
