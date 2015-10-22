@@ -1,0 +1,13 @@
+def _do_it(self):
+    if (self._data is not None):
+        return (self._id if isinstance(self._data, dict) else str(self._data))
+    if self._id:
+        return self._id
+    assert isinstance(self._ast, tuple)
+    exec_str = (((('(' + self._op) + ' ') + ' '.join([ExprNode._arg_to_expr(ast) for ast in self._ast])) + ')')
+    if (self._id is None):
+        self._id = ''
+    elif (not self._id):
+        self._id = frame._py_tmp_key()
+        exec_str = (((('(tmp= ' + self._id) + ' ') + exec_str) + ')')
+    return exec_str

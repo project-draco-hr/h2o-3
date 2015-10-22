@@ -1,8 +1,5 @@
 def head(self, rows=10, cols=200):
-    "\n    Analogous to R's `head` call on a data.frame. Return a digestible\n    chunk of the H2OFrame starting from the beginning.\n    :param rows: Number of rows starting from the topmost\n    :param cols: Number of columns starting from the leftmost\n    :return: An H2OFrame caching exactly the count of rows and cols\n    "
+    '\n    Analogous to Rs `head` call on a data.frame.  Return a digestible\n    chunk of the H2OFrame starting from the beginning.\n    :param rows: Number of rows starting from the topmost\n    :param cols: Number of columns starting from the leftmost\n    :return: A sliced H2OFrame\n    '
     nrows = min(self.nrow, rows)
     ncols = min(self.ncol, cols)
-    x = self._fetch_rows(0, nrows)
-    if (ncols == self.ncol):
-        return x
-    raise ValueError('unimpl: trim cols')
+    return self[:nrows, :ncols]
