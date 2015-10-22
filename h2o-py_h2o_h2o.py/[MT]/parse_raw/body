@@ -7,6 +7,4 @@ def parse_raw(setup, id=None, first_line_is_header=((-1), 0, 1)):
             raise ValueError('first_line_is_header should be -1, 0, or 1')
         setup['check_header'] = first_line_is_header
     parsed = _parse(setup)
-    fr = H2OFrame()
-    fr._update_post_parse(parsed)
-    return fr
+    return H2OFrame.get_frame(parsed['destination_frame']['name'])

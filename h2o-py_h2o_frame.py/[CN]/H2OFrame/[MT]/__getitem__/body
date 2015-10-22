@@ -1,2 +1,3 @@
 def __getitem__(self, item):
-    return H2OFrame(self._ex[item])
+    ex = self._ex[item]
+    return (H2OFrame(ex) if isinstance(ex, expr.ExprNode) else ex)
