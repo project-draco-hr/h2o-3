@@ -6,5 +6,6 @@ def refine_date_col(data, col, pattern):
     data['WeekNum'] = data[col].week()
     data['WeekDay'] = data[col].dayOfWeek()
     data['HourOfDay'] = data[col].hour()
-    data['Weekend'] = h2o.ifelse((data['WeekDay'] == ('Sun' | data['WeekDay']) == 'Sat'), 1, 0)[0]
+    data['Weekend'] = ((data['WeekDay'] == 'Sun') | (data['WeekDay'] == 'Sat'))
+    assert (data['Weekend'].min() < data['Weekend'].max())
     data['Season'] = data['Month'].cut([0, 2, 5, 7, 10, 12], ['Winter', 'Spring', 'Summer', 'Autumn', 'Winter'])

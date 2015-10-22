@@ -5,6 +5,8 @@ def __getitem__(self, item):
     if isinstance(item, slice):
         item = slice(item.start, min(self._ncols, item.stop))
         return ExprNode('cols', self, item)
+    if isinstance(item, frame.H2OFrame):
+        item = item._ex
     if isinstance(item, ExprNode):
         return ExprNode('rows', self, item)
     if isinstance(item, tuple):
@@ -22,4 +24,4 @@ def __getitem__(self, item):
             return ExprNode('rows', self, rows)
         res = ExprNode('rows', ExprNode('cols', self, cols), rows)
         return (ExprNode('flatten', res)._eager_scalar() if (isinstance(rows, int) and isinstance(cols, (basestring, int))) else res)
-    raise ValueError(('Unexpected __getitem__ selector: ' + type(item)))
+    raise ValueError(((('Unexpected __getitem__ selector: ' + str(type(item))) + ' ') + str(item.__class__)))
