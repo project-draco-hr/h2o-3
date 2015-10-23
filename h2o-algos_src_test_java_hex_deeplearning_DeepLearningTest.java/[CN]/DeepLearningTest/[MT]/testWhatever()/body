@@ -1,26 +1,42 @@
 {
   DeepLearningParameters dl;
-  Frame frTrain=null;
+  Frame first1kSVM=null;
+  Frame second1kSVM=null;
+  Frame third1kSVM=null;
+  Frame first1kCSV=null;
+  Frame second1kCSV=null;
+  Frame third1kCSV=null;
   DeepLearningModel model=null;
   dl=new DeepLearningParameters();
   Scope.enter();
   try {
-    frTrain=parse_test_file("/users/arno/good.svm");
-    Scope.track(frTrain.replace(frTrain.find("C1"),frTrain.vec("C1").toCategoricalVec())._key);
-    dl._train=frTrain._key;
-    dl._response_column="C1";
-    dl._epochs=1;
+    first1kCSV=parse_test_file("/users/arno/first1k.csv");
+    Vec response=first1kCSV.remove(first1kCSV.find("C2"));
+    Vec responseFactor=response.toCategoricalVec();
+    response.remove();
+    first1kCSV.prepend("C2",responseFactor);
+    DKV.put(first1kCSV);
+    dl._train=first1kCSV._key;
+    dl._ignored_columns=new String[]{"C1"};
+    dl._response_column="C2";
+    dl._epochs=10;
+    dl._reproducible=true;
+    dl._seed=1234;
     dl._ignore_const_cols=false;
     dl._sparse=true;
-    dl._hidden=new int[]{20,20,20};
+    dl._hidden=new int[]{10,10};
     DeepLearning job=null;
     try {
       job=new DeepLearning(dl);
       model=job.trainModel().get();
       Log.info(model._output);
       Frame pred;
-      assertTrue(model.testJavaScoring(frTrain,pred=model.score(frTrain),1e-5));
-      pred.delete();
+      Log.info("POJO CSV Train Check");
+      DKV.remove(model._key);
+      model._key=Key.make();
+      DKV.put(model);
+      assertTrue(model.testJavaScoring(first1kCSV,pred=model.score(first1kCSV),1e-5));
+      pred.remove();
     }
   finally {
       if (job != null)       job.remove();
@@ -28,7 +44,12 @@
     assertTrue(job._state == Job.JobState.DONE);
   }
   finally {
-    if (frTrain != null)     frTrain.remove();
+    if (first1kSVM != null)     first1kSVM.remove();
+    if (second1kSVM != null)     second1kSVM.remove();
+    if (third1kSVM != null)     third1kSVM.remove();
+    if (first1kCSV != null)     first1kCSV.remove();
+    if (second1kCSV != null)     second1kCSV.remove();
+    if (third1kCSV != null)     third1kCSV.remove();
     if (model != null)     model.delete();
     Scope.exit();
   }

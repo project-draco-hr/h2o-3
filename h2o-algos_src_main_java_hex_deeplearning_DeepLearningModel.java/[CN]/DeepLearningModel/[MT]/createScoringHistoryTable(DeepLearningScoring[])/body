@@ -79,14 +79,17 @@
   String[] s=new String[0];
   TwoDimTable table=new TwoDimTable("Scoring History",null,new String[rows],colHeaders.toArray(s),colTypes.toArray(s),colFormat.toArray(s),"");
   int row=0;
+  long scoring_time=0;
   for (  final DeepLearningScoring e : errors) {
+    scoring_time+=e.scoring_time;
     int col=0;
     assert(row < table.getRowDim());
     assert(col < table.getColDim());
     DateTimeFormatter fmt=DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-    table.set(row,col++,fmt.print(start_time + e.training_time_ms));
+    table.set(row,col++,fmt.print(e.time_stamp));
     table.set(row,col++,PrettyPrint.msecs(e.training_time_ms,true));
-    table.set(row,col++,e.training_time_ms == 0 ? null : (String.format("%.3f",e.training_samples / (e.training_time_ms / 1e3)) + " rows/sec"));
+    int speed=(int)(e.training_samples / ((e.training_time_ms - scoring_time) / 1e3));
+    table.set(row,col++,e.training_time_ms == 0 ? null : (String.format("%d",speed) + " rows/sec"));
     table.set(row,col++,e.epoch_counter);
     table.set(row,col++,e.training_samples);
     table.set(row,col++,e.scored_train != null ? e.scored_train._mse : Double.NaN);

@@ -35,7 +35,7 @@ def random_attack():
             h2o.random_forest(x=train[x], y=train[y], **kwargs)
         print '-----------------------'
     print 'Import and data munging...'
-    pros = h2o.upload_file(tests.locate('smalldata/prostate/prostate.csv.zip'))
+    pros = h2o.upload_file(pyunit_utils.locate('smalldata/prostate/prostate.csv.zip'))
     pros[1] = pros[1].asfactor()
     pros[4] = pros[4].asfactor()
     pros[5] = pros[5].asfactor()
@@ -43,7 +43,7 @@ def random_attack():
     r = pros[0].runif()
     pros_train = pros[(r > 0.2)]
     pros_valid = pros[(r <= 0.2)]
-    cars = h2o.upload_file(tests.locate('smalldata/junit/cars.csv'))
+    cars = h2o.upload_file(pyunit_utils.locate('smalldata/junit/cars.csv'))
     r = cars[0].runif()
     cars_train = cars[(r > 0.2)]
     cars_valid = cars[(r <= 0.2)]

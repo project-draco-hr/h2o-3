@@ -1,8 +1,6 @@
-def _handle_text_key(self, text_key, check_header=None):
-    '\n    Handle result of upload_file\n\n    :param test_key: A key pointing to raw text to be parsed\n    :return: Part of the H2OFrame constructor.\n    '
-    setup = h2o.parse_setup(text_key)
-    if (check_header is not None):
-        setup['check_header'] = check_header
+def _handle_text_key(self, text_key, **kwargs):
+    '\n    Handle result of upload_file\n\n    :param test_key: A key pointing to raw text to be parsed\n    :param kwargs: Additional optional arguments for h2o.parse_setup(), such as column_names and column_types.\n    :return: Part of the H2OFrame constructor.\n    '
+    setup = h2o.parse_setup(text_key, **kwargs)
     parse = h2o._parse(setup)
     self._update_post_parse(parse)
     thousands_sep = h2o.H2ODisplay.THOUSANDS

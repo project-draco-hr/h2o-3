@@ -23,15 +23,16 @@ def parse_args(argv):
     global g_nointernal
     global g_convenient
     global g_path_to_h2o_jar
-    global g_r_demo
     global g_path_to_tar
     global g_path_to_whl
     global g_produce_unit_reports
     global g_phantomjs_to
     global g_phantomjs_packs
     global g_r_pkg_ver_chk
-    global g_on_jenk_hadoop
-    global g_hdfs_name_node
+    global g_on_hadoop
+    global g_hadoop_namenode
+    global g_r_test_setup
+    global g_py_test_setup
     i = 1
     while (i < len(argv)):
         s = argv[i]
@@ -124,8 +125,6 @@ def parse_args(argv):
         elif (s == '--ptt'):
             i += 1
             g_phantomjs_packs = argv[i]
-        elif (s == '--rDemo'):
-            g_r_demo = True
         elif (s == '--tar'):
             i += 1
             g_path_to_tar = os.path.abspath(argv[i])
@@ -145,12 +144,13 @@ def parse_args(argv):
             usage()
         elif (s == '--rPkgVerChk'):
             g_r_pkg_ver_chk = True
-        elif (s == '--onJenkHadoop'):
-            g_on_jenk_hadoop = True
+        elif (s == '--onHadoop'):
+            g_on_hadoop = True
+        elif (s == '--hadoopNamenode'):
             i += 1
             if (i > len(argv)):
                 usage()
-            g_hdfs_name_node = argv[i]
+            g_hadoop_namenode = argv[i]
         else:
             unknown_arg(s)
         i += 1

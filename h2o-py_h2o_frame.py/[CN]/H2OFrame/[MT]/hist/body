@@ -4,7 +4,7 @@ def hist(self, breaks='Sturges', plot=True, **kwargs):
     total = frame['counts'].sum(True)
     densities = [((frame[(i, 'counts')] / total) * (1 / (frame[(i, 'breaks')] - frame[((i - 1), 'breaks')]))) for i in range(1, frame['counts'].nrow)]
     densities.insert(0, 0)
-    densities_frame = H2OFrame(python_obj=[[d] for d in densities])
+    densities_frame = H2OFrame(python_obj=zip(*[[d] for d in densities]))
     densities_frame.set_names(['density'])
     frame = frame.cbind(densities_frame)
     if plot:
@@ -19,9 +19,11 @@ def hist(self, breaks='Sturges', plot=True, **kwargs):
             return
         lower = float(frame[(0, 'breaks')])
         clist = h2o.as_list(frame['counts'], use_pandas=False)
+        clist = zip(*clist)
         clist.pop(0)
         clist.pop(0)
         mlist = h2o.as_list(frame['mids'], use_pandas=False)
+        mlist = zip(*mlist)
         mlist.pop(0)
         mlist.pop(0)
         counts = [float(c[0]) for c in clist]
