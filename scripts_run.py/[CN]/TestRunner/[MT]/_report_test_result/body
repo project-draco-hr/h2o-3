@@ -1,13 +1,15 @@
 def _report_test_result(self, test, nopass):
     port = test.get_port()
-    now = time.time()
-    duration = (now - test.start_seconds)
+    finish_seconds = time.time()
+    duration = (finish_seconds - test.start_seconds)
     test_name = test.get_test_name()
     if test.get_passed():
         s = ('PASS      %d %4ds %-60s' % (port, duration, test_name))
         self._log(s)
         if self.produce_unit_reports:
             self._report_xunit_result('r_suite', test_name, duration, False)
+        if self.perf:
+            self._report_perf(test, finish_seconds)
     elif test.get_skipped():
         s = ('SKIP      %d %4ds %-60s' % (port, duration, test_name))
         self._log(s)

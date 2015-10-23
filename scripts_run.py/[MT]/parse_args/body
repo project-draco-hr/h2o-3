@@ -33,6 +33,12 @@ def parse_args(argv):
     global g_hadoop_namenode
     global g_r_test_setup
     global g_py_test_setup
+    global g_perf
+    global g_git_hash
+    global g_git_branch
+    global g_machine_ip
+    global g_date
+    global g_build_id
     i = 1
     while (i < len(argv)):
         s = argv[i]
@@ -151,6 +157,20 @@ def parse_args(argv):
             if (i > len(argv)):
                 usage()
             g_hadoop_namenode = argv[i]
+        elif (s == '--perf'):
+            g_perf = True
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_git_hash = argv[i]
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_git_branch = argv[i]
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_build_id = argv[i]
         else:
             unknown_arg(s)
         i += 1
