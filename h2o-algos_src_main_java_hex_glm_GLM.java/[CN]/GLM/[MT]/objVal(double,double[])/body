@@ -1,11 +1,3 @@
 {
-  double alpha=_parms._alpha[0];
-  double proximalPen=0;
-  if (_bc._betaGiven != null) {
-    for (int i=0; i < _bc._betaGiven.length; ++i) {
-      double diff=beta[i] - _bc._betaGiven[i];
-      proximalPen+=diff * diff * _bc._rho[i]* .5;
-    }
-  }
-  return likelihood * _parms._obj_reg + proximalPen + currentLambda() * (alpha * ArrayUtils.l1norm(beta,_parms._intercept) + (1 - alpha) * .5 * ArrayUtils.l2norm2(beta,_parms._intercept));
+  return objVal(likelihood,beta,currentLambda());
 }

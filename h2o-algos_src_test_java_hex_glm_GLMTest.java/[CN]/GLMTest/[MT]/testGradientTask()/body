@@ -16,7 +16,7 @@
     for (int i=0; i < beta.length; ++i)     beta[i]=1 - 2 * rnd.nextDouble();
     GLMGradientTask grtCol=new GLMGradientTask(dinfo,params,params._lambda[0],beta,1,true).forceColAccess().doAll(dinfo._adaptedFrame);
     GLMGradientTask grtRow=new GLMGradientTask(dinfo,params,params._lambda[0],beta,1,true).forceRowAccess().doAll(dinfo._adaptedFrame);
-    LBFGS_LogisticGradientTask logistic=(LBFGS_LogisticGradientTask)new LBFGS_LogisticGradientTask(dinfo,params,params._lambda[0],beta,1,null,true).forceRowAccess().doAll(dinfo._adaptedFrame);
+    LBFGS_LogisticGradientTask logistic=(LBFGS_LogisticGradientTask)new LBFGS_LogisticGradientTask(dinfo,params,params._lambda[0],beta,1,true).forceRowAccess().doAll(dinfo._adaptedFrame);
     for (int i=0; i < beta.length; ++i) {
       assertEquals("gradients differ",grtRow._gradient[i],grtCol._gradient[i],1e-4);
       assertEquals("gradients differ",grtRow._gradient[i],logistic._gradient[i],1e-4);

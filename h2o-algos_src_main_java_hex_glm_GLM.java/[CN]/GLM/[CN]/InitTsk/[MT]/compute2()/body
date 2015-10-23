@@ -1,8 +1,9 @@
 {
-  new YMUTask(_dinfo,nclasses(),new H2OCallback<YMUTask>(this){
+  new YMUTask(_dinfo,nclasses(),_parms._beta_constraints == null,new H2OCallback<YMUTask>(this){
     @Override public void callback(    final YMUTask ymut){
       _yMu=_parms._intercept ? ymut._yMu : new double[nclasses()];
       _wsum=ymut._wsum;
+      if (_parms._obj_reg == -1)       _parms._obj_reg=1.0 / _wsum;
       _ymuLink=(_parms._intercept && _parms._family != Family.multinomial) ? _parms.link(_yMu[0]) : 0;
       _yMin=ymut._yMin;
       _yMax=ymut._yMax;
