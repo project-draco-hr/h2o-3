@@ -4,7 +4,7 @@ def levels(self, col=None):
         lol = h2o.as_list(self._newExpr('levels', self), False)[1:]
         levels = ([level for l in lol for level in l] if (self.ncol == 1) else lol)
     elif (col is not None):
-        lol = h2o.as_list(self._newExpr('levels', ExprNode('cols', self, col)), False)[1:]
+        lol = h2o.as_list(self._newExpr('levels', self._newExpr('cols', self, col)), False)[1:]
         levels = [level for l in lol for level in l]
     else:
         levels = None
