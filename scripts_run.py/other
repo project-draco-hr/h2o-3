@@ -11,6 +11,8 @@ import ConfigParser
 import requests
 from requests import exceptions
 import socket
+import multiprocessing
+import platform
 __H2O_REST_API_VERSION__ = 3
 g_script_name = ''
 g_base_port = 40000
@@ -57,5 +59,7 @@ g_r_test_setup = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(
 g_py_test_setup = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../h2o-py/scripts/h2o-py-test-setup.py'))
 g_date = time.strftime('%Y-%m-%d', time.localtime(time.time()))
 g_machine_ip = socket.gethostbyname(socket.gethostname())
+g_ncpu = multiprocessing.cpu_count()
+g_os = platform.system()
 if (__name__ == '__main__'):
     main(sys.argv)
