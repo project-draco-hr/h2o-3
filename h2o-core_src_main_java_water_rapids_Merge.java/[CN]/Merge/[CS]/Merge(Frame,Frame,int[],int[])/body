@@ -1,21 +1,2 @@
 {
-  RadixOrder leftIndex=new RadixOrder(leftFrame,leftCols);
-  RadixOrder rightIndex=new RadixOrder(rightFrame,rightCols);
-  int bitShift=rightIndex._biggestBit[0] - leftIndex._biggestBit[0];
-  int leftExtent=256, rightExtent=1;
-  if (bitShift < 0) {
-    leftExtent>>=-bitShift;
-    rightExtent<<=-bitShift;
-  }
-  for (int leftMSB=0; leftMSB < leftExtent; leftMSB++) {
-    int rightMSBBase=leftMSB >> bitShift;
-    for (int k=0; k < rightExtent; k++) {
-      int rightMSB=rightMSBBase + k;
-      H2ONode leftNode=MoveByFirstByte.ownerOfMSB(leftMSB);
-      H2ONode rightNode=MoveByFirstByte.ownerOfMSB(rightMSB);
-      BinaryMerge bm=new RPC<>(rightNode,new BinaryMerge(leftFrame,rightFrame,leftMSB,rightMSB,leftIndex._bytesUsed,rightIndex._bytesUsed)).call().get();
-      long lefto[][]=leftIndex._o[leftMSB];
-      long righto[][]=rightIndex._o[rightMSB];
-    }
-  }
 }
