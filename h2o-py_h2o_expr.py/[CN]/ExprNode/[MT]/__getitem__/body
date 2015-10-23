@@ -23,5 +23,8 @@ def __getitem__(self, item):
         if allcols:
             return ExprNode('rows', self, rows)
         res = ExprNode('rows', ExprNode('cols', self, cols), rows)
-        return (ExprNode('flatten', res)._eager_scalar() if (isinstance(rows, int) and isinstance(cols, (basestring, int))) else res)
+        if (isinstance(rows, int) and isinstance(cols, (basestring, int))):
+            res = ExprNode('flatten', res)
+            return res._eager_scalar()
+        return res
     raise ValueError(((('Unexpected __getitem__ selector: ' + str(type(item))) + ' ') + str(item.__class__)))
