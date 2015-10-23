@@ -3,4 +3,4 @@ def upload_file(path, destination_frame='', header=((-1), 0, 1), sep='', col_nam
     fui = {'file': os.path.abspath(path), }
     destination_frame = (_py_tmp_key() if (destination_frame == '') else destination_frame)
     H2OConnection.post_json(url_suffix='PostFile', file_upload_info=fui, destination_frame=destination_frame, header=header, separator=sep, column_names=col_names, column_types=col_types, na_strings=na_strings)
-    return H2OFrame.raw_text(raw_id=destination_frame)
+    return H2OFrame.fromRawText(text_key=destination_frame)

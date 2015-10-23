@@ -23,9 +23,5 @@ def _setitem(self, b, c):
                 col_expr = slice(0, self.ncol)
     elif isinstance(b, ExprNode):
         row_expr = b
-    if (row_expr is None):
-        row_expr = slice(0, self._nrows)
-    if (col_expr is None):
-        col_expr = slice(0, self._ncols)
     src = (c if isinstance(c, ExprNode) else (float('nan') if (c is None) else c))
     return (ExprNode(':=', self, src, col_expr, row_expr) if (colname is None) else ExprNode('append', self, src, colname))
