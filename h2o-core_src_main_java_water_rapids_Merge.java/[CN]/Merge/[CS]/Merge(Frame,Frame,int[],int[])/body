@@ -1,2 +1,69 @@
 {
+  RadixOrder leftIndex=new RadixOrder(leftFrame,leftCols);
+  RadixOrder rightIndex=new RadixOrder(rightFrame,rightCols);
+  int bitShift=rightIndex._biggestBit[0] - leftIndex._biggestBit[0];
+  int leftExtent=256, rightExtent=1;
+  if (bitShift < 0) {
+    leftExtent>>=-bitShift;
+    rightExtent<<=-bitShift;
+  }
+  List<RPC> bmList=new ArrayList<>();
+  for (int leftMSB=0; leftMSB < leftExtent; leftMSB++) {
+    int rightMSBBase=leftMSB >> bitShift;
+    for (int k=0; k < rightExtent; k++) {
+      int rightMSB=rightMSBBase + k;
+      H2ONode leftNode=MoveByFirstByte.ownerOfMSB(leftMSB);
+      H2ONode rightNode=MoveByFirstByte.ownerOfMSB(rightMSB);
+      RPC bm=new RPC<>(rightNode,new BinaryMerge(leftFrame,rightFrame,leftMSB,rightMSB,leftIndex._bytesUsed,rightIndex._bytesUsed));
+      bmList.add(bm);
+      bm.call();
+    }
+  }
+  long ansN=0;
+  int numChunks=0;
+  BinaryMerge bmResults[]=new BinaryMerge[bmList.size()];
+  int i=0;
+  for (  RPC rpc : bmList) {
+    BinaryMerge thisbm;
+    bmResults[i++]=thisbm=(BinaryMerge)rpc.get();
+    if (thisbm._ansN == 0)     continue;
+    numChunks+=thisbm._chunkSizes.length;
+    ansN+=thisbm._ansN;
+  }
+  assert(i == bmList.size());
+  long chunkSizes[]=new long[numChunks];
+  int chunkLeftMSB[]=new int[numChunks];
+  int chunkRightMSB[]=new int[numChunks];
+  int chunkBatch[]=new int[numChunks];
+  int k=0;
+  for (i=0; i < bmList.size(); i++) {
+    BinaryMerge thisbm=bmResults[i];
+    if (thisbm._ansN == 0)     continue;
+    long thisChunkSizes[]=thisbm._chunkSizes;
+    for (int j=0; j < thisChunkSizes.length; j++) {
+      chunkSizes[k]=thisChunkSizes[j];
+      chunkLeftMSB[k]=thisbm._leftMSB;
+      chunkRightMSB[k]=thisbm._rightMSB;
+      chunkBatch[k]=j;
+      k++;
+    }
+  }
+  long espc[]=new long[chunkSizes.length + 1];
+  i=0;
+  long sum=0;
+  for (  long s : chunkSizes) {
+    espc[i++]=sum;
+    sum+=s;
+  }
+  espc[espc.length - 1]=sum;
+  assert(sum == ansN);
+  Vec[] vecs=new Vec[rightFrame.numCols()];
+  for (i=0; i < vecs.length; ++i) {
+    vecs[i]=Vec.makeCon(0,new Vec.VectorGroup(),espc);
+  }
+  String[] names=rightFrame.names().clone();
+  Frame fr=new Frame(Key.make(rightFrame._key.toString() + "_joined_with_" + leftFrame._key.toString()),names,vecs);
+  ChunkStitcher ff=new ChunkStitcher(leftFrame,rightFrame,chunkSizes,chunkLeftMSB,chunkRightMSB,chunkBatch);
+  ff.doAll(fr);
+  Log.info(fr);
 }
