@@ -54,21 +54,20 @@
     }
     model.actual_train_samples_per_iteration=computeTrainSamplesPerIteration(mp,train.numRows(),model);
     if (mp._replicate_training_data && (model.actual_train_samples_per_iteration == train.numRows() * (mp._single_node_mode ? 1 : H2O.CLOUD.size())) && !mp._shuffle_training_data&& H2O.CLOUD.size() > 1 && !mp._reproducible) {
-      Log.info("Enabling training data shuffling, because all nodes train on the full dataset (replicated training data).");
+      if (!mp._quiet_mode)       Log.info("Enabling training data shuffling, because all nodes train on the full dataset (replicated training data).");
       mp._shuffle_training_data=true;
     }
     if (!mp._shuffle_training_data && model.actual_train_samples_per_iteration == train.numRows() && train.anyVec().nChunks() == 1) {
-      Log.info("Enabling training data shuffling to avoid training rows in the same order over and over (no Hogwild since there's only 1 chunk).");
+      if (!mp._quiet_mode)       Log.info("Enabling training data shuffling to avoid training rows in the same order over and over (no Hogwild since there's only 1 chunk).");
       mp._shuffle_training_data=true;
     }
-    if (!mp._quiet_mode)     Log.info("Initial model:\n" + model.model_info());
     if (_parms._autoencoder) {
       new ProgressUpdate("Scoring null model of autoencoder...").fork(_progressKey);
-      Log.info("Scoring the null model of the autoencoder.");
+      if (!mp._quiet_mode)       Log.info("Scoring the null model of the autoencoder.");
       model.doScoring(trainScoreFrame,validScoreFrame,self(),null,0);
     }
     model.update(self());
-    model._timeLastScoreEnter=System.currentTimeMillis();
+    model._timeLastIterationEnter=System.currentTimeMillis();
     Log.info("Starting to train the Deep Learning model.");
     new ProgressUpdate("Training...").fork(_progressKey);
     int iteration=1;
@@ -79,9 +78,7 @@
     if (isRunning() && _parms._overwrite_with_best_model && model.actual_best_model_key != null && _parms._nfolds == 0) {
       DeepLearningModel best_model=DKV.getGet(model.actual_best_model_key);
       if (best_model != null && best_model.error() < model.error() && Arrays.equals(best_model.model_info().units,model.model_info().units)) {
-        if (!_parms._quiet_mode) {
-          Log.info("Setting the model to be the best model so far (based on scoring history).");
-        }
+        if (!_parms._quiet_mode)         Log.info("Setting the model to be the best model so far (based on scoring history).");
         DeepLearningModelInfo mi=best_model.model_info().deep_clone();
         mi.set_processed_global(model.model_info().get_processed_global());
         mi.set_processed_local(model.model_info().get_processed_local());
@@ -97,7 +94,7 @@
         Log.info("Deep Learning model training was interrupted.");
       }
  else {
-        Log.info("Finished training the Deep Learning model (" + iteration + " Map/Reduce iterations)");
+        Log.info("Finished training the Deep Learning model (" + (iteration - 1) + " Map/Reduce iterations)");
         Log.info(model);
       }
       Log.info("==============================================================================================================================================================================");

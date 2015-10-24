@@ -8,7 +8,7 @@
   final int ngbCols=fr_keys.numCols();
   IcedHashMap<ASTGroup.GKX,String> gs=ASTGroup.findGroups(fr_keys);
   final ASTGroup.GK0[] grps=ASTGroup.sortGroups(gs);
-  Vec[] vgrps=new BuildGroup(gs).doAll(gs.size(),fr_keys).close();
+  Vec[] vgrps=new BuildGroup(gs).doAll(gs.size(),Vec.T_NUM,fr).close();
   final RemoteRapids[] remoteTasks=new RemoteRapids[gs.size()];
   Futures fs=new Futures();
   for (int i=0; i < remoteTasks.length; i++)   fs.add(RPC.call(vgrps[i]._key.home_node(),remoteTasks[i]=new RemoteRapids(fr,vgrps[i]._key,fun,scope)));

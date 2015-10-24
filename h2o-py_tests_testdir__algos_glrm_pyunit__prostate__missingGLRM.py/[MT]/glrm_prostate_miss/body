@@ -1,7 +1,7 @@
 def glrm_prostate_miss():
     missing_ratios = np.arange(0.1, 1, 0.1).tolist()
     print 'Importing prostate_cat.csv data and saving for validation...'
-    prostate_full = h2o.upload_file(h2o.locate('smalldata/prostate/prostate_cat.csv'), na_strings=(['NA'] * 8))
+    prostate_full = h2o.upload_file(pyunit_utils.locate('smalldata/prostate/prostate_cat.csv'), na_strings=(['NA'] * 8))
     prostate_full.describe()
     totnas = 0
     for i in range(prostate_full.ncol):
@@ -14,7 +14,7 @@ def glrm_prostate_miss():
     for i in range(len(missing_ratios)):
         ratio = missing_ratios[i]
         print 'Importing prostate_cat.csv and inserting {0}% missing entries'.format((100 * ratio))
-        prostate_miss = h2o.upload_file(h2o.locate('smalldata/prostate/prostate_cat.csv'))
+        prostate_miss = h2o.upload_file(pyunit_utils.locate('smalldata/prostate/prostate_cat.csv'))
         prostate_miss = prostate_miss.insert_missing_values(fraction=ratio)
         prostate_miss.describe()
         print 'H2O GLRM with {0}% missing entries'.format((100 * ratio))
@@ -32,7 +32,7 @@ def glrm_prostate_miss():
         valid_numerr[i] = prostate_glrm._model_json['output']['validation_metrics']._metric_json['numerr']
         train_caterr[i] = prostate_glrm._model_json['output']['training_metrics']._metric_json['caterr']
         valid_caterr[i] = prostate_glrm._model_json['output']['validation_metrics']._metric_json['caterr']
-        h2o.remove(prostate_glrm._model_json['output']['loading_key']['name'])
+        h2o.remove(prostate_glrm._model_json['output']['representation_name'])
     for i in range(len(missing_ratios)):
         print 'Missing ratio: {0}% --> Training numeric error: {1}\tValidation numeric error: {2}'.format((missing_ratios[i] * 100), train_numerr[i], valid_numerr[i])
     for i in range(len(missing_ratios)):

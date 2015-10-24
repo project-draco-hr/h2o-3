@@ -1,22 +1,10 @@
 {
   if (this == nv)   return;
-  if (_tmp_espc != nv._tmp_espc) {
-    long e1[]=nv._tmp_espc;
-    if (e1.length > _tmp_espc.length) {
-      e1=_tmp_espc;
-      _tmp_espc=nv._tmp_espc;
-    }
-    for (int i=0; i < e1.length; i++)     _tmp_espc[i]|=e1[i];
+  if (_tmp_espc == nv._tmp_espc)   return;
+  long e1[]=nv._tmp_espc;
+  if (e1.length > _tmp_espc.length) {
+    e1=_tmp_espc;
+    _tmp_espc=nv._tmp_espc;
   }
-  byte t1[]=nv._chunkTypes;
-  if (t1.length > _chunkTypes.length) {
-    t1=_chunkTypes;
-    _chunkTypes=nv._chunkTypes;
-  }
-  for (int i=0; i < t1.length; ++i)   _chunkTypes[i]|=t1[i];
-  _naCnt+=nv._naCnt;
-  _catCnt+=nv._catCnt;
-  _strCnt+=nv._strCnt;
-  _timCnt+=nv._timCnt;
-  _totalCnt+=nv._totalCnt;
+  for (int i=0; i < e1.length; i++)   if (_tmp_espc[i] == 0 && e1[i] != 0)   _tmp_espc[i]=e1[i];
 }

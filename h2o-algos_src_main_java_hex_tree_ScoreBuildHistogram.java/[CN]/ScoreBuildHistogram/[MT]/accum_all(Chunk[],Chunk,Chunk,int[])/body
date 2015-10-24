@@ -4,5 +4,21 @@
   for (int i=0; i < _hcs.length; i++)   nh[i + 1]+=nh[i];
   int rows[]=new int[nnids.length];
   for (int row=0; row < nnids.length; row++)   if (nnids[row] >= 0)   rows[nh[nnids[row]]++]=row;
-  accum_all2(chks,wrks,weight,nh,rows);
+  final DHistogram hcs[][]=_hcs;
+  if (hcs.length == 0)   return;
+  double bins[]=new double[Math.max(_nbins,_nbins_cats)];
+  double sums[]=new double[Math.max(_nbins,_nbins_cats)];
+  double ssqs[]=new double[Math.max(_nbins,_nbins_cats)];
+  int binslen=bins.length;
+  int cols=_ncols;
+  int hcslen=hcs.length;
+  for (int n=0; n < hcslen; n++) {
+    int sCols[]=_tree.undecided(n + _leaf)._scoreCols;
+    if (sCols == null) {
+      for (int c=0; c < cols; c++)       overAllRows(chks,wrks,weight,nh,rows,hcs,c,n,bins,sums,ssqs,binslen);
+    }
+ else {
+      for (      int c : sCols)       overAllRows(chks,wrks,weight,nh,rows,hcs,c,n,bins,sums,ssqs,binslen);
+    }
+  }
 }

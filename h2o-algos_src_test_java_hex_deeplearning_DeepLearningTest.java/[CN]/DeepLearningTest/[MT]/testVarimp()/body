@@ -1,0 +1,35 @@
+{
+  Frame tfr=null;
+  DeepLearningModel dl=null;
+  try {
+    tfr=parse_test_file("./smalldata/iris/iris.csv");
+    DeepLearningParameters parms=new DeepLearningParameters();
+    parms._train=tfr._key;
+    parms._epochs=100;
+    parms._response_column="C5";
+    parms._reproducible=true;
+    parms._classification_stop=0.7;
+    parms._score_duty_cycle=1;
+    parms._score_interval=0;
+    parms._hidden=new int[]{100,100};
+    parms._seed=0xdecaf;
+    parms._variable_importances=true;
+    parms._model_id=Key.make();
+    DeepLearning job=new DeepLearning(parms);
+    try {
+      dl=job.trainModel().get();
+    }
+  finally {
+      job.remove();
+    }
+    dl=DKV.getGet(parms._model_id);
+    Assert.assertTrue(dl.varImp()._varimp != null);
+    Log.info(dl.model_info().toStringAll());
+    Assert.assertTrue(ArrayUtils.minValue(dl.varImp()._varimp) > 0.5);
+    Assert.assertTrue(ArrayUtils.maxValue(dl.varImp()._varimp) <= 1);
+  }
+  finally {
+    if (tfr != null)     tfr.delete();
+    if (dl != null)     dl.delete();
+  }
+}

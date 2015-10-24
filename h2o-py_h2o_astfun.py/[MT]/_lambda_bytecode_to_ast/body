@@ -3,7 +3,7 @@ def _lambda_bytecode_to_ast(co, ops):
     keys = [o[0] for o in ops]
     result = (([ASTId('{')] + [ASTId(arg) for arg in co.co_varnames]) + [ASTId('.')])
     instr = keys[s]
-    if (instr == 'RETURN_VALUE'):
+    if is_return(instr):
         s -= 1
         instr = keys[s]
     if is_bytecode_instruction(instr):

@@ -1,6 +1,6 @@
 {
   DeepLearningParameters dl;
-  Frame frTrain=null;
+  Frame frTrain;
   int N=2;
   DeepLearningModel[] models=new DeepLearningModel[N];
   dl=new DeepLearningParameters();
@@ -8,7 +8,7 @@
   try {
     for (int i=0; i < N; ++i) {
       frTrain=parse_test_file("./smalldata/covtype/covtype.20k.data");
-      Vec resp=frTrain.lastVec().toCategorical();
+      Vec resp=frTrain.lastVec().toCategoricalVec();
       frTrain.remove(frTrain.vecs().length - 1).remove();
       frTrain.add("Response",resp);
       DKV.put(frTrain);
@@ -39,7 +39,7 @@
   finally {
         if (job != null)         job.remove();
       }
-      if (frTrain != null)       frTrain.remove();
+      frTrain.remove();
     }
     for (int i=0; i < N; ++i) {
       Log.info(models[i]._output._training_metrics.cm().table().toString());

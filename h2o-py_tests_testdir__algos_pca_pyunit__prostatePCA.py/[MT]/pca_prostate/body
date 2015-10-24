@@ -1,6 +1,6 @@
 def pca_prostate():
     print 'Importing prostate.csv data...\n'
-    prostate = h2o.upload_file(h2o.locate('smalldata/logreg/prostate.csv'))
+    prostate = h2o.upload_file(pyunit_utils.locate('smalldata/logreg/prostate.csv'))
     print 'Converting CAPSULE, RACE, DPROS and DCAPS columns to factors'
     prostate['CAPSULE'] = prostate['CAPSULE'].asfactor()
     prostate['RACE'] = prostate['RACE'].asfactor()
@@ -11,4 +11,4 @@ def pca_prostate():
     fitPCA = h2o.prcomp(x=prostate[2:9], k=3, transform='NONE', pca_method='Power')
     pred = fitPCA.predict(prostate)
     print 'Projection matrix:\n'
-    print pred.head()
+    pred.head()

@@ -1,12 +1,12 @@
 def parse_raw(setup, id=None, first_line_is_header=((-1), 0, 1)):
-    '\n  Used in conjunction with lazy_import and parse_setup in order to make alterations before\n  parsing.\n\n  Parameters\n  ----------\n\n  setup : dict\n    Result of h2o.parse_setup\n  id : str\n    An optional id for the frame.\n  first_line_is_header : int\n    -1,0,1 if the first line is to be used as the header\n\n :return: An H2OFrame object\n  '
-    id = setup['destination_frame']
+    '\n  Used in conjunction with lazy_import and parse_setup in order to make alterations before\n  parsing.\n\n  Parameters\n  ----------\n\n  setup : dict\n    Result of h2o.parse_setup\n  id : str, optional\n    An id for the frame.\n  first_line_is_header : int, optional\n    -1,0,1 if the first line is to be used as the header\n\n :return: An H2OFrame object\n  '
+    if id:
+        setup['destination_frame'] = _quoted(id).replace('%', '.').replace('&', '.')
+    if (first_line_is_header != ((-1), 0, 1)):
+        if (first_line_is_header not in ((-1), 0, 1)):
+            raise ValueError('first_line_is_header should be -1, 0, or 1')
+        setup['check_header'] = first_line_is_header
+    parsed = _parse(setup)
     fr = H2OFrame()
-    parsed = parse(setup, id, first_line_is_header)
-    fr._computed = True
-    fr._id = id
-    fr._keep = True
-    fr._nrows = int(H2OFrame(expr=ExprNode('nrow', fr))._scalar())
-    fr._ncols = parsed['number_columns']
-    fr._col_names = (parsed['column_names'] if parsed['column_names'] else [('C' + str(x)) for x in range(1, (fr._ncols + 1))])
+    fr._update_post_parse(parsed)
     return fr

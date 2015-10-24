@@ -29,6 +29,10 @@ def parse_args(argv):
     global g_phantomjs_to
     global g_phantomjs_packs
     global g_r_pkg_ver_chk
+    global g_on_hadoop
+    global g_hadoop_namenode
+    global g_r_test_setup
+    global g_py_test_setup
     i = 1
     while (i < len(argv)):
         s = argv[i]
@@ -140,6 +144,13 @@ def parse_args(argv):
             usage()
         elif (s == '--rPkgVerChk'):
             g_r_pkg_ver_chk = True
+        elif (s == '--onHadoop'):
+            g_on_hadoop = True
+        elif (s == '--hadoopNamenode'):
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_hadoop_namenode = argv[i]
         else:
             unknown_arg(s)
         i += 1

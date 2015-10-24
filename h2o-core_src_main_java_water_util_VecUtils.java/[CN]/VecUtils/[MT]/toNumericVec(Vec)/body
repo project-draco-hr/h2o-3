@@ -1,0 +1,14 @@
+{
+switch (src.get_type()) {
+case Vec.T_CAT:
+    return categoricalToInt(src);
+case Vec.T_STR:
+  return stringToNumeric(src);
+case Vec.T_NUM:
+case Vec.T_TIME:
+case Vec.T_UUID:
+return src.makeCopy(null,Vec.T_NUM);
+default :
+throw new H2OIllegalArgumentException("Unrecognized column type " + src.get_type_str() + " given to toNumericVec()");
+}
+}
