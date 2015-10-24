@@ -57,13 +57,14 @@
   }
   espc[espc.length - 1]=sum;
   assert(sum == ansN);
-  Vec[] vecs=new Vec[rightFrame.numCols()];
-  for (i=0; i < vecs.length; ++i) {
-    vecs[i]=Vec.makeCon(0,new Vec.VectorGroup(),espc);
-  }
+  int num=rightFrame.numCols();
+  final byte[] types=new byte[num];
+  int j=0;
+  for (  Vec v : rightFrame.vecs())   types[j++]=v.get_type();
+  Vec[] vecs=new Vec(Vec.newKey(),espc).makeCons(num,0,rightFrame.domains(),types);
   String[] names=rightFrame.names().clone();
   Frame fr=new Frame(Key.make(rightFrame._key.toString() + "_joined_with_" + leftFrame._key.toString()),names,vecs);
   ChunkStitcher ff=new ChunkStitcher(leftFrame,rightFrame,chunkSizes,chunkLeftMSB,chunkRightMSB,chunkBatch);
   ff.doAll(fr);
-  Log.info(fr);
+  return fr;
 }

@@ -1,9 +1,13 @@
 {
   int chkIdx=cs[0].cidx();
+  Futures fs=new Futures();
   for (int i=0; i < cs.length; ++i) {
     Key destKey=cs[i].vec().chunkKey(chkIdx);
     assert(cs[i].len() == _chunkSizes[chkIdx]);
-    Chunk ck=DKV.getGet(BinaryMerge.getKeyForMSBComboPerCol(_leftFrame,_rightFrame,_chunkLeftMSB[chkIdx],_chunkRightMSB[chkIdx],i,_chunkBatch[chkIdx]));
-    DKV.put(destKey,ck);
+    Key k=BinaryMerge.getKeyForMSBComboPerCol(_leftFrame,_rightFrame,_chunkLeftMSB[chkIdx],_chunkRightMSB[chkIdx],i,_chunkBatch[chkIdx]);
+    Chunk ck=DKV.getGet(k);
+    DKV.put(destKey,ck,fs);
+    DKV.remove(k);
   }
+  fs.blockForPending();
 }
