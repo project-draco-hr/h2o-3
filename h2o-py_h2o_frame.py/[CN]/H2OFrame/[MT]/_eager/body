@@ -1,11 +1,12 @@
 def _eager(self, pytmp=True):
-    if (not self._computed):
+    if (self._id is None):
         sb = self._ast._eager()
         if pytmp:
+            self._id = _py_tmp_key()
             res = h2o.rapids(ExprNode._collapse_sb(sb), self._id)
-            if (('Scalar' in res['__meta']['schema_name']) or ('String' in res['__meta']['schema_name'])):
-                sb = [str(res['scalar']), ' ']
-                self._data = res['scalar']
+            if (('scalar' in res) or ('string' in res)):
+                self._data = (res['scalar'] if ('scalar' in res) else res['string'])
+                sb = [str(self._data)]
             else:
                 sb = [self._id, ' ']
                 self._update()
