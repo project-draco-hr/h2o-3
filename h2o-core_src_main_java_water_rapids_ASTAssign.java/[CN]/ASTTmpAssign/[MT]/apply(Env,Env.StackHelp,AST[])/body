@@ -1,6 +1,8 @@
 {
-  String id=((ASTId)asts[1])._id;
+  Key id=Key.make(asts[1].str());
   Frame src=stk.track(asts[2].exec(env)).getFrame();
-  Frame dst=src.deepCopy(id);
+  Frame dst=src.deepCopy(null);
+  Keyed.remove(id);
+  DKV.put(new Frame(id,dst._names,dst.vecs()));
   return env.addGlobals(dst);
 }
