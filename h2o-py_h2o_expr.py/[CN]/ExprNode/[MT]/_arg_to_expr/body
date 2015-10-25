@@ -2,6 +2,8 @@
 def _arg_to_expr(arg):
     if isinstance(arg, ExprNode):
         return arg._do_it(False)
+    elif isinstance(arg, astfun.ASTId):
+        return str(arg)
     elif isinstance(arg, bool):
         return '{}'.format(('TRUE' if arg else 'FALSE'))
     elif isinstance(arg, (int, float)):
@@ -14,4 +16,4 @@ def _arg_to_expr(arg):
         return ((('["' + '" "'.join(arg)) + '"]') if isinstance(arg[0], basestring) else (('[' + ' '.join([('NaN' if math.isnan(i) else str(i)) for i in arg])) + ']'))
     elif (arg is None):
         return '[]'
-    raise ValueError(((('Unexpected arg type: ' + str(type(arg))) + ' ') + arg.__repr__()))
+    raise ValueError(((((('Unexpected arg type: ' + str(type(arg))) + ' ') + str(arg.__class__)) + ' ') + arg.__repr__()))
