@@ -1,0 +1,18 @@
+def train(self, x, y=None, training_frame=None, offset_column=None, fold_column=None, weights_column=None, validation_frame=None, **params):
+    algo_params = locals()
+    parms = self._parms.copy()
+    parms.update({k: v for (k, v) in algo_params.iteritems() if (k not in ['self', 'params', 'algo_params', 'parms'])})
+    parms['hyper_parameters'] = self.hyper_params
+    parms.update({k: v for (k, v) in self.model._parms.items() if v})
+    y = algo_params['y']
+    tframe = algo_params['training_frame']
+    if (tframe is None):
+        raise ValueError('Missing training_frame')
+    if (y is not None):
+        if isinstance(y, (list, tuple)):
+            if (len(y) == 1):
+                parms['y'] = y[0]
+            else:
+                raise ValueError('y must be a single column reference')
+        self._estimator_type = ('classifier' if tframe[y].isfactor() else 'regressor')
+    self.build_model(parms)
