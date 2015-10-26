@@ -1,7 +1,7 @@
-def _eager(self, pytmp=True, scalar=False):
+def _eager(self, top=True, scalar=False):
     if (self._id is None):
         sb = self._ast._eager()
-        if pytmp:
+        if top:
             self._id = (None if scalar else _py_tmp_key())
             res = h2o.rapids(ExprNode._collapse_sb(sb), self._id)
             if (('scalar' in res) or ('string' in res)):
