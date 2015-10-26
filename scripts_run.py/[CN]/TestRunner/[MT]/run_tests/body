@@ -2,32 +2,19 @@ def run_tests(self, nopass):
     '\n        Run all tests.\n\n        @return: none\n        '
     if self.terminated:
         return
+    if self.perf:
+        self.perf_file = os.path.join(self.output_dir, 'perf.csv')
     if (self.on_hadoop and (self.hadoop_namenode == None)):
         print ''
-        print 'ERROR: Must specify --namenode when using --onHadoop option.'
+        print 'ERROR: Must specify --hadoopNamenode when using --onHadoop option.'
         print ''
         sys.exit(1)
-    if (self._have_some_r_tests() and (self.r_pkg_ver_chk == True)):
+    if (self.r_pkg_ver_chk == True):
         self._r_pkg_ver_chk()
     elif (self.path_to_tar is not None):
         self._install_h2o_r_pkg(self.path_to_tar)
-    elif (self._have_some_py_tests() and (self.path_to_whl is not None)):
-        self._log('')
-        self._log('Setting up Python H2O package...')
-        out_file_name = os.path.join(self.output_dir, 'pythonSetup.out.txt')
-        out = open(out_file_name, 'w')
-        cmd = ['pip', 'install', self.path_to_whl, '--force-reinstall']
-        child = subprocess.Popen(args=cmd, stdout=out, stderr=subprocess.STDOUT)
-        rv = child.wait()
-        if self.terminated:
-            return
-        if (rv != 0):
-            print ''
-            print 'ERROR: Python setup failed.'
-            print (('       (See ' + out_file_name) + ')')
-            print ''
-            sys.exit(1)
-        out.close()
+    elif (self.path_to_whl is not None):
+        self._install_h2o_py_whl(self.path_to_whl)
     num_tests = len(self.tests)
     num_nodes = (self.num_clouds * self.nodes_per_cloud)
     self._log('')

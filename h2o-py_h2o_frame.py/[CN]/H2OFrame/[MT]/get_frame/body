@@ -1,9 +1,0 @@
-@staticmethod
-def get_frame(frame_id):
-    '\n    Create an H2OFrame mapped to an existing id in the cluster\n    :return: Created H2OFrame mapping to pre-existing Frame "id" in the cluster\n    '
-    rows = 10
-    res = h2o.H2OConnection.get_json(((('Frames/' + urllib.quote(frame_id)) + '?row_count=') + str(rows)))['frames'][0]
-    fr = H2OFrame(expr.ExprNode('Frame', False))
-    fr._ex._id = res['frame_id']['name']
-    fr._ex._fill_rows(res)
-    return fr

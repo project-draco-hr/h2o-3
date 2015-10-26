@@ -5,26 +5,14 @@ def start(self, ip, port):
     self.start_seconds = time.time()
     self.ip = ip
     self.port = port
-    if (is_python_test_file(self.test_name) or is_python_file(self.test_name)):
+    if (is_rdemo(self.test_name) or is_runit(self.test_name) or is_rbooklet(self.test_name)):
+        cmd = self._rtest_cmd(self.test_name, self.ip, self.port, self.on_hadoop, self.hadoop_namenode)
+    elif (is_ipython_notebook(self.test_name) or is_pydemo(self.test_name) or is_pyunit(self.test_name) or is_pybooklet(self.test_name)):
+        cmd = self._pytest_cmd(self.test_name, self.ip, self.port, self.on_hadoop, self.hadoop_namenode)
+    elif is_gradle_build_python_test(self.test_name):
         cmd = ['python', self.test_name, '--usecloud', ((self.ip + ':') + str(self.port))]
-        if self.on_hadoop:
-            cmd = (cmd + ['--onHadoop'])
-        if self.hadoop_namenode:
-            cmd = (cmd + ['--hadoopNamenode', self.hadoop_namenode])
-    elif is_ipython_notebook(self.test_name):
-        cmd = ['python', self.notebook_runner, '--usecloud', ((self.ip + ':') + str(self.port)), '--ipynb', self.test_name]
-    elif is_runit_test_file(self.test_name):
-        cmd = ['R', '-f', self.test_name, '--args', '--usecloud', ((self.ip + ':') + str(self.port))]
-        if self.on_hadoop:
-            cmd = (cmd + ['--onHadoop'])
-        if self.hadoop_namenode:
-            cmd = (cmd + ['--hadoopNamenode', self.hadoop_namenode])
-    elif self.r_demo:
-        global g_r_demo_runner
-        global g_output_dir
-        cmd = ['R', '-f', g_r_demo_runner, '--args', '--usecloud', ((self.ip + ':') + str(self.port)), '--demo', self.test_name, '--resultsDir', g_output_dir]
     elif is_javascript_test_file(self.test_name):
-        cmd = ['phantomjs', self.test_name, '--host', ((self.ip + ':') + str(self.port)), '--timeout', str(g_phantomjs_to), '--packs', g_phantomjs_packs]
+        cmd = self._javascript_cmd(self.test_name, self.ip, self.port)
     else:
         print ''
         print ('ERROR: Test runner failure with test: ' + self.test_name)

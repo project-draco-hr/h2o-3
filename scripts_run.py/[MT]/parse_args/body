@@ -23,7 +23,6 @@ def parse_args(argv):
     global g_nointernal
     global g_convenient
     global g_path_to_h2o_jar
-    global g_r_demo
     global g_path_to_tar
     global g_path_to_whl
     global g_produce_unit_reports
@@ -32,6 +31,17 @@ def parse_args(argv):
     global g_r_pkg_ver_chk
     global g_on_hadoop
     global g_hadoop_namenode
+    global g_r_test_setup
+    global g_py_test_setup
+    global g_perf
+    global g_git_hash
+    global g_git_branch
+    global g_machine_ip
+    global g_date
+    global g_build_id
+    global g_ncpu
+    global g_os
+    global g_job_name
     i = 1
     while (i < len(argv)):
         s = argv[i]
@@ -124,8 +134,6 @@ def parse_args(argv):
         elif (s == '--ptt'):
             i += 1
             g_phantomjs_packs = argv[i]
-        elif (s == '--rDemo'):
-            g_r_demo = True
         elif (s == '--tar'):
             i += 1
             g_path_to_tar = os.path.abspath(argv[i])
@@ -152,6 +160,24 @@ def parse_args(argv):
             if (i > len(argv)):
                 usage()
             g_hadoop_namenode = argv[i]
+        elif (s == '--perf'):
+            g_perf = True
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_git_hash = argv[i]
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_git_branch = argv[i]
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_build_id = argv[i]
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_job_name = argv[i]
         else:
             unknown_arg(s)
         i += 1
