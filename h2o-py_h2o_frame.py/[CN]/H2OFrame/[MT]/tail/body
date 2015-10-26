@@ -1,0 +1,6 @@
+def tail(self, rows=10, cols=200):
+    '\n    Analogous to Rs `tail` call on a data.frame.  Return a digestible chunk of\n    the H2OFrame starting from the end.\n    :param rows: Number of rows starting from the bottommost\n    :param cols: Number of columns starting from the leftmost\n    :return: A sliced H2OFrame\n    '
+    nrows = min(self.nrow, rows)
+    ncols = min(self.ncol, cols)
+    start_idx = (self.nrow - nrows)
+    return self[start_idx:(start_idx + nrows), :ncols]

@@ -1,0 +1,11 @@
+@staticmethod
+def fromRawText(text_key, check_header=None):
+    '\n    Handle result of upload_file\n    :param text_key: A key pointing to raw text to be parsed\n    :return: Part of the H2OFrame constructor.\n    '
+    setup = h2o.parse_setup(text_key)
+    if (check_header is not None):
+        setup['check_header'] = check_header
+    parse = h2o._parse(setup)
+    destination_frame = parse['destination_frame']['name']
+    res = H2OFrame.get_frame(destination_frame)
+    print 'Uploaded {} into cluster with {:,} rows and {:,} cols'.format(text_key, res.nrow, res.ncol)
+    return res

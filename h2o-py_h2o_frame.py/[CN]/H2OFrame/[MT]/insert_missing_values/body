@@ -1,0 +1,11 @@
+def insert_missing_values(self, fraction=0.1, seed=None):
+    '\n    Inserting Missing Values into an H2OFrame.  *This is primarily used for\n    testing*.  Randomly replaces a user-specified fraction of entries in a H2O\n    dataset with missing values.  WARNING: This will modify the original\n    dataset.  Unless this is intended, this function should only be called on a\n    subset of the original.\n\n    :param fraction: A number between 0 and 1 indicating the fraction of entries to replace with missing.\n    :param seed: A random number used to select which entries to replace with missing values. Default of seed = -1 will automatically generate a seed in H2O.\n    :return: H2OFrame with missing values inserted\n    '
+    kwargs = {}
+    kwargs['dataset'] = self.frame_id
+    kwargs['fraction'] = fraction
+    if (seed is not None):
+        kwargs['seed'] = seed
+    job = {}
+    job['job'] = h2o.H2OConnection.post_json('MissingInserter', **kwargs)
+    h2o.H2OJob(job, job_type='Insert Missing Values').poll()
+    return self

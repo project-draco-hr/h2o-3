@@ -1,0 +1,45 @@
+def split_frame(self, ratios=None, destination_frames=None, seed=None):
+    '\n    Split a frame into distinct subsets of size determined by the given ratios.\n    The number of subsets is always 1 more than the number of ratios given.\n\n    :param ratios: The fraction of rows for each split.\n    :param destination_frames: names of the split frames\n    :param seed: Random seed\n    :return: a list of frames\n    '
+    if (ratios is None):
+        ratios = [0.75]
+    if (len(ratios) < 1):
+        raise ValueError('Ratios must have length of at least 1')
+    if (destination_frames is not None):
+        if ((len(ratios) + 1) != len(destination_frames)):
+            raise ValueError('The number of provided destination_frames must be one more than the number of provided ratios')
+    num_slices = (len(ratios) + 1)
+    boundaries = []
+    last_boundary = 0
+    i = 0
+    while (i < (num_slices - 1)):
+        ratio = ratios[i]
+        if (ratio < 0):
+            raise ValueError('Ratio must be greater than 0')
+        boundary = (last_boundary + ratio)
+        if (boundary >= 1.0):
+            raise ValueError('Ratios must add up to less than 1.0')
+        boundaries.append(boundary)
+        last_boundary = boundary
+        i += 1
+    splits = []
+    tmp_runif = self.runif(seed)
+    i = 0
+    while (i < num_slices):
+        if (i == 0):
+            upper_boundary = boundaries[i]
+            tmp_slice = self[(tmp_runif <= upper_boundary), :]
+        elif (i == (num_slices - 1)):
+            lower_boundary = boundaries[(i - 1)]
+            tmp_slice = self[(tmp_runif > lower_boundary), :]
+        else:
+            lower_boundary = boundaries[(i - 1)]
+            upper_boundary = boundaries[i]
+            tmp_slice = self[((tmp_runif > lower_boundary) & (tmp_runif <= upper_boundary)), :]
+        if (destination_frames is None):
+            splits.append(tmp_slice)
+        else:
+            destination_frame_id = destination_frames[i]
+            tmp_slice2 = h2o.assign(tmp_slice, destination_frame_id)
+            splits.append(tmp_slice2)
+        i += 1
+    return splits
