@@ -1,9 +1,7 @@
 def pop(self, i):
-    '\n    Pop a colunn out of an H2OFrame.\n\n    :param i: The index or name of the column to pop.\n    :return: The column dropped from the frame.\n    '
+    'Pop a column out of an H2OFrame.\n\n    Parameters\n    ----------\n      i : int, str\n        The index or name of the column to pop.\n\n    Returns\n    -------\n      H2OFrame containing the popped column.\n    '
     if isinstance(i, basestring):
         i = self._find_idx(i)
-    col = H2OFrame(expr=ExprNode('pop', self, i))._frame()
-    if self._keep:
-        col.keep()
+    col = H2OFrame._expr(expr=ExprNode('pop', self, i))._frame()
     self._update()
     return col
