@@ -9,10 +9,10 @@ def as_data_frame(self, use_pandas=True):
         category_cols = []
         if (self.types is not None):
             for col_name in self.names:
-                type = self.types[col_name]
-                if (type.lower() == 'time'):
+                xtype = self.type(col_name)
+                if (xtype.lower() == 'time'):
                     time_cols.append(col_name)
-                elif (type.lower() == 'enum'):
+                elif (xtype.lower() == 'enum'):
                     category_cols.append(col_name)
             if time_cols:
                 from datetime import datetime
