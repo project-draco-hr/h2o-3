@@ -2,9 +2,7 @@
 def read_csv(file_path, destination_frame, header=((-1), 0, 1), separator='', column_names=None, column_types=None, na_strings=None):
     '\n    Build an H2OFrame from parsing a CSV at file_path.  This path is relative to\n    the H2O cluster, NOT the local Python process\n    :param file_path:  A remote path to a data source.  Data is cluster-local.\n    :param destination_frame:  The result *Key* name in the H2O cluster\n    '
     rawkey = h2o.lazy_import(file_path)
-    setup = h2o.parse_setup(rawkey, destination_frame, header, separator, column_names, column_types, na_strings)
-    parse = h2o._parse(setup)
-    destination_frame = parse['destination_frame']['name']
+    destination_frame = H2OFrame._parse(rawkey, destination_frame, header, separator, column_names, column_types, na_strings)
     res = H2OFrame.get_frame(destination_frame)
     nrows = res.nrow
     ncols = res.ncol

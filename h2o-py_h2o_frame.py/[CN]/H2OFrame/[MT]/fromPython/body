@@ -11,7 +11,7 @@ def fromPython(python_obj):
         raise ValueError('No data to write')
     (tmp_handle, tmp_path) = tempfile.mkstemp(suffix='.csv')
     tmp_file = os.fdopen(tmp_handle, 'wb')
-    csv_writer = csv.DictWriter(tmp_file, fieldnames=header, restval=None, dialect='excel', extrasaction='ignore', delimiter=',')
+    csv_writer = csv.DictWriter(tmp_file, fieldnames=col_header, restval=None, dialect='excel', extrasaction='ignore', delimiter=',')
     csv_writer.writeheader()
     csv_writer.writerows(data_to_write)
     tmp_file.close()

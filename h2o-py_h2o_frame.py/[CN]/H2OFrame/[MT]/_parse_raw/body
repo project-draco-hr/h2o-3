@@ -1,0 +1,11 @@
+@staticmethod
+def _parse_raw(setup):
+    p = {'destination_frame': None, 'parse_type': None, 'separator': None, 'single_quotes': None, 'check_header': None, 'number_columns': None, 'chunk_size': None, 'delete_on_done': True, 'blocking': False, 'column_types': None, }
+    if setup['column_names']:
+        p['column_names'] = None
+    if setup['na_strings']:
+        p['na_strings'] = None
+    p.update({k: v for (k, v) in setup.iteritems() if (k in p)})
+    p['source_frames'] = [h2o._quoted(src['name']) for src in setup['source_frames']]
+    job = h2o.H2OJob(h2o.H2OConnection.post_json(url_suffix='Parse', **p), 'Parse').poll()
+    return job.dest_key
