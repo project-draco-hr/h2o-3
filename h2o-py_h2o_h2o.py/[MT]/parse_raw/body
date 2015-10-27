@@ -1,9 +1,3 @@
-def parse_raw(setup, id=None, first_line_is_header=((-1), 0, 1)):
+def parse_raw(setup):
     '\n  Used in conjunction with lazy_import and parse_setup in order to make alterations before\n  parsing.\n\n  Parameters\n  ----------\n\n  setup : dict\n    Result of h2o.parse_setup\n  id : str, optional\n    An id for the frame.\n  first_line_is_header : int, optional\n    -1,0,1 if the first line is to be used as the header\n\n :return: An H2OFrame object\n  '
-    if id:
-        setup['destination_frame'] = _quoted(id).replace('%', '.').replace('&', '.')
-    if (first_line_is_header != ((-1), 0, 1)):
-        if (first_line_is_header not in ((-1), 0, 1)):
-            raise ValueError('first_line_is_header should be -1, 0, or 1')
-        setup['check_header'] = first_line_is_header
     return H2OFrame.get_frame(H2OFrame._parse_raw(setup))
