@@ -3,5 +3,5 @@ def predict(self, test_data):
     if (not isinstance(test_data, H2OFrame)):
         raise ValueError('test_data must be an instance of H2OFrame')
     test_data._eager()
-    j = H2OConnection.post_json(((('Predictions/models/' + self._id) + '/frames/') + test_data._id))
+    j = H2OConnection.post_json(((('Predictions/models/' + self.model_id) + '/frames/') + test_data.frame_id))
     return h2o.get_frame(j['predictions_frame']['name'])

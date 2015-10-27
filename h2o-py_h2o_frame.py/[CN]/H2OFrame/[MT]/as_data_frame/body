@@ -1,5 +1,5 @@
 def as_data_frame(self, use_pandas=True):
-    "\n    Obtain the dataset as a python-local object (pandas frame if possible, list otherwise)\n\n    :param use_pandas: A flag specifying whether or not to return a pandas DataFrame.\n    :return: A local python object (a list of lists of strings, each list is a row, if use_pandas=False, otherwise a\n    pandas DataFrame) containing this H2OFrame instance's data.\n    "
+    "Obtain the dataset as a python-local object.\n\n    Parameters\n    ----------\n      use_pandas : bool, optional\n        A flag specifying whether or not to return a pandas DataFrame.\n\n    Returns\n    -------\n      A local python object (a list of lists of strings, each list is a row,\n      if use_pandas=False, otherwise a pandas DataFrame) containing this H2OFrame\n      instance's data.\n    "
     self._eager()
     url = (((((('http://' + h2o.H2OConnection.ip()) + ':') + str(h2o.H2OConnection.port())) + '/3/DownloadDataset?frame_id=') + urllib.quote(self._id)) + '&hex_string=false')
     response = urllib2.urlopen(url)
@@ -28,4 +28,5 @@ def as_data_frame(self, use_pandas=True):
         return df
     else:
         cr = csv.reader(response)
-        return [([''] if (row == []) else row) for row in cr]
+        t_col_list = [([''] if (row == []) else row) for row in cr]
+        return [list(x) for x in zip(*t_col_list)]

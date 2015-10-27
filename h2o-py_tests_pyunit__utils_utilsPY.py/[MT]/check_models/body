@@ -1,8 +1,8 @@
 def check_models(model1, model2, use_cross_validation=False, op='e'):
     "\n    Check that the given models are equivalent\n    :param model1:\n    :param model2:\n    :param use_cross_validation: boolean. if True, use validation metrics to determine model equality. Otherwise, use\n    training metrics.\n    :param op: comparison operator to use. 'e':==, 'g':>, 'ge':>=\n    :return: None. Throw meaningful error messages if the check fails\n    "
-    model1_type = type(model1)
-    model2_type = type(model2)
-    assert (model1_type == model2_type), 'The model types differ. The first model is of type {0} and the second models is of type {1}.'.format(model1_type, model2_type)
+    model1_type = model1.__class__.__name__
+    model2_type = model1.__class__.__name__
+    assert (model1_type is model2_type), 'The model types differ. The first model is of type {0} and the second models is of type {1}.'.format(model1_type, model2_type)
     if isinstance(model1, H2OBinomialModel):
         f1_1 = model1.F1(xval=use_cross_validation)
         f1_2 = model2.F1(xval=use_cross_validation)
