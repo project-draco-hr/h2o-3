@@ -1,3 +1,11 @@
-def show(self, use_pandas=True):
-    '\n    Used by the H2OFrame.__repr__ method to display a snippet of the data frame.\n\n    :param use_pandas: Display a pandas style data frame (better for pretty printing wide datasets)\n    :return: None\n    '
-    self.head(rows=10, cols=sys.maxint, show=True, use_pandas=use_pandas)
+def show(self, use_pandas=False):
+    "\n    Used by the H2OFrame.__repr__ method to print or display a snippet of the data frame.\n    If called from IPython, displays an html'ized result\n    Else prints a tabulate'd result\n    :return: None\n    "
+    if h2o.H2ODisplay._in_ipy():
+        import IPython.display
+        if (use_pandas and h2o.can_use_pandas()):
+            IPython.display.display(self.head().as_data_frame())
+        IPython.display.display_html(self._cache._tabulate(self._id, 'html', False), raw=True)
+    elif (use_pandas and h2o.can_use_pandas()):
+        print self.head().as_data_frame()
+    else:
+        print self
