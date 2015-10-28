@@ -1,0 +1,8 @@
+def _eager_scalar(self):
+    if (self._data is not None):
+        return self
+    assert (self._id is None)
+    self._eval_driver(False)
+    assert (not self._id), self.__repr__()
+    assert (not isinstance(self._data, ExprNode))
+    return self._data

@@ -27,8 +27,11 @@
     DeepLearning job2=new DeepLearning(parms2);
     try {
       dl2=job2.trainModel().get();
+      Assert.fail("Should toss exception instead of reaching here");
     }
-  finally {
+ catch (    H2OIllegalArgumentException ex) {
+    }
+ finally {
       job2.remove();
     }
   }

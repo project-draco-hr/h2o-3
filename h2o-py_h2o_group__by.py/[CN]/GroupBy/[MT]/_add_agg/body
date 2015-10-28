@@ -7,7 +7,7 @@ def _add_agg(self, op, col, na):
                 self._add_agg(op, i, na)
         return self
     elif isinstance(col, basestring):
-        cidx = self._fr.index(col)
+        cidx = self._fr.names.index(col)
     elif isinstance(col, int):
         cidx = col
     elif isinstance(col, (tuple, list)):
@@ -16,7 +16,6 @@ def _add_agg(self, op, col, na):
         return self
     else:
         raise ValueError('col must be a column name or index.')
-    name = '{}_{}'.format(op, self._fr.col_names[cidx])
+    name = '{}_{}'.format(op, self._fr.names[cidx])
     self._aggs[name] = [op, cidx, na]
-    self._computed = False
     return self

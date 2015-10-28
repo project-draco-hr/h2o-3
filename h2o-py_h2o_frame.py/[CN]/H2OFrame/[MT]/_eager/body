@@ -1,15 +1,2 @@
-def _eager(self, top=True, scalar=False):
-    if (self._id is None):
-        sb = self._ast._eager()
-        if top:
-            self._id = (None if scalar else _py_tmp_key())
-            res = h2o.rapids(ExprNode._collapse_sb(sb), self._id)
-            if (('scalar' in res) or ('string' in res)):
-                self._data = (res['scalar'] if ('scalar' in res) else res['string'])
-                sb = [str(self._data)]
-            elif scalar:
-                pass
-            else:
-                sb = [self._id, ' ']
-                self._update()
-        return sb
+def _eager(self):
+    return self._ex._eager()

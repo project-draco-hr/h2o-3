@@ -1,0 +1,12 @@
+@staticmethod
+def read_csv(file_path, destination_frame, header=((-1), 0, 1), separator='', column_names=None, column_types=None, na_strings=None):
+    '\n    Build an H2OFrame from parsing a CSV at file_path.  This path is relative to\n    the H2O cluster, NOT the local Python process\n    :param file_path:  A remote path to a data source.  Data is cluster-local.\n    :param destination_frame:  The result *Key* name in the H2O cluster\n    '
+    rawkey = h2o.lazy_import(file_path)
+    res = H2OFrame._parse(rawkey, destination_frame, header, separator, column_names, column_types, na_strings)
+    nrows = res.nrow
+    ncols = res.ncol
+    if isinstance(file_path, str):
+        print 'Imported {}. Parsed {} rows and {} cols'.format(file_path, '{:,}'.format(nrows), '{:,}'.format(ncols))
+    else:
+        h2o.H2ODisplay([[('File' + str((i + 1))), f] for (i, f) in enumerate(file_path)], None, 'Parsed {} rows and {} cols'.format('{:,}'.format(nrows), '{:,}'.format(ncols)))
+    return res

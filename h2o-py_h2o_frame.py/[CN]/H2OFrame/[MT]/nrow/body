@@ -1,5 +1,7 @@
 @property
 def nrow(self):
-    '\n    Get the number of rows in this H2OFrame.\n\n    :return: The number of rows in this dataset.\n    '
-    self._eager()
-    return self._cache._nrows
+    '\n    :return: The number of rows\n    '
+    if self._ex._nrows:
+        return self._ex._nrows
+    self._ex._fetch_data(0)
+    return self._ex._nrows
