@@ -1,0 +1,17 @@
+def test1():
+    df = h2o.upload_file(pyunit_utils.locate('smalldata/jira/pubdev_2020.csv'))
+    splits = df.split_frame(ratios=[0.75])
+    assert (df.nrow == (splits[0].nrow + splits[1].nrow))
+    part0 = splits[0]
+    split_was_sequential = True
+    i = 0
+    while (i < part0.nrow):
+        value = part0[(i, 'C1')]
+        print value
+        if (value != (i + 1)):
+            split_was_sequential = False
+        i += 1
+    assert (False == split_was_sequential)
+    part1 = splits[1]
+    assert (part0.nrow > 0)
+    assert (part1.nrow > 1)

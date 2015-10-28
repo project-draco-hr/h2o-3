@@ -1,7 +1,7 @@
 def plot_test():
     kwargs = {}
     kwargs['server'] = True
-    air = h2o.import_file(tests.locate('smalldata/airlines/AirlinesTrain.csv.zip'))
+    air = h2o.import_file(pyunit_utils.locate('smalldata/airlines/AirlinesTrain.csv.zip'))
     s = air[0].runif()
     air_train = air[(s <= 0.8)]
     air_valid = air[(s > 0.8)]
@@ -10,6 +10,6 @@ def plot_test():
     air_gbm = h2o.gbm(x=air_train[myX], y=air_train[myY], validation_x=air_valid[myX], validation_y=air_valid[myY], distribution='bernoulli', ntrees=100, max_depth=3, learn_rate=0.01)
     air_gbm.plot(type='roc', train=True, **kwargs)
     air_gbm.plot(type='roc', valid=True, **kwargs)
-    air_test = h2o.import_file(tests.locate('smalldata/airlines/AirlinesTest.csv.zip'))
+    air_test = h2o.import_file(pyunit_utils.locate('smalldata/airlines/AirlinesTest.csv.zip'))
     perf = air_gbm.model_performance(air_test)
     perf.plot(type='roc', **kwargs)

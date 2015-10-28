@@ -4,34 +4,31 @@ def __setitem__(self, b, c):
     row_expr = None
     colname = None
     if isinstance(b, basestring):
-        if (b in self.col_names):
-            col_expr = self.col_names.index(b)
+        if (b in self.names):
+            col_expr = self.names.index(b)
         else:
-            col_expr = self._ncols
+            col_expr = self.ncol
             colname = b
     elif isinstance(b, int):
         col_expr = b
     elif isinstance(b, tuple):
-        col_expr = b[1]
         row_expr = b[0]
+        col_expr = b[1]
         if isinstance(col_expr, basestring):
-            if (col_expr not in self.col_names):
+            if (col_expr not in self.names):
                 colname = col_expr
-                col_expr = self._ncols
+                col_expr = self.ncol
         elif isinstance(col_expr, slice):
             if ((col_expr.start is None) and (col_expr.stop is None)):
                 col_expr = slice(0, self.ncol)
-        elif (col_expr == (-1)):
-            col_expr = slice(0, self.ncol)
-    elif isinstance(b, H2OFrame):
+    elif isinstance(b, ExprNode):
         row_expr = b
+    src = (float('nan') if (c is None) else c)
+    if (colname is None):
+        expr = ExprNode(':=', self, src, col_expr, row_expr)
+        expr_id = None
     else:
-        row_expr = slice(0, self.nrow)
-    if (row_expr is None):
-        row_expr = slice(0, self.nrow)
-    if (col_expr is None):
-        col_expr = slice(0, self.ncol)
-    src = (c._frame() if isinstance(c, H2OFrame) else (float('nan') if (c is None) else c))
-    expr = (ExprNode('=', self, src, col_expr, row_expr) if (colname is None) else ExprNode('=', self, src, col_expr, row_expr, colname))
-    h2o.rapids(ExprNode._collapse_sb(expr._eager()), self._id)
+        expr = ExprNode('append', self, src, colname)
+        expr_id = self._id
+    h2o.rapids(ExprNode._collapse_sb(expr._eager()), id=expr_id)
     self._update()

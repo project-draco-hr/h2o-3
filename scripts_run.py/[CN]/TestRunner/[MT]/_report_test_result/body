@@ -1,8 +1,11 @@
 def _report_test_result(self, test, nopass):
     port = test.get_port()
-    now = time.time()
-    duration = (now - test.start_seconds)
+    finish_seconds = time.time()
+    duration = (finish_seconds - test.start_seconds)
     test_name = test.get_test_name()
+    if (not test.get_skipped()):
+        if self.perf:
+            self._report_perf(test, finish_seconds)
     if test.get_passed():
         s = ('PASS      %d %4ds %-60s' % (port, duration, test_name))
         self._log(s)
