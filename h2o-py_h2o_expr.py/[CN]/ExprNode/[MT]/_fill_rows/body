@@ -1,0 +1,23 @@
+def _fill_rows(self, raw_json):
+    self._set_rows(raw_json['rows'])
+    self._set_cols(len(raw_json['columns']))
+    if self._data:
+        col = self._data.itervalues().next()
+        if ((raw_json['row_offset'] + raw_json['row_count']) <= len(col['data'])):
+            return self
+        print raw_json
+        print self._data
+        raise NotImplementedError
+    else:
+        assert (self._ncols == len(raw_json['columns']))
+        self._data = collections.OrderedDict()
+        for c in raw_json['columns']:
+            c.pop('__meta')
+            c.pop('domain_cardinality')
+            sdata = c.pop('string_data')
+            if sdata:
+                c['data'] = sdata
+            else:
+                c['data'] = [(float('nan') if (x == 'NaN') else x) for x in c['data']]
+            self._data[c.pop('label')] = c
+        return self

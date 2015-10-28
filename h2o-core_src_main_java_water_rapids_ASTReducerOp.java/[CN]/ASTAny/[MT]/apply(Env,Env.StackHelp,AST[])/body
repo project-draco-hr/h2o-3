@@ -1,17 +1,6 @@
 {
-  boolean any;
   Val val=stk.track(asts[1].exec(env));
-  if (val.isNum())   any=val.getNum() != 0;
- else {
-    Frame fr=val.getFrame();
-    for (int i=0; i < fr.numCols(); i++) {
-      Vec v=fr.vec(i);
-      if (!v.isInt())       throw new IllegalArgumentException("all columns must be a columns of 1s and 0s.");
-      if (v.isConst())       if (!(v.min() == 0 || v.min() == 1))       throw new IllegalArgumentException("columns must be a columns of 1s and 0s");
- else       if (v.min() != 0 && v.max() != 1)       throw new IllegalArgumentException("columns must be a columns of 1s and 0s");
-      if (v.naCnt() > 0)       return new ValStr("TRUE");
-    }
-    any=new AnyTask().doAll(fr).any;
-  }
-  return new ValStr(any ? "TRUE" : "FALSE");
+  if (val.isNum())   return new ValNum(val.getNum() == 0 ? 0 : 1);
+  for (  Vec vec : val.getFrame().vecs())   if (vec.nzCnt() + vec.naCnt() > 0)   return new ValNum(1);
+  return new ValNum(0);
 }

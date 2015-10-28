@@ -32,8 +32,6 @@ by2=new ASTNumList(list);
 }
  else throw new IllegalArgumentException("Requires a number-list, but found a " + ast.getClass());
 final ASTNumList by=by2;
-final boolean inplace=asts[6].exec(env).getNum() == 1;
-if (inplace && fr._key == null) throw new IllegalArgumentException("Can only update in-place named Frames");
 IcedHashMap<ASTGroup.G,IcedDouble> group_impute_map;
 if (by.isEmpty()) {
 double res=Double.NaN;
@@ -49,10 +47,8 @@ final int[] bycols=ArrayUtils.seq(0,imputes.numCols() - 1);
 group_impute_map=new Gather(bycols).doAll(imputes)._group_impute_map;
 imputes.delete();
 }
-if (!inplace) {
 fr=new Frame(fr);
 stk.track(fr).replace(col,vec.makeCopy());
-}
 final IcedHashMap<ASTGroup.G,IcedDouble> final_group_impute_map=group_impute_map;
 final int[] bycols=by.expand4();
 new MRTask(){

@@ -1,6 +1,7 @@
 def var(self, y=None, use='everything'):
-    '\n    :param use: One of "everything", "complete.obs", or "all.obs".\n    :return: The covariance matrix of the columns in this H2OFrame.\n    '
-    fr = H2OFrame._expr(expr=ExprNode('var', self, (self if (y is None) else y), use))
-    if (self.ncol == 1):
-        return fr._scalar()
-    return fr._frame()
+    '\n    :param use: One of "everything", "complete.obs", or "all.obs".\n    :return: The covariance matrix of the columns in this H2OFrame if y is\n             given, or a eagerly computed scalar if y is not given.\n    '
+    if (y is None):
+        y = self
+    if ((self.nrow == 1) or ((self.ncol == 1) and (y.ncol == 1))):
+        return self._scalar('var', self, y, use)
+    return self._newExpr('var', self, y, use)

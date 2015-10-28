@@ -1,10 +1,2 @@
-def _scalar(self):
-    self._eager(scalar=True)
-    if (self._data is None):
-        res = self.as_data_frame(use_pandas=False)[0][1:]
-        if (len(res) == 1):
-            return H2OFrame._get_scalar(res[0])
-        else:
-            return [H2OFrame._get_scalar(r) for r in res]
-    else:
-        return H2OFrame._get_scalar(self._data)
+def _scalar(self, op, *args):
+    return expr.ExprNode(op, *args)._eager_scalar()
