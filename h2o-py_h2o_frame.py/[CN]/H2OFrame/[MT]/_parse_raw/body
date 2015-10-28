@@ -8,4 +8,4 @@ def _parse_raw(setup):
     p.update({k: v for (k, v) in setup.iteritems() if (k in p)})
     p['source_frames'] = [h2o._quoted(src['name']) for src in setup['source_frames']]
     job = h2o.H2OJob(h2o.H2OConnection.post_json(url_suffix='Parse', **p), 'Parse').poll()
-    return job.dest_key
+    return H2OFrame.get_frame(job.dest_key)
