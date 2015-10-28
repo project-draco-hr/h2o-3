@@ -1,11 +1,11 @@
 def apply(self, fun=None, axis=0):
-    '\n    Apply a lambda expression to an H2OFrame.\n\n    :param fun: A lambda expression to be applied per row or per column\n    :param axis: 0: apply to each column; 1: apply to each row\n    :return: An H2OFrame\n    '
+    '\n    Apply a lambda expression to an self._newExpr.\n\n    :param fun: A lambda expression to be applied per row or per column\n    :param axis: 0: apply to each column; 1: apply to each row\n    :return: An self._newExpr\n    '
     if (axis not in [0, 1]):
         raise ValueError('margin must be either 0 (cols) or 1 (rows).')
     if (fun is None):
         raise ValueError('No function to apply.')
     if (isinstance(fun, type((lambda : 0))) and (fun.__name__ == (lambda : 0).__name__)):
         res = _bytecode_decompile_lambda(fun.func_code)
-        return H2OFrame._expr(expr=ExprNode('apply', self, (1 + (axis == 0)), *res))
+        return self._newExpr('apply', self, (1 + (axis == 0)), *res)
     else:
         raise ValueError('unimpl: not a lambda')
