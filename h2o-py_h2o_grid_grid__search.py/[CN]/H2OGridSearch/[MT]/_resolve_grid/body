@@ -1,0 +1,8 @@
+def _resolve_grid(self, grid_id, grid_json, first_model_json):
+    model_class = H2OGridSearch._metrics_class(first_model_json)
+    m = model_class()
+    m._id = grid_id
+    m._grid_json = grid_json
+    m._parms = self._parms
+    H2OEstimator.mixin(self, model_class)
+    self.__dict__.update(m.__dict__.copy())
