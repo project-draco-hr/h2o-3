@@ -1,10 +1,10 @@
 def _to_string(self, depth=0, sb=None):
     sb += ['\n', (' ' * depth), ('(' + self._op), ' ']
     for child in self._children:
-        if (isinstance(child, h2o.H2OFrame) and (child._ex._id is None)):
+        if (isinstance(child, h2o.H2OFrame) and (child._ex._cache._id is None)):
             child._ex._to_string((depth + 2), sb)
         elif isinstance(child, h2o.H2OFrame):
-            sb += ['\n', (' ' * (depth + 2)), child._ex._id]
+            sb += ['\n', (' ' * (depth + 2)), child._ex._cache._id]
         elif isinstance(child, ExprNode):
             child._to_string((depth + 2), sb)
         else:
