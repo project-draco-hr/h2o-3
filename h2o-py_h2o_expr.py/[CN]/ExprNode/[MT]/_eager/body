@@ -1,9 +1,6 @@
-def _eager(self, sb=None):
-    ' This call is mutually recursive with ExprNode._do_it and H2OFrame._do_it '
-    if (sb is None):
-        sb = []
-    sb += ['(', self._op, ' ']
-    for child in self._children:
-        ExprNode._do_it(child, sb)
-    sb += [') ']
-    return sb
+def _eager(self):
+    if (self._data is not None):
+        return self
+    if self._id:
+        return self
+    return self._eval_driver(True)

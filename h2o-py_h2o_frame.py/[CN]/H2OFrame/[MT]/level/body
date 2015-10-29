@@ -1,0 +1,8 @@
+def level(self, col=None):
+    '\n    Get the factor levels for this single column\n\n    :param col: A column index in this H2OFrame\n    :return: a list of strings that are the factor levels for the one column.\n    '
+    fr = (self if (col is None) else self._newExpr('cols', self, col))
+    if (fr.ncol > 1):
+        raise ValueError('level takes only a single column')
+    l = h2o.as_list(self._newExpr('levels', fr), False)[0]
+    l.pop(0)
+    return l
