@@ -1,9 +1,5 @@
-def __init__(self, op, *ast):
-    '\n    Standard set-all-fields internal-use-only constructor.\n    Caveat Emptor\n    :return: An instance of an H2OFrame object.\n    '
+def __init__(self, op=None, *args):
     assert isinstance(op, str), op
     self._op = op
-    self._ast = tuple(((child._ex if isinstance(child, frame.H2OFrame) else child) for child in ast))
-    self._id = None
-    self._nrows = None
-    self._ncols = None
-    self._data = None
+    self._children = args
+    self._cache = H2OCache()

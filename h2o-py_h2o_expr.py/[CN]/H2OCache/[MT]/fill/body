@@ -1,0 +1,13 @@
+def fill(self, nrows=10):
+    assert (self._id is not None)
+    nrows = max(nrows, 10)
+    if (self._data is not None):
+        if (nrows <= len(self)):
+            return
+    res = h2o.H2OConnection.get_json(('Frames/' + urllib.quote(self._id)), row_count=nrows)['frames'][0]
+    self._l = nrows
+    self._nrows = res['rows']
+    self._ncols = res['total_column_count']
+    self._names = [c['label'] for c in res['columns']]
+    self._types = dict(zip(self._names, [c['type'] for c in res['columns']]))
+    self._fill_data(res)

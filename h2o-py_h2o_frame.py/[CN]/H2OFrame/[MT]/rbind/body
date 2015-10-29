@@ -1,5 +1,8 @@
 def rbind(self, data):
-    '\n    Combine H2O Datasets by Rows.\n    Takes a sequence of H2O data sets and combines them by rows.\n    :param data: an self._newExpr\n    :return: self, with data appended (row-wise)\n    '
+    'Combine H2O Datasets by rows.\n    Takes a sequence of H2O data sets and combines them by rows.\n\n    Parameters\n    ----------\n      data : H2OFrame\n\n    Returns\n    -------\n      Returns this H2OFrame with data appended row-wise.\n    '
     if (not isinstance(data, H2OFrame)):
         raise ValueError('`data` must be an H2OFrame, but got {0}'.format(type(data)))
-    return self._newExpr('rbind', self, data)
+    fr = H2OFrame._expr(expr=ExprNode('rbind', self, data))
+    fr._ex._cache.fill_from(self._ex._cache)
+    fr._ex._cache.nrows = (-1)
+    return fr

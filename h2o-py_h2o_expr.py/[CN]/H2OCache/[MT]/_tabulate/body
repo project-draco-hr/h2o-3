@@ -1,0 +1,17 @@
+def _tabulate(self, tablefmt, rollups):
+    'Pretty tabulated string of all the cached data, and column names'
+    if (not isinstance(self._data, dict)):
+        return str(self._data)
+    d = collections.OrderedDict()
+    if rollups:
+        col = self._data.itervalues().next()
+        lrows = len(col['data'])
+        d[''] = (['type', 'mins', 'mean', 'maxs', 'sigma', 'zeros', 'missing'] + map(str, range(lrows)))
+    for (k, v) in self._data.iteritems():
+        x = v
+        if rollups:
+            mins = (v['mins'][0] if v['mins'] else None)
+            maxs = (v['maxs'][0] if v['maxs'] else None)
+            x = ([v['type'], mins, v['mean'], maxs, v['sigma'], v['zero_count'], v['missing_count']] + x)
+        d[k] = x
+    return tabulate.tabulate(d, headers='keys', tablefmt=tablefmt)
