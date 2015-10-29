@@ -43,8 +43,8 @@
     Vec lv=walked.vecs()[i];
     if (lv.isCategorical())     id_maps[i]=CategoricalWrappedVec.computeMap(hashed.vecs()[i].domain(),lv.domain());
   }
-  if (method.equals("big")) {
-    return sortingMerge(walked,hashed,all_x,all_y,ncols,id_maps);
+  if (method.equals("radix")) {
+    return sortingMerge(l,r,all_x,all_y,ncols,id_maps);
   }
  else {
     final MergeSet ms=new MergeSet(ncols,id_maps,all_y).doAll(hashed);
@@ -56,7 +56,8 @@
       }
     }
 .doAllNodes();
-    if (rows == null)     if (all_x && !(all_y && ms._dup)) {
+    if (method.equals("auto") && (rows == null || rows.size() > MAX_HASH_SIZE))     return sortingMerge(l,r,all_x,all_y,ncols,id_maps);
+    if (all_x && !(all_y && ms._dup)) {
       walked=walked.deepCopy(null);
       String[] names=Arrays.copyOfRange(hashed._names,ncols,hashed._names.length);
       String[][] domains=Arrays.copyOfRange(hashed.domains(),ncols,hashed.domains().length);

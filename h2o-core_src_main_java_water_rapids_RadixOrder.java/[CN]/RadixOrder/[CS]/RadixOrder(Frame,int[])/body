@@ -8,6 +8,7 @@
     _biggestBit[i]=1 + (int)Math.floor(Math.log(col.max()) / Math.log(2));
     _bytesUsed[i]=(int)Math.ceil(_biggestBit[i] / 8.0);
   }
+  if (_biggestBit[0] < 8)   Log.warn("biggest bit should be >= 8 otherwise need to dip into next column (TODO)");
   new RadixCount(DF._key,_biggestBit[0],whichCols[0]).doAll(DF.vec(whichCols[0]));
   System.out.println("Time of MSB count: " + (System.nanoTime() - t0) / 1e9);
   int keySize=ArrayUtils.sum(_bytesUsed);
