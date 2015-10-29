@@ -4,8 +4,7 @@ def impute(self, column, method='mean', combine_method='interpolate', by=None, i
         column = self.names.index(column)
     if isinstance(by, basestring):
         by = self.names.index(by)
-    fr = H2OFrame._expr(expr=ExprNode('h2o.impute', self, column, method, combine_method, by))
-    fr._ex._cache.fill_from(self._ex._cache)
+    fr = H2OFrame._expr(expr=ExprNode('h2o.impute', self, column, method, combine_method, by), cache=self._ex._cache)
     if inplace:
         raise ValueError('unimpl')
     return fr

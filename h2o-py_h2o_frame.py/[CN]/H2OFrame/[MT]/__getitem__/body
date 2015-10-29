@@ -6,8 +6,6 @@ def __getitem__(self, item):
     new_types = None
     fr = None
     flatten = False
-    if ((self.names is None) or (self.types is None) or (self.ncol == (-1))):
-        self._frame()._ex._cache.fill()
     if isinstance(item, (basestring, list, int, slice)):
         (new_ncols, new_names, new_types) = self._compute_ncol_update(item)
         fr = H2OFrame._expr(expr=ExprNode('cols_py', self, item))
@@ -45,8 +43,7 @@ def __getitem__(self, item):
         raise ValueError(((('Unexpected __getitem__ selector: ' + str(type(item))) + ' ') + str(item.__class__)))
     assert (fr is not None)
     if flatten:
-        fr = ExprNode('flatten', fr)
-        return fr._eager_scalar()
+        return fr.flatten()
     fr._ex._cache.ncols = new_ncols
     fr._ex._cache.nrows = new_nrows
     fr._ex._cache.names = new_names

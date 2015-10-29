@@ -3,5 +3,5 @@ def var(self, y=None, use='everything'):
     if (y is None):
         y = self
     if ((self.nrow == 1) or ((self.ncol == 1) and (y.ncol == 1))):
-        return H2OFrame._expr(expr=ExprNode('var', self, y, use))._scalar()
+        return ExprNode('var', self, y, use)._eager_scalar()
     return H2OFrame._expr(expr=ExprNode('var', self, y, use))._frame()
