@@ -1,7 +1,6 @@
-def assign(data, xid):
-    if (data._ex._id is None):
-        data._ex = expr.ExprNode('tmp=', xid, data)._eval_driver(False)
-        data._ex._id = xid
-    elif (data.frame_id == xid):
-        ValueError('Desination key must differ input frame')
+def assign(data, id):
+    data._eager()
+    rapids(data._id, id)
+    data._id = id
+    data._ast = None
     return data
