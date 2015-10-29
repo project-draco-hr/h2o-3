@@ -2,10 +2,8 @@
   Frame frame=getFromDKV("key",s.frame_id.key());
   Vec vec=frame.vec(s.column);
   if (null == vec)   throw new H2OColumnNotFoundArgumentException("column",s.frame_id.toString(),s.column);
-  if (!vec.isString()) {
-    vec.bins();
-  }
+  vec.bins();
   s.frames=new FrameV3[1];
-  s.frames[0]=new FrameV3().fillFromImpl(new Frame(new String[]{s.column},new Vec[]{vec}),s.row_offset,s.row_count,s.column_offset,s.column_count,true);
+  s.frames[0]=new FrameV3().fillFromImpl(new Frame(new String[]{s.column},new Vec[]{vec}),s.row_offset,s.row_count,s.column_offset,s.column_count);
   return s;
 }
