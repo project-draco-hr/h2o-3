@@ -1,4 +1,3 @@
-def rapids(expr, id=None):
+def rapids(expr):
     '\n  Fire off a Rapids expression.\n\n  Parameters\n  ----------\n\n  expr : str\n    The rapids expression (ascii string).\n\n  :return: The JSON response of the Rapids execution\n  '
-    expr = (expr if (id is None) else '(tmp= {} {})'.format(id, expr))
     return H2OConnection.post_json('Rapids', ast=urllib.quote(expr), _rest_version=99)

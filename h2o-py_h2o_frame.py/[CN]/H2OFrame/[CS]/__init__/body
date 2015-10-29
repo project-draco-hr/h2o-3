@@ -1,8 +1,4 @@
-def __init__(self, python_obj=None, destination_frame='', header=((-1), 0, 1), separator='', column_names=None, column_types=None, na_strings=None):
-    'Create an instance of H2OFrame\n\n    If `python_obj` is not None, then an attempt to upload the python object to H2O\n    will be made. A valid python object has type `list`, or `dict`. For more information\n    on the structure of the input for the various native python data types\n    ("native" meaning non-H2O), please see the general documentation for this object.\n\n    Parameters\n    ----------\n      python_obj : optional\n        A native python object.\n\n    Returns\n    -------\n      H2OFrame instance\n    '
-    self._id = None
-    self._ast = None
-    self._cache = H2OCache()
-    self._data = None
-    if (python_obj is not None):
-        self._upload_python_object(python_obj, destination_frame, header, separator, column_names, column_types, na_strings)
+def __init__(self, ex):
+    if (not isinstance(ex, expr.ExprNode)):
+        raise ValueError((('H2OFrame must be passed an ExprNode, not a ' + str(ex.__class__)) + ' and the constructor is an internal method.\nDid you mean H2OFrame.fromPython(python_obj)?'))
+    self._ex = ex
