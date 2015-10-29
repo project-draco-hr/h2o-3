@@ -6,6 +6,8 @@ def __getitem__(self, item):
     new_types = None
     fr = None
     flatten = False
+    if ((self.names is None) or (self.types is None) or (self.ncol == (-1))):
+        self._frame()._ex._cache.fill()
     if isinstance(item, (basestring, list, int, slice)):
         (new_ncols, new_names, new_types) = self._compute_ncol_update(item)
         fr = H2OFrame._expr(expr=ExprNode('cols_py', self, item))
