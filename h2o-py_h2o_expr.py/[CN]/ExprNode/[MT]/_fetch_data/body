@@ -1,0 +1,9 @@
+def _fetch_data(self, nrows):
+    nrows = max(nrows, 10)
+    if self._data:
+        col = self._data.itervalues().next()
+        if (nrows <= len(col['data'])):
+            return self._data
+    xid = (self._id or self._eager()._id)
+    res = h2o.H2OConnection.get_json(((('Frames/' + urllib.quote(xid)) + '?row_count=') + str(nrows)))['frames'][0]
+    return self._fill_rows(res)._data

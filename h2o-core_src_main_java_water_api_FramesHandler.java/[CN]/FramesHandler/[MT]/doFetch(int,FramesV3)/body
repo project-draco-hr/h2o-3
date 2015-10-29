@@ -1,0 +1,18 @@
+{
+  Frames f=s.createAndFillImpl();
+  Frame frame=getFromDKV("key",s.frame_id.key());
+  s.frames=new FrameV3[1];
+  s.frames[0]=new FrameV3(frame,s.row_offset,s.row_count).fillFromImpl(frame,s.row_offset,s.row_count,s.column_offset,s.column_count);
+  if (s.find_compatible_models) {
+    Model[] compatible=Frames.findCompatibleModels(frame,Models.fetchAll());
+    s.compatible_models=new ModelSchema[compatible.length];
+    ((FrameV3)s.frames[0]).compatible_models=new String[compatible.length];
+    int i=0;
+    for (    Model m : compatible) {
+      s.compatible_models[i]=(ModelSchema)Schema.schema(version,m).fillFromImpl(m);
+      ((FrameV3)s.frames[0]).compatible_models[i]=m._key.toString();
+      i++;
+    }
+  }
+  return s;
+}
