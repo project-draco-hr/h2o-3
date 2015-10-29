@@ -11,6 +11,8 @@ def __getitem__(self, item):
         fr = H2OFrame._expr(expr=ExprNode('cols_py', self, item))
     elif isinstance(item, (ExprNode, H2OFrame)):
         new_ncols = self.ncol
+        new_names = self.names
+        new_types = self.types
         new_nrows = (-1)
         fr = H2OFrame._expr(expr=ExprNode('rows', self, item))
     elif isinstance(item, tuple):
@@ -28,6 +30,8 @@ def __getitem__(self, item):
             fr = H2OFrame._expr(expr=ExprNode('cols_py', self, cols))
         if allcols:
             new_ncols = self.ncol
+            new_names = self.names
+            new_types = self.types
             new_nrows = self._compute_nrow_update(rows)
             fr = H2OFrame._expr(expr=ExprNode('rows', self, rows))
         if ((not allrows) and (not allcols)):
