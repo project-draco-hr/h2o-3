@@ -12,6 +12,7 @@
   for (int i=0; i < movingAvg.length; ++i) {
     movingAvg[i]=0;
     int startIdx=sk.length - 2 * k + i;
+    boolean zeroCrossing=false;
     for (int j=0; j < k; ++j) {
       ScoreKeeper skj=sk[startIdx + j];
       double val;
@@ -46,7 +47,7 @@ if (i == 0) lastBeforeK=movingAvg[i];
 }
 assert(lastBeforeK != Double.MAX_VALUE);
 assert(bestInLastK != Double.MAX_VALUE);
-Log.info("Moving averages (length " + k + ") of last "+ (k + 1)+ criterion.toString()+ " metrics: "+ Arrays.toString(movingAvg));
+Log.info("Moving averages (length " + k + ") of last "+ (k + 1)+ " "+ criterion.toString()+ " metrics: "+ Arrays.toString(movingAvg));
 boolean improved=moreIsBetter ? bestInLastK / lastBeforeK > 1 + rel_improvement : bestInLastK / lastBeforeK < 1 - rel_improvement;
 Log.info("Checking model convergence with " + criterion.toString() + " metric: "+ lastBeforeK+ " --> "+ bestInLastK+ (improved ? " (still improving)." : " (converged)."));
 return !improved;
