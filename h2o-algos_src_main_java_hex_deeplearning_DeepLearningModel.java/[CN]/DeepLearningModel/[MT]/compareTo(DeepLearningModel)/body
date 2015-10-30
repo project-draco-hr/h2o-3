@@ -1,5 +1,7 @@
 {
   if (o._output.isClassifier() != _output.isClassifier())   throw new UnsupportedOperationException("Cannot compare classifier against regressor.");
-  if (o._output.nclasses() != _output.nclasses())   throw new UnsupportedOperationException("Cannot compare models with different number of classes.");
-  return (error() < o.error() ? -1 : error() > o.error() ? 1 : 0);
+  if (o._output.isClassifier()) {
+    if (o._output.nclasses() != _output.nclasses())     throw new UnsupportedOperationException("Cannot compare models with different number of classes.");
+  }
+  return (loss() < o.loss() ? -1 : loss() > o.loss() ? 1 : 0);
 }

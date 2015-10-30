@@ -1,0 +1,12 @@
+def _fill_data(self, json):
+    self._data = collections.OrderedDict()
+    for c in json['columns']:
+        c.pop('__meta')
+        c.pop('domain_cardinality')
+        sdata = c.pop('string_data')
+        if sdata:
+            c['data'] = sdata
+        else:
+            c['data'] = [(float('nan') if (x == 'NaN') else x) for x in c['data']]
+        self._data[c.pop('label')] = c
+    return self

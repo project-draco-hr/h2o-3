@@ -1,3 +1,5 @@
 def isnumeric(self):
-    '\n    :return: True if the column is numeric, otherwise return False\n    '
-    return self._scalar('is.numeric', self)
+    '\n    Returns\n    -------\n      True if the column is numeric, otherwise return False\n    '
+    if self._ex._cache.types_valid():
+        return (str(self._ex._cache.types.values()[0]) in ['numeric', 'int', 'real'])
+    return bool(ExprNode('is.numeric', self)._eager_scalar())
