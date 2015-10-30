@@ -1,7 +1,9 @@
 {
   Model model=null;
+  String protoModelKey=_hyperSpaceWalker.getParams()._model_id == null ? grid._key + "_model_" : _hyperSpaceWalker.getParams()._model_id.toString() + H2O.calcNextUniqueModelId("") + "_";
   try {
     HyperSpaceWalker.HyperSpaceIterator<MP> it=_hyperSpaceWalker.iterator();
+    int counter=0;
     while (it.hasNext(model)) {
       if (!isRunning()) {
         cancel();
@@ -11,7 +13,7 @@
       try {
         params=it.nextModelParameters(model);
         try {
-          model=buildModel(params,grid);
+          model=buildModel(params,grid,counter++,protoModelKey);
         }
  catch (        RuntimeException e) {
           Log.warn("Grid search: model builder for parameters " + params + " failed! Exception: ",e);
