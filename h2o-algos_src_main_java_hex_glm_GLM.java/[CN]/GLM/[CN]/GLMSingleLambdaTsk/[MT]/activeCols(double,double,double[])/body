@@ -8,9 +8,14 @@
     int j=0;
     int[] oldActiveCols=_taskInfo._activeCols;
     if (oldActiveCols == null)     oldActiveCols=new int[0];
-    for (int i=0; i < _dinfo.fullN(); ++i)     if ((j < oldActiveCols.length && i == oldActiveCols[j]) || grad[i] > rhs || grad[i] < -rhs) {
-      cols[selected++]=i;
-      if (j < oldActiveCols.length && i == oldActiveCols[j])       ++j;
+    int C=_parms._family == Family.multinomial ? _nclass : 1;
+    int P=_dinfo.fullN() + 1;
+    for (int i=0; i < _dinfo.fullN(); ++i) {
+      for (int c=0; c < C; ++c)       if ((j < oldActiveCols.length && i == oldActiveCols[j]) || grad[i + c * P] > rhs || grad[i + c * P] < -rhs) {
+        cols[selected++]=i;
+        if (j < oldActiveCols.length && i == oldActiveCols[j])         ++j;
+        break;
+      }
     }
   }
   if (_parms._alpha[0] == 0 || selected == _dinfo.fullN()) {

@@ -47,7 +47,7 @@
         boolean CD=(s == Solver.COORDINATE_DESCENT || s == Solver.COORDINATE_DESCENT_NAIVE);
         System.out.println(" solver " + s);
         System.out.println("validation = " + model._output._training_metrics);
-        for (int i=0; i < cfs1.length; ++i)         assertEquals(vals[i],coefs.get(cfs1[i]),CD ? 5e-3 : 1e-4);
+        for (int i=0; i < cfs1.length; ++i)         assertEquals(vals[i],coefs.get(cfs1[i]),CD ? 5e-2 : 1e-4);
         assertEquals(355.7,GLMTest.nullDeviance(model),1e-1);
         assertEquals(305.1,GLMTest.residualDeviance(model),1e-1);
         assertEquals(289,GLMTest.nullDOF(model),0);
@@ -79,7 +79,7 @@
         assertEquals(model._output._validation_metrics._MSE,mmTest._MSE,1e-8);
         assertEquals(((ModelMetricsBinomialGLM)model._output._validation_metrics)._resDev,mmTest._resDev,1e-8);
         Vec.Reader preds=scoreTest.vec("p1").new Reader();
-        for (int i=0; i < pred_test.length; ++i)         assertEquals(pred_test[i],preds.at(i),CD ? 1e-4 : 1e-6);
+        for (int i=0; i < pred_test.length; ++i)         assertEquals(pred_test[i],preds.at(i),CD ? 1e-3 : 1e-6);
       }
   finally {
         if (model != null)         model.delete();

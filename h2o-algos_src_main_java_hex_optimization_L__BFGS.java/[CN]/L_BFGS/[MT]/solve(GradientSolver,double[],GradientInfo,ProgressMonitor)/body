@@ -2,56 +2,23 @@
   if (_hist == null)   _hist=new History(_historySz,beta.length);
   beta=beta.clone();
   int iter=0;
-  boolean doLineSearch=true;
-  int ls_switch=0;
   double rel_improvement=1;
-  boolean converged=false;
-  while (pm.progress(beta,ginfo) && (iter < _minIter || ArrayUtils.linfnorm(ginfo._gradient,false) > _gradEps && rel_improvement > _objEps) && iter != _maxIter) {
-    double[] pk=_hist.getSearchDirection(ginfo._gradient);
-    if (ArrayUtils.hasNaNsOrInfs(pk)) {
-      Log.warn("LBFGS: Got NaNs in search direction.");
+  final double[] pk=new double[beta.length];
+  double minStep=1e-12;
+  double maxStep=100;
+  _lineSearch=new MoreThuente();
+  while (!ArrayUtils.hasNaNsOrInfs(beta) && (pm.progress(beta,ginfo) && (ArrayUtils.linfnorm(ginfo._gradient,false) > _gradEps && rel_improvement > _objEps) && iter != _maxIter)) {
+    ++iter;
+    _hist.getSearchDirection(ginfo._gradient,pk);
+    if (!_lineSearch.evaluate(gslvr,ginfo,beta,pk,minStep,maxStep,20)) {
       break;
     }
-    LineSearchSol ls=null;
-    if (doLineSearch) {
-      ls=gslvr.doLineSearch(ginfo,beta,pk,24,.5);
-      if (ls.step == 1) {
-        if (++ls_switch == 2) {
-          ls_switch=0;
-          doLineSearch=false;
-        }
-      }
- else {
-        ls_switch=0;
-      }
-      if (ls.madeProgress || _hist._k < 2) {
-        ArrayUtils.wadd(beta,pk,ls.step);
-      }
- else {
-        break;
-      }
-    }
- else     ArrayUtils.add(beta,pk);
-    GradientInfo newGinfo=gslvr.getGradient(beta);
-    if (doLineSearch && !(Double.isNaN(ls.objVal) && Double.isNaN(newGinfo._objVal)) && Math.abs(ls.objVal - newGinfo._objVal) > 1e-10 * ls.objVal) {
-      throw new IllegalArgumentException("L-BFGS: Got invalid gradient solver, objective values from line-search and gradient tasks differ, " + ls.objVal + " != "+ newGinfo._objVal+ ", step = "+ ls.step);
-    }
-    if (!doLineSearch)     if (!admissibleStep(1,ginfo._objVal,newGinfo._objVal,pk,ginfo._gradient)) {
-      if (++ls_switch == 2) {
-        doLineSearch=true;
-        ls_switch=0;
-      }
-      if (ginfo._objVal < newGinfo._objVal && (newGinfo._objVal - ginfo._objVal > _objEps * ginfo._objVal)) {
-        doLineSearch=true;
-        ArrayUtils.subtract(beta,pk,beta);
-        continue;
-      }
-    }
- else     ls_switch=0;
-    ++iter;
+    _lineSearch.setInitialStep(Math.max(10 * minStep,_lineSearch.step()));
+    ArrayUtils.add(beta,ArrayUtils.mult(pk,_lineSearch.step()));
+    GradientInfo newGinfo=_lineSearch.ginfo();
     _hist.update(pk,newGinfo._gradient,ginfo._gradient);
     rel_improvement=(ginfo._objVal - newGinfo._objVal) / ginfo._objVal;
     ginfo=newGinfo;
   }
-  return new Result(iter < _maxIter || ArrayUtils.linfnorm(ginfo._gradient,false) < _gradEps || rel_improvement < _objEps,iter,beta,ginfo);
+  return new Result(ArrayUtils.linfnorm(ginfo._gradient,false) < _gradEps,iter,beta,ginfo);
 }

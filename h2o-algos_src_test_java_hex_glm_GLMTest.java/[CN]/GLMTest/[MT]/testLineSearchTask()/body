@@ -19,14 +19,14 @@
       beta[i]=1 - 2 * rnd.nextDouble();
       pk[i]=10 * (1 - 2 * rnd.nextDouble());
     }
-    GLMLineSearchTask glst=new GLMLineSearchTask(dinfo,params,1,beta,pk,1,.7,16,null).doAll(dinfo._adaptedFrame);
+    GLMLineSearchTask glst=new GLMLineSearchTask(dinfo,params,beta,pk,1,.7,16,null).doAll(dinfo._adaptedFrame);
     double step=1, stepDec=.7;
     for (int i=0; i < glst._nSteps; ++i) {
       double[] b=beta.clone();
       for (int j=0; j < b.length; ++j) {
         b[j]+=step * pk[j];
       }
-      GLMIterationTask glmt=new GLMTask.GLMIterationTask(null,dinfo,0,params,true,b,ymu,null,null).doAll(dinfo._adaptedFrame);
+      GLMIterationTask glmt=new GLMTask.GLMIterationTask(null,dinfo,0,params,true,b,ymu,true,null).doAll(dinfo._adaptedFrame);
       assertEquals("objective values differ at step " + i + ": "+ step,glmt._likelihood,glst._likelihoods[i],1e-8);
       System.out.println("step = " + step + ", obj = "+ glmt._likelihood+ ", "+ glst._likelihoods[i]);
       step*=stepDec;

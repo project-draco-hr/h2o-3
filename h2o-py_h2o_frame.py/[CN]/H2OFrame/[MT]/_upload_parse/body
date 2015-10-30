@@ -1,5 +1,5 @@
-@staticmethod
-def _upload_parse(path, destination_frame, header, sep, column_names, column_types, na_strings):
+def _upload_parse(self, path, destination_frame, header, sep, column_names, column_types, na_strings):
     fui = {'file': os.path.abspath(path), }
     rawkey = h2o.H2OConnection.post_json(url_suffix='PostFile', file_upload_info=fui)['destination_frame']
-    return H2OFrame._parse(rawkey, destination_frame, header, sep, column_names, column_types, na_strings)
+    self._parse(rawkey, destination_frame, header, sep, column_names, column_types, na_strings)
+    return self
