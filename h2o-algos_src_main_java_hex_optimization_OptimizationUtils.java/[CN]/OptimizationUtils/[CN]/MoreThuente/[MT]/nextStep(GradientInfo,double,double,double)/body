@@ -1,0 +1,92 @@
+{
+  double fvp=ginfo._objVal - stp * off;
+  double dgp=dg - off;
+  double fvx=_fvx - _stx * off;
+  double fvy=_fvy - _sty * off;
+  double stx=_stx;
+  double sty=_sty;
+  double dgx=_dgx - off;
+  double dgy=_dgy - off;
+  if ((_brackt && (stp <= Math.min(stx,sty) || stp >= Math.max(stx,sty))) || dgx * (stp - stx) >= 0.0)   return Double.NaN;
+  double theta=3 * (fvx - fvp) / (stp - stx) + dgx + dgp;
+  double s=Math.max(Math.max(Math.abs(theta),Math.abs(dgx)),Math.abs(dgp));
+  double sInv=1 / s;
+  double ts=theta * sInv;
+  double gamma=s * Math.sqrt(Math.max(0.,(ts * ts) - ((dgx * sInv) * (dgp * sInv))));
+  int info=0;
+  double nextStep;
+  if (fvp > fvx) {
+    info=1;
+    if (stp < stx)     gamma=-gamma;
+    _bound=true;
+    _brackt=true;
+    double p=(gamma - dgx) + theta;
+    double q=((gamma - dgx) + gamma) + dgp;
+    double r=p / q;
+    double stpc=stx + r * (stp - stx);
+    double stpq=stx + ((dgx / ((fvx - fvp) / (stp - stx) + dgx)) / 2) * (stp - stx);
+    nextStep=(Math.abs(stpc - stx) < Math.abs(stpq - stx)) ? stpc : stpc + (stpq - stpc) / 2;
+  }
+ else   if (dgp * dgx < 0) {
+    info=2;
+    if (stp > stx)     gamma=-gamma;
+    _bound=false;
+    _brackt=true;
+    double p=(gamma - dgp) + theta;
+    double q=((gamma - dgp) + gamma) + dgx;
+    double r=p / q;
+    double stpc=stp + r * (stx - stp);
+    double stpq=stp + (dgp / (dgp - dgx)) * (stx - stp);
+    nextStep=(Math.abs(stpc - stp) > Math.abs(stpq - stp)) ? stpc : stpq;
+  }
+ else   if (Math.abs(dgp) < Math.abs(dgx)) {
+    info=3;
+    if (stp > stx)     gamma=-gamma;
+    _bound=true;
+    double p=gamma - dgp + theta;
+    double q=gamma + dgx - dgp + gamma;
+    double r=p / q;
+    double stpc;
+    if (r < 0.0 && gamma != 0.0)     stpc=stp + r * (stx - stp);
+ else     if (stp > stx)     stpc=_stMax;
+ else     stpc=_stMin;
+    double stpq=stp + (dgp / (dgp - dgx)) * (stx - stp);
+    if (_brackt)     nextStep=(Math.abs(stp - stpc) < Math.abs(stp - stpq)) ? stpc : stpq;
+ else     nextStep=(Math.abs(stp - stpc) > Math.abs(stp - stpq)) ? stpc : stpq;
+  }
+ else {
+    info=4;
+    _bound=false;
+    if (_brackt) {
+      theta=3 * (fvp - fvy) / (sty - stp) + dgy + dgp;
+      gamma=Math.sqrt(theta * theta - dgy * dgp);
+      if (stp > sty)       gamma=-gamma;
+      double p=(gamma - dgp) + theta;
+      double q=((gamma - dgp) + gamma) + dgy;
+      double r=p / q;
+      nextStep=stp + r * (sty - stp);
+    }
+ else     nextStep=stp > stx ? _stMax : _stMin;
+  }
+  if (fvp > fvx) {
+    _sty=stp;
+    _fvy=ginfo._objVal;
+    _dgy=dg;
+  }
+ else {
+    if (dgp * dgx < 0) {
+      _sty=_stx;
+      _fvy=_fvx;
+      _dgy=_dgx;
+    }
+    _stx=stp;
+    _fvx=ginfo._objVal;
+    _dgx=dg;
+    _ginfox=ginfo;
+  }
+  if (nextStep > _stMax)   nextStep=_stMax;
+  if (nextStep < _stMin)   nextStep=_stMin;
+  if (_brackt & _bound)   if (_sty > _stx)   nextStep=Math.min(_stx + .66 * (_sty - _stx),nextStep);
+ else   nextStep=Math.max(_stx + .66 * (_sty - _stx),nextStep);
+  return nextStep;
+}
