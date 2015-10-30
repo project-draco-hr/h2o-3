@@ -1,3 +1,5 @@
 def asnumeric(self):
     'All factor columns converted to numeric.\n\n    Returns\n    -------\n      H2OFrame\n    '
-    return H2OFrame._expr(expr=ExprNode('as.numeric', self))
+    fr = H2OFrame._expr(expr=ExprNode('as.numeric', self), cache=self._ex._cache)
+    fr._ex._cache.types = {k: 'real' for k in fr._ex._cache.types.keys()}
+    return fr

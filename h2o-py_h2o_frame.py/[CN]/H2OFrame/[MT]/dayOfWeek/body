@@ -1,3 +1,5 @@
 def dayOfWeek(self):
-    '\n    :return: Returns a new Day-of-Week column from a msec-since-Epoch column\n    '
-    return H2OFrame._expr(expr=ExprNode('dayOfWeek', self))
+    '\n    Returns\n    -------\n      Day-of-Week column from a msec-since-Epoch column\n    '
+    fr = H2OFrame._expr(expr=ExprNode('dayOfWeek', self), cache=self._ex._cache)
+    fr._ex._cache.types = {k: 'int' for k in self._ex._cache.types.keys()}
+    return fr

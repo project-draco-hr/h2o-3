@@ -1,3 +1,5 @@
 def isna(self):
-    '\n    :return: Returns a new boolean H2OVec.\n    '
-    return H2OFrame._expr(expr=ExprNode('is.na', self))
+    'For each row in a column, determine if it is NA or not.\n\n    Returns\n    -------\n      Single-column H2OFrame of 1s and 0s. 1 means the value was NA.\n    '
+    fr = H2OFrame._expr(expr=ExprNode('is.na', self))
+    fr._ex._cache.nrows = self._ex._cache.nrows
+    return fr

@@ -1,3 +1,5 @@
 def week(self):
-    '\n    :return: Returns a new week column from a msec-since-Epoch column\n    '
-    return H2OFrame._expr(expr=ExprNode('week', self))
+    '\n    Returns\n    -------\n      Week column from a msec-since-Epoch column\n    '
+    fr = H2OFrame._expr(expr=ExprNode('week', self), cache=self._ex._cache)
+    fr._ex._cache.types = {k: 'int' for k in self._ex._cache.types.keys()}
+    return fr

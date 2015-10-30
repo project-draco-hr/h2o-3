@@ -1,3 +1,5 @@
 def month(self):
-    '\n    :return: Returns a new month column from a msec-since-Epoch column\n    '
-    return H2OFrame._expr(expr=ExprNode('month', self))
+    '\n    Returns\n    -------\n      Month column from a msec-since-Epoch column\n    '
+    fr = H2OFrame._expr(expr=ExprNode('month', self), cache=self._ex._cache)
+    fr._ex._cache.types = {k: 'int' for k in self._ex._cache.types.keys()}
+    return fr
