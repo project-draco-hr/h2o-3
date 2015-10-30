@@ -8,6 +8,7 @@ def __getitem__(self, item):
     flatten = False
     if isinstance(item, (basestring, list, int, slice)):
         (new_ncols, new_names, new_types) = self._compute_ncol_update(item)
+        new_nrows = self.nrow
         fr = H2OFrame._expr(expr=ExprNode('cols_py', self, item))
     elif isinstance(item, (ExprNode, H2OFrame)):
         new_ncols = self.ncol
