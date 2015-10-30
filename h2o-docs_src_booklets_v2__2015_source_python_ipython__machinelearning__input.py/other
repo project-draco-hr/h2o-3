@@ -1,6 +1,6 @@
 import h2o
-from h2o.estimators.gbm import H2OGradientBoostingEstimator
 h2o.init()
+from h2o.estimators.gbm import H2OGradientBoostingEstimator
 iris_data_path = h2o.system_file('iris.csv')
 iris_df = h2o.import_file(path=iris_data_path)
 iris_df.describe()
@@ -38,6 +38,8 @@ gs.train(x=range(0, (iris_df.ncol - 1)), y=(iris_df.ncol - 1), training_frame=ir
 print gs.sort_by('logloss', increasing=True)
 from h2o.transforms.preprocessing import H2OScaler
 from sklearn.pipeline import Pipeline
+h2o.__PROGRESS_BAR__ = False
+h2o.no_progress()
 pipeline = Pipeline([('standardize', H2OScaler()), ('pca', H2OPCA(k=2)), ('gbm', H2OGradientBoostingEstimator(distribution='multinomial'))])
 pipeline.fit(iris_df[:4], iris_df[4])
 from sklearn.grid_search import RandomizedSearchCV
