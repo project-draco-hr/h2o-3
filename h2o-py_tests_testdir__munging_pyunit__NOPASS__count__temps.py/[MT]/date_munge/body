@@ -1,8 +1,8 @@
 def date_munge():
-    crimes_path = 'smalldata/chicago/chicagoCrimes10k.csv.zip'
+    crimes_path = pyunit_utils.locate('smalldata/chicago/chicagoCrimes10k.csv.zip')
     h2o.init()
-    tmps0 = h2o.temp_ctr()
-    rest0 = h2o.rest_ctr()
+    tmps0 = pyunit_utils.temp_ctr()
+    rest0 = pyunit_utils.rest_ctr()
     crimes = h2o.import_file(path=crimes_path)
     crimes['Date'] = crimes['Date'].as_date('%m/%d/%Y %I:%M:%S %p')
     crimes['Day'] = crimes['Date'].day()
@@ -15,9 +15,9 @@ def date_munge():
     crimes['Season'] = crimes['Month'].cut([0, 2, 5, 7, 10, 12], ['Winter', 'Spring', 'Summer', 'Autumn', 'Winter'])
     crimes = crimes.drop('Date')
     crimes.describe()
-    tmps1 = h2o.temp_ctr()
+    tmps1 = pyunit_utils.temp_ctr()
     ntmps = (tmps1 - tmps0)
-    rest1 = h2o.rest_ctr()
+    rest1 = pyunit_utils.rest_ctr()
     nrest = (rest1 - rest0)
     print ('Number of temps used: ', ntmps)
     print ('Number of RESTs used: ', nrest)
