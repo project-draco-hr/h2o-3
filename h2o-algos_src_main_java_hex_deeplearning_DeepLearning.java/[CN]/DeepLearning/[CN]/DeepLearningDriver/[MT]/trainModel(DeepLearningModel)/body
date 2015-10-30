@@ -77,7 +77,7 @@
  while (isRunning() && model.doScoring(trainScoreFrame,validScoreFrame,self(),_progressKey,iteration++));
     if (isRunning() && _parms._overwrite_with_best_model && model.actual_best_model_key != null && _parms._nfolds == 0) {
       DeepLearningModel best_model=DKV.getGet(model.actual_best_model_key);
-      if (best_model != null && best_model.error() < model.error() && Arrays.equals(best_model.model_info().units,model.model_info().units)) {
+      if (best_model != null && best_model.loss() < model.loss() && Arrays.equals(best_model.model_info().units,model.model_info().units)) {
         if (!_parms._quiet_mode)         Log.info("Setting the model to be the best model so far (based on scoring history).");
         DeepLearningModelInfo mi=best_model.model_info().deep_clone();
         mi.set_processed_global(model.model_info().get_processed_global());
@@ -85,7 +85,7 @@
         model.set_model_info(mi);
         model.update(self());
         model.doScoring(trainScoreFrame,validScoreFrame,self(),_progressKey,iteration);
-        assert(best_model.error() == model.error());
+        assert(best_model.loss() == model.loss());
       }
     }
     if (!_parms._quiet_mode) {
