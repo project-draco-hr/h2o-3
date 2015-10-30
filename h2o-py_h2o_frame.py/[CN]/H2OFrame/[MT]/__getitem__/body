@@ -7,7 +7,7 @@ def __getitem__(self, item):
     fr = None
     flatten = False
     if isinstance(item, (basestring, list, int, slice)):
-        (new_ncols, new_names, new_types) = self._compute_ncol_update(item)
+        (new_ncols, new_names, new_types, item) = self._compute_ncol_update(item)
         new_nrows = self.nrow
         fr = H2OFrame._expr(expr=ExprNode('cols_py', self, item))
     elif isinstance(item, (ExprNode, H2OFrame)):
@@ -26,18 +26,18 @@ def __getitem__(self, item):
         if (allrows and allcols):
             return self
         if allrows:
-            (new_ncols, new_names, new_types) = self._compute_ncol_update(cols)
+            (new_ncols, new_names, new_types, cols) = self._compute_ncol_update(cols)
             new_nrows = self.nrow
             fr = H2OFrame._expr(expr=ExprNode('cols_py', self, cols))
         if allcols:
             new_ncols = self.ncol
             new_names = self.names
             new_types = self.types
-            new_nrows = self._compute_nrow_update(rows)
+            (new_nrows, rows) = self._compute_nrow_update(rows)
             fr = H2OFrame._expr(expr=ExprNode('rows', self, rows))
         if ((not allrows) and (not allcols)):
-            (new_ncols, new_names, new_types) = self._compute_ncol_update(cols)
-            new_nrows = self._compute_nrow_update(rows)
+            (new_ncols, new_names, new_types, cols) = self._compute_ncol_update(cols)
+            (new_nrows, rows) = self._compute_nrow_update(rows)
             fr = H2OFrame._expr(expr=ExprNode('rows', ExprNode('cols_py', self, cols), rows))
         flatten = (isinstance(rows, int) and isinstance(cols, (basestring, int)))
     else:
