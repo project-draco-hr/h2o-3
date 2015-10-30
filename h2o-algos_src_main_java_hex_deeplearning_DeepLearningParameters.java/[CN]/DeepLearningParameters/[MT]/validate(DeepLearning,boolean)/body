@@ -167,6 +167,9 @@ dl.error("_stopping_metric","Stopping metric cannot be AUC for multinomial class
 }
 }
  else {
+if (_autoencoder && _stopping_metric != ScoreKeeper.StoppingMetric.AUTO && _stopping_metric != ScoreKeeper.StoppingMetric.MSE) {
+dl.error("_stopping_metric","Stopping metric must either be AUTO or MSE for autoencoder.");
+}
 if (_stopping_metric == ScoreKeeper.StoppingMetric.misclassification || _stopping_metric == ScoreKeeper.StoppingMetric.AUC || _stopping_metric == ScoreKeeper.StoppingMetric.logloss) {
 dl.error("_stopping_metric","Stopping metric cannot be " + _stopping_metric.getClass().getSimpleName() + " for regression.");
 }

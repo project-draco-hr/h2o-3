@@ -51,6 +51,10 @@
       toParms._overwrite_with_best_model=false;
     }
   }
+  if (fromParms._autoencoder && fromParms._stopping_metric == ScoreKeeper.StoppingMetric.AUTO) {
+    if (!fromParms._quiet_mode)     Log.info("_stopping_metric: Automatically setting stopping_metric to MSE for autoencoder.");
+    toParms._stopping_metric=ScoreKeeper.StoppingMetric.MSE;
+  }
   if (fromParms._distribution == Distribution.Family.AUTO) {
     if (nClasses > 1) {
       toParms._distribution=nClasses == 2 ? Distribution.Family.bernoulli : Distribution.Family.multinomial;

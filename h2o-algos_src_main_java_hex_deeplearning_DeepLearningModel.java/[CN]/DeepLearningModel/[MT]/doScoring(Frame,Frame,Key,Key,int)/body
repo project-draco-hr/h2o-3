@@ -150,12 +150,10 @@
     _output._scoring_history=createScoringHistoryTable(errors);
     _output._variable_importances=calcVarImp(last_scored().variable_importances);
     _output._model_summary=model_info.createSummaryTable();
-    if (!get_params()._autoencoder) {
-      if (actual_best_model_key != null && get_params()._overwrite_with_best_model && ((DKV.get(actual_best_model_key) != null && (loss() < DKV.get(actual_best_model_key).<DeepLearningModel>get().loss() || !Arrays.equals(model_info().units,DKV.get(actual_best_model_key).<DeepLearningModel>get().model_info().units))) || (DKV.get(actual_best_model_key) == null && loss() < _bestLoss))) {
-        if (!get_params()._quiet_mode)         Log.info("Loss reduced from " + _bestLoss + " to "+ loss()+ ".");
-        _bestLoss=loss();
-        putMeAsBestModel(actual_best_model_key);
-      }
+    if (actual_best_model_key != null && get_params()._overwrite_with_best_model && ((DKV.get(actual_best_model_key) != null && (loss() < DKV.get(actual_best_model_key).<DeepLearningModel>get().loss() || !Arrays.equals(model_info().units,DKV.get(actual_best_model_key).<DeepLearningModel>get().model_info().units))) || (DKV.get(actual_best_model_key) == null && loss() < _bestLoss))) {
+      if (!get_params()._quiet_mode)       Log.info("Loss reduced from " + _bestLoss + " to "+ loss()+ ".");
+      _bestLoss=loss();
+      putMeAsBestModel(actual_best_model_key);
     }
     if (keep_running && printme)     Log.info(toString());
     if (printme)     Log.info("Time taken for scoring and diagnostics: " + PrettyPrint.msecs(err.scoring_time,true));
