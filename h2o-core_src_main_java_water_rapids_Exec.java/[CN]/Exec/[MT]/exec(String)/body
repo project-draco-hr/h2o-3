@@ -1,8 +1,11 @@
 {
-  cluster_init();
-  AST ast=new Exec(str).parse();
   Session ses=new Session();
-  Val val=ast.exec(new Env(ses));
-  ses.end();
-  return val;
+  try {
+    Val val=ses.exec(str);
+    ses.end();
+    return val;
+  }
+ catch (  Throwable ex) {
+    throw ses.endQuietly(ex);
+  }
 }

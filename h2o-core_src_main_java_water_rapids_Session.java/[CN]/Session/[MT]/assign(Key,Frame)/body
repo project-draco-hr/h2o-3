@@ -1,0 +1,15 @@
+{
+  if (FRAMES.containsKey(id))   throw new IllegalArgumentException("Cannot reassign temp " + id);
+  Futures fs=new Futures();
+  Frame fr=DKV.getGet(id);
+  if (fr != null) {
+    for (    Vec vec : fr.vecs()) {
+      if (GLOBALS.remove(vec) && _getRefCnt(vec) == 0)       vec.remove(fs);
+    }
+  }
+  Frame fr2=new Frame(id,src._names.clone(),src.vecs().clone());
+  DKV.put(fr2,fs);
+  addGlobals(fr2);
+  fs.blockForPending();
+  return fr2;
+}

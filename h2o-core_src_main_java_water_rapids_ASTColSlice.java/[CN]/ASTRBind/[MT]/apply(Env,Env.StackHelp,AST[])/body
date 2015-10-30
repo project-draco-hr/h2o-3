@@ -17,12 +17,12 @@
   }
   final Frame frs[]=new Frame[asts.length];
   final byte[] types=fr.types();
-  final int ncols=fr.numCols();
   final long[] espc=new long[nchks + 1];
   int coffset=0;
+  Frame[] tmp_frs=new Frame[asts.length];
   for (int i=1; i < asts.length; i++) {
     Val val=vals[i];
-    Frame fr0=val.isFrame() ? val.getFrame() : stk.track(new Frame(fr._names,Vec.makeCons(val.getNum(),1L,fr.numCols())));
+    Frame fr0=val.isFrame() ? val.getFrame() : (tmp_frs[i]=new Frame(fr._names,Vec.makeCons(val.getNum(),1L,fr.numCols())));
     if (fr.numCols() != fr0.numCols())     throw new IllegalArgumentException("rbind frames must have all the same columns, found " + fr.numCols() + " and "+ fr0.numCols()+ " columns.");
     if (!Arrays.deepEquals(fr._names,fr0._names))     throw new IllegalArgumentException("rbind frames must have all the same column names, found " + Arrays.toString(fr._names) + " and "+ Arrays.toString(fr0._names));
     if (!Arrays.equals(types,fr0.types()))     throw new IllegalArgumentException("rbind frames must have all the same column types, found " + Arrays.toString(types) + " and "+ Arrays.toString(fr0.types()));
@@ -64,5 +64,6 @@
   for (int i=0; i < vecs.length; i++)   vecs[i]=new Vec(keys[i],rowLayout,domains[i],types[i]);
   ParallelRbinds t;
   H2O.submitTask(t=new ParallelRbinds(frs,espc,vecs,cmaps)).join();
+  for (  Frame tfr : tmp_frs)   if (tfr != null)   tfr.delete();
   return new ValFrame(new Frame(fr.names(),t._vecs));
 }
