@@ -22,9 +22,14 @@
     for (int j=0; j < _output.nclasses(); ++j)     eta[j]+=b[j][noff + i] * d;
   }
   double sumExp=0;
-  for (int j=0; j < _output.nclasses(); ++j)   sumExp+=eta[j]=Math.exp(eta[j] + b[j][P - 1]);
+  double max_row=0;
+  for (int j=0; j < _output.nclasses(); ++j) {
+    eta[j]+=b[j][P - 1];
+    if (eta[j] > max_row)     max_row=eta[j];
+  }
+  for (int j=0; j < _output.nclasses(); ++j)   sumExp+=eta[j]=Math.exp(eta[j] - max_row);
   sumExp=1.0 / sumExp;
-  preds[0]=ArrayUtils.maxIndex(eta);
   for (int i=0; i < eta.length; ++i)   preds[i + 1]=eta[i] * sumExp;
+  preds[0]=ArrayUtils.maxIndex(eta);
   return preds;
 }
