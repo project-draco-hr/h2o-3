@@ -28,9 +28,16 @@ def __setitem__(self, b, c):
     if (colname is None):
         self._ex = ExprNode(':=', self, src, col_expr, row_expr)
         self._ex._cache.fill_from(old_cache)
-        self._ex._cache.types = None
+        if src._ex._cache.types_valid():
+            self._ex._cache._types.update(src._ex._cache.types)
+        else:
+            self._ex._cache.types = None
     else:
         self._ex = ExprNode('append', self, src, colname)
         self._ex._cache.fill_from(old_cache)
         self._ex._cache.names = (self.names + [colname])
-        self._ex._cache.types = None
+        if self._ex._cache.types_valid():
+            self._ex._cache.types = None
+        else:
+            self._ex._cache._types[colname] = src._ex._cache.types.values()[0]
+    self._frame()
