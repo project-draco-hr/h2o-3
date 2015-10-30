@@ -2,6 +2,9 @@
   if (k == 0)   return false;
   int len=sk.length - 1;
   if (len < 2 * k)   return false;
+  if (criterion == StoppingMetric.AUTO) {
+    criterion=classification ? StoppingMetric.logloss : StoppingMetric.deviance;
+  }
   boolean moreIsBetter=(criterion == StoppingMetric.AUC || criterion == StoppingMetric.r2);
   double movingAvg[]=new double[k + 1];
   double lastBeforeK=moreIsBetter ? -Double.MAX_VALUE : Double.MAX_VALUE;
@@ -19,8 +22,8 @@ case AUC:
 case MSE:
     val=skj._mse;
   break;
-case AUTO:
-val=classification ? skj._logloss : skj._mean_residual_deviance;
+case deviance:
+val=skj._mean_residual_deviance;
 break;
 case logloss:
 val=skj._logloss;
@@ -43,8 +46,8 @@ if (i == 0) lastBeforeK=movingAvg[i];
 }
 assert(lastBeforeK != Double.MAX_VALUE);
 assert(bestInLastK != Double.MAX_VALUE);
-Log.info("Moving averages (length " + k + ") of last "+ (k + 1)+ " metrics: "+ Arrays.toString(movingAvg));
-boolean improved=moreIsBetter ? bestInLastK > lastBeforeK : bestInLastK < lastBeforeK;
-Log.info("Checking convergence of " + criterion.getClass().getSimpleName() + ": "+ lastBeforeK+ " --> "+ bestInLastK+ (improved ? " (improved)." : " (got worse)."));
+Log.info("Moving averages (length " + k + ") of last "+ (k + 1)+ criterion.toString()+ " metrics: "+ Arrays.toString(movingAvg));
+boolean improved=moreIsBetter ? bestInLastK / lastBeforeK > 1 + rel_improvement : bestInLastK / lastBeforeK < 1 - rel_improvement;
+Log.info("Checking model convergence with " + criterion.toString() + " metric: "+ lastBeforeK+ " --> "+ bestInLastK+ (improved ? " (still improving)." : " (converged)."));
 return !improved;
 }

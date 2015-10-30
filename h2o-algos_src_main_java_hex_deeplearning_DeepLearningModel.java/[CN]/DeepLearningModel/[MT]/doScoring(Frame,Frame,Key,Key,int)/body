@@ -151,22 +151,24 @@
     _output._variable_importances=calcVarImp(last_scored().variable_importances);
     _output._model_summary=model_info.createSummaryTable();
     if (actual_best_model_key != null && get_params()._overwrite_with_best_model && ((DKV.get(actual_best_model_key) != null && (loss() < DKV.get(actual_best_model_key).<DeepLearningModel>get().loss() || !Arrays.equals(model_info().units,DKV.get(actual_best_model_key).<DeepLearningModel>get().model_info().units))) || (DKV.get(actual_best_model_key) == null && loss() < _bestLoss))) {
-      if (!get_params()._quiet_mode)       Log.info("Loss reduced from " + _bestLoss + " to "+ loss()+ ".");
       _bestLoss=loss();
       putMeAsBestModel(actual_best_model_key);
     }
     if (keep_running && printme)     Log.info(toString());
+    if ((_output.isClassifier() && last_scored().scored_train._classError <= get_params()._classification_stop) || (!_output.isClassifier() && last_scored().scored_train._mse <= get_params()._regression_stop)) {
+      Log.info("Achieved requested predictive accuracy on the training data. Model building completed.");
+      stopped_early=true;
+    }
+    if (ScoreKeeper.earlyStopping(scoreKeepers(),get_params()._stopping_rounds,_output.isClassifier(),get_params()._stopping_metric,get_params()._stopping_tolerance)) {
+      Log.info("Convergence detected based on simple moving average of the loss function for the past " + get_params()._stopping_rounds + " scoring events. Model building completed.");
+      stopped_early=true;
+    }
     if (printme)     Log.info("Time taken for scoring and diagnostics: " + PrettyPrint.msecs(err.scoring_time,true));
   }
-  if ((_output.isClassifier() && last_scored().scored_train._classError <= get_params()._classification_stop) || (!_output.isClassifier() && last_scored().scored_train._mse <= get_params()._regression_stop)) {
-    Log.info("Achieved requested predictive accuracy on the training data. Model building completed.");
-    stopped_early=true;
-    keep_running=false;
-  }
-  if (ScoreKeeper.earlyStopping(scoreKeepers(),get_params()._stopping_rounds,_output.isClassifier(),get_params()._stopping_metric)) {
-    Log.info("Convergence detected based on simple moving average of the loss function for the past " + get_params()._stopping_rounds + " scoring events. Model building completed.");
-    stopped_early=true;
-    keep_running=false;
+  if (stopped_early) {
+    ((Job)DKV.getGet(job_key)).update((long)(_parms._epochs * training_rows));
+    update(job_key);
+    return false;
   }
   progressUpdate(progressKey,job_key,iteration,keep_running);
   update(job_key);
