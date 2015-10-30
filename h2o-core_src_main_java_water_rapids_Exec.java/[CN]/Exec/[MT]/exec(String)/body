@@ -1,5 +1,8 @@
 {
   cluster_init();
   AST ast=new Exec(str).parse();
-  return execute(ast);
+  Session ses=new Session();
+  Val val=ast.exec(new Env(ses));
+  ses.end();
+  return val;
 }

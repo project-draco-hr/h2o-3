@@ -1,0 +1,13 @@
+{
+  int[] cols=col_selector.columns(names);
+  if (cols.length == 0)   return cols;
+  if (cols[0] >= 0) {
+    if (cols[cols.length - 1] >= names.length)     throw new IllegalArgumentException("Column must be an integer from 0 to " + (names.length - 1));
+    return cols;
+  }
+  int[] pos=new int[names.length];
+  for (  int col : cols)   if (0 <= -col - 1 && -col - 1 < names.length)   pos[-col - 1]=-1;
+  int j=0;
+  for (int i=0; i < names.length; i++)   if (pos[i] == 0)   pos[j++]=i;
+  return Arrays.copyOfRange(pos,0,j);
+}

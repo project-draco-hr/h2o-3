@@ -1,21 +1,20 @@
 {
   Frame dst=stk.track(asts[1].exec(env)).getFrame();
   Val vsrc=stk.track(asts[2].exec(env));
-  ASTNumList cols=check(dst.numCols(),asts[3],dst);
-  if (asts.length != 5)   throw new IllegalArgumentException("assign requires args (:= dst src col_expr row_expr)");
-  Frame slice=new ASTColSlice().apply(env,stk,new AST[]{null,new ASTFrame(dst),cols}).getFrame();
+  ASTNumList cols_numlist=check(dst.numCols(),asts[3],dst);
+  int[] cols=ASTColSlice.col_select(dst.names(),cols_numlist);
   if (asts[4] instanceof ASTNum || asts[4] instanceof ASTNumList) {
     ASTNumList rows=asts[4] instanceof ASTNum ? new ASTNumList(((ASTNum)asts[4])._v.getNum()) : ((ASTNumList)asts[4]);
     if (rows.isEmpty())     rows=new ASTNumList(0,dst.numRows());
 switch (vsrc.type()) {
 case Val.NUM:
-      assign_frame_scalar(slice,rows,vsrc.getNum());
+      assign_frame_scalar(dst,cols,rows,vsrc.getNum());
     break;
 case Val.STR:
-  assign_frame_scalar(slice,rows,vsrc.getStr());
+  assign_frame_scalar(dst,cols,rows,vsrc.getStr());
 break;
 case Val.FRM:
-assign_frame_frame(slice,rows,vsrc.getFrame());
+assign_frame_frame(dst,cols,rows,vsrc.getFrame());
 break;
 default :
 throw new IllegalArgumentException("Source must be a Frame or Number, but found a " + vsrc.getClass());
@@ -25,7 +24,7 @@ throw new IllegalArgumentException("Source must be a Frame or Number, but found 
 Frame rows=stk.track(asts[4].exec(env)).getFrame();
 switch (vsrc.type()) {
 case Val.NUM:
-assign_frame_scalar(slice,rows,vsrc.getNum());
+assign_frame_scalar(dst,cols,rows,vsrc.getNum());
 break;
 case Val.STR:
 throw H2O.unimpl();

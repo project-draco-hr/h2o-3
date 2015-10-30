@@ -1,0 +1,15 @@
+{
+  if (cols.length != src.numCols())   throw new IllegalArgumentException("Source and destination frames must have the same count of columns");
+  long nrows=rows.cnt();
+  if (src.numRows() != nrows)   throw new IllegalArgumentException("Requires same count of rows in the number-list (" + nrows + ") as in the source ("+ src.numRows()+ ")");
+  if (dst.numRows() == nrows && rows.isDense()) {
+    for (int i=0; i < cols.length; i++)     dst.replace(cols[i],src.vecs()[i]);
+    if (dst._key != null)     DKV.put(dst);
+    return;
+  }
+  dst=slice(dst,cols);
+  Vec[] dvecs=dst.vecs();
+  Vec[] svecs=src.vecs();
+  for (int col=0; col < dvecs.length; col++)   if (dvecs[col].get_type() != svecs[col].get_type())   throw new IllegalArgumentException("Columns must be the same type; column " + col + ", \'"+ dst._names[col]+ "\', is of type "+ dvecs[col].get_type_str()+ " and the source is "+ svecs[col].get_type_str());
+  throw H2O.unimpl();
+}

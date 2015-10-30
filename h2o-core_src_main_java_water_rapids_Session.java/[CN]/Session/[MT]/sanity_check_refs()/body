@@ -1,0 +1,14 @@
+{
+  NonBlockingHashMap<Vec,Integer> refcnts=new NonBlockingHashMap<>();
+  for (  Frame fr : FRAMES.values())   for (  Vec vec : fr.vecs()) {
+    Integer I=refcnts.get(vec);
+    refcnts.put(vec,I == null ? 1 : I + 1);
+  }
+  for (  Vec vec : refcnts.keySet()) {
+    Integer I=REFCNTS.get(vec);
+    if (I == null)     return "REFCNTS missing vec " + vec;
+    Integer II=refcnts.get(vec);
+    if ((int)II != (int)I)     return "Mismatch vec " + vec + ", computed refcnts: "+ II+ ", cached REFCNTS: "+ I;
+  }
+  return null;
+}
