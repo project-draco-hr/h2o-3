@@ -1,5 +1,5 @@
 def split_frame(self, ratios=None, destination_frames=None, seed=None):
-    '\n    Split a frame into distinct subsets of size determined by the given ratios.\n    The number of subsets is always 1 more than the number of ratios given.\n\n    :param ratios: The fraction of rows for each split.\n    :param destination_frames: names of the split frames\n    :param seed: Random seed\n    :return: a list of frames\n    '
+    'Split a frame into distinct subsets of size determined by the given ratios.\n    The number of subsets is always 1 more than the number of ratios given.\n\n    Parameters\n    ----------\n      ratios : list\n        The fraction of rows for each split.\n      destination_frames : list\n        The names of the split frames.\n      seed : int\n        Used for selecting which H2OFrame a row will belong to.\n\n    Returns\n    -------\n      A list of H2OFrame instances\n    '
     if (ratios is None):
         ratios = [0.75]
     if (len(ratios) < 1):
@@ -39,7 +39,7 @@ def split_frame(self, ratios=None, destination_frames=None, seed=None):
             splits.append(tmp_slice)
         else:
             destination_frame_id = destination_frames[i]
-            tmp_slice2 = h2o.assign(tmp_slice, destination_frame_id)
-            splits.append(tmp_slice2)
+            tmp_slice.frame_id = destination_frame_id
+            splits.append(tmp_slice)
         i += 1
     return splits
