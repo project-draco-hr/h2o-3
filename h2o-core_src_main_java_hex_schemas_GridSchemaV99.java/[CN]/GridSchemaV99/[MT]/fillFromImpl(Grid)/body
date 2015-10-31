@@ -1,8 +1,14 @@
 {
-  Key<Model>[] models=grid.getModelKeys();
-  KeyV3.ModelKeyV3[] modelIds=new KeyV3.ModelKeyV3[models.length];
+  Key<Model>[] gridModelKeys=grid.getModelKeys();
+  List<Key> modelKeys=new ArrayList<>(gridModelKeys.length);
+  for (  Key k : gridModelKeys) {
+    if (k != null && DKV.get(k) != null) {
+      modelKeys.add(k);
+    }
+  }
+  KeyV3.ModelKeyV3[] modelIds=new KeyV3.ModelKeyV3[modelKeys.size()];
   for (int i=0; i < modelIds.length; i++) {
-    modelIds[i]=new KeyV3.ModelKeyV3(models[i]);
+    modelIds[i]=new KeyV3.ModelKeyV3(modelKeys.get(i));
   }
   grid_id=new KeyV3.GridKeyV3(grid._key);
   model_ids=modelIds;
