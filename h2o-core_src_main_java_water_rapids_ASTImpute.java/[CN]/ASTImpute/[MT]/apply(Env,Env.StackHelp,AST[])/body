@@ -47,8 +47,7 @@ final int[] bycols=ArrayUtils.seq(0,imputes.numCols() - 1);
 group_impute_map=new Gather(bycols).doAll(imputes)._group_impute_map;
 imputes.delete();
 }
-fr=new Frame(fr);
-stk.track(fr).replace(col,vec.makeCopy());
+env._ses.copyOnWrite(fr,new int[col]);
 final IcedHashMap<ASTGroup.G,IcedDouble> final_group_impute_map=group_impute_map;
 final int[] bycols=by.expand4();
 new MRTask(){
