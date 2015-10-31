@@ -1,47 +1,18 @@
 def _func_bc(nargs, idx, ops, keys):
     args = []
-    named_args = []
-    all_named = True
     while (nargs > 0):
         if (nargs >= 256):
             (arg, idx) = _opcode_read_arg(idx, ops, keys)
             args.insert(0, arg)
-            named_args.insert(0, ops[idx][1][0])
             idx -= 1
             nargs -= 256
         else:
-            all_named = False
             (arg, idx) = _opcode_read_arg(idx, ops, keys)
             args.insert(0, arg)
             nargs -= 1
     op = ops[idx][1][0]
-    if (not (op in dir(frame.H2OFrame))):
-        raise ValueError('Unimplemented: op not bound in H2OFrame')
-    if is_attr(ops[idx][0]):
-        argspec = inspect.getargspec(getattr(frame.H2OFrame, op))
-        argnames = argspec.args[1:]
-        argdefs = argspec.defaults
-        new_args = []
-        if all_named:
-            if (len(args) == 0):
-                new_args = list(argdefs)
-            else:
-                for i in range(len(argnames)):
-                    if (argnames[i] in named_args):
-                        new_args.append(args[named_args.index(argnames[i])])
-                    else:
-                        new_args.append(argdefs[i])
-        else:
-            new_args = (args + list(argdefs[len(args):]))
-        args = new_args
     if (op == 'ceil'):
         op = 'ceiling'
-    if ((op == 'sum') and (len(args) > 0) and args[0]):
-        op = 'sumNA'
-    if ((op == 'min') and (len(args) > 0) and args[0]):
-        op = 'minNA'
-    if ((op == 'max') and (len(args) > 0) and args[0]):
-        op = 'maxNA'
     idx -= 1
     if is_bytecode_instruction(ops[idx][0]):
         (arg, idx) = _opcode_read_arg(idx, ops, keys)
