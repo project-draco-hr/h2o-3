@@ -3,6 +3,7 @@
   Val vsrc=stk.track(asts[2].exec(env));
   ASTNumList cols_numlist=check(dst.numCols(),asts[3],dst);
   int[] cols=ASTColSlice.col_select(dst.names(),cols_numlist);
+  dst=new Frame(dst._names,dst.vecs().clone());
   if (asts[4] instanceof ASTNum || asts[4] instanceof ASTNumList) {
     ASTNumList rows=asts[4] instanceof ASTNum ? new ASTNumList(((ASTNum)asts[4])._v.getNum()) : ((ASTNumList)asts[4]);
     if (rows.isEmpty())     rows=new ASTNumList(0,dst.numRows());
