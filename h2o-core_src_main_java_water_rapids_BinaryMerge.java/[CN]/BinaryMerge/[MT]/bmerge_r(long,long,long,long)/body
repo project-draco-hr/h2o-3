@@ -34,30 +34,30 @@
   while (tmpUpp > lLow && keycmp(_leftKey,tmpUpp,_leftKey,lr) == 0)   tmpUpp--;
   lLow=tmpUpp;
   long len=rUpp - rLow - 1;
-  if (len > 0) {
-    _ansN+=len;
-    if (len > 1)     _allLen1=false;
+  if (len > 0 || _allLeft) {
+    if (len > 1)     _oneToManyMatch=true;
+    _numRowsInResult+=Math.max(1,len) * (lUpp - lLow - 1);
     for (long j=lLow + 1; j < lUpp; j++) {
+{
+        long globalRowNumber=_leftOrder[(int)(lr / _leftBatchSize)][(int)(lr % _leftBatchSize)];
+        int chkIdx=_leftFrame.anyVec().elem2ChunkIdx(globalRowNumber);
+        H2ONode node=_leftFrame.anyVec().chunkKey(chkIdx).home_node();
+        _perNodeNumLeftRowsToFetch[node.index()]++;
+      }
+      if (len == 0)       continue;
       int jb=(int)(j / _leftBatchSize);
       int jo=(int)(j % _leftBatchSize);
       _retFirst[jb][jo]=rLow + 2;
       _retLen[jb][jo]=len;
-      StringBuilder sb=new StringBuilder();
-      sb.append("Left row " + _leftOrder[jb][jo] + " matches to "+ _retLen[jb][jo]+ " right rows: ");
       long a=_retFirst[jb][jo] - 1;
-      for (int i=0; i < _retLen[jb][jo]; ++i) {
+      for (int i=0; i < _retLen[jb][jo]; i++) {
         long loc=a + i;
-        sb.append(_rightOrder[(int)(loc / _rightBatchSize)][(int)(loc % _rightBatchSize)] + " ");
         long globalRowNumber=_rightOrder[(int)(loc / _rightBatchSize)][(int)(loc % _rightBatchSize)];
         int chkIdx=_rightFrame.anyVec().elem2ChunkIdx(globalRowNumber);
         H2ONode node=_rightFrame.anyVec().chunkKey(chkIdx).home_node();
-        _perNodeNumRowsToFetch[node.index()]++;
+        _perNodeNumRightRowsToFetch[node.index()]++;
       }
-      Log.info(sb);
     }
-  }
- else {
-    if (_allLeft)     _ansN++;
   }
   if (lLow > lLowIn && rLow > rLowIn)   bmerge_r(lLowIn,lLow + 1,rLowIn,rLow + 1);
   if (lUpp < lUppIn && rUpp < rUppIn)   bmerge_r(lUpp - 1,lUppIn,rUpp - 1,rUppIn);
