@@ -1,5 +1,6 @@
 def __setitem__(self, b, c):
     "Replace or update column(s) in an H2OFrame.\n\n    Parameters\n    ----------\n      b : int, str\n        A 0-based index or a column name.\n      c :\n        The value replacing 'b'\n\n    Returns\n    -------\n      Returns this H2OFrame.\n    "
+    import gc
     col_expr = None
     row_expr = None
     colname = None
@@ -40,4 +41,6 @@ def __setitem__(self, b, c):
             self._ex._cache.types = None
         else:
             self._ex._cache._types[colname] = src._ex._cache.types.values()[0]
+    if isinstance(src, H2OFrame):
+        src._ex = None
     self._frame()
