@@ -25,6 +25,7 @@ def __setitem__(self, b, c):
     elif isinstance(b, ExprNode):
         row_expr = b
     src = (float('nan') if (c is None) else c)
+    src_in_self = self.is_src_in_self(src)
     old_cache = self._ex._cache
     if (colname is None):
         self._ex = ExprNode(':=', self, src, col_expr, row_expr)
@@ -41,6 +42,6 @@ def __setitem__(self, b, c):
             self._ex._cache.types = None
         else:
             self._ex._cache._types[colname] = src._ex._cache.types.values()[0]
-    if isinstance(src, H2OFrame):
+    if (isinstance(src, H2OFrame) and src_in_self):
         src._ex = None
     self._frame()
