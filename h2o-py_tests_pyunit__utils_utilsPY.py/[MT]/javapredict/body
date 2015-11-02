@@ -8,9 +8,14 @@ def javapredict(algo, equality, train, test, x, y, compile_only=False, **kwargs)
         model = H2ODeepLearningEstimator(**kwargs)
     elif (algo == 'glm'):
         model = H2OGeneralizedLinearEstimator(**kwargs)
+    elif (algo == 'kmeans'):
+        model = H2OKMeansEstimator(**kwargs)
     else:
         raise (ValueError, 'algo {0} is not supported'.format(algo))
-    model.train(x=x, y=y, training_frame=train)
+    if (algo == 'kmeans'):
+        model.train(x=x, training_frame=train)
+    else:
+        model.train(x=x, y=y, training_frame=train)
     print model
     print 'Downloading Java prediction model code from H2O'
     tmpdir = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'results', model._id))
