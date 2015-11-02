@@ -2,18 +2,18 @@
   Futures fs=new Futures();
   Vec[] vecs=new Vec[2];
   Key keys[]=Vec.VectorGroup.VG_LEN1.addVecs(2);
-  AppendableVec wordAV=new AppendableVec((keys[0]));
-  AppendableVec cntAV=new AppendableVec((keys[1]));
+  AppendableVec wordAV=new AppendableVec((keys[0]),Vec.T_STR);
+  AppendableVec cntAV=new AppendableVec((keys[1]),Vec.T_NUM);
   NewChunk wordNC=new NewChunk(wordAV,0);
   NewChunk cntNC=new NewChunk(cntAV,0);
-  for (  ValueStringCount vwc : _vocabArray) {
-    wordNC.addStr(vwc);
-    cntNC.addNum(vwc._cnt,0);
+  for (  BufferedStringCount str : _vocabArray) {
+    wordNC.addStr(str);
+    cntNC.addNum(str._cnt,0);
   }
   wordNC.close(0,fs);
   cntNC.close(0,fs);
-  vecs[0]=wordAV.close(fs);
-  vecs[1]=cntAV.close(fs);
+  vecs[0]=wordAV.layout_and_close(fs);
+  vecs[1]=cntAV.layout_and_close(fs);
   fs.blockForPending();
   if (_fr != null && _fr._key != null)   _wordCountKey=Key.make("wca_" + _fr._key.toString());
  else   _wordCountKey=Key.make("wca");

@@ -9,7 +9,7 @@
     tfr.remove("name").remove();
     tfr.remove("economy").remove();
     old=tfr.remove("economy_20mpg");
-    tfr.add("economy_20mpg",old.toEnum());
+    tfr.add("economy_20mpg",old.toCategoricalVec());
     DKV.put(tfr);
     GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
     parms._train=tfr._key;
@@ -36,8 +36,14 @@
   finally {
     if (tfr != null)     tfr.remove();
     if (old != null)     old.remove();
-    if (gbm1 != null)     gbm1.delete();
-    if (gbm2 != null)     gbm2.delete();
+    if (gbm1 != null) {
+      gbm1.deleteCrossValidationModels();
+      gbm1.delete();
+    }
+    if (gbm2 != null) {
+      gbm2.deleteCrossValidationModels();
+      gbm2.delete();
+    }
     Scope.exit();
   }
 }

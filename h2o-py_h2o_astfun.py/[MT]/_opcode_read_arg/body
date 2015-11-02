@@ -1,0 +1,19 @@
+def _opcode_read_arg(start_index, ops, keys):
+    instr = keys[start_index]
+    return_idx = (start_index - 1)
+    if is_bytecode_instruction(instr):
+        if is_binary(instr):
+            return _binop_bc(BYTECODE_INSTRS[instr], return_idx, ops, keys)
+        elif is_comp(instr):
+            return _binop_bc(ops[start_index][1][0], return_idx, ops, keys)
+        elif is_unary(instr):
+            return _unop_bc(BYTECODE_INSTRS[instr], return_idx, ops, keys)
+        elif is_func(instr):
+            return _func_bc(ops[start_index][1][0], return_idx, ops, keys)
+        else:
+            raise ValueError(('unimpl bytecode op: ' + instr))
+    elif is_load_fast(instr):
+        return [_load_fast(ops[start_index][1][0]), return_idx]
+    elif is_load_global(instr):
+        return [_load_global(ops[start_index][1][0]), return_idx]
+    return [ops[start_index][1][0], return_idx]

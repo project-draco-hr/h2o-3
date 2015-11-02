@@ -1,6 +1,7 @@
-def assign(data, id):
-    if data._computed:
-        rapids(data._id, id)
-    data._id = id
-    data._keep = True
+def assign(data, xid):
+    if (data.frame_id == xid):
+        ValueError('Desination key must differ input frame')
+    data._ex = ExprNode('tmp=', xid, data)._eval_driver(False)
+    data._ex._cache._id = xid
+    data._ex._children = None
     return data

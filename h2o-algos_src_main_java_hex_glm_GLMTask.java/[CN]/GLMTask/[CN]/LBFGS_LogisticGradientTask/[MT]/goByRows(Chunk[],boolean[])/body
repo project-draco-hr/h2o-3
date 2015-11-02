@@ -5,8 +5,8 @@
   for (int rid=0; rid < chks[0]._len; ++rid) {
     if (skp[rid])     continue;
     row=_dinfo.extractDenseRow(chks,rid,row);
+    if (row.bad || row.weight == 0)     continue;
     double y=-1 + 2 * row.response(0);
-    if (row.bad)     continue;
     ++_nobs;
     double eta=row.innerProduct(b) + row.offset;
     double gval;

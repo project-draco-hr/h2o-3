@@ -36,13 +36,15 @@ def _do_raw_rest(self, url_suffix, method, file_upload_info, **kwargs):
             raise ValueError(('Received file upload info and expected method to be POST. Got: ' + str(method)))
         if (query_string != ''):
             url = '{}?{}'.format(url, query_string)
-    if logging._is_logging():
-        logging._log_rest('------------------------------------------------------------\n')
-        logging._log_rest('\n')
-        logging._log_rest('Time:     {0}\n'.format(time.strftime('Y-%m-%d %H:%M:%OS3')))
-        logging._log_rest('\n')
-        logging._log_rest('{0} {1}\n'.format(method, url))
-        logging._log_rest('postBody: {0}\n'.format(post_body))
+    if h2o_logging._is_logging():
+        h2o_logging._log_rest('------------------------------------------------------------\n')
+        h2o_logging._log_rest('\n')
+        h2o_logging._log_rest('Time:     {0}\n'.format(time.strftime('Y-%m-%d %H:%M:%OS3')))
+        h2o_logging._log_rest('\n')
+        h2o_logging._log_rest('{0} {1}\n'.format(method, url))
+        h2o_logging._log_rest('postBody: {0}\n'.format(post_body))
+    global _rest_ctr
+    _rest_ctr = (_rest_ctr + 1)
     begin_time_seconds = time.time()
     http_result = self._attempt_rest(url, method, post_body, file_upload_info)
     end_time_seconds = time.time()
@@ -59,12 +61,12 @@ def _do_raw_rest(self, url_suffix, method, file_upload_info, **kwargs):
         except ValueError:
             pass
         raise EnvironmentError(('h2o-py got an unexpected HTTP status code:\n {} {} (method = {}; url = {}). \n' + 'detailed error messages: {}').format(http_result.status_code, http_result.reason, method, url, detailed_error_msgs))
-    if logging._is_logging():
-        logging._log_rest('\n')
-        logging._log_rest('httpStatusCode:    {0}\n'.format(http_result.status_code))
-        logging._log_rest('httpStatusMessage: {0}\n'.format(http_result.reason))
-        logging._log_rest('millis:            {0}\n'.format(elapsed_time_millis))
-        logging._log_rest('\n')
-        logging._log_rest('{0}\n'.format(http_result.json()))
-        logging._log_rest('\n')
+    if h2o_logging._is_logging():
+        h2o_logging._log_rest('\n')
+        h2o_logging._log_rest('httpStatusCode:    {0}\n'.format(http_result.status_code))
+        h2o_logging._log_rest('httpStatusMessage: {0}\n'.format(http_result.reason))
+        h2o_logging._log_rest('millis:            {0}\n'.format(elapsed_time_millis))
+        h2o_logging._log_rest('\n')
+        h2o_logging._log_rest('{0}\n'.format(http_result.json()))
+        h2o_logging._log_rest('\n')
     return http_result

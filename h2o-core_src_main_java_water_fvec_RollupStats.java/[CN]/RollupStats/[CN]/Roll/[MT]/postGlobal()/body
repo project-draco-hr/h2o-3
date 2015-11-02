@@ -2,10 +2,11 @@
   if (_rs == null)   _rs=new RollupStats(0);
  else {
     _rs._sigma=Math.sqrt(_rs._sigma / (_rs._rows - 1));
+    if (_rs._rows == 1)     _rs._sigma=0;
     if (_rs._rows < 5)     for (int i=0; i < 5 - _rs._rows; i++) {
       _rs._maxs[4 - i]=Double.NaN;
       _rs._mins[4 - i]=Double.NaN;
     }
   }
-  if (_fr.anyVec().isEnum() && _fr.anyVec().domain().length > 2)   _rs._mean=_rs._sigma=Double.NaN;
+  if (_fr.anyVec().isCategorical() && _fr.anyVec().domain().length > 2)   _rs._mean=_rs._sigma=Double.NaN;
 }

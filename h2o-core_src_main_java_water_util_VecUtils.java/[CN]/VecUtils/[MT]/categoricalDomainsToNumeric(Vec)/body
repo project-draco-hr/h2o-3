@@ -1,0 +1,9 @@
+{
+  if (!src.isCategorical())   throw new H2OIllegalArgumentException("categoricalToNumeric() conversion only works on categorical columns");
+  return new MRTask(){
+    @Override public void map(    Chunk c){
+      for (int i=0; i < c._len; ++i)       if (!c.isNA(i))       c.set(i,Integer.parseInt(src.domain()[(int)c.at8(i)]));
+    }
+  }
+.doAll(Vec.T_NUM,src).outputFrame().anyVec();
+}

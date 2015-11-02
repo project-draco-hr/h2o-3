@@ -1,0 +1,30 @@
+{
+  Frame l=null, r=null, f=null;
+  try {
+    l=ArrayUtils.frame("name",vec(ar("Cliff","Arno","Tomas","Spencer"),ari(0,1,2,3)));
+    l.add("age",vec(ar(">dirt","middle","middle","young'n"),ari(0,1,2,3)));
+    l=new Frame(l);
+    DKV.put(l);
+    System.out.println(l);
+    r=ArrayUtils.frame("name",vec(ar("Arno","Tomas","Michael","Cliff"),ari(0,1,2,3)));
+    r.add("skill",vec(ar("science","linearmath","sparkling","hacker"),ari(0,1,2,3)));
+    r=new Frame(r);
+    DKV.put(r);
+    System.out.println(r);
+    String x=String.format("(merge %s %s #1 #0 )",l._key,r._key);
+    Val res=Exec.exec(x);
+    f=res.getFrame();
+    System.out.println(f);
+    Vec names=f.vec(0);
+    Assert.assertEquals(names.factor(names.at8(0)),"Cliff");
+    Vec ages=f.vec(1);
+    Assert.assertEquals(ages.factor(ages.at8(0)),">dirt");
+    Vec skilz=f.vec(2);
+    Assert.assertEquals(skilz.factor(skilz.at8(0)),"hacker");
+  }
+  finally {
+    if (f != null)     f.delete();
+    if (r != null)     r.delete();
+    if (l != null)     l.delete();
+  }
+}

@@ -77,9 +77,11 @@ throw new H2OIllegalArgumentException(msg);
 identifier[i]=origDest.toString() + "_cv_" + (i + 1);
 modelKeys[i]=Key.make(identifier[i]);
 cvTrain[i]=new Frame(Key.make(identifier[i] + "_" + _parms._train.toString()+ "_train"),origTrainFrame.names(),origTrainFrame.vecs());
+if (origWeightsName != null) cvTrain[i].remove(origWeightsName);
 cvTrain[i].add(weightName,weights[2 * i]);
 DKV.put(cvTrain[i]);
 cvValid[i]=new Frame(Key.make(identifier[i] + "_" + _parms._train.toString()+ "_valid"),origTrainFrame.names(),origTrainFrame.vecs());
+if (origWeightsName != null) cvValid[i].remove(origWeightsName);
 cvValid[i].add(weightName,weights[2 * i + 1]);
 DKV.put(cvValid[i]);
 }
@@ -93,7 +95,6 @@ cvModelBuilderKeys=new Key[N];
 ModelBuilder<M,P,O>[] cvModelBuilders=new ModelBuilder[N];
 for (int i=0; i < N; ++i) {
 if (isCancelledOrCrashed()) break;
-Log.info("Building cross-validation model " + (i + 1) + " / "+ N+ ".");
 cvModelBuilders[i]=(ModelBuilder<M,P,O>)this.clone();
 cvModelBuilderKeys[i]=Key.make(_key.toString() + "_cv" + i);
 cvModelBuilders[i]._key=cvModelBuilderKeys[i];
@@ -106,6 +107,18 @@ cvModelBuilders[i]._parms._train=cvTrain[i]._key;
 cvModelBuilders[i]._parms._valid=cvValid[i]._key;
 cvModelBuilders[i]._parms._fold_assignment=Model.Parameters.FoldAssignmentScheme.AUTO;
 cvModelBuilders[i].modifyParmsForCrossValidationSplits(i,N,_parms._model_id);
+}
+for (int i=0; i < N; ++i) {
+cvModelBuilders[i].init(false);
+if (cvModelBuilders[i].error_count() > 0) {
+_messages=cvModelBuilders[i]._messages;
+updateValidationMessages();
+throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(cvModelBuilders[i]);
+}
+}
+for (int i=0; i < N; ++i) {
+if (isCancelledOrCrashed()) break;
+Log.info("Building cross-validation model " + (i + 1) + " / "+ N+ ".");
 cvModelBuilders[i]._start_time=System.currentTimeMillis();
 cvModelBuilders[i].trainModelImpl(-1,true);
 if (!async) cvModelBuilders[i].block();
@@ -120,7 +133,7 @@ _state=JobState.CREATED;
 assert(((Job)DKV.getGet(_key))._state == JobState.CREATED);
 assert(!_deleteProgressKey);
 _deleteProgressKey=true;
-modifyParmsForCrossValidationMainModel(N);
+modifyParmsForCrossValidationMainModel(N,async ? null : cvModelBuilderKeys);
 trainModelImpl(-1,false);
 if (!async) block();
 }

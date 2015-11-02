@@ -2,7 +2,7 @@
   Frame fs[]=new Frame[nargs() - 1];
   int is[]=new int[nargs() - 1];
   Frame x=null;
-  for (int i=1; i < nargs(); i++)   if (asts[i] instanceof ASTId)   fs[i - 1]=x=stk.track(asts[i].exec(env)).getFrame();
+  for (int i=1; i < nargs(); i++)   if (asts[i] instanceof ASTId || asts[i] instanceof ASTExec)   fs[i - 1]=x=stk.track(asts[i].exec(env)).getFrame();
  else   is[i - 1]=(int)asts[i].exec(env).getNum();
   if (x == null) {
     long msec=new MutableDateTime(is[0],is[1] + 1,is[2] + 1,is[3],is[4],is[5],is[6]).getMillis();
@@ -29,7 +29,7 @@
       }
     }
   }
-.doAll(1,vecs).outputFrame(new String[]{"msec"},null);
+.doAll(new byte[]{Vec.T_NUM},vecs).outputFrame(new String[]{"msec"},null);
   for (int i=0; i < nargs() - 1; i++)   if (fs[i] == null)   vecs[i].remove();
   return new ValFrame(fr2);
 }

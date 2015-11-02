@@ -23,7 +23,7 @@
   }
 );
   for (int gnum=0; gnum < grps.length; gnum++)   grps[gnum]._dss[0][0]=gnum;
-  Vec[] vgrps=new BuildGroup(gbCols,gss).doAll(gss.size(),fr).close();
+  Vec[] vgrps=new BuildGroup(gbCols,gss).doAll(gss.size(),Vec.T_NUM,fr).close();
   final RemoteRapids[] remoteTasks=new RemoteRapids[gss.size()];
   Futures fs=new Futures();
   for (int i=0; i < remoteTasks.length; i++)   fs.add(RPC.call(vgrps[i]._key.home_node(),remoteTasks[i]=new RemoteRapids(fr,vgrps[i]._key,fun,scope)));

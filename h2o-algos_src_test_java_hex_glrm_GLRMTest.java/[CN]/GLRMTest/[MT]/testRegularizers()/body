@@ -1,8 +1,8 @@
 {
-  Frame init=frame(ard(ard(13.2,236,58,21.2),ard(10.0,263,48,44.5),ard(8.1,294,80,31.0),ard(8.8,190,50,19.5)));
+  Frame init=ArrayUtils.frame(ard(ard(13.2,236,58,21.2),ard(10.0,263,48,44.5),ard(8.1,294,80,31.0),ard(8.8,190,50,19.5)));
   GLRM job=null;
   GLRMModel model=null;
-  Frame train=null, score=null;
+  Frame train=null;
   long seed=1234;
   try {
     train=parse_test_file(Key.make("arrests.hex"),"smalldata/pca_test/USArrests.csv");
@@ -10,7 +10,7 @@
     parms._train=train._key;
     parms._k=4;
     parms._init=GLRM.Initialization.User;
-    parms._user_points=init._key;
+    parms._user_y=init._key;
     parms._transform=DataInfo.TransformType.NONE;
     parms._recover_svd=false;
     parms._max_iterations=1000;
@@ -24,8 +24,8 @@
       model=job.trainModel().get();
       Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
       Log.info("Archetypes:\n" + model._output._archetypes.toString());
-      score=model.score(train);
-      ModelMetricsGLRM mm=DKV.getGet(model._output._model_metrics[model._output._model_metrics.length - 1]);
+      model.score(train).delete();
+      ModelMetricsGLRM mm=(ModelMetricsGLRM)ModelMetrics.getFromDKV(model,train);
       Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
     }
  catch (    Throwable t) {
@@ -34,11 +34,7 @@
     }
  finally {
       job.remove();
-      if (score != null)       score.delete();
-      if (model != null) {
-        model._output._loading_key.get().delete();
-        model.delete();
-      }
+      if (model != null)       model.delete();
     }
     Log.info("\nOrthogonal non-negative matrix factorization");
     parms._gamma_x=parms._gamma_y=1;
@@ -49,8 +45,8 @@
       model=job.trainModel().get();
       Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
       Log.info("Archetypes:\n" + model._output._archetypes.toString());
-      score=model.score(train);
-      ModelMetricsGLRM mm=DKV.getGet(model._output._model_metrics[model._output._model_metrics.length - 1]);
+      model.score(train).delete();
+      ModelMetricsGLRM mm=(ModelMetricsGLRM)ModelMetrics.getFromDKV(model,train);
       Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
     }
  catch (    Throwable t) {
@@ -59,11 +55,7 @@
     }
  finally {
       job.remove();
-      if (score != null)       score.delete();
-      if (model != null) {
-        model._output._loading_key.get().delete();
-        model.delete();
-      }
+      if (model != null)       model.delete();
     }
     Log.info("\nQuadratic clustering (k-means)");
     parms._gamma_x=1;
@@ -75,8 +67,8 @@
       model=job.trainModel().get();
       Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
       Log.info("Archetypes:\n" + model._output._archetypes.toString());
-      score=model.score(train);
-      ModelMetricsGLRM mm=DKV.getGet(model._output._model_metrics[model._output._model_metrics.length - 1]);
+      model.score(train).delete();
+      ModelMetricsGLRM mm=(ModelMetricsGLRM)ModelMetrics.getFromDKV(model,train);
       Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
     }
  catch (    Throwable t) {
@@ -85,11 +77,7 @@
     }
  finally {
       job.remove();
-      if (score != null)       score.delete();
-      if (model != null) {
-        model._output._loading_key.get().delete();
-        model.delete();
-      }
+      if (model != null)       model.delete();
     }
     Log.info("\nQuadratic mixture (soft k-means)");
     parms._gamma_x=1;
@@ -101,8 +89,8 @@
       model=job.trainModel().get();
       Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
       Log.info("Archetypes:\n" + model._output._archetypes.toString());
-      score=model.score(train);
-      ModelMetricsGLRM mm=DKV.getGet(model._output._model_metrics[model._output._model_metrics.length - 1]);
+      model.score(train).delete();
+      ModelMetricsGLRM mm=(ModelMetricsGLRM)ModelMetrics.getFromDKV(model,train);
       Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
     }
  catch (    Throwable t) {
@@ -111,11 +99,7 @@
     }
  finally {
       job.remove();
-      if (score != null)       score.delete();
-      if (model != null) {
-        model._output._loading_key.get().delete();
-        model.delete();
-      }
+      if (model != null)       model.delete();
     }
   }
  catch (  Throwable t) {

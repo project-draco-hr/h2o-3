@@ -1,0 +1,8 @@
+def validate_job_exists(a_node, job_name, jobs=None):
+    '\n    Validate that a given job key is found in the jobs list.\n    '
+    if (jobs is None):
+        result = a_node.jobs()
+        jobs = result['jobs']
+    jobs_dict = list_to_dict(jobs, 'key/name')
+    assert (job_name in jobs_dict), ((('FAIL: Failed to find ' + job_name) + ' in jobs list: ') + repr(jobs_dict.keys()))
+    return jobs_dict[job_name]

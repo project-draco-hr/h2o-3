@@ -1,3 +1,6 @@
 def ascharacter(self):
-    '\n    :return: A lazy Expr representing this vec converted to characters\n    '
-    return H2OFrame(expr=ExprNode('as.character', self))
+    'All columns converted to String columns\n\n    Returns\n    -------\n      H2OFrame\n    '
+    fr = H2OFrame._expr(expr=ExprNode('as.character', self), cache=self._ex._cache)
+    if fr._ex._cache.types_valid():
+        fr._ex._cache.types = {k: 'string' for k in fr._ex._cache.types.keys()}
+    return fr

@@ -1,27 +1,17 @@
 {
   for (int j=0; j < cols; ++j) {
     for (int i=0; i < rows; ++i) {
-switch (j % 3) {
-case 0:
-        raw[j][i]=i % 200;
-      break;
-case 1:
-    raw[j][i]=i % 500;
-  break;
-case 2:
-raw[j][i]=i * Integer.MAX_VALUE;
-break;
-case 3:
-raw[j][i]=i == 17 ? 1 : 0;
-break;
-}
-}
-}
-for (int j=0; j < cols; ++j) {
-chunks[j]=new NewChunk(raw[j]).compress();
-Log.info("Column " + j + " compressed into: "+ chunks[j].getClass().toString());
-}
-raw();
-chunks();
-bulk();
+      raw[j][i]=get(j,i);
+    }
+  }
+  for (int j=0; j < cols; ++j) {
+    chunks[j]=(Chunk)new NewChunk(raw[j]).compress();
+    Log.info("Column " + j + " compressed into: "+ chunks[j].getClass().toString());
+  }
+  Log.info("COLS: " + cols);
+  Log.info("ROWS: " + rows);
+  Log.info("REPS: " + rep);
+  int ll=5;
+  for (int i=0; i < ll; ++i)   rollups(false);
+  for (int i=0; i < ll; ++i)   rollups(true);
 }

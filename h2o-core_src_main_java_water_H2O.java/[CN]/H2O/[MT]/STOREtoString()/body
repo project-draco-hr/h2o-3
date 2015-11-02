@@ -5,6 +5,10 @@
     Object ov=kvs[i + 1];
     if (!(ov instanceof Value))     continue;
     Value val=(Value)ov;
+    if (val.isNull()) {
+      Value.STORE_get(val._key);
+      continue;
+    }
     int t=val.type();
     while (t >= cnts.length)     cnts=Arrays.copyOf(cnts,cnts.length << 1);
     cnts[t]++;

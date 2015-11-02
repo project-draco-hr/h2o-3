@@ -1,11 +1,2 @@
-def _to_string(self, depth=0, sb=None):
-    sb += ['\n', (' ' * depth), ('(' + self._op), ' ']
-    for child in self._children:
-        if (isinstance(child, h2o.H2OFrame) and (not child._computed)):
-            child._ast._to_string((depth + 2), sb)
-        elif isinstance(child, ExprNode):
-            child._to_string((depth + 2), sb)
-        else:
-            sb += ['\n', (' ' * (depth + 2)), str(child)]
-    sb += (['\n', ((' ' * depth) + ') ')] + (['\n'] * (depth == 0)))
-    return sb
+def _to_string(self):
+    return ' '.join((([('(' + self._op)] + [ExprNode._arg_to_expr(a) for a in self._children]) + [')']))

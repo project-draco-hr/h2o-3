@@ -1,5 +1,11 @@
 def show(self):
     '\n    Print innards of model, without regards to type\n\n    :return: None\n    '
+    if self._future:
+        self._job.poll_once()
+        return
+    if (self._model_json is None):
+        print 'No model trained yet'
+        return
     model = self._model_json['output']
     print 'Model Details'
     print '============='

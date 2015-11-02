@@ -1,6 +1,8 @@
 {
   row.bad=false;
   row.rid=rid + chunks[0].start();
+  if (_weights)   row.weight=chunks[weightChunkId()].atd(rid);
+  if (row.weight == 0)   return row;
   if (_skipMissing)   for (  Chunk c : chunks)   if (c.isNA(rid)) {
     row.bad=true;
     return row;
@@ -33,6 +35,5 @@
     }
   }
   if (_offset)   row.offset=chunks[offsetChunkId()].atd(rid);
-  if (_weights)   row.weight=chunks[weightChunkId()].atd(rid);
   return row;
 }

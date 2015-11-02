@@ -1,0 +1,39 @@
+def _func_bc(nargs, idx, ops, keys):
+    named_args = {}
+    unnamed_args = []
+    while (nargs > 0):
+        if (nargs >= 256):
+            (arg, idx) = _opcode_read_arg(idx, ops, keys)
+            named_args[ops[idx][1][0]] = arg
+            idx -= 1
+            nargs -= 256
+        else:
+            (arg, idx) = _opcode_read_arg(idx, ops, keys)
+            unnamed_args.insert(0, arg)
+            nargs -= 1
+    op = ops[idx][1][0]
+    if (op not in dir(frame.H2OFrame)):
+        raise ValueError('Unimplemented: op not bound in H2OFrame')
+    if is_attr(ops[idx][0]):
+        argspec = inspect.getargspec(getattr(frame.H2OFrame, op))
+        argnames = argspec.args[1:]
+        argdefs = (argspec.defaults or ())
+        args = (unnamed_args + list(argdefs[len(unnamed_args):]))
+        for a in named_args:
+            args[argnames.index(a)] = named_args[a]
+    if (op == 'ceil'):
+        op = 'ceiling'
+    if ((op == 'sum') and (len(args) > 0) and args[0]):
+        op = 'sumNA'
+    if ((op == 'min') and (len(args) > 0) and args[0]):
+        op = 'minNA'
+    if ((op == 'max') and (len(args) > 0) and args[0]):
+        op = 'maxNA'
+    idx -= 1
+    if is_bytecode_instruction(ops[idx][0]):
+        (arg, idx) = _opcode_read_arg(idx, ops, keys)
+        args.insert(0, arg)
+    elif is_load_fast(ops[idx][0]):
+        args.insert(0, _load_fast(ops[idx][1][0]))
+        idx -= 1
+    return [expr.ExprNode(op, *args), idx]

@@ -1,0 +1,21 @@
+{
+  String[] doms=vec.domain();
+  int[] catLengths=new int[doms.length];
+  for (int i=0; i < doms.length; ++i)   catLengths[i]=doms[i].length();
+  Vec res=new MRTask(){
+    transient int[] catLengths;
+    @Override public void setupLocal(){
+      String[] doms=_fr.anyVec().domain();
+      catLengths=new int[doms.length];
+      for (int i=0; i < doms.length; ++i)       catLengths[i]=doms[i].length();
+    }
+    @Override public void map(    Chunk chk,    NewChunk newChk){
+      newChk._ls=MemoryManager.malloc8(chk._len);
+      newChk._xs=MemoryManager.malloc4(chk._len);
+      for (int i=0; i < chk._len; i++)       if (chk.isNA(i))       newChk.addNA();
+ else       newChk.addNum(catLengths[(int)chk.atd(i)],0);
+    }
+  }
+.doAll(1,Vec.T_NUM,new Frame(vec)).outputFrame().anyVec();
+  return res;
+}

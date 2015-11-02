@@ -52,8 +52,8 @@
         p._elastic_averaging=false;
         int ri=train.numCols() - 1;
         int ci=test.find(p._response_column);
-        Scope.track(train.replace(ri,train.vecs()[ri].toEnum())._key);
-        Scope.track(test.replace(ci,test.vecs()[ci].toEnum())._key);
+        Scope.track(train.replace(ri,train.vecs()[ri].toCategoricalVec())._key);
+        Scope.track(test.replace(ci,test.vecs()[ci].toCategoricalVec())._key);
         DKV.put(train);
         DKV.put(test);
         DeepLearning dl=new DeepLearning(p);
@@ -68,8 +68,8 @@
  finally {
           dl.remove();
         }
-        double err=mymodel.error();
-        Log.info("Missing " + missing_fraction * 100 + "% -> Err: " + err);
+        double err=mymodel.loss();
+        Log.info("Missing " + missing_fraction * 100 + "% -> logloss: " + err);
         map.put(missing_fraction,err);
         sumerr+=err;
         Scope.exit();
@@ -95,6 +95,6 @@
     sumErr.put(mvh,sumerr);
   }
   Log.info(sb.toString());
-  Assert.assertTrue(sumErr.get(DeepLearningParameters.MissingValuesHandling.Skip) > 2.3);
-  Assert.assertTrue(sumErr.get(DeepLearningParameters.MissingValuesHandling.MeanImputation) < 1.2);
+  Assert.assertTrue(sumErr.get(DeepLearningParameters.MissingValuesHandling.Skip) > 4.9);
+  Assert.assertTrue(sumErr.get(DeepLearningParameters.MissingValuesHandling.MeanImputation) < 4.0);
 }

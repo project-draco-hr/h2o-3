@@ -14,10 +14,14 @@ return new ValFrame(new MRTask(){
     }
   }
 }
-.doAll(fr.numCols(),fr).outputFrame());
-case Val.STR:
-throw H2O.unimpl();
+.doAll(fr.numCols(),Vec.T_NUM,fr).outputFrame());
+case Val.ROW:
+ValRow v=(ValRow)val;
+double[] ds=new double[v._ds.length];
+for (int i=0; i < ds.length; ++i) ds[i]=op(v._ds[i]);
+String[] names=v._names.clone();
+return new ValRow(ds,names);
 default :
-throw H2O.fail();
+throw H2O.unimpl("unop unimpl: " + val.getClass());
 }
 }

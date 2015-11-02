@@ -2,61 +2,19 @@ def run_tests(self, nopass):
     '\n        Run all tests.\n\n        @return: none\n        '
     if self.terminated:
         return
-    if self._have_some_r_tests():
-        self._log('')
-        self._log('Setting up R H2O package...')
-        out_file_name = os.path.join(self.output_dir, 'runnerSetupPackage.out.txt')
-        out = open(out_file_name, 'w')
-        runner_setup_package_r = None
-        if True:
-            possible_utils_parent_dir = self.test_root_dir
-            while True:
-                possible_utils_dir = os.path.join(possible_utils_parent_dir, os.path.join('h2o-r', os.path.join('tests', 'Utils')))
-                possible_runner_setup_package_r = os.path.join(possible_utils_dir, 'runnerSetupPackage.R')
-                if os.path.exists(possible_runner_setup_package_r):
-                    runner_setup_package_r = possible_runner_setup_package_r
-                    break
-                next_possible_utils_parent_dir = os.path.dirname(possible_utils_parent_dir)
-                if (next_possible_utils_parent_dir == possible_utils_parent_dir):
-                    break
-                possible_utils_parent_dir = next_possible_utils_parent_dir
-        if (runner_setup_package_r is None):
-            print ''
-            print 'ERROR: runnerSetupPackage.R not found.'
-            print ''
-            sys.exit(1)
-        cmd = ['R', '--vanilla', '--quiet', '-f', runner_setup_package_r]
-        if (self.path_to_tar is not None):
-            print ('Using R TAR located at: ' + self.path_to_tar)
-            cmd += ['--args', self.path_to_tar]
-        child = subprocess.Popen(args=cmd, stdout=out, stderr=subprocess.STDOUT)
-        rv = child.wait()
-        if self.terminated:
-            return
-        if (rv != 0):
-            print ''
-            print (('ERROR: ' + runner_setup_package_r) + ' failed.')
-            print (('       (See ' + out_file_name) + ')')
-            print ''
-            sys.exit(1)
-        out.close()
-    elif (self._have_some_py_tests() and (self.path_to_whl is not None)):
-        self._log('')
-        self._log('Setting up Python H2O package...')
-        out_file_name = os.path.join(self.output_dir, 'pythonSetup.out.txt')
-        out = open(out_file_name, 'w')
-        cmd = ['pip', 'install', self.path_to_whl, '--force-reinstall']
-        child = subprocess.Popen(args=cmd, stdout=out, stderr=subprocess.STDOUT)
-        rv = child.wait()
-        if self.terminated:
-            return
-        if (rv != 0):
-            print ''
-            print 'ERROR: Python setup failed.'
-            print (('       (See ' + out_file_name) + ')')
-            print ''
-            sys.exit(1)
-        out.close()
+    if self.perf:
+        self.perf_file = os.path.join(self.output_dir, 'perf.csv')
+    if (self.on_hadoop and (self.hadoop_namenode == None)):
+        print ''
+        print 'ERROR: Must specify --hadoopNamenode when using --onHadoop option.'
+        print ''
+        sys.exit(1)
+    if (self.r_pkg_ver_chk == True):
+        self._r_pkg_ver_chk()
+    elif (self.path_to_tar is not None):
+        self._install_h2o_r_pkg(self.path_to_tar)
+    elif (self.path_to_whl is not None):
+        self._install_h2o_py_whl(self.path_to_whl)
     num_tests = len(self.tests)
     num_nodes = (self.num_clouds * self.nodes_per_cloud)
     self._log('')

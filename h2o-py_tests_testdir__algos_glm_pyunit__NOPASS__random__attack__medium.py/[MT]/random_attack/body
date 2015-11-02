@@ -12,7 +12,7 @@ def random_attack():
         if (random.random() > 0.8):
             kwargs['beta_epsilon'] = random.random()
         if random.randint(0, 1):
-            kwargs['solver'] = ['IRLSM', 'L_BFGS'][random.randint(0, 1)]
+            kwargs['solver'] = ['AUTO', 'IRLSM', 'L_BFGS', 'COORDINATE_DESCENT_NAIVE', 'COORDINATE_DESCENT'][random.randint(0, 1)]
         if random.randint(0, 1):
             kwargs['standardize'] = [True, False][random.randint(0, 1)]
         if random.randint(0, 1):
@@ -38,13 +38,15 @@ def random_attack():
         if random.randint(0, 1):
             bc = []
             for n in x:
-                name = train.names[n]
-                lower_bound = random.uniform((-1), 1)
-                upper_bound = (lower_bound + random.random())
-                bc.append([name, lower_bound, upper_bound])
-            beta_constraints = h2o.H2OFrame(python_obj=bc)
-            beta_constraints.set_names(['names', 'lower_bounds', 'upper_bounds'])
-            kwargs['beta_constraints'] = beta_constraints.send_frame()
+                if train[n].isnumeric():
+                    name = train.names[n]
+                    lower_bound = random.uniform((-1), 1)
+                    upper_bound = (lower_bound + random.random())
+                    bc.append([name, lower_bound, upper_bound])
+            if (len(bc) > 0):
+                beta_constraints = h2o.H2OFrame(bc)
+                beta_constraints.set_names(['names', 'lower_bounds', 'upper_bounds'])
+                kwargs['beta_constraints'] = beta_constraints.frame_id
         print '-----------------------'
         print 'x: {0}'.format(x)
         print 'y: {0}'.format(y)
@@ -56,18 +58,21 @@ def random_attack():
             else:
                 print (k + ': {0}'.format(v))
         if do_validation:
+            m = H2OGeneralizedLinearEstimator(**kwargs)
             h2o.glm(x=train[x], y=train[y], validation_x=valid[x], validation_y=valid[y], **kwargs)
         else:
             h2o.glm(x=train[x], y=train[y], **kwargs)
         print '-----------------------'
     print 'Import and data munging...'
-    pros = h2o.upload_file(h2o.locate('smalldata/prostate/prostate.csv.zip'))
+    seed = random.randint(1, 10000)
+    print 'SEED: {0}'.format(seed)
+    pros = h2o.upload_file(pyunit_utils.locate('smalldata/prostate/prostate.csv.zip'))
     pros[1] = pros[1].asfactor()
-    r = pros[0].runif()
+    r = pros[0].runif(seed=seed)
     pros_train = pros[(r > 0.2)]
     pros_valid = pros[(r <= 0.2)]
-    cars = h2o.upload_file(h2o.locate('smalldata/junit/cars.csv'))
-    r = cars[0].runif()
+    cars = h2o.upload_file(pyunit_utils.locate('smalldata/junit/cars.csv'))
+    r = cars[0].runif(seed=seed)
     cars_train = cars[(r > 0.2)]
     cars_valid = cars[(r <= 0.2)]
     print 

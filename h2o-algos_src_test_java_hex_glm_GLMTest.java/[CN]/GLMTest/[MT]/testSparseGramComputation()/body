@@ -41,13 +41,12 @@
   Vec v10=Vec.makeVec(d7,Vec.newKey());
   Vec v11=Vec.makeVec(d8,Vec.newKey());
   Vec v12=Vec.makeVec(d9,Vec.newKey());
-  Key k=Key.make("TestData");
-  Frame f=new Frame(v01,v02,v03,v04,v05,v05,v06,v07,v08,v09,v10,v11,v12);
-  DKV.put(k,f);
+  Frame f=new Frame(Key.make("TestData"),null,new Vec[]{v01,v02,v03,v04,v05,v05,v06,v07,v08,v09,v10,v11,v12});
+  DKV.put(f);
   DataInfo dinfo=new DataInfo(Key.make(),f,null,1,true,DataInfo.TransformType.STANDARDIZE,DataInfo.TransformType.NONE,true,false,false,false,false,false);
   GLMParameters params=new GLMParameters(Family.gaussian);
-  final GLMIterationTask glmtSparse=new GLMIterationTask(null,dinfo,1e-5,params,false,null,0,null,null).setSparse(true).doAll(dinfo._adaptedFrame);
-  final GLMIterationTask glmtDense=new GLMIterationTask(null,dinfo,1e-5,params,false,null,0,null,null).setSparse(false).doAll(dinfo._adaptedFrame);
+  final GLMIterationTask glmtSparse=new GLMIterationTask(null,dinfo,1e-5,params,false,null,0,true,null).setSparse(true).doAll(dinfo._adaptedFrame);
+  final GLMIterationTask glmtDense=new GLMIterationTask(null,dinfo,1e-5,params,false,null,0,true,null).setSparse(false).doAll(dinfo._adaptedFrame);
   for (int i=0; i < glmtDense._xy.length; ++i) {
     for (int j=0; j <= i; ++j) {
       assertEquals(glmtDense._gram.get(i,j),glmtSparse._gram.get(i,j),1e-8);
@@ -62,8 +61,8 @@
     }
   }
 ).join();
-  final GLMIterationTask glmtSparse2=new GLMIterationTask(null,dinfo,1e-5,params,false,beta,0,null,null).setSparse(true).doAll(dinfo._adaptedFrame);
-  final GLMIterationTask glmtDense2=new GLMIterationTask(null,dinfo,1e-5,params,false,beta,0,null,null).setSparse(false).doAll(dinfo._adaptedFrame);
+  final GLMIterationTask glmtSparse2=new GLMIterationTask(null,dinfo,1e-5,params,false,beta,0,true,null).setSparse(true).doAll(dinfo._adaptedFrame);
+  final GLMIterationTask glmtDense2=new GLMIterationTask(null,dinfo,1e-5,params,false,beta,0,true,null).setSparse(false).doAll(dinfo._adaptedFrame);
   for (int i=0; i < glmtDense2._xy.length; ++i) {
     for (int j=0; j <= i; ++j) {
       assertEquals(glmtDense2._gram.get(i,j),glmtSparse2._gram.get(i,j),1e-8);
@@ -71,6 +70,5 @@
     assertEquals(glmtDense2._xy[i],glmtSparse2._xy[i],1e-8);
   }
   dinfo.remove();
-  DKV.remove(k);
-  f.remove();
+  f.delete();
 }

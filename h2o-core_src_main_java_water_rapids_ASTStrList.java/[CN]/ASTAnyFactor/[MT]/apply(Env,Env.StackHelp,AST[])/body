@@ -1,9 +1,5 @@
 {
   Frame fr=stk.track(asts[1].exec(env)).getFrame();
-  String res="FALSE";
-  for (int i=0; i < fr.vecs().length; ++i)   if (fr.vecs()[i].isEnum()) {
-    res="TRUE";
-    break;
-  }
-  return new ValStr(res);
+  for (  Vec vec : fr.vecs())   if (vec.isCategorical())   return new ValNum(1);
+  return new ValNum(0);
 }

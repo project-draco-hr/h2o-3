@@ -30,13 +30,13 @@ case Vec.T_BAD:
   break;
 case Vec.T_STR:
 coltypes[i]="string";
-ValueString vstr=new ValueString();
+BufferedString tmpStr=new BufferedString();
 for (int j=0; j < len; j++) {
-strCells[j + 5][i]=vec.isNA(off + j) ? "" : vec.atStr(vstr,off + j).toString();
+strCells[j + 5][i]=vec.isNA(off + j) ? "" : vec.atStr(tmpStr,off + j).toString();
 dblCells[j + 5][i]=TwoDimTable.emptyDouble;
 }
 break;
-case Vec.T_ENUM:
+case Vec.T_CAT:
 coltypes[i]="string";
 for (int j=0; j < len; j++) {
 strCells[j + 5][i]=vec.isNA(off + j) ? "" : vec.factor(vec.at8(off + j));
@@ -65,5 +65,5 @@ System.err.println("bad vector type during debug print: " + vec.get_type());
 throw H2O.fail();
 }
 }
-return new TwoDimTable("Frame " + _key,numRows() + " rows and " + numCols()+ " cols",rowHeaders,_names,coltypes,null,"",strCells,dblCells).toString();
+return new TwoDimTable("Frame " + _key,numRows() + " rows and " + numCols()+ " cols",rowHeaders,_names.clone(),coltypes,null,"",strCells,dblCells).toString();
 }

@@ -1,0 +1,32 @@
+{
+  final H2OCountedCompleter barrier=(new H2OCountedCompleter(){
+    @Override protected void compute2(){
+    }
+  }
+);
+  barrier.addToPendingCount(_keys.length - 1);
+  for (  Key k : _keys)   DKV.get(k);
+  for (int i=0; i < _keys.length; ++i) {
+    final Key fk=_keys[i];
+    new AtomicIncrementAndGet(new H2OCallback<AtomicIncrementAndGet>(barrier){
+      @Override public void callback(      AtomicIncrementAndGet f){
+        final int lb=f._val;
+        for (        H2ONode node : H2O.CLOUD._memary) {
+          if (node != H2O.SELF) {
+            barrier.addToPendingCount(1);
+            new RPC(node,new DTask(){
+              @Override protected void compute2(){
+                IcedInt val=DKV.getGet(fk);
+                if (val._val < lb)                 throw new IllegalArgumentException("DKV seems to be in inconsistent state after TAtomic, value lower than expected, expected at least " + lb + ", got "+ val._val);
+                tryComplete();
+              }
+            }
+).addCompleter(barrier).call();
+          }
+        }
+      }
+    }
+).fork(_keys[i]);
+  }
+  barrier.join();
+}

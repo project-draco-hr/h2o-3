@@ -1,5 +1,5 @@
 def user():
-    a = h2o.import_file(path=h2o.locate('smalldata/iris/iris_wheader.csv'))[0:4]
+    a = h2o.import_file(path=pyunit_utils.locate('smalldata/iris/iris_wheader.csv'))[0:4]
     a.head()
     print a[0].names
     print a[(2, 0)]
@@ -7,7 +7,7 @@ def user():
     (a[0] + 2).show()
     (a[0] + a[1]).show()
     sum(a).show()
-    print a['sepal_len'].mean()
+    print a['sepal_len'].mean()[0]
     print 
     print 'Rows 50 through 77 in the `sepal_len` column'
     a[50:78, 'sepal_len'].show()
@@ -15,7 +15,7 @@ def user():
     a['sepal_len'].show()
     print a[50:78, ['sepal_len', 'sepal_wid']].show()
     a.show()
-    colmeans = [v.mean() for v in a]
+    colmeans = a.mean()
     print 'The column means: '
     print colmeans
     print 
@@ -23,16 +23,16 @@ def user():
         print a['Sepal_len'].dim
     except Exception:
         pass
-    b = h2o.import_file(path=h2o.locate('smalldata/iris/iris_wheader.csv'))[0:4]
+    b = h2o.import_file(path=pyunit_utils.locate('smalldata/iris/iris_wheader.csv'))[0:4]
     c = (a + b)
     d = ((c + c) + sum(a))
     e = ((c + a) + 1)
     e.show()
     c.show()
     c = None
-    print (1 + (a[0] + b[1]).mean())
+    print (1 + (a[0] + b[1]).mean()[0])
     import collections
-    c = h2o.H2OFrame(python_obj=collections.OrderedDict({'A': [1, 2, 3], 'B': [4, 5, 6], }))
+    c = h2o.H2OFrame(collections.OrderedDict({'A': [1, 2, 3], 'B': [4, 5, 6], }))
     c.show()
     c.describe()
     c.head()

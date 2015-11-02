@@ -1,11 +1,7 @@
 @staticmethod
 def get_frame(frame_id):
-    res = h2o.H2OConnection.get_json(('Frames/' + urllib.quote(frame_id)))['frames'][0]
+    'Create an H2OFrame mapped to an existing id in the cluster.\n\n    Returns\n    -------\n      H2OFrame that points to a pre-existing big data H2OFrame in the cluster\n    '
     fr = H2OFrame()
-    fr._nrows = res['rows']
-    fr._ncols = res['total_column_count']
-    fr._id = res['frame_id']['name']
-    fr._computed = True
-    fr._keep = True
-    fr._col_names = [c['label'] for c in res['columns']]
+    fr._ex._cache._id = frame_id
+    fr._ex._cache.fill()
     return fr

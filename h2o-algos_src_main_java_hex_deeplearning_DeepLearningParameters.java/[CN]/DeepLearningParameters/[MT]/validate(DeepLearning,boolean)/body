@@ -21,17 +21,19 @@
       dl.error("_nfolds","N-fold cross-validation is not supported for Autoencoder.");
     }
   }
-  if (_activation != Activation.TanhWithDropout && _activation != Activation.MaxoutWithDropout && _activation != Activation.RectifierWithDropout)   dl.hide("_hidden_dropout_ratios","hidden_dropout_ratios requires a dropout activation function.");
-  if (_hidden_dropout_ratios == null) {
+  if (_activation != Activation.TanhWithDropout && _activation != Activation.MaxoutWithDropout && _activation != Activation.RectifierWithDropout) {
+    dl.hide("_hidden_dropout_ratios","hidden_dropout_ratios requires a dropout activation function.");
   }
- else   if (_hidden_dropout_ratios.length != _hidden.length) {
-    dl.error("_hidden_dropout_ratios","Must have " + _hidden.length + " hidden layer dropout ratios.");
-  }
- else   if (_activation != Activation.TanhWithDropout && _activation != Activation.MaxoutWithDropout && _activation != Activation.RectifierWithDropout) {
-    if (!_quiet_mode)     dl.hide("_hidden_dropout_ratios","Ignoring hidden_dropout_ratios because a non-dropout activation function was specified.");
-  }
- else   if (ArrayUtils.maxValue(_hidden_dropout_ratios) >= 1 || ArrayUtils.minValue(_hidden_dropout_ratios) < 0) {
-    dl.error("_hidden_dropout_ratios","Hidden dropout ratios must be >= 0 and <1.");
+  if (_hidden_dropout_ratios != null) {
+    if (_hidden_dropout_ratios.length != _hidden.length) {
+      dl.error("_hidden_dropout_ratios","Must have " + _hidden.length + " hidden layer dropout ratios.");
+    }
+ else     if (_activation != Activation.TanhWithDropout && _activation != Activation.MaxoutWithDropout && _activation != Activation.RectifierWithDropout) {
+      if (!_quiet_mode)       dl.hide("_hidden_dropout_ratios","Ignoring hidden_dropout_ratios because a non-dropout activation function was specified.");
+    }
+ else     if (ArrayUtils.maxValue(_hidden_dropout_ratios) >= 1 || ArrayUtils.minValue(_hidden_dropout_ratios) < 0) {
+      dl.error("_hidden_dropout_ratios","Hidden dropout ratios must be >= 0 and <1.");
+    }
   }
   if (_input_dropout_ratio < 0 || _input_dropout_ratio >= 1)   dl.error("_input_dropout_ratio","Input dropout must be >= 0 and <1.");
   if (_score_duty_cycle < 0 || _score_duty_cycle > 1)   dl.error("_score_duty_cycle","Score duty cycle must be >= 0 and <=1.");
@@ -60,14 +62,14 @@
   }
   if (_loss == null) {
     if (expensive || dl.nclasses() != 0) {
-      dl.error("_loss","Loss function must be specified. Try CrossEntropy for categorical response (classification), MeanSquare, Absolute or Huber for numerical response (regression).");
+      dl.error("_loss","Loss function must be specified. Try CrossEntropy for categorical response (classification), Quadratic, Absolute or Huber for numerical response (regression).");
     }
   }
  else {
     if (_autoencoder && _loss == Loss.CrossEntropy)     dl.error("_loss","Cannot use CrossEntropy loss for auto-encoder.");
     if (!classification && _loss == Loss.CrossEntropy)     dl.error("_loss",technote(2,"For CrossEntropy loss, the response must be categorical."));
   }
-  if (!classification && _loss == Loss.CrossEntropy)   dl.error("_loss","For CrossEntropy loss, the response must be categorical. Either select Automatic, MeanSquare, Absolute or Huber loss for regression, or use a categorical response.");
+  if (!classification && _loss == Loss.CrossEntropy)   dl.error("_loss","For CrossEntropy loss, the response must be categorical. Either select Automatic, Quadratic, Absolute or Huber loss for regression, or use a categorical response.");
   if (classification) {
 switch (_distribution) {
 case gaussian:
@@ -123,7 +125,6 @@ if (!_autoencoder && _sparsity_beta != 0) dl.error("_sparsity_beta","Sparsity be
 if (classification && dl.hasOffsetCol()) dl.error("_offset_column","Offset is only supported for regression.");
 if (_autoencoder && _activation == Activation.Maxout) dl.error("_activation","Maxout activation is not supported for auto-encoder.");
 if (_max_categorical_features < 1) dl.error("_max_categorical_features","max_categorical_features must be at least 1.");
-if (_sparse) dl.error("_sparse","Deprecated: Sparse data handling not supported anymore - not faster.");
 if (_col_major) dl.error("_col_major","Deprecated: Column major data handling not supported anymore - not faster.");
 if (!_sparse && _col_major) {
 dl.error("_col_major","Cannot use column major storage for non-sparse data handling.");
@@ -149,5 +150,8 @@ dl.hide("_elastic_averaging_regularization","Elastic averaging is required for t
  else {
 if (_elastic_averaging_moving_rate > 1 || _elastic_averaging_moving_rate < 0) dl.error("_elastic_averaging_moving_rate","Elastic averaging moving rate must be between 0 and 1.");
 if (_elastic_averaging_regularization < 0) dl.error("_elastic_averaging_regularization","Elastic averaging regularization strength must be >= 0.");
+}
+if (_autoencoder && _stopping_metric != ScoreKeeper.StoppingMetric.AUTO && _stopping_metric != ScoreKeeper.StoppingMetric.MSE) {
+dl.error("_stopping_metric","Stopping metric must either be AUTO or MSE for autoencoder.");
 }
 }
