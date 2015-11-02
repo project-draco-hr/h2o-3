@@ -10,9 +10,11 @@ def javapredict(algo, equality, train, test, x, y, compile_only=False, **kwargs)
         model = H2OGeneralizedLinearEstimator(**kwargs)
     elif (algo == 'kmeans'):
         model = H2OKMeansEstimator(**kwargs)
+    elif (algo == 'pca'):
+        model = H2OPCA(**kwargs)
     else:
         raise (ValueError, 'algo {0} is not supported'.format(algo))
-    if (algo == 'kmeans'):
+    if ((algo == 'kmeans') or (algo == 'pca')):
         model.train(x=x, training_frame=train)
     else:
         model.train(x=x, y=y, training_frame=train)
