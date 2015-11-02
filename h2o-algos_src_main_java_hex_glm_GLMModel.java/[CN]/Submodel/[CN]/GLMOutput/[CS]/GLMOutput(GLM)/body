@@ -1,10 +1,30 @@
 {
   super(glm);
   _dinfo=glm._dinfo;
+  if (!glm.hasWeightCol()) {
+    _dinfo=(DataInfo)_dinfo.clone();
+    _dinfo._adaptedFrame=new Frame(_dinfo._adaptedFrame.names().clone(),_dinfo._adaptedFrame.vecs().clone());
+    _dinfo.dropWeights();
+  }
   String[] cnames=glm._dinfo.coefNames();
-  _names=glm._dinfo._adaptedFrame.names();
-  _domains=glm._dinfo._adaptedFrame.domains();
+  String[] names=_dinfo._adaptedFrame._names;
+  String[][] domains=_dinfo._adaptedFrame.domains();
+  int id=ArrayUtils.find(names,glm._generatedWeights);
+  if (id >= 0) {
+    String[] ns=new String[names.length - 1];
+    String[][] ds=new String[domains.length - 1][];
+    System.arraycopy(names,0,ns,0,id);
+    System.arraycopy(domains,0,ds,0,id);
+    System.arraycopy(names,id + 1,ns,id,ns.length - id);
+    System.arraycopy(domains,id + 1,ds,id,ds.length - id);
+    names=ns;
+    domains=ds;
+  }
+  _names=names;
+  _domains=domains;
   _coefficient_names=Arrays.copyOf(cnames,cnames.length + 1);
   _coefficient_names[_coefficient_names.length - 1]="Intercept";
   _binomial=glm._parms._family == Family.binomial;
+  _nclasses=glm.nclasses();
+  _multinomial=_nclasses > 2;
 }
