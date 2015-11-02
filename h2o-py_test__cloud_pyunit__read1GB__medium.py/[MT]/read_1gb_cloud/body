@@ -1,0 +1,10 @@
+def read_1gb_cloud():
+    '\n    Test h2o cluster read file.  Should run faster than what is observed under\n    https://0xdata.atlassian.net/browse/PUBDEV-2254\n    Right now this test is not run through Jenkins. Need to setup a cloud\n    testing infrastructure which is a longer term project.\n    You can take a look at markc_multimachine on jenkins for the current setup\n    which is based on ec2\n    '
+    df = h2o.import_file('http://s3.amazonaws.com/h2o-datasets/allstate/train_set.zip')
+    response = 'Cat1'
+    predictors = ['Cat2', 'Cat3', 'Cat4', 'Cat5']
+    df['Cat1'] = df['Cat1'].asfactor()
+    df['Cat1'].summary()
+    rnd = df['Cat1'].runif(seed=1234)
+    train = df[(rnd <= 0.8)]
+    test = df[(rnd > 0.8)]
