@@ -1,10 +1,8 @@
 def get_hyperparams(self, id, display=True):
-    '\n    Get the hyperparameters of a model explored by grid search.\n    :param id: int or str, either the index of desired model or its model id\n    :param display: boolean, flag whether to display hyperparameter names\n    :return: str, hyperparameters\n    '
-    s = ''
+    '\n    Get the hyperparameters of a model explored by grid search.\n    :param id: int or str, either the index of desired model or its model id\n    :param display: boolean, flag whether to display hyperparameter names\n    :return: list, hyperparameters in the order displayed\n    '
     idx = (id if isinstance(id, int) else self.model_ids.index(id))
     model = self[idx]
-    for h in self.hyper_params:
-        s += (str(model.params[h]['actual']) + ', ')
+    res = [(model.params[h]['actual'][0] if isinstance(model.params[h]['actual'], list) else model.params[h]['actual']) for h in self.hyper_params]
     if display:
-        print 'Hyperparameters:', self.hyper_params.keys()
-    return s[:(-2)]
+        print (('Hyperparameters: [' + ', '.join(self.hyper_params.keys())) + ']')
+    return res

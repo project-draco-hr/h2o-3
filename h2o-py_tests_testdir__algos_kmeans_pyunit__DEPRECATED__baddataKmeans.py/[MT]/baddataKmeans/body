@@ -5,14 +5,14 @@ def baddataKmeans():
     data = rawdata[:]
     for col in data:
         col[24] = None
-    frame = h2o.H2OFrame.fromPython(data)
+    frame = h2o.H2OFrame(data)
     km_model = h2o.kmeans(x=frame, k=5)
     centers = km_model.centers()
     assert (len(centers[0]) == 5), 'expected 5 centers'
     assert (len(centers) == 10), 'expected center to be 10 dimensional'
     data = rawdata[:]
     data[4] = ([5] * rows)
-    frame = h2o.H2OFrame.fromPython(data)
+    frame = h2o.H2OFrame(data)
     km_model = h2o.kmeans(x=frame, k=5)
     centers = km_model.centers()
     assert (len(centers[0]) == 5), 'expected 5 centers'
@@ -20,20 +20,20 @@ def baddataKmeans():
     data = rawdata[:]
     data[4] = ([None] * rows)
     data[7] = ([0] * rows)
-    frame = h2o.H2OFrame.fromPython(data)
+    frame = h2o.H2OFrame(data)
     km_model = h2o.kmeans(x=frame, k=5)
     centers = km_model.centers()
     assert (len(centers[0]) == 5), 'expected 5 centers'
     assert (len(centers) == 8), 'expected center to be 8-dim '
     data = [[None for c in range(rows)] for r in range(cols)]
-    frame = h2o.H2OFrame.fromPython(data)
+    frame = h2o.H2OFrame(data)
     try:
         h2o.kmeans(x=frame, k=5)
         assert False, 'expected an error'
     except EnvironmentError:
         assert True
     data = [[random.choice(string.ascii_uppercase) for c in range(rows)] for r in range(cols)]
-    frame = h2o.H2OFrame.fromPython(data)
+    frame = h2o.H2OFrame(data)
     km_model = h2o.kmeans(x=frame, k=5)
     centers = km_model.centers()
     assert (len(centers[0]) == 5), 'expected 5 centers'
