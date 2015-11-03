@@ -6,5 +6,8 @@ def remove(x):
         x = x._ex._cache._id
         if (x is None):
             return
-    if isinstance(x, str):
+        rapids('(rm {})'.format(x))
+    elif isinstance(x, H2OEstimator):
+        H2OConnection.delete(('DKV/' + x.model_id))
+    elif isinstance(x, str):
         H2OConnection.delete(('DKV/' + x))
