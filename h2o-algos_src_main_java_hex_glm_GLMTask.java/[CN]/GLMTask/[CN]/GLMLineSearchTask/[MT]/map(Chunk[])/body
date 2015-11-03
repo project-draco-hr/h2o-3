@@ -1,8 +1,6 @@
 {
-  Chunk rowFilter=_rowFilter != null ? _rowFilter.chunkForChunkIdx(chks[0].cidx()) : null;
   Chunk responseChunk=chks[_dinfo.responseChunkId()];
   boolean[] skip=MemoryManager.mallocZ(chks[0]._len);
-  if (rowFilter != null)   for (int r=0; r < skip.length; ++r)   skip[r]=rowFilter.at8(r) == 1;
   double[][] eta=new double[responseChunk._len][_nSteps];
   if (_dinfo._offset) {
     Chunk offsetChunk=chks[_dinfo.offsetChunkId()];
@@ -51,6 +49,7 @@
         continue;
       }
       double d=c.atd(r);
+      if (d == 0)       continue;
       if (_dinfo._normMul != null)       d*=_dinfo._normMul[i];
       double b=beta[numStart + i];
       double s=pk[numStart + i] * _initStep;
@@ -60,7 +59,7 @@
   _likelihoods=MemoryManager.malloc8d(_nSteps);
   for (int r=0; r < chks[0]._len; ++r) {
     double w=weightsChunk.atd(r);
-    if (skip[r] || responseChunk.isNA(r))     continue;
+    if (w == 0 || responseChunk.isNA(r))     continue;
     _nobs++;
     double y=responseChunk.atd(r);
     double yy=-1 + 2 * y;

@@ -1,7 +1,7 @@
 def var(self, y=None, use='everything'):
-    '\n    :param use: One of "everything", "complete.obs", or "all.obs".\n    :return: The covariance matrix of the columns in this H2OFrame if y is\n             given, or a eagerly computed scalar if y is not given.\n    '
+    'Compute the variance, or co-variance matrix.\n\n    Parameters\n    ----------\n    y : H2OFrame, default=None\n      If y is None, then the variance is computed for self. If self has more than one\n      column, then the covariance matrix is returned.\n      If y is not None, then the covariance between self and y is computed (self and y\n      must therefore both be single columns).\n    use : str\n      One of "everything", "complete.obs", or "all.obs"\n\n    Returns\n    -------\n      The covariance matrix of the columns in this H2OFrame if y is given, or a eagerly\n      computed scalar if y is not given.\n    '
     if (y is None):
         y = self
     if ((self.nrow == 1) or ((self.ncol == 1) and (y.ncol == 1))):
-        return self._scalar('var', self, y, use)
-    return self._newExpr('var', self, y, use)
+        return ExprNode('var', self, y, use)._eager_scalar()
+    return H2OFrame._expr(expr=ExprNode('var', self, y, use))._frame()

@@ -1,8 +1,9 @@
 {
-  int id=_k % _m;
-  final double[] gradDiff=_y[id];
-  for (int i=0; i < gNew.length; ++i)   gradDiff[i]=gNew[i] - gOld[i];
-  System.arraycopy(pk,0,_s[id],0,pk.length);
-  _rho[id]=1.0 / ArrayUtils.innerProduct(_s[id],_y[id]);
+  int id=getId(0);
+  double[] y=_y[id];
+  double[] s=_s[id];
+  for (int i=0; i < gNew.length; ++i)   y[i]=gNew[i] - gOld[i];
+  System.arraycopy(pk,0,s,0,pk.length);
+  _rho[id]=1.0 / ArrayUtils.innerProduct(s,y);
   ++_k;
 }
