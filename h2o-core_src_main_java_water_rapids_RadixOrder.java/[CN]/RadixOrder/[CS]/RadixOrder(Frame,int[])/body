@@ -19,15 +19,18 @@
   System.out.println("Time to MoveByFirstByte: " + (System.nanoTime() - t0) / 1e9);
   t0=System.nanoTime();
   long nGroup[]=new long[257];
-  Futures fs=new Futures();
   _o=new long[256][][];
   _x=new byte[256][][];
+  RPC[] radixOrders=new RPC[256];
   for (int i=0; i < 256; i++) {
-    H2ONode node=MoveByFirstByte.ownerOfMSB(i);
-    SingleThreadRadixOrder radixOrder=new RPC<>(node,new SingleThreadRadixOrder(DF,batchSize,keySize,nGroup,i)).call().get();
+    radixOrders[i]=new RPC<>(MoveByFirstByte.ownerOfMSB(i),new SingleThreadRadixOrder(DF,batchSize,keySize,nGroup,i)).call();
+  }
+  int i=0;
+  for (  RPC rpc : radixOrders) {
+    SingleThreadRadixOrder radixOrder=(SingleThreadRadixOrder)rpc.get();
     _o[i]=radixOrder._o;
     _x[i]=radixOrder._x;
+    i++;
   }
-  fs.blockForPending();
   System.out.println("Time for all calls to SingleThreadRadixOrder: " + (System.nanoTime() - t0) / 1e9);
 }
