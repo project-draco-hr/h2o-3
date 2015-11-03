@@ -1,6 +1,8 @@
 {
   Key id=Key.make(asts[1].str());
-  Frame fr=DKV.getGet(id);
-  env._ses.remove(fr);
-  return new ValNum(fr == null ? 0 : 1);
+  Value val=DKV.get(id);
+  if (val == null)   return new ValNum(0);
+  if (val.isFrame())   env._ses.remove(val.<Frame>get());
+ else   Keyed.remove(id);
+  return new ValNum(1);
 }
