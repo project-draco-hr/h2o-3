@@ -7,7 +7,9 @@
       if (GLOBALS.remove(vec) && _getRefCnt(vec) == 0)       vec.remove(fs);
     }
   }
-  Frame fr2=new Frame(id,src._names.clone(),src.vecs().clone());
+  Vec[] svecs=src.vecs().clone();
+  for (int i=0; i < svecs.length; i++)   if (GLOBALS.contains(svecs[i]))   svecs[i]=svecs[i].makeCopy();
+  Frame fr2=new Frame(id,src._names.clone(),svecs);
   DKV.put(fr2,fs);
   addGlobals(fr2);
   fs.blockForPending();
