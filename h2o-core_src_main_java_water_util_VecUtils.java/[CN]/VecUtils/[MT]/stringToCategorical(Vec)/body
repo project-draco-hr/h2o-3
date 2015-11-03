@@ -1,4 +1,27 @@
 {
-  Vec res=null;
-  return res;
+  final String[] vecDomain=new CollectStringVecDomain().domain(vec);
+  MRTask task=new MRTask(){
+    transient private java.util.HashMap<String,Integer> lookupTable;
+    @Override protected void setupLocal(){
+      lookupTable=new java.util.HashMap<>(vecDomain.length);
+      for (int i=0; i < vecDomain.length; i++) {
+        lookupTable.put(vecDomain[i],i);
+      }
+    }
+    @Override public void map(    Chunk c,    NewChunk nc){
+      BufferedString bs=new BufferedString();
+      for (int row=0; row < c.len(); row++) {
+        if (c.isNA(row)) {
+          nc.addNA();
+        }
+ else {
+          c.atStr(bs,row);
+          nc.addCategorical(lookupTable.get(bs.bytesToString()));
+        }
+      }
+    }
+  }
+;
+  task.doAll(new byte[]{Vec.T_CAT},vec);
+  return task.outputFrame(null,null,new String[][]{vecDomain}).vec(0);
 }
