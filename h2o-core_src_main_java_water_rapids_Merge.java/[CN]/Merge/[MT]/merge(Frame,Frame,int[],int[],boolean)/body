@@ -20,7 +20,6 @@
     int rightMSBBase=leftMSB >> bitShift;
     for (int k=0; k < rightExtent; k++) {
       int rightMSB=rightMSBBase + k;
-      H2ONode leftNode=MoveByFirstByte.ownerOfMSB(leftMSB);
       H2ONode rightNode=MoveByFirstByte.ownerOfMSB(rightMSB);
       RPC bm=new RPC<>(rightNode,new BinaryMerge(leftFrame,rightFrame,leftMSB,rightMSB,leftIndex._bytesUsed,rightIndex._bytesUsed,allLeft));
       bmList.add(bm);
@@ -28,7 +27,7 @@
     }
   }
   System.out.println("Sending BinaryMerge async RPC calls took: " + (System.nanoTime() - t0) / 1e9);
-  System.out.print("Summing BinaryMerge._numChunks ... ");
+  System.out.print("Summing BinaryMerge._numChunks (and waiting for RPCs to finish)... ");
   t0=System.nanoTime();
   long ansN=0;
   int numChunks=0;
