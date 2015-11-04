@@ -1,4 +1,6 @@
 {
+  _timings=new double[12];
+  long t0=System.nanoTime();
   SingleThreadRadixOrder.OXHeader leftSortedOXHeader=DKV.getGet(getSortedOXHeaderKey(_leftFrame._key,_leftMSB));
   if (leftSortedOXHeader == null) {
     if (_allRight)     throw H2O.unimpl();
@@ -42,8 +44,11 @@
   _leftKeySize=ArrayUtils.sum(_leftFieldSizes);
   _rightKeySize=ArrayUtils.sum(_rightFieldSizes);
   _numJoinCols=Math.min(_leftKeyNCol,_rightKeyNCol);
+  _timings[0]=(System.nanoTime() - t0) / 1e9;
   if ((_leftN != 0 || _allRight) && (_rightN != 0 || _allLeft)) {
+    t0=System.nanoTime();
     bmerge_r(-1,_leftN,-1,_rightN);
+    _timings[1]=(System.nanoTime() - t0) / 1e9;
     if (_numRowsInResult > 0)     createChunksInDKV();
   }
   tryComplete();
