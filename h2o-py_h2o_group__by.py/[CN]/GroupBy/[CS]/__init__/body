@@ -1,15 +1,8 @@
-def __init__(self, fr, by, order_by=None):
+def __init__(self, fr, by):
     self._fr = fr
     self._by = by
-    self._order_by = order_by
     self._aggs = {}
     self._res = None
-    if isinstance(order_by, basestring):
-        idx = fr.names.index(order_by)
-        try:
-            self._order_by = by.index(idx)
-        except ValueError:
-            print 'Invalid order_by: Must be a group by column.'
     if isinstance(by, basestring):
         self._by = [self._fr.names.index(by)]
     elif isinstance(by, (tuple, list)):

@@ -1,23 +1,6 @@
 {
-  boolean isEx=false;
-  double[] bases=Arrays.copyOf(_bases,_bases.length);
-  double min=min();
-  double max=max();
-  if (min < 0) {
-    for (int i=0; i < bases.length; ++i)     bases[i]=-1 * bases[i] - 1;
-    min=bases[0];
-    max=bases[bases.length - 1] + _cnts[_cnts.length - 1] * _strides[_strides.length - 1];
-    isEx=true;
-  }
-  if (min <= v && v < max) {
-    int[][] res=new int[2][];
-    bsearch(bases,v,res);
-    if (res[0] != null)     return !isEx;
- else {
-      int lb=res[1][0], ub=res[1][1];
-      if (bases[lb] <= v && v < bases[lb] + _cnts[lb])       return !isEx;
-      if (bases[ub] <= v && v < bases[ub] + _cnts[ub])       return !isEx;
-    }
-  }
-  return isEx;
+  assert _isList;
+  assert _isSort;
+  if (v < 0)   throw H2O.unimpl();
+  return Arrays.binarySearch(_bases,v) >= 0;
 }
