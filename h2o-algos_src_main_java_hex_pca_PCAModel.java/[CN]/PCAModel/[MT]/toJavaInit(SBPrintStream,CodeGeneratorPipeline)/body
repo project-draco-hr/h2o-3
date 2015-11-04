@@ -3,12 +3,18 @@
   sb.ip("public boolean isSupervised() { return " + isSupervised() + "; }").nl();
   sb.ip("public int nfeatures() { return " + _output.nfeatures() + "; }").nl();
   sb.ip("public int nclasses() { return " + _parms._k + "; }").nl();
-  if (_output._nnums > 0) {
-    JCodeGen.toStaticVar(sb,"NORMMUL",_output._normMul,"Standardization/Normalization scaling factor for numerical variables.");
-    JCodeGen.toStaticVar(sb,"NORMSUB",_output._normSub,"Standardization/Normalization offset for numerical variables.");
+  final String mname=JCodeGen.toJavaId(_key.toString());
+  fileCtx.add(new CodeGenerator(){
+    @Override public void generate(    JCodeSB out){
+      if (_output._nnums > 0) {
+        JCodeGen.toClassWithArray(out,null,mname + "_NORMMUL",_output._normMul,"Standardization/Normalization scaling factor for numerical variables.");
+        JCodeGen.toClassWithArray(out,null,mname + "_NORMSUB",_output._normSub,"Standardization/Normalization offset for numerical variables.");
+      }
+      JCodeGen.toClassWithArray(out,null,mname + "_CATOFFS",_output._catOffsets,"Categorical column offsets.");
+      JCodeGen.toClassWithArray(out,null,mname + "_PERMUTE",_output._permutation,"Permutation index vector.");
+      JCodeGen.toClassWithArray(out,null,mname + "_EIGVECS",_output._eigenvectors_raw,"Eigenvector matrix.");
+    }
   }
-  JCodeGen.toStaticVar(sb,"CATOFFS",_output._catOffsets,"Categorical column offsets.");
-  JCodeGen.toStaticVar(sb,"PERMUTE",_output._permutation,"Permutation index vector.");
-  JCodeGen.toStaticVar(sb,"EIGVECS",_output._eigenvectors_raw,"Eigenvector matrix.");
+);
   return sb;
 }
