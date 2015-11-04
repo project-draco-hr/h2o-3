@@ -1,5 +1,11 @@
 {
-  cluster_init();
-  AST ast=new Exec(str).parse();
-  return execute(ast);
+  Session ses=new Session();
+  try {
+    AST ast=new Exec(rapids).parse();
+    Val val=ses.exec(ast,null);
+    return ses.end(val);
+  }
+ catch (  Throwable ex) {
+    throw ses.endQuietly(ex);
+  }
 }
