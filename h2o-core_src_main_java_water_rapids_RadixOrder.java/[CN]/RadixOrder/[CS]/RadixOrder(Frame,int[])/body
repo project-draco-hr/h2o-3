@@ -19,14 +19,11 @@
   new MoveByFirstByte(DF._key,_biggestBit[0],keySize,batchSize,_bytesUsed,whichCols).doAll(DF.vecs(whichCols));
   System.out.println("***\n*** MoveByFirstByte MRTask took : " + (System.nanoTime() - t0) / 1e9 + "\n***");
   t0=System.nanoTime();
-  long nGroup[]=new long[257];
-  _o=new long[256][][];
-  _x=new byte[256][][];
   RPC[] radixOrders=new RPC[256];
   System.out.println("Sending SingleThreadRadixOrder async RPC calls ...");
   t0=System.nanoTime();
   for (int i=0; i < 256; i++) {
-    radixOrders[i]=new RPC<>(MoveByFirstByte.ownerOfMSB(i),new SingleThreadRadixOrder(DF,batchSize,keySize,nGroup,i)).call();
+    radixOrders[i]=new RPC<>(MoveByFirstByte.ownerOfMSB(i),new SingleThreadRadixOrder(DF,batchSize,keySize,i)).call();
   }
   System.out.println("Sending SingleThreadRadixOrder async RPC calls took : " + (System.nanoTime() - t0) / 1e9);
   t0=System.nanoTime();
@@ -36,8 +33,6 @@
   for (  RPC rpc : radixOrders) {
     System.out.print(i + " ");
     SingleThreadRadixOrder radixOrder=(SingleThreadRadixOrder)rpc.get();
-    _o[i]=radixOrder._o;
-    _x[i]=radixOrder._x;
     i++;
   }
   System.out.println("\n***\n*** Waiting for RPC SingleThreadRadixOrder to finish took : " + (System.nanoTime() - t0) / 1e9 + "\n***");
