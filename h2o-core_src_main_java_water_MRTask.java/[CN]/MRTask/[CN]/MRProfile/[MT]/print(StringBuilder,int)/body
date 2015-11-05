@@ -2,14 +2,14 @@
   if (d == 0)   sb.append(_clz).append("\n");
   for (int i=0; i < d; i++)   sb.append("  ");
   if (_localstart != 0)   sb.append("Node local ").append(_localdone - _localstart).append("ms, ");
-  if (_userstart == 0) {
+  if (_last != null) {
     sb.append("Slow wait ").append(_mapstart - _localdone).append("ms + work ").append(_last.sumTime()).append("ms, ");
     sb.append("Fast work ").append(_time1st).append("ms + wait ").append(_onCstart - _done1st).append("ms\n");
     _last.print(sb,d + 1);
     for (int i=0; i < d; i++)     sb.append("  ");
     sb.append("join-i/o ").append(_onCstart - _last._onCdone).append("ms, ");
   }
- else {
+  if (_userstart != 0) {
     sb.append("Map ").append(_mapdone - _mapstart).append("ms (prep ").append(_userstart - _mapstart);
     sb.append("ms, user ").append(_closestart - _userstart);
     sb.append("ms, closeChk ").append(_mapdone - _closestart).append("ms), ");
