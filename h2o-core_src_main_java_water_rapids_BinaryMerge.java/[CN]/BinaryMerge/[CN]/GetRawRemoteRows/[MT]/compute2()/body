@@ -1,2 +1,16 @@
 {
+  assert(_rows != null);
+  assert(_chk == null);
+  long t0=System.nanoTime();
+  _chk=new double[_fr.numCols()][_rows.length];
+  for (int col=0; col < _fr.numCols(); col++) {
+    Vec v=_fr.vec(col);
+    for (int row=0; row < _rows.length; row++) {
+      _chk[col][row]=v.at(_rows[row]);
+    }
+  }
+  _rows=null;
+  assert(_chk != null);
+  timeTaken=(System.nanoTime() - t0) / 1e9;
+  tryComplete();
 }
