@@ -1,9 +1,11 @@
 {
   if (rapids == null)   return null;
   if (rapids.ast == null || rapids.ast.equals(""))   return rapids;
+  Session ses=InitIDHandler.SESSION;
+  if (ses == null)   InitIDHandler.SESSION=ses=new water.rapids.Session();
   Val val;
   try {
-    val=water.rapids.Exec.exec(rapids.ast);
+    val=Exec.exec(rapids.ast,ses);
   }
  catch (  IllegalArgumentException e) {
     throw e;

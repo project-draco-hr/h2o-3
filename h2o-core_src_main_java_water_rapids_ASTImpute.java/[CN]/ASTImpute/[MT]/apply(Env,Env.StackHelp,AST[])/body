@@ -32,32 +32,31 @@ by2=new ASTNumList(list);
 }
  else throw new IllegalArgumentException("Requires a number-list, but found a " + ast.getClass());
 final ASTNumList by=by2;
-IcedHashMap<ASTGroup.GKX,IcedDouble> group_impute_map;
+IcedHashMap<ASTGroup.G,IcedDouble> group_impute_map;
 if (by.isEmpty()) {
 double res=Double.NaN;
 if (method instanceof ASTMean) res=vec.mean();
-if (method instanceof ASTMedian) res=ASTMedian.median(stk.track(new Frame(vec)),combine);
+if (method instanceof ASTMedian) res=ASTMedian.median(new Frame(vec),combine);
 if (method instanceof ASTMode) res=ASTMode.mode(vec);
-(group_impute_map=new IcedHashMap<>()).put(new ASTGroup.GKX(),new IcedDouble(res));
+(group_impute_map=new IcedHashMap<>()).put(new ASTGroup.G(0,null).fill(0,null,new int[0]),new IcedDouble(res));
 }
  else {
 AST ast_grp=new ASTGroup();
-Frame imputes=ast_grp.apply(env,stk,new AST[]{ast_grp,new ASTFrame(fr),by,method,new ASTNumList(col,col + 1),new ASTStr("rm")}).getFrame();
-group_impute_map=new Gather().doAll(imputes)._group_impute_map;
+Frame imputes=ast_grp.apply(env,stk,new AST[]{ast_grp,new ASTFrame(fr),by,new ASTNumList(),method,new ASTNumList(col,col + 1),new ASTStr("rm")}).getFrame();
+final int[] bycols=ArrayUtils.seq(0,imputes.numCols() - 1);
+group_impute_map=new Gather(bycols).doAll(imputes)._group_impute_map;
 imputes.delete();
 }
-fr=new Frame(fr);
-stk.track(fr).replace(col,vec.makeCopy());
-final IcedHashMap<ASTGroup.GKX,IcedDouble> final_group_impute_map=group_impute_map;
-final Frame fr_keys=ASTGroup.gbFrame(fr,by2.expand4());
-final int ngbcols=fr_keys.numCols();
+env._ses.copyOnWrite(fr,new int[]{col});
+final IcedHashMap<ASTGroup.G,IcedDouble> final_group_impute_map=group_impute_map;
+final int[] bycols=by.expand4();
 new MRTask(){
 @Override public void map(Chunk cs[]){
-Chunk x=cs[ngbcols + col];
-ASTGroup.GKX g=ASTGroup.GKX.init(ngbcols);
-for (int row=0; row < x._len; row++) if (x.isNA(row)) x.set(row,final_group_impute_map.get(g.fill(cs,row,0))._val);
+Chunk x=cs[col];
+ASTGroup.G g=new ASTGroup.G(bycols.length,null);
+for (int row=0; row < x._len; row++) if (x.isNA(row)) x.set(row,final_group_impute_map.get(g.fill(row,cs,bycols))._val);
 }
 }
-.doAll(fr_keys.add(fr));
+.doAll(fr);
 return new ValFrame(fr);
 }

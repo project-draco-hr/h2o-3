@@ -1,0 +1,39 @@
+{
+  long t0=System.nanoTime();
+  _biggestBit=new int[whichCols.length];
+  _bytesUsed=new int[whichCols.length];
+  for (int i=0; i < whichCols.length; i++) {
+    Vec col=DF.vec(whichCols[i]);
+    _biggestBit[i]=1 + (int)Math.floor(Math.log(col.max()) / Math.log(2));
+    _bytesUsed[i]=(int)Math.ceil(_biggestBit[i] / 8.0);
+  }
+  if (_biggestBit[0] < 8)   Log.warn("biggest bit should be >= 8 otherwise need to dip into next column (TODO)");
+  int keySize=ArrayUtils.sum(_bytesUsed);
+  int batchSize=MAXVECBYTE / Math.max(keySize,8);
+  System.out.println("Time to use rollup stats to determine biggestBit: " + (System.nanoTime() - t0) / 1e9);
+  t0=System.nanoTime();
+  new RadixCount(left,_biggestBit[0],whichCols[0]).doAll(DF.vec(whichCols[0]));
+  System.out.println("Time of MSB count MRTask left local on each node (no reduce): " + (System.nanoTime() - t0) / 1e9);
+  System.out.println("Starting MSB hist reduce across nodes and MoveByFirstByte MRTask ...");
+  t0=System.nanoTime();
+  new MoveByFirstByte(left,_biggestBit[0],keySize,batchSize,_bytesUsed,whichCols).doAll(DF.vecs(whichCols));
+  System.out.println("***\n*** MoveByFirstByte MRTask took : " + (System.nanoTime() - t0) / 1e9 + "\n***");
+  t0=System.nanoTime();
+  RPC[] radixOrders=new RPC[256];
+  System.out.println("Sending SingleThreadRadixOrder async RPC calls ...");
+  t0=System.nanoTime();
+  for (int i=0; i < 256; i++) {
+    radixOrders[i]=new RPC<>(MoveByFirstByte.ownerOfMSB(i),new SingleThreadRadixOrder(DF,left,batchSize,keySize,i)).call();
+  }
+  System.out.println("Sending SingleThreadRadixOrder async RPC calls took : " + (System.nanoTime() - t0) / 1e9);
+  t0=System.nanoTime();
+  System.out.println("Waiting for RPC SingleThreadRadixOrder to finish ... ");
+  t0=System.nanoTime();
+  int i=0;
+  for (  RPC rpc : radixOrders) {
+    System.out.print(i + " ");
+    SingleThreadRadixOrder radixOrder=(SingleThreadRadixOrder)rpc.get();
+    i++;
+  }
+  System.out.println("\n***\n*** Waiting for RPC SingleThreadRadixOrder to finish took : " + (System.nanoTime() - t0) / 1e9 + "\n***");
+}

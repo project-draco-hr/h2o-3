@@ -3,6 +3,11 @@
   if (rows == null)   return;
   final int len=chks[0]._len;
   Row row=new Row(_ncols);
-  for (int i=0; i < len; i++)   if (add(rows,row.fill(chks,_id_maps,i)))   row=new Row(_ncols);
-  if (rows.size() > ASTGroup.MAX_HASH_SIZE)   abort();
+  for (int i=0; i < len; i++)   if (add(rows,row.fill(chks,_id_maps,i))) {
+    if (rows.size() > MAX_HASH_SIZE) {
+      abort();
+      return;
+    }
+    row=new Row(_ncols);
+  }
 }
