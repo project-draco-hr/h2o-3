@@ -1,6 +1,11 @@
 {
+  System.out.println("Starting MoveByFirstByte.map() for chunk " + chk[0].cidx());
   long myCounts[]=_counts[chk[0].cidx()];
-  if (myCounts == null || _o == null || _x == null)   return;
+  if (myCounts == null) {
+    System.out.println("myCounts empty for chunk " + chk[0].cidx());
+    return;
+  }
+  long t0=System.nanoTime();
   for (int r=0; r < chk[0]._len; r++) {
     long thisx=chk[0].at8(r);
     int shift=_biggestBit - 8;
@@ -26,4 +31,5 @@
       }
     }
   }
+  System.out.println("MoveByFirstByte.map() for chunk " + chk[0].cidx() + " took : "+ (System.nanoTime() - t0) / 1e9);
 }

@@ -1,2 +1,29 @@
 {
+  System.out.println("Starting MoveByFirstByte.postLocal() ... ");
+  long t0=System.nanoTime();
+  int nc=_fr.anyVec().nChunks();
+  for (int msb=0; msb < _o.length; ++msb) {
+    if (_o[msb] == null)     continue;
+    int numChunks=0;
+    for (int c=0; c < nc; c++) {
+      if (_counts[c] != null && _counts[c][msb] > 0)       numChunks++;
+    }
+    int MSBnodeChunkCounts[]=new int[numChunks];
+    int j=0;
+    long lastCount=0;
+    for (int c=0; c < nc; c++) {
+      if (_counts[c] != null && _counts[c][msb] > 0) {
+        MSBnodeChunkCounts[j]=(int)(_counts[c][msb] - lastCount);
+        lastCount=_counts[c][msb];
+        j++;
+      }
+    }
+    MSBNodeHeader msbh=new MSBNodeHeader(MSBnodeChunkCounts);
+    DKV.put(getMSBNodeHeaderKey(_left,msb,H2O.SELF.index()),msbh);
+    for (int b=0; b < _o[msb].length; ++b) {
+      OXbatch ox=new OXbatch(_o[msb][b],_x[msb][b]);
+      DKV.put(getNodeOXbatchKey(_left,msb,H2O.SELF.index(),b),ox);
+    }
+  }
+  System.out.println("took " + (System.nanoTime() - t0) / 1e9);
 }
