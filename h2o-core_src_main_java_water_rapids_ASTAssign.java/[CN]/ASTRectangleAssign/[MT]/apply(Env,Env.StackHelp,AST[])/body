@@ -1,7 +1,8 @@
 {
   Frame dst=stk.track(asts[1].exec(env)).getFrame();
   Val vsrc=stk.track(asts[2].exec(env));
-  ASTNumList cols_numlist=check(dst.numCols(),asts[3],dst);
+  ASTNumList cols_numlist=new ASTNumList(asts[3].columns(dst.names()));
+  if (cols_numlist.isEmpty())   cols_numlist=new ASTNumList(0,dst.numCols());
   int[] cols=ASTColSlice.col_select(dst.names(),cols_numlist);
   dst=new Frame(dst._names,dst.vecs().clone());
   if (asts[4] instanceof ASTNum || asts[4] instanceof ASTNumList) {
