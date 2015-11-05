@@ -4,19 +4,10 @@
     ValRow vv=(ValRow)v;
     return vv.slice(asts[2].columns(vv._names));
   }
-  Frame fr=v.getFrame();
-  int[] cols=asts[2].columns(fr.names());
-  Frame fr2=new Frame();
-  if (cols.length == 0) {
-  }
- else   if (cols[0] >= 0) {
-    if (cols[cols.length - 1] >= fr.numCols())     throw new IllegalArgumentException("Column must be an integer from 0 to " + (fr.numCols() - 1));
-    for (    int col : cols)     fr2.add(fr.names()[col],fr.vecs()[col]);
-  }
- else {
-    fr2=new Frame(fr);
-    Arrays.sort(cols);
-    for (    int col : cols)     if (0 <= -col - 1 && -col - 1 < fr.numCols())     fr2.remove(-col - 1);
-  }
-  return new ValFrame(fr2);
+  Frame src=v.getFrame();
+  int[] cols=col_select(src.names(),asts[2]);
+  Frame dst=new Frame();
+  Vec[] vecs=src.vecs();
+  for (  int col : cols)   dst.add(src._names[col],vecs[col]);
+  return new ValFrame(dst);
 }
