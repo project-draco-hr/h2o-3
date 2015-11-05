@@ -16,8 +16,9 @@
   System.out.println("Time of MSB count MRTask left local on each node (no reduce): " + (System.nanoTime() - t0) / 1e9);
   System.out.println("Starting MSB hist reduce across nodes and MoveByFirstByte MRTask ...");
   t0=System.nanoTime();
-  new MoveByFirstByte(left,_biggestBit[0],keySize,batchSize,_bytesUsed,whichCols).doAll(DF.vecs(whichCols));
+  MoveByFirstByte tmp=new MoveByFirstByte(left,_biggestBit[0],keySize,batchSize,_bytesUsed,whichCols).doAll(DF.vecs(whichCols));
   System.out.println("***\n*** MoveByFirstByte MRTask took : " + (System.nanoTime() - t0) / 1e9 + "\n***");
+  System.out.print(tmp.profString());
   t0=System.nanoTime();
   RPC[] radixOrders=new RPC[256];
   System.out.println("Sending SingleThreadRadixOrder async RPC calls ...");
