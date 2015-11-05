@@ -1,15 +1,17 @@
 {
   PersistManager pm=H2O.getPM();
   OutputStream os=null;
+  long written=-1;
   try {
     os=pm.create(_path,_overwrite);
-    copyStream(os,4 * 1024 * 1024);
+    written=copyStream(os,4 * 1024 * 1024);
   }
   finally {
     if (os != null) {
       try {
+        os.flush();
         os.close();
-        Log.info("Key '" + _frameName + "' was written to "+ _path+ ".");
+        Log.info("Key '" + _frameName + "' of "+ written+ " bytes was written to "+ _path+ ".");
       }
  catch (      Exception e) {
         Log.err(e);
