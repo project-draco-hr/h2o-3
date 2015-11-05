@@ -1,7 +1,6 @@
 def swpreds_gbm():
     swpreds = h2o.import_file(path=pyunit_utils.locate('smalldata/gbm_test/swpreds_1000x3.csv'))
     swpreds['y'] = swpreds['y'].asfactor()
-    from h2o.estimators.gbm import H2OGradientBoostingEstimator
     h2o_gbm_model1 = H2OGradientBoostingEstimator(distribution='bernoulli', ntrees=50, max_depth=20, nbins=500)
     h2o_gbm_model1.train(x='X1', y='y', training_frame=swpreds)
     h2o_gbm_model1.show()
