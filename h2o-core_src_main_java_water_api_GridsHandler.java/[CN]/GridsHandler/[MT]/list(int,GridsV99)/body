@@ -1,0 +1,14 @@
+{
+  final Key[] gridKeys=KeySnapshot.globalSnapshot().filter(new KeySnapshot.KVFilter(){
+    @Override public boolean filter(    KeySnapshot.KeyInfo k){
+      return Value.isSubclassOf(k._type,Grid.class);
+    }
+  }
+).keys();
+  s.grids=new GridSchemaV99[gridKeys.length];
+  for (int i=0; i < gridKeys.length; i++) {
+    s.grids[i]=new GridSchemaV99();
+    s.grids[i].fillFromImpl(getFromDKV("(none)",gridKeys[i],Grid.class));
+  }
+  return s;
+}

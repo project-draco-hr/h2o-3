@@ -2,11 +2,8 @@
   Futures fs=null;
   int sp=sp();
   while (sp > _sp) {
-    Frame fr=_refcnt.remove(--sp);
-    for (    Vec vec : fr.vecs())     if (!inUse(vec)) {
-      if (fs == null)       fs=new Futures();
-      vec.remove(fs);
-    }
+    Frame fr=_stk.remove(--sp);
+    fs=_ses.downRefCnt(fr,fs);
   }
   if (fs != null)   fs.blockForPending();
 }
