@@ -14,13 +14,14 @@
     sb.append("ms, user ").append(_closestart - _userstart);
     sb.append("ms, closeChk ").append(_mapdone - _closestart).append("ms), ");
   }
-  sb.append("Red ").append(_onCdone - _onCstart).append("ms (locRed ");
-  sb.append(_reducedone - _onCstart).append("ms");
+  sb.append("Red ").append(_onCdone - _onCstart);
+  sb.append("ms (locRed ").append(_reducedone - _onCstart).append("ms");
   if (_remoteBlkDone != 0) {
-    sb.append(", remBlk ").append(_remoteBlkDone - _reducedone).append("ms, locBlk ");
-    sb.append(_localBlkDone - _remoteBlkDone).append("ms, close ");
-    sb.append(_onCdone - _localBlkDone).append("ms, size ");
-    sb.append(PrettyPrint.bytes(_size_rez0)).append("+").append(PrettyPrint.bytes(_size_rez1));
+    sb.append(", close ").append(_closeLocalDone - _reducedone);
+    sb.append("ms, remBlk ").append(_remoteBlkDone - _closeLocalDone);
+    sb.append("ms, locBlk ").append(_localBlkDone - _remoteBlkDone);
+    sb.append("ms, close ").append(_onCdone - _localBlkDone);
+    sb.append("ms, size ").append(PrettyPrint.bytes(_size_rez0)).append("+").append(PrettyPrint.bytes(_size_rez1));
   }
   sb.append(")\n");
   return sb;
