@@ -19,7 +19,7 @@ def glrm_prostate_miss():
         prostate_miss.describe()
         print 'H2O GLRM with {0}% missing entries'.format((100 * ratio))
         prostate_glrm = H2OGeneralizedLowRankEstimator(k=8, ignore_const_cols=False, loss='Quadratic', gamma_x=0.5, gamma_y=0.5, regularization_x='L1', regularization_y='L1', init='SVD', max_iterations=2000, min_step_size=1e-06)
-        prostate_glrm.train(x=range(8), training_frame=prostate_miss, validation_frame=prostate_full)
+        prostate_glrm.train(x=prostate_miss.names, training_frame=prostate_miss, validation_frame=prostate_full)
         prostate_glrm.show()
         train_numcnt = prostate_glrm._model_json['output']['training_metrics']._metric_json['numcnt']
         valid_numcnt = prostate_glrm._model_json['output']['validation_metrics']._metric_json['numcnt']

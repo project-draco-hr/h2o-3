@@ -3,11 +3,11 @@
   String[] labels=parameters.get("labels");
   boolean lowest=parameters.get("include_lowest")[0].equals("TRUE");
   boolean rite=parameters.get("right")[0].equals("TRUE");
-  if (Double.isNaN(d) || (lowest && d < Double.valueOf(breaks[0])) || (!lowest && d <= Double.valueOf(breaks[0]))|| (rite && d > Double.valueOf(breaks[breaks.length - 1]))|| (!rite && d >= Double.valueOf(breaks[breaks.length - 1])))   return "";
+  if (Double.isNaN(d) || (lowest && d < parseNum(breaks[0])) || (!lowest && d <= parseNum(breaks[0]))|| (rite && d > parseNum(breaks[breaks.length - 1]))|| (!rite && d >= parseNum(breaks[breaks.length - 1])))   return "";
  else {
     for (int i=1; i < breaks.length; ++i) {
-      if (rite)       if (d <= Double.valueOf(breaks[i]))       return labels[i - 1];
- else       if (d < Double.valueOf(breaks[i]))       return labels[i - 1];
+      if (rite)       if (d <= parseNum(breaks[i]))       return labels[i - 1];
+ else       if (d < parseNum(breaks[i]))       return labels[i - 1];
     }
   }
   return "";

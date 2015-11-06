@@ -1,13 +1,15 @@
 def lambda_search():
     prostate = h2o.import_file(pyunit_utils.locate('smalldata/logreg/prostate.csv'))
-    prostate_nosearch = h2o.glm(x=prostate[2:9], y=prostate[1], training_frame=prostate.hex, family='binomial', nlambdas=5, lambda_search=False, n_folds=2)
+    prostate_nosearch = H2OGeneralizedLinearEstimator(family='binomial', nlambdas=5, lambda_search=False, n_folds=2)
+    prostate_nosearch.train(x=range(2, 9), y=1, training_frame=prostate.hex)
     params_nosearch = prostate_nosearch.params()
     try:
         prostate_nosearch.getGLMLambdaModel(0.5)
         assert False, 'expected an error'
     except EnvironmentError:
         assert True
-    prostate_search = h2o.glm(x=prostate[2:9], y=prostate[1], training_frame=prostate.hex, family='binomial', nlambdas=5, lambda_search=True, n_folds=2)
+    prostate_search = H2OGeneralizedLinearEstimator(family='binomial', nlambdas=5, lambda_search=True, n_folds=2)
+    prostate_search.train(x=range(2, 9), y=1, training_frame=prostate.hex)
     params_search = prostate_search.params()
     random_lambda = random.choice(prostate_search.lambda_all())
     random_model = prostate_search.getGLMLambdaModel(random_lambda)
