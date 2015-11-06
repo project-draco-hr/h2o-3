@@ -12,7 +12,6 @@ def weights_vi():
     dataset2_python = [response, p1, p2, p3]
     dataset2_h2o = h2o.H2OFrame(dataset2_python)
     dataset2_h2o.set_names(['response', 'p1', 'p2', 'p3'])
-    from h2o.estimators.random_forest import H2ORandomForestEstimator
     model_dataset1 = H2ORandomForestEstimator()
     model_dataset1.train(x=['p1', 'p2', 'p3'], y='response', training_frame=dataset1_h2o)
     varimp_dataset1 = tuple([p[0] for p in model_dataset1.varimp(return_list=True)])

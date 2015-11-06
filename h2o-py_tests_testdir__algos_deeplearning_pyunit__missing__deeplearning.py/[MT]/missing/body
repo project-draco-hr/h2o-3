@@ -21,8 +21,7 @@ def missing():
         ratio = data_fin[0].runif()
         train = data_fin[(ratio <= 0.75)]
         test = data_fin[(ratio > 0.75)]
-        from h2o.estimators.deeplearning import H2ODeepLearningEstimator
-        hh = H2ODeepLearningEstimator(epochs=5, reproducible=True, seed=12345, activation='RectifierWithDropout', l1=1e-05, input_dropout_ratio=0.0)
+        hh = H2ODeepLearningEstimator(epochs=5, reproducible=True, seed=12345, activation='RectifierWithDropout', l1=1e-05, input_dropout_ratio=0.2)
         hh.train(x=range(2, 22), y=23, training_frame=train, validation_frame=test)
         errors[i] = hh.error()[0][1]
     for i in range(len(missing_ratios)):

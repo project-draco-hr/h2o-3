@@ -1,6 +1,5 @@
 def nfold_predict():
     fr = h2o.import_file(path=pyunit_utils.locate('smalldata/logreg/prostate_train.csv'))
-    from h2o.estimators.gbm import H2OGradientBoostingEstimator
     m = H2OGradientBoostingEstimator(nfolds=10, ntrees=10)
     m.train(x=range(2, fr.ncol), y=1, training_frame=fr)
     xval_models = m.get_xval_models()
