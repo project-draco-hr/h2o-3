@@ -1,0 +1,27 @@
+{
+  if (comment != null) {
+    sb.p("// ").p(comment).nl();
+  }
+  sb.ip(modifiers != null ? modifiers + " " : "").p("class ").p(className).p(" implements java.io.Serializable {").nl().ii(1);
+  sb.ip("public static final double[][][] VALUES = ");
+  if (values == null)   sb.p("null;").nl();
+ else {
+    sb.p("new double[").p(values.length).p("][][];").nl();
+    int s=0;
+    int remain=values.length;
+    int its=0;
+    SB sb4fillers=new SB().ci(sb);
+    sb.ip("static {").ii(1).nl();
+    while (remain > 0) {
+      String subClzName=className + "_" + its++;
+      int len=Math.min(MAX_STRINGS_IN_CONST_POOL,remain);
+      toClassWithArrayFill(sb4fillers,subClzName,values,s,len);
+      sb.ip(subClzName).p(".fill(VALUES);").nl();
+      s+=len;
+      remain-=len;
+    }
+    sb.di(1).ip("}").nl();
+    sb.p(sb4fillers);
+  }
+  return sb.di(1).p("}").nl();
+}
