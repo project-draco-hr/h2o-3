@@ -15,7 +15,7 @@ def random_attack():
         if random.randint(0, 1):
             kwargs['min_rows'] = random.randint(1, 10)
         if random.randint(0, 1):
-            kwargs['nbins'] = random.randint(1, 20)
+            kwargs['nbins'] = random.randint(2, 20)
         if random.randint(0, 1):
             kwargs['balance_classes'] = True
             if random.randint(0, 1):
@@ -30,9 +30,9 @@ def random_attack():
         for (k, v) in zip(kwargs.keys(), kwargs.values()):
             print (k + ': {0}'.format(v))
         if do_validation:
-            h2o.random_forest(x=train[x], y=train[y], validation_x=valid[x], validation_y=valid[y], **kwargs)
+            H2ORandomForestEstimator(**kwargs).train(x=x, y=y, training_frame=train, validation_frame=valid)
         else:
-            h2o.random_forest(x=train[x], y=train[y], **kwargs)
+            H2ORandomForestEstimator(**kwargs).train(x=x, y=y, training_frame=train)
         print '-----------------------'
     print 'Import and data munging...'
     pros = h2o.upload_file(pyunit_utils.locate('smalldata/prostate/prostate.csv.zip'))
