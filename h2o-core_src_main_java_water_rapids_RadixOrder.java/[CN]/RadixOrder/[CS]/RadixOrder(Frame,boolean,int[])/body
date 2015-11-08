@@ -9,37 +9,33 @@
   }
   if (_biggestBit[0] < 8)   Log.warn("biggest bit should be >= 8 otherwise need to dip into next column (TODO)");
   int keySize=ArrayUtils.sum(_bytesUsed);
-  int batchSize=MAXVECBYTE / Math.max(keySize,8);
+  int batchSize=256 * 1024 * 1024 / Math.max(keySize,8);
   System.out.println("Time to use rollup stats to determine biggestBit: " + (System.nanoTime() - t0) / 1e9);
   t0=System.nanoTime();
-  new RadixCount(left,_biggestBit[0],whichCols[0]).doAll(DF.vec(whichCols[0]));
+  new RadixCount(isLeft,_biggestBit[0],whichCols[0]).doAll(DF.vec(whichCols[0]));
   System.out.println("Time of MSB count MRTask left local on each node (no reduce): " + (System.nanoTime() - t0) / 1e9);
-  System.out.println("Starting MSB hist reduce across nodes and MoveByFirstByte MRTask ...");
-  Key workaroundMRTaskKey=Key.make();
   t0=System.nanoTime();
-  MoveByFirstByte tmp=new MoveByFirstByte(left,_biggestBit[0],keySize,batchSize,_bytesUsed,whichCols,workaroundMRTaskKey).doAll(DF.vecs(whichCols));
-  System.out.println("***\n*** MoveByFirstByte MRTask took : " + (System.nanoTime() - t0) / 1e9 + "\n***");
+  Key linkTwoMRTask=Key.make();
+  SplitByMSBLocal tmp=new SplitByMSBLocal(isLeft,_biggestBit[0],keySize,batchSize,_bytesUsed,whichCols,linkTwoMRTask).doAll(DF.vecs(whichCols));
+  System.out.println("SplitByMSBLocal MRTask (all local per node, no network) took : " + (System.nanoTime() - t0) / 1e9);
   System.out.print(tmp.profString());
-  System.out.println("Starting PushFirstByteBatches ...");
+  System.out.print("Starting SendSplitMSB ... ");
   t0=System.nanoTime();
-  new PushFirstByteBatches(workaroundMRTaskKey).doAllNodes();
-  System.out.println("***\n*** PushFirstByteBatches took : " + (System.nanoTime() - t0) / 1e9 + "\n***");
-  t0=System.nanoTime();
+  new SendSplitMSB(linkTwoMRTask).doAllNodes();
+  System.out.println("SendSplitMSB across all nodes took : " + (System.nanoTime() - t0) / 1e9);
   RPC[] radixOrders=new RPC[256];
-  System.out.println("Sending SingleThreadRadixOrder async RPC calls ...");
+  System.out.print("Sending SingleThreadRadixOrder async RPC calls ... ");
   t0=System.nanoTime();
   for (int i=0; i < 256; i++) {
-    radixOrders[i]=new RPC<>(MoveByFirstByte.ownerOfMSB(i),new SingleThreadRadixOrder(DF,left,batchSize,keySize,i)).call();
+    radixOrders[i]=new RPC<>(SplitByMSBLocal.ownerOfMSB(i),new SingleThreadRadixOrder(DF,isLeft,batchSize,keySize,i)).call();
   }
-  System.out.println("Sending SingleThreadRadixOrder async RPC calls took : " + (System.nanoTime() - t0) / 1e9);
-  t0=System.nanoTime();
-  System.out.println("Waiting for RPC SingleThreadRadixOrder to finish ... ");
+  System.out.println("took : " + (System.nanoTime() - t0) / 1e9);
+  System.out.print("Waiting for RPC SingleThreadRadixOrder to finish ... ");
   t0=System.nanoTime();
   int i=0;
   for (  RPC rpc : radixOrders) {
-    System.out.print(i + " ");
-    SingleThreadRadixOrder radixOrder=(SingleThreadRadixOrder)rpc.get();
+    rpc.get();
     i++;
   }
-  System.out.println("\n***\n*** Waiting for RPC SingleThreadRadixOrder to finish took : " + (System.nanoTime() - t0) / 1e9 + "\n***");
+  System.out.println("took " + (System.nanoTime() - t0) / 1e9);
 }

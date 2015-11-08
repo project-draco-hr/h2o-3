@@ -1,7 +1,6 @@
 {
-  Futures fs=new Futures();
-  System.out.println(System.currentTimeMillis() + " Starting MoveByFirstByte.PushFirstByteBatches() ... ");
   long t0=System.nanoTime();
+  Futures fs=new Futures();
   int nc=_fr.anyVec().nChunks();
   long forLoopTime=0, DKVputTime=0, sumSize=0;
   for (int msb=0; msb < _o.length; ++msb) {
@@ -24,16 +23,15 @@
     forLoopTime+=System.nanoTime() - t00;
     t00=System.nanoTime();
     MSBNodeHeader msbh=new MSBNodeHeader(MSBnodeChunkCounts);
-    DKV.put(getMSBNodeHeaderKey(_left,msb,H2O.SELF.index()),msbh,fs);
+    DKV.put(getMSBNodeHeaderKey(_isLeft,msb,H2O.SELF.index()),msbh,fs);
     for (int b=0; b < _o[msb].length; ++b) {
       OXbatch ox=new OXbatch(_o[msb][b],_x[msb][b]);
       sumSize+=_o[msb][b].length * 8 + _x[msb][b].length * _keySize + 64;
-      DKV.put(getNodeOXbatchKey(_left,msb,H2O.SELF.index(),b),ox,fs);
+      DKV.put(getNodeOXbatchKey(_isLeft,msb,H2O.SELF.index(),b),ox,fs);
     }
     DKVputTime+=System.nanoTime() - t00;
   }
-  System.out.println("took " + (System.nanoTime() - t0) / 1e9);
-  System.out.println("The for loops look took " + forLoopTime / 1e9);
-  System.out.println("The DKV.put 's took " + DKVputTime / 1e9);
-  System.out.println("The DKV.put total size " + PrettyPrint.bytes(sumSize));
+  System.out.println("this node took : " + (System.nanoTime() - t0) / 1e9);
+  System.out.println("  Finding the chunk boundaries in split OX took " + forLoopTime / 1e9);
+  System.out.println("  DKV.put " + PrettyPrint.bytes(sumSize) + " in "+ DKVputTime / 1e9 + ". Overall rate: " + String.format("%.3f",sumSize / (DKVputTime / 1e9) / (1024 * 1024 * 1024)) + " GByte/sec  [10Gbit = 1.25GByte/sec]");
 }
