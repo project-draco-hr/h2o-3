@@ -13,7 +13,9 @@
     leftExtent>>=-bitShift;
     rightExtent<<=-bitShift;
   }
-  System.out.print("Sending BinaryMerge async RPC calls ... ");
+  long ansN=0;
+  int numChunks=0;
+  System.out.print("Making BinaryMerge RPC calls ... ");
   t0=System.nanoTime();
   List<RPC> bmList=new ArrayList<>();
   for (int leftMSB=0; leftMSB < leftExtent; leftMSB++) {
@@ -23,28 +25,54 @@
       H2ONode rightNode=SplitByMSBLocal.ownerOfMSB(rightMSB);
       RPC bm=new RPC<>(rightNode,new BinaryMerge(leftFrame,rightFrame,leftMSB,rightMSB,leftIndex._bytesUsed,rightIndex._bytesUsed,allLeft));
       bmList.add(bm);
-      bm.call();
     }
   }
   System.out.println("took: " + (System.nanoTime() - t0) / 1e9);
-  System.out.println("Waiting for BinaryMerge RPCs to finish ... ");
   t0=System.nanoTime();
-  long ansN=0;
-  int numChunks=0;
+  System.out.print("Sending BinaryMerge async RPC calls in a queue ... ");
+  int queueSize=Math.max(H2O.CLOUD.size() * 10,40);
+  int queue[]=new int[queueSize];
   BinaryMerge bmResults[]=new BinaryMerge[bmList.size()];
-  int i=0;
-  for (  RPC rpc : bmList) {
-    System.out.print(String.format("%4d: ",i));
-    BinaryMerge thisbm;
-    bmResults[i++]=thisbm=(BinaryMerge)rpc.get();
-    for (int t=0; t < 12; t++)     System.out.print(String.format("%5.2f ",thisbm._timings[t]));
-    System.out.println();
-    if (thisbm._numRowsInResult == 0)     continue;
-    numChunks+=thisbm._chunkSizes.length;
-    ansN+=thisbm._numRowsInResult;
+  int nextItem;
+  for (nextItem=0; nextItem < queueSize; nextItem++) {
+    queue[nextItem]=nextItem;
+    bmList.get(nextItem).call();
   }
-  System.out.println("\nBinaryMerge RPCs took: " + (System.nanoTime() - t0) / 1e9);
-  assert(i == bmList.size());
+  int leftOnQueue=queueSize;
+  int waitMS=50;
+  while (leftOnQueue > 0) {
+    try {
+      Thread.sleep(waitMS);
+    }
+ catch (    InterruptedException ex) {
+      Thread.currentThread().interrupt();
+    }
+    int doneInSweep=0;
+    for (int q=0; q < queueSize; q++) {
+      int thisBM=queue[q];
+      if (thisBM >= 0 && bmList.get(thisBM).isDone()) {
+        BinaryMerge thisbm;
+        bmResults[thisBM]=thisbm=(BinaryMerge)bmList.get(thisBM).get();
+        leftOnQueue--;
+        doneInSweep++;
+        if (thisbm._numRowsInResult > 0) {
+          System.out.print(String.format("%3d",queue[q]) + ":");
+          for (int t=0; t < 12; t++)           System.out.print(String.format("%5.2f ",thisbm._timings[t]));
+          System.out.println();
+          numChunks+=thisbm._chunkSizes.length;
+          ansN+=thisbm._numRowsInResult;
+        }
+        queue[q]=-1;
+        if (nextItem < bmList.size()) {
+          bmList.get(nextItem).call();
+          queue[q]=nextItem++;
+          leftOnQueue++;
+        }
+      }
+    }
+    if (doneInSweep == 0)     waitMS=Math.min(1000,waitMS * 2);
+  }
+  System.out.println("took: " + (System.nanoTime() - t0) / 1e9);
   System.out.print("Allocating and populating chunk info (e.g. size and batch number) ...");
   t0=System.nanoTime();
   long chunkSizes[]=new long[numChunks];
@@ -52,7 +80,7 @@
   int chunkRightMSB[]=new int[numChunks];
   int chunkBatch[]=new int[numChunks];
   int k=0;
-  for (i=0; i < bmList.size(); i++) {
+  for (int i=0; i < bmList.size(); i++) {
     BinaryMerge thisbm=bmResults[i];
     if (thisbm._numRowsInResult == 0)     continue;
     int thisChunkSizes[]=thisbm._chunkSizes;
@@ -68,7 +96,7 @@
   System.out.print("Allocating and populated espc ...");
   t0=System.nanoTime();
   long espc[]=new long[chunkSizes.length + 1];
-  i=0;
+  int i=0;
   long sum=0;
   for (  long s : chunkSizes) {
     espc[i++]=sum;
