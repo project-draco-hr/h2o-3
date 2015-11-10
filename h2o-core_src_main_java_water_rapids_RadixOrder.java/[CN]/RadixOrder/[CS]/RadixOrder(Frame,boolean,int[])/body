@@ -9,7 +9,7 @@
   }
   if (_biggestBit[0] < 8)   Log.warn("biggest bit should be >= 8 otherwise need to dip into next column (TODO)");
   int keySize=ArrayUtils.sum(_bytesUsed);
-  int batchSize=256 * 1024 * 1024 / Math.max(keySize,8);
+  int batchSize=256 * 1024 * 1024 / Math.max(keySize,8) / 2;
   System.out.println("Time to use rollup stats to determine biggestBit: " + (System.nanoTime() - t0) / 1e9);
   t0=System.nanoTime();
   new RadixCount(isLeft,_biggestBit[0],whichCols[0]).doAll(DF.vec(whichCols[0]));
