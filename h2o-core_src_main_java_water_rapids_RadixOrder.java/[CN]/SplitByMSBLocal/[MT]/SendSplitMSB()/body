@@ -1,38 +1,15 @@
 {
+  int numChunks=_fr.anyVec().nChunks();
+  System.out.print("Starting SendSplitMSB on this node ... ");
   long t0=System.nanoTime();
   Futures fs=new Futures();
-  int nc=_fr.anyVec().nChunks();
-  long forLoopTime=0, DKVputTime=0, sumSize=0;
   for (int msb=0; msb < _o.length; ++msb) {
-    long t00=System.nanoTime();
     if (_o[msb] == null)     continue;
-    int numChunks=0;
-    for (int c=0; c < nc; c++) {
-      if (_counts[c] != null && _counts[c][msb] > 0)       numChunks++;
-    }
-    int MSBnodeChunkCounts[]=new int[numChunks];
-    int j=0;
-    long lastCount=0;
-    for (int c=0; c < nc; c++) {
-      if (_counts[c] != null && _counts[c][msb] > 0) {
-        MSBnodeChunkCounts[j]=(int)(_counts[c][msb] - lastCount);
-        lastCount=_counts[c][msb];
-        j++;
-      }
-    }
-    forLoopTime+=System.nanoTime() - t00;
-    MSBNodeHeader msbh=new MSBNodeHeader(MSBnodeChunkCounts);
-    DKV.put(getMSBNodeHeaderKey(_isLeft,msb,H2O.SELF.index()),msbh,fs,true);
-    for (int b=0; b < _o[msb].length; ++b) {
-      OXbatch ox=new OXbatch(_o[msb][b],_x[msb][b]);
-      sumSize+=_o[msb][b].length * 8 + _x[msb][b].length * _keySize + 64;
-      t00=System.nanoTime();
-      DKV.put(getNodeOXbatchKey(_isLeft,msb,H2O.SELF.index(),b),ox,fs,true);
-      long thist=System.nanoTime() - t00;
-      DKVputTime+=thist;
-    }
+    fs.add(H2O.submitTask(new SendOne(msb,numChunks)));
   }
-  System.out.println("this node took : " + (System.nanoTime() - t0) / 1e9);
-  System.out.println("  Finding the chunk boundaries in split OX took " + forLoopTime / 1e9);
-  System.out.println("  DKV.put " + PrettyPrint.bytes(sumSize) + " in "+ DKVputTime / 1e9 + ". Overall rate: " + String.format("%.3f",sumSize / (DKVputTime / 1e9) / (1024 * 1024 * 1024)) + " GByte/sec  [10Gbit = 1.25GByte/sec]");
+  fs.blockForPending();
+  double timeTaken=(System.nanoTime() - t0) / 1e9;
+  long bytes=_numRowsOnThisNode * (8 + _keySize) + 64;
+  System.out.println("took : " + timeTaken);
+  System.out.println("  DKV.put " + PrettyPrint.bytes(bytes) + " @ "+ String.format("%.3f",bytes / timeTaken / (1024 * 1024 * 1024))+ " GByte/sec  [10Gbit = 1.25GByte/sec]");
 }

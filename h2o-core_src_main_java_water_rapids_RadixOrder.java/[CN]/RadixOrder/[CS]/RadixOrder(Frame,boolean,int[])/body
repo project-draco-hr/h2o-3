@@ -19,7 +19,6 @@
   SplitByMSBLocal tmp=new SplitByMSBLocal(isLeft,_biggestBit[0],keySize,batchSize,_bytesUsed,whichCols,linkTwoMRTask).doAll(DF.vecs(whichCols));
   System.out.println("SplitByMSBLocal MRTask (all local per node, no network) took : " + (System.nanoTime() - t0) / 1e9);
   System.out.print(tmp.profString());
-  System.out.print("Starting SendSplitMSB ... ");
   t0=System.nanoTime();
   new SendSplitMSB(linkTwoMRTask).doAllNodes();
   System.out.println("SendSplitMSB across all nodes took : " + (System.nanoTime() - t0) / 1e9);
