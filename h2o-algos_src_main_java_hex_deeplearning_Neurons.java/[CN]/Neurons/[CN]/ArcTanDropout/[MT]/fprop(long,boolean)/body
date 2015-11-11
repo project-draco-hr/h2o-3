@@ -1,0 +1,11 @@
+{
+  if (training) {
+    seed+=params._seed + 0xDA7A6000;
+    _dropout.fillBytes(seed);
+    super.fprop(seed,true);
+  }
+ else {
+    super.fprop(seed,false);
+    ArrayUtils.mult(_a.raw(),1 - params._hidden_dropout_ratios[_index]);
+  }
+}
