@@ -12,7 +12,6 @@ def cv_carsRF():
     else:
         response_col = 'economy'
     print 'Response column: {0}'.format(response_col)
-    from h2o.estimators.random_forest import H2ORandomForestEstimator
     nfolds = random.randint(3, 10)
     rf1 = H2ORandomForestEstimator(nfolds=nfolds, fold_assignment='Modulo', seed=1234)
     rf1.train(x=predictors, y=response_col, training_frame=cars)
@@ -30,7 +29,7 @@ def cv_carsRF():
     except AssertionError:
         assert True
     num_folds = random.randint(2, 5)
-    fold_assignments = h2o.H2OFrame.fromPython([[random.randint(0, (num_folds - 1)) for f in range(cars.nrow)]])
+    fold_assignments = h2o.H2OFrame([[random.randint(0, (num_folds - 1)) for f in range(cars.nrow)]])
     fold_assignments.set_names(['fold_assignments'])
     cars = cars.cbind(fold_assignments)
     rf = H2ORandomForestEstimator(keep_cross_validation_predictions=True)

@@ -1,0 +1,16 @@
+{
+  if (fr == null)   return;
+  Futures fs=new Futures();
+  if (!FRAMES.containsKey(fr._key)) {
+    for (    Vec vec : fr.vecs()) {
+      GLOBALS.remove(vec);
+      if (REFCNTS.get(vec) == null)       vec.remove(fs);
+    }
+  }
+ else {
+    fs=downRefCnt(fr,fs);
+    FRAMES.remove(fr._key);
+  }
+  DKV.remove(fr._key,fs);
+  fs.blockForPending();
+}

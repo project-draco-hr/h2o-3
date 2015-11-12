@@ -1,0 +1,18 @@
+{
+  closeLocal();
+  if (_profile != null)   _profile._closeLocalDone=System.currentTimeMillis();
+  reduce3(_nleft);
+  reduce3(_nrite);
+  if (_profile != null)   _profile._remoteBlkDone=System.currentTimeMillis();
+  _fs.blockForPending();
+  if (_profile != null)   _profile._localBlkDone=System.currentTimeMillis();
+  if (_res == null)   _nhi=-1;
+ else   if (_res != this) {
+    _res._profile=_profile;
+    copyOver(_res);
+  }
+  if (_topGlobal) {
+    if (_fr != null)     _fr.postWrite(_fs).blockForPending();
+    postGlobal();
+  }
+}

@@ -1,0 +1,14 @@
+{
+  double[][] res=new double[nclasses()][];
+  Submodel sm=_submodels[idx];
+  for (int i=0; i < res.length; ++i) {
+    if (sm.idxs == null)     res[i]=sm.betaMultinomial[i].clone();
+ else {
+      res[i]=MemoryManager.malloc8d(_dinfo.fullN() + 1);
+      int j=0;
+      for (      int id : sm.idxs)       res[i][id]=sm.betaMultinomial[i][j++];
+      res[i][_dinfo.fullN()]=sm.betaMultinomial[i][sm.betaMultinomial[i].length - 1];
+    }
+  }
+  return res;
+}

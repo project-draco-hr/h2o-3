@@ -1,11 +1,7 @@
-def impute(self, column, method='mean', combine_method='interpolate', by=None, inplace=True):
-    '\n    Impute a column in this H2OFrame\n    :param column: The column to impute\n    :param method: How to compute the imputation value.\n    :param combine_method: For even samples and method="median", how to combine quantiles.\n    :param by: Columns to group-by for computing imputation value per groups of columns.\n    :param inplace: Impute inplace?\n    :return: the imputed frame.\n    '
+def impute(self, column, method='mean', combine_method='interpolate', by=None):
+    'Impute a column in this H2OFrame\n\n    Parameters\n    ----------\n    column : int, str\n      The column to impute\n    method: str, default="mean"\n      How to compute the imputation value.\n    combine_method: str, default="interpolate"\n      For even samples and method="median", how to combine quantiles.\n    by : list\n      Columns to group-by for computing imputation value per groups of columns.\n\n    Returns\n    -------\n      An H2OFrame with the desired column\'s NAs filled with imputed values.\n      Note that the returned Frame is in conceptually a new Frame, but due \n      to back-end optimizations is frequently not actually a copy.\n    '
     if isinstance(column, basestring):
         column = self.names.index(column)
     if isinstance(by, basestring):
         by = self.names.index(by)
-    ex = expr.ExprNode('h2o.impute', self, column, method, combine_method, by)
-    if (not inplace):
-        return H2OFrame(ex)
-    self._ex = ex
-    return self
+    return H2OFrame._expr(expr=ExprNode('h2o.impute', self, column, method, combine_method, by), cache=self._ex._cache)

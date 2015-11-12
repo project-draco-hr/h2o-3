@@ -3,14 +3,20 @@
   sb.ip("public boolean isSupervised() { return " + isSupervised() + "; }").nl();
   sb.ip("public int nfeatures() { return " + _output.nfeatures() + "; }").nl();
   sb.ip("public int nclasses() { return " + _output.nclasses() + "; }").nl();
-  JCodeGen.toStaticVar(sb,"RESCNT",_output._rescnt,"Count of categorical levels in response.");
-  JCodeGen.toStaticVar(sb,"APRIORI",_output._apriori_raw,"Apriori class distribution of the response.");
-  JCodeGen.toStaticVar(sb,"PCOND",_output._pcond_raw,"Conditional probability of predictors.");
-  double[] dlen=null;
-  if (_output._ncats > 0) {
-    dlen=new double[_output._ncats];
-    for (int i=0; i < _output._ncats; i++)     dlen[i]=_output._domains[i].length;
+  final String mname=JCodeGen.toJavaId(_key.toString());
+  fileCtx.add(new CodeGenerator(){
+    @Override public void generate(    JCodeSB out){
+      JCodeGen.toClassWithArray(out,null,mname + "_RESCNT",_output._rescnt,"Count of categorical levels in response.");
+      JCodeGen.toClassWithArray(out,null,mname + "_APRIORI",_output._apriori_raw,"Apriori class distribution of the response.");
+      JCodeGen.toClassWithArray(out,null,mname + "_PCOND",_output._pcond_raw,"Conditional probability of predictors.");
+      double[] dlen=null;
+      if (_output._ncats > 0) {
+        dlen=new double[_output._ncats];
+        for (int i=0; i < _output._ncats; i++)         dlen[i]=_output._domains[i].length;
+      }
+      JCodeGen.toClassWithArray(out,null,mname + "_DOMLEN",dlen,"Number of unique levels for each categorical predictor.");
+    }
   }
-  JCodeGen.toStaticVar(sb,"DOMLEN",dlen,"Number of unique levels for each categorical predictor.");
+);
   return sb;
 }

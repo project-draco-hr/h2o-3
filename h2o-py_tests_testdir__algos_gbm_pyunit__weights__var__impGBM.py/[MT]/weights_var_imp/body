@@ -13,12 +13,12 @@ def weights_var_imp():
         gbm1_multinomial.train(x=['displacement', 'power', 'weight', 'acceleration', 'year'], y='cylinders', training_frame=data1)
         gbm2_multinomial = H2OGradientBoostingEstimator(min_rows=(5 * min_rows_scale), distribution='multinomial', ntrees=5, max_depth=5)
         gbm2_multinomial.train(x=['displacement', 'power', 'weight', 'acceleration', 'year', 'weights'], y='cylinders', weights_column='weights', training_frame=data2)
-        reg1_vi = gbm1_regression.varimp(return_list=True)
-        reg2_vi = gbm2_regression.varimp(return_list=True)
-        bin1_vi = gbm1_binomial.varimp(return_list=True)
-        bin2_vi = gbm2_binomial.varimp(return_list=True)
-        mul1_vi = gbm1_multinomial.varimp(return_list=True)
-        mul2_vi = gbm2_multinomial.varimp(return_list=True)
+        reg1_vi = gbm1_regression.varimp()
+        reg2_vi = gbm2_regression.varimp()
+        bin1_vi = gbm1_binomial.varimp()
+        bin2_vi = gbm2_binomial.varimp()
+        mul1_vi = gbm1_multinomial.varimp()
+        mul2_vi = gbm2_multinomial.varimp()
         print 'Varimp (regresson)   no weights vs. weights: {0}, {1}'.format(reg1_vi, reg2_vi)
         print 'Varimp (binomial)    no weights vs. weights: {0}, {1}'.format(bin1_vi, bin2_vi)
         print 'Varimp (multinomial) no weights vs. weights: {0}, {1}'.format(mul1_vi, mul2_vi)
@@ -33,20 +33,20 @@ def weights_var_imp():
     h2o_cars_data['cylinders'] = h2o_cars_data['cylinders'].asfactor()
     weight = random.randint(1, 10)
     uniform_weights = [[weight for r in range(406)]]
-    h2o_uniform_weights = h2o.H2OFrame.fromPython(uniform_weights)
+    h2o_uniform_weights = h2o.H2OFrame(uniform_weights)
     h2o_uniform_weights.set_names(['weights'])
     h2o_data_uniform_weights = h2o_cars_data.cbind(h2o_uniform_weights)
     print '\n\nChecking that using uniform weights is equivalent to no weights:'
     check_same(h2o_cars_data, h2o_data_uniform_weights, weight)
     zero_weights = [[(0 if random.randint(0, 1) else 1) for r in range(406)]]
-    h2o_zero_weights = h2o.H2OFrame.fromPython(zero_weights)
+    h2o_zero_weights = h2o.H2OFrame(zero_weights)
     h2o_zero_weights.set_names(['weights'])
     h2o_data_zero_weights = h2o_cars_data.cbind(h2o_zero_weights)
     h2o_data_zeros_removed = h2o_cars_data[(h2o_zero_weights['weights'] == 1)]
     print '\n\nChecking that using some zero weights is equivalent to removing those observations:'
     check_same(h2o_data_zeros_removed, h2o_data_zero_weights, 1)
     doubled_weights = [[(1 if random.randint(0, 1) else 2) for r in range(406)]]
-    h2o_doubled_weights = h2o.H2OFrame.fromPython(doubled_weights)
+    h2o_doubled_weights = h2o.H2OFrame(doubled_weights)
     h2o_doubled_weights.set_names(['weights'])
     h2o_data_doubled_weights = h2o_cars_data.cbind(h2o_doubled_weights)
     doubled_data = h2o.as_list(h2o_cars_data, use_pandas=False)
@@ -56,7 +56,7 @@ def weights_var_imp():
         if (w == 2):
             doubled_data.append(doubled_data[idx])
     doubled_data = zip(*doubled_data)
-    h2o_data_doubled = h2o.H2OFrame.fromPython(doubled_data)
+    h2o_data_doubled = h2o.H2OFrame(doubled_data)
     h2o_data_doubled.set_names(list(colnames))
     h2o_data_doubled['economy_20mpg'] = h2o_data_doubled['economy_20mpg'].asfactor()
     h2o_data_doubled['cylinders'] = h2o_data_doubled['cylinders'].asfactor()

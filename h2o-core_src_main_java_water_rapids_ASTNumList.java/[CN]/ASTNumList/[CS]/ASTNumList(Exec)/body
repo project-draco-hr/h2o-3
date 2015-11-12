@@ -22,6 +22,7 @@
         c=e.skipWS();
       }
     }
+    if (cnt == 1 && stride != 1)     throw new IllegalArgumentException("If count is 1, then stride must be one (and ignored)");
     bases.add(base);
     cnts.add((long)cnt);
     strides.add(stride);
@@ -39,5 +40,8 @@
     if (_cnts[i] != 1)     isList=false;
   }
   _isList=isList;
-  if (!isList)   for (int i=1; i < _bases.length; i++)   if (_bases[i - 1] >= _bases[i])   throw new IllegalArgumentException("Bases must be monotonically increasing");
+  boolean isSort=true;
+  for (int i=1; i < _bases.length; i++)   if (_bases[i - 1] >= _bases[i])   if (_isList)   isSort=false;
+ else   throw new IllegalArgumentException("Bases must be monotonically increasing");
+  _isSort=isSort;
 }

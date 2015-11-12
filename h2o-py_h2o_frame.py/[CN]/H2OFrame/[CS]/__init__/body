@@ -1,4 +1,5 @@
-def __init__(self, ex):
-    if (not isinstance(ex, expr.ExprNode)):
-        raise ValueError((('H2OFrame must be passed an ExprNode, not a ' + str(ex.__class__)) + ' and the constructor is an internal method.\nDid you mean H2OFrame.fromPython(python_obj)?'))
-    self._ex = ex
+def __init__(self, python_obj=None):
+    self._ex = ExprNode()
+    self._ex._children = None
+    if (python_obj is not None):
+        self._upload_python_object(python_obj)

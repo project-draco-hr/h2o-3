@@ -1,0 +1,22 @@
+{
+  System.arraycopy(gradient,0,q,0,q.length);
+  if (_k != 0) {
+    int k=Math.min(_k,_m);
+    for (int i=1; i <= k; ++i) {
+      int id=getId(-i);
+      _alpha[id]=_rho[id] * ArrayUtils.innerProduct(_s[id],q);
+      MathUtils.wadd(q,_y[id],-_alpha[id]);
+    }
+    int lastId=getId(-1);
+    final double[] y=_y[lastId];
+    double Hk0=-1.0 / (ArrayUtils.innerProduct(y,y) * _rho[lastId]);
+    ArrayUtils.mult(q,Hk0);
+    for (int i=k; i > 0; --i) {
+      int id=getId(-i);
+      double beta=_rho[id] * ArrayUtils.innerProduct(_y[id],q);
+      MathUtils.wadd(q,_s[id],-_alpha[id] - beta);
+    }
+  }
+ else   ArrayUtils.mult(q,-1);
+  return q;
+}

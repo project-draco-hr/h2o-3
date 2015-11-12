@@ -1,2 +1,48 @@
 def __setitem__(self, b, c):
-    self._ex = self._ex._setitem(b, c)
+    "Replace or update column(s) in an H2OFrame.\n\n    Parameters\n    ----------\n      b : int, str\n        A 0-based index or a column name.\n      c :\n        The value replacing 'b'\n\n    Returns\n    -------\n      Returns this H2OFrame.\n    "
+    col_expr = None
+    row_expr = None
+    colname = None
+    if isinstance(b, basestring):
+        if (b in self.names):
+            col_expr = self.names.index(b)
+        else:
+            col_expr = self.ncol
+            colname = b
+    elif isinstance(b, int):
+        col_expr = b
+    elif isinstance(b, tuple):
+        row_expr = b[0]
+        col_expr = b[1]
+        if isinstance(col_expr, basestring):
+            if (col_expr not in self.names):
+                colname = col_expr
+                col_expr = self.ncol
+        elif isinstance(col_expr, slice):
+            if ((col_expr.start is None) and (col_expr.stop is None)):
+                col_expr = slice(0, self.ncol)
+    elif isinstance(b, ExprNode):
+        row_expr = b
+    elif isinstance(b, list):
+        col_expr = b
+    src = (float('nan') if (c is None) else c)
+    src_in_self = self.is_src_in_self(src)
+    old_cache = self._ex._cache
+    if (colname is None):
+        self._ex = ExprNode(':=', self, src, col_expr, row_expr)
+        self._ex._cache.fill_from(old_cache)
+        if (isinstance(src, H2OFrame) and src._ex._cache.types_valid() and self._ex._cache.types_valid()):
+            self._ex._cache._types.update(src._ex._cache.types)
+        else:
+            self._ex._cache.types = None
+    else:
+        self._ex = ExprNode('append', self, src, colname)
+        self._ex._cache.fill_from(old_cache)
+        self._ex._cache.names = (self.names + [colname])
+        if ((not self._ex._cache.types_valid()) or (not isinstance(src, H2OFrame)) or (not src._ex._cache.types_valid())):
+            self._ex._cache.types = None
+        else:
+            self._ex._cache._types[colname] = src._ex._cache.types.values()[0]
+    if (isinstance(src, H2OFrame) and src_in_self):
+        src._ex = None
+    self._frame()
