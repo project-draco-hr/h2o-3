@@ -1,0 +1,8 @@
+{
+  if (labels == null || preds == null)   throw new IllegalArgumentException("Missing actualLabels or predictedProbs!");
+  if (labels.length() != preds.length())   throw new IllegalArgumentException("Both arguments must have the same length (" + labels.length() + "!="+ preds.length()+ ")!");
+  if (!labels.isInt())   throw new IllegalArgumentException("Actual column must be integer class labels!");
+  if (labels.cardinality() != -1 && labels.cardinality() != 2)   throw new IllegalArgumentException("Actual column must contain binary class labels, but found cardinality " + labels.cardinality() + "!");
+  if (preds.isCategorical())   throw new IllegalArgumentException("predictedProbs cannot be class labels, expect probabilities.");
+  if (weight != null && !weight.isNumeric())   throw new IllegalArgumentException("weight must be numeric.");
+}
