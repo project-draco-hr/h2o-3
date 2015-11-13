@@ -2,6 +2,7 @@
   init();
   QuantileModel qm=null;
   Scope.enter();
+  Frame frame=null;
   try {
     labels=labels.toCategoricalVec();
     frame=new Frame(Key.make(),new String[]{"predicted"},new Vec[]{preds});
@@ -16,9 +17,9 @@
     }
     QuantileModel.QuantileParameters qp=new QuantileModel.QuantileParameters();
     qp._train=frame._key;
-    qp._probs=new double[groups];
-    for (int i=0; i < groups; ++i) {
-      qp._probs[i]=(groups - i - 1.) / groups;
+    qp._probs=new double[GROUPS];
+    for (int i=0; i < GROUPS; ++i) {
+      qp._probs[i]=(GROUPS - i - 1.) / GROUPS;
     }
     if (weight != null)     throw H2O.unimpl("Quantile cannot handle weights yet.");
     Quantile q=new Quantile(qp);
