@@ -1,32 +1,14 @@
 {
-  init();
   Scope.enter();
-  Frame frame=null;
+  init();
   try {
-    labels=labels.toCategoricalVec();
-    frame=new Frame(Key.make(),new String[]{"predicted"},new Vec[]{preds});
-    DKV.put(frame);
-    if (!labels.group().equals(preds.group())) {
-      preds=labels.align(preds);
-      Scope.track(preds._key);
-      if (weight != null) {
-        weight=labels.align(weight);
-        Scope.track(weight._key);
-      }
-    }
-    assert(Arrays.equals(Vec.PERCENTILES,new double[]{0.001,0.01,0.1,0.2,0.25,0.3,1.0 / 3.0,0.4,0.5,0.6,2.0 / 3.0,0.7,0.75,0.8,0.9,0.99,0.999}));
-    double[] rq=preds.pctiles();
-    double[] quantiles=new double[]{rq[14],rq[13],rq[11],rq[9],rq[8],rq[7],rq[5],rq[3],rq[2],0};
-    GainsTask gt=new GainsTask(quantiles,labels.length());
-    if (weight != null)     gt.doAll(labels,preds,weight);
- else     gt.doAll(labels,preds);
+    GainsTask gt=new GainsTask(_quantiles,_labels.length());
+    gt=(_weights != null) ? gt.doAll(_labels,_preds,_weights) : gt.doAll(_labels,_preds);
     response_rates=gt.response_rates();
     avg_response_rate=gt.avg_response_rate();
     positive_responses=gt.responses();
   }
   finally {
-    if (frame != null)     DKV.remove(frame._key);
     Scope.exit();
   }
-  Log.info(createTwoDimTable());
 }
