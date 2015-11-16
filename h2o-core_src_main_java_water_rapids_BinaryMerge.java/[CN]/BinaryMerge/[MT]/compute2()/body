@@ -1,5 +1,5 @@
 {
-  _timings=new double[12];
+  _timings=new double[20];
   long t0=System.nanoTime();
   SingleThreadRadixOrder.OXHeader leftSortedOXHeader=DKV.getGet(getSortedOXHeaderKey(true,_leftMSB));
   if (leftSortedOXHeader == null) {
@@ -43,7 +43,16 @@
   _rightKeyNCol=_rightFieldSizes.length;
   _leftKeySize=ArrayUtils.sum(_leftFieldSizes);
   _rightKeySize=ArrayUtils.sum(_rightFieldSizes);
+  System.out.println("_leftKeySize=" + _leftKeySize + " _rightKeySize="+ _rightKeySize+ " _leftN="+ _leftN+ " _rightN="+ _rightN);
   _numJoinCols=Math.min(_leftKeyNCol,_rightKeyNCol);
+  _leftChunkNode=new int[_leftFrame.anyVec().nChunks()];
+  _rightChunkNode=new int[_rightFrame.anyVec().nChunks()];
+  for (int i=0; i < _leftFrame.anyVec().nChunks(); i++) {
+    _leftChunkNode[i]=_leftFrame.anyVec().chunkKey(i).home_node().index();
+  }
+  for (int i=0; i < _rightFrame.anyVec().nChunks(); i++) {
+    _rightChunkNode[i]=_rightFrame.anyVec().chunkKey(i).home_node().index();
+  }
   _timings[0]=(System.nanoTime() - t0) / 1e9;
   if ((_leftN != 0 || _allRight) && (_rightN != 0 || _allLeft)) {
     t0=System.nanoTime();
