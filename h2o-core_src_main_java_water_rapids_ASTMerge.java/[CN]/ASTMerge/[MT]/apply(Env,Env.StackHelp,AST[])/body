@@ -43,6 +43,12 @@
     Vec lv=walked.vecs()[i];
     if (lv.isCategorical())     id_maps[i]=CategoricalWrappedVec.computeMap(hashed.vecs()[i].domain(),lv.domain());
   }
+  new MRTask(){
+    @Override public void setupLocal(){
+      System.gc();
+    }
+  }
+.doAllNodes();
   if (method.equals("radix")) {
     return sortingMerge(l,r,allLeft,allRite,ncols,id_maps);
   }
