@@ -1,12 +1,12 @@
 {
   if (response_rates == null)   return null;
-  TwoDimTable table=new TwoDimTable("Gains/Lift Table","Avg response rate: " + PrettyPrint.formatPct(avg_response_rate),new String[groups],new String[]{"Decile","Response rate","Lift","Cumulative Lift"},new String[]{"int","double","double","double"},new String[]{"%d","%5f","%5f","%5f"},"");
+  TwoDimTable table=new TwoDimTable("Gains/Lift Table","Avg response rate: " + PrettyPrint.formatPct(avg_response_rate),new String[GROUPS],new String[]{"Decile","Response rate","Lift","Cumulative Lift"},new String[]{"int","double","double","double"},new String[]{"%d","%5f","%5f","%5f"},"");
   float cumulativelift=0;
-  for (int i=0; i < groups; ++i) {
+  for (int i=0; i < GROUPS; ++i) {
     table.set(i,0,i + 1);
     table.set(i,1,response_rates[i]);
     final float lift=response_rates[i] / avg_response_rate;
-    cumulativelift+=lift / groups;
+    cumulativelift+=lift / GROUPS;
     table.set(i,2,lift);
     table.set(i,3,cumulativelift);
   }
