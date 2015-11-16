@@ -1,6 +1,4 @@
 {
-  long t0=System.nanoTime();
-  _timings[12]+=1;
   byte xbatch[]=x[(int)(xi / _leftBatchSize)];
   byte ybatch[]=y[(int)(yi / _rightBatchSize)];
   int xoff=(int)(xi % _leftBatchSize) * _leftKeySize;
@@ -20,7 +18,6 @@
         ylen--;
       }
       if (xlen != ylen) {
-        _timings[13]+=(System.nanoTime() - t0) / 1e9;
         return (xlen - ylen);
       }
     }
@@ -31,6 +28,5 @@
     }
     i++;
   }
-  _timings[13]+=(System.nanoTime() - t0) / 1e9;
   return (xByte & 0xFF) - (yByte & 0xFF);
 }

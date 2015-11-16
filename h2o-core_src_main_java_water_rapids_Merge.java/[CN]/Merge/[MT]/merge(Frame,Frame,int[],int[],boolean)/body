@@ -29,12 +29,13 @@
       H2ONode rightNode=SplitByMSBLocal.ownerOfMSB(rightMSB);
       RPC bm=new RPC<>(rightNode,new BinaryMerge(leftFrame,rightFrame,leftMSB,rightMSB,leftIndex._bytesUsed,rightIndex._bytesUsed,allLeft));
       bmList.add(bm);
+      System.out.print(rightNode.index() + " ");
     }
   }
-  System.out.println("took: " + (System.nanoTime() - t0) / 1e9);
+  System.out.println("... took: " + (System.nanoTime() - t0) / 1e9);
+  int queueSize=Math.max(H2O.CLOUD.size() * 20,40);
   t0=System.nanoTime();
-  System.out.print("Sending BinaryMerge async RPC calls in a queue ... ");
-  int queueSize=Math.max(H2O.CLOUD.size() * 10,40);
+  System.out.print("Sending BinaryMerge async RPC calls in a queue of " + queueSize + " ... ");
   int queue[]=new int[queueSize];
   BinaryMerge bmResults[]=new BinaryMerge[bmList.size()];
   int nextItem;
@@ -75,6 +76,22 @@
       }
     }
     if (doneInSweep == 0)     waitMS=Math.min(1000,waitMS * 2);
+  }
+  System.out.println("took: " + (System.nanoTime() - t0) / 1e9);
+  System.out.print("Removing DKV keys of left and right index.  ... ");
+  t0=System.nanoTime();
+  for (int msb=0; msb < 256; msb++) {
+    for (int isLeft=0; isLeft < 2; isLeft++) {
+      Key k=getSortedOXHeaderKey(isLeft == 0 ? false : true,msb);
+      SingleThreadRadixOrder.OXHeader oxheader=DKV.getGet(k);
+      DKV.remove(k);
+      if (oxheader != null) {
+        for (int b=0; b < oxheader._nBatch; ++b) {
+          k=SplitByMSBLocal.getSortedOXbatchKey(isLeft == 0 ? false : true,msb,b);
+          DKV.remove(k);
+        }
+      }
+    }
   }
   System.out.println("took: " + (System.nanoTime() - t0) / 1e9);
   System.out.print("Allocating and populating chunk info (e.g. size and batch number) ...");
@@ -136,6 +153,5 @@
   ChunkStitcher ff=new ChunkStitcher(chunkSizes,chunkLeftMSB,chunkRightMSB,chunkBatch);
   ff.doAll(fr);
   System.out.println("took: " + (System.nanoTime() - t0) / 1e9);
-  Merge.cleanUp();
   return fr;
 }
