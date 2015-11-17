@@ -14,6 +14,9 @@
   colHeaders.add("Epochs");
   colTypes.add("double");
   colFormat.add("%.5f");
+  colHeaders.add("Iterations");
+  colTypes.add("int");
+  colFormat.add("%d");
   colHeaders.add("Samples");
   colTypes.add("double");
   colFormat.add("%f");
@@ -101,6 +104,7 @@
     int speed=(int)(e.training_samples / ((e.training_time_ms - scoring_time) / 1e3));
     table.set(row,col++,e.training_time_ms == 0 ? null : (String.format("%d",speed) + " rows/sec"));
     table.set(row,col++,e.epoch_counter);
+    table.set(row,col++,e.iterations);
     table.set(row,col++,e.training_samples);
     table.set(row,col++,e.scored_train != null ? e.scored_train._mse : Double.NaN);
     if (_output.getModelCategory() == ModelCategory.Regression) {

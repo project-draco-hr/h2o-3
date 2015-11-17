@@ -4,7 +4,7 @@
   Job.Progress prog=DKV.getGet(progressKey);
   double progress=prog == null ? 0 : prog.progress();
   int speed=(int)(model_info().get_processed_total() * 1000. / ((total_run_time + timeSinceEntering) - total_scoring_time));
-  String msg="Map/Reduce Iterations: " + String.format("%,d",iteration) + ". Speed: "+ String.format("%,d",speed)+ " samples/sec."+ (progress == 0 ? "" : " Estimated time left: " + PrettyPrint.msecs((long)(total_run_time * (1. - progress) / progress),true));
+  String msg="Iterations: " + String.format("%,d",iteration) + ". Epochs: "+ String.format("%g",epoch_counter)+ ". Speed: "+ String.format("%,d",speed)+ " samples/sec."+ (progress == 0 ? "" : " Estimated time left: " + PrettyPrint.msecs((long)(total_run_time * (1. - progress) / progress),true));
   ((Job)DKV.getGet(job_key)).update(actual_train_samples_per_iteration);
   if (progressKey != null)   new Job.ProgressUpdate(msg).fork(progressKey);
   long sinceLastPrint=now - _timeLastPrintStart;
