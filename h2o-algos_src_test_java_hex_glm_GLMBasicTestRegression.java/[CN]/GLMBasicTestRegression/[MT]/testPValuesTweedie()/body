@@ -1,0 +1,36 @@
+{
+  double[] sderr_exp=new double[]{0.11120211,0.08454967,0.08393315,0.10041150,0.10099231,0.08618960};
+  double[] zvals_exp=new double[]{9.5021062,-3.0622693,-2.6431794,1.5262357,0.7548661,0.4534433};
+  double[] pvals_exp=new double[]{9.508400e-19,2.409514e-03,8.674149e-03,1.280759e-01,4.509615e-01,6.505795e-01};
+  GLMParameters parms=new GLMParameters(Family.tweedie);
+  parms._tweedie_variance_power=1.5;
+  parms._tweedie_link_power=1 - parms._tweedie_variance_power;
+  parms._train=_earinf._key;
+  parms._standardize=false;
+  parms._lambda=new double[]{0};
+  parms._alpha=new double[]{0};
+  parms._response_column="Infections";
+  parms._compute_p_values=true;
+  GLM job=new GLM(Key.make("prostate_model"),"glm test p-values",parms);
+  GLMModel model=null;
+  try {
+    model=job.trainModel().get();
+    String[] names_expected=new String[]{"Intercept","Swimmer.Occas","Location.NonBeach","Age.20-24","Age.25-29","Sex.Male"};
+    String[] names_actual=model._output.coefficientNames();
+    HashMap<String,Integer> coefMap=new HashMap<>();
+    for (int i=0; i < names_expected.length; ++i)     coefMap.put(names_expected[i],i);
+    double[] stder_actual=model._output.stdErr();
+    double[] zvals_actual=model._output.zValues();
+    double[] pvals_actual=model._output.pValues();
+    for (int i=0; i < sderr_exp.length; ++i) {
+      int id=coefMap.get(names_actual[i]);
+      assertEquals(sderr_exp[id],stder_actual[i],sderr_exp[id] * 1e-3);
+      assertEquals(zvals_exp[id],zvals_actual[i],Math.abs(zvals_exp[id]) * 1e-3);
+      assertEquals(pvals_exp[id],pvals_actual[i],Math.max(1e-8,pvals_exp[id]) * 5e-3);
+    }
+  }
+  finally {
+    if (model != null)     model.delete();
+    if (job != null)     job.remove();
+  }
+}

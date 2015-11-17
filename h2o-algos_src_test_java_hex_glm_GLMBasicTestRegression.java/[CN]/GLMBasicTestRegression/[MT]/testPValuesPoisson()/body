@@ -1,0 +1,34 @@
+{
+  double[] sderr_exp=new double[]{3.480733e-01,2.972063e-02,3.858825e-02,5.095260e-02,8.005579e-02,6.332867e-02,4.910690e-02,1.047531e-01,5.068602e-07,1.086939e-05,6.869142e-06,2.622370e-02};
+  double[] zvals_exp=new double[]{-3.6734577,-5.0404946,-6.1269397,-6.2739848,0.8618220,4.5662083,5.5148904,-0.4265158,3.1906387,-3.3392867,2.9428291,35.8061272};
+  double[] pvals_exp=new double[]{2.392903e-04,4.643302e-07,8.958540e-10,3.519228e-10,3.887855e-01,4.966252e-06,3.489974e-08,6.697321e-01,1.419587e-03,8.399383e-04,3.252279e-03,8.867127e-281};
+  GLMParameters parms=new GLMParameters(Family.poisson);
+  parms._train=_canCarTrain._key;
+  parms._standardize=false;
+  parms._lambda=new double[]{0};
+  parms._alpha=new double[]{0};
+  parms._response_column="Claims";
+  parms._compute_p_values=true;
+  GLM job=new GLM(Key.make("prostate_model"),"glm test p-values",parms);
+  GLMModel model=null;
+  try {
+    model=job.trainModel().get();
+    String[] names_expected=new String[]{"Intercept","Merit.1","Merit.2","Merit.3","Class.2","Class.3","Class.4","Class.5","Insured","Premium","Cost","logInsured"};
+    String[] names_actual=model._output.coefficientNames();
+    HashMap<String,Integer> coefMap=new HashMap<>();
+    for (int i=0; i < names_expected.length; ++i)     coefMap.put(names_expected[i],i);
+    double[] stder_actual=model._output.stdErr();
+    double[] zvals_actual=model._output.zValues();
+    double[] pvals_actual=model._output.pValues();
+    for (int i=0; i < sderr_exp.length; ++i) {
+      int id=coefMap.get(names_actual[i]);
+      assertEquals(sderr_exp[id],stder_actual[i],sderr_exp[id] * 1e-4);
+      assertEquals(zvals_exp[id],zvals_actual[i],Math.abs(zvals_exp[id]) * 1e-4);
+      assertEquals(pvals_exp[id],pvals_actual[i],Math.max(1e-15,pvals_exp[id] * 1e-3));
+    }
+  }
+  finally {
+    if (model != null)     model.delete();
+    if (job != null)     job.remove();
+  }
+}
