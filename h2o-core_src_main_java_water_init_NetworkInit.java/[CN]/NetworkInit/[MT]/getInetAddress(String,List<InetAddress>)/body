@@ -1,0 +1,23 @@
+{
+  InetAddress addr=null;
+  if (ip != null) {
+    try {
+      addr=InetAddress.getByName(ip);
+    }
+ catch (    UnknownHostException e) {
+      Log.err(e);
+      H2O.exit(-1);
+    }
+    if (!(addr instanceof Inet4Address)) {
+      Log.warn("Only IP4 addresses allowed.");
+      H2O.exit(-1);
+    }
+    if (allowedIps != null) {
+      if (!allowedIps.contains(addr)) {
+        Log.warn("IP address not found on this machine");
+        H2O.exit(-1);
+      }
+    }
+  }
+  return addr;
+}

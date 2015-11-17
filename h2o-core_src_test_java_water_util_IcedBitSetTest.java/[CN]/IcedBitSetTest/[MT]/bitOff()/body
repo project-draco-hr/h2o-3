@@ -1,0 +1,19 @@
+{
+  int len=113 + (int)(10000 * new Random().nextDouble());
+  int bitoff=(int)(100 * new Random().nextDouble());
+  IcedBitSet bs=new IcedBitSet(len,bitoff);
+  Integer[] idx=new Integer[(int)Math.floor(len / 4)];
+  Random rng=new Random();
+  for (int i=0; i < idx.length; ) {
+    int val=rng.nextInt(len);
+    if (val > bitoff) {
+      idx[i]=val;
+      bs.set(idx[i]);
+      ++i;
+    }
+  }
+  Assert.assertEquals(bs.size(),len);
+  check(bs,bitoff,idx);
+  for (  Integer I : idx)   bs.clear(I);
+  check(bs,bitoff,new Integer[]{});
+}

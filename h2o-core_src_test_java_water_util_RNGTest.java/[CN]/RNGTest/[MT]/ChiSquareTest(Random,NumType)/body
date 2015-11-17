@@ -1,0 +1,46 @@
+{
+  final double n=10000;
+  final int k=21;
+  final int reps=1000;
+  double[] chi_2=new double[reps];
+  double[][] N=new double[reps][k];
+  Timer timer=new Timer();
+  for (int r=0; r < reps; ++r) {
+    if (type == NumType.DOUBLE) {
+      for (int i=0; i < n; ++i)       N[r][(int)(rng.nextDouble() * k)]++;
+    }
+ else     if (type == NumType.FLOAT) {
+      for (int i=0; i < n; ++i)       N[r][(int)(rng.nextFloat() * k)]++;
+    }
+ else     if (type == NumType.INT) {
+      for (int i=0; i < n; ++i)       N[r][Math.abs(rng.nextInt()) / (Integer.MAX_VALUE / k)]++;
+    }
+ else     if (type == NumType.LONG) {
+      for (int i=0; i < n; ++i)       N[r][(int)(Math.abs(rng.nextLong()) / (Long.MAX_VALUE / k))]++;
+    }
+ else     throw water.H2O.unimpl();
+  }
+  double time=timer.time();
+  for (int r=0; r < reps; ++r) {
+    chi_2[r]=0;
+    for (int i=0; i < k; i++) {
+      chi_2[r]+=(N[r][i] - n / k) * (N[r][i] - n / k) / (n / k);
+    }
+  }
+  Log.info("\n" + rng.getClass().getSimpleName() + " "+ type+ ":\n"+ reps+ " Chi-Square tests (N="+ n+ ", "+ (k - 1)+ " DOFs) in "+ time / 1000. + " secs");
+  int suspect=0;
+  int nonrandom=0;
+  for (int r=0; r < reps; r++) {
+    if (chi_2[r] > 37.57 || chi_2[r] < 8.26) {
+      nonrandom++;
+    }
+ else     if (chi_2[r] > 31.41 || chi_2[r] < 10.85) {
+      suspect++;
+    }
+  }
+  Log.info((float)nonrandom / reps * 100 + "% non-random sequences.");
+  Log.info((float)suspect / reps * 100 + "% suspect sequences.");
+  if (suspect > 0.08 * reps)   Log.warn("Too many (>10%) suspect (between 1-th and 5-th and between 95-th and 99-th percentile) RNG sequences found!");
+  if (nonrandom > 0.02 * reps)   Log.warn("Too many (>2%) non-random (outside 1-th and 99-th percentile) RNG sequences found!");
+  return (suspect <= 0.08 * 1.5 * reps && nonrandom <= 0.02 * 1.5 * reps);
+}
