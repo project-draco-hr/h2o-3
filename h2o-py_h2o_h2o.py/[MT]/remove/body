@@ -15,6 +15,9 @@ def remove(x):
             H2OConnection.delete(('DKV/' + xi.model_id))
             xi._id = None
         elif isinstance(xi, basestring):
-            H2OConnection.delete(('DKV/' + xi))
+            try:
+                rapids('(rm {})'.format(xi))
+            except:
+                H2OConnection.delete(('DKV/' + xi))
         else:
             raise ValueError('input to h2o.remove must one of: H2OFrame, H2OEstimator, or basestring')
