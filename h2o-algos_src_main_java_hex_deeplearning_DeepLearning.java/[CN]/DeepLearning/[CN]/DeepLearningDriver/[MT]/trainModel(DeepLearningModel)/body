@@ -72,7 +72,7 @@
     new ProgressUpdate("Training...").fork(_progressKey);
     int iteration=1;
     do {
-      model.set_model_info(mp._epochs == 0 ? model.model_info() : H2O.CLOUD.size() > 1 && mp._replicate_training_data ? (mp._single_node_mode ? new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model),iteration).doAll(Key.make(H2O.SELF)).model_info() : new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model),iteration).doAllNodes().model_info()) : new DeepLearningTask(self(),model.model_info(),rowFraction(train,mp,model),iteration).doAll(train).model_info());
+      model.set_model_info(mp._epochs == 0 ? model.model_info() : H2O.CLOUD.size() > 1 && mp._replicate_training_data ? (mp._single_node_mode ? new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model),model.iterations).doAll(Key.make(H2O.SELF)).model_info() : new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model),model.iterations).doAllNodes().model_info()) : new DeepLearningTask(self(),model.model_info(),rowFraction(train,mp,model),model.iterations).doAll(train).model_info());
     }
  while (isRunning() && model.doScoring(trainScoreFrame,validScoreFrame,self(),_progressKey,iteration++,false));
     if (isRunning() && _parms._overwrite_with_best_model && model.actual_best_model_key != null && _parms._nfolds == 0) {
