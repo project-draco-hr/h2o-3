@@ -40,8 +40,12 @@
     _numRowsInResult+=Math.max(1,len) * (lUpp - lLow - 1);
     for (long j=lLow + 1; j < lUpp; j++) {
 {
+        long t00=System.nanoTime();
         long globalRowNumber=_leftOrder[(int)(j / _leftBatchSize)][(int)(j % _leftBatchSize)];
-        int chkIdx=_leftFrame.anyVec().elem2ChunkIdx(globalRowNumber);
+        _timings[17]+=(System.nanoTime() - t00) / 1e9;
+        t00=System.nanoTime();
+        int chkIdx=_leftVec.elem2ChunkIdx(globalRowNumber);
+        _timings[15]+=(System.nanoTime() - t00) / 1e9;
         _perNodeNumLeftRowsToFetch[_leftChunkNode[chkIdx]]++;
       }
       if (len == 0)       continue;
@@ -50,10 +54,15 @@
       _retFirst[jb][jo]=rLow + 2;
       _retLen[jb][jo]=len;
       long a=_retFirst[jb][jo] - 1;
-      for (int i=0; i < _retLen[jb][jo]; i++) {
+      long iLim=_retLen[jb][jo];
+      for (long i=0; i < iLim; i++) {
         long loc=a + i;
+        long t00=System.nanoTime();
         long globalRowNumber=_rightOrder[(int)(loc / _rightBatchSize)][(int)(loc % _rightBatchSize)];
-        int chkIdx=_rightFrame.anyVec().elem2ChunkIdx(globalRowNumber);
+        _timings[18]+=(System.nanoTime() - t00) / 1e9;
+        t00=System.nanoTime();
+        int chkIdx=_rightVec.elem2ChunkIdx(globalRowNumber);
+        _timings[16]+=(System.nanoTime() - t00) / 1e9;
         _perNodeNumRightRowsToFetch[_rightChunkNode[chkIdx]]++;
       }
     }
