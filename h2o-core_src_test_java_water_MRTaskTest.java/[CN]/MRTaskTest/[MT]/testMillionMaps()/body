@@ -1,0 +1,24 @@
+{
+  final int iters=20;
+  final long nchunks=100000L;
+  Vec zeros=Vec.makeCon(0.0,nchunks,0,true);
+  manyMaps(zeros);
+  manyMaps(zeros);
+  manyMaps(zeros);
+  long sum=0, ssq=0;
+  MRTask mrt=null;
+  long start=System.currentTimeMillis();
+  for (int i=0; i < iters; i++) {
+    mrt=manyMaps(zeros);
+    long now=System.currentTimeMillis();
+    long deltams=now - start;
+    sum+=deltams;
+    ssq+=deltams * deltams;
+    start=now;
+  }
+  double avg=(double)sum / iters;
+  double stddev=Math.sqrt((double)ssq / iters - avg * avg);
+  double pct_stddev=stddev / avg;
+  System.out.println("Avg map call: " + avg * 1e6 / nchunks + "ns/map, stddev for " + nchunks + " maps: +/-" + PrettyPrint.formatPct(pct_stddev));
+  zeros.remove();
+}
