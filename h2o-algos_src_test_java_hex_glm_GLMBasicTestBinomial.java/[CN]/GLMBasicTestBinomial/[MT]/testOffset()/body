@@ -63,19 +63,19 @@
         }
         hex.ModelMetricsBinomialGLM mmTrain=(ModelMetricsBinomialGLM)hex.ModelMetricsBinomial.getFromDKV(model,fTrain);
         hex.AUC2 adata=mmTrain._auc;
-        assertEquals(model._output._training_metrics.auc()._auc,adata._auc,1e-8);
+        assertEquals(model._output._training_metrics.auc_obj()._auc,adata._auc,1e-8);
         assertEquals(model._output._training_metrics._MSE,mmTrain._MSE,1e-8);
         assertEquals(((ModelMetricsBinomialGLM)model._output._training_metrics)._resDev,mmTrain._resDev,1e-8);
         scoreTrain=model.score(fTrain);
         mmTrain=(ModelMetricsBinomialGLM)hex.ModelMetricsBinomial.getFromDKV(model,fTrain);
         adata=mmTrain._auc;
-        assertEquals(model._output._training_metrics.auc()._auc,adata._auc,1e-8);
+        assertEquals(model._output._training_metrics.auc_obj()._auc,adata._auc,1e-8);
         assertEquals(model._output._training_metrics._MSE,mmTrain._MSE,1e-8);
         assertEquals(((ModelMetricsBinomialGLM)model._output._training_metrics)._resDev,mmTrain._resDev,1e-8);
         scoreTest=model.score(fTest);
         ModelMetricsBinomialGLM mmTest=(ModelMetricsBinomialGLM)hex.ModelMetricsBinomial.getFromDKV(model,fTest);
         adata=mmTest._auc;
-        assertEquals(model._output._validation_metrics.auc()._auc,adata._auc,1e-8);
+        assertEquals(model._output._validation_metrics.auc_obj()._auc,adata._auc,1e-8);
         assertEquals(model._output._validation_metrics._MSE,mmTest._MSE,1e-8);
         assertEquals(((ModelMetricsBinomialGLM)model._output._validation_metrics)._resDev,mmTest._resDev,1e-8);
         Vec.Reader preds=scoreTest.vec("p1").new Reader();
