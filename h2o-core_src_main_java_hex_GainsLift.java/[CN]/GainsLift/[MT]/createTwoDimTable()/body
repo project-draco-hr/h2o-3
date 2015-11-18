@@ -1,15 +1,29 @@
 {
   if (response_rates == null)   return null;
-  TwoDimTable table=new TwoDimTable("Gains/Lift Table","Avg response rate: " + PrettyPrint.formatPct(avg_response_rate),new String[GROUPS],new String[]{"Decile","Lower threshold","Response rate","Lift","Cumulative Lift"},new String[]{"int","double","double","double","double"},new String[]{"%d","%.8f","%5f","%5f","%5f"},"");
-  float cumulativelift=0;
+  TwoDimTable table=new TwoDimTable("Gains/Lift Table","Avg response rate: " + PrettyPrint.formatPct(avg_response_rate),new String[GROUPS],new String[]{"Group","Lower Threshold","Response Rate","Cumulative Response Rate","Capture Rate","Cumulative Capture Rate","Lift","Cumulative Lift","Gain","Cumulative Gain"},new String[]{"int","double","double","double","double","double","double","double","double","double"},new String[]{"%d","%.8f","%5f","%5f","%5f","%5f","%5f","%5f","%5f","%5f"},"");
+  double cumulative_events=0;
+  double cumulative_observations=0;
+  double P=avg_response_rate;
+  double N=_preds.length();
+  double E=N * P;
   for (int i=0; i < GROUPS; ++i) {
+    double e_i=positive_responses[i];
+    double n_i=N / GROUPS;
+    double p_i=response_rates[i];
+    cumulative_events+=e_i;
+    cumulative_observations+=n_i;
+    double lift=p_i / P;
+    double cumulative_lift=(cumulative_events / cumulative_observations) / P;
     table.set(i,0,i + 1);
     table.set(i,1,_quantiles[i]);
-    table.set(i,2,response_rates[i]);
-    final float lift=response_rates[i] / avg_response_rate;
-    cumulativelift+=lift / GROUPS;
-    table.set(i,3,lift);
-    table.set(i,4,cumulativelift);
+    table.set(i,2,p_i);
+    table.set(i,3,cumulative_events / cumulative_observations);
+    table.set(i,4,e_i / E);
+    table.set(i,5,cumulative_events / E);
+    table.set(i,6,lift);
+    table.set(i,7,cumulative_lift);
+    table.set(i,8,100 * (lift - 1));
+    table.set(i,9,100 * (cumulative_lift - 1));
   }
   return this.table=table;
 }
