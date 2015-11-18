@@ -1,14 +1,14 @@
 {
   if (response_rates == null)   return null;
-  TwoDimTable table=new TwoDimTable("Gains/Lift Table","Avg response rate: " + PrettyPrint.formatPct(avg_response_rate),new String[GROUPS],new String[]{"Group","Lower Threshold","Response Rate","Cumulative Response Rate","Capture Rate","Cumulative Capture Rate","Lift","Cumulative Lift","Gain","Cumulative Gain"},new String[]{"int","double","double","double","double","double","double","double","double","double"},new String[]{"%d","%.8f","%5f","%5f","%5f","%5f","%5f","%5f","%5f","%5f"},"");
+  TwoDimTable table=new TwoDimTable("Gains/Lift Table","Avg response rate: " + PrettyPrint.formatPct(avg_response_rate),new String[_groups],new String[]{"Group","Lower Threshold","Response Rate","Cumulative Response Rate","Capture Rate","Cumulative Capture Rate","Lift","Cumulative Lift","Gain","Cumulative Gain"},new String[]{"int","double","double","double","double","double","double","double","double","double"},new String[]{"%d","%.8f","%5f","%5f","%5f","%5f","%5f","%5f","%5f","%5f"},"");
   double cumulative_events=0;
   double cumulative_observations=0;
   double P=avg_response_rate;
   double N=_preds.length();
   double E=N * P;
-  for (int i=0; i < GROUPS; ++i) {
+  for (int i=0; i < _groups; ++i) {
     double e_i=positive_responses[i];
-    double n_i=N / GROUPS;
+    double n_i=N / _groups;
     double p_i=response_rates[i];
     cumulative_events+=e_i;
     cumulative_observations+=n_i;
