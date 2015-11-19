@@ -3,15 +3,9 @@
   if (Double.isNaN(pr))   return;
   if (a != 0 && a != 1)   throw new IllegalArgumentException("Invalid values in actualLabels: must be binary (0 or 1).");
   for (int t=0; t < _thresh.length; t++) {
-    if (a == 0)     continue;
-    if (t == 0) {
-      if (pr >= _thresh[t])       _responses[t]++;
-    }
- else     if (t == _thresh.length - 1) {
-      if (pr < _thresh[t - 1])       _responses[t]++;
-    }
- else {
-      if (pr >= _thresh[t] && pr < _thresh[t - 1])       _responses[t]++;
+    if (pr >= _thresh[t] && (t == 0 || pr < _thresh[t - 1])) {
+      _observations[t]++;
+      if (a == 1)       _responses[t]++;
     }
   }
   if (a == 1)   _avg_response++;
