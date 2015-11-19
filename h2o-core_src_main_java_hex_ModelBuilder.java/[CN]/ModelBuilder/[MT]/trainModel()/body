@@ -1,29 +1,15 @@
 {
-  if (error_count() > 0) {
-    throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(this);
-  }
-  if (!nFoldCV()) {
-    return trainModelImpl(progressUnits(),true);
-  }
- else {
-    int work;
-    if (_parms._fold_column != null) {
-      Vec fc=train().vec(_parms._fold_column);
-      work=((int)fc.max() - (int)fc.min()) + 1;
+  if (error_count() > 0)   throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(this);
+  if (!nFoldCV())   return trainModelImpl(progressUnits(),true);
+  return start(new H2O.H2OCountedCompleter(){
+    @Override protected void compute2(){
+      computeCrossValidation();
+      tryComplete();
     }
- else {
-      work=_parms._nfolds + 1;
+    @Override public boolean onExceptionalCompletion(    Throwable ex,    CountedCompleter caller){
+      failed(ex);
+      return true;
     }
-    return start(new H2O.H2OCountedCompleter(){
-      @Override protected void compute2(){
-        computeCrossValidation();
-        tryComplete();
-      }
-      @Override public boolean onExceptionalCompletion(      Throwable ex,      CountedCompleter caller){
-        failed(ex);
-        return true;
-      }
-    }
-,work * progressUnits(),true);
   }
+,(nFoldWork() + 1) * progressUnits(),true);
 }
