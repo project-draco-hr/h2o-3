@@ -3,8 +3,9 @@ def _eval_driver(self, top):
     res = h2o.rapids(exec_str)
     if ('scalar' in res):
         if (not isinstance(res['scalar'], list)):
-            res['scalar'] = [res['scalar']]
-        self._cache._data = [float(x) for x in res['scalar']]
+            self._cache._data = float(res['scalar'])
+        else:
+            self._cache._data = [float(x) for x in res['scalar']]
     if ('string' in res):
         self._cache._data = res['string']
     if ('funstr' in res):
