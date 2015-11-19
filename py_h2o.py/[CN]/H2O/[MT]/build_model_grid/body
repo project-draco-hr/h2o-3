@@ -14,7 +14,6 @@ def build_model_grid(self, algo, training_frame, parameters, grid_parameters, gr
     post_parameters = {}
     post_parameters.update(parameters)
     post_parameters['hyper_parameters'] = grid_parameters
-    print ('post_parameters: ' + repr(post_parameters))
     if (grid_id is not None):
         post_parameters['grid_id'] = grid_id
     result = self.__do_json_request(('/99/Grid/' + algo), cmd='post', timeout=timeoutSecs, postData=post_parameters, raiseIfNon200=False)
@@ -31,7 +30,6 @@ def build_model_grid(self, algo, training_frame, parameters, grid_parameters, gr
         return result
     else:
         assert ('job' in result), ('FAIL: did not find job key in model build result: ' + repr(result))
-        print ('not async, result: ' + repr(result))
         job = result['job']
         job_key = job['key']['name']
         H2O.verboseprint(('model building job_key: ' + repr(job_key)))
