@@ -11,7 +11,7 @@
     ++iter;
     _hist.getSearchDirection(ginfo._gradient,pk);
     if (!_lineSearch.evaluate(gslvr,ginfo,beta,pk,minStep,maxStep,20)) {
-      break;
+      return new Result(false,iter,beta,ginfo,rel_improvement);
     }
     _lineSearch.setInitialStep(Math.max(10 * minStep,_lineSearch.step()));
     ArrayUtils.add(beta,ArrayUtils.mult(pk,_lineSearch.step()));
@@ -20,5 +20,5 @@
     rel_improvement=(ginfo._objVal - newGinfo._objVal) / ginfo._objVal;
     ginfo=newGinfo;
   }
-  return new Result(ArrayUtils.linfnorm(ginfo._gradient,false) < _gradEps,iter,beta,ginfo);
+  return new Result((ArrayUtils.linfnorm(ginfo._gradient,false) <= _gradEps || rel_improvement <= _objEps),iter,beta,ginfo,rel_improvement);
 }

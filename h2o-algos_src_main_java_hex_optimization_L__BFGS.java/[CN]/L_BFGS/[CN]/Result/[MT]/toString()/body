@@ -1,3 +1,8 @@
 {
-  return coefs.length < 50 ? "L-BFGS_res(iter = " + iter + ", obj = "+ ginfo._objVal+ ", "+ " coefs = "+ Arrays.toString(coefs)+ ", grad = "+ Arrays.toString(ginfo._gradient)+ ")" : ("L-BFGS_res(iter = " + iter + ", obj = "+ ginfo._objVal+ ", coefs = ["+ coefs[0]+ ", "+ coefs[1]+ ", ..., "+ coefs[coefs.length - 2]+ ", "+ coefs[coefs.length - 1]+ "]"+ ", grad = ["+ ginfo._gradient[0]+ ", "+ ginfo._gradient[1]+ ", ..., "+ ginfo._gradient[ginfo._gradient.length - 2]+ ", "+ ginfo._gradient[ginfo._gradient.length - 1]+ "])") + "|grad|^2 = " + MathUtils.l2norm2(ginfo._gradient);
+  if (coefs.length < 10) {
+    return "L-BFGS_res(converged? " + converged + ", iter = "+ iter+ ", obj = "+ ginfo._objVal+ ", rel_improvement = "+ rel_improvement+ ", coefs = "+ Arrays.toString(coefs)+ ", grad = "+ Arrays.toString(ginfo._gradient)+ ")";
+  }
+ else {
+    return "L-BFGS_res(converged? " + converged + ", iter = "+ iter+ ", obj = "+ ginfo._objVal+ ", rel_improvement = "+ rel_improvement+ "grad_linf_norm = "+ ArrayUtils.linfnorm(ginfo._gradient,false)+ ")";
+  }
 }
