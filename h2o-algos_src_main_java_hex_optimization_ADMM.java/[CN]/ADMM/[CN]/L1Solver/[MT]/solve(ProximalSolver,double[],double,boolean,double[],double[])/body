@@ -1,2 +1,79 @@
 {
+  gerr=Double.POSITIVE_INFINITY;
+  if (l1pen == 0 && lb == null && ub == null) {
+    solver.solve(null,z);
+    return true;
+  }
+  int ii=hasIntercept ? 1 : 0;
+  double[] zbest=null;
+  int N=z.length;
+  double abstol=ABSTOL * Math.sqrt(N);
+  double[] rho=solver.rho();
+  double[] u=MemoryManager.malloc8d(N);
+  double[] x=z.clone();
+  double[] beta_given=MemoryManager.malloc8d(N);
+  double[] kappa=MemoryManager.malloc8d(rho.length);
+  if (l1pen > 0)   for (int i=0; i < N - 1; ++i)   kappa[i]=rho[i] != 0 ? l1pen / rho[i] : 0;
+  int i;
+  double orlx=1.0;
+  double reltol=RELTOL;
+  double best_err=Double.POSITIVE_INFINITY;
+  for (i=0; i < max_iter && solver.solve(beta_given,x); ++i) {
+    double rnorm=0, snorm=0, unorm=0, xnorm=0;
+    boolean allzeros=true;
+    for (int j=0; j < N - 1; ++j) {
+      double xj=x[j];
+      double zjold=z[j];
+      double x_hat=xj * orlx + (1 - orlx) * zjold;
+      double zj=shrinkage(x_hat + u[j],kappa[j]);
+      if (lb != null && zj < lb[j])       zj=lb[j];
+      if (ub != null && zj > ub[j])       zj=ub[j];
+      u[j]+=x_hat - zj;
+      beta_given[j]=zj - u[j];
+      double r=xj - zj;
+      double s=zj - zjold;
+      rnorm+=r * r;
+      snorm+=s * s;
+      xnorm+=xj * xj;
+      unorm+=rho[j] * rho[j] * u[j]* u[j];
+      z[j]=zj;
+      allzeros&=zj == 0;
+    }
+    if (hasIntercept) {
+      int idx=x.length - 1;
+      double icpt=x[idx];
+      if (lb != null && icpt < lb[idx])       icpt=lb[idx];
+      if (ub != null && icpt > ub[idx])       icpt=ub[idx];
+      double r=x[idx] - icpt;
+      double s=icpt - z[idx];
+      u[idx]+=r;
+      beta_given[idx]=icpt - u[idx];
+      rnorm+=r * r;
+      snorm+=s * s;
+      xnorm+=icpt * icpt;
+      unorm+=rho[idx] * rho[idx] * u[idx]* u[idx];
+      z[idx]=icpt;
+    }
+    if (rnorm < (abstol + (reltol * Math.sqrt(xnorm))) && snorm < (abstol + reltol * Math.sqrt(unorm))) {
+      double oldGerr=gerr;
+      computeErr(z,solver.gradient(z),l1pen,lb,ub);
+      if ((gerr > _eps)) {
+        Log.debug("ADMM.L1Solver: iter = " + i + " , gerr =  "+ gerr+ ", oldGerr = "+ oldGerr+ ", rnorm = "+ rnorm+ ", snorm  "+ snorm);
+        if (abstol > 1e-12)         abstol*=.1;
+        if (reltol > 1e-10)         reltol*=.1;
+        reltol*=.1;
+        continue;
+      }
+      if (gerr > _eps)       Log.warn("ADMM solver finished with gerr = " + gerr + " >  eps = "+ _eps);
+      iter=i;
+      Log.info("ADMM.L1Solver: converged at iteration = " + i + ", gerr = "+ gerr+ ", inner solver took "+ solver.iter()+ " iterations");
+      return true;
+    }
+  }
+  computeErr(z,solver.gradient(z),l1pen,lb,ub);
+  if (iter == max_iter)   Log.warn("ADMM solver reached maximum number of iterations (" + max_iter + ")");
+ else   Log.warn("ADMM solver stopped after " + i + " iterations. (max_iter="+ max_iter+ ")");
+  if (gerr > _eps)   Log.warn("ADMM solver finished with gerr = " + gerr + " >  eps = "+ _eps);
+  iter=max_iter;
+  return false;
 }
