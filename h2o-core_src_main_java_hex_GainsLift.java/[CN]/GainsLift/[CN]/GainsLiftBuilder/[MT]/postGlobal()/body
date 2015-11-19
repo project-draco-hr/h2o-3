@@ -1,9 +1,7 @@
 {
+  assert(ArrayUtils.sum(_observations) == _count);
   _response_rates=new double[_thresh.length];
-  for (int i=0; i < _response_rates.length; ++i) {
-    _response_rates[i]=(double)_responses[i];
-  }
-  MathUtils.div(_response_rates,(double)_count / _thresh.length);
+  for (int i=0; i < _response_rates.length; ++i)   _response_rates[i]=(double)_responses[i] / _observations[i];
   for (int i=0; i < _response_rates.length; ++i) {
     if (_response_rates[i] > 1 && i < _response_rates.length - 1) {
       _response_rates[i + 1]+=(_response_rates[i] - 1);
