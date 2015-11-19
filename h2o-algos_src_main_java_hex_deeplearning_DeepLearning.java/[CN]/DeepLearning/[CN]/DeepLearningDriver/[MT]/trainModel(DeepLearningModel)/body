@@ -61,20 +61,20 @@
       if (!mp._quiet_mode)       Log.info("Enabling training data shuffling to avoid training rows in the same order over and over (no Hogwild since there's only 1 chunk).");
       mp._shuffle_training_data=true;
     }
+    model._timeLastIterationEnter=System.currentTimeMillis();
     if (_parms._autoencoder) {
       new ProgressUpdate("Scoring null model of autoencoder...").fork(_progressKey);
       if (!mp._quiet_mode)       Log.info("Scoring the null model of the autoencoder.");
       model.doScoring(trainScoreFrame,validScoreFrame,self(),null,0,false);
     }
     model.update(self());
-    model._timeLastIterationEnter=System.currentTimeMillis();
     Log.info("Starting to train the Deep Learning model.");
     new ProgressUpdate("Training...").fork(_progressKey);
-    int iteration=1;
     do {
-      model.set_model_info(mp._epochs == 0 ? model.model_info() : H2O.CLOUD.size() > 1 && mp._replicate_training_data ? (mp._single_node_mode ? new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model),iteration).doAll(Key.make(H2O.SELF)).model_info() : new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model),iteration).doAllNodes().model_info()) : new DeepLearningTask(self(),model.model_info(),rowFraction(train,mp,model),iteration).doAll(train).model_info());
+      model.iterations++;
+      model.set_model_info(mp._epochs == 0 ? model.model_info() : H2O.CLOUD.size() > 1 && mp._replicate_training_data ? (mp._single_node_mode ? new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model),model.iterations).doAll(Key.make(H2O.SELF)).model_info() : new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model),model.iterations).doAllNodes().model_info()) : new DeepLearningTask(self(),model.model_info(),rowFraction(train,mp,model),model.iterations).doAll(train).model_info());
     }
- while (isRunning() && model.doScoring(trainScoreFrame,validScoreFrame,self(),_progressKey,iteration++,false));
+ while (isRunning() && model.doScoring(trainScoreFrame,validScoreFrame,self(),_progressKey,model.iterations,false));
     if (isRunning() && _parms._overwrite_with_best_model && model.actual_best_model_key != null && _parms._nfolds == 0) {
       DeepLearningModel best_model=DKV.getGet(model.actual_best_model_key);
       if (best_model != null && best_model.loss() < model.loss() && Arrays.equals(best_model.model_info().units,model.model_info().units)) {
@@ -84,7 +84,7 @@
         mi.set_processed_local(model.model_info().get_processed_local());
         model.set_model_info(mi);
         model.update(self());
-        model.doScoring(trainScoreFrame,validScoreFrame,self(),_progressKey,iteration,true);
+        model.doScoring(trainScoreFrame,validScoreFrame,self(),_progressKey,model.iterations,true);
         assert(best_model.loss() == model.loss());
       }
     }
@@ -94,7 +94,7 @@
         Log.info("Deep Learning model training was interrupted.");
       }
  else {
-        Log.info("Finished training the Deep Learning model (" + (iteration - 1) + " Map/Reduce iterations)");
+        Log.info("Finished training the Deep Learning model.");
         Log.info(model);
       }
       Log.info("==============================================================================================================================================================================");
