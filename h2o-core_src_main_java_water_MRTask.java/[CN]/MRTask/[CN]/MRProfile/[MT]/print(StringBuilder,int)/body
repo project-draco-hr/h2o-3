@@ -10,18 +10,17 @@
     sb.append("join-i/o ").append(_onCstart - _last._onCdone).append("ms, ");
   }
   if (_userstart != 0) {
-    sb.append("Map ").append(_mapdone - _mapstart);
-    sb.append("ms (prep ").append(_userstart - _mapstart);
+    sb.append("Map ").append(_mapdone - _mapstart).append("ms (prep ").append(_userstart - _mapstart);
     sb.append("ms, user ").append(_closestart - _userstart);
     sb.append("ms, closeChk ").append(_mapdone - _closestart).append("ms), ");
   }
   sb.append("Red ").append(_onCdone - _onCstart);
   sb.append("ms (locRed ").append(_reducedone - _onCstart).append("ms");
   if (_remoteBlkDone != 0) {
-    sb.append(", closeLocal ").append(_closeLocalDone - _reducedone);
+    sb.append(", close ").append(_closeLocalDone - _reducedone);
     sb.append("ms, remBlk ").append(_remoteBlkDone - _closeLocalDone);
     sb.append("ms, locBlk ").append(_localBlkDone - _remoteBlkDone);
-    sb.append("ms, postGlobal ").append(_onCdone - _localBlkDone);
+    sb.append("ms, close ").append(_onCdone - _localBlkDone);
     sb.append("ms, size ").append(PrettyPrint.bytes(_size_rez0)).append("+").append(PrettyPrint.bytes(_size_rez1));
   }
   sb.append(")\n");

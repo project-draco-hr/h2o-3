@@ -11,24 +11,8 @@
   }
   ArrayList<InetAddress> ips=calcPrioritizedInetAddressList();
   InetAddress local=null;
-  InetAddress arg=null;
   if (H2O.ARGS.ip != null) {
-    try {
-      arg=InetAddress.getByName(H2O.ARGS.ip);
-    }
- catch (    UnknownHostException e) {
-      Log.err(e);
-      H2O.exit(-1);
-    }
-    if (!(arg instanceof Inet4Address)) {
-      Log.warn("Only IP4 addresses allowed.");
-      H2O.exit(-1);
-    }
-    if (!ips.contains(arg)) {
-      Log.warn("IP address not found on this machine");
-      H2O.exit(-1);
-    }
-    local=arg;
+    local=getInetAddress(H2O.ARGS.ip,ips);
   }
  else   if (networkList.size() > 0) {
     Log.info("Network list was specified by the user.  Searching for a match...");

@@ -50,6 +50,9 @@
   String ftbody="  protected int frozenType() { return " + id + "; }";
   if (debug_print)   System.out.println(ftbody);
   addMethod(ftbody,icer_cc);
+  String cmp2="  protected void compute1( water.H2O.H2OCountedCompleter dt ) { dt.compute1(); }";
+  if (debug_print)   System.out.println(cmp2);
+  addMethod(cmp2,icer_cc);
   if (iced_cc.subclassOf(_dtask)) {
     String cpbody_impl=make_body(icer_cc,iced_cc,iced_clazz,"copyOver",null,null,"  protected void copyOver(water.Freezable fdst, water.Freezable fsrc) {\n","    super.copyOver(fdst,fsrc);\n" + "    " + iced_name + " dst = ("+ iced_name+ ")fdst;\n"+ "    "+ iced_name+ " src = ("+ iced_name+ ")fsrc;\n","    dst.%s = src.%s;\n","    _unsafe.put%u(dst,%dL,_unsafe.get%u(src,%dL));  //%s\n","    dst.%s = src.%s;\n","    _unsafe.put%u(dst,%dL,_unsafe.get%u(src,%dL));  //%s\n","    dst.%s = src.%s;\n","    _unsafe.put%u(dst,%dL,_unsafe.get%u(src,%dL));  //%s\n","  }");
     if (debug_print)     System.out.println(cpbody_impl);

@@ -1,11 +1,17 @@
 {
   new MRTask(){
+    private final byte _priority=(Thread.currentThread() instanceof water.H2O.FJWThr) ? nextThrPriority() : water.H2O.GUI_PRIORITY - 2;
+    @Override public byte priority(){
+      return _priority;
+    }
     @Override public void setupLocal(){
       try {
         String cmd="/bin/kill -3 " + getProcessId();
         java.lang.Runtime.getRuntime().exec(cmd);
       }
- catch (      Exception xe) {
+ catch (      java.io.IOException ioe) {
+      }
+catch (      Exception xe) {
         xe.printStackTrace();
         throw new H2OIllegalArgumentException("");
       }

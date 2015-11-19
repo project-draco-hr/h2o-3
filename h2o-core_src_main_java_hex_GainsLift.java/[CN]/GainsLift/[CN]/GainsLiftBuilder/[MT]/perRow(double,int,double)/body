@@ -1,0 +1,13 @@
+{
+  if (w != 1.0)   throw H2O.unimpl("GainsLiftBuilder perRow cannot handle weights != 1 for now");
+  if (Double.isNaN(pr))   return;
+  if (a != 0 && a != 1)   throw new IllegalArgumentException("Invalid values in actualLabels: must be binary (0 or 1).");
+  for (int t=0; t < _thresh.length; t++) {
+    if (pr >= _thresh[t] && (t == 0 || pr < _thresh[t - 1])) {
+      _observations[t]++;
+      if (a == 1)       _responses[t]++;
+    }
+  }
+  if (a == 1)   _avg_response++;
+  _count++;
+}

@@ -30,7 +30,7 @@
     fr.add("CAPSULE",fr.remove("CAPSULE"));
     DataInfo dinfo=new DataInfo(Key.make(),fr,null,1,true,TransformType.NONE,DataInfo.TransformType.NONE,true,false,false,false,false,false);
     LBFGS_LogisticGradientTask lt=(LBFGS_LogisticGradientTask)new LBFGS_LogisticGradientTask(dinfo,params,0,beta_1,1.0 / 380.0,true).doAll(dinfo._adaptedFrame);
-    new GLMGradientTask(dinfo,params,0,beta_1,1.0 / 380,true).doAll(dinfo._adaptedFrame);
+    new GLMGradientTask(dinfo,params,0,beta_1,1.0 / 380,true,null).doAll(dinfo._adaptedFrame);
     double[] grad=lt._gradient;
     for (int i=0; i < beta_1.length; ++i)     assertEquals(0,grad[i] + betaConstraints.vec("rho").at(i) * (beta_1[i] - betaConstraints.vec("beta_given").at(i)),1e-4);
   }

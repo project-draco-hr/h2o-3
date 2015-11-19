@@ -1,7 +1,6 @@
 def offset_tweedie():
     insurance = h2o.import_file(pyunit_utils.locate('smalldata/glm_test/insurance.csv'))
     insurance['offset'] = insurance['Holders'].log()
-    from h2o.estimators.gbm import H2OGradientBoostingEstimator
     gbm = H2OGradientBoostingEstimator(distribution='tweedie', ntrees=600, max_depth=1, min_rows=1, learn_rate=0.1)
     gbm.train(x=range(3), y='Claims', training_frame=insurance, offset_column='offset')
     predictions = gbm.predict(insurance)

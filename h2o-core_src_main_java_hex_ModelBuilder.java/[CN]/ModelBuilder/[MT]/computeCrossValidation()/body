@@ -1,36 +1,21 @@
 {
   assert(_state == JobState.RUNNING);
   final Frame origTrainFrame=train();
-  Vec foldAssignment;
-  final Integer N;
+  final Integer N=nFoldWork();
+  final Vec foldAssignment;
   if (_parms._fold_column != null) {
     foldAssignment=origTrainFrame.vec(_parms._fold_column);
-    N=(int)foldAssignment.max() - (int)foldAssignment.min() + 1;
-    assert(N > 1);
   }
  else {
-    N=_parms._nfolds;
-    long seed=new Random().nextLong();
-    for (    Field f : _parms.getClass().getFields()) {
-      if (f.getName().equals("_seed")) {
-        try {
-          seed=(long)(f.get(_parms));
-        }
- catch (        IllegalAccessException e) {
-          e.printStackTrace();
-        }
-      }
-    }
+    final long seed=_parms.nFoldSeed();
     Log.info("Creating " + N + " cross-validation splits with random number seed: "+ seed);
-    foldAssignment=origTrainFrame.anyVec().makeZero();
-    final Model.Parameters.FoldAssignmentScheme foldAssignmentScheme=_parms._fold_assignment;
-switch (foldAssignmentScheme) {
+switch (_parms._fold_assignment) {
 case AUTO:
 case Random:
-      foldAssignment=ASTKFold.kfoldColumn(foldAssignment,N,seed);
+      foldAssignment=ASTKFold.kfoldColumn(zTmp(),N,seed);
     break;
 case Modulo:
-  foldAssignment=ASTKFold.moduloKfoldColumn(foldAssignment,N);
+  foldAssignment=ASTKFold.moduloKfoldColumn(zTmp(),N);
 break;
 case Stratified:
 foldAssignment=ASTKFold.stratifiedKFoldColumn(response(),N,seed);
@@ -50,8 +35,8 @@ final String[] identifier=new String[N];
 final String weightName="weights";
 final Key<M> origDest=dest();
 for (int i=0; i < N; ++i) {
-weights[2 * i]=origTrainFrame.anyVec().makeZero();
-weights[2 * i + 1]=origTrainFrame.anyVec().makeZero();
+weights[2 * i]=zTmp();
+weights[2 * i + 1]=zTmp();
 final int whichFold=i;
 new MRTask(){
 @Override public void map(Chunk chks[]){
@@ -91,14 +76,14 @@ ModelMetrics.MetricBuilder[] mb=new ModelMetrics.MetricBuilder[N];
 _deleteProgressKey=false;
 long cs=_parms.checksum();
 final boolean async=false;
-cvModelBuilderKeys=new Key[N];
+_cvModelBuilderKeys=new Key[N];
 ModelBuilder<M,P,O>[] cvModelBuilders=new ModelBuilder[N];
 for (int i=0; i < N; ++i) {
 if (isCancelledOrCrashed()) break;
 cvModelBuilders[i]=(ModelBuilder<M,P,O>)this.clone();
-cvModelBuilderKeys[i]=Key.make(_key.toString() + "_cv" + i);
-cvModelBuilders[i]._key=cvModelBuilderKeys[i];
-cvModelBuilders[i].cvModelBuilderKeys=null;
+_cvModelBuilderKeys[i]=Key.make(_key.toString() + "_cv" + i);
+cvModelBuilders[i]._key=_cvModelBuilderKeys[i];
+cvModelBuilders[i]._cvModelBuilderKeys=null;
 cvModelBuilders[i]._dest=modelKeys[i];
 cvModelBuilders[i]._state=JobState.CREATED;
 cvModelBuilders[i]._parms=(P)_parms.clone();
@@ -133,7 +118,7 @@ _state=JobState.CREATED;
 assert(((Job)DKV.getGet(_key))._state == JobState.CREATED);
 assert(!_deleteProgressKey);
 _deleteProgressKey=true;
-modifyParmsForCrossValidationMainModel(N,async ? null : cvModelBuilderKeys);
+modifyParmsForCrossValidationMainModel(N,async ? null : _cvModelBuilderKeys);
 trainModelImpl(-1,false);
 if (!async) block();
 }
@@ -152,7 +137,7 @@ cvModelBuilders[i].updateModelOutput();
 m[i]=DKV.getGet(cvModelBuilders[i].dest());
 m[i].adaptTestForTrain(adaptFr,true,!isSupervised());
 mb[i]=m[i].scoreMetrics(adaptFr);
-if (_parms._keep_cross_validation_predictions) {
+if (nclasses() == 2 || _parms._keep_cross_validation_predictions) {
 String predName="prediction_" + modelKeys[i].toString();
 predictionKeys[i]=Key.make(predName);
 m[i].predictScoreImpl(cvValid[i],adaptFr,predName);
@@ -183,7 +168,21 @@ if (i > 0) mb[0].reduce(mb[i]);
 mainModel._output._cross_validation_models[i]=modelKeys[i];
 if (_parms._keep_cross_validation_predictions) mainModel._output._cross_validation_predictions[i]=predictionKeys[i];
 }
-mainModel._output._cross_validation_metrics=mb[0].makeModelMetrics(mainModel,_parms.train());
+Frame preds=null;
+if (nclasses() == 2) {
+Vec[] p1s=new Vec[N];
+for (int i=0; i < N; ++i) {
+p1s[i]=((Frame)DKV.getGet(predictionKeys[i])).lastVec();
+}
+Frame p1combined=new HoldoutPredictionCombiner().doAll(1,Vec.T_NUM,new Frame(p1s)).outputFrame(new String[]{"p1"},null);
+Vec p1=p1combined.anyVec();
+preds=new Frame(new Vec[]{p1,p1,p1});
+if (!_parms._keep_cross_validation_predictions) {
+for (Key k : predictionKeys) ((Frame)DKV.getGet(k)).remove();
+}
+}
+mainModel._output._cross_validation_metrics=mb[0].makeModelMetrics(mainModel,_parms.train(),preds);
+if (preds != null) preds.remove();
 mainModel._output._cross_validation_metrics._description=N + "-fold cross-validation on training data";
 Log.info(mainModel._output._cross_validation_metrics.toString());
 DKV.put(mainModel);

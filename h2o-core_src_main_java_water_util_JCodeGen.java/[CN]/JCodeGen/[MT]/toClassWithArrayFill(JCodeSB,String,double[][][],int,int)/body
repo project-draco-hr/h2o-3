@@ -1,0 +1,15 @@
+{
+  for (int i=0; i < len; i++) {
+    int idx=start + i;
+    toClassWithArray(sb,"static",clzName + "_" + idx,values[i + start]);
+  }
+  sb.ip("static final class ").p(clzName).p(" implements java.io.Serializable {").ii(1).nl();
+  sb.ip("static final void fill(double[][][] sa) {").ii(1).nl();
+  for (int i=0; i < len; i++) {
+    int idx=start + i;
+    sb.ip("sa[").p(start + i).p("] = ").p(clzName + "_" + idx).p(".VALUES;").nl();
+  }
+  sb.di(1).ip("}").nl();
+  sb.di(1).ip("}").nl();
+  return sb;
+}

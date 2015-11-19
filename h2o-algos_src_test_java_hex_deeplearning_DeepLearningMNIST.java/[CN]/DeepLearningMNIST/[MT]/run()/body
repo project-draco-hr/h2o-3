@@ -12,24 +12,25 @@
       p._model_id=Key.make("dl_mnist_model");
       p._train=frame._key;
       p._response_column="C785";
-      p._activation=DeepLearningParameters.Activation.RectifierWithDropout;
-      p._hidden=new int[]{80,80};
-      p._input_dropout_ratio=0.2;
+      p._activation=DeepLearningParameters.Activation.Rectifier;
+      p._hidden=new int[]{128,64};
+      p._input_dropout_ratio=0.0;
+      p._adaptive_rate=false;
+      p._rate=0.01;
+      p._momentum_start=0.9;
+      p._momentum_stable=0.9;
       p._mini_batch_size=1;
       p._train_samples_per_iteration=-1;
-      p._score_duty_cycle=0.4;
-      p._epochs=1000 * 10 * 5. / 6;
+      p._epochs=20;
       p._sparse=true;
       int ci=frame.find("C785");
       Scope.track(frame.replace(ci,frame.vecs()[ci].toCategoricalVec())._key);
       Scope.track(vframe.replace(ci,vframe.vecs()[ci].toCategoricalVec())._key);
       DKV.put(frame);
       DKV.put(vframe);
-      p._adaptive_rate=true;
       p._replicate_training_data=true;
       p._overwrite_with_best_model=true;
       p._classification_stop=-1;
-      p._score_interval=5;
       p._score_training_samples=10000;
       DeepLearning dl=new DeepLearning(p);
       DeepLearningModel model=null;
@@ -42,6 +43,8 @@
       }
  finally {
         dl.remove();
+        vframe.remove();
+        frame.remove();
         if (model != null) {
           model.delete();
         }

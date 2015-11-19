@@ -1,0 +1,16 @@
+@staticmethod
+def get_grid(model, hyper_params, grid_id):
+    '\n    Retrieve an H2OGridSearch instance already trained given its original model, hyper_params, and grid_id. \n    \n    Parameters\n    ----------    \n    model : H2O Estimator model\n      The type of model explored that is initalized with optional parameters which are unchanged across explored models.\n    hyper_params: dict\n      A dictionary of string parameters (keys) and a list of values explored by grid search (values).\n    grid_id : str, optional\n      The unique id assigned to the grid object.\n     \n    Returns\n    -------\n      A new H2OGridSearch instance that is a replica of the H2OGridSearch instance with the specified grid_id.\n\n    '
+    kwargs = {'_rest_version': 99, }
+    grid_json = H2OConnection.get_json(('Grids/' + grid_id), **kwargs)
+    grid = H2OGridSearch(model, hyper_params, grid_id)
+    grid.models = [h2o.get_model(key['name']) for key in grid_json['model_ids']]
+    first_model_json = H2OConnection.get_json(('Models/' + grid_json['model_ids'][0]['name']), _rest_version=kwargs['_rest_version'])['models'][0]
+    model_class = H2OGridSearch._metrics_class(first_model_json)
+    m = model_class()
+    m._id = grid_id
+    m._grid_json = grid_json
+    m._parms = grid._parms
+    H2OEstimator.mixin(grid, model_class)
+    grid.__dict__.update(m.__dict__.copy())
+    return grid

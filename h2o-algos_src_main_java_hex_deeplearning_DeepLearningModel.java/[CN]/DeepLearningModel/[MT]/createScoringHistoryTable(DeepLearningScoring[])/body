@@ -14,6 +14,9 @@
   colHeaders.add("Epochs");
   colTypes.add("double");
   colFormat.add("%.5f");
+  colHeaders.add("Iterations");
+  colTypes.add("int");
+  colFormat.add("%d");
   colHeaders.add("Samples");
   colTypes.add("double");
   colFormat.add("%f");
@@ -37,6 +40,11 @@
   }
   if (_output.getModelCategory() == ModelCategory.Binomial) {
     colHeaders.add("Training AUC");
+    colTypes.add("double");
+    colFormat.add("%.5f");
+  }
+  if (_output.getModelCategory() == ModelCategory.Binomial) {
+    colHeaders.add("Training Lift");
     colTypes.add("double");
     colFormat.add("%.5f");
   }
@@ -69,6 +77,11 @@
       colTypes.add("double");
       colFormat.add("%.5f");
     }
+    if (_output.getModelCategory() == ModelCategory.Binomial) {
+      colHeaders.add("Validation Lift");
+      colTypes.add("double");
+      colFormat.add("%.5f");
+    }
     if (_output.isClassifier()) {
       colHeaders.add("Validation Classification Error");
       colTypes.add("double");
@@ -91,6 +104,7 @@
     int speed=(int)(e.training_samples / ((e.training_time_ms - scoring_time) / 1e3));
     table.set(row,col++,e.training_time_ms == 0 ? null : (String.format("%d",speed) + " rows/sec"));
     table.set(row,col++,e.epoch_counter);
+    table.set(row,col++,e.iterations);
     table.set(row,col++,e.training_samples);
     table.set(row,col++,e.scored_train != null ? e.scored_train._mse : Double.NaN);
     if (_output.getModelCategory() == ModelCategory.Regression) {
@@ -104,6 +118,7 @@
     }
     if (_output.getModelCategory() == ModelCategory.Binomial) {
       table.set(row,col++,e.training_AUC != null ? e.training_AUC._auc : Double.NaN);
+      table.set(row,col++,e.scored_train != null ? e.scored_train._lift : Double.NaN);
     }
     if (_output.isClassifier()) {
       table.set(row,col++,e.scored_train != null ? e.scored_train._classError : Double.NaN);
@@ -121,6 +136,7 @@
       }
       if (_output.getModelCategory() == ModelCategory.Binomial) {
         table.set(row,col++,e.validation_AUC != null ? e.validation_AUC._auc : Double.NaN);
+        table.set(row,col++,e.scored_valid != null ? e.scored_valid._lift : Double.NaN);
       }
       if (_output.isClassifier()) {
         table.set(row,col,e.scored_valid != null ? e.scored_valid._classError : Double.NaN);

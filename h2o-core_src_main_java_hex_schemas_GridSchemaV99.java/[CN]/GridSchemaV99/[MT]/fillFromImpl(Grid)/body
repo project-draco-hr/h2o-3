@@ -1,9 +1,24 @@
 {
   Key<Model>[] gridModelKeys=grid.getModelKeys();
-  List<Key> modelKeys=new ArrayList<>(gridModelKeys.length);
+  List<Key<Model>> modelKeys=new ArrayList<>(gridModelKeys.length);
   for (  Key k : gridModelKeys) {
     if (k != null && DKV.get(k) != null) {
       modelKeys.add(k);
+    }
+  }
+  if (null != sort_by && !sort_by.isEmpty()) {
+    modelKeys=ModelMetrics.sortModelsByMetric(sort_by,sort_order,modelKeys);
+    training_metrics=new ModelMetricsBase[modelKeys.size()];
+    validation_metrics=new ModelMetricsBase[modelKeys.size()];
+    cross_validation_metrics=new ModelMetricsBase[modelKeys.size()];
+    for (int i=0; i < modelKeys.size(); i++) {
+      Model m=DKV.getGet(modelKeys.get(i));
+      if (null != m) {
+        Model.Output o=m._output;
+        training_metrics[i]=(ModelMetricsBase)Schema.schema(3,o._training_metrics).fillFromImpl(o._training_metrics);
+        if (null != o._validation_metrics)         validation_metrics[i]=(ModelMetricsBase)Schema.schema(3,o._validation_metrics).fillFromImpl(o._validation_metrics);
+        if (null != o._cross_validation_metrics)         cross_validation_metrics[i]=(ModelMetricsBase)Schema.schema(3,o._cross_validation_metrics).fillFromImpl(o._cross_validation_metrics);
+      }
     }
   }
   KeyV3.ModelKeyV3[] modelIds=new KeyV3.ModelKeyV3[modelKeys.size()];

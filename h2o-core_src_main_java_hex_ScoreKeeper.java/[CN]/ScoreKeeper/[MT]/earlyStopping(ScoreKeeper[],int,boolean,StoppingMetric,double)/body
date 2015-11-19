@@ -5,7 +5,7 @@
   if (criterion == StoppingMetric.AUTO) {
     criterion=classification ? StoppingMetric.logloss : StoppingMetric.deviance;
   }
-  boolean moreIsBetter=(criterion == StoppingMetric.AUC || criterion == StoppingMetric.r2);
+  boolean moreIsBetter=(criterion == StoppingMetric.AUC || criterion == StoppingMetric.r2 || criterion == StoppingMetric.lift_top_group);
   double movingAvg[]=new double[k + 1];
   double lastBeforeK=moreIsBetter ? -Double.MAX_VALUE : Double.MAX_VALUE;
   double bestInLastK=moreIsBetter ? -Double.MAX_VALUE : Double.MAX_VALUE;
@@ -33,6 +33,9 @@ val=skj._r2;
 break;
 case misclassification:
 val=skj._classError;
+break;
+case lift_top_group:
+val=skj._lift;
 break;
 default :
 throw H2O.unimpl("Undefined stopping criterion.");

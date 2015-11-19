@@ -2,7 +2,6 @@ def imbalance():
     print 'Test checks if Deep Learning works fine with an imbalanced dataset'
     covtype = h2o.upload_file(pyunit_utils.locate('smalldata/covtype/covtype.20k.data'))
     covtype[54] = covtype[54].asfactor()
-    from h2o.estimators.deeplearning import H2ODeepLearningEstimator
     hh_imbalanced = H2ODeepLearningEstimator(l1=1e-05, activation='Rectifier', loss='CrossEntropy', hidden=[200, 200], epochs=1, balance_classes=False, reproducible=True, seed=1234)
     hh_imbalanced.train(x=range(54), y=54, training_frame=covtype)
     print hh_imbalanced

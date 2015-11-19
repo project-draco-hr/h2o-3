@@ -4,7 +4,6 @@ def tweedie_offset():
     insurance['Group'] = insurance['Group'].asfactor()
     insurance['Age'] = insurance['Age'].asfactor()
     insurance['District'] = insurance['District'].asfactor()
-    from h2o.estimators.deeplearning import H2ODeepLearningEstimator
     dl = H2ODeepLearningEstimator(distribution='tweedie', hidden=[1], epochs=1000, train_samples_per_iteration=(-1), reproducible=True, activation='Tanh', single_node_mode=False, balance_classes=False, force_load_balance=False, seed=23123, tweedie_power=1.5, score_training_samples=0, score_validation_samples=0)
     dl.train(x=range(3), y='Claims', training_frame=insurance)
     mean_residual_deviance = dl.mean_residual_deviance()

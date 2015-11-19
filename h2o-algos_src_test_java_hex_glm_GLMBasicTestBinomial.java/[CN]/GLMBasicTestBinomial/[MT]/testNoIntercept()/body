@@ -39,13 +39,13 @@
       scoreTrain=model.score(_prostateTrain);
       hex.ModelMetricsBinomial mm=hex.ModelMetricsBinomial.getFromDKV(model,_prostateTrain);
       hex.AUC2 adata=mm._auc;
-      assertEquals(model._output._training_metrics.auc()._auc,adata._auc,1e-8);
+      assertEquals(model._output._training_metrics.auc_obj()._auc,adata._auc,1e-8);
       assertEquals(model._output._training_metrics._MSE,mm._MSE,1e-8);
       assertEquals(((ModelMetricsBinomialGLM)model._output._training_metrics)._resDev,((ModelMetricsBinomialGLM)mm)._resDev,1e-8);
       scoreTest=model.score(_prostateTest);
       mm=hex.ModelMetricsBinomial.getFromDKV(model,_prostateTest);
       adata=mm._auc;
-      assertEquals(model._output._validation_metrics.auc()._auc,adata._auc,1e-8);
+      assertEquals(model._output._validation_metrics.auc_obj()._auc,adata._auc,1e-8);
       assertEquals(model._output._validation_metrics._MSE,mm._MSE,1e-8);
       assertEquals(((ModelMetricsBinomialGLM)model._output._validation_metrics)._resDev,((ModelMetricsBinomialGLM)mm)._resDev,1e-8);
     }

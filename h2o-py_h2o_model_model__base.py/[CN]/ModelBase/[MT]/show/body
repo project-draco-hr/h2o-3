@@ -1,10 +1,13 @@
 def show(self):
-    '\n    Print innards of model, without regards to type\n\n    :return: None\n    '
+    '\n    Print innards of model, without regards to type\n\n    '
     if self._future:
         self._job.poll_once()
         return
     if (self._model_json is None):
         print 'No model trained yet'
+        return
+    if (self.model_id is None):
+        print 'This H2OEstimator has been removed.'
         return
     model = self._model_json['output']
     print 'Model Details'

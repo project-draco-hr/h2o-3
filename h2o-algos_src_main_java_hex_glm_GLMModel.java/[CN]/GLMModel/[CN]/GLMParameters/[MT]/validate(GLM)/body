@@ -1,4 +1,8 @@
 {
+  if (_compute_p_values && _solver != Solver.AUTO && _solver != Solver.IRLSM)   glm.error("_compute_p_values","P values can only be computed with IRLSM solver, go solver = " + _solver);
+  if (_compute_p_values && (_lambda == null || _lambda[0] > 0))   glm.error("_compute_p_values","P values can only be computed with NO REGULARIZATION (lambda = 0)");
+  if (_compute_p_values && _family == Family.multinomial)   glm.error("_compute_p_values","P values are currently not supported for family=multinomial");
+  if (_compute_p_values && _non_negative)   glm.error("_compute_p_values","P values are currently not supported for family=multinomial");
   if (_weights_column != null && _offset_column != null && _weights_column.equals(_offset_column))   glm.error("_offset_column","Offset must be different from weights");
   if (_lambda_search)   if (glm.nFoldCV())   glm.error("_lambda_search","Lambda search is not currently supported in conjunction with N-fold cross-validation");
   if (_nlambdas == -1)   _nlambdas=100;
@@ -28,7 +32,7 @@
     if (frame != null) {
       Vec response=frame.vec(_response_column);
       if (response != null) {
-        if (response.min() != 0 || response.max() != 1) {
+        if (response.min() < 0 || response.max() > 1) {
           glm.error("_response_column","Illegal response for family binomial, must be binary, got min = " + response.min() + ", max = "+ response.max()+ ")");
         }
       }

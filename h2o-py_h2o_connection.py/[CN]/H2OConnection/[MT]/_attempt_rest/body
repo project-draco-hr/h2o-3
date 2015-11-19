@@ -1,18 +1,18 @@
-def _attempt_rest(self, url, method, post_body, file_upload_info):
+def _attempt_rest(self, url, method, post_body, file_upload_info, proxies=None):
+    proxies = (proxies or {})
     headers = {'User-Agent': ('H2O Python client/' + string.replace(sys.version, '\n', '')), }
     try:
         if (method == 'GET'):
-            return requests.get(url, headers=headers)
+            return requests.get(url, headers=headers, proxies=proxies)
         elif file_upload_info:
             files = {file_upload_info['file']: open(file_upload_info['file'], 'rb'), }
-            return requests.post(url, files=files, headers=headers)
+            return requests.post(url, files=files, headers=headers, proxies=proxies)
         elif (method == 'POST'):
             headers['Content-Type'] = 'application/x-www-form-urlencoded'
-            return requests.post(url, data=post_body, headers=headers)
+            return requests.post(url, data=post_body, headers=headers, proxies=proxies)
         elif (method == 'DELETE'):
-            return requests.delete(url, headers=headers)
+            return requests.delete(url, headers=headers, proxies=proxies)
         else:
             raise ValueError(('Unknown HTTP method ' + method))
     except requests.ConnectionError as e:
         raise EnvironmentError('h2o-py encountered an unexpected HTTP error:\n {}'.format(e))
-    return http_result

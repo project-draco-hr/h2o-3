@@ -1,0 +1,33 @@
+def validate_grid_parameters(grid_parameters, actual_parameters):
+    '\n    Validate that the returned parameters list for a model build contains values we passed in as grid parameters.\n    '
+    actuals_dict = list_to_dict(actual_parameters, 'name')
+    for (k, grid_param_values) in grid_parameters.iteritems():
+        assert (k in actuals_dict), (('FAIL: Expected key ' + k) + ' not found in grid parameters list.')
+        actual = actuals_dict[k]['actual_value']
+        actual_type = actuals_dict[k]['type']
+        if (actual_type == 'boolean'):
+            grid_param_values = [bool(x) for x in grid_param_values]
+            actual = (True if ('true' == actual) else False)
+        elif (actual_type == 'int'):
+            grid_param_values = [int(x) for x in grid_param_values]
+            actual = int(actual)
+        elif (actual_type == 'long'):
+            grid_param_values = [long(x) for x in grid_param_values]
+            actual = long(actual)
+        elif (actual_type == 'string'):
+            grid_param_values = [str(x) for x in grid_param_values]
+            actual = str(actual)
+        elif (actual_type == 'string[]'):
+            actual = [str(actual_val) for actual_val in actual]
+        elif (actual_type == 'double'):
+            grid_param_values = [float(x) for x in grid_param_values]
+            actual = float(actual)
+        elif (actual_type == 'float'):
+            grid_param_values = [float(x) for x in grid_param_values]
+            actual = float(actual)
+        elif actual_type.startswith('Key<'):
+            grid_param_values = grid_param_values
+            actual = actual['name']
+        if actual_type.endswith(']'):
+            actual = actual[0]
+        assert (actual in grid_param_values), (((((((((((('FAIL: Parameter with name: ' + k) + ' expected to be a possible grid value: ') + str(grid_param_values)) + ', instead has: ') + str(actual)) + ' cast from: ') + str(actuals_dict[k]['actual_value'])) + ' ( type of expected: ') + str(type(grid_param_values[0]))) + ', type of actual: ') + str(type(actual))) + ')')
