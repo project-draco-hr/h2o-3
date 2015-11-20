@@ -1,0 +1,42 @@
+{
+  Vec vec=Vec.makeZero((long)1e9);
+  new MySample((int)10).doAll(vec);
+  vec.max();
+  System.out.println("\nFirst 30 of vec ...");
+  System.out.println("There are " + vec.nChunks() + " chunks");
+  for (int i=0; i < vec.nChunks(); i++) {
+    System.out.println("Chunk" + i + "is on"+ vec.chunkKey(i).home_node());
+  }
+  CreateFrame cf=new CreateFrame();
+  cf.rows=100;
+  cf.cols=10;
+  cf.categorical_fraction=0.1;
+  cf.integer_fraction=1 - cf.categorical_fraction;
+  cf.binary_fraction=0;
+  cf.factors=4;
+  cf.response_factors=2;
+  cf.positive_response=false;
+  cf.has_response=true;
+  cf.seed=1234;
+  cf.execImpl();
+  cf.get();
+  Frame frame=DKV.getGet(cf.dest());
+  System.out.print(frame.toString(0,14));
+  for (int i=0; i < 30; i++)   System.out.print((int)vec.at(i) + " ");
+  System.out.println("\n");
+  long heapsize=Runtime.getRuntime().totalMemory();
+  System.out.println("heapsize is::" + heapsize);
+  int o[][]=new int[vec.nChunks()][];
+  for (int c=0; c < o.length; c++)   o[c]=new int[vec.chunkForChunkIdx(c)._len];
+  for (int timeRep=0; timeRep < 3; timeRep++) {
+    long nanos=System.nanoTime();
+    long ans2[][]=new MyCountRange((long)vec.max(),(long)vec.min(),vec.nChunks()).doAll(vec)._counts;
+    long nanos1=System.nanoTime() - nanos;
+    System.out.println("Counts per chunk (first 5 chunks) ...");
+    for (int c=0; c < 5; c++)     System.out.println(Arrays.toString(ans2[c]));
+    System.out.println("\nInitial count: " + nanos1 / 1e9);
+    System.out.println("");
+  }
+  vec.remove();
+  frame.delete();
+}

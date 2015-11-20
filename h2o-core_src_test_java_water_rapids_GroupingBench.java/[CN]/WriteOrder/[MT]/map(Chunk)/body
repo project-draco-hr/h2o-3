@@ -1,0 +1,18 @@
+{
+  long nanos[]=new long[5];
+  Vec vec=chk.vec();
+  int range=(int)(_max - _min + 1);
+  long[] espc=vec.espc();
+  long myCounts[]=_counts[chk.cidx()];
+  int myTargetChunks[]=new int[range];
+  for (int i=0; i < _max - _min + 1; i++)   myTargetChunks[i]=vec.elem2ChunkIdx(myCounts[i]);
+  for (int r=0; r < chk._len; r++) {
+    int group=(int)(chk.at8(r) - _min);
+    long target=myCounts[group]++;
+    int targetChunk=myTargetChunks[group];
+    if (target == espc[targetChunk + 1]) {
+      myTargetChunks[group]++;
+      targetChunk++;
+    }
+  }
+}

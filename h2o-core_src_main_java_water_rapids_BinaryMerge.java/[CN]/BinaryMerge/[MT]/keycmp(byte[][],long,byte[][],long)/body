@@ -1,0 +1,32 @@
+{
+  byte xbatch[]=x[(int)(xi / _leftBatchSize)];
+  byte ybatch[]=y[(int)(yi / _rightBatchSize)];
+  int xoff=(int)(xi % _leftBatchSize) * _leftKeySize;
+  int yoff=(int)(yi % _rightBatchSize) * _rightKeySize;
+  byte xByte=0, yByte=0;
+  int i=0, xlen=0, ylen=0;
+  while (i < _numJoinCols && xlen == 0) {
+    xlen=_leftFieldSizes[i];
+    ylen=_rightFieldSizes[i];
+    if (xlen != ylen) {
+      while (xlen > ylen && xbatch[xoff] == 0) {
+        xoff++;
+        xlen--;
+      }
+      while (ylen > xlen && ybatch[yoff] == 0) {
+        yoff++;
+        ylen--;
+      }
+      if (xlen != ylen) {
+        return (xlen - ylen);
+      }
+    }
+    while (xlen > 0 && (xByte=xbatch[xoff]) == (yByte=ybatch[yoff])) {
+      xoff++;
+      yoff++;
+      xlen--;
+    }
+    i++;
+  }
+  return (xByte & 0xFF) - (yByte & 0xFF);
+}
