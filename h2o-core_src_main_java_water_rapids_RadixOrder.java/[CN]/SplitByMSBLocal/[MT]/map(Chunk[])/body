@@ -1,0 +1,33 @@
+{
+  long myCounts[]=_counts[chk[0].cidx()];
+  if (myCounts == null) {
+    System.out.println("myCounts empty for chunk " + chk[0].cidx());
+    return;
+  }
+  long t0=System.nanoTime();
+  for (int r=0; r < chk[0]._len; r++) {
+    long thisx=chk[0].at8(r);
+    int shift=_biggestBit - 8;
+    if (shift < 0)     shift=0;
+    int MSBvalue=(int)(thisx >> shift & 0xFFL);
+    long target=myCounts[MSBvalue]++;
+    int batch=(int)(target / _batchSize);
+    int offset=(int)(target % _batchSize);
+    if (_o[MSBvalue] == null)     throw new RuntimeException("Internal error: o_[MSBvalue] is null. Should never happen.");
+    _o[MSBvalue][batch][offset]=(long)r + chk[0].start();
+    byte this_x[]=_x[MSBvalue][batch];
+    offset*=_keySize;
+    for (int i=_bytesUsed[0] - 1; i >= 0; i--) {
+      this_x[offset + i]=(byte)(thisx & 0xFF);
+      thisx>>=8;
+    }
+    for (int c=1; c < chk.length; c++) {
+      offset+=_bytesUsed[c - 1] - 1;
+      thisx=chk[c].at8(r);
+      for (int i=_bytesUsed[c] - 1; i >= 0; i--) {
+        this_x[offset + i]=(byte)(thisx & 0xFF);
+        thisx>>=8;
+      }
+    }
+  }
+}
