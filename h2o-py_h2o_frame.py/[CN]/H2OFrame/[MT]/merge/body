@@ -1,3 +1,11 @@
-def merge(self, other, allLeft=True, allRite=False):
-    'Merge two datasets based on common column names\n\n    Parameters\n    ----------\n    other: H2OFrame\n      Other dataset to merge.  Must have at least one column in common with self,\n      and all columns in common are used as the merge key.  If you want to use only a\n      subset of the columns in common, rename the other columns so the columns are unique\n      in the merged result.\n    allLeft: bool, default=True\n      If True, include all rows from the left/self frame\n    allRite: bool, default=True\n      If True, include all rows from the right/other frame\n\n    Returns\n    -------\n      Original self frame enhanced with merged columns and rows\n    '
-    return H2OFrame._expr(expr=ExprNode('merge', self, other, allLeft, allRite))
+def merge(self, other, all_x=False, all_y=False, by_x=None, by_y=None, method='auto'):
+    'Merge two datasets based on common column names\n\n    Parameters\n    ----------\n    other: H2OFrame\n      Other dataset to merge.  Must have at least one column in common with self,\n      and all columns in common are used as the merge key.  If you want to use only a\n      subset of the columns in common, rename the other columns so the columns are unique\n      in the merged result.\n    all_x: bool, default=False\n      If True, include all rows from the left/self frame\n    all_y: bool, default=False\n      If True, include all rows from the right/other frame\n\n    Returns\n    -------\n      Original self frame enhanced with merged columns and rows\n    '
+    common_names = set(self.names).intersection(set(other.names))
+    common_names = list(common_names)
+    if (len(common_names) == 0):
+        raise ValueError('No columns in common to merge on!')
+    if (by_x == None):
+        by_x = [self.names.index(c) for c in common_names]
+    if (by_y == None):
+        by_y = [other.names.index(c) for c in common_names]
+    return H2OFrame._expr(expr=ExprNode('merge', self, other, all_x, all_y, by_x, by_y, method))
