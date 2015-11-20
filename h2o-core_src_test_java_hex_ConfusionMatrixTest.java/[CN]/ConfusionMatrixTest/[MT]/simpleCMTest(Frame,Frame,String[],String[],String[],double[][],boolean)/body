@@ -1,0 +1,21 @@
+{
+  Scope.enter();
+  try {
+    ConfusionMatrix cm=ConfusionMatrix.buildCM(VecUtils.toCategoricalVec(v1.vecs()[0]),VecUtils.toCategoricalVec(v2.vecs()[0]));
+    if (debug) {
+      System.err.println("actual            : " + Arrays.toString(actualDomain));
+      System.err.println("predicted         : " + Arrays.toString(predictedDomain));
+      System.err.println("CM domain         : " + Arrays.toString(cm._domain));
+      System.err.println("expected CM domain: " + Arrays.toString(expectedDomain) + "\n");
+      for (int i=0; i < cm._cm.length; i++)       System.err.println(Arrays.toString(cm._cm[i]));
+      System.err.println("");
+      System.err.println(cm.toASCII());
+    }
+    assertCMEqual(expectedDomain,expectedCM,cm);
+  }
+  finally {
+    if (v1 != null)     v1.delete();
+    if (v2 != null)     v2.delete();
+    Scope.exit();
+  }
+}

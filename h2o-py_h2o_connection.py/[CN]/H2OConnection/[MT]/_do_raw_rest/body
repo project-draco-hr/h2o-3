@@ -1,4 +1,4 @@
-def _do_raw_rest(self, url_suffix, method, file_upload_info, **kwargs):
+def _do_raw_rest(self, url_suffix, method, file_upload_info, proxies=None, **kwargs):
     if (not url_suffix):
         raise ValueError('No url suffix supplied.')
     if ('_rest_version' in kwargs):
@@ -46,7 +46,7 @@ def _do_raw_rest(self, url_suffix, method, file_upload_info, **kwargs):
     global _rest_ctr
     _rest_ctr = (_rest_ctr + 1)
     begin_time_seconds = time.time()
-    http_result = self._attempt_rest(url, method, post_body, file_upload_info)
+    http_result = self._attempt_rest(url, method, post_body, file_upload_info, proxies)
     end_time_seconds = time.time()
     elapsed_time_seconds = (end_time_seconds - begin_time_seconds)
     elapsed_time_millis = (elapsed_time_seconds * 1000)
@@ -55,7 +55,7 @@ def _do_raw_rest(self, url_suffix, method, file_upload_info, **kwargs):
         try:
             result = http_result.json()
             if ('messages' in result.keys()):
-                detailed_error_msgs = '\n'.join([m['message'] for m in result['messages'] if (m['message_type'] in ['ERROR'])])
+                detailed_error_msgs = '\n'.join([m['message'] for m in result['messages'] if (m['message_type'] in ['ERRR'])])
             elif ('exception_msg' in result.keys()):
                 detailed_error_msgs = result['exception_msg']
         except ValueError:

@@ -1,6 +1,7 @@
 def pyunit_make_glm_model():
     pros = h2o.import_file(pyunit_utils.locate('smalldata/prostate/prostate.csv'))
-    model = h2o.glm(x=pros[['AGE', 'DPROS', 'DCAPS', 'PSA', 'VOL', 'GLEASON']], y=pros['CAPSULE'], family='gaussian', alpha=[0])
+    model = H2OGeneralizedLinearEstimator(family='gaussian', alpha=[0])
+    model.train(x=['AGE', 'DPROS', 'DCAPS', 'PSA', 'VOL', 'GLEASON'], y='CAPSULE', training_frame=pros)
     new_betas = {'AGE': 0.5, 'DPROS': 0.5, 'DCAPS': 0.5, 'PSA': 0.5, 'VOL': 0.5, 'GLEASON': 0.5, }
     names = '['
     for n in new_betas.keys():

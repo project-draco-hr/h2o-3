@@ -8,7 +8,6 @@ def ecologyGBM():
     trainDataResponse = trainData['Angaus']
     trainDataFeatures = trainData[['SegSumT', 'SegTSeas', 'SegLowFlow', 'DSDist', 'DSMaxSlope', 'USAvgT', 'USRainDays', 'USSlope', 'USNative', 'DSDam', 'Method', 'LocSed']]
     ecology_train['Angaus'] = ecology_train['Angaus'].asfactor()
-    from h2o.estimators.gbm import H2OGradientBoostingEstimator
     gbm_h2o = H2OGradientBoostingEstimator(ntrees=ntrees, learn_rate=learn_rate, distribution='bernoulli', min_rows=min_rows, max_depth=max_depth)
     gbm_h2o.train(x=range(2, ecology_train.ncol), y='Angaus', training_frame=ecology_train)
     gbm_sci = ensemble.GradientBoostingClassifier(learning_rate=learn_rate, n_estimators=ntrees, max_depth=max_depth, min_samples_leaf=min_rows, max_features=None)

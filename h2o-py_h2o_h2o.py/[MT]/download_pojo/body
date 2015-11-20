@@ -1,11 +1,14 @@
 def download_pojo(model, path='', get_jar=True):
     'Download the POJO for this model to the directory specified by path (no trailing\n  slash!). If path is "", then dump to screen.\n\n  Parameters\n  ----------\n  model : H2OModel\n    Retrieve this model\'s scoring POJO.\n  path : str\n    An absolute path to the directory where POJO should be saved.\n  get_jar : bool\n    Retrieve the h2o-genmodel.jar also.\n  '
-    java = H2OConnection.get(('Models.java/' + model._id))
-    file_path = (((path + '/') + model._id) + '.java')
+    java = H2OConnection.get(('Models.java/' + model.model_id))
+    regex = re.compile('[+\\-* !@#$%^&()={}\\[\\]|;:\'"<>,.?/]')
+    pojoname = regex.sub('_', model.model_id)
+    filepath = (((path + '/') + pojoname) + '.java')
+    print 'Filepath: {}'.format(filepath)
     if (path == ''):
         print java.text
     else:
-        with open(file_path, 'wb') as f:
+        with open(filepath, 'wb') as f:
             f.write(java.text)
     if (get_jar and (path != '')):
         url = H2OConnection.make_url('h2o-genmodel.jar')

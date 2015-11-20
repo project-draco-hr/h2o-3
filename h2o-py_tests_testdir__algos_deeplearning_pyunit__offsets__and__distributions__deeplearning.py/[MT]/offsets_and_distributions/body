@@ -7,7 +7,6 @@ def offsets_and_distributions():
     cars = cars.cbind(offset)
     insurance = h2o.import_file(pyunit_utils.locate('smalldata/glm_test/insurance.csv'))
     insurance['offset'] = insurance['Holders'].log()
-    from h2o.estimators.deeplearning import H2ODeepLearningEstimator
     dl = H2ODeepLearningEstimator(distribution='gamma')
     dl.train(x=range(3), y='Claims', training_frame=insurance, offset_column='offset')
     predictions = dl.predict(insurance)

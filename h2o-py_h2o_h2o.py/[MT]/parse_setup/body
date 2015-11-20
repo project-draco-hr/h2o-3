@@ -2,21 +2,18 @@ def parse_setup(raw_frames, destination_frame='', header=((-1), 0, 1), separator
     '\n\n  During parse setup, the H2O cluster will make several guesses about the attributes of\n  the data. This method allows a user to perform corrective measures by updating the\n  returning dictionary from this method. This dictionary is then fed into `parse_raw` to\n  produce the H2OFrame instance.\n\n  Parameters\n  ----------\n\n    raw_frames : H2OFrame\n      A collection of imported file frames\n    destination_frame : str, optional\n      The unique hex key assigned to the imported file. If none is given, a key will\n      automatically be generated.\n    parse : bool, optional\n      A logical value indicating whether the file should be parsed after import.\n    header : int, optional\n     -1 means the first line is data, 0 means guess, 1 means first line is header.\n    sep : str, optional\n      The field separator character. Values on each line of the file are separated by this\n       character. If sep = "", the parser will automatically detect the separator.\n    col_names : list, optional\n      A list of column names for the file.\n    col_types : list or dict, optional\n      A list of types or a dictionary of column names to types to specify whether columns\n      should be forced to a certain type upon import parsing. If a list, the types for\n      elements that are None will be guessed. The possible types a column may have are:\n          "unknown" - this will force the column to be parsed as all NA\n          "uuid"    - the values in the column must be true UUID or will be parsed as NA\n          "string"  - force the column to be parsed as a string\n          "numeric" - force the column to be parsed as numeric. H2O will handle the\n                      compression of the numeric data in the optimal manner.\n          "enum"    - force the column to be parsed as a categorical column.\n          "time"    - force the column to be parsed as a time column. H2O will attempt to\n                      parse the following list of date time formats.\n                        date:\n                          "yyyy-MM-dd"\n                          "yyyy MM dd"\n                          "dd-MMM-yy"\n                          "dd MMM yy"\n                        time:\n                          "HH:mm:ss"\n                          "HH:mm:ss:SSS"\n                          "HH:mm:ss:SSSnnnnnn"\n                          "HH.mm.ss"\n                          "HH.mm.ss.SSS"\n                          "HH.mm.ss.SSSnnnnnn"\n                      Times can also contain "AM" or "PM".\n      A list of strings, or a list of lists of strings (one list per column), or a\n      dictionary of column names to strings which are to be interpreted as missing values.\n\n  Returns\n  -------\n    A dictionary is returned containing all of the guesses made by the H2O back end.\n  '
     if isinstance(raw_frames, basestring):
         raw_frames = [raw_frames]
-    kwargs = store_params_to_REST(header, separator)
-    if bool(kwargs):
-        j = H2OConnection.post_json(url_suffix='ParseSetup', source_frames=[_quoted(id) for id in raw_frames], **kwargs)
-    else:
-        j = H2OConnection.post_json(url_suffix='ParseSetup', source_frames=[_quoted(id) for id in raw_frames])
-    if destination_frame:
-        j['destination_frame'] = destination_frame.replace('%', '.').replace('&', '.')
+    kwargs = {}
     if (header != ((-1), 0, 1)):
         if (header not in ((-1), 0, 1)):
             raise ValueError('header should be -1, 0, or 1')
-        j['check_header'] = header
+        kwargs['check_header'] = header
     if separator:
         if ((not isinstance(separator, basestring)) or (len(separator) != 1)):
             raise ValueError('separator should be a single character string')
-        j['separator'] = ord(separator)
+        kwargs['separator'] = ord(separator)
+    j = H2OConnection.post_json(url_suffix='ParseSetup', source_frames=[_quoted(id) for id in raw_frames], **kwargs)
+    if destination_frame:
+        j['destination_frame'] = destination_frame.replace('%', '.').replace('&', '.')
     if column_names:
         if (not isinstance(column_names, list)):
             raise ValueError('col_names should be a list')

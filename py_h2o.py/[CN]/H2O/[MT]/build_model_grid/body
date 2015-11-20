@@ -1,0 +1,37 @@
+def build_model_grid(self, algo, training_frame, parameters, grid_parameters, grid_id=None, timeoutSecs=60, asynchronous=False, **kwargs):
+    assert (algo is not None), 'FAIL: "algo" parameter is null'
+    assert (training_frame is not None), 'FAIL: "training_frame" parameter is null'
+    assert (parameters is not None), 'FAIL: "parameters" parameter is null'
+    assert (grid_parameters is not None), 'FAIL: "grid_parameters" parameter is null'
+    model_builders = self.model_builders(timeoutSecs=timeoutSecs)
+    assert (model_builders is not None), 'FAIL: /ModelBuilders REST call failed'
+    assert (algo in model_builders['model_builders']), ((('FAIL: failed to find algo ' + algo) + ' in model_builders list: ') + repr(model_builders))
+    builder = model_builders['model_builders'][algo]
+    frames = self.frames(key=training_frame)
+    assert (frames is not None), 'FAIL: /Frames/{0} REST call failed'.format(training_frame)
+    assert (frames['frames'][0]['frame_id']['name'] == training_frame), 'FAIL: /Frames/{0} returned Frame {1} rather than Frame {2}'.format(training_frame, frames['frames'][0]['frame_id']['name'], training_frame)
+    parameters['training_frame'] = training_frame
+    post_parameters = {}
+    post_parameters.update(parameters)
+    post_parameters['hyper_parameters'] = grid_parameters
+    if (grid_id is not None):
+        post_parameters['grid_id'] = grid_id
+    result = self.__do_json_request(('/99/Grid/' + algo), cmd='post', timeout=timeoutSecs, postData=post_parameters, raiseIfNon200=False)
+    if (result['__meta']['schema_type'] == 'H2OError'):
+        print ('ERROR: building model grid: ' + grid_id)
+        print (' reason: ' + result['dev_msg'])
+        print (' stacktrace: ' + '\n '.join(result['stacktrace']))
+        raise ValueError(((('ERROR: building model grid: ' + grid_id) + ';  reason: ') + result['dev_msg']))
+    if asynchronous:
+        return result
+    elif (('error_count' in result) and (result['error_count'] > 0)):
+        return result
+    elif (result['__http_response']['status_code'] != 200):
+        return result
+    else:
+        assert ('job' in result), ('FAIL: did not find job key in model build result: ' + repr(result))
+        job = result['job']
+        job_key = job['key']['name']
+        H2O.verboseprint(('model building job_key: ' + repr(job_key)))
+        job_json = self.poll_job(job_key, timeoutSecs=timeoutSecs)
+        return result

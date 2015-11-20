@@ -28,6 +28,9 @@
     colHeaders.add("Training AUC");
     colTypes.add("double");
     colFormat.add("%.5f");
+    colHeaders.add("Training Lift");
+    colTypes.add("double");
+    colFormat.add("%.5f");
   }
   if (_output.getModelCategory() == ModelCategory.Binomial || _output.getModelCategory() == ModelCategory.Multinomial) {
     colHeaders.add("Training Classification Error");
@@ -50,6 +53,9 @@
     }
     if (_output.getModelCategory() == ModelCategory.Binomial) {
       colHeaders.add("Validation AUC");
+      colTypes.add("double");
+      colFormat.add("%.5f");
+      colHeaders.add("Validation Lift");
       colTypes.add("double");
       colFormat.add("%.5f");
     }
@@ -78,14 +84,20 @@
     table.set(row,col++,st._mse);
     if (_output.getModelCategory() == ModelCategory.Regression)     table.set(row,col++,st._mean_residual_deviance);
     if (_output.isClassifier())     table.set(row,col++,st._logloss);
-    if (_output.getModelCategory() == ModelCategory.Binomial)     table.set(row,col++,st._AUC);
+    if (_output.getModelCategory() == ModelCategory.Binomial) {
+      table.set(row,col++,st._AUC);
+      table.set(row,col++,st._lift);
+    }
     if (_output.isClassifier())     table.set(row,col++,st._classError);
     if (_valid != null) {
       st=_output._scored_valid[i];
       table.set(row,col++,st._mse);
       if (_output.getModelCategory() == ModelCategory.Regression)       table.set(row,col++,st._mean_residual_deviance);
       if (_output.isClassifier())       table.set(row,col++,st._logloss);
-      if (_output.getModelCategory() == ModelCategory.Binomial)       table.set(row,col++,st._AUC);
+      if (_output.getModelCategory() == ModelCategory.Binomial) {
+        table.set(row,col++,st._AUC);
+        table.set(row,col++,st._lift);
+      }
       if (_output.isClassifier())       table.set(row,col++,st._classError);
     }
     row++;

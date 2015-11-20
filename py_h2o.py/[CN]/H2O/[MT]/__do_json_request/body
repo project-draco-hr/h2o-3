@@ -33,6 +33,24 @@ def __do_json_request(self, jsonRequest=None, fullUrl=None, timeout=10, params=N
                         first = False
                     array_str += ']'
                     munged_postData[k] = array_str
+            elif (type(v) is dict):
+                if (len(v) == 0):
+                    munged_postData[k] = '{}'
+                else:
+                    first = True
+                    map_str = '{'
+                    for (key, val) in v.iteritems():
+                        if (not first):
+                            map_str += ', '
+                        if (val is None):
+                            map_str += ((('"' + key) + '"') + ': null')
+                        elif isinstance(val, basestring):
+                            map_str += (((((('"' + str(key)) + '"') + ':') + '"') + str(val)) + '"')
+                        else:
+                            map_str += (((('"' + key) + '"') + ':') + str(val))
+                        first = False
+                    map_str += '}'
+                    munged_postData[k] = map_str
             else:
                 munged_postData[k] = v
     else:

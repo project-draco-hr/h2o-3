@@ -2,7 +2,6 @@ def weights_and_biases():
     print 'Test checks if Deep Learning weights and biases are accessible from R'
     covtype = h2o.upload_file(pyunit_utils.locate('smalldata/covtype/covtype.20k.data'))
     covtype[54] = covtype[54].asfactor()
-    from h2o.estimators.deeplearning import H2ODeepLearningEstimator
     dlmodel = H2ODeepLearningEstimator(hidden=[17, 191], epochs=1, balance_classes=False, reproducible=True, seed=1234, export_weights_and_biases=True)
     dlmodel.train(x=range(54), y=54, training_frame=covtype)
     print dlmodel

@@ -10,7 +10,10 @@
   int nbins=0;
   for (int i=0; i < _cats; ++i) {
     if (chunks[i].isNA(rid)) {
-      if (_imputeMissing)       row.binIds[nbins++]=_catModes[i];
+      if (_imputeMissing) {
+        int c=getCategoricalId(i,_catModes[i]);
+        if (c >= 0)         row.binIds[nbins++]=c;
+      }
  else       row.binIds[nbins++]=_catOffsets[i + 1] - 1;
     }
  else {

@@ -20,6 +20,7 @@
     Frame scoreTrain=null, scoreTest=null;
     try {
       params._solver=s;
+      params._max_iterations=500;
       System.out.println("SOLVER = " + s);
       job=new GLM(Key.make("prostate_model"),"glm test simple poisson",params);
       model=job.trainModel().get();
@@ -35,7 +36,7 @@
       scoreTrain=model.score(_prostateTrain);
       hex.ModelMetricsBinomial mm=hex.ModelMetricsBinomial.getFromDKV(model,_prostateTrain);
       hex.AUC2 adata=mm._auc;
-      assertEquals(model._output._training_metrics.auc()._auc,adata._auc,1e-8);
+      assertEquals(model._output._training_metrics.auc_obj()._auc,adata._auc,1e-8);
       assertEquals(model._output._training_metrics._MSE,mm._MSE,1e-8);
       assertEquals(((ModelMetricsBinomialGLM)model._output._training_metrics)._resDev,((ModelMetricsBinomialGLM)mm)._resDev,1e-8);
     }

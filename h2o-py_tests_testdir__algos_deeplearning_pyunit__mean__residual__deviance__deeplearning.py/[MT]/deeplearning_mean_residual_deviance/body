@@ -5,7 +5,6 @@ def deeplearning_mean_residual_deviance():
     valid = cars[(s <= 0.2)]
     predictors = ['displacement', 'power', 'weight', 'acceleration', 'year']
     response_col = 'economy'
-    from h2o.estimators.deeplearning import H2ODeepLearningEstimator
     dl = H2ODeepLearningEstimator(nfolds=3)
     dl.train(x=predictors, y=response_col, training_frame=train, validation_frame=valid)
     dl_mrd = dl.mean_residual_deviance(train=True, valid=True, xval=True)

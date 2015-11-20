@@ -1,0 +1,18 @@
+def validate_grid_builder_result(result, original_params, grid_params, grid_id):
+    '\n    Validate that a grid build result has no parameter validation errors,\n    and that it has a Job with a Key.  \n    '
+    global pp
+    error = False
+    if (result is None):
+        print ('FAIL: result for grid %s is None, timeout during build? result: %s' % (grid_id, result))
+        error = True
+    elif (result['__http_response']['status_code'] != requests.codes.ok):
+        error = True
+        print ('FAIL: expected 200 OK from a good validation request, got: ' + str(result['__http_response']['status_code']))
+    if error:
+        print 'Input parameters: '
+        pp.pprint(original_params)
+        print 'Grid parameters: '
+        pp.pprint(grid_params)
+        print 'Returned result: '
+        pp.pprint(result)
+        assert (result['job']['error_count'] == 0), ('FAIL: Non-zero error_count for model: ' + grid_id)

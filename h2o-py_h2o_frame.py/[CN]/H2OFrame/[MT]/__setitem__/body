@@ -1,6 +1,5 @@
 def __setitem__(self, b, c):
     "Replace or update column(s) in an H2OFrame.\n\n    Parameters\n    ----------\n      b : int, str\n        A 0-based index or a column name.\n      c :\n        The value replacing 'b'\n\n    Returns\n    -------\n      Returns this H2OFrame.\n    "
-    import gc
     col_expr = None
     row_expr = None
     colname = None
@@ -24,6 +23,8 @@ def __setitem__(self, b, c):
                 col_expr = slice(0, self.ncol)
     elif isinstance(b, ExprNode):
         row_expr = b
+    elif isinstance(b, list):
+        col_expr = b
     src = (float('nan') if (c is None) else c)
     src_in_self = self.is_src_in_self(src)
     old_cache = self._ex._cache

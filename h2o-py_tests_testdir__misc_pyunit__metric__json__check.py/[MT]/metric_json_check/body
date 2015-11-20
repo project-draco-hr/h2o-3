@@ -15,13 +15,13 @@ def metric_json_check():
     bin_mod = h2o.gbm(y=df['CAPSULE'].asfactor(), x=df[3:], training_frame=df, distribution='bernoulli')
     bin_met = bin_mod.model_performance()
     bin_metric_json_keys_have = bin_met._metric_json.keys()
-    bin_metric_json_keys_desired = [u'AUC', u'Gini', u'model_category', u'description', u'r2', u'frame', u'model_checksum', u'MSE', u'__meta', u'logloss', u'scoring_time', u'thresholds_and_metric_scores', u'predictions', u'max_criteria_and_metric_scores', u'model', u'duration_in_ms', u'frame_checksum', u'domain']
+    bin_metric_json_keys_desired = [u'AUC', u'Gini', u'model_category', u'description', u'r2', u'frame', u'model_checksum', u'MSE', u'__meta', u'gains_lift_table', u'logloss', u'scoring_time', u'thresholds_and_metric_scores', u'predictions', u'max_criteria_and_metric_scores', u'model', u'duration_in_ms', u'frame_checksum', u'domain']
     bin_metric_diff = list((set(bin_metric_json_keys_have) - set(bin_metric_json_keys_desired)))
     assert (not bin_metric_diff), "There's a difference between the current ({0}) and the desired ({1}) binomial metric json. The difference is {2}".format(bin_metric_json_keys_have, bin_metric_json_keys_desired, bin_metric_diff)
     bin_mod = h2o.glm(y=df['CAPSULE'].asfactor(), x=df[3:], training_frame=df, family='binomial')
     bin_met = bin_mod.model_performance()
     bin_metric_json_keys_have = bin_met._metric_json.keys()
-    bin_metric_json_keys_desired = [u'frame', u'residual_deviance', u'max_criteria_and_metric_scores', u'MSE', u'frame_checksum', u'AIC', u'logloss', u'Gini', u'predictions', u'AUC', u'description', u'model_checksum', u'duration_in_ms', u'model_category', u'r2', u'residual_degrees_of_freedom', u'__meta', u'null_deviance', u'scoring_time', u'null_degrees_of_freedom', u'model', u'thresholds_and_metric_scores', u'domain']
+    bin_metric_json_keys_desired = [u'frame', u'residual_deviance', u'max_criteria_and_metric_scores', u'MSE', u'frame_checksum', u'AIC', u'logloss', u'Gini', u'predictions', u'AUC', u'description', u'model_checksum', u'duration_in_ms', u'model_category', u'gains_lift_table', u'r2', u'residual_degrees_of_freedom', u'__meta', u'null_deviance', u'scoring_time', u'null_degrees_of_freedom', u'model', u'thresholds_and_metric_scores', u'domain']
     bin_metric_diff = list((set(bin_metric_json_keys_have) - set(bin_metric_json_keys_desired)))
     assert (not bin_metric_diff), "There's a difference between the current ({0}) and the desired ({1}) glm-binomial metric json. The difference is {2}".format(bin_metric_json_keys_have, bin_metric_json_keys_desired, bin_metric_diff)
     df = h2o.import_file(path=pyunit_utils.locate('smalldata/airlines/AirlinesTrain.csv.zip'))

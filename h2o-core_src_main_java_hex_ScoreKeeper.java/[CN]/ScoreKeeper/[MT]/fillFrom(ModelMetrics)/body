@@ -13,6 +13,10 @@
       _AUC=((ModelMetricsBinomial)m)._auc._auc;
       _classError=((ModelMetricsBinomial)m)._auc.defaultErr();
     }
+    GainsLift gl=((ModelMetricsBinomial)m)._gainsLift;
+    if (gl != null && gl.response_rates != null && gl.response_rates.length > 0) {
+      _lift=gl.response_rates[0] / gl.avg_response_rate;
+    }
   }
  else   if (m instanceof ModelMetricsMultinomial) {
     _logloss=((ModelMetricsMultinomial)m)._logloss;
