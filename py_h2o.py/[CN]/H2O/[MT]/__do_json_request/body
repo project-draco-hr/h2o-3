@@ -89,9 +89,18 @@ def __do_json_request(self, jsonRequest=None, fullUrl=None, timeout=10, params=N
         H2O.verboseprint(('r: ' + repr(r)))
     if (raiseIfNon200 and (200 != r.status_code)):
         print 'JSON call returned non-200 status: ', url
+        pp = pprint.PrettyPrinter(indent=4)
+        json = r.json()
+        if ((None != json) and ('dev_msg' in json)):
+            print ('dev_msg: ' + str(json['dev_msg']))
         print ('r.status_code: ' + str(r.status_code))
         print ('r.headers: ' + repr(r.headers))
-        print ('r.text: ' + r.text)
+        if (None == json):
+            print 'ERROR: the error output from H2O is not JSON!'
+            print ('r.text: ' + r.text)
+        else:
+            print 'r.json: '
+            pp.pprint(json)
     log_rest('')
     try:
         if (r is None):
