@@ -1,2 +1,11 @@
 {
+  while (true) {
+    int x=_persist;
+    int be=x & BACKEND_MASK;
+    int dk=x & ~BACKEND_MASK;
+    if ((dk & ON_dsk) != NOTdsk || (dk & MIDdsk) != IDLdsk)     return;
+    if (CAS_persist(x,(dk | MIDdsk | be)))     break;
+  }
+  H2O.getPM().store(backend(),this);
+  throw H2O.unimpl();
 }
