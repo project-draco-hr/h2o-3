@@ -4,8 +4,8 @@
   if (_labels.length() != _preds.length())   throw new IllegalArgumentException("Both arguments must have the same length (" + _labels.length() + "!="+ _preds.length()+ ")!");
   if (!_labels.isInt())   throw new IllegalArgumentException("Actual column must be integer class labels!");
   if (_labels.cardinality() != -1 && _labels.cardinality() != 2)   throw new IllegalArgumentException("Actual column must contain binary class labels, but found cardinality " + _labels.cardinality() + "!");
-  if (_preds.isCategorical())   throw new IllegalArgumentException("predictedProbs cannot be class labels, expect probabilities.");
-  if (_weights != null && !_weights.isNumeric())   throw new IllegalArgumentException("weight must be numeric.");
+  if (_preds.isCategorical())   throw new IllegalArgumentException("Predicted probabilities cannot be class labels, expect probabilities.");
+  if (_weights != null && !_weights.isNumeric())   throw new IllegalArgumentException("Observation weights must be numeric.");
   if (!_labels.group().equals(_preds.group())) {
     _preds=_labels.align(_preds);
     Scope.track(_preds._key);
@@ -22,25 +22,35 @@
     _quantiles=new double[]{rq[14],rq[13],rq[11],rq[9],rq[8],rq[7],rq[5],rq[3],rq[2],0};
   }
  else {
-    QuantileModel.QuantileParameters qp=new QuantileModel.QuantileParameters();
-    Frame fr=new Frame(Key.make(),new String[]{"predictions"},new Vec[]{_preds});
-    DKV.put(fr);
-    qp._train=fr._key;
-    qp._probs=new double[_groups];
-    for (int i=0; i < _groups; ++i) {
-      qp._probs[i]=(_groups - i - 1.) / _groups;
+    Frame fr=null;
+    QuantileModel qm=null;
+    try {
+      QuantileModel.QuantileParameters qp=new QuantileModel.QuantileParameters();
+      fr=new Frame(Key.make(),new String[]{"predictions"},new Vec[]{_preds});
+      DKV.put(fr);
+      qp._train=fr._key;
+      qp._probs=new double[_groups];
+      for (int i=0; i < _groups; ++i) {
+        qp._probs[i]=(_groups - i - 1.) / _groups;
+      }
+      if (_weights != null) {
+        if (_weights.min() != 1.0 && _weights.max() != 1.0) {
+          Log.warn("Quantiles computation is not implemented for observation weights. Gains/Lift table might be approximate.");
+        }
+      }
+      Quantile q=new Quantile(qp);
+      qm=q.trainModel().get();
+      _quantiles=qm._output._quantiles[0];
+      TreeSet<Double> hs=new TreeSet<>();
+      for (      double d : _quantiles)       hs.add(d);
+      _quantiles=new double[hs.size()];
+      Iterator<Double> it=hs.descendingIterator();
+      int i=0;
+      while (it.hasNext())       _quantiles[i++]=it.next();
     }
-    if (_weights != null)     throw H2O.unimpl("Quantile cannot handle weights yet.");
-    Quantile q=new Quantile(qp);
-    QuantileModel qm=q.trainModel().get();
-    _quantiles=qm._output._quantiles[0];
-    TreeSet<Double> hs=new TreeSet<>();
-    for (    double d : _quantiles)     hs.add(d);
-    _quantiles=new double[hs.size()];
-    Iterator<Double> it=hs.descendingIterator();
-    int i=0;
-    while (it.hasNext())     _quantiles[i++]=it.next();
-    qm.remove();
-    DKV.remove(fr._key);
+  finally {
+      if (qm != null)       qm.remove();
+      DKV.remove(fr._key);
+    }
   }
 }
