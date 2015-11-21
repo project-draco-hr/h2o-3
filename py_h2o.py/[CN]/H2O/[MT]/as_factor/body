@@ -1,0 +1,8 @@
+def as_factor(self, key, column, timeoutSecs=60):
+    assert (key is not None), 'FAIL: "key" parameter is null'
+    assert (column is not None), 'FAIL: "column" parameter is null'
+    if isinstance(column, basestring):
+        column = (('"' + column) + '"')
+    params_dict = {'ast': '(assign {0} (:= {0} (as.factor (cols_py {0} {1})) {1} []))'.format(key, column), }
+    result = self.__do_json_request('/99/Rapids', cmd='post', timeout=timeoutSecs, postData=params_dict)
+    return result

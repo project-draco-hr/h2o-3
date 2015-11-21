@@ -1,6 +1,12 @@
 {
-  this.algo=builder.getAlgo();
-  this.algo_full_name=ModelBuilder.getAlgoFullName(this.algo);
+  try {
+    this.algo=builder.getAlgo();
+    this.algo_full_name=ModelBuilder.getAlgoFullName(this.algo);
+  }
+ catch (  H2OIllegalArgumentException e) {
+    this.algo=builder.getClass().getSimpleName();
+    this.algo_full_name=this.algo;
+  }
   this.can_build=builder.can_build();
   this.visibility=builder.builderVisibility();
   job=(JobV3)Schema.schema(this.getSchemaVersion(),Job.class).fillFromImpl(builder);
