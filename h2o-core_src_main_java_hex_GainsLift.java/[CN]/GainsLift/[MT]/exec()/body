@@ -3,12 +3,23 @@
   init();
   try {
     if (ArrayUtils.minValue(_quantiles) != ArrayUtils.maxValue(_quantiles)) {
-      GainsLiftBuilder gt=new GainsLiftBuilder(_quantiles);
+      _goodRows=_labels.length();
+      if (_labels.naCnt() > 0 && _preds.naCnt() > 0) {
+        _goodRows=new GoodRowCounter().doAll(_labels,_preds)._goodrows;
+      }
+ else       if (_labels.naCnt() > 0) {
+        _goodRows=_labels.length() - _labels.naCnt();
+      }
+ else       if (_preds.naCnt() > 0) {
+        _goodRows=_preds.length() - _preds.naCnt();
+      }
+      GainsLiftBuilder gt=new GainsLiftBuilder(_quantiles,_goodRows);
       gt=(_weights != null) ? gt.doAll(_labels,_preds,_weights) : gt.doAll(_labels,_preds);
       response_rates=gt.response_rates();
       avg_response_rate=gt.avg_response_rate();
       events=gt.events();
       observations=gt.observations();
+      assert(ArrayUtils.sum(observations) == _goodRows);
     }
  else {
       Log.info("Not computing Gains/Lift table from trivial (constant) predictions.");
