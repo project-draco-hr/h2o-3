@@ -16,7 +16,7 @@
     train=tra_fr;
     if (mp._force_load_balance) {
       new ProgressUpdate("Load balancing training data...").fork(_progressKey);
-      train=reBalance(train,mp._replicate_training_data,mp._train.toString() + "." + model._key.toString()+ ".temporary.train");
+      train=reBalance(train,mp._replicate_training_data,mp._train.toString() + "." + model._key.toString()+ ".tmptrain");
     }
     if (model._output.isClassifier() && mp._balance_classes) {
       new ProgressUpdate("Balancing class distribution of training data...").fork(_progressKey);
@@ -48,7 +48,7 @@
       }
       if (mp._force_load_balance) {
         new ProgressUpdate("Balancing class distribution of validation data...").fork(_progressKey);
-        validScoreFrame=reBalance(validScoreFrame,false,mp._valid.toString() + "." + model._key.toString()+ ".temporary.valid");
+        validScoreFrame=reBalance(validScoreFrame,false,mp._valid.toString() + "." + model._key.toString()+ ".tmpval");
       }
       if (!_parms._quiet_mode)       Log.info("Number of chunks of the validation data: " + validScoreFrame.anyVec().nChunks());
     }
