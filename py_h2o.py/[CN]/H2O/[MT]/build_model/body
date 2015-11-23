@@ -12,7 +12,7 @@ def build_model(self, algo, training_frame, parameters, model_id=None, timeoutSe
     parameters['training_frame'] = training_frame
     if (model_id is not None):
         parameters['model_id'] = model_id
-    result = self.__do_json_request(('/3/ModelBuilders/' + algo), cmd='post', timeout=timeoutSecs, postData=parameters, raiseIfNon200=False)
+    result = self.__do_json_request(('/3/ModelBuilders/' + algo), cmd='post', timeout=timeoutSecs, postData=parameters, raiseIfNon200=False, suppressErrorMsg=True)
     if asynchronous:
         return result
     elif (('error_count' in result) and (result['error_count'] > 0)):
