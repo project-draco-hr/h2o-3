@@ -44,14 +44,16 @@
       if (isChunk && !val.isPersisted() && !diskFull&& ((Key)ok).home()) {
         try {
           val.storePersist();
-          if (m == null)           m=val.rawMem();
-          if (m != null)           cleaned+=m.length;
         }
- catch (        IOException e) {
-          if (isDiskFull())           Log.warn("Disk full! Disabling swapping to disk." + (force ? " Memory low! Please free some space in " + H2O.ICE_ROOT + "!" : ""));
- else           Log.warn("Disk swapping failed! " + e.getMessage());
+ catch (        FileNotFoundException fnfe) {
+          continue;
+        }
+catch (        IOException e) {
+          Log.warn(isDiskFull() ? "Disk full! Disabling swapping to disk." + (force ? " Memory low! Please free some space in " + H2O.ICE_ROOT + "!" : "") : "Disk swapping failed! " + e.getMessage());
           diskFull=true;
         }
+        if (m == null)         m=val.rawMem();
+        if (m != null)         cleaned+=m.length;
       }
       if (isChunk && force && (val.isPersisted() || !((Key)ok).home())) {
         val.freeMem();

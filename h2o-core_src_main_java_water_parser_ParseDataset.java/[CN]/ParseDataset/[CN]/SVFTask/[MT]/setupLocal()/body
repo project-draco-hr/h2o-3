@@ -9,7 +9,7 @@
       @Override protected void compute(){
         int nlines=0;
         for (        Vec vec : _f.vecs()) {
-          Value val=H2O.get(vec.chunkKey(fi));
+          Value val=Value.STORE_get(vec.chunkKey(fi));
           if (val != null) {
             nlines=((Chunk)val.get())._len;
             break;
@@ -19,7 +19,7 @@
         for (int j=0; j < _f.numCols(); ++j) {
           Vec vec=_f.vec(j);
           Key k=vec.chunkKey(fi);
-          Value val=H2O.get(k);
+          Value val=Value.STORE_get(k);
           if (val == null)           H2O.putIfMatch(k,new Value(k,new C0LChunk(0,fnlines)),null);
         }
       }

@@ -1,2 +1,9 @@
 {
+  getFile(v).delete();
+  Path dpath=Paths.get(_dir.toString(),getIceDirectory(v._key));
+  try (DirectoryStream<Path> dirStream=Files.newDirectoryStream(dpath)){
+    if (!dirStream.iterator().hasNext())     Files.delete(dpath);
+  }
+ catch (  IOException ex) {
+  }
 }

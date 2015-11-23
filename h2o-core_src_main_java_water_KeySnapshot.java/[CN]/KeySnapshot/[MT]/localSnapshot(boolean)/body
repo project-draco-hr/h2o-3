@@ -2,12 +2,12 @@
   Object[] kvs=H2O.STORE.raw_array();
   ArrayList<KeyInfo> res=new ArrayList<>();
   for (int i=2; i < kvs.length; i+=2) {
-    Object ok=kvs[i], ov=kvs[i + 1];
+    Object ok=kvs[i];
     if (!(ok instanceof Key))     continue;
     Key key=(Key)ok;
     if (!key.user_allowed())     continue;
     if (homeOnly && !key.home())     continue;
-    Value val=ov instanceof Value ? Value.STORE_get(key) : H2O.get(key);
+    Value val=Value.STORE_get(key);
     if (val == null)     continue;
     res.add(new KeyInfo(key,val));
   }
