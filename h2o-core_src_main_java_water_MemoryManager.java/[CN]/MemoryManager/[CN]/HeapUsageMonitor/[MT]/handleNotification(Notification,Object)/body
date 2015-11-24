@@ -5,10 +5,6 @@
   Cleaner.HEAP_USED_AT_LAST_GC=_allMemBean.getHeapMemoryUsage().getUsed();
   Cleaner.KV_USED_AT_LAST_GC=HeartBeatThread.myHisto.cached();
   MEM_LOW_CRITICAL=Cleaner.HEAP_USED_AT_LAST_GC > (MEM_MAX - (MEM_MAX >> 2));
-  if (MEM_LOW_CRITICAL) {
-    setMemLow();
-  }
- else   setMemGood();
-  System.err.println("GC CALLBACK: " + Cleaner.TIME_AT_LAST_GC + ", USED:"+ PrettyPrint.bytes(Cleaner.HEAP_USED_AT_LAST_GC)+ ", CRIT: "+ MEM_LOW_CRITICAL);
-  Cleaner.kick_store_cleaner();
+  Log.debug("GC CALLBACK: " + Cleaner.TIME_AT_LAST_GC + ", USED:"+ PrettyPrint.bytes(Cleaner.HEAP_USED_AT_LAST_GC)+ ", CRIT: "+ MEM_LOW_CRITICAL);
+  set_goals("GC CALLBACK",MEM_LOW_CRITICAL);
 }

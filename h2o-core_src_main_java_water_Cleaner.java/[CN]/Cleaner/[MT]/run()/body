@@ -11,7 +11,7 @@
     now=System.currentTimeMillis();
     _dirty=Long.MAX_VALUE;
     MemoryManager.set_goals("preclean",false);
-    final boolean force=(h._cached >= DESIRED);
+    boolean force=(h._cached >= DESIRED || !MemoryManager.CAN_ALLOC);
     if (force && diskFull)     diskFull=isDiskFull();
     long clean_to_age=h.clean_to(force ? DESIRED : (DESIRED >> 1));
     if (!force)     clean_to_age=Math.max(clean_to_age,now - 5000);
@@ -72,6 +72,7 @@ catch (        IOException e) {
         val.freeMem();
         freed+=val._max;
       }
+      force=(h._cached >= DESIRED || !MemoryManager.CAN_ALLOC);
     }
     String s1="Cleaner pass took: " + PrettyPrint.msecs(System.currentTimeMillis() - now,true) + ", spilled "+ PrettyPrint.bytes(cleaned)+ " in "+ PrettyPrint.usecs(io_ns >> 10);
     h=_myHisto.histo(true);
