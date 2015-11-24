@@ -17,7 +17,7 @@
     if (!force)     clean_to_age=Math.max(clean_to_age,now - 5000);
     if (DESIRED == -1)     clean_to_age=now;
     String s=h + " DESIRED=" + (DESIRED >> 20)+ "M dirtysince="+ (now - dirty)+ " force="+ force+ " clean2age="+ (now - clean_to_age);
-    if (false && MemoryManager.canAlloc())     Log.debug(s);
+    if (MemoryManager.canAlloc())     Log.debug(s);
  else     System.err.println(s);
     long cleaned=0;
     long freed=0;
@@ -42,6 +42,7 @@
         dirty_store(touched);
         continue;
       }
+      if (!H2O.ARGS.cleaner)       continue;
       if (isChunk && !val.isPersisted() && !diskFull&& ((Key)ok).home()) {
         long now_ns=System.nanoTime();
         try {
@@ -72,12 +73,12 @@ catch (        IOException e) {
         freed+=val._max;
       }
     }
-    System.err.println("Cleaner pass took: " + PrettyPrint.msecs(System.currentTimeMillis() - now,true) + ", spilled "+ PrettyPrint.bytes(cleaned)+ " in "+ PrettyPrint.usecs(io_ns >> 10));
+    String s1="Cleaner pass took: " + PrettyPrint.msecs(System.currentTimeMillis() - now,true) + ", spilled "+ PrettyPrint.bytes(cleaned)+ " in "+ PrettyPrint.usecs(io_ns >> 10);
     h=_myHisto.histo(true);
     MemoryManager.set_goals("postclean",false);
     String s2=h + " diski_o=" + PrettyPrint.bytes(cleaned)+ ", freed="+ (freed >> 20)+ "M, DESIRED="+ (DESIRED >> 20)+ "M";
-    if (false && MemoryManager.canAlloc())     Log.debug(s2);
- else     System.err.println(s2);
+    if (MemoryManager.canAlloc())     Log.debug(s1,s2);
+ else     System.err.println(s1 + "\n" + s2);
 synchronized (this) {
       _did_sweep=true;
       if (DESIRED == -1)       DESIRED=0;
