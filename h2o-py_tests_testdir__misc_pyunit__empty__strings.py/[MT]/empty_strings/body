@@ -1,0 +1,10 @@
+def empty_strings():
+    d = h2o.H2OFrame({'e': ['', ''], 'c': ['', ''], 'f': ['', ''], })
+    assert (d.isna().sum() == 0)
+    assert ((d == '').sum() == (d.nrow * d.ncol))
+    d = h2o.H2OFrame(([''] * 4))
+    assert (d.isna().sum() == 0)
+    assert ((d == '').sum() == (d.nrow * d.ncol))
+    d = h2o.H2OFrame(([([''] * 4)] * 3))
+    assert (d.isna().sum() == 0)
+    assert ((d == '').sum() == (d.nrow * d.ncol))
