@@ -2,17 +2,19 @@
   ArrayList<Frame> frames=new ArrayList<>();
   File ice=new File(water.H2O.ICE_ROOT.toString(),"ice" + water.H2O.API_PORT);
   Assert.assertTrue(MemoryManager.MEM_MAX <= 2L * 1024L * 1024L* 1024L);
+  String[] dirs=ice.list();
+  Assert.assertTrue(dirs == null || dirs.length == 0);
   try {
-    for (int i=0; i < 5; i++) {
+    for (int i=0; i < 10; i++) {
       frames.add(parse_test_file(Key.make("F" + frames.size()),"bigdata/laptop/usecases/cup98LRN_z.csv"));
       frames.add(parse_test_file(Key.make("F" + frames.size()),"bigdata/laptop/usecases/cup98VAL_z.csv"));
     }
   }
   finally {
-    String[] dirs=ice.list();
+    dirs=ice.list();
     Assert.assertTrue(dirs.length > 0);
     for (    Frame fr : frames)     fr.delete();
   }
-  String[] dirs=ice.list();
+  dirs=ice.list();
   Assert.assertTrue(dirs.length == 0);
 }

@@ -21,6 +21,7 @@
  else     System.err.println(s);
     long cleaned=0;
     long freed=0;
+    long io_ns=0;
     Object[] kvs=H2O.STORE.raw_array();
     for (int i=2; i < kvs.length; i+=2) {
       Object ok=kvs[i], ov=kvs[i + 1];
@@ -42,6 +43,7 @@
         continue;
       }
       if (isChunk && !val.isPersisted() && !diskFull&& ((Key)ok).home()) {
+        long now_ns=System.nanoTime();
         try {
           val.storePersist();
         }
@@ -54,6 +56,7 @@ catch (        IOException e) {
         }
         if (m == null)         m=val.rawMem();
         if (m != null)         cleaned+=m.length;
+        io_ns+=System.nanoTime() - now_ns;
       }
       if (isChunk && force && (val.isPersisted() || !((Key)ok).home())) {
         val.freeMem();
@@ -69,13 +72,16 @@ catch (        IOException e) {
         freed+=val._max;
       }
     }
-    _did_sweep=true;
-    if (DESIRED == -1)     DESIRED=0;
-    notifyAll();
+    System.err.println("Cleaner pass took: " + PrettyPrint.msecs(System.currentTimeMillis() - now,true) + ", spilled "+ PrettyPrint.bytes(cleaned)+ " in "+ PrettyPrint.usecs(io_ns >> 10));
     h=_myHisto.histo(true);
     MemoryManager.set_goals("postclean",false);
-    String s2=h + " cleaned=" + (cleaned >> 20)+ "M, freed="+ (freed >> 20)+ "M, DESIRED="+ (DESIRED >> 20)+ "M";
+    String s2=h + " diski_o=" + PrettyPrint.bytes(cleaned)+ ", freed="+ (freed >> 20)+ "M, DESIRED="+ (DESIRED >> 20)+ "M";
     if (false && MemoryManager.canAlloc())     Log.debug(s2);
  else     System.err.println(s2);
+synchronized (this) {
+      _did_sweep=true;
+      if (DESIRED == -1)       DESIRED=0;
+      notifyAll();
+    }
   }
 }
