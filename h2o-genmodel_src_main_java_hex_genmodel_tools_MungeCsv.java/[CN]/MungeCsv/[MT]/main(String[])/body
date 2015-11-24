@@ -1,0 +1,51 @@
+{
+  parseArgs(args);
+  GenMunger rawMunger;
+  rawMunger=(hex.genmodel.GenMunger)Class.forName(assemblyClassName).newInstance();
+  BufferedReader input=new BufferedReader(new FileReader(inputCSVFileName));
+  BufferedWriter output=new BufferedWriter(new FileWriter(outputCSVFileName));
+  String[] rawHeader=rawMunger.outNames();
+  StringBuilder header=new StringBuilder();
+  for (int i=0; i < rawHeader.length; ++i) {
+    header.append("\"").append(rawHeader[i]).append("\"");
+    if (i < rawHeader.length - 1)     header.append(",");
+  }
+  output.write(header.toString());
+  output.write("\n");
+  int lineNum=0;
+  String line;
+  try {
+    while ((line=input.readLine()) != null) {
+      lineNum++;
+      if (lineNum == 1)       continue;
+      RowData row;
+      try {
+        row=parseDataRow(line,rawMunger);
+      }
+ catch (      NumberFormatException nfe) {
+        nfe.printStackTrace();
+        System.out.println("Failed to parse row: " + lineNum);
+        throw new RuntimeException();
+      }
+      RowData mungedRow=rawMunger.fit(row);
+      for (int i=0; i < rawMunger.outNames().length; ++i) {
+        Object val=mungedRow == null ? Double.NaN : mungedRow.get(rawMunger.outNames()[i]);
+        if (val instanceof Double)         output.write(String.valueOf(val));
+ else         output.write("\"" + val + "\"");
+        if (i < rawMunger.outNames().length - 1)         output.write(",");
+      }
+      output.write("\n");
+    }
+  }
+ catch (  Exception e) {
+    System.out.println("Caught exception on line " + lineNum);
+    System.out.println("");
+    e.printStackTrace();
+    System.exit(1);
+  }
+ finally {
+    output.close();
+    input.close();
+  }
+  System.exit(0);
+}
