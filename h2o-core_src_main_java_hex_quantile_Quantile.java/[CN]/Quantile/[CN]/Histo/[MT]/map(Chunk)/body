@@ -1,21 +1,3 @@
 {
-  long bins[]=_bins=new long[_nbins];
-  double mins[]=_mins=new double[_nbins];
-  double maxs[]=_maxs=new double[_nbins];
-  Arrays.fill(_mins,Double.MAX_VALUE);
-  Arrays.fill(_maxs,-Double.MAX_VALUE);
-  double d;
-  for (int row=0; row < chk._len; row++) {
-    if (!Double.isNaN(d=chk.atd(row))) {
-      double idx=(d - _lb) / _step;
-      if (!(0.0 <= idx && idx < bins.length))       continue;
-      int i=(int)idx;
-      if (bins[i] == 0)       mins[i]=maxs[i]=d;
- else {
-        if (d < mins[i])         mins[i]=d;
-        if (d > maxs[i])         maxs[i]=d;
-      }
-      bins[i]++;
-    }
-  }
+  map(chk,new C0DChunk(1,chk.len()));
 }

@@ -6,10 +6,10 @@
     init(true);
     model=new QuantileModel(dest(),_parms,new QuantileModel.QuantileOutput(Quantile.this));
     model._output._parameters=_parms;
-    model._output._quantiles=new double[train().numCols()][_parms._probs.length];
+    model._output._quantiles=new double[_ncols][_parms._probs.length];
     model.delete_and_lock(_key);
     Vec vecs[]=train().vecs();
-    for (int n=0; n < vecs.length; n++) {
+    for (int n=0; n < _ncols; n++) {
       if (!isRunning())       return;
       Vec vec=vecs[n];
       if (vec.isBad()) {
@@ -17,7 +17,9 @@
         Arrays.fill(model._output._quantiles[n],Double.NaN);
         continue;
       }
-      Histo h1=new Histo(vec.min(),vec.max(),0,vec.length() - vec.naCnt(),vec.isInt()).doAll(vec);
+      double sumRows=_weights == null ? vec.length() - vec.naCnt() : new SumWeights().doAll(vec,_weights).sum;
+      Histo h1=new Histo(vec.min(),vec.max(),0,sumRows,vec.isInt());
+      h1=_weights == null ? h1.doAll(vec) : h1.doAll(vec,_weights);
       for (int p=0; p < _parms._probs.length; p++) {
         double prob=_parms._probs[p];
         Histo h=h1;
