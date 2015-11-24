@@ -4,7 +4,13 @@
   int i=0;
   for (  Job j : jobs) {
     if (j instanceof ModelBuilder) {
-      s.jobs[i]=new ModelBuilderJobV3().fillFromImpl((ModelBuilder)j);
+      try {
+        s.jobs[i]=new ModelBuilderJobV3().fillFromImpl((ModelBuilder)j);
+      }
+ catch (      Exception e) {
+        Log.warn("Caught exception filling a ModelBuilderJobV3; falling back to JobV3: " + e);
+        s.jobs[i]=new JobV3().fillFromImpl(j);
+      }
     }
  else {
       try {
