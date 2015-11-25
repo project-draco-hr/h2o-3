@@ -1,5 +1,7 @@
 {
-  if (!isPersisted() || !onICE())   return;
-  clrdsk();
+  if (!onICE())   return;
+  if (isDeleted())   return;
+  setDel();
+  if (!isPersisted())   return;
   H2O.getPM().delete(backend(),this);
 }

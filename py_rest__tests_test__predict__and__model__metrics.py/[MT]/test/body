@@ -53,3 +53,8 @@ def test(a_node, pp):
     p = a_node.predict(model='kmeans_prostate', frame='prostate_regression')
     h2o_test_utils.validate_predictions(a_node, p, 'kmeans_prostate', 'prostate_regression', 380)
     h2o.H2O.verboseprint('Predictions for scoring: ', 'kmeans_prostate', ' on: ', 'prostate_regression', ':  ', repr(p))
+    try:
+        p = a_node.predict(frame='kmeans_prostate', model='prostate_regression')
+        assert (1 == 0), "FAIL: expected a ValueError exception looking for Model 'prostate_regression'"
+    except Exception as e:
+        pass

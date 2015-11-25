@@ -1,3 +1,89 @@
 {
-  return;
+  boolean diskFull=false;
+  while (true) {
+    Histo h=_myHisto.histo(false);
+    long now=System.currentTimeMillis();
+    long dirty=_dirty;
+    if (h._cached < DESIRED && (now - dirty < 5000)) {
+      block_store_cleaner();
+      continue;
+    }
+    now=System.currentTimeMillis();
+    _dirty=Long.MAX_VALUE;
+    MemoryManager.set_goals("preclean",false);
+    boolean force=(h._cached >= DESIRED || !MemoryManager.CAN_ALLOC);
+    if (force && diskFull)     diskFull=isDiskFull();
+    long clean_to_age=h.clean_to(force ? DESIRED : (DESIRED >> 1));
+    if (!force)     clean_to_age=Math.max(clean_to_age,now - 5000);
+    if (DESIRED == -1)     clean_to_age=now;
+    String s=h + " DESIRED=" + (DESIRED >> 20)+ "M dirtysince="+ (now - dirty)+ " force="+ force+ " clean2age="+ (now - clean_to_age);
+    if (MemoryManager.canAlloc())     Log.debug(s);
+ else     System.err.println(s);
+    long cleaned=0;
+    long freed=0;
+    long io_ns=0;
+    Object[] kvs=H2O.STORE.raw_array();
+    for (int i=2; i < kvs.length; i+=2) {
+      Object ok=kvs[i], ov=kvs[i + 1];
+      if (!(ok instanceof Key))       continue;
+      if (!(ov instanceof Value))       continue;
+      Value val=(Value)ov;
+      byte[] m=val.rawMem();
+      Object p=val.rawPOJO();
+      if (m == null && p == null)       continue;
+      if (val.isLockable())       continue;
+      boolean isChunk=p instanceof Chunk;
+      long touched=val._lastAccessedTime;
+      if (touched > clean_to_age) {
+        if (val.isPersisted() && m != null && p != null && !isChunk) {
+          val.freeMem();
+          freed+=val._max;
+        }
+        dirty_store(touched);
+        continue;
+      }
+      if (!H2O.ARGS.cleaner)       continue;
+      if (isChunk && !val.isPersisted() && !diskFull&& ((Key)ok).home()) {
+        long now_ns=System.nanoTime();
+        try {
+          val.storePersist();
+        }
+ catch (        FileNotFoundException fnfe) {
+          continue;
+        }
+catch (        IOException e) {
+          Log.warn(isDiskFull() ? "Disk full! Disabling swapping to disk." + (force ? " Memory low! Please free some space in " + H2O.ICE_ROOT + "!" : "") : "Disk swapping failed! " + e.getMessage());
+          diskFull=true;
+        }
+        if (m == null)         m=val.rawMem();
+        if (m != null)         cleaned+=m.length;
+        io_ns+=System.nanoTime() - now_ns;
+      }
+      if (isChunk && force && (val.isPersisted() || !((Key)ok).home())) {
+        val.freeMem();
+        if (m != null)         freed+=val._max;
+        m=null;
+        val.freePOJO();
+        if (p != null)         freed+=val._max;
+        p=null;
+        if (isChunk)         freed-=val._max;
+      }
+      if (m != null && p != null && !isChunk) {
+        val.freeMem();
+        freed+=val._max;
+      }
+      force=(h._cached >= DESIRED || !MemoryManager.CAN_ALLOC);
+    }
+    String s1="Cleaner pass took: " + PrettyPrint.msecs(System.currentTimeMillis() - now,true) + ", spilled "+ PrettyPrint.bytes(cleaned)+ " in "+ PrettyPrint.usecs(io_ns >> 10);
+    h=_myHisto.histo(true);
+    MemoryManager.set_goals("postclean",false);
+    String s2=h + " diski_o=" + PrettyPrint.bytes(cleaned)+ ", freed="+ (freed >> 20)+ "M, DESIRED="+ (DESIRED >> 20)+ "M";
+    if (MemoryManager.canAlloc())     Log.debug(s1,s2);
+ else     System.err.println(s1 + "\n" + s2);
+synchronized (this) {
+      _did_sweep=true;
+      if (DESIRED == -1)       DESIRED=0;
+      notifyAll();
+    }
+  }
 }
