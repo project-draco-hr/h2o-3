@@ -1,4 +1,6 @@
 def poll(self):
+    global POLLING
+    POLLING = True
     sleep = 0.1
     running = True
     if H2OJob.__PROGRESS_BAR__:
@@ -10,6 +12,7 @@ def poll(self):
             sleep += 0.1
         self._refresh_job_view()
         running = self._is_running()
+    POLLING = False
     self._update_progress()
     if H2OJob.__PROGRESS_BAR__:
         print 
