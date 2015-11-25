@@ -1,11 +1,4 @@
 {
-  LinuxProcFileReader lpfr=new LinuxProcFileReader();
-  lpfr.read();
-  if (lpfr.valid()) {
-    _cpuTicks=lpfr.getCpuTicks();
-  }
- else {
-    _cpuTicks=new long[0][0];
-  }
+  _cpuTicks=LinuxProcFileReader.refresh() ? LinuxProcFileReader.getCpuTicks() : new long[0][0];
   tryComplete();
 }
