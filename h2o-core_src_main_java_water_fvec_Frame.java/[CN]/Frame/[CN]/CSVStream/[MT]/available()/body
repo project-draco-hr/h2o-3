@@ -10,7 +10,8 @@
   _position=0;
   if (isLastRowOfCurrentNonEmptyChunk(_curChkIdx,_row)) {
     for (    Vec v : vecs()) {
-      hintFlushRemoteChunk(v,_curChkIdx);
+      Key k=v.chunkKey(_curChkIdx);
+      if (!k.home())       H2O.raw_remove(k);
     }
   }
   _row++;
