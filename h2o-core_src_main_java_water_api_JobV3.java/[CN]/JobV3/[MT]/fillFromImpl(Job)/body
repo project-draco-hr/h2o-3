@@ -9,7 +9,16 @@
   msec=(job.isStopped() ? job._end_time : System.currentTimeMillis()) - job._start_time;
   Key dest_key=job.dest();
   Class<? extends Keyed> dest_class=ReflectionUtils.findActualClassParameter(job.getClass(),0);
-  dest=KeyV3.forKeyedClass(dest_class,dest_key);
+  try {
+    dest=KeyV3.forKeyedClass(dest_class,dest_key);
+  }
+ catch (  H2OFailException e) {
+    throw e;
+  }
+catch (  Exception e) {
+    dest=null;
+    Log.warn("JobV3.fillFromImpl(): dest key for job: " + this + " is not the expected type: "+ dest_class.getCanonicalName()+ ": "+ dest_key+ ".  Returning null for the dest field.");
+  }
   exception=job._exception;
   return (S)this;
 }
