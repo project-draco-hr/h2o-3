@@ -3,7 +3,7 @@
   if (!notifType.equals(MemoryNotificationInfo.MEMORY_COLLECTION_THRESHOLD_EXCEEDED))   return;
   Cleaner.TIME_AT_LAST_GC=System.currentTimeMillis();
   Cleaner.HEAP_USED_AT_LAST_GC=_allMemBean.getHeapMemoryUsage().getUsed();
-  Cleaner.KV_USED_AT_LAST_GC=HeartBeatThread.myHisto.cached();
+  Cleaner.KV_USED_AT_LAST_GC=Cleaner.Histo.cached();
   MEM_LOW_CRITICAL=Cleaner.HEAP_USED_AT_LAST_GC > (MEM_MAX - (MEM_MAX >> 2));
   Log.debug("GC CALLBACK: " + Cleaner.TIME_AT_LAST_GC + ", USED:"+ PrettyPrint.bytes(Cleaner.HEAP_USED_AT_LAST_GC)+ ", CRIT: "+ MEM_LOW_CRITICAL);
   set_goals("GC CALLBACK",MEM_LOW_CRITICAL);
