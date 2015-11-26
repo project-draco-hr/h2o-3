@@ -7,6 +7,7 @@
   Object[] kvs=H2O.STORE.raw_array();
   long cached=0;
   long total=0;
+  long swapped=0;
   long oldest=Long.MAX_VALUE;
   Value vold=null;
   for (int i=2; i < kvs.length; i+=2) {
@@ -19,12 +20,13 @@
       continue;
     }
     total+=val._max;
+    if (val.isPersisted())     swapped+=val._max;
     int len=0;
     byte[] m=val.rawMem();
     Object p=val.rawPOJO();
     if (m != null)     len+=val._max;
     if (p != null)     len+=val._max;
-    if (p instanceof Chunk)     len-=val._max;
+    if (m != null && p instanceof Chunk)     len-=val._max;
     if (len == 0)     continue;
     cached+=len;
     if (val._lastAccessedTime < oldest) {
@@ -38,6 +40,7 @@
   }
   _cached=cached;
   _total=total;
+  _swapped=swapped;
   _oldest=oldest;
   _vold=vold;
   _clean=clean && _dirty == Long.MAX_VALUE;

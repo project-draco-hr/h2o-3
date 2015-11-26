@@ -2,15 +2,16 @@
 def _shutdown(conn, prompt):
     '\n    Shut down the specified instance. All data will be lost.\n    This method checks if H2O is running at the specified IP address and port, and if it is, shuts down that H2O\n    instance.\n    :param conn: An H2OConnection object containing the IP address and port of the server running H2O.\n    :param prompt: A logical value indicating whether to prompt the user before shutting down the H2O server.\n    :return: None\n    '
     global __H2OCONN__
-    if (not isinstance(conn, H2OConnection)):
-        raise ValueError('`conn` must be an H2OConnection object')
+    if (conn is None):
+        raise ValueError('There is no H2O instance running.')
     try:
         if (not conn.cluster_is_up(conn)):
             raise ValueError('There is no H2O instance running at ip: {0} and port: {1}'.format(conn.ip(), conn.port()))
     except:
-        print 'The H2O instance running at {0}:{1} has already been shutdown.'.format(conn.ip(), conn.port())
+        ip = conn.ip()
+        port = conn.port()
         __H2OCONN__ = None
-        return
+        raise ValueError('The H2O instance running at {0}:{1} has already been shutdown.'.format(ip, port))
     if (not isinstance(prompt, bool)):
         raise ValueError('`prompt` must be TRUE or FALSE')
     if prompt:
