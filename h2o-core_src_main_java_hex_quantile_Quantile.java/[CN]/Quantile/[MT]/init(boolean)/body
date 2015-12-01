@@ -1,4 +1,7 @@
 {
   super.init(expensive);
   for (  double p : _parms._probs)   if (p < 0.0 || p > 1.0)   error("_probs","Probabilities must be between 0 and 1");
+  _ncols=train().numCols() - numSpecialCols();
+  if (numSpecialCols() == 1 && _weights == null)   throw new IllegalArgumentException("The only special Vec that is supported for Quantiles is observation weights.");
+  if (numSpecialCols() > 1)   throw new IllegalArgumentException("Cannot handle more than 1 special vec (weights)");
 }

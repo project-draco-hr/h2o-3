@@ -1,0 +1,37 @@
+{
+  QuantileModel kmm1;
+  QuantileModel kmm2;
+  Frame fr1=null;
+  Frame fr2=null;
+  try {
+    fr1=parse_test_file("smalldata/junit/weights_all_tiny.csv");
+    fr2=parse_test_file("smalldata/junit/weights_all_ones.csv");
+    for (    QuantileModel.CombineMethod comb : new QuantileModel.CombineMethod[]{QuantileModel.CombineMethod.AVERAGE,QuantileModel.CombineMethod.LOW,QuantileModel.CombineMethod.HIGH,QuantileModel.CombineMethod.INTERPOLATE}) {
+{
+        QuantileModel.QuantileParameters parms=new QuantileModel.QuantileParameters();
+        parms._train=fr1._key;
+        parms._combine_method=comb;
+        parms._weights_column="weight";
+        Job<QuantileModel> job1=new Quantile(parms).trainModel();
+        kmm1=job1.get();
+        job1.remove();
+      }
+{
+        QuantileModel.QuantileParameters parms=new QuantileModel.QuantileParameters();
+        parms._train=fr2._key;
+        parms._combine_method=comb;
+        parms._weights_column="weight";
+        Job<QuantileModel> job2=new Quantile(parms).trainModel();
+        kmm2=job2.get();
+        job2.remove();
+      }
+      Assert.assertTrue(Arrays.deepEquals(kmm1._output._quantiles,kmm2._output._quantiles));
+      if (kmm1 != null)       kmm1.delete();
+      if (kmm2 != null)       kmm2.delete();
+    }
+  }
+  finally {
+    if (fr1 != null)     fr1.remove();
+    if (fr2 != null)     fr2.remove();
+  }
+}
