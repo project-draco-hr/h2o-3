@@ -27,22 +27,26 @@
       int sentinel=(0xFF) & bb.get();
       if (sentinel != 0xef)       throw H2O.fail("missing eom sentinel when opening new tcp channel");
       H2ONode h2o=H2ONode.intern(sock.socket().getInetAddress(),port);
-      if (chanType == 1) {
-        Log.info("starting new UDP-TCP receiver thread connected to " + sock.socket().getRemoteSocketAddress());
+switch (chanType) {
+case 1:
         new UDP_TCP_ReaderThread(h2o,sock).start();
-      }
- else       if (chanType == 2)       new TCPReaderThread(sock,new AutoBuffer(sock)).start();
- else       throw H2O.fail("unexpected channel type " + chanType + ", only know 1 - Small and 2 - Big");
-    }
- catch (    java.nio.channels.AsynchronousCloseException ex) {
       break;
-    }
-catch (    Exception e) {
-      e.printStackTrace();
-      Log.err("IO error on TCP port " + H2O.H2O_PORT + ": ",e);
-      saw_error=true;
-      errsock=SOCK;
-      SOCK=null;
-    }
-  }
+case 2:
+    new TCPReaderThread(sock,new AutoBuffer(sock)).start();
+  break;
+default :
+throw H2O.fail("unexpected channel type " + chanType + ", only know 1 - Small and 2 - Big");
+}
+}
+ catch (java.nio.channels.AsynchronousCloseException ex) {
+break;
+}
+catch (Exception e) {
+e.printStackTrace();
+Log.err("IO error on TCP port " + H2O.H2O_PORT + ": ",e);
+saw_error=true;
+errsock=SOCK;
+SOCK=null;
+}
+}
 }
