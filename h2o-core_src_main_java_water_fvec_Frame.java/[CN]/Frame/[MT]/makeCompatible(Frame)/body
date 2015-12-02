@@ -3,7 +3,7 @@
   Vec v1=anyVec();
   Vec v2=f.anyVec();
   if (v1.length() != v2.length())   throw new IllegalArgumentException("Can not make vectors of different length compatible!");
-  if (v2 == null || v1.checkCompatible(v2))   return f;
+  if (v2 == null || Vec.VectorGroup.sameGroup(v1,v2))   return f;
   Key k=Key.make();
   H2O.submitTask(new RebalanceDataSet(this,f,k)).join();
   Frame f2=(Frame)k.get();
