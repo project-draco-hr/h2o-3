@@ -1,10 +1,12 @@
 {
   UDPRebooted.T.reboot.broadcast();
-  if (H2O.ARGS.useUDP)   new UDPReceiverThread().start();
+  if (H2O.ARGS.useUDP) {
+    new UDPReceiverThread().start();
+    new UDPTimeOutThread().start();
+    new H2ONode.AckAckTimeOutThread().start();
+  }
   new MultiReceiverThread().start();
   Cleaner.THE_CLEANER.start();
-  new UDPTimeOutThread().start();
-  new H2ONode.AckAckTimeOutThread().start();
   new TCPReceiverThread(NetworkInit._tcpSocket).start();
   Object x=water.api.RequestServer.class;
 }
