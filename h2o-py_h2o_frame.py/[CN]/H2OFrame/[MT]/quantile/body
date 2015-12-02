@@ -1,7 +1,9 @@
-def quantile(self, prob=None, combine_method='interpolate'):
-    'Compute quantiles.\n\n    Parameters\n    ----------\n    prob : list, default=[0.01,0.1,0.25,0.333,0.5,0.667,0.75,0.9,0.99]\n      A list of probabilities of any length.\n    combine_method : str, default="interpolate"\n      For even samples, how to combine quantiles.\n      Should be one of ["interpolate", "average", "low", "hi"]\n\n    Returns\n    -------\n      A new H2OFrame containing the quantiles and probabilities.\n    '
+def quantile(self, prob=None, combine_method='interpolate', weights_column=None):
+    'Compute quantiles.\n\n    Parameters\n    ----------\n    prob : list, default=[0.01,0.1,0.25,0.333,0.5,0.667,0.75,0.9,0.99]\n      A list of probabilities of any length.\n    combine_method : str, default="interpolate"\n      For even samples, how to combine quantiles.\n      Should be one of ["interpolate", "average", "low", "hi"]\n    weights_column : str, default=None\n      Name of column with optional observation weights in this H2OFrame\n\n    Returns\n    -------\n      A new H2OFrame containing the quantiles and probabilities.\n    '
     if (len(self) == 0):
         return self
     if (not prob):
         prob = [0.01, 0.1, 0.25, 0.333, 0.5, 0.667, 0.75, 0.9, 0.99]
-    return H2OFrame._expr(expr=ExprNode('quantile', self, prob, combine_method))
+    if (not weights_column):
+        weights_column = '_'
+    return H2OFrame._expr(expr=ExprNode('quantile', self, prob, combine_method, weights_column))
