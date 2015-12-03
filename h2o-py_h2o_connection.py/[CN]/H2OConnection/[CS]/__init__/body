@@ -53,10 +53,7 @@ def __init__(self, ip='localhost', port=54321, size=1, start_h2o=False, enable_a
     __H2OCONN__._cld = cld
     if (strict_version_check and (os.environ.get('H2O_DISABLE_STRICT_VERSION_CHECK') is None)):
         ver_h2o = cld['version']
-        try:
-            ver_pkg = pkg_resources.get_distribution('h2o').version
-        except:
-            ver_pkg = 'UNKNOWN'
+        ver_pkg = ('UNKNOWN' if (h2o.__version__ == 'SUBST_PROJECT_VERSION') else h2o.__version__)
         if (ver_h2o != ver_pkg):
             raise EnvironmentError, 'Version mismatch. H2O is version {0}, but the python package is version {1}.'.format(ver_h2o, str(ver_pkg))
     self._session_id = H2OConnection.get_json(url_suffix='InitID')['session_key']

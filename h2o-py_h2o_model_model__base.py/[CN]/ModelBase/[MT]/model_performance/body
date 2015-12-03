@@ -8,9 +8,9 @@ def model_performance(self, test_data=None, train=False, valid=False):
         if valid:
             return self._model_json['output']['validation_metrics']
     else:
-        if (not isinstance(test_data, H2OFrame)):
+        if (not isinstance(test_data, h2o.H2OFrame)):
             raise ValueError(('`test_data` must be of type H2OFrame.  Got: ' + type(test_data)))
-        res = H2OConnection.post_json(((('ModelMetrics/models/' + self.model_id) + '/frames/') + test_data.frame_id))
+        res = h2o.H2OConnection.post_json(((('ModelMetrics/models/' + self.model_id) + '/frames/') + test_data.frame_id))
         raw_metrics = None
         for mm in res['model_metrics']:
             if ((not (mm['frame'] == None)) and (mm['frame']['name'] == test_data.frame_id)):
