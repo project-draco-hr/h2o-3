@@ -1,3 +1,11 @@
 {
-  throw water.H2O.unimpl();
+  File file=File.createTempFile(model.getClass().getSimpleName(),null);
+  try {
+    new AutoBuffer(new FileOutputStream(file),true).put(model).close();
+    if (deleteModel)     model.delete();
+    return new AutoBuffer(new FileInputStream(file)).get();
+  }
+  finally {
+    file.delete();
+  }
 }
