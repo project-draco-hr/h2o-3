@@ -1,18 +1,22 @@
 {
+  if (find_test_file_static("bigdata/laptop/usecases/cup98LRN_z.csv") == null)   return;
+  if (find_test_file_static("bigdata/laptop/usecases/cup98VAL_z.csv") == null)   return;
   ArrayList<Frame> frames=new ArrayList<>();
   File ice=new File(water.H2O.ICE_ROOT.toString(),"ice" + water.H2O.API_PORT);
-  Assert.assertTrue(MemoryManager.MEM_MAX <= 2L * 1024L * 1024L* 1024L);
+  Assert.assertTrue(MemoryManager.MEM_MAX <= 1536L * 1024L * 1024L);
   String[] dirs=ice.list();
   Assert.assertTrue(dirs == null || dirs.length == 0);
   try {
-    for (int i=0; i < 10; i++) {
+    for (int i=0; i < 4; i++) {
       frames.add(parse_test_file(Key.make("F" + frames.size()),"bigdata/laptop/usecases/cup98LRN_z.csv"));
       frames.add(parse_test_file(Key.make("F" + frames.size()),"bigdata/laptop/usecases/cup98VAL_z.csv"));
     }
   }
   finally {
     dirs=ice.list();
+    Assert.assertNotNull("Swap directory not created; no swapping happened; test failed to stresss enough",dirs);
     Assert.assertTrue(dirs.length > 0);
+    Log.info("Deleting swap files at test end");
     for (    Frame fr : frames)     fr.delete();
   }
   dirs=ice.list();
