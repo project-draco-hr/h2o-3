@@ -2,7 +2,7 @@ def offset_gaussian():
     insurance = h2o.import_file(pyunit_utils.locate('smalldata/glm_test/insurance.csv'))
     insurance['offset'] = insurance['Holders'].log()
     gbm = H2OGradientBoostingEstimator(ntrees=600, max_depth=1, min_rows=1, learn_rate=0.1, distribution='gaussian')
-    gbm.train(x=range(3), y='Claims', training_frame=insurance, offset_column='offset')
+    gbm.train(x=list(range(3)), y='Claims', training_frame=insurance, offset_column='offset')
     predictions = gbm.predict(insurance)
     assert (abs((44.33016 - gbm._model_json['output']['init_f'])) < 1e-05), 'expected init_f to be {0}, but got {1}'.format(44.33016, gbm._model_json['output']['init_f'])
     assert (abs((1491.135 - gbm.mse())) < 0.01), 'expected mse to be {0}, but got {1}'.format(1491.135, gbm.mse())

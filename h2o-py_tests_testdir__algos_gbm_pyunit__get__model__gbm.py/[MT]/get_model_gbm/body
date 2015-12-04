@@ -3,7 +3,7 @@ def get_model_gbm():
     prostate.describe()
     prostate[1] = prostate[1].asfactor()
     prostate_gbm = H2OGradientBoostingEstimator(distribution='bernoulli')
-    prostate_gbm.train(x=range(2, 9), y=1, training_frame=prostate)
+    prostate_gbm.train(x=list(range(2, 9)), y=1, training_frame=prostate)
     prostate_gbm.show()
     prostate_gbm.predict(prostate)
     model = h2o.get_model(prostate_gbm.model_id)

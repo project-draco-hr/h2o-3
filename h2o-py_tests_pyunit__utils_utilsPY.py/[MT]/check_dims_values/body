@@ -10,7 +10,7 @@ def check_dims_values(python_obj, h2o_frame, rows, cols):
                 assert (pval == hval), 'expected H2OFrame to have the same values as the python object for row {0} and column {1}, but h2o got {2} and python got {3}.'.format(r, c, hval, pval)
     elif isinstance(python_obj, dict):
         for r in range(rows):
-            for k in python_obj.keys():
+            for k in list(python_obj.keys()):
                 pval = (python_obj[k][r] if hasattr(python_obj[k], '__iter__') else python_obj[k])
                 hval = h2o_frame[(r, k)]
                 assert (pval == hval), 'expected H2OFrame to have the same values as the python object for row {0} and column {1}, but h2o got {2} and python got {3}.'.format(r, k, hval, pval)

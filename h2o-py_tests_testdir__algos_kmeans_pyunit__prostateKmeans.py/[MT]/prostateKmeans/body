@@ -4,8 +4,8 @@ def prostateKmeans():
     prostate_sci = prostate_sci[:, 1:]
     for i in range(5, 9):
         prostate_km_h2o = H2OKMeansEstimator(k=i)
-        prostate_km_h2o.train(x=range(1, prostate_h2o.ncol), training_frame=prostate_h2o)
+        prostate_km_h2o.train(x=list(range(1, prostate_h2o.ncol)), training_frame=prostate_h2o)
         prostate_km_h2o.show()
         prostate_km_sci = KMeans(n_clusters=i, init='k-means++', n_init=1)
         prostate_km_sci.fit(prostate_sci)
-        print prostate_km_sci.cluster_centers_
+        print(prostate_km_sci.cluster_centers_)

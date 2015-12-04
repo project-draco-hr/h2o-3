@@ -5,10 +5,10 @@ def table_check():
     assert (table1[(1, 1)] == 50), 'Expected 50 of {0}, but got {1}'.format(table1[(1, 0)], table1[(1, 1)])
     assert (table1[(2, 1)] == 50), 'Expected 50 of {0}, but got {1}'.format(table1[(2, 0)], table1[(2, 1)])
     table2 = iris['C1'].table(iris['C5'])
-    print table2
+    print(table2)
     cars = h2o.import_file(path=pyunit_utils.locate('smalldata/junit/cars_20mpg.csv'))
     table = cars[2].table().as_data_frame()
     table = dict(zip(*table)[1:])
-    table = {k: int(v) for (k, v) in table.items()}
+    table = {k: int(v) for (k, v) in list(table.items())}
     expected = Counter(cars[2].as_data_frame()[0][1:])
     assert (table == expected), 'Expected {} for table counts but got {}'.format(expected, table)

@@ -12,12 +12,12 @@ def deeplearning_autoencoder():
     train_supervised = train_hex[(sid < 0.5)]
     train_supervised.describe()
     ae_model = H2OAutoEncoderEstimator(activation='Tanh', hidden=[nfeatures], epochs=1, reproducible=True, seed=1234)
-    ae_model.train(range(resp), training_frame=train_supervised)
+    ae_model.train(list(range(resp)), training_frame=train_supervised)
     train_supervised_features = ae_model.deepfeatures(train_supervised[0:resp], 0)
     assert (train_supervised_features.ncol == nfeatures), 'Dimensionality of reconstruction is wrong!'
     train_supervised_features = train_supervised_features.cbind(train_supervised[resp])
     drf_model = H2ORandomForestEstimator(ntrees=10, min_rows=10, seed=1234)
-    drf_model.train(x=range(20), y=(train_supervised_features.ncol - 1), training_frame=train_supervised_features)
+    drf_model.train(x=list(range(20)), y=(train_supervised_features.ncol - 1), training_frame=train_supervised_features)
     test_features = ae_model.deepfeatures(test_hex[0:resp], 0)
     test_features = test_features.cbind(test_hex[resp])
     cm = drf_model.confusion_matrix(test_features)

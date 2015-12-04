@@ -3,10 +3,10 @@ def cv_nfolds_gbm():
     prostate[1] = prostate[1].asfactor()
     prostate.summary()
     prostate_gbm = H2OGradientBoostingEstimator(nfolds=5, distribution='bernoulli')
-    prostate_gbm.train(x=range(2, 9), y=1, training_frame=prostate)
+    prostate_gbm.train(x=list(range(2, 9)), y=1, training_frame=prostate)
     prostate_gbm.show()
     try:
-        H2OGradientBoostingEstimator(nfolds=5, distribution='bernoulli').train(x=range(2, 9), y=1, training_frame=prostate, validation_frame=prostate)
+        H2OGradientBoostingEstimator(nfolds=5, distribution='bernoulli').train(x=list(range(2, 9)), y=1, training_frame=prostate, validation_frame=prostate)
         assert True
     except EnvironmentError:
         assert False, 'expected an error'
