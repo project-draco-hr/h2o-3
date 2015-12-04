@@ -1,4 +1,14 @@
 {
   ModelsV3 s=(ModelsV3)Schema.newInstance(ModelsV3.class);
-  throw water.H2O.unimpl();
+  try {
+    URI targetUri=FileUtils.getURI(mimport.dir);
+    Persist p=H2O.getPM().getPersistForURI(targetUri);
+    InputStream is=p.open(targetUri.toString());
+    Model model=(Model)Keyed.readAll(new AutoBuffer(is));
+    s.models=new ModelSchema[]{(ModelSchema)Schema.schema(version,model).fillFromImpl(model)};
+  }
+ catch (  FSIOException e) {
+    throw new H2OIllegalArgumentException("dir","importModel",e);
+  }
+  return s;
 }
