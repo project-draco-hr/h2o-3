@@ -2,6 +2,6 @@ def centroid_stats(self, train=False, valid=False, xval=False):
     '\n    Get the centroid statistics for each cluster.\n\n    If all are False (default), then return the training metric value.\n    If more than one options is set to True, then return a dictionary of metrics where\n    the keys are "train", "valid", and "xval".\n\n    Parameters\n    ----------\n      train : bool, optional\n        If True, then return the centroid statistics for the training data.\n      valid : bool, optional\n        If True, then return the centroid statistics for the validation data.\n      xval : bool, optional\n        If True, then return the centroid statistics for each of the cross-validated\n        splits.\n\n    Returns\n    -------\n      Returns the centroid statistics for the specified key(s).\n    '
     tm = ModelBase._get_metrics(self, train, valid, xval)
     m = {}
-    for (k, v) in zip(tm.keys(), tm.values()):
+    for (k, v) in zip(list(tm.keys()), list(tm.values())):
         m[k] = (None if (v is None) else v._metric_json['centroid_stats'])
-    return (m.values()[0] if (len(m) == 1) else m)
+    return (list(m.values())[0] if (len(m) == 1) else m)

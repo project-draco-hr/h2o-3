@@ -1,5 +1,5 @@
 def _handle_python_dicts(python_obj):
-    header = python_obj.keys()
+    header = list(python_obj.keys())
     is_valid = all([re.match('^[a-zA-Z_][a-zA-Z0-9_.]*$', col) for col in header])
     if (not is_valid):
         raise ValueError('Did not get a valid set of column names! Must match the regular expression: ^[a-zA-Z_][a-zA-Z0-9_.]*$ ')
@@ -8,6 +8,6 @@ def _handle_python_dicts(python_obj):
         if isinstance(v, (tuple, list)):
             if _is_list_of_lists(v):
                 raise ValueError('Values in the dictionary must be flattened!')
-    rows = map(list, itertools.izip_longest(*python_obj.values()))
-    data_to_write = [dict(zip(header, row)) for row in rows]
+    rows = list(map(list, itertools.zip_longest(*list(python_obj.values()))))
+    data_to_write = [dict(list(zip(header, row))) for row in rows]
     return (header, data_to_write)

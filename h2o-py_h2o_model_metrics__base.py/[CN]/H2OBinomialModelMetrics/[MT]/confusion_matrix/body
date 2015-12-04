@@ -14,7 +14,7 @@ def confusion_matrix(self, metrics=None, thresholds=None):
         thresholds_list = []
     else:
         thresholds_list = [thresholds]
-    if ((not all((isinstance(t, (int, float, long)) for t in thresholds_list))) or (not all((((t >= 0) or (t <= 1)) for t in thresholds_list)))):
+    if ((not all((isinstance(t, (int, float, int)) for t in thresholds_list))) or (not all((((t >= 0) or (t <= 1)) for t in thresholds_list)))):
         raise ValueError('All thresholds must be numbers between 0 and 1 (inclusive).')
     if (not all(((m in ['min_per_class_accuracy', 'absolute_MCC', 'precision', 'accuracy', 'f0point5', 'f2', 'f1']) for m in metrics_list))):
         raise ValueError('The only allowable metrics are min_per_class_accuracy, absolute_MCC, precision, accuracy, f0point5, f2, f1')

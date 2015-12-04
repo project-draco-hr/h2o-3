@@ -1,6 +1,6 @@
 def _resolve_model(future_model, **kwargs):
     future_model.poll()
-    if ('_rest_version' in kwargs.keys()):
+    if ('_rest_version' in list(kwargs.keys())):
         model_json = H2OConnection.get_json(('Models/' + future_model.job.dest_key), _rest_version=kwargs['_rest_version'])['models'][0]
     else:
         model_json = H2OConnection.get_json(('Models/' + future_model.job.dest_key))['models'][0]

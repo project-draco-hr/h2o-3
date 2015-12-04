@@ -22,7 +22,7 @@ def _model_build(self, x, y, tframe, vframe, kwargs):
         self._job = model
         return
     model.poll()
-    if ('_rest_version' in kwargs.keys()):
+    if ('_rest_version' in list(kwargs.keys())):
         model_json = H2OConnection.get_json(('Models/' + model.dest_key), _rest_version=kwargs['_rest_version'])['models'][0]
     else:
         model_json = H2OConnection.get_json(('Models/' + model.dest_key))['models'][0]
