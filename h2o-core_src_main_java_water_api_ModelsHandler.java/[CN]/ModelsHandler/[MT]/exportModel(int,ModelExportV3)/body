@@ -1,6 +1,14 @@
 {
   Model model=getFromDKV("model_id",mexport.model_id.key());
-  List<Key> keysToExport=new LinkedList<>();
-  keysToExport.add(model._key);
-  throw water.H2O.unimpl();
+  try {
+    URI targetUri=FileUtils.getURI(mexport.dir);
+    Persist p=H2O.getPM().getPersistForURI(targetUri);
+    OutputStream os=p.create(targetUri.toString(),mexport.force);
+    model.writeAll(new AutoBuffer(os,true)).close();
+    mexport.dir="file".equals(targetUri.getScheme()) ? new File(targetUri).getCanonicalPath() : targetUri.toString();
+  }
+ catch (  IOException e) {
+    throw new H2OIllegalArgumentException("dir","exportModel",e);
+  }
+  return mexport;
 }
