@@ -1,12 +1,7 @@
 {
-  Frame[] all_frames=null;
-  Map<Frame,Set<String>> all_frames_cols=null;
-  if (this.find_compatible_frames) {
-    all_frames=Frames.fetchAll();
-    all_frames_cols=new HashMap<Frame,Set<String>>();
-    for (    Frame f : all_frames) {
-      all_frames_cols.put(f,new HashSet<String>(Arrays.asList(f._names)));
-    }
-  }
+  if (!find_compatible_frames)   return null;
+  Frame[] all_frames=Frames.fetchAll();
+  Map<Frame,Set<String>> all_frames_cols=new HashMap<>();
+  for (  Frame f : all_frames)   all_frames_cols.put(f,new HashSet<>(Arrays.asList(f._names)));
   return all_frames_cols;
 }
