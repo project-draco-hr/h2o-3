@@ -1,0 +1,14 @@
+{
+  Frame f=parse_test_file(dataset);
+  try {
+    GLMModel.GLMParameters params=new GLMModel.GLMParameters();
+    params._train=f._key;
+    params._ignored_columns=ignoredColumns;
+    params._response_column=response;
+    params._family=family;
+    return new GLM(params).trainModel().get();
+  }
+  finally {
+    if (f != null)     f.delete();
+  }
+}

@@ -1,0 +1,9 @@
+{
+  int ncs=nChunks();
+  for (int i=0; i < ncs; i++) {
+    Key ck=chunkKey(i);
+    ab.put(DKV.getGet(ck));
+    if (!ck.home())     H2O.raw_remove(ck);
+  }
+  return super.writeAll_impl(ab);
+}
