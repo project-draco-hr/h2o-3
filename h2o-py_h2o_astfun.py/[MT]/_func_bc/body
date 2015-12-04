@@ -12,10 +12,10 @@ def _func_bc(nargs, idx, ops, keys):
             unnamed_args.insert(0, arg)
             nargs -= 1
     op = ops[idx][1][0]
-    if (op not in dir(frame.H2OFrame)):
+    if (op not in dir(ExprNode._fr_cls())):
         raise ValueError('Unimplemented: op not bound in H2OFrame')
     if is_attr(ops[idx][0]):
-        argspec = inspect.getargspec(getattr(frame.H2OFrame, op))
+        argspec = inspect.getargspec(getattr(ExprNode._fr_cls(), op))
         argnames = argspec.args[1:]
         argdefs = (argspec.defaults or ())
         args = (unnamed_args + list(argdefs[len(unnamed_args):]))
@@ -36,4 +36,4 @@ def _func_bc(nargs, idx, ops, keys):
     elif is_load_fast(ops[idx][0]):
         args.insert(0, _load_fast(ops[idx][1][0]))
         idx -= 1
-    return [expr.ExprNode(op, *args), idx]
+    return [ExprNode(op, *args), idx]

@@ -1,6 +1,23 @@
-import collections, csv, itertools, os, re, tempfile, urllib2, sys, urllib, imp, traceback
+from __future__ import print_function
+from __future__ import absolute_import
+import collections
+import csv
+import imp
+import os
+import tempfile
+from future.standard_library import install_aliases
+install_aliases()
+from urllib.parse import urlparse, urlencode
+from urllib.request import urlopen, Request
+from urllib.error import HTTPError
+import sys
+import urllib
+import traceback
+from .utils.shared_utils import _quoted, can_use_pandas, _handle_python_lists, _is_list, _is_str_list, _handle_python_dicts
+from .display import H2ODisplay
+from .connection import H2OConnection
+from .job import H2OJob
+from .expr import ExprNode
+from .group_by import GroupBy
 import h2o
-from expr import ExprNode
-from astfun import _bytecode_decompile_lambda
-from group_by import GroupBy
-_id_ctr = 0
+from functools import reduce

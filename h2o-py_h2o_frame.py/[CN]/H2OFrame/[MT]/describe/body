@@ -1,9 +1,9 @@
 def describe(self):
     'Generate an in-depth description of this H2OFrame. Everything in summary(), plus\n    the data layout.\n    '
-    res = h2o.H2OConnection.get_json(((('Frames/' + urllib.quote(self.frame_id)) + '?row_count=') + str(10)))['frames'][0]
+    res = H2OConnection.get_json(((('Frames/' + urllib.quote(self.frame_id)) + '?row_count=') + str(10)))['frames'][0]
     self._ex._cache._fill_data(res)
-    print 'Rows:{:,}'.format(self.nrow), 'Cols:{:,}'.format(self.ncol)
+    print('Rows:{:,}'.format(self.nrow), 'Cols:{:,}'.format(self.ncol))
     res['chunk_summary'].show()
     res['distribution_summary'].show()
-    print '\n'
+    print('\n')
     self.summary()

@@ -7,20 +7,20 @@ def _start_local_h2o_jar(self, mmax, mmin, ea, license, ice, jar_path):
         raise ValueError('`ice_root` must be specified')
     stdout = open(H2OConnection._tmp_file('stdout'), 'w')
     stderr = open(H2OConnection._tmp_file('stderr'), 'w')
-    print ('Using ice_root: ' + ice)
-    print 
+    print(('Using ice_root: ' + ice))
+    print()
     jver = subprocess.check_output([command, '-version'], stderr=subprocess.STDOUT)
-    print 
-    print ('Java Version: ' + jver)
-    print 
+    print()
+    print(('Java Version: ' + jver))
+    print()
     if ('GNU libgcj' in jver):
         raise ValueError((('Sorry, GNU Java is not supported for H2O.\n' + 'Please download the latest Java SE JDK 7 from the following URL:\n') + 'http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html'))
     if ('Client VM' in jver):
-        print 'WARNING: '
-        print 'You have a 32-bit version of Java. H2O works best with 64-bit Java.'
-        print 'Please download the latest Java SE JDK 7 from the following URL:'
-        print 'http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html'
-        print 
+        print('WARNING: ')
+        print('You have a 32-bit version of Java. H2O works best with 64-bit Java.')
+        print('Please download the latest Java SE JDK 7 from the following URL:')
+        print('http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html')
+        print()
     vm_opts = []
     if mmin:
         vm_opts += ['-Xms{}g'.format(mmin)]
