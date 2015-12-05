@@ -1,0 +1,86 @@
+{
+  final double[][] Z=getXX(true);
+  int icpt_id=Z.length - 1;
+  double d=Z[0][0];
+  Z[0][0]=Z[icpt_id][icpt_id];
+  Z[icpt_id][icpt_id]=d;
+  for (int i=1; i < Z.length - 1; ++i) {
+    d=Z[i][0];
+    Z[i][0]=Z[icpt_id][i];
+    Z[icpt_id][i]=d;
+  }
+  final double[][] R=new double[Z.length][];
+  final double[] ZdiagInv=new double[Z.length];
+  for (int i=0; i < Z.length; ++i)   ZdiagInv[i]=1.0 / Z[i][i];
+  for (int j=0; j < Z.length; ++j) {
+    final double[] gamma=R[j]=new double[j + 1];
+    for (int l=0; l <= j; ++l)     gamma[l]=Z[j][l] * ZdiagInv[l];
+    double zjj=Z[j][j];
+    for (int k=0; k < j; ++k)     zjj+=gamma[k] * (gamma[k] * Z[k][k] - 2 * Z[j][k]);
+    ZdiagInv[j]=1. / zjj;
+    if (-f_eps < zjj && zjj < f_eps) {
+      zjj=0;
+      dropped_cols.add(j);
+      ZdiagInv[j]=0;
+    }
+    Z[j][j]=zjj;
+    int jchunk=Math.max(1,MIN_PAR / (Z.length - j));
+    int nchunks=(Z.length - j - 1) / jchunk;
+    nchunks=Math.min(nchunks,H2O.NUMCPUS);
+    if (nchunks <= 1) {
+      updateZ(gamma,Z,j);
+    }
+ else {
+      final int fjchunk=(Z.length - 1 - j) / nchunks;
+      int rem=Z.length - 1 - j- fjchunk * nchunks;
+      for (int i=Z.length - rem; i < Z.length; ++i)       updateZij(i,j,Z,gamma);
+      RecursiveAction[] ras=new RecursiveAction[nchunks];
+      final int fj=j;
+      int k=0;
+      for (int i=j + 1; i < Z.length - rem; i+=fjchunk) {
+        final int fi=i;
+        ras[k++]=new RecursiveAction(){
+          @Override protected final void compute(){
+            int max_i=Math.min(fi + fjchunk,Z.length);
+            for (int i=fi; i < max_i; ++i)             updateZij(i,fj,Z,gamma);
+          }
+        }
+;
+      }
+      ForkJoinTask.invokeAll(ras);
+    }
+  }
+  if (R.length < 500)   for (int i=0; i < R.length; ++i)   for (int j=0; j <= i; ++j)   R[i][j]*=Math.sqrt(Z[j][j]);
+ else {
+    RecursiveAction[] ras=new RecursiveAction[R.length];
+    for (int i=0; i < ras.length; ++i) {
+      final int fi=i;
+      final double[] Rrow=R[i];
+      ras[i]=new RecursiveAction(){
+        @Override protected void compute(){
+          for (int j=0; j <= fi; ++j)           Rrow[j]*=Math.sqrt(Z[j][j]);
+        }
+      }
+;
+    }
+    ForkJoinTask.invokeAll(ras);
+  }
+  if (dropped_cols.isEmpty())   return new Cholesky(R,new double[0],true);
+  double[][] Rnew=new double[R.length - dropped_cols.size()][];
+  int j=0;
+  for (int i=0; i < R.length; ++i) {
+    if (Z[i][i] == 0)     continue;
+    int k=0;
+    for (; k < dropped_cols.size(); ++k)     if (dropped_cols.get(k) > i)     break;
+    double[] newRow=Rnew[j++]=new double[i + 1 - k];
+    k=0;
+    for (int l=0; l <= i; ++l) {
+      if (k < dropped_cols.size() && l == dropped_cols.get(k)) {
+        ++k;
+        continue;
+      }
+      newRow[l - k]=R[i][l];
+    }
+  }
+  return new Cholesky(Rnew,new double[0],true);
+}
