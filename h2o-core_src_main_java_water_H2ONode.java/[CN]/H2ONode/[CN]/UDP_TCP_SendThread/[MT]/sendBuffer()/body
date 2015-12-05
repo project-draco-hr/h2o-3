@@ -1,2 +1,28 @@
 {
+  int retries=0;
+  _bb.flip();
+  while (_bb.hasRemaining()) {
+    try {
+      SocketChannel chan=_chan == null ? (_chan=openChan()) : _chan;
+      chan.write(_bb);
+    }
+ catch (    IOException ioe) {
+      _bb.rewind();
+      if (!H2O.getShutdownRequested() && (Paxos._cloudLocked || retries++ > 20))       Log.err("Got IO error when sending batch UDP bytes",ioe);
+      if (_chan != null)       try {
+        _chan.close();
+      }
+ catch (      Throwable t) {
+      }
+      _chan=null;
+      retries++;
+      final int sleep=Math.min(5000,retries << 1);
+      try {
+        Thread.sleep(sleep);
+      }
+ catch (      InterruptedException e) {
+      }
+    }
+  }
+  _bb.clear();
 }

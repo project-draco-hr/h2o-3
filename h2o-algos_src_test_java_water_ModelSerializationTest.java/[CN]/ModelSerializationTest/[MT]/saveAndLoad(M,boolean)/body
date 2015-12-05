@@ -1,0 +1,11 @@
+{
+  File file=File.createTempFile(model.getClass().getSimpleName(),null);
+  try {
+    model.writeAll(new AutoBuffer(new FileOutputStream(file),true)).close();
+    if (deleteModel)     model.delete();
+    return (M)Keyed.readAll(new AutoBuffer(new FileInputStream(file)));
+  }
+  finally {
+    file.delete();
+  }
+}

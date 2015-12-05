@@ -1,4 +1,15 @@
 def test(a_node, pp, algos):
+    cloud = a_node.cloud()
+    if h2o_test_utils.isVerboser():
+        print 'Cloud: '
+        pp.pprint(cloud)
+    not_ok = a_node.cloud_is_bad()
+    assert (not not_ok), ('FAIL: cloud status is not ok!  Reason: ' + not_ok)
+    jobs = a_node.jobs()
+    if h2o_test_utils.isVerboser():
+        print 'Jobs: '
+        pp.pprint(jobs)
+    assert ('jobs' in jobs), "FAIL: 'jobs' element not found in the result of /Jobs"
     models = a_node.models()
     if h2o_test_utils.isVerboser():
         print 'Models: '

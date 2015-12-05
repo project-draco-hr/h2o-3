@@ -1,11 +1,10 @@
 {
   Model model=getFromDKV("model_id",mexport.model_id.key());
-  List<Key> keysToExport=new LinkedList<>();
-  keysToExport.add(model._key);
-  keysToExport.addAll(model.getPublishedKeys());
   try {
     URI targetUri=FileUtils.getURI(mexport.dir);
-    new ObjectTreeBinarySerializer(mexport.force).save(keysToExport,targetUri);
+    Persist p=H2O.getPM().getPersistForURI(targetUri);
+    OutputStream os=p.create(targetUri.toString(),mexport.force);
+    model.writeAll(new AutoBuffer(os,true)).close();
     mexport.dir="file".equals(targetUri.getScheme()) ? new File(targetUri).getCanonicalPath() : targetUri.toString();
   }
  catch (  IOException e) {

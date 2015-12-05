@@ -1,0 +1,25 @@
+def cloud_is_bad(self, timeoutSecs=10, **kwargs):
+    try:
+        cloud = self.cloud()
+    except Exception as e:
+        return str(e)
+    if (cloud is None):
+        return '/3/Cloud returned None'
+    if ('cloud_size' not in cloud):
+        return '/3/Cloud return value does not contain cloud_size'
+    if ('nodes' not in cloud):
+        return '/3/Cloud return value does not contain nodes'
+    if (type(cloud['nodes']) is not list):
+        return '/3/Cloud nodes element is not a list'
+    if (cloud['cloud_size'] < 1):
+        return ('cloud_size < 1: ' + cloud['cloud_size'])
+    size = cloud['cloud_size']
+    if (cloud['cloud_size'] != len(cloud['nodes'])):
+        return '/3/Cloud nodes list length != cloud_size'
+    node_num = 0
+    for node in cloud['nodes']:
+        if ('healthy' not in node):
+            return '/3/Cloud node return value does not contain healthy'
+        if (not node['healthy']):
+            return (('node ' + str(node_num)) + ' is not healthy')
+    return None

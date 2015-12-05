@@ -1,0 +1,19 @@
+{
+  _chan=null;
+  _h2o=null;
+  _firstPage=true;
+  _persist=0;
+  _read=true;
+  _bb=ByteBuffer.wrap(MemoryManager.malloc1(BBP_BIG._size)).order(ByteOrder.nativeOrder());
+  _bb.flip();
+  _is=is;
+  int b=get1U();
+  if (b == 0)   return;
+  int magic=get1U();
+  if (b != 0x1C || magic != 0xED)   throw new IllegalArgumentException("Missing magic number 0x1CED at stream start");
+  String version=getStr();
+  if (!version.equals(H2O.ABV.projectVersion()))   throw new IllegalArgumentException("Found version " + version + ", but running version "+ H2O.ABV.projectVersion());
+  String[] typeMap=getAStr();
+  _typeMap=new short[typeMap.length];
+  for (int i=0; i < typeMap.length; i++)   _typeMap[i]=(short)(typeMap[i] == null ? 0 : TypeMap.onIce(typeMap[i]));
+}

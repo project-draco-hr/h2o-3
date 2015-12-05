@@ -2,13 +2,8 @@
   if (s == null)   return;
   try {
     BufferedReader reader=new BufferedReader(new StringReader(s));
-    String line=reader.readLine();
-    Pattern p=Pattern.compile("(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)" + "\\s+" + "(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)"+ "\\s+"+ "(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)"+ "\\s+"+ "(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)"+ "\\s+"+ "(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)"+ ".*");
-    Matcher m=p.matcher(line);
-    boolean b=m.matches();
-    if (!b) {
-      return;
-    }
+    Matcher m=procPattern.matcher(reader.readLine());
+    if (!m.matches())     return;
     long processUserTicks=Long.parseLong(m.group(14));
     long processSystemTicks=Long.parseLong(m.group(15));
     _processTotalTicks=processUserTicks + processSystemTicks;

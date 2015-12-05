@@ -14,26 +14,27 @@
     HeartBeat hb=H2O.SELF._heartbeat;
     hb._hb_version=HB_VERSION++;
     hb._jvm_boot_msec=TimeLine.JVM_BOOT_MSEC;
-    final Runtime run=Runtime.getRuntime();
-    hb.set_free_mem(run.freeMemory());
-    hb.set_max_mem(run.maxMemory());
-    hb.set_tot_mem(run.totalMemory());
-    hb._keys=(H2O.STORE.size());
-    hb.set_mvalsz(myHisto.histo(false)._cached);
-    hb.set_tvalsz(myHisto._total);
-    hb._num_cpus=(char)run.availableProcessors();
     if ((counter + Math.abs(H2O.SELF.hashCode())) % 300 == 0) {
-      hb._gflops=Linpack.run(hb._cpus_allowed);
-      hb._membw=MemoryBandwidth.run(hb._cpus_allowed);
+      hb._gflops=(float)Linpack.run(hb._cpus_allowed);
+      hb._membw=(float)MemoryBandwidth.run(hb._cpus_allowed);
     }
-    Object load=null;
+    long kv_gc=Cleaner.KV_USED_AT_LAST_GC;
+    long heap_gc=Cleaner.HEAP_USED_AT_LAST_GC;
+    long pojo_gc=Math.max(heap_gc - kv_gc,0);
+    long kv_mem=Cleaner.Histo.cached();
+    long free_mem=Math.max(MemoryManager.MEM_MAX - kv_mem - pojo_gc,0);
+    long pojo_mem=MemoryManager.MEM_MAX - kv_mem - free_mem;
+    hb.set_kv_mem(kv_mem);
+    hb.set_pojo_mem(pojo_mem);
+    hb.set_free_mem(free_mem);
+    hb.set_swap_mem(Cleaner.Histo.swapped());
+    hb._keys=H2O.STORE.size();
     try {
-      load=mbs.getAttribute(os,"SystemLoadAverage");
-      if ((double)load == -1)       load=mbs.getAttribute(os,"SystemCpuLoad");
+      hb._system_load_average=((Double)mbs.getAttribute(os,"SystemLoadAverage")).floatValue();
+      if (hb._system_load_average == -1)       hb._system_load_average=((Double)mbs.getAttribute(os,"SystemCpuLoad")).floatValue();
     }
  catch (    Exception e) {
     }
-    hb._system_load_average=load instanceof Double ? ((Double)load).floatValue() : 0;
     int rpcs=0;
     for (    H2ONode h2o : cloud._memary)     rpcs+=h2o.taskSize();
     hb._rpcs=(char)rpcs;
@@ -46,26 +47,15 @@
     hb._tcps_active=(char)H2ONode.TCPS.get();
     hb.set_free_disk(H2O.getPM().getIce().getUsableSpace());
     hb.set_max_disk(H2O.getPM().getIce().getTotalSpace());
-    LinuxProcFileReader lpfr=new LinuxProcFileReader();
-    lpfr.read();
-    if (lpfr.valid()) {
-      hb._system_idle_ticks=lpfr.getSystemIdleTicks();
-      hb._system_total_ticks=lpfr.getSystemTotalTicks();
-      hb._process_total_ticks=lpfr.getProcessTotalTicks();
-      hb._process_num_open_fds=lpfr.getProcessNumOpenFds();
-    }
- else {
-      hb._system_idle_ticks=-1;
-      hb._system_total_ticks=-1;
-      hb._process_total_ticks=-1;
-      hb._process_num_open_fds=-1;
-    }
-    hb._cpus_allowed=lpfr.getProcessCpusAllowed();
-    if (H2O.ARGS.nthreads < hb._cpus_allowed) {
-      hb._cpus_allowed=H2O.ARGS.nthreads;
-    }
+    LinuxProcFileReader.refresh();
+    hb._pid=LinuxProcFileReader.getProcessID();
+    hb._system_idle_ticks=LinuxProcFileReader.getSystemIdleTicks();
+    hb._system_total_ticks=LinuxProcFileReader.getSystemTotalTicks();
+    hb._process_total_ticks=LinuxProcFileReader.getProcessTotalTicks();
+    hb._process_num_open_fds=LinuxProcFileReader.getProcessNumOpenFds();
+    hb._num_cpus=LinuxProcFileReader.getProcessCpusAllowed();
     hb._nthreads=H2O.ARGS.nthreads;
-    hb._pid=lpfr.getProcessID();
+    hb._cpus_allowed=(char)Math.min(LinuxProcFileReader.getProcessCpusAllowed(),H2O.ARGS.nthreads);
     UDPHeartbeat.build_and_multicast(cloud,hb);
     long now=System.currentTimeMillis();
     H2O.SELF._last_heard_from=now;

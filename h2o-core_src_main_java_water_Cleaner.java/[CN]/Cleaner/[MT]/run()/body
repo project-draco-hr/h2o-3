@@ -1,7 +1,7 @@
 {
   boolean diskFull=false;
   while (true) {
-    Histo h=_myHisto.histo(false);
+    Histo h=Histo.current(false);
     long now=System.currentTimeMillis();
     long dirty=_dirty;
     if (h._cached < DESIRED && (now - dirty < 5000)) {
@@ -75,7 +75,7 @@ catch (        IOException e) {
       force=(h._cached >= DESIRED || !MemoryManager.CAN_ALLOC);
     }
     String s1="Cleaner pass took: " + PrettyPrint.msecs(System.currentTimeMillis() - now,true) + ", spilled "+ PrettyPrint.bytes(cleaned)+ " in "+ PrettyPrint.usecs(io_ns >> 10);
-    h=_myHisto.histo(true);
+    h=Histo.current(true);
     MemoryManager.set_goals("postclean",false);
     String s2=h + " diski_o=" + PrettyPrint.bytes(cleaned)+ ", freed="+ (freed >> 20)+ "M, DESIRED="+ (DESIRED >> 20)+ "M";
     if (MemoryManager.canAlloc())     Log.debug(s1,s2);

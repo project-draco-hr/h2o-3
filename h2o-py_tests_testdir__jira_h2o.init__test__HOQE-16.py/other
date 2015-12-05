@@ -1,0 +1,14 @@
+import h2o as h
+h.init()
+h2o = h.H2OConnection()
+cluster_up = h2o.cluster_is_up(h2o)
+h2o.json = h.H2OConnection.get_json('Cloud?skip_ticks=true')
+nodes = h2o.json['nodes']
+nodes = nodes[0]
+cluster_health = nodes['healthy']
+if (cluster_health == (True & cluster_up) == True):
+    print 'Cluster health is up and healthy'
+elif (cluster_health != (True & cluster_up) == True):
+    raise ValueError('Cluster is up but not healthy')
+else:
+    raise ValueError('Cluster is not up and is not healthy')
