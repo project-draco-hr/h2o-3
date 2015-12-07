@@ -1,10 +1,10 @@
 def __getitem__(self, item):
     if (item in self.col_header):
-        return list(zip(*self.cell_values)[self.col_header.index(item)])
+        return list(zip(*self.cell_values))[self.col_header.index(item)]
     elif isinstance(item, slice):
         self.cell_values = [self.cell_values[ii] for ii in xrange(*item.indices(len(self.cell_values)))]
         return self
     elif (isinstance(item, list) and set(item).issubset(self.col_header)):
-        return [list(zip(*self.cell_values)[self.col_header.index(i)]) for i in item]
+        return [list(zip(*self.cell_values))[self.col_header.index(i)] for i in item]
     else:
         raise TypeError(('can not support getting item for ' + str(item)))
