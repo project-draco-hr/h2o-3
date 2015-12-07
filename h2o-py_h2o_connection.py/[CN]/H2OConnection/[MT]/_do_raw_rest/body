@@ -8,21 +8,21 @@ def _do_raw_rest(self, url_suffix, method, file_upload_info, proxies=None, **kwa
         _rest_version = self._rest_version
     url = 'http://{}:{}/{}/{}'.format(self._ip, self._port, _rest_version, url_suffix)
     query_string = ''
-    for (k, v) in kwargs.iteritems():
+    for (k, v) in iteritems(kwargs):
         if isinstance(v, list):
             x = '['
             for l in v:
                 if isinstance(l, list):
                     x += '['
-                    x += ','.join([str(e).encode('utf-8') for e in l])
+                    x += ','.join([(str(e) if PY3 else str(e).encode('utf-8')) for e in l])
                     x += ']'
                 else:
-                    x += str(l).encode('utf-8')
+                    x += (str(l) if PY3 else str(l).encode('utf-8'))
                 x += ','
             x = x[:(-1)]
             x += ']'
         else:
-            x = str(v).encode('utf-8')
+            x = (str(v) if PY3 else str(v).encode('utf-8'))
         query_string += (((k + '=') + x) + '&')
     query_string = query_string[:(-1)]
     post_body = ''

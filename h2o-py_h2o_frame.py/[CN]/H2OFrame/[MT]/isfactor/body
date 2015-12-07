@@ -1,5 +1,5 @@
 def isfactor(self):
     'Test if the selection is a factor column.\n    Returns\n    -------\n      True if the column is categorical; otherwise False. For String columns, the result is\n      False.\n    '
     if self._ex._cache.types_valid():
-        return (str(self._ex._cache.types.values()[0]) == 'enum')
+        return (str(list(itervalues(self._ex._cache.types))[0]) == 'enum')
     return bool(ExprNode('is.factor', self)._eager_scalar())
