@@ -4,7 +4,11 @@
   String[] res=new String[n];
   final Vec[] vecs=_adaptedFrame.vecs();
   for (int i=0; i < _cats; ++i) {
-    for (int j=_useAllFactorLevels ? 0 : 1; j < vecs[i].domain().length; ++j)     res[k++]=_adaptedFrame._names[i] + "." + vecs[i].domain()[j];
+    for (int j=_useAllFactorLevels ? 0 : 1; j < vecs[i].domain().length; ++j) {
+      int jj=getCategoricalId(i,j);
+      if (jj < 0)       continue;
+      res[k++]=_adaptedFrame._names[i] + "." + vecs[i].domain()[j];
+    }
     if (_catMissing[i] > 0)     res[k++]=_adaptedFrame._names[i] + ".missing(NA)";
   }
   final int nums=n - k;

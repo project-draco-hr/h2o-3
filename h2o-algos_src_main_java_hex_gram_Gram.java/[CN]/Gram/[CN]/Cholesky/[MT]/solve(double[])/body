@@ -1,5 +1,10 @@
 {
   if (!isSPD())   throw new NonSPDMatrixException();
+  if (_icptFirst) {
+    double d=y[y.length - 1];
+    y[y.length - 1]=y[0];
+    y[0]=d;
+  }
   for (int k=0; k < _diag.length; ++k)   y[k]/=_diag[k];
   final int n=_xx[_xx.length - 1].length;
   for (int k=_diag.length; k < n; ++k) {
@@ -12,4 +17,9 @@
     for (int i=0; i < k; ++i)     y[i]-=y[k] * _xx[k - _diag.length][i];
   }
   for (int k=_diag.length - 1; k >= 0; --k)   y[k]/=_diag[k];
+  if (_icptFirst) {
+    double d=y[y.length - 1];
+    y[y.length - 1]=y[0];
+    y[0]=d;
+  }
 }

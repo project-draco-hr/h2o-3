@@ -1,0 +1,10 @@
+{
+  int[] indeces=new int[b.length];
+  indeces[0]=Arrays.binarySearch(a,0,a.length,b[0]);
+  if (indeces[0] < 0)   throw new NoSuchElementException("value " + b[0] + " not found in the first array.");
+  for (int i=1; i < b.length; ++i) {
+    indeces[i]=Arrays.binarySearch(a,indeces[i - 1],a.length,b[i]);
+    if (indeces[i] < 0)     throw new NoSuchElementException("value " + b[i] + " not found in the first array.");
+  }
+  return removeIds(a,indeces);
+}
