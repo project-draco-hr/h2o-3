@@ -1,0 +1,19 @@
+{
+  QuantileModel kmm=null;
+  Frame fr=null;
+  try {
+    double[][] d=new double[][]{{1},{1},{1},{2}};
+    fr=ArrayUtils.frame(d);
+    QuantileModel.QuantileParameters parms=new QuantileModel.QuantileParameters();
+    parms._train=fr._key;
+    parms._probs=new double[]{0.5};
+    Job<QuantileModel> job=new Quantile(parms).trainModel();
+    kmm=job.get();
+    job.remove();
+    Assert.assertTrue(kmm._output._quantiles[0][0] == 1);
+  }
+  finally {
+    if (fr != null)     fr.remove();
+    if (kmm != null)     kmm.delete();
+  }
+}

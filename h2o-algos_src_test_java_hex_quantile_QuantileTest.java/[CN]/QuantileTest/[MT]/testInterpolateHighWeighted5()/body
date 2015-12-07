@@ -1,0 +1,20 @@
+{
+  QuantileModel kmm=null;
+  Frame fr=null;
+  try {
+    double[][] d=new double[][]{{1,5},{2,4},{3,3}};
+    fr=ArrayUtils.frame(new String[]{"x","weights"},d);
+    QuantileModel.QuantileParameters parms=new QuantileModel.QuantileParameters();
+    parms._train=fr._key;
+    parms._weights_column="weights";
+    parms._probs=new double[]{0.43};
+    Job<QuantileModel> job=new Quantile(parms).trainModel();
+    kmm=job.get();
+    job.remove();
+    Assert.assertTrue(kmm._output._quantiles[0][0] == 1.73);
+  }
+  finally {
+    if (fr != null)     fr.remove();
+    if (kmm != null)     kmm.delete();
+  }
+}

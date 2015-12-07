@@ -25,9 +25,17 @@
         kmm2=job2.get();
         job2.remove();
       }
-      Assert.assertTrue(Arrays.deepEquals(kmm1._output._quantiles,kmm2._output._quantiles));
-      if (kmm1 != null)       kmm1.delete();
-      if (kmm2 != null)       kmm2.delete();
+      try {
+        for (int i=0; i < kmm1._output._quantiles.length; ++i) {
+          Log.info(Arrays.toString(kmm1._output._quantiles[i]));
+          Log.info(Arrays.toString(kmm2._output._quantiles[i]));
+        }
+        Assert.assertTrue(Arrays.deepEquals(kmm1._output._quantiles,kmm2._output._quantiles));
+      }
+  finally {
+        if (kmm1 != null)         kmm1.delete();
+        if (kmm2 != null)         kmm2.delete();
+      }
     }
   }
   finally {
