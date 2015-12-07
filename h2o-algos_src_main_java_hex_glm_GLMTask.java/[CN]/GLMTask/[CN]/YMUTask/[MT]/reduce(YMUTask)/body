@@ -1,22 +1,18 @@
 {
   if (_nobs > 0 && ymt._nobs > 0) {
-    _wsum+=ymt._wsum;
     ArrayUtils.add(_yMu,ymt._yMu);
     _nobs+=ymt._nobs;
     if (_yMin > ymt._yMin)     _yMin=ymt._yMin;
     if (_yMax < ymt._yMax)     _yMax=ymt._yMax;
     if (_comupteWeightedSigma) {
-      ArrayUtils.add(_xsum,ymt._xsum);
-      ArrayUtils.add(_xxsum,ymt._xxsum);
+      _basicStats.reduce(ymt._basicStats);
     }
   }
  else   if (_nobs == 0) {
-    _wsum=ymt._wsum;
     _yMu=ymt._yMu;
     _nobs=ymt._nobs;
     _yMin=ymt._yMin;
     _yMax=ymt._yMax;
-    _xsum=ymt._xsum;
-    _xxsum=ymt._xxsum;
+    _basicStats=ymt._basicStats;
   }
 }
