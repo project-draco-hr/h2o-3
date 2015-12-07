@@ -2,8 +2,11 @@
   Vec randVec=makeZero();
   new MRTask(){
     @Override public void map(    Chunk c){
-      Random rng=RandomUtils.getRNG(seed * (c.cidx() + 1));
-      for (int i=0; i < c._len; ++i)       c.set(i,rng.nextFloat());
+      Random rng=new RandomUtils.PCGRNG(c._start,1);
+      for (int i=0; i < c._len; ++i) {
+        rng.setSeed(c._start + i);
+        c.set(i,rng.nextFloat());
+      }
     }
   }
 .doAll(randVec);
