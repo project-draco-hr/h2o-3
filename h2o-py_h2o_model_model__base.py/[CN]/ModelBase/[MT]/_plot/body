@@ -38,7 +38,7 @@ def _plot(self, timestep, metric, **kwargs):
             dur_colname = 'duration_{}'.format(scoring_history['duration'][1].split()[1])
             scoring_history[dur_colname] = [str(x).split()[0] for x in scoring_history['duration']]
             timestep = dur_colname
-        if h2o.can_use_pandas():
+        if can_use_pandas():
             valid = (validation_metric in list(scoring_history))
             ylim = ((scoring_history[[training_metric, validation_metric]].min().min(), scoring_history[[training_metric, validation_metric]].max().max()) if valid else (scoring_history[training_metric].min(), scoring_history[training_metric].max()))
         else:
