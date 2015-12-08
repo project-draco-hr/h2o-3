@@ -1,3 +1,7 @@
 {
-  update_from_remote(DKV.getGet(_key));
+  Job remote_job=DKV.getGet(_key);
+  if (this == remote_job)   return;
+synchronized (this) {
+    copyOver(remote_job);
+  }
 }
