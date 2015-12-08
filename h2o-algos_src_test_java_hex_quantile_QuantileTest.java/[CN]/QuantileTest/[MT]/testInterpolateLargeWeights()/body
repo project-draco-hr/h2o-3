@@ -1,0 +1,22 @@
+{
+  QuantileModel kmm=null;
+  Frame fr=null;
+  try {
+    double[][] d=new double[][]{{0,10},{1,10}};
+    fr=ArrayUtils.frame(new String[]{"x","weights"},d);
+    QuantileModel.QuantileParameters parms=new QuantileModel.QuantileParameters();
+    parms._train=fr._key;
+    parms._weights_column="weights";
+    parms._probs=new double[]{0.475,0.48,0.49};
+    Job<QuantileModel> job=new Quantile(parms).trainModel();
+    kmm=job.get();
+    job.remove();
+    double[] exp=new double[]{0.025,0.12,0.31};
+    double[] act=kmm._output._quantiles[0];
+    for (int i=0; i < exp.length; ++i)     Assert.assertTrue("Got " + act[i] + " but expected "+ exp[i],Math.abs(act[i] - exp[i]) / exp[i] < 1e-5);
+  }
+  finally {
+    if (fr != null)     fr.remove();
+    if (kmm != null)     kmm.delete();
+  }
+}

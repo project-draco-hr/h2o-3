@@ -25,7 +25,7 @@
         Histo h=h1;
         model._output._iterations++;
         while (Double.isNaN(model._output._quantiles[n][p]=h.findQuantile(prob,_parms._combine_method))) {
-          h=h.refinePass(prob).doAll(vec);
+          h=_weights == null ? h.refinePass(prob).doAll(vec) : h.refinePass(prob).doAll(vec,_weights);
           model._output._iterations++;
         }
         model.update(_key);
@@ -33,7 +33,7 @@
       }
       StringBuilder sb=new StringBuilder();
       sb.append("Quantile: iter: ").append(model._output._iterations).append(" Qs=").append(Arrays.toString(model._output._quantiles[n]));
-      Log.info(sb);
+      Log.debug(sb);
     }
     done();
   }
