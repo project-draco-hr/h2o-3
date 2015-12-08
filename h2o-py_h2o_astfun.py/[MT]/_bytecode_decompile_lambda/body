@@ -4,12 +4,15 @@ def _bytecode_decompile_lambda(co):
     i = 0
     ops = []
     while (i < n):
-        c = code[i]
-        op = ord(c)
+        op = code[i]
+        if PY2:
+            op = ord(op)
         args = []
         i += 1
         if (op >= HAVE_ARGUMENT):
-            oparg = (ord(code[i]) + (ord(code[(i + 1)]) * 256))
+            oparg = (code[i] + (code[(i + 1)] * 256))
+            if PY2:
+                oparg = (ord(code[i]) + (ord(code[(i + 1)]) * 256))
             i += 2
             if (op in hasconst):
                 args.append(co.co_consts[oparg])

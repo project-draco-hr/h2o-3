@@ -1,7 +1,8 @@
 def download_all_logs(dirname='.', filename=None):
     'Download H2O Log Files to Disk\n\n  Parameters\n  ----------\n  dirname : str, optional\n    A character string indicating the directory that the log file should be saved in.\n  filename : str, optional\n    A string indicating the name that the CSV file should be\n\n  Returns\n  -------\n    Path of logs written.\n  '
     url = 'http://{}:{}/Logs/download'.format(H2OConnection.ip(), H2OConnection.port())
-    response = urlopen(url)
+    opener = urlopen()
+    response = opener(url)
     if (not os.path.exists(dirname)):
         os.mkdir(dirname)
     if (filename == None):
@@ -10,7 +11,11 @@ def download_all_logs(dirname='.', filename=None):
                 filename = h.split('filename=')[1].strip()
                 break
     path = os.path.join(dirname, filename)
+    if PY3:
+        response = StringIO(opener(url).read().decode())
+    else:
+        response = opener(url).read()
     print(('Writing H2O logs to ' + path))
     with open(path, 'w') as f:
-        f.write(urlopen(url).read())
+        f.write(response)
     return path
