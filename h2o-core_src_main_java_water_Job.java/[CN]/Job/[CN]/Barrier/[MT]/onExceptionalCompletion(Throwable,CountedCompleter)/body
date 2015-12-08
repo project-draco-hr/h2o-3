@@ -1,0 +1,21 @@
+{
+  final DException dex=new DException(ex,caller.getClass());
+  new JAtomic(){
+    @Override boolean abort(    Job job){
+      return job._ex != null && job._end_time != 0;
+    }
+    @Override void update(    Job old){
+      if (old._ex == null)       old._ex=dex.toEx();
+      old._cancel_requested=true;
+      if (old._end_time == 0)       old._end_time=System.currentTimeMillis();
+    }
+  }
+;
+  if (getCompleter() == null) {
+    System.err.println("barrier onExCompletion for " + _fjtask);
+    ex.printStackTrace();
+  }
+  _fjtask=null;
+  _barrier=null;
+  return true;
+}

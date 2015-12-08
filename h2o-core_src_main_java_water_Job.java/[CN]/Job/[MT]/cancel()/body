@@ -1,3 +1,11 @@
 {
-  if (!_cancel_requested)   atomic_cancel();
+  if (!_cancel_requested)   new JAtomic(){
+    @Override boolean abort(    Job job){
+      return job._cancel_requested;
+    }
+    @Override void update(    Job job){
+      job._cancel_requested=true;
+    }
+  }
+;
 }
