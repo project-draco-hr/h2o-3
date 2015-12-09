@@ -1,2 +1,12 @@
 {
+  if (_bb.remaining() < n) {
+    _bb.compact();
+    while (_bb.position() < n) {
+      int res=_chan.read(_bb);
+      if (res <= 0)       throw new IOException("Didn't read any data: res=" + res);
+      _h2o._last_heard_from=System.currentTimeMillis();
+    }
+    _bb.flip();
+  }
+  return _bb;
 }
