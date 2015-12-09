@@ -1,6 +1,8 @@
 {
   final long now=System.currentTimeMillis();
   final double time_since_last_iter=now - _timeLastIterationEnter;
+  Log.info("doScoring. previous: _timeLasIterationEnter: " + _timeLastIterationEnter);
+  Log.info("adding to total_run_time: " + total_run_time + "+= "+ time_since_last_iter+ " => "+ (total_run_time + time_since_last_iter));
   total_run_time+=time_since_last_iter;
   _timeLastIterationEnter=now;
   epoch_counter=(double)model_info().get_processed_total() / training_rows;
@@ -37,9 +39,11 @@
     }
     final boolean printme=!get_params()._quiet_mode;
     _timeLastScoreStart=System.currentTimeMillis();
+    Log.info("doScoring. _timeLastScoreStart: " + _timeLastScoreStart);
     model_info().computeStats();
     DeepLearningScoring err=new DeepLearningScoring();
     err.time_stamp=_timeLastScoreStart;
+    Log.info("setting err.training_time_ms to " + total_run_time);
     err.training_time_ms=total_run_time;
     err.epoch_counter=epoch_counter;
     err.training_samples=(double)model_info().get_processed_total();
@@ -119,9 +123,13 @@
       err.variable_importances=new VarImp(vi,Arrays.copyOfRange(model_info().data_info().coefNames(),0,vi.length));
     }
     _timeLastScoreEnd=System.currentTimeMillis();
+    Log.info("_timeLastScoreEnd: " + _timeLastScoreEnd);
     err.scoring_time=_timeLastScoreEnd - _timeLastScoreStart;
+    Log.info("scoring_time:: " + err.scoring_time);
     err.training_time_ms+=err.scoring_time;
+    Log.info("now training_time_ms: " + err.training_time_ms);
     total_scoring_time+=err.scoring_time;
+    Log.info("now total_scoring_time: " + total_scoring_time);
     if (errors == null) {
       errors=new DeepLearningScoring[]{err};
     }
