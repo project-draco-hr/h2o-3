@@ -123,14 +123,14 @@
     err.scoring_time=_timeLastScoreEnd - _timeLastScoreStart;
     err.training_time_ms+=err.scoring_time;
     total_scoring_time+=err.scoring_time;
-    if (errors == null) {
-      errors=new DeepLearningScoring[]{err};
+    if (scoringInfo == null) {
+      scoringInfo=new DeepLearningScoring[]{err};
     }
  else {
-      DeepLearningScoring[] err2=new DeepLearningScoring[errors.length + 1];
-      System.arraycopy(errors,0,err2,0,errors.length);
+      DeepLearningScoring[] err2=new DeepLearningScoring[scoringInfo.length + 1];
+      System.arraycopy(scoringInfo,0,err2,0,scoringInfo.length);
       err2[err2.length - 1]=err;
-      errors=err2;
+      scoringInfo=err2;
     }
     _output.errors=last_scored();
     makeWeightsBiases(_key);
@@ -148,7 +148,7 @@
       }
       if (!_parms._quiet_mode)       Log.info("Writing weights and biases to Frames took " + t.time() / 1000. + " seconds.");
     }
-    _output._scoring_history=createScoringHistoryTable(errors);
+    _output._scoring_history=createScoringHistoryTable(scoringInfo);
     _output._variable_importances=calcVarImp(last_scored().variable_importances);
     _output._model_summary=model_info.createSummaryTable();
     if (!finalScoring) {
