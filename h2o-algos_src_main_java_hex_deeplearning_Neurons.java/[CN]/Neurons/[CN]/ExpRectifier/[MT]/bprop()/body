@@ -4,7 +4,9 @@
   float r=_minfo.adaDelta() ? 0 : rate(_minfo.get_processed_total()) * (1f - m);
   final int rows=_a.size();
   for (int row=0; row < rows; row++) {
-    double g=_e.get(row) * 1. / (1 + _a.get(row) * _a.get(row)) * 2 / Math.PI;
+    double x=_a.get(row);
+    double val=x >= 0 ? 1 : Math.exp(x);
+    double g=_e.get(row) * val;
     bprop(row,g,r,m);
   }
 }
