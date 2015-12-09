@@ -19,8 +19,6 @@
  else {
     if (value != 0)     throw new IllegalArgumentException("Cannot set data to a constant value if randomize=true.");
   }
-  if (_dest == null)   throw new IllegalArgumentException("Destination frame name cannot be null.");
   FrameCreator fc=new FrameCreator(this);
-  _job=new Job<>(_dest,"FrameCreator",fc.nChunks() * 5);
-  return _job.start(fc);
+  return _job.start(fc,fc.nChunks() * 5);
 }
