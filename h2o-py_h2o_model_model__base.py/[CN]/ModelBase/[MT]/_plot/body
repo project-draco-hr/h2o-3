@@ -2,11 +2,11 @@ def _plot(self, timestep, metric, **kwargs):
     try:
         imp.find_module('matplotlib')
         import matplotlib
-        if (('server' in kwargs.keys()) and kwargs['server']):
+        if (('server' in list(kwargs.keys())) and kwargs['server']):
             matplotlib.use('Agg', warn=False)
         import matplotlib.pyplot as plt
     except ImportError:
-        print 'matplotlib is required for this function!'
+        print('matplotlib is required for this function!')
         return
     scoring_history = self.score_history()
     if (self._model_json['algo'] == 'glm'):
@@ -36,9 +36,9 @@ def _plot(self, timestep, metric, **kwargs):
         validation_metric = 'validation_{}'.format(metric)
         if (timestep == 'duration'):
             dur_colname = 'duration_{}'.format(scoring_history['duration'][1].split()[1])
-            scoring_history[dur_colname] = map((lambda x: str(x).split()[0]), scoring_history['duration'])
+            scoring_history[dur_colname] = [str(x).split()[0] for x in scoring_history['duration']]
             timestep = dur_colname
-        if h2o.can_use_pandas():
+        if can_use_pandas():
             valid = (validation_metric in list(scoring_history))
             ylim = ((scoring_history[[training_metric, validation_metric]].min().min(), scoring_history[[training_metric, validation_metric]].max().max()) if valid else (scoring_history[training_metric].min(), scoring_history[training_metric].max()))
         else:
@@ -60,5 +60,5 @@ def _plot(self, timestep, metric, **kwargs):
             plt.plot(scoring_history[timestep], scoring_history[training_metric])
     else:
         raise ValueError('Plotting not implemented for this type of model')
-    if (('server' not in kwargs.keys()) or (not kwargs['server'])):
+    if (('server' not in list(kwargs.keys())) or (not kwargs['server'])):
         plt.show()

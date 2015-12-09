@@ -1,10 +1,22 @@
 '\nAn H2OConnection represents the latest active handle to a cloud. No more than a single\nH2OConnection object will be active at any one time.\n'
-import requests, math, re, os, sys, string, time, tempfile, subprocess, atexit, pkg_resources, warnings
+from __future__ import print_function
+from __future__ import absolute_import
+import requests
+import math
+import tempfile
+import os
+import re
+import sys
+import time
+import subprocess
+import atexit
+import warnings
 warnings.simplefilter('always', UserWarning)
-from two_dim_table import H2OTwoDimTable
-import h2o
-import h2o_logging
 import site
+from .display import H2ODisplay
+from .h2o_logging import _is_logging, _log_rest
+from .two_dim_table import H2OTwoDimTable
+from six import iteritems, PY3
 __H2OCONN__ = None
 __H2O_REST_API_VERSION__ = 3
 atexit.register(_kill_jvm_fork)

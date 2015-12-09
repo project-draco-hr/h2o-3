@@ -7,6 +7,6 @@ def _handle_python_lists(python_obj):
         cols = 1
         python_obj = [python_obj]
     header = _gen_header(cols)
-    rows = map(list, itertools.izip_longest(*python_obj))
-    data_to_write = [dict(zip(header, row)) for row in rows]
+    rows = list(map(list, itertools.zip_longest(*python_obj)))
+    data_to_write = [dict(list(zip(header, row))) for row in rows]
     return (header, data_to_write)

@@ -1,6 +1,6 @@
 def cv_carsDL():
     cars = h2o.import_file(path=pyunit_utils.locate('smalldata/junit/cars_20mpg.csv'))
-    problem = random.sample(range(3), 1)[0]
+    problem = random.sample(list(range(3)), 1)[0]
     predictors = ['displacement', 'power', 'weight', 'acceleration', 'year']
     if (problem == 1):
         response_col = 'economy_20mpg'
@@ -10,7 +10,7 @@ def cv_carsDL():
         cars[response_col] = cars[response_col].asfactor()
     else:
         response_col = 'economy'
-    print 'Response column: {0}'.format(response_col)
+    print('Response column: {0}'.format(response_col))
     dl = h2o.deeplearning(y=cars[response_col], x=cars[predictors], nfolds=random.randint(3, 10), fold_assignment='Modulo')
     nfolds = random.randint(3, 10)
     dl1 = h2o.deeplearning(y=cars[response_col], x=cars[predictors], nfolds=nfolds, fold_assignment='Random')
@@ -21,7 +21,7 @@ def cv_carsDL():
     except AssertionError:
         assert True
     num_folds = random.randint(2, 5)
-    fold_assignments = h2o.H2OFrame(zip(*[[random.randint(0, (num_folds - 1))] for f in range(cars.nrow)]))
+    fold_assignments = h2o.H2OFrame(list(zip(*[[random.randint(0, (num_folds - 1))] for f in range(cars.nrow)])))
     fold_assignments.set_names(['fold_assignments'])
     cars = cars.cbind(fold_assignments)
     dl = h2o.deeplearning(y=cars[response_col], x=cars[predictors], training_frame=cars, fold_column='fold_assignments', keep_cross_validation_predictions=True)

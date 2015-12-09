@@ -25,7 +25,7 @@ def bernoulli_synthetic_data_gbm_medium():
     train_h2o['C1'] = train_h2o['C1'].asfactor()
     test_h2o['C1'] = test_h2o['C1'].asfactor()
     gbm_h2o = H2OGradientBoostingEstimator(distribution=distribution, ntrees=ntrees, min_rows=min_rows, max_depth=max_depth, learn_rate=learn_rate, nbins=nbins)
-    gbm_h2o.train(x=range(1, train_h2o.ncol), y='C1', training_frame=train_h2o)
+    gbm_h2o.train(x=list(range(1, train_h2o.ncol)), y='C1', training_frame=train_h2o)
     gbm_perf = gbm_h2o.model_performance(test_h2o)
     auc_h2o = gbm_perf.auc()
     assert (abs((auc_h2o - auc_sci)) < 0.01), 'h2o (auc) performance degradation, with respect to scikit. h2o auc: {0} scickit auc: {1}'.format(auc_h2o, auc_sci)

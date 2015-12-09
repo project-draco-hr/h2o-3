@@ -1,15 +1,19 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import warnings
 warnings.simplefilter('always', DeprecationWarning)
 import os
 import os.path
+from future.standard_library import install_aliases
+from past.builtins import basestring
+install_aliases()
 import re
-import urllib
-import urllib2
-import imp
-import tabulate
-from connection import H2OConnection
-from job import H2OJob
-from expr import ExprNode
-from frame import H2OFrame, _py_tmp_key, _is_list_of_lists, _gen_header
-from estimators.estimator_base import H2OEstimator
-from h2o_model_builder import supervised, unsupervised, _resolve_model
+from six import PY3
+from io import StringIO
+from .utils.shared_utils import _quoted, _is_list_of_lists, _gen_header, _py_tmp_key, quote, urlopen
+from .connection import H2OConnection
+from .expr import ExprNode
+from .job import H2OJob
+from .frame import H2OFrame
+from .estimators.estimator_base import H2OEstimator
+from .h2o_model_builder import supervised, unsupervised, _resolve_model

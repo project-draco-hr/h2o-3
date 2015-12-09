@@ -8,21 +8,21 @@ def _do_raw_rest(self, url_suffix, method, file_upload_info, proxies=None, **kwa
         _rest_version = self._rest_version
     url = 'http://{}:{}/{}/{}'.format(self._ip, self._port, _rest_version, url_suffix)
     query_string = ''
-    for (k, v) in kwargs.iteritems():
+    for (k, v) in iteritems(kwargs):
         if isinstance(v, list):
             x = '['
             for l in v:
                 if isinstance(l, list):
                     x += '['
-                    x += ','.join([str(e).encode('utf-8') for e in l])
+                    x += ','.join([(str(e) if PY3 else str(e).encode('utf-8')) for e in l])
                     x += ']'
                 else:
-                    x += str(l).encode('utf-8')
+                    x += (str(l) if PY3 else str(l).encode('utf-8'))
                 x += ','
             x = x[:(-1)]
             x += ']'
         else:
-            x = str(v).encode('utf-8')
+            x = (str(v) if PY3 else str(v).encode('utf-8'))
         query_string += (((k + '=') + x) + '&')
     query_string = query_string[:(-1)]
     post_body = ''
@@ -36,13 +36,13 @@ def _do_raw_rest(self, url_suffix, method, file_upload_info, proxies=None, **kwa
             raise ValueError(('Received file upload info and expected method to be POST. Got: ' + str(method)))
         if (query_string != ''):
             url = '{}?{}'.format(url, query_string)
-    if h2o_logging._is_logging():
-        h2o_logging._log_rest('------------------------------------------------------------\n')
-        h2o_logging._log_rest('\n')
-        h2o_logging._log_rest('Time:     {0}\n'.format(time.strftime('Y-%m-%d %H:%M:%OS3')))
-        h2o_logging._log_rest('\n')
-        h2o_logging._log_rest('{0} {1}\n'.format(method, url))
-        h2o_logging._log_rest('postBody: {0}\n'.format(post_body))
+    if _is_logging():
+        _log_rest('------------------------------------------------------------\n')
+        _log_rest('\n')
+        _log_rest('Time:     {0}\n'.format(time.strftime('Y-%m-%d %H:%M:%OS3')))
+        _log_rest('\n')
+        _log_rest('{0} {1}\n'.format(method, url))
+        _log_rest('postBody: {0}\n'.format(post_body))
     global _rest_ctr
     _rest_ctr = (_rest_ctr + 1)
     begin_time_seconds = time.time()
@@ -61,12 +61,12 @@ def _do_raw_rest(self, url_suffix, method, file_upload_info, proxies=None, **kwa
         except ValueError:
             pass
         raise EnvironmentError(('h2o-py got an unexpected HTTP status code:\n {} {} (method = {}; url = {}). \n' + 'detailed error messages: {}').format(http_result.status_code, http_result.reason, method, url, detailed_error_msgs))
-    if h2o_logging._is_logging():
-        h2o_logging._log_rest('\n')
-        h2o_logging._log_rest('httpStatusCode:    {0}\n'.format(http_result.status_code))
-        h2o_logging._log_rest('httpStatusMessage: {0}\n'.format(http_result.reason))
-        h2o_logging._log_rest('millis:            {0}\n'.format(elapsed_time_millis))
-        h2o_logging._log_rest('\n')
-        h2o_logging._log_rest('{0}\n'.format(http_result.json()))
-        h2o_logging._log_rest('\n')
+    if _is_logging():
+        _log_rest('\n')
+        _log_rest('httpStatusCode:    {0}\n'.format(http_result.status_code))
+        _log_rest('httpStatusMessage: {0}\n'.format(http_result.reason))
+        _log_rest('millis:            {0}\n'.format(elapsed_time_millis))
+        _log_rest('\n')
+        _log_rest('{0}\n'.format(http_result.json()))
+        _log_rest('\n')
     return http_result

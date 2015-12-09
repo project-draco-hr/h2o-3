@@ -1,6 +1,6 @@
 def cv_cars_dl():
     cars = h2o.import_file(path=pyunit_utils.locate('smalldata/junit/cars_20mpg.csv'))
-    problem = random.sample(range(3), 1)[0]
+    problem = random.sample(list(range(3)), 1)[0]
     predictors = ['displacement', 'power', 'weight', 'acceleration', 'year']
     if (problem == 1):
         response_col = 'economy_20mpg'
@@ -10,7 +10,7 @@ def cv_cars_dl():
         cars[response_col] = cars[response_col].asfactor()
     else:
         response_col = 'economy'
-    print 'Response column: {0}'.format(response_col)
+    print('Response column: {0}'.format(response_col))
     dl = H2ODeepLearningEstimator(nfolds=random.randint(3, 10), fold_assignment='Modulo', hidden=[20, 20], epochs=10)
     dl.train(x=predictors, y=response_col, training_frame=cars)
     nfolds = random.randint(3, 10)

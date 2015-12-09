@@ -3,32 +3,32 @@ def make_random_grid_space(algo, ncols=None, nrows=None):
     grid_space = {}
     if (algo in ['gbm', 'rf']):
         if random.randint(0, 1):
-            grid_space['ntrees'] = random.sample(range(1, 6), random.randint(2, 3))
+            grid_space['ntrees'] = random.sample(list(range(1, 6)), random.randint(2, 3))
         if random.randint(0, 1):
-            grid_space['max_depth'] = random.sample(range(1, 6), random.randint(2, 3))
+            grid_space['max_depth'] = random.sample(list(range(1, 6)), random.randint(2, 3))
         if random.randint(0, 1):
-            grid_space['min_rows'] = random.sample(range(1, 11), random.randint(2, 3))
+            grid_space['min_rows'] = random.sample(list(range(1, 11)), random.randint(2, 3))
         if random.randint(0, 1):
-            grid_space['nbins'] = random.sample(range(2, 21), random.randint(2, 3))
+            grid_space['nbins'] = random.sample(list(range(2, 21)), random.randint(2, 3))
         if random.randint(0, 1):
-            grid_space['nbins_cats'] = random.sample(range(2, 1025), random.randint(2, 3))
+            grid_space['nbins_cats'] = random.sample(list(range(2, 1025)), random.randint(2, 3))
         if (algo == 'gbm'):
             if random.randint(0, 1):
                 grid_space['learn_rate'] = [random.random() for r in range(random.randint(2, 3))]
             grid_space['distribution'] = random.sample(['bernoulli', 'multinomial', 'gaussian', 'poisson', 'tweedie', 'gamma'], 1)
         if (algo == 'rf'):
             if random.randint(0, 1):
-                grid_space['mtries'] = random.sample(range(1, (ncols + 1)), random.randint(2, 3))
+                grid_space['mtries'] = random.sample(list(range(1, (ncols + 1))), random.randint(2, 3))
             if random.randint(0, 1):
                 grid_space['sample_rate'] = [random.random() for r in range(random.randint(2, 3))]
     elif (algo == 'km'):
-        grid_space['k'] = random.sample(range(1, 10), random.randint(2, 3))
+        grid_space['k'] = random.sample(list(range(1, 10)), random.randint(2, 3))
         if random.randint(0, 1):
-            grid_space['max_iterations'] = random.sample(range(1, 1000), random.randint(2, 3))
+            grid_space['max_iterations'] = random.sample(list(range(1, 1000)), random.randint(2, 3))
         if random.randint(0, 1):
             grid_space['standardize'] = [True, False]
         if random.randint(0, 1):
-            grid_space['seed'] = random.sample(range(1, 1000), random.randint(2, 3))
+            grid_space['seed'] = random.sample(list(range(1, 1000)), random.randint(2, 3))
         if random.randint(0, 1):
             grid_space['init'] = random.sample(['Random', 'PlusPlus', 'Furthest'], random.randint(2, 3))
     elif (algo == 'glm'):
@@ -49,17 +49,17 @@ def make_random_grid_space(algo, ncols=None, nrows=None):
     elif (algo == 'naiveBayes'):
         grid_space['laplace'] = 0
         if random.randint(0, 1):
-            grid_space['laplace'] = [round((random.random() + r), 6) for r in random.sample(range(0, 11), random.randint(2, 3))]
+            grid_space['laplace'] = [round((random.random() + r), 6) for r in random.sample(list(range(0, 11)), random.randint(2, 3))]
         if random.randint(0, 1):
             grid_space['min_sdev'] = [round(random.random(), 6) for r in range(random.randint(2, 3))]
         if random.randint(0, 1):
             grid_space['eps_sdev'] = [round(random.random(), 6) for r in range(random.randint(2, 3))]
     elif (algo == 'pca'):
         if random.randint(0, 1):
-            grid_space['max_iterations'] = random.sample(range(1, 1000), random.randint(2, 3))
+            grid_space['max_iterations'] = random.sample(list(range(1, 1000)), random.randint(2, 3))
         if random.randint(0, 1):
             grid_space['transform'] = random.sample(['NONE', 'STANDARDIZE', 'NORMALIZE', 'DEMEAN', 'DESCALE'], random.randint(2, 3))
-        grid_space['k'] = random.sample(range(1, min(ncols, nrows)), random.randint(2, 3))
+        grid_space['k'] = random.sample(list(range(1, min(ncols, nrows))), random.randint(2, 3))
     else:
-        raise (ValueError, 'Algo {0} not supported'.format(algo))
+        raise ValueError
     return grid_space

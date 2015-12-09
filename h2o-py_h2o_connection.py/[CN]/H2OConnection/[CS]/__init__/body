@@ -1,7 +1,7 @@
 def __init__(self, ip='localhost', port=54321, size=1, start_h2o=False, enable_assertions=False, license=None, max_mem_size_GB=None, min_mem_size_GB=None, ice_root=None, strict_version_check=True, proxies=None):
     '\n    Instantiate the package handle to the H2O cluster.\n    :param ip: An IP address, default is "localhost"\n    :param port: A port, default is 54321\n    :param size: THe expected number of h2o instances (ignored if start_h2o is True)\n    :param start_h2o: A boolean dictating whether this module should start the H2O jvm. An attempt is made anyways if _connect fails.\n    :param enable_assertions: If start_h2o, pass `-ea` as a VM option.s\n    :param license: If not None, is a path to a license file.\n    :param max_mem_size_GB: Maximum heap size (jvm option Xmx) in gigabytes.\n    :param min_mem_size_GB: Minimum heap size (jvm option Xms) in gigabytes.\n    :param ice_root: A temporary directory (default location is determined by tempfile.mkdtemp()) to hold H2O log files.\n    :return: None\n    '
     port = as_int(port)
-    if (not (isinstance(port, int) and (0 <= port <= sys.maxint))):
+    if (not (isinstance(port, int) and (0 <= port <= sys.maxsize))):
         raise ValueError(('Port out of range, ' + port))
     global __H2OCONN__
     self._cld = None
@@ -33,31 +33,29 @@ def __init__(self, ip='localhost', port=54321, size=1, start_h2o=False, enable_a
         try:
             cld = self._connect(size)
         except:
-            print 
-            print 
-            print (((('No instance found at ip and port: ' + ip) + ':') + str(port)) + '. Trying to start local jar...')
-            print 
-            print 
+            print()
+            print()
+            print((((('No instance found at ip and port: ' + ip) + ':') + str(port)) + '. Trying to start local jar...'))
+            print()
+            print()
             path_to_jar = os.path.exists(jar_path)
             if path_to_jar:
                 if (not ice_root):
                     ice_root = tempfile.mkdtemp()
                 cld = self._start_local_h2o_jar(max_mem_size_GB, min_mem_size_GB, enable_assertions, license, ice_root, jar_path)
             else:
-                print 'No jar file found. Could not start local instance.'
-                print 'Jar Paths searched: '
+                print('No jar file found. Could not start local instance.')
+                print('Jar Paths searched: ')
                 for jp in jarpaths:
-                    print ('\t' + jp)
-                print 
+                    print(('\t' + jp))
+                print()
                 raise
     __H2OCONN__._cld = cld
     if (strict_version_check and (os.environ.get('H2O_DISABLE_STRICT_VERSION_CHECK') is None)):
         ver_h2o = cld['version']
-        try:
-            ver_pkg = pkg_resources.get_distribution('h2o').version
-        except:
-            ver_pkg = 'UNKNOWN'
+        from .__init__ import __version__
+        ver_pkg = ('UNKNOWN' if (__version__ == 'SUBST_PROJECT_VERSION') else __version__)
         if (ver_h2o != ver_pkg):
-            raise EnvironmentError, 'Version mismatch. H2O is version {0}, but the python package is version {1}.'.format(ver_h2o, str(ver_pkg))
+            raise EnvironmentError('Version mismatch. H2O is version {0}, but the python package is version {1}.'.format(ver_h2o, str(ver_pkg)))
     self._session_id = H2OConnection.get_json(url_suffix='InitID')['session_key']
     H2OConnection._cluster_info()

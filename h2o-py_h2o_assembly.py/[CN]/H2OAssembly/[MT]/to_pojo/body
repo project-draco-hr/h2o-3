@@ -4,13 +4,13 @@ def to_pojo(self, pojo_name='', path='', get_jar=True):
     java = H2OConnection.get(((('Assembly.java/' + self.id) + '/') + pojo_name), _rest_version=99)
     file_path = (((path + '/') + pojo_name) + '.java')
     if (path == ''):
-        print java.text
+        print(java.text)
     else:
         with open(file_path, 'wb') as f:
-            f.write(java.text)
+            f.write(java.text.encode('utf-8'))
     if (get_jar and (path != '')):
         url = H2OConnection.make_url('h2o-genmodel.jar')
         filename = ((path + '/') + 'h2o-genmodel.jar')
-        response = urllib2.urlopen(url)
+        response = urlopen(url)
         with open(filename, 'wb') as f:
             f.write(response.read())

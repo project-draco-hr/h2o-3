@@ -2,7 +2,9 @@ def train(self, x, y=None, training_frame=None, offset_column=None, fold_column=
     'Train the H2O model by specifying the predictor columns, response column, and any\n    additional frame-specific values.\n\n    Parameters\n    ----------\n\n    x : list\n      A list of column names or indices indicating the predictor columns.\n    y : str\n      An index or a column name indicating the response column.\n    training_frame : H2OFrame\n      The H2OFrame having the columns indicated by x and y (as well as any\n      additional columns specified by fold, offset, and weights).\n    offset_column : str, optional\n      The name or index of the column in training_frame that holds the offsets.\n    fold_column : str, optional\n      The name or index of the column in training_frame that holds the per-row fold\n      assignments.\n    weights_column : str, optional\n      The name or index of the column in training_frame that holds the per-row weights.\n    validation_frame : H2OFrame, optional\n      H2OFrame with validation data to be scored on while training.\n    '
     algo_params = locals()
     parms = self._parms.copy()
-    parms.update({k: v for (k, v) in algo_params.iteritems() if (k not in ['self', 'params', 'algo_params', 'parms'])})
+    if ('__class__' in parms):
+        del parms['__class__']
+    parms.update({k: v for (k, v) in algo_params.items() if (k not in ['self', 'params', 'algo_params', 'parms'])})
     y = algo_params['y']
     tframe = algo_params['training_frame']
     if (tframe is None):

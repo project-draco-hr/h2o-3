@@ -8,13 +8,13 @@ def structure(self):
     isfactor = [c.isfactor() for c in self]
     numlevels = [self.nlevels(i) for i in range(nc)]
     lvls = self.levels()
-    print "self._newExpr '{}': \t {} obs. of {} variables(s)".format(self.frame_id, nr, nc)
+    print("self._newExpr '{}': \t {} obs. of {} variables(s)".format(self.frame_id, nr, nc))
     for i in range(nc):
-        print '$ {} {}: '.format(cn[i], (' ' * (width - max(0, len(cn[i]))))),
+        print('$ {} {}: '.format(cn[i], (' ' * (width - max(0, len(cn[i]))))), end=' ')
         if isfactor[i]:
             nl = numlevels[i]
-            print 'Factor w/ {} level(s) {},..: '.format(nl, (('"' + '","'.join(zip(*lvls)[i])) + '"')),
-            print ' '.join((it[0] for it in h2o.as_list(self[:10, i].match(list(zip(*lvls)[i])), False)[1:])),
-            print '...'
+            print('Factor w/ {} level(s) {},..: '.format(nl, (('"' + '","'.join(list(zip(*lvls))[i])) + '"')), end=' ')
+            print(' '.join((it[0] for it in h2o.as_list(self[:10, i].match(list(list(zip(*lvls))[i])), False)[1:])), end=' ')
+            print('...')
         else:
-            print 'num {} ...'.format(' '.join((it[0] for it in h2o.as_list(self[:10, i], False)[1:])))
+            print('num {} ...'.format(' '.join((it[0] for it in h2o.as_list(self[:10, i], False)[1:]))))

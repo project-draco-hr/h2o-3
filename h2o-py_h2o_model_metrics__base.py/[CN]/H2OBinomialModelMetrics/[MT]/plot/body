@@ -3,11 +3,11 @@ def plot(self, type='roc', **kwargs):
     try:
         imp.find_module('matplotlib')
         import matplotlib
-        if (('server' in kwargs.keys()) and kwargs['server']):
+        if (('server' in list(kwargs.keys())) and kwargs['server']):
             matplotlib.use('Agg', warn=False)
         import matplotlib.pyplot as plt
     except ImportError:
-        print 'matplotlib is required for this function!'
+        print('matplotlib is required for this function!')
         return
     if (type not in ['roc']):
         raise ValueError('type {} is not supported'.format(type))
@@ -18,5 +18,5 @@ def plot(self, type='roc', **kwargs):
         plt.text(0.5, 0.5, 'AUC={0:.4f}'.format(self._metric_json['AUC']))
         plt.plot(self.fprs, self.tprs, 'b--')
         plt.axis([0, 1, 0, 1])
-        if (not (('server' in kwargs.keys()) and kwargs['server'])):
+        if (not (('server' in list(kwargs.keys())) and kwargs['server'])):
             plt.show()

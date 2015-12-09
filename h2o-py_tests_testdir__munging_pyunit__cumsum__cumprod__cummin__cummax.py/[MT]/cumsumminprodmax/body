@@ -1,5 +1,5 @@
 def cumsumminprodmax():
-    foo = h2o.H2OFrame(zip(*[[x, y] for (x, y) in zip(range(10), range(9, (-1), (-1)))]))
+    foo = h2o.H2OFrame(list(zip(*[[x, y] for (x, y) in zip(list(range(10)), list(range(9, (-1), (-1))))])))
     foo.show()
     cumsum1 = foo[0].cumsum()
     cummin1 = foo[0].cummin()
@@ -13,6 +13,6 @@ def cumsumminprodmax():
     assert (cummin1[(9, 0)] == cummin2[(9, 0)] == 0), 'expected cummin to be 0, but got {0} and {1}'.format(cummin1[(9, 0)], cummin2[(9, 0)])
     assert (cummax1[(9, 0)] == cummax2[(9, 0)] == 9), 'expected cummin to be 9, but got {0} and {1}'.format(cummin1[(9, 0)], cummin2[(9, 0)])
     cumprod1.show()
-    print cumprod1.dim
+    print(cumprod1.dim)
     assert (cumprod1[(8, 0)] == cumprod2[(8, 0)] == 362880), 'expected cumprod to be 362880, but got {0} and {1}'.format(cumprod1[(8, 0)], cumprod2[(8, 0)])
     h2o.remove(foo)

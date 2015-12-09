@@ -1,6 +1,6 @@
 def cv_cars_gbm():
     cars = h2o.import_file(path=pyunit_utils.locate('smalldata/junit/cars_20mpg.csv'))
-    problem = random.sample(range(3), 1)[0]
+    problem = random.sample(list(range(3)), 1)[0]
     predictors = ['displacement', 'power', 'weight', 'acceleration', 'year']
     if (problem == 1):
         response_col = 'economy_20mpg'
@@ -13,8 +13,8 @@ def cv_cars_gbm():
     else:
         response_col = 'economy'
         distribution = 'gaussian'
-    print 'Distribution: {0}'.format(distribution)
-    print 'Response column: {0}'.format(response_col)
+    print('Distribution: {0}'.format(distribution))
+    print('Response column: {0}'.format(response_col))
     nfolds = random.randint(3, 10)
     gbm1 = H2OGradientBoostingEstimator(nfolds=nfolds, distribution=distribution, ntrees=5, fold_assignment='Modulo')
     gbm1.train(x=predictors, y=response_col, training_frame=cars)

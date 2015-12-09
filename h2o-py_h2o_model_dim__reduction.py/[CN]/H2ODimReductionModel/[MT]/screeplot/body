@@ -3,20 +3,20 @@ def screeplot(self, type='barplot', **kwargs):
     try:
         imp.find_module('matplotlib')
         import matplotlib
-        if (('server' in kwargs.keys()) and kwargs['server']):
+        if (('server' in list(kwargs.keys())) and kwargs['server']):
             matplotlib.use('Agg', warn=False)
         import matplotlib.pyplot as plt
     except ImportError:
-        print 'matplotlib is required for this function!'
+        print('matplotlib is required for this function!')
         return
     variances = [(s ** 2) for s in self._model_json['output']['importance'].cell_values[0][1:]]
     plt.xlabel('Components')
     plt.ylabel('Variances')
     plt.title('Scree Plot')
-    plt.xticks(range(1, (len(variances) + 1)))
+    plt.xticks(list(range(1, (len(variances) + 1))))
     if (type == 'barplot'):
-        plt.bar(range(1, (len(variances) + 1)), variances)
+        plt.bar(list(range(1, (len(variances) + 1))), variances)
     elif (type == 'lines'):
-        plt.plot(range(1, (len(variances) + 1)), variances, 'b--')
-    if (not (('server' in kwargs.keys()) and kwargs['server'])):
+        plt.plot(list(range(1, (len(variances) + 1))), variances, 'b--')
+    if (not (('server' in list(kwargs.keys())) and kwargs['server'])):
         plt.show()

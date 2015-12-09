@@ -1,6 +1,6 @@
 def cv_cars_glm():
     cars = h2o.import_file(path=pyunit_utils.locate('smalldata/junit/cars_20mpg.csv'))
-    problem = random.sample(range(3), 1)[0]
+    problem = random.sample(list(range(3)), 1)[0]
     predictors = ['displacement', 'power', 'weight', 'acceleration', 'year']
     if (problem == 1):
         response_col = 'economy_20mpg'
@@ -12,8 +12,8 @@ def cv_cars_glm():
     else:
         family = 'gaussian'
         response_col = 'economy'
-    print 'Distribution: {0}'.format(family)
-    print 'Response column: {0}'.format(response_col)
+    print('Distribution: {0}'.format(family))
+    print('Response column: {0}'.format(response_col))
     nfolds = random.randint(3, 10)
     glm1 = H2OGeneralizedLinearEstimator(nfolds=nfolds, family=family, fold_assignment='Modulo')
     glm1.train(x=predictors, y=response_col, training_frame=cars)

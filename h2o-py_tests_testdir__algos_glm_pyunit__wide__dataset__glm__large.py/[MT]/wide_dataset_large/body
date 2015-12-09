@@ -1,5 +1,5 @@
 def wide_dataset_large():
-    print 'Reading in Arcene training data for binomial modeling.'
+    print('Reading in Arcene training data for binomial modeling.')
     trainDataResponse = np.genfromtxt(pyunit_utils.locate('smalldata/arcene/arcene_train_labels.labels'), delimiter=' ')
     trainDataResponse = np.where((trainDataResponse == (-1)), 0, 1)
     trainDataFeatures = np.genfromtxt(pyunit_utils.locate('smalldata/arcene/arcene_train.data'), delimiter=' ')
@@ -7,10 +7,10 @@ def wide_dataset_large():
     ytrain = trainDataResponse.tolist()
     trainData = h2o.H2OFrame(([ytrain] + xtrain))
     trainData[0] = trainData[0].asfactor()
-    print 'Run model on 3250 columns of Arcene with strong rules off.'
+    print('Run model on 3250 columns of Arcene with strong rules off.')
     model = H2OGeneralizedLinearEstimator(family='binomial', lambda_search=False, alpha=1)
-    model.train(x=range(1, 3250), y=0, training_frame=trainData)
-    print 'Test model on validation set.'
+    model.train(x=list(range(1, 3250)), y=0, training_frame=trainData)
+    print('Test model on validation set.')
     validDataResponse = np.genfromtxt(pyunit_utils.locate('smalldata/arcene/arcene_valid_labels.labels'), delimiter=' ')
     validDataResponse = np.where((validDataResponse == (-1)), 0, 1)
     validDataFeatures = np.genfromtxt(pyunit_utils.locate('smalldata/arcene/arcene_valid.data'), delimiter=' ')
@@ -18,7 +18,7 @@ def wide_dataset_large():
     yvalid = validDataResponse.tolist()
     validData = h2o.H2OFrame(([yvalid] + xvalid))
     prediction = model.predict(validData)
-    print 'Check performance of predictions.'
+    print('Check performance of predictions.')
     performance = model.model_performance(validData)
-    print 'Check that prediction AUC better than guessing (0.5).'
+    print('Check that prediction AUC better than guessing (0.5).')
     assert (performance.auc() > 0.5), 'predictions should be better then pure chance'

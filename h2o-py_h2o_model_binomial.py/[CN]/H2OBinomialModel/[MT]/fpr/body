@@ -2,6 +2,6 @@ def fpr(self, thresholds=None, train=False, valid=False, xval=False):
     '\n    Get the False Positive Rates for a set of thresholds.\n    If all are False (default), then return the training metric value.\n    If more than one options is set to True, then return a dictionary of metrics where the keys are "train", "valid",\n    and "xval"\n\n    :param thresholds: thresholds parameter must be a list (i.e. [0.01, 0.5, 0.99]). If None, then the thresholds in this set of metrics will be used.\n    :param train: If train is True, then return the fpr value for the training data.\n    :param valid: If valid is True, then return the fpr value for the validation data.\n    :param xval:  If xval is True, then return the fpr value for the cross validation data.\n    :return: The fpr for this binomial model.\n    '
     tm = ModelBase._get_metrics(self, train, valid, xval)
     m = {}
-    for (k, v) in zip(tm.keys(), tm.values()):
+    for (k, v) in zip(list(tm.keys()), list(tm.values())):
         m[k] = (None if (v is None) else v.metric('fpr', thresholds=thresholds))
-    return (m.values()[0] if (len(m) == 1) else m)
+    return (list(m.values())[0] if (len(m) == 1) else m)

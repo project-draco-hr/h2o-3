@@ -1,20 +1,20 @@
 def cluster_status():
     '\n  TODO: This isn\'t really a cluster status... it\'s a node status check for the node we\'re connected to.\n  This is possibly confusing because this can come back without warning,\n  but if a user tries to do any remoteSend, they will get a "cloud sick warning"\n\n  Retrieve information on the status of the cluster running H2O.\n  :return: None\n  '
     cluster_json = H2OConnection.get_json('Cloud?skip_ticks=true')
-    print 'Version: {0}'.format(cluster_json['version'])
-    print 'Cloud name: {0}'.format(cluster_json['cloud_name'])
-    print 'Cloud size: {0}'.format(cluster_json['cloud_size'])
+    print('Version: {0}'.format(cluster_json['version']))
+    print('Cloud name: {0}'.format(cluster_json['cloud_name']))
+    print('Cloud size: {0}'.format(cluster_json['cloud_size']))
     if cluster_json['locked']:
-        print 'Cloud is locked\n'
+        print('Cloud is locked\n')
     else:
-        print 'Accepting new members\n'
+        print('Accepting new members\n')
     if ((cluster_json['nodes'] == None) or (len(cluster_json['nodes']) == 0)):
-        print 'No nodes found'
+        print('No nodes found')
         return
     status = []
     for node in cluster_json['nodes']:
         for (k, v) in zip(node.keys(), node.values()):
             if (k in ['h2o', 'healthy', 'last_ping', 'num_cpus', 'sys_load', 'mem_value_size', 'free_mem', 'pojo_mem', 'swap_mem', 'free_disk', 'max_disk', 'pid', 'num_keys', 'tcps_active', 'open_fds', 'rpcs_active']):
                 status.append((k + ': {0}'.format(v)))
-        print ', '.join(status)
-        print 
+        print(', '.join(status))
+        print()
