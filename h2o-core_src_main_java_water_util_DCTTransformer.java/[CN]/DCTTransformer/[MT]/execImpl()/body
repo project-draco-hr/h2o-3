@@ -3,7 +3,7 @@
   if (ArrayUtils.minValue(_dimensions) < 1)   throw new H2OIllegalArgumentException("Dimensions must be >= 1");
   if (_dataset.numCols() < _dimensions[0] * _dimensions[1] * _dimensions[2])   throw new H2OIllegalArgumentException("Product of dimensions WxHxD must be <= #columns (" + _dataset.numCols() + ")");
   MathUtils.DCT.initCheck(_dataset,_dimensions[0],_dimensions[1],_dimensions[2]);
-  return (DCTTransformer)start(new H2O.H2OCountedCompleter(){
+  return _job.start(new H2O.H2OCountedCompleter(){
     @Override protected void compute2(){
       Frame fft;
       if (_dimensions[1] == 1 && _dimensions[2] == 1) {
@@ -15,13 +15,10 @@
  else {
         fft=MathUtils.DCT.transform3D(_dataset,_dimensions[0],_dimensions[1],_dimensions[2],_inverse);
       }
-      Frame dest=new Frame(_destination_frame,fft.names(),fft.vecs());
+      Frame dest=new Frame(_job._result,fft.names(),fft.vecs());
       DKV.put(dest);
       tryComplete();
     }
-    @Override public void onCompletion(    CountedCompleter caller){
-      done();
-    }
   }
-,1,true);
+,1);
 }
