@@ -16,15 +16,9 @@
     System.arraycopy(fr._names,3,xcols,1,fr.numCols() - 3);
     parms._learn_rate=1.0f;
     parms._score_each_iteration=true;
-    GBM job=null;
-    try {
-      job=new GBM(parms);
-      gbm=job.trainModel().get();
-    }
-  finally {
-      if (job != null)       job.remove();
-    }
-    Assert.assertTrue(job._state == water.Job.JobState.DONE);
+    GBM job=new GBM(parms);
+    gbm=job.trainModel().get();
+    Assert.assertTrue(job.isStopped());
     fr2=gbm.score(fr);
     double sq_err=new MathUtils.SquareError().doAll(job.response(),fr2.vecs()[0])._sum;
     double mse=sq_err / fr2.numRows();
@@ -35,6 +29,6 @@
   finally {
     if (fr != null)     fr.remove();
     if (fr2 != null)     fr2.remove();
-    if (gbm != null)     gbm.delete();
+    if (gbm != null)     gbm.remove();
   }
 }

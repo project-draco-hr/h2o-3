@@ -1,20 +1,3 @@
 {
-  B impl=null;
-  try {
-    Class<? extends ModelBuilder> builder_class=(Class<? extends ModelBuilder>)ReflectionUtils.findActualClassParameter(this.getClass(),0);
-    Class<? extends Model.Parameters> parameters_class=(Class<? extends Model.Parameters>)this.parameters.getImplClass();
-    Model.Parameters _parameters=null;
-    if (null != parameters) {
-      _parameters=(Model.Parameters)parameters.createImpl();
-      if (null != parameters.model_id)       _parameters._model_id=Key.make(parameters.model_id.name);
-    }
-    Constructor builder_constructor=builder_class.getConstructor(new Class[]{parameters_class});
-    impl=(B)builder_constructor.newInstance(_parameters);
-    impl.clearInitState();
-    impl._parms._model_id=null;
-  }
- catch (  Exception e) {
-    throw H2O.fail("Caught exception trying to instantiate a builder instance for ModelBuilderSchema: " + this + ": "+ e,e);
-  }
-  return impl;
+  return ModelBuilder.make(get__meta().getSchema_type(),null,null);
 }

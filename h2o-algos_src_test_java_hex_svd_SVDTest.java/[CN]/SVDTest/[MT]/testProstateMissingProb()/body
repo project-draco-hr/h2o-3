@@ -7,8 +7,7 @@
     Frame frtmp=new Frame(Key.make(),train.names(),train.vecs());
     DKV.put(frtmp._key,frtmp);
     FrameUtils.MissingInserter j=new FrameUtils.MissingInserter(frtmp._key,seed,0.25);
-    j.execImpl();
-    j.get();
+    j.execImpl().get();
     DKV.remove(frtmp._key);
     SVDParameters parms=new SVDParameters();
     parms._train=train._key;
@@ -19,24 +18,10 @@
     parms._impute_missing=true;
     parms._max_iterations=20;
     parms._save_v_frame=false;
-    SVD job=new SVD(parms);
-    try {
-      model=job.trainModel().get();
-      score=model.score(train);
-    }
- catch (    Throwable t) {
-      t.printStackTrace();
-      throw new RuntimeException(t);
-    }
- finally {
-      job.remove();
-    }
+    model=new SVD(parms).trainModel().get();
+    score=model.score(train);
   }
- catch (  Throwable t) {
-    t.printStackTrace();
-    throw new RuntimeException(t);
-  }
- finally {
+  finally {
     if (train != null)     train.delete();
     if (score != null)     score.delete();
     if (model != null)     model.delete();

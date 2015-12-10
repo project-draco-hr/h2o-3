@@ -1,0 +1,17 @@
+{
+  long now=System.currentTimeMillis();
+  Job job=job_key.get();
+  long timeSinceEntering=now - _timeLastIterationEnter;
+  double progress=job.progress();
+  int speed=(int)(model_info().get_processed_total() * 1000. / ((total_run_time + timeSinceEntering) - total_scoring_time));
+  String msg="Iterations: " + String.format("%,d",iterations) + ". Epochs: "+ String.format("%g",epoch_counter)+ ". Speed: "+ String.format("%,d",speed)+ " samples/sec."+ (progress == 0 ? "" : " Estimated time left: " + PrettyPrint.msecs((long)(total_run_time * (1. - progress) / progress),true));
+  job.update(actual_train_samples_per_iteration,msg);
+  long sinceLastPrint=now - _timeLastPrintStart;
+  if (!keep_running || sinceLastPrint > get_params()._score_interval * 1000) {
+    _timeLastPrintStart=now;
+    if (!get_params()._quiet_mode) {
+      Log.info("Training time: " + PrettyPrint.msecs((total_run_time + timeSinceEntering),true) + " (scoring: "+ PrettyPrint.msecs(total_scoring_time,true)+ "). "+ "Processed "+ String.format("%,d",model_info().get_processed_total())+ " samples"+ " ("+ String.format("%.3f",epoch_counter)+ " epochs).\n");
+      Log.info(msg);
+    }
+  }
+}

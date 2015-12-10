@@ -37,7 +37,7 @@
     double time_per_row_us=(flops_overhead_per_row * model_size + 10000 * model.model_info().units[0]) / (total_gflops * 1e9) / H2O.SELF._heartbeat._cpus_allowed * 1e6;
     tspi=(long)((model.time_for_communication_us / fraction - model.time_for_communication_us) / time_per_row_us);
     tspi=Math.min(tspi,(mp._single_node_mode ? 1 : H2O.CLOUD.size()) * numRows * 10);
-    if (tspi > numRows && Math.abs(tspi % numRows) / (double)numRows < 0.2)     tspi=tspi - tspi % numRows;
+    if (tspi > numRows && Math.abs(tspi % numRows) / (double)numRows < 0.2)     tspi-=tspi % numRows;
     tspi=Math.min(tspi,(long)(mp._epochs * numRows / 10));
     if (H2O.CLOUD.size() == 1 || mp._single_node_mode) {
       tspi=Math.min(tspi,10 * (int)(1e6 / time_per_row_us));

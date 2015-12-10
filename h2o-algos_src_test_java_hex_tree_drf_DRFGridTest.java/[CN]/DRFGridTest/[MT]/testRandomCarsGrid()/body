@@ -50,8 +50,8 @@
     DRFModel.DRFParameters params=new DRFModel.DRFParameters();
     params._train=fr._key;
     params._response_column="economy (mpg)";
-    GridSearch gs=GridSearch.startGridSearch(params,hyperParms,DRF_MODEL_FACTORY);
-    grid=(Grid)gs.get();
+    Job<Grid> gs=GridSearch.startGridSearch(null,params,hyperParms);
+    grid=gs.get();
     System.out.println("Test seed: " + seed);
     System.out.println("ntrees search space: " + Arrays.toString(ntreesSpace));
     System.out.println("max_depth search space: " + Arrays.toString(maxDepthSpace));
@@ -73,17 +73,7 @@
     params._ntrees=ntreeVal;
     params._max_depth=maxDepthVal;
     params._mtries=mtriesVal;
-    DRF job=null;
-    try {
-      job=new DRF(params);
-      drfRebuilt=job.trainModel().get();
-    }
-  finally {
-      if (job != null) {
-        job.remove();
-      }
-    }
-    assertTrue(job._state == water.Job.JobState.DONE);
+    drfRebuilt=new DRF(params).trainModel().get();
     double rebuiltMSE=drfRebuilt._output._scored_train[drfRebuilt._output._ntrees]._mse;
     System.out.println("The rebuilt model's MSE: " + rebuiltMSE);
   }

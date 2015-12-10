@@ -12,27 +12,15 @@
     parms._hidden=new int[]{2,2};
     parms._seed=0xdecaf;
     parms._variable_importances=true;
-    parms._model_id=Key.make();
-    DeepLearning job=new DeepLearning(parms);
-    try {
-      dl=job.trainModel().get();
-    }
-  finally {
-      job.remove();
-    }
+    dl=new DeepLearning(parms).trainModel().get();
     DeepLearningParameters parms2=(DeepLearningParameters)parms.clone();
     parms2._epochs=10;
-    parms2._checkpoint=parms._model_id;
-    parms2._model_id=Key.make();
-    DeepLearning job2=new DeepLearning(parms2);
+    parms2._checkpoint=dl._key;
     try {
-      dl2=job2.trainModel().get();
+      dl2=new DeepLearning(parms2).trainModel().get();
       Assert.fail("Should toss exception instead of reaching here");
     }
  catch (    H2OIllegalArgumentException ex) {
-    }
- finally {
-      job2.remove();
     }
   }
   finally {

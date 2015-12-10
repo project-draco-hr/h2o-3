@@ -25,23 +25,17 @@
     dl._ignore_const_cols=false;
     dl._sparse=true;
     dl._hidden=new int[]{10,10};
-    DeepLearning job=null;
-    try {
-      job=new DeepLearning(dl);
-      model=job.trainModel().get();
-      Log.info(model._output);
-      Frame pred;
-      Log.info("POJO CSV Train Check");
-      DKV.remove(model._key);
-      model._key=Key.make();
-      DKV.put(model);
-      assertTrue(model.testJavaScoring(first1kCSV,pred=model.score(first1kCSV),1e-5));
-      pred.remove();
-    }
-  finally {
-      if (job != null)       job.remove();
-    }
-    assertTrue(job._state == Job.JobState.DONE);
+    DeepLearning job=new DeepLearning(dl);
+    model=job.trainModel().get();
+    Log.info(model._output);
+    Frame pred;
+    Log.info("POJO CSV Train Check");
+    DKV.remove(model._key);
+    model._key=Key.make();
+    DKV.put(model);
+    assertTrue(model.testJavaScoring(first1kCSV,pred=model.score(first1kCSV),1e-5));
+    pred.remove();
+    assertTrue(job.isStopped());
   }
   finally {
     if (first1kSVM != null)     first1kSVM.remove();

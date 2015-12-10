@@ -12,9 +12,7 @@
     parms._train=train._key;
     parms._response_column="Angaus";
     parms._distribution=Distribution.Family.multinomial;
-    GBM job=new GBM(parms);
-    gbm=job.trainModel().get();
-    job.remove();
+    gbm=new GBM(parms).trainModel().get();
     pred=parse_test_file("smalldata/gbm_test/ecology_eval.csv");
     pred.remove("Angaus").remove();
     res=gbm.score(pred);

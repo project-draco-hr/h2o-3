@@ -1,6 +1,5 @@
 {
   Scope.enter();
-  GLM job=null;
   GLMModel model=null;
   String[] cfs1=new String[]{"Intercept","AGE","DPROS.b","DPROS.c","DPROS.d","DCAPS.b","PSA","VOL","GLEASON","RACE.R1"};
   double[] vals=new double[]{0.0,0.0,0.0,0,0.0,0.680406869,0.007137494,0.0,0.0,0.240953925};
@@ -22,8 +21,7 @@
       params._solver=s;
       params._max_iterations=500;
       System.out.println("SOLVER = " + s);
-      job=new GLM(Key.make("prostate_model"),"glm test simple poisson",params);
-      model=job.trainModel().get();
+      model=new GLM(params).trainModel().get();
       HashMap<String,Double> coefs=model.coefficients();
       System.out.println("coefs = " + coefs.toString());
       System.out.println("metrics = " + model._output._training_metrics);
@@ -44,7 +42,6 @@
       if (model != null)       model.delete();
       if (scoreTrain != null)       scoreTrain.delete();
       if (scoreTest != null)       scoreTest.delete();
-      if (job != null)       job.remove();
     }
   }
   Scope.exit();

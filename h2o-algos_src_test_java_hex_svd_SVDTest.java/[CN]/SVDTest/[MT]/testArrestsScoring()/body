@@ -1,7 +1,6 @@
 {
   double[] stddev=new double[]{202.7230564,27.8322637,6.5230482,2.5813652};
   double[][] eigvec=ard(ard(-0.04239181,0.01616262,-0.06588426,0.99679535),ard(-0.94395706,0.32068580,0.06655170,-0.04094568),ard(-0.30842767,-0.93845891,0.15496743,0.01234261),ard(-0.10963744,-0.12725666,-0.98347101,-0.06760284));
-  SVD job=null;
   SVDModel model=null;
   Frame train=null, score=null, scoreR=null;
   try {
@@ -14,27 +13,13 @@
     parms._only_v=false;
     parms._keep_u=false;
     parms._save_v_frame=false;
-    try {
-      job=new SVD(parms);
-      model=job.trainModel().get();
-      boolean[] flippedEig=TestUtil.checkEigvec(eigvec,model._output._v,TOLERANCE);
-      score=model.score(train);
-      scoreR=parse_test_file(Key.make("scoreR.hex"),"smalldata/pca_test/USArrests_PCAscore.csv");
-      TestUtil.checkProjection(scoreR,score,TOLERANCE,flippedEig);
-    }
- catch (    Throwable t) {
-      t.printStackTrace();
-      throw new RuntimeException(t);
-    }
- finally {
-      if (job != null)       job.remove();
-    }
+    model=new SVD(parms).trainModel().get();
+    boolean[] flippedEig=TestUtil.checkEigvec(eigvec,model._output._v,TOLERANCE);
+    score=model.score(train);
+    scoreR=parse_test_file(Key.make("scoreR.hex"),"smalldata/pca_test/USArrests_PCAscore.csv");
+    TestUtil.checkProjection(scoreR,score,TOLERANCE,flippedEig);
   }
- catch (  Throwable t) {
-    t.printStackTrace();
-    throw new RuntimeException(t);
-  }
- finally {
+  finally {
     if (train != null)     train.delete();
     if (score != null)     score.delete();
     if (scoreR != null)     scoreR.delete();

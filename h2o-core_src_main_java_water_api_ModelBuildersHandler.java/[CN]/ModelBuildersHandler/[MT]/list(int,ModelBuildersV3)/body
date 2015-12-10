@@ -1,10 +1,8 @@
 {
-  Map<String,Class<? extends ModelBuilder>> builders=ModelBuilder.getModelBuilders();
   m.model_builders=new ModelBuilderSchema.IcedHashMapStringModelBuilderSchema();
-  for (  Map.Entry<String,Class<? extends ModelBuilder>> entry : builders.entrySet()) {
-    String algo=entry.getKey();
-    ModelBuilder builder=ModelBuilder.createModelBuilder(algo);
-    m.model_builders.put(algo,(ModelBuilderSchema)Schema.schema(version,builder).fillFromImpl(builder));
+  for (  String algo : ModelBuilder.algos()) {
+    ModelBuilder builder=ModelBuilder.make(algo,null,null);
+    m.model_builders.put(algo.toLowerCase(),(ModelBuilderSchema)Schema.schema(version,builder).fillFromImpl(builder));
   }
   return m;
 }

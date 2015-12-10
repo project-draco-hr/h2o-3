@@ -44,14 +44,8 @@
       dl._elastic_averaging=i == 1;
       dl._elastic_averaging_moving_rate=0.999;
       dl._elastic_averaging_regularization=1e-4;
-      DeepLearning job=null;
-      try {
-        job=new DeepLearning(dl);
-        models[i]=job.trainModel().get();
-      }
-  finally {
-        if (job != null)         job.remove();
-      }
+      DeepLearning job=new DeepLearning(dl);
+      models[i]=job.trainModel().get();
     }
     for (int i=0; i < N; ++i) {
       if (models[i] != null)       Log.info(models[i]._output._training_metrics.cm().table().toString());

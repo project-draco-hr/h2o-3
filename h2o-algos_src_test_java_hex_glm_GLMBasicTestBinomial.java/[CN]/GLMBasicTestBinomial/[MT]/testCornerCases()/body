@@ -6,14 +6,11 @@
   parms._intercept=false;
   parms._standardize=false;
   GLMModel m=null;
-  GLM job=null;
   try {
-    job=new GLM(Key.make("glm_abcd"),"glm test abcd",parms);
-    m=job.trainModel().get();
+    m=new GLM(parms).trainModel().get();
     System.out.println(m.coefficients());
   }
   finally {
     if (m != null)     m.delete();
-    if (job != null)     job.remove();
   }
 }

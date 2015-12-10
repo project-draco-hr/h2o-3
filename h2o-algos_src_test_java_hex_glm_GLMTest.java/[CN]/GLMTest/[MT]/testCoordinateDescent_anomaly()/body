@@ -1,7 +1,7 @@
 {
   GLMModel model=null;
   Key parsed=Key.make("anomaly_parsed");
-  Key modelKey=Key.make("anomaly_model");
+  Key<GLMModel> modelKey=Key.make("anomaly_model");
   Frame fr=parse_test_file(parsed,"smalldata/anomaly/ecg_discord_train.csv");
   try {
     GLMParameters params=new GLMParameters();
@@ -10,10 +10,9 @@
     params._solver=Solver.COORDINATE_DESCENT_NAIVE;
     params._response_column="C1";
     params._train=fr._key;
-    GLM job=new GLM(modelKey,"glm test simple coordinate descent",params);
-    job.trainModel().get();
-    assertTrue(job.isDone());
-    model=DKV.get(modelKey).get();
+    GLM glm=new GLM(params,modelKey);
+    model=glm.trainModel().get();
+    assertTrue(glm.isStopped());
     System.out.println(model._output._training_metrics);
   }
   finally {

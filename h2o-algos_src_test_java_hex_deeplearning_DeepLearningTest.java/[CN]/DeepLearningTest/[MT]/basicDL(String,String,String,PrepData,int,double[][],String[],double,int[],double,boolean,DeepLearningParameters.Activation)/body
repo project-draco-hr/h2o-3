@@ -13,7 +13,6 @@
     dl._train=frTrain._key;
     dl._response_column=((Frame)DKV.getGet(dl._train)).lastVecName();
     dl._seed=(1L << 32) | 2;
-    dl._model_id=Key.make("DL_model_" + hexnametrain);
     dl._reproducible=true;
     dl._epochs=epochs;
     dl._stopping_rounds=0;
@@ -22,16 +21,10 @@
     dl._hidden=hidden;
     dl._l1=l1;
     dl._elastic_averaging=false;
-    DeepLearning job=null;
-    try {
-      job=new DeepLearning(dl);
-      model=job.trainModel().get();
-      Log.info(model._output);
-    }
-  finally {
-      if (job != null)       job.remove();
-    }
-    assertTrue(job._state == Job.JobState.DONE);
+    DeepLearning job=new DeepLearning(dl,Key.<DeepLearningModel>make("DL_model_" + hexnametrain));
+    model=job.trainModel().get();
+    Log.info(model._output);
+    assertTrue(job.isStopped());
     hex.ModelMetrics mm;
     if (fnametest != null) {
       frTest=parse_test_file(fnametest);

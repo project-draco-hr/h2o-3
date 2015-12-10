@@ -1,5 +1,4 @@
 {
-  Word2Vec job=null;
   Word2VecModel w2vm=null;
   Frame fr=null;
   try {
@@ -14,16 +13,13 @@
     parms._sentSampleRate=0.001f;
     parms._initLearningRate=0.05f;
     parms._epochs=10;
-    job=new Word2Vec(parms);
-    job.train();
-    w2vm=job.get();
+    w2vm=new Word2Vec(parms).trainModel().get();
     HashMap hm=w2vm.findSynonyms("dog",10);
     printResults(hm);
     Assert.assertTrue(hm.containsKey("dogs"));
   }
   finally {
     if (fr != null)     fr.remove();
-    if (job != null)     job.remove();
     if (w2vm != null)     w2vm.delete();
   }
 }

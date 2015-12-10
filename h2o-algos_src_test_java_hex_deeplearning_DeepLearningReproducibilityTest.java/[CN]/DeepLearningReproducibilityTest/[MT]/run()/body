@@ -24,7 +24,6 @@
         DeepLearningParameters p=new DeepLearningParameters();
         p._train=train._key;
         p._valid=test._key;
-        p._model_id=Key.make();
         p._response_column=train.names()[train.names().length - 1];
         int ci=train.names().length - 1;
         Scope.track(train.replace(ci,train.vecs()[ci].toCategoricalVec())._key);
@@ -43,16 +42,7 @@
         p._quiet_mode=true;
         p._reproducible=repro;
         DeepLearning dl=new DeepLearning(p);
-        try {
-          mymodel=dl.trainModel().get();
-        }
- catch (        Throwable t) {
-          t.printStackTrace();
-          throw new RuntimeException(t);
-        }
- finally {
-          dl.remove();
-        }
+        mymodel=dl.trainModel().get();
         preds[repeat]=mymodel.score(test);
         for (int i=0; i < 5; ++i) {
           Frame tmp=mymodel.score(test);
@@ -64,11 +54,7 @@
         checksums[repeat]=mymodel.model_info().checksum_impl();
         repeatErrs.put(repeat,mymodel.loss());
       }
- catch (      Throwable t) {
-        t.printStackTrace();
-        throw new RuntimeException(t);
-      }
- finally {
+  finally {
         if (mymodel != null) {
           mymodel.delete();
         }

@@ -2,21 +2,21 @@
   DataInfo yinfo=null;
   Frame yqfrm=null;
   try {
-    update(1,"Initializing random subspace of training data Y");
+    _job.update(1,"Initializing random subspace of training data Y");
     double[][] gt=ArrayUtils.gaussianArray(_parms._nv,_ncolExp,_parms._seed);
-    RandSubInit rtsk=new RandSubInit(self(),dinfo,gt);
+    RandSubInit rtsk=new RandSubInit(_job._key,dinfo,gt);
     rtsk.doAll(_parms._nv,Vec.T_NUM,dinfo._adaptedFrame);
     yqfrm=rtsk.outputFrame(Key.make(),null,null);
     Frame aqfrm=new Frame(dinfo._adaptedFrame);
     aqfrm.add(yqfrm);
-    update(1,"Computing QR factorization of Y");
+    _job.update(1,"Computing QR factorization of Y");
     yinfo=new DataInfo(Key.make(),yqfrm,null,true,DataInfo.TransformType.NONE,true,false,false);
     DKV.put(yinfo._key,yinfo);
-    LinearAlgebraUtils.computeQInPlace(self(),yinfo);
+    LinearAlgebraUtils.computeQInPlace(_job._key,yinfo);
     model._output._iterations=0;
     while (model._output._iterations < _parms._max_iterations) {
-      if (!isRunning())       break;
-      update(1,"Iteration " + String.valueOf(model._output._iterations + 1) + " of randomized subspace iteration");
+      if (_job.stop_requested())       break;
+      _job.update(1,"Iteration " + String.valueOf(model._output._iterations + 1) + " of randomized subspace iteration");
       SMulTask stsk=new SMulTask(dinfo,_parms._nv);
       stsk.doAll(aqfrm);
       Matrix ysmall=new Matrix(stsk._atq);
@@ -24,23 +24,12 @@
       double[][] qtilde=ysmall_qr.getQ().getArray();
       BMulInPlaceTask tsk=new BMulInPlaceTask(dinfo,ArrayUtils.transpose(qtilde));
       tsk.doAll(aqfrm);
-      LinearAlgebraUtils.computeQInPlace(self(),yinfo);
+      LinearAlgebraUtils.computeQInPlace(_job._key,yinfo);
       model._output._iterations++;
-      model.update(self());
+      model.update(_job);
     }
   }
- catch (  Throwable t) {
-    Job thisJob=DKV.getGet(_key);
-    if (thisJob._state == JobState.CANCELLED) {
-      Log.info("Job cancelled by user.");
-    }
- else {
-      t.printStackTrace();
-      failed(t);
-      throw t;
-    }
-  }
- finally {
+  finally {
     if (yinfo != null)     yinfo.remove();
   }
   return yqfrm;

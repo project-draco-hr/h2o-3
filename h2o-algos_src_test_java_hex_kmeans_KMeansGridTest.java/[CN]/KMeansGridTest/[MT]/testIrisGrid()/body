@@ -14,7 +14,7 @@
     int hyperSpaceSize=ArrayUtils.crossProductSize(hyperParms);
     KMeansModel.KMeansParameters params=new KMeansModel.KMeansParameters();
     params._train=fr._key;
-    GridSearch gs=GridSearch.startGridSearch(params,hyperParms,KMEANS_MODEL_FACTORY);
+    Job<Grid> gs=GridSearch.startGridSearch(null,params,hyperParms);
     grid=(Grid<KMeansModel.KMeansParameters>)gs.get();
     Assert.assertEquals("Size of grid should match to size of hyper space",hyperSpaceSize,grid.getModelCount() + grid.getFailureCount());
     String[] gridHyperNames=grid.getHyperNames();

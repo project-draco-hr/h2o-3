@@ -25,10 +25,10 @@
     assert(col < table.getColDim());
     DateTimeFormatter fmt=DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     table.set(row,col++,fmt.print(output._training_time_ms[row]));
-    table.set(row,col++,PrettyPrint.msecs(output._training_time_ms[row] - _start_time,true));
+    table.set(row,col++,PrettyPrint.msecs(output._training_time_ms[row] - _job.start_time(),true));
     table.set(row,col++,row);
     table.set(row,col++,output._history_step_size[row]);
-    table.set(row,col++,output._history_objective[row]);
+    table.set(row,col,output._history_objective[row]);
   }
   return table;
 }

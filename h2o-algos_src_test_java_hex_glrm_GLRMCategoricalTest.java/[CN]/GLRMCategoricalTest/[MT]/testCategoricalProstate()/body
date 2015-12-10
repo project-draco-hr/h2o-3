@@ -1,5 +1,4 @@
 {
-  GLRM job=null;
   GLRMModel model=null;
   Frame train=null;
   final int[] cats=new int[]{1,3,4,5};
@@ -19,27 +18,13 @@
     parms._transform=DataInfo.TransformType.STANDARDIZE;
     parms._recover_svd=false;
     parms._max_iterations=200;
-    try {
-      job=new GLRM(parms);
-      model=job.trainModel().get();
-      Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
-      model.score(train).delete();
-      ModelMetricsGLRM mm=(ModelMetricsGLRM)ModelMetrics.getFromDKV(model,train);
-      Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
-    }
- catch (    Throwable t) {
-      t.printStackTrace();
-      throw new RuntimeException(t);
-    }
- finally {
-      job.remove();
-    }
+    model=new GLRM(parms).trainModel().get();
+    Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
+    model.score(train).delete();
+    ModelMetricsGLRM mm=(ModelMetricsGLRM)ModelMetrics.getFromDKV(model,train);
+    Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
   }
- catch (  Throwable t) {
-    t.printStackTrace();
-    throw new RuntimeException(t);
-  }
- finally {
+  finally {
     if (train != null)     train.delete();
     if (model != null)     model.delete();
     Scope.exit();
