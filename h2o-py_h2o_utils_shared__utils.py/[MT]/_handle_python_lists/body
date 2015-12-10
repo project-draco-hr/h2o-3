@@ -1,12 +1,12 @@
 def _handle_python_lists(python_obj):
-    cols = len(python_obj)
-    lol = _is_list_of_lists(python_obj)
-    if lol:
-        _check_lists_of_lists(python_obj)
-    else:
-        cols = 1
+    if _is_list_of_lists(python_obj):
+        ncols = _check_lists_of_lists(python_obj)
+    elif isinstance(python_obj, (list, tuple)):
+        ncols = len(python_obj)
         python_obj = [python_obj]
-    header = _gen_header(cols)
-    rows = list(map(list, itertools.zip_longest(*python_obj)))
-    data_to_write = [dict(list(zip(header, row))) for row in rows]
+    else:
+        python_obj = [[python_obj]]
+        ncols = 1
+    header = _gen_header(ncols)
+    data_to_write = [dict(list(zip(header, row))) for row in python_obj]
     return (header, data_to_write)

@@ -11,14 +11,11 @@ def as_data_frame(self, use_pandas=False):
         import pandas
         df = pandas.read_csv(response, low_memory=False)
         time_cols = []
-        category_cols = []
         if (self.types is not None):
             for col_name in self.names:
                 xtype = self.type(col_name)
                 if (xtype.lower() == 'time'):
                     time_cols.append(col_name)
-                elif (xtype.lower() == 'enum'):
-                    category_cols.append(col_name)
             if time_cols:
                 sample_timestamp = 1380610868
                 utc_offset = (1000 * (datetime.utcfromtimestamp(sample_timestamp) - datetime.fromtimestamp(sample_timestamp)).total_seconds())
@@ -26,10 +23,7 @@ def as_data_frame(self, use_pandas=False):
                     df[time_cols] = (df[time_cols] - utc_offset).astype('datetime64[ms]')
                 except pandas.tslib.OutOfBoundsDatetime:
                     pass
-            for cat_col in category_cols:
-                df[cat_col] = df[cat_col].astype('category')
         return df
     else:
         cr = csv.reader(response)
-        t_col_list = [([''] if (row == []) else row) for row in cr]
-        return [list(x) for x in zip(*t_col_list)]
+        return [([''] if (row == []) else row) for row in cr]

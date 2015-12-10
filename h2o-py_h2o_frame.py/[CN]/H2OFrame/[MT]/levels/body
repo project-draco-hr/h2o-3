@@ -1,6 +1,7 @@
 def levels(self):
-    'Get the factor levels.\n\n    Returns\n    -------\n      A dictionary of column_name:column_levels pairs.\n    '
+    'Get the factor levels.\n\n    Returns\n    -------\n      A list of lists, one list per column, of levels. \n    '
     lol = H2OFrame._expr(expr=ExprNode('levels', self)).as_data_frame(False)
-    for l in lol:
-        l.pop(0)
+    lol.pop(0)
+    lol = list(zip(*lol))
+    lol = [[ll for ll in l if (ll != '')] for l in lol]
     return lol

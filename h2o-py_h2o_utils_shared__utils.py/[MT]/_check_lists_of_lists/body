@@ -1,7 +1,10 @@
 def _check_lists_of_lists(python_obj):
-    lol_all = all((isinstance(l, (tuple, list)) for l in python_obj))
-    if (not lol_all):
-        raise ValueError('`python_obj` is a mixture of nested lists and other types.')
+    most_cols = 0
     for l in python_obj:
-        if any((isinstance(ll, (tuple, list)) for ll in l)):
-            raise ValueError('`python_obj` is not a list of flat lists!')
+        if (not isinstance(l, (tuple, list))):
+            raise ValueError('`python_obj` is a mixture of nested lists and other types.')
+        most_cols = max(most_cols, len(l))
+        for ll in l:
+            if isinstance(ll, (tuple, list)):
+                raise ValueError('`python_obj` is not a list of flat lists!')
+    return most_cols

@@ -6,7 +6,7 @@ def weights_vi():
     p2 = [((1 if (random.uniform(0, 1) < 0.7) else 0) if (y == 'a') else (0 if (random.uniform(0, 1) < 0.7) else 1)) for y in response]
     p3 = [((1 if (random.uniform(0, 1) < 0.5) else 0) if (y == 'a') else (0 if (random.uniform(0, 1) < 0.5) else 1)) for y in response]
     dataset1_python = [response, p1, p2, p3]
-    dataset1_h2o = h2o.H2OFrame(dataset1_python)
+    dataset1_h2o = h2o.H2OFrame(list(zip(*dataset1_python)))
     dataset1_h2o.set_names(['response', 'p1', 'p2', 'p3'])
     response = ['a' for y in range(10)]
     [response.append('b') for y in range(10)]
@@ -14,7 +14,7 @@ def weights_vi():
     p2 = [((1 if (random.uniform(0, 1) < 0.5) else 0) if (y == 'a') else (0 if (random.uniform(0, 1) < 0.5) else 1)) for y in response]
     p3 = [((1 if (random.uniform(0, 1) < 0.9) else 0) if (y == 'a') else (0 if (random.uniform(0, 1) < 0.9) else 1)) for y in response]
     dataset2_python = [response, p1, p2, p3]
-    dataset2_h2o = h2o.H2OFrame(dataset2_python)
+    dataset2_h2o = h2o.H2OFrame(list(zip(*dataset2_python)))
     dataset2_h2o.set_names(['response', 'p1', 'p2', 'p3'])
     model_dataset1 = h2o.deeplearning(x=dataset1_h2o[['p1', 'p2', 'p3']], y=dataset1_h2o['response'], variable_importances=True, hidden=[1], reproducible=True, seed=1234, activation='Tanh')
     varimp_dataset1 = tuple([p[0] for p in model_dataset1.varimp()])
@@ -27,7 +27,7 @@ def weights_vi():
     dataset2_python_weighted = copy.deepcopy(dataset2_python)
     dataset2_python_weighted.append(([0.2] * len(dataset2_python_weighted[0])))
     combined_dataset_python = [(d1 + d2) for (d1, d2) in zip(dataset1_python_weighted, dataset2_python_weighted)]
-    combined_dataset_h2o = h2o.H2OFrame(combined_dataset_python)
+    combined_dataset_h2o = h2o.H2OFrame(list(zip(*combined_dataset_python)))
     combined_dataset_h2o.set_names(['response', 'p1', 'p2', 'p3', 'weights'])
     model_combined_dataset = h2o.deeplearning(x=combined_dataset_h2o[['p1', 'p2', 'p3']], y=combined_dataset_h2o['response'], training_frame=combined_dataset_h2o, variable_importances=True, weights_column='weights', hidden=[1], reproducible=True, seed=1234, activation='Tanh')
     varimp_combined = tuple([p[0] for p in model_combined_dataset.varimp()])
@@ -37,7 +37,7 @@ def weights_vi():
     dataset2_python_weighted = copy.deepcopy(dataset2_python)
     dataset2_python_weighted.append(([0.8] * len(dataset2_python_weighted[0])))
     combined_dataset_python = [(d1 + d2) for (d1, d2) in zip(dataset1_python_weighted, dataset2_python_weighted)]
-    combined_dataset_h2o = h2o.H2OFrame(combined_dataset_python)
+    combined_dataset_h2o = h2o.H2OFrame(list(zip(*combined_dataset_python)))
     combined_dataset_h2o.set_names(['response', 'p1', 'p2', 'p3', 'weights'])
     model_combined_dataset = h2o.deeplearning(x=combined_dataset_h2o[['p1', 'p2', 'p3']], y=combined_dataset_h2o['response'], training_frame=combined_dataset_h2o, variable_importances=True, weights_column='weights', hidden=[1], reproducible=True, seed=123, activation='Tanh')
     varimp_combined = tuple([p[0] for p in model_combined_dataset.varimp()])
