@@ -16,8 +16,7 @@
         Frame frtmp=new Frame(Key.make(),train.names(),train.vecs());
         DKV.put(frtmp._key,frtmp);
         FrameUtils.MissingInserter j=new FrameUtils.MissingInserter(frtmp._key,seed,missing_fraction);
-        j.execImpl();
-        j.get();
+        j.execImpl().get();
         DKV.remove(frtmp._key);
       }
       parms=new GLRMParameters();
@@ -32,33 +31,20 @@
       parms._seed=seed;
       parms._recover_svd=true;
       GLRM job=new GLRM(parms);
-      try {
-        model=job.trainModel().get();
-        Log.info(100 * missing_fraction + "% missing values: Objective = " + model._output._objective);
-        double sd_err=errStddev(sval,model._output._singular_vals) / parms._k;
-        double ev_err=errEigvec(eigvec,model._output._eigenvectors_raw) / parms._k;
-        Log.info("Avg SSE in Std Dev = " + sd_err + "\tAvg SSE in Eigenvectors = "+ ev_err);
-        sd_map.put(missing_fraction,sd_err);
-        ev_map.put(missing_fraction,ev_err);
-        model.score(train).delete();
-        ModelMetricsGLRM mm=(ModelMetricsGLRM)ModelMetrics.getFromDKV(model,train);
-        Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
-        Assert.assertEquals(model._output._objective,mm._numerr,TOLERANCE);
-      }
- catch (      Throwable t) {
-        t.printStackTrace();
-        throw new RuntimeException(t);
-      }
- finally {
-        job.remove();
-      }
+      model=job.trainModel().get();
+      Log.info(100 * missing_fraction + "% missing values: Objective = " + model._output._objective);
+      double sd_err=errStddev(sval,model._output._singular_vals) / parms._k;
+      double ev_err=errEigvec(eigvec,model._output._eigenvectors_raw) / parms._k;
+      Log.info("Avg SSE in Std Dev = " + sd_err + "\tAvg SSE in Eigenvectors = "+ ev_err);
+      sd_map.put(missing_fraction,sd_err);
+      ev_map.put(missing_fraction,ev_err);
+      model.score(train).delete();
+      ModelMetricsGLRM mm=(ModelMetricsGLRM)ModelMetrics.getFromDKV(model,train);
+      Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
+      Assert.assertEquals(model._output._objective,mm._numerr,TOLERANCE);
       Scope.exit();
     }
- catch (    Throwable t) {
-      t.printStackTrace();
-      throw new RuntimeException(t);
-    }
- finally {
+  finally {
       if (train != null)       train.delete();
       if (model != null)       model.delete();
     }

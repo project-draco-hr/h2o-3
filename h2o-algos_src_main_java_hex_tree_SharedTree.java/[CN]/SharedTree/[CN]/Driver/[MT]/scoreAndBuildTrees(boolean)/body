@@ -4,20 +4,20 @@
       double training_r2=doScoringAndSaveModel(false,oob,_parms._build_tree_one_node);
       if (training_r2 >= _parms._r2_stopping) {
         doScoringAndSaveModel(true,oob,_parms._build_tree_one_node);
-        update(_ntrees - _model._output._ntrees);
+        _job.update(_ntrees - _model._output._ntrees);
         return;
       }
       if (!Double.isNaN(training_r2) && ScoreKeeper.earlyStopping(_model._output.scoreKeepers(),_parms._stopping_rounds,_nclass > 1,_parms._stopping_metric,_parms._stopping_tolerance)) {
         doScoringAndSaveModel(true,oob,_parms._build_tree_one_node);
-        update(_ntrees - _model._output._ntrees);
+        _job.update(_ntrees - _model._output._ntrees);
         return;
       }
     }
     Timer kb_timer=new Timer();
     buildNextKTrees();
     Log.info((tid + 1) + ". tree was built in " + kb_timer.toString());
-    update(1);
-    if (!isRunning())     return;
+    _job.update(1);
+    if (_job.stop_requested())     return;
   }
   doScoringAndSaveModel(true,oob,_parms._build_tree_one_node);
 }

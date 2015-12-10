@@ -1,23 +1,19 @@
 {
-  if (!_gotException.getAndSet(true)) {
-    if (ex instanceof JobCancelledException) {
-      GLM.this.cancel();
-      tryComplete();
-      return false;
-    }
-    if (ex instanceof TooManyPredictorsException) {
-      tryComplete();
-      return false;
-    }
-    try {
-      if (!(ex instanceof IllegalArgumentException))       doCleanup();
-      new RemoveCall(null,_dest).invokeTask();
-    }
- catch (    Throwable t) {
-      Log.err(t);
-    }
-    failed(ex);
-    return true;
+  if (_gotException.getAndSet(true))   return false;
+  if (ex instanceof GLMCancelledException) {
+    tryComplete();
+    return false;
   }
-  return false;
+  if (ex instanceof TooManyPredictorsException) {
+    tryComplete();
+    return false;
+  }
+  try {
+    if (!(ex instanceof IllegalArgumentException))     doCleanup();
+    new RemoveCall(null,_job._result).invokeTask();
+  }
+ catch (  Throwable t) {
+    Log.err(t);
+  }
+  return true;
 }
