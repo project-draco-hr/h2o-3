@@ -1,6 +1,28 @@
 def get_model(model_id):
     'Return the specified model\n\n  Parameters\n  ----------\n  model_id : str\n    The model identification in h2o\n\n  Returns\n  -------\n    H2OEstimator\n  '
-    m = H2OEstimator()
     model_json = H2OConnection.get_json(('Models/' + model_id))['models'][0]
+    algo = model_json['algo']
+    if (algo == 'svd'):
+        m = H2OSVD()
+    elif (algo == 'pca'):
+        m = H2OPCA()
+    elif (algo == 'drf'):
+        m = H2ORandomForestEstimator()
+    elif (algo == 'naivebayes'):
+        m = H2ONaiveBayesEstimator()
+    elif (algo == 'kmeans'):
+        m = H2OKMeansEstimator()
+    elif (algo == 'glrm'):
+        m = H2OGeneralizedLowRankEstimator()
+    elif (algo == 'glm'):
+        m = H2OGeneralizedLinearEstimator()
+    elif (algo == 'gbm'):
+        m = H2OGradientBoostingEstimator()
+    elif ((algo == 'deeplearning') and (model_json['output']['model_category'] == 'AutoEncoder')):
+        m = H2OAutoEncoderEstimator()
+    elif (algo == 'deeplearning'):
+        m = H2ODeepLearningEstimator()
+    else:
+        raise ValueError(('Unknown algo type: ' + algo))
     m._resolve_model(model_id, model_json)
     return m
