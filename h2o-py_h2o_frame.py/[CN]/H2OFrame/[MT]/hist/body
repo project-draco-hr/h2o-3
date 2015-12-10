@@ -2,8 +2,8 @@ def hist(self, breaks='Sturges', plot=True, **kwargs):
     'Compute a histogram over a numeric column.\n\n    Parameters\n    ----------\n    breaks: str, int, list\n      Can be one of "Sturges", "Rice", "sqrt", "Doane", "FD", "Scott."\n      Can be a single number for the number of breaks.\n      Can be a list containing sthe split points, e.g., [-50,213.2123,9324834]\n      If breaks is "FD", the MAD is used over the IQR in computing bin width.\n    plot : bool, default=True\n      If True, then a plot is generated\n\n    Returns\n    -------\n      If plot is False, return H2OFrame with these columns: breaks, counts, mids_true,\n      mids, and density; otherwise produce the plot.\n    '
     frame = H2OFrame._expr(expr=ExprNode('hist', self, breaks))._frame()
     total = frame['counts'].sum(True)
-    densities = [((frame[(i, 'counts')] / total) * (1 / (frame[(i, 'breaks')] - frame[((i - 1), 'breaks')]))) for i in range(1, frame['counts'].nrow)]
-    densities.insert(0, 0)
+    densities = [[((frame[(i, 'counts')] / total) * (1 / (frame[(i, 'breaks')] - frame[((i - 1), 'breaks')])))] for i in range(1, frame['counts'].nrow)]
+    densities.insert(0, [0])
     densities_frame = H2OFrame(densities)
     densities_frame.set_names(['density'])
     frame = frame.cbind(densities_frame)
@@ -19,11 +19,9 @@ def hist(self, breaks='Sturges', plot=True, **kwargs):
             return
         lower = float(frame[(0, 'breaks')])
         clist = h2o.as_list(frame['counts'], use_pandas=False)
-        clist = list(zip(*clist))
         clist.pop(0)
         clist.pop(0)
         mlist = h2o.as_list(frame['mids'], use_pandas=False)
-        mlist = list(zip(*mlist))
         mlist.pop(0)
         mlist.pop(0)
         counts = [float(c[0]) for c in clist]

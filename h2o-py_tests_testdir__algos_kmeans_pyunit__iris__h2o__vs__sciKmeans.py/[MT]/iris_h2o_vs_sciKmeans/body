@@ -3,7 +3,7 @@ def iris_h2o_vs_sciKmeans():
     iris_sci = np.genfromtxt(pyunit_utils.locate('smalldata/iris/iris.csv'), delimiter=',')
     iris_sci = iris_sci[:, 0:4]
     s = [[4.9, 3.0, 1.4, 0.2], [5.6, 2.5, 3.9, 1.1], [6.5, 3.0, 5.2, 2.0]]
-    start = h2o.H2OFrame(list(zip(*s)))
+    start = h2o.H2OFrame(s)
     h2o_km = H2OKMeansEstimator(k=3, user_points=start, standardize=False)
     h2o_km.train(x=list(range(4)), training_frame=iris_h2o)
     sci_km = KMeans(n_clusters=3, init=np.asarray(s), n_init=1)
@@ -13,7 +13,6 @@ def iris_h2o_vs_sciKmeans():
     print(h2o_centers)
     print('Cluster centers from scikit:')
     sci_centers = sci_km.cluster_centers_.tolist()
-    sci_centers = list(zip(*sci_centers))
     for (hcenter, scenter) in zip(h2o_centers, sci_centers):
         for (hpoint, spoint) in zip(hcenter, scenter):
             assert ((hpoint - spoint) < 1e-10), 'expected centers to be the same'
