@@ -1,0 +1,25 @@
+{
+  String origWeightsName=_parms._weights_column;
+  Vec origWeight=origWeightsName != null ? train().vec(origWeightsName) : train().anyVec().makeCon(1.0);
+  Frame folds_and_weights=new Frame(new Vec[]{foldAssignment,origWeight});
+  Vec[] weights=new MRTask(){
+    @Override public void map(    Chunk chks[],    NewChunk nchks[]){
+      Chunk fold=chks[0], orig=chks[1];
+      for (int row=0; row < orig._len; row++) {
+        int foldAssignment=(int)fold.at8(row) % N;
+        double w=orig.atd(row);
+        assert(foldAssignment >= 0 && foldAssignment < N);
+        for (int f=0; f < N; f++) {
+          boolean holdout=foldAssignment == f;
+          nchks[2 * f + 0].addNum(holdout ? 0 : w);
+          nchks[2 * f + 1].addNum(holdout ? w : 0);
+        }
+      }
+    }
+  }
+.doAll(2 * N,Vec.T_NUM,folds_and_weights).outputFrame().vecs();
+  if (_parms._fold_column == null)   foldAssignment.remove();
+  if (origWeightsName == null)   origWeight.remove();
+  for (  Vec weight : weights)   if (weight.isConst())   throw new H2OIllegalArgumentException("Not enough data to create " + N + " random cross-validation splits. Either reduce nfolds, specify a larger dataset (or specify another random number seed, if applicable).");
+  return weights;
+}

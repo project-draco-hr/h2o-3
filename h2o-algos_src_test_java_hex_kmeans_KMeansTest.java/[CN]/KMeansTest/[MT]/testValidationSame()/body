@@ -12,9 +12,7 @@
           fr=parse_test_file("smalldata/iris/iris_wheader.csv");
           if (missing) {
             FrameUtils.MissingInserter mi=new FrameUtils.MissingInserter(fr._key,1234,0.1f);
-            mi.execImpl();
-            fr=mi.get();
-            mi.remove();
+            fr=mi.execImpl().get();
           }
           train=new Frame(Key.make("train"),fr.names(),fr.vecs());
           DKV.put(train);

@@ -1,0 +1,16 @@
+{
+  if (_parms._fold_column != null)   return train().vec(_parms._fold_column);
+  final long seed=_parms.nFoldSeed();
+  Log.info("Creating " + N + " cross-validation splits with random number seed: "+ seed);
+switch (_parms._fold_assignment) {
+case AUTO:
+case Random:
+    return ASTKFold.kfoldColumn(zTmp(),N,seed);
+case Modulo:
+  return ASTKFold.moduloKfoldColumn(zTmp(),N);
+case Stratified:
+return ASTKFold.stratifiedKFoldColumn(response(),N,seed);
+default :
+throw H2O.unimpl();
+}
+}

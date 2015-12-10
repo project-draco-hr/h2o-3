@@ -4,17 +4,17 @@
   if (_firstScore == 0)   _firstScore=now;
   long sinceLastScore=now - _timeLastScoreStart;
   boolean updated=false;
-  new ProgressUpdate("Built " + _model._output._ntrees + " trees so far (out of "+ _parms._ntrees+ ").").fork(_progressKey);
+  _job.update(0,"Built " + _model._output._ntrees + " trees so far (out of "+ _parms._ntrees+ ").");
   if (_parms._score_each_iteration || finalScoring || (now - _firstScore < _parms._initial_score_interval)|| (sinceLastScore > _parms._score_interval && (double)(_timeLastScoreEnd - _timeLastScoreStart) / sinceLastScore < 0.1)) {
     checkMemoryFootPrint();
-    _model.update(_key);
+    _model.update(_job);
     updated=true;
     Log.info("============================================================== ");
     SharedTreeModel.SharedTreeOutput out=_model._output;
     _timeLastScoreStart=now;
     final boolean printout=(_parms._score_each_iteration || finalScoring || sinceLastScore > _parms._score_interval);
     final boolean computeGainsLift=true;
-    new ProgressUpdate("Scoring the model.").fork(_progressKey);
+    _job.update(0,"Scoring the model.");
     Score sc=new Score(this,true,oob,_model._output.getModelCategory(),computeGainsLift).doAll(train(),build_tree_one_node);
     ModelMetrics mm=sc.makeModelMetrics(_model,_parms.train());
     out._training_metrics=mm;
@@ -38,6 +38,6 @@
     }
     _timeLastScoreEnd=System.currentTimeMillis();
   }
-  if (updated)   _model.update(_key);
+  if (updated)   _model.update(_job);
   return training_r2;
 }

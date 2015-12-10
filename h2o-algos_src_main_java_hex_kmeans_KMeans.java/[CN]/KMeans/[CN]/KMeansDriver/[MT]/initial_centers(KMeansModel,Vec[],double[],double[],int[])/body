@@ -33,11 +33,11 @@
         SumSqr sqr=new SumSqr(centers,means,mults,modes,_isCats).doAll(vecs);
         Sampler sampler=new Sampler(centers,means,mults,modes,_isCats,sqr._sqr,_parms._k * 3,_parms._seed,hasWeightCol()).doAll(vecs);
         centers=ArrayUtils.append(centers,sampler._sampled);
-        if (!isRunning())         return null;
+        if (_job.stop_requested())         return null;
         model._output._centers_raw=destandardize(centers,_isCats,means,mults);
         model._output._tot_withinss=sqr._sqr / _train.numRows();
         model._output._iterations++;
-        model.update(_key);
+        model.update(_job);
       }
       centers=recluster(centers,rand,_parms._k,_parms._init,_isCats);
       model._output._iterations=0;
