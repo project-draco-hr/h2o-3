@@ -1,0 +1,42 @@
+{
+  long localParseSize=(long)(double)totalSize / cloudsize;
+  long chunkSize=(localParseSize / (cores * 4));
+  if (oldHeuristic) {
+    if (chunkSize <= (1 << 16)) {
+      return DFLT_CHUNK_SIZE;
+    }
+    chunkSize=1L << MathUtils.log2(chunkSize);
+    if (chunkSize < DFLT_CHUNK_SIZE && (localParseSize / chunkSize) * numCols < (1 << 21)) {
+      return (int)chunkSize;
+    }
+    long tmp=(localParseSize * numCols / (1 << 21));
+    if (tmp > (1 << 30))     return (1 << 30);
+    if (tmp > DFLT_CHUNK_SIZE) {
+      chunkSize=1 << MathUtils.log2((int)tmp);
+      return (int)chunkSize;
+    }
+ else     return DFLT_CHUNK_SIZE;
+  }
+ else {
+    final int minNumberRows=10;
+    final int perNodeChunkCountLimit=1 << 21;
+    final int minParseChunkSize=1 << 13;
+    final int maxParseChunkSize=1 << 30;
+    if (chunkSize <= minParseChunkSize && DFLT_CHUNK_SIZE > minNumberRows * maxLineLength) {
+      return DFLT_CHUNK_SIZE;
+    }
+    chunkSize=1L << MathUtils.log2(chunkSize);
+    if (chunkSize < DFLT_CHUNK_SIZE && (localParseSize / chunkSize) * numCols < perNodeChunkCountLimit && chunkSize > minNumberRows * maxLineLength)     return (int)chunkSize;
+    int chunkCount=cores * 4 * numCols;
+    if (chunkCount > perNodeChunkCountLimit) {
+      double ratio=1 << Math.max(2,MathUtils.log2((int)(double)chunkCount / perNodeChunkCountLimit));
+      chunkSize*=ratio;
+    }
+    if (chunkSize > maxParseChunkSize)     return maxParseChunkSize;
+    if (chunkSize > DFLT_CHUNK_SIZE) {
+      int val=1 << MathUtils.log2(chunkSize);
+      if (val > minNumberRows * maxLineLength)       return val;
+    }
+    return Math.max(DFLT_CHUNK_SIZE,Math.min(maxParseChunkSize,(int)(minNumberRows * maxLineLength)));
+  }
+}
