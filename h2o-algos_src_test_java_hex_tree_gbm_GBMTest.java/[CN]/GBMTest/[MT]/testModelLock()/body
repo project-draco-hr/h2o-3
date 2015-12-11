@@ -36,12 +36,11 @@ catch (    DException.DistributedException de) {
     }
     Log.info("Getting model");
     GBMModel model=gbm.get();
-    Assert.assertTrue(gbm._state == Job.JobState.DONE);
+    Assert.assertTrue(gbm.isStopped());
     if (model != null)     model.delete();
   }
   finally {
     if (fr != null)     fr.remove();
-    if (gbm != null)     gbm.remove();
     Scope.exit();
   }
 }

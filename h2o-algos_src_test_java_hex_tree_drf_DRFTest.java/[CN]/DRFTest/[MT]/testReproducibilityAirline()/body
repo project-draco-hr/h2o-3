@@ -29,11 +29,9 @@
       parms._sample_rate=0.632f;
       parms._balance_classes=true;
       parms._seed=(1L << 32) | 2;
-      DRF job=new DRF(parms);
-      DRFModel drf=job.trainModel().get();
+      DRFModel drf=new DRF(parms).trainModel().get();
       assertEquals(drf._output._ntrees,parms._ntrees);
       mses[i]=drf._output._training_metrics.mse();
-      job.remove();
       drf.delete();
     }
   }

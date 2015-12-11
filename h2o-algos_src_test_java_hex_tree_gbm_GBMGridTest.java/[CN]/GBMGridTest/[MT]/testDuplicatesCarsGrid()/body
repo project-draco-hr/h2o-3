@@ -16,8 +16,8 @@
     GBMModel.GBMParameters params=new GBMModel.GBMParameters();
     params._train=fr._key;
     params._response_column="economy";
-    GridSearch gs=GridSearch.startGridSearch(params,hyperParms,GBM_MODEL_FACTORY);
-    grid=(Grid)gs.get();
+    Job<Grid> gs=GridSearch.startGridSearch(params,hyperParms,GBM_MODEL_FACTORY);
+    grid=gs.get();
     Model[] models=grid.getModels();
     assertTrue("Number of returned models has to be > 0",models.length > 0);
     Key<Model> modelKey=models[0]._key;

@@ -14,26 +14,12 @@
     parms._svd_method=SVDParameters.Method.Randomized;
     parms._max_iterations=7;
     parms._save_v_frame=false;
-    SVD job=new SVD(parms);
-    try {
-      model=job.trainModel().get();
-      TestUtil.checkEigvec(v_expected,model._output._v,TOLERANCE);
-      Assert.assertArrayEquals(d_expected,model._output._d,TOLERANCE);
-      score=model.score(train);
-    }
- catch (    Throwable t) {
-      t.printStackTrace();
-      throw new RuntimeException(t);
-    }
- finally {
-      job.remove();
-    }
+    model=new SVD(parms).trainModel().get();
+    TestUtil.checkEigvec(v_expected,model._output._v,TOLERANCE);
+    Assert.assertArrayEquals(d_expected,model._output._d,TOLERANCE);
+    score=model.score(train);
   }
- catch (  Throwable t) {
-    t.printStackTrace();
-    throw new RuntimeException(t);
-  }
- finally {
+  finally {
     if (train != null)     train.delete();
     if (score != null)     score.delete();
     if (model != null)     model.delete();

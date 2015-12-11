@@ -13,25 +13,11 @@
     parms._transform=DataInfo.TransformType.NONE;
     parms._svd_method=SVDParameters.Method.GramSVD;
     parms._save_v_frame=false;
-    SVD job=new SVD(parms);
-    try {
-      model=job.trainModel().get();
-      TestUtil.checkEigvec(v_expected,model._output._v,TOLERANCE);
-      Assert.assertArrayEquals(d_expected,model._output._d,TOLERANCE);
-    }
- catch (    Throwable t) {
-      t.printStackTrace();
-      throw new RuntimeException(t);
-    }
- finally {
-      job.remove();
-    }
+    model=new SVD(parms).trainModel().get();
+    TestUtil.checkEigvec(v_expected,model._output._v,TOLERANCE);
+    Assert.assertArrayEquals(d_expected,model._output._d,TOLERANCE);
   }
- catch (  Throwable t) {
-    t.printStackTrace();
-    throw new RuntimeException(t);
-  }
- finally {
+  finally {
     if (train != null)     train.delete();
     if (model != null)     model.delete();
   }

@@ -1,5 +1,4 @@
 {
-  NaiveBayes job=null;
   NaiveBayesModel model=null;
   Frame train=null, score=null;
   try {
@@ -12,25 +11,11 @@
     parms._laplace=0;
     parms._response_column=train._names[54];
     parms._compute_metrics=false;
-    try {
-      job=new NaiveBayes(parms);
-      model=job.trainModel().get();
-      score=model.score(train);
-      Assert.assertTrue(model.testJavaScoring(train,score,1e-6));
-    }
- catch (    Throwable t) {
-      t.printStackTrace();
-      throw new RuntimeException(t);
-    }
- finally {
-      if (job != null)       job.remove();
-    }
+    model=new NaiveBayes(parms).trainModel().get();
+    score=model.score(train);
+    Assert.assertTrue(model.testJavaScoring(train,score,1e-6));
   }
- catch (  Throwable t) {
-    t.printStackTrace();
-    throw new RuntimeException(t);
-  }
- finally {
+  finally {
     if (train != null)     train.delete();
     if (score != null)     score.delete();
     if (model != null)     model.delete();

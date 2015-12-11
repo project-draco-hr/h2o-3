@@ -17,14 +17,7 @@
     parms._nbins=100;
     parms._learn_rate=.2f;
     parms._distribution=Distribution.Family.multinomial;
-    GBM job=null;
-    try {
-      job=new GBM(parms);
-      gbm=job.trainModel().get();
-    }
-  finally {
-      if (job != null)       job.remove();
-    }
+    gbm=new GBM(parms).trainModel().get();
     hex.ModelMetricsBinomial mm=hex.ModelMetricsBinomial.getFromDKV(gbm,parms.valid());
     double auc=mm._auc._auc;
     Assert.assertTrue(0.84 <= auc && auc < 0.86);

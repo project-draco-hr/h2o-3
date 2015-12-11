@@ -1,5 +1,4 @@
 {
-  GLM job1=null, job2=null;
   GLMModel model1=null, model2=null;
   GLMParameters parms=new GLMParameters(Family.gaussian);
   parms._train=_weighted._key;
@@ -19,16 +18,14 @@
       parms._train=_weighted._key;
       parms._solver=s;
       parms._weights_column="weights";
-      job1=new GLM(Key.make("prostate_model"),"glm test",parms);
-      model1=job1.trainModel().get();
+      model1=new GLM(Key.make("prostate_model"),"glm test",parms).trainModel().get();
       HashMap<String,Double> coefs1=model1.coefficients();
       System.out.println("coefs1 = " + coefs1);
       parms._train=_upsampled._key;
       parms._weights_column=null;
       parms._lambda=null;
       parms._alpha=null;
-      job2=new GLM(Key.make("prostate_model"),"glm test",parms);
-      model2=job2.trainModel().get();
+      model2=new GLM(Key.make("prostate_model"),"glm test",parms).trainModel().get();
       HashMap<String,Double> coefs2=model2.coefficients();
       System.out.println("coefs2 = " + coefs2);
       System.out.println("mse1 = " + model1._output._training_metrics.mse() + ", mse2 = "+ model2._output._training_metrics.mse());
@@ -37,9 +34,7 @@
       assertEquals(model2._output._training_metrics.mse(),model1._output._training_metrics.mse(),1e-4);
     }
   finally {
-      if (job1 != null)       job1.remove();
       if (model1 != null)       model1.delete();
-      if (job2 != null)       job2.remove();
       if (model2 != null)       model2.delete();
     }
   }

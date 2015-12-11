@@ -1,5 +1,4 @@
 {
-  GLM job=null;
   GLMModel model=null;
   Frame scoreTrain=null;
   String[] cfs1=new String[]{"Intercept","Swimmer.Occas","Location.NonBeach","Age.20-24","Age.25-29","Sex.Male"};
@@ -25,8 +24,7 @@
     for (    Solver s : GLMParameters.Solver.values()) {
       try {
         parms._solver=s;
-        job=new GLM(Key.make("prostate_model_" + s + "_"+ x),"glm test simple poisson",parms);
-        model=job.trainModel().get();
+        model=new GLM(Key.make("prostate_model_" + s + "_"+ x),"glm test simple poisson",parms).trainModel().get();
         HashMap<String,Double> coefs=model.coefficients();
         System.out.println("coefs = " + coefs);
         for (int i=0; i < cfs1.length; ++i)         assertEquals(vals[x][i],coefs.get(cfs1[i]),1e-4);
@@ -42,7 +40,6 @@
         assertEquals(GLMTest.nullDeviance(model),mmTrain._nullDev,1e-8);
       }
   finally {
-        if (job != null)         job.remove();
         if (model != null)         model.delete();
         if (scoreTrain != null)         scoreTrain.delete();
       }

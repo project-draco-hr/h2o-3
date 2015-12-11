@@ -43,16 +43,7 @@
         p._quiet_mode=true;
         p._reproducible=repro;
         DeepLearning dl=new DeepLearning(p);
-        try {
-          mymodel=dl.trainModel().get();
-        }
- catch (        Throwable t) {
-          t.printStackTrace();
-          throw new RuntimeException(t);
-        }
- finally {
-          dl.remove();
-        }
+        mymodel=dl.trainModel().get();
         preds[repeat]=mymodel.score(test);
         for (int i=0; i < 5; ++i) {
           Frame tmp=mymodel.score(test);
@@ -64,11 +55,7 @@
         checksums[repeat]=mymodel.model_info().checksum_impl();
         repeatErrs.put(repeat,mymodel.loss());
       }
- catch (      Throwable t) {
-        t.printStackTrace();
-        throw new RuntimeException(t);
-      }
- finally {
+  finally {
         if (mymodel != null) {
           mymodel.delete();
         }

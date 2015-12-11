@@ -21,11 +21,9 @@
       parms._mtries=-1;
       parms._min_rows=10;
       parms._seed=1234;
-      DRF job=new DRF(parms);
-      DRFModel drf=job.trainModel().get();
+      DRFModel drf=new DRF(parms).trainModel().get();
       assertEquals(drf._output._ntrees,parms._ntrees);
       mses[i]=drf._output._scored_train[drf._output._scored_train.length - 1]._mse;
-      job.remove();
       drf.delete();
     }
   }

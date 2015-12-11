@@ -16,15 +16,13 @@
     parms._nfolds=3;
     parms._ntrees=3;
     parms._learn_rate=1e-3f;
-    GBM job=new GBM(parms);
     try {
       Log.info("Trying N-fold cross-validation AND Validation dataset provided.");
-      gbm=job.trainModel().get();
+      gbm=new GBM(parms).trainModel().get();
     }
  catch (    H2OModelBuilderIllegalArgumentException e) {
       Assert.fail("Should not toss H2OModelBuilderIllegalArgumentException.");
     }
-    job.remove();
   }
   finally {
     if (tfr != null)     tfr.remove();
