@@ -12,10 +12,12 @@
     int C=_parms._family == Family.multinomial ? _nclass : 1;
     int P=_dinfo.fullN() + 1;
     for (int i=0; i < _dinfo.fullN(); ++i) {
-      for (int c=0; c < C; ++c)       if ((j < oldActiveCols.length && i == oldActiveCols[j]) || grad[i + c * P] > rhs || grad[i + c * P] < -rhs) {
-        cols[selected++]=i;
-        if (j < oldActiveCols.length && i == oldActiveCols[j])         ++j;
-        break;
+      for (int c=0; c < C; ++c) {
+        if ((_bc._betaLB != null && _bc._betaLB[i] > 0) || (_bc._betaUB != null && _bc._betaUB[i] < 0) || (j < oldActiveCols.length && i == oldActiveCols[j])|| (grad[i + c * P] > rhs || grad[i + c * P] < -rhs)) {
+          cols[selected++]=i;
+          if (j < oldActiveCols.length && i == oldActiveCols[j])           ++j;
+          break;
+        }
       }
     }
   }
