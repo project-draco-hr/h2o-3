@@ -1,0 +1,15 @@
+{
+  if (_ginfo == null || beta != _beta) {
+    _ginfo=getGradient(beta);
+    _beta=beta;
+  }
+  double[] gradient=_ginfo._gradient;
+  System.arraycopy(_ginfo._origGinfo._gradient,0,gradient,0,gradient.length);
+  double obj=proximal_gradient(gradient,_ginfo._origGinfo._objVal,beta,beta_given,_rho);
+  _ginfo=new ProximalGradientInfo(_ginfo._origGinfo,obj,gradient);
+  System.arraycopy(beta_given,0,_betaGiven,0,_betaGiven.length);
+  L_BFGS.Result r=new L_BFGS().setObjEps(_objEps).setGradEps(_gradEps).solve(this,beta,_ginfo,_pm);
+  _iter+=r.iter;
+  _ginfo=(ProximalGradientInfo)r.ginfo;
+  return r.converged;
+}

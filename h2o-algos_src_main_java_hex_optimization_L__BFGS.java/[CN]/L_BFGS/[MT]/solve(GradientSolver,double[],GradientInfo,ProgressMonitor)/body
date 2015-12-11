@@ -1,6 +1,5 @@
 {
   if (_hist == null)   _hist=new History(_historySz,beta.length);
-  beta=beta.clone();
   int iter=0;
   double rel_improvement=1;
   final double[] pk=new double[beta.length];
@@ -11,7 +10,7 @@
     ++iter;
     _hist.getSearchDirection(ginfo._gradient,pk);
     if (!_lineSearch.evaluate(gslvr,ginfo,beta,pk,minStep,maxStep,20)) {
-      return new Result(false,iter,beta,ginfo,rel_improvement);
+      break;
     }
     _lineSearch.setInitialStep(Math.max(10 * minStep,_lineSearch.step()));
     ArrayUtils.add(beta,ArrayUtils.mult(pk,_lineSearch.step()));
