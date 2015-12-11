@@ -1,14 +1,10 @@
 {
   Arrays.fill(res,0);
-  for (int i=0; i < _diagN; ++i)   res[i]=x[i] * _diag[i];
-  for (int ii=0; ii < _xx.length; ++ii) {
-    final int n=_xx[ii].length - 1;
-    final int i=_diagN + ii;
-    for (int j=0; j < n; ++j) {
-      double e=_xx[ii][j];
-      res[i]+=x[j] * e;
-      res[j]+=x[i] * e;
-    }
-    res[i]+=_xx[ii][n] * x[n];
+  if (XX == null)   XX=getXX(false);
+  for (int i=0; i < XX.length; ++i) {
+    double d=0;
+    double[] xi=XX[i];
+    for (int j=0; j < XX.length; ++j)     d+=xi[j] * x[j];
+    res[i]=d;
   }
 }
