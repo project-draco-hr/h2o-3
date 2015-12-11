@@ -30,12 +30,9 @@
       }
  catch (      RuntimeException de) {
       }
- finally {
-        job.remove();
-      }
       dl=DKV.getGet(parms._model_id);
       assertTrue(dl.model_info().isUnstable());
-      assertTrue(dl._output._status == Job.JobState.FAILED);
+      assertTrue(dl._output._job.isCrashed());
     }
   finally {
       if (tfr != null)       tfr.delete();

@@ -7,37 +7,26 @@
     for (int i=0; i < ncolA; i++)     vecs[i]=dinfo._adaptedFrame.vec(i);
     for (int i=0; i < _parms._nv; i++)     vecs[ncolA + i]=qfrm.vec(i);
     Frame aqfrm=new Frame(vecs);
-    update(1,"Forming small matrix B = Q'A for direct SVD");
+    _job.update(1,"Forming small matrix B = Q'A for direct SVD");
     SMulTask stsk=new SMulTask(dinfo,_parms._nv);
     stsk.doAll(aqfrm);
-    update(1,"Calculating SVD of small matrix locally");
+    _job.update(1,"Calculating SVD of small matrix locally");
     Matrix atqJ=new Matrix(stsk._atq);
     SingularValueDecomposition svdJ=atqJ.svd();
-    update(1,"Forming distributed orthonormal matrix U");
+    _job.update(1,"Forming distributed orthonormal matrix U");
     if (_parms._keep_u) {
       model._output._u_key=Key.make(u_name);
       double[][] svdJ_u=svdJ.getV().getMatrix(0,atqJ.getColumnDimension() - 1,0,_parms._nv - 1).getArray();
       qinfo=new DataInfo(Key.make(),qfrm,null,true,DataInfo.TransformType.NONE,false,false,false);
       DKV.put(qinfo._key,qinfo);
-      BMulTask btsk=new BMulTask(self(),qinfo,ArrayUtils.transpose(svdJ_u));
+      BMulTask btsk=new BMulTask(_job._key,qinfo,ArrayUtils.transpose(svdJ_u));
       btsk.doAll(_parms._nv,Vec.T_NUM,qinfo._adaptedFrame);
       u=btsk.outputFrame(model._output._u_key,null,null);
     }
     model._output._d=Arrays.copyOfRange(svdJ.getSingularValues(),0,_parms._nv);
     model._output._v=svdJ.getU().getMatrix(0,atqJ.getRowDimension() - 1,0,_parms._nv - 1).getArray();
   }
- catch (  Throwable t) {
-    Job thisJob=DKV.getGet(_key);
-    if (thisJob._state == JobState.CANCELLED) {
-      Log.info("Job cancelled by user.");
-    }
- else {
-      t.printStackTrace();
-      failed(t);
-      throw t;
-    }
-  }
- finally {
+  finally {
     if (qinfo != null)     qinfo.remove();
   }
   return u;

@@ -1,5 +1,4 @@
 {
-  GLM job=null;
   GLMModel model1=null, model2=null, model3=null, model4=null;
   Frame frMM=parse_test_file(Key.make("AirlinesMM"),"smalldata/airlines/AirlinesTrainMM.csv.zip");
   Frame frG=parse_test_file(Key.make("gram"),"smalldata/airlines/gram_std.csv",true);
@@ -17,8 +16,7 @@
     params._train=fr._key;
     params._lambda=new double[]{0};
     params._standardize=false;
-    job=new GLM(Key.make("airlines_cat_nostd"),"Airlines with auto-expanded categoricals, no standardization",params);
-    model1=job.trainModel().get();
+    model1=new GLM(Key.make("airlines_cat_nostd"),"Airlines with auto-expanded categoricals, no standardization",params).trainModel().get();
     Frame score1=model1.score(fr);
     ModelMetricsRegressionGLM mm=(ModelMetricsRegressionGLM)ModelMetrics.getFromDKV(model1,fr);
     Assert.assertEquals(((ModelMetricsRegressionGLM)model1._output._training_metrics)._resDev,mm._resDev,1e-4);
@@ -29,8 +27,7 @@
     Assert.assertTrue(model1.testJavaScoring(fr,res,1e-15));
     params._train=frMM._key;
     params._ignored_columns=new String[]{"X"};
-    job=new GLM(Key.make("airlines_mm"),"Airlines with pre-expanded (mode.matrix) categoricals, no standardization",params);
-    model2=job.trainModel().get();
+    model2=new GLM(Key.make("airlines_mm"),"Airlines with pre-expanded (mode.matrix) categoricals, no standardization",params).trainModel().get();
     params._standardize=true;
     params._train=frMM._key;
     params._use_all_factor_levels=true;
@@ -47,12 +44,10 @@
     params._standardize=true;
     params._family=Family.binomial;
     params._link=Link.logit;
-    job=new GLM(Key.make("airlines_mm"),"Airlines with pre-expanded (mode.matrix) categoricals, no standardization",params);
-    model3=job.trainModel().get();
+    model3=new GLM(Key.make("airlines_mm"),"Airlines with pre-expanded (mode.matrix) categoricals, no standardization",params).trainModel().get();
     params._train=fr._key;
     params._ignored_columns=ignoredCols;
-    job=new GLM(Key.make("airlines_mm"),"Airlines with pre-expanded (mode.matrix) categoricals, no standardization",params);
-    model4=job.trainModel().get();
+    model4=new GLM(Key.make("airlines_mm"),"Airlines with pre-expanded (mode.matrix) categoricals, no standardization",params).trainModel().get();
     assertEquals(nullDeviance(model3),nullDeviance(model4),1e-4);
     assertEquals(residualDeviance(model4),residualDeviance(model3),nullDeviance(model3) * 1e-3);
     HashMap<String,Double> coefs1=model1.coefficients();
@@ -79,7 +74,6 @@
     if (model2 != null)     model2.delete();
     if (model3 != null)     model3.delete();
     if (model4 != null)     model4.delete();
-    if (job != null)     job.remove();
     Scope.exit();
   }
 }

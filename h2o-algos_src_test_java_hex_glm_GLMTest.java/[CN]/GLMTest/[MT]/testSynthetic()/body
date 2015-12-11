@@ -1,5 +1,4 @@
 {
-  GLM job=null;
   GLMModel model=null;
   Frame fr=parse_test_file("smalldata/glm_test/glm_test2.csv");
   Frame score=null;
@@ -12,8 +11,8 @@
     params._lambda=new double[]{0};
     params._standardize=false;
     params._max_iterations=20;
-    job=new GLM(Key.make("glm_model"),"glm test simple poisson",params);
-    model=job.trainModel().get();
+    GLM glm=new GLM(Key.make("glm_model"),"glm test simple poisson",params);
+    model=glm.trainModel().get();
     double[] beta=model.beta();
     System.out.println("beta = " + Arrays.toString(beta));
     assertEquals(auc(model),1,1e-4);
@@ -26,7 +25,6 @@
     fr.remove();
     if (model != null)     model.delete();
     if (score != null)     score.delete();
-    if (job != null)     job.remove();
     Scope.exit();
   }
 }

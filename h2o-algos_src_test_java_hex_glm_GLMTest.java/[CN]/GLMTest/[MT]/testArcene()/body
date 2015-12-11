@@ -1,5 +1,4 @@
 {
-  GLM job=null;
   Key parsed=Key.make("arcene_parsed");
   Key modelKey=Key.make("arcene_model");
   GLMModel model=null;
@@ -18,11 +17,10 @@
     params._alpha=new double[]{1};
     for (    Solver s : new Solver[]{Solver.IRLSM}) {
       params._solver=s;
-      job=new GLM(modelKey,"glm test simple poisson",params);
-      job.trainModel().get();
+      GLM glm=new GLM(modelKey,"glm test simple poisson",params);
+      glm.trainModel().get();
       model=DKV.get(modelKey).get();
       assertEquals(params._nlambdas,model._output._submodels.length);
-      job.remove();
     }
     params=new GLMParameters(Family.gaussian);
     params._lambda=null;
@@ -33,8 +31,8 @@
     params._lambda_min_ratio=0.18;
     params._max_active_predictors=20;
     params._alpha=new double[]{1};
-    job=new GLM(modelKey,"glm test simple poisson",params);
-    job.trainModel().get();
+    GLM glm=new GLM(modelKey,"glm test simple poisson",params);
+    glm.trainModel().get();
     model=DKV.get(modelKey).get();
     assertTrue(model._output._submodels.length > 3);
     assertTrue(residualDeviance(model) <= 93);
@@ -42,7 +40,6 @@
   finally {
     fr.delete();
     if (model != null)     model.delete();
-    if (job != null)     job.remove();
     Scope.exit();
   }
 }

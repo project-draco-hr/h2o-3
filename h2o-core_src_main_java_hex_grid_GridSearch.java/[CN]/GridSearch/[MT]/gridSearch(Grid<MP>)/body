@@ -5,11 +5,8 @@
     HyperSpaceWalker.HyperSpaceIterator<MP> it=_hyperSpaceWalker.iterator();
     int counter=0;
     while (it.hasNext(model)) {
-      if (!isRunning()) {
-        cancel();
-        return;
-      }
-      MP params=null;
+      if (_job.stop_requested())       return;
+      MP params;
       try {
         params=it.nextModelParameters(model);
         try {
@@ -26,23 +23,12 @@
         grid.appendFailedModelParameters(rawParams,e);
       }
  finally {
-        this.update(1L);
-        grid.update(jobKey());
+        _job.update(1);
+        grid.update(_job);
       }
     }
-    done();
   }
- catch (  Throwable e) {
-    Job thisJob=DKV.getGet(jobKey());
-    if (thisJob._state == JobState.CANCELLED) {
-      Log.info("Job " + jobKey() + " cancelled by user.");
-    }
- else {
-      failed(e);
-      throw e;
-    }
-  }
- finally {
-    grid.unlock(jobKey());
+  finally {
+    grid.unlock(_job);
   }
 }

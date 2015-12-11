@@ -1,5 +1,5 @@
 {
-  if (_jobKey != null && (DKV.get(_jobKey) == null || !Job.isRunning(_jobKey)))   throw new Job.JobCancelledException();
+  if (_jobKey.get().stop_requested())   return;
   chunkInit();
   if (_sparse) {
     for (    Row r : _dinfo.extractSparseRows(chks,0)) {

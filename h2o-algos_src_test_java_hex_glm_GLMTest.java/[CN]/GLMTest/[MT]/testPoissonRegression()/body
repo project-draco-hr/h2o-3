@@ -1,5 +1,4 @@
 {
-  GLM job=null;
   Key raw=Key.make("poisson_test_data_raw");
   Key parsed=Key.make("poisson_test_data_parsed");
   Key modelKey=Key.make("poisson_test");
@@ -15,13 +14,10 @@
     params._response_column=fr._names[1];
     params._lambda=new double[]{0};
     params._standardize=false;
-    job=new GLM(modelKey,"glm test simple poisson",params);
-    job.trainModel().get();
-    model=DKV.get(modelKey).get();
+    model=new GLM(modelKey,"glm test simple poisson",params).trainModel().get();
     for (    double c : model.beta())     assertEquals(Math.log(2),c,1e-2);
     model.delete();
     fr.delete();
-    job.remove();
     FVecTest.makeByteVec(raw,"x,y\n1,0\n2,1\n3,2\n4,3\n5,1\n6,4\n7,9\n8,18\n9,23\n10,31\n11,20\n12,25\n13,37\n14,45\n");
     fr=ParseDataset.parse(parsed,raw);
     GLMParameters params2=new GLMParameters(Family.poisson);
@@ -30,8 +26,7 @@
     params2._lambda=new double[]{0};
     params2._standardize=false;
     params2._beta_epsilon=1e-5;
-    job=new GLM(modelKey,"glm test simple poisson",params2);
-    model=job.trainModel().get();
+    model=new GLM(modelKey,"glm test simple poisson",params2).trainModel().get();
     assertEquals(0.3396,model.beta()[1],1e-4);
     assertEquals(0.2565,model.beta()[0],1e-4);
     res=model.score(fr);
@@ -41,6 +36,5 @@
     if (fr != null)     fr.delete();
     if (res != null)     res.delete();
     if (model != null)     model.delete();
-    if (job != null)     job.remove();
   }
 }

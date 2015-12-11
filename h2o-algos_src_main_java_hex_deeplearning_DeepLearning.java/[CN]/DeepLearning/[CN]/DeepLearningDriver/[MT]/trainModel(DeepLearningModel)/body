@@ -8,18 +8,18 @@
     Log.info("Model category: " + (_parms._autoencoder ? "Auto-Encoder" : isClassifier() ? "Classification" : "Regression"));
     final long model_size=model.model_info().size();
     Log.info("Number of model parameters (weights/biases): " + String.format("%,d",model_size));
-    model.write_lock(self());
-    new ProgressUpdate("Setting up training data...").fork(_progressKey);
+    model.write_lock(_job);
+    _job.update(0,"Setting up training data...");
     final DeepLearningParameters mp=model.model_info().get_params();
     Frame tra_fr=new Frame(mp._train,_train.names(),_train.vecs());
     Frame val_fr=_valid != null ? new Frame(mp._valid,_valid.names(),_valid.vecs()) : null;
     train=tra_fr;
     if (mp._force_load_balance) {
-      new ProgressUpdate("Load balancing training data...").fork(_progressKey);
+      _job.update(0,"Load balancing training data...");
       train=reBalance(train,mp._replicate_training_data,mp._train.toString() + "." + model._key.toString()+ ".tmptrain");
     }
     if (model._output.isClassifier() && mp._balance_classes) {
-      new ProgressUpdate("Balancing class distribution of training data...").fork(_progressKey);
+      _job.update(0,"Balancing class distribution of training data...");
       float[] trainSamplingFactors=new float[train.lastVec().domain().length];
       if (mp._class_sampling_factors != null) {
         if (mp._class_sampling_factors.length != train.lastVec().domain().length)         throw new IllegalArgumentException("class_sampling_factors must have " + train.lastVec().domain().length + " elements");
@@ -38,16 +38,16 @@
     if (val_fr != null) {
       model.validation_rows=val_fr.numRows();
       if (model._output.isClassifier() && mp._balance_classes && mp._score_validation_sampling == DeepLearningParameters.ClassSamplingMethod.Stratified) {
-        new ProgressUpdate("Sampling validation data (stratified)...").fork(_progressKey);
+        _job.update(0,"Sampling validation data (stratified)...");
         validScoreFrame=sampleFrameStratified(val_fr,val_fr.lastVec(),val_fr.vec(model._output.weightsName()),null,mp._score_validation_samples > 0 ? mp._score_validation_samples : val_fr.numRows(),mp._seed + 1,false,false);
       }
  else {
-        new ProgressUpdate("Sampling validation data...").fork(_progressKey);
+        _job.update(0,"Sampling validation data...");
         validScoreFrame=sampleFrame(val_fr,mp._score_validation_samples,mp._seed + 1);
         if (validScoreFrame != val_fr)         _delete_me.add(validScoreFrame);
       }
       if (mp._force_load_balance) {
-        new ProgressUpdate("Balancing class distribution of validation data...").fork(_progressKey);
+        _job.update(0,"Balancing class distribution of validation data...");
         validScoreFrame=reBalance(validScoreFrame,false,mp._valid.toString() + "." + model._key.toString()+ ".tmpval");
       }
       if (!_parms._quiet_mode)       Log.info("Number of chunks of the validation data: " + validScoreFrame.anyVec().nChunks());
@@ -63,19 +63,19 @@
     }
     model._timeLastIterationEnter=System.currentTimeMillis();
     if (_parms._autoencoder) {
-      new ProgressUpdate("Scoring null model of autoencoder...").fork(_progressKey);
+      _job.update(0,"Scoring null model of autoencoder...");
       if (!mp._quiet_mode)       Log.info("Scoring the null model of the autoencoder.");
-      model.doScoring(trainScoreFrame,validScoreFrame,self(),null,0,false);
+      model.doScoring(trainScoreFrame,validScoreFrame,_job._key,0,false);
     }
-    model.update(self());
+    model.update(_job);
     Log.info("Starting to train the Deep Learning model.");
-    new ProgressUpdate("Training...").fork(_progressKey);
+    _job.update(0,"Training...");
     do {
       model.iterations++;
-      model.set_model_info(mp._epochs == 0 ? model.model_info() : H2O.CLOUD.size() > 1 && mp._replicate_training_data ? (mp._single_node_mode ? new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model),model.iterations).doAll(Key.make(H2O.SELF)).model_info() : new DeepLearningTask2(self(),train,model.model_info(),rowFraction(train,mp,model),model.iterations).doAllNodes().model_info()) : new DeepLearningTask(self(),model.model_info(),rowFraction(train,mp,model),model.iterations).doAll(train).model_info());
+      model.set_model_info(mp._epochs == 0 ? model.model_info() : H2O.CLOUD.size() > 1 && mp._replicate_training_data ? (mp._single_node_mode ? new DeepLearningTask2(_job._key,train,model.model_info(),rowFraction(train,mp,model),model.iterations).doAll(Key.make(H2O.SELF)).model_info() : new DeepLearningTask2(_job._key,train,model.model_info(),rowFraction(train,mp,model),model.iterations).doAllNodes().model_info()) : new DeepLearningTask(_job._key,model.model_info(),rowFraction(train,mp,model),model.iterations).doAll(train).model_info());
     }
- while (isRunning() && model.doScoring(trainScoreFrame,validScoreFrame,self(),_progressKey,model.iterations,false));
-    if (isRunning() && _parms._overwrite_with_best_model && model.actual_best_model_key != null && _parms._nfolds == 0) {
+ while (!_job.stop_requested() && model.doScoring(trainScoreFrame,validScoreFrame,_job._key,model.iterations,false));
+    if (!_job.stop_requested() && _parms._overwrite_with_best_model && model.actual_best_model_key != null && _parms._nfolds == 0) {
       DeepLearningModel best_model=DKV.getGet(model.actual_best_model_key);
       if (best_model != null && best_model.loss() < model.loss() && Arrays.equals(best_model.model_info().units,model.model_info().units)) {
         if (!_parms._quiet_mode)         Log.info("Setting the model to be the best model so far (based on scoring history).");
@@ -83,14 +83,14 @@
         mi.set_processed_global(model.model_info().get_processed_global());
         mi.set_processed_local(model.model_info().get_processed_local());
         model.set_model_info(mi);
-        model.update(self());
-        model.doScoring(trainScoreFrame,validScoreFrame,self(),_progressKey,model.iterations,true);
+        model.update(_job);
+        model.doScoring(trainScoreFrame,validScoreFrame,_job._key,model.iterations,true);
         assert(best_model.loss() == model.loss());
       }
     }
     if (!_parms._quiet_mode) {
       Log.info("==============================================================================================================================================================================");
-      if (isCancelledOrCrashed()) {
+      if (_job.stop_requested()) {
         Log.info("Deep Learning model training was interrupted.");
       }
  else {
@@ -103,7 +103,7 @@
   finally {
     if (model != null) {
       model.deleteElasticAverageModels();
-      model.unlock(self());
+      model.unlock(_job);
       if (model.actual_best_model_key != null) {
         assert(model.actual_best_model_key != model._key);
         DKV.remove(model.actual_best_model_key);

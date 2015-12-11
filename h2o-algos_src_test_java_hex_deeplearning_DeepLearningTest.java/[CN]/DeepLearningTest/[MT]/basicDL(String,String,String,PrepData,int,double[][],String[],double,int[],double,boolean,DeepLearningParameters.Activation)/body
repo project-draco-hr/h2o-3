@@ -22,16 +22,10 @@
     dl._hidden=hidden;
     dl._l1=l1;
     dl._elastic_averaging=false;
-    DeepLearning job=null;
-    try {
-      job=new DeepLearning(dl);
-      model=job.trainModel().get();
-      Log.info(model._output);
-    }
-  finally {
-      if (job != null)       job.remove();
-    }
-    assertTrue(job._state == Job.JobState.DONE);
+    DeepLearning job=new DeepLearning(dl);
+    model=job.trainModel().get();
+    Log.info(model._output);
+    assertTrue(job.isStopped());
     hex.ModelMetrics mm;
     if (fnametest != null) {
       frTest=parse_test_file(fnametest);

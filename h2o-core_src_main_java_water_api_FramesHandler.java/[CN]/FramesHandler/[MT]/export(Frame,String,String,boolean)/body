@@ -1,0 +1,13 @@
+{
+  boolean fileExists=H2O.getPM().exists(path);
+  if (overwrite && fileExists) {
+    Log.warn("File " + path + " exists, but will be overwritten!");
+  }
+ else   if (!overwrite && fileExists) {
+    throw new H2OIllegalArgumentException(path,"exportFrame","File " + path + " already exists!");
+  }
+  InputStream is=(fr).toCSV(true,false);
+  Job job=new Job(null,"Export dataset");
+  ExportTask t=new ExportTask(is,path,frameName,overwrite,job);
+  return job.start(t,fr.anyVec().nChunks());
+}

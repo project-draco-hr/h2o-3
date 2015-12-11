@@ -1,5 +1,4 @@
 {
-  GLM job=null;
   GLMModel model1=null;
   Frame fr=parse_test_file(Key.make("Airlines"),"smalldata/airlines/AirlinesTrain.csv.zip");
   String[] ignoredCols=new String[]{"IsDepDelayed_REC"};
@@ -16,19 +15,18 @@
     params._solver=Solver.COORDINATE_DESCENT;
     params._lambda_search=true;
     params._nlambdas=5;
-    job=new GLM(Key.make("airlines_cat_nostd"),"Airlines with auto-expanded categorical variables, no standardization",params);
-    model1=job.trainModel().get();
+    GLM glm=new GLM(Key.make("airlines_cat_nostd"),"Airlines with auto-expanded categorical variables, no standardization",params);
+    model1=glm.trainModel().get();
     GLMModel.Submodel sm=model1._output._submodels[model1._output._submodels.length - 1];
     double[] beta=sm.beta;
     System.out.println("lambda " + sm.lambda_value);
     double l1pen=ArrayUtils.l1norm(beta,true);
     double l2pen=ArrayUtils.l2norm2(beta,true);
-    double objective=job.likelihood() / model1._nobs + params._lambda[params._lambda.length - 1] * params._alpha[0] * l1pen + params._lambda[params._lambda.length - 1] * (1 - params._alpha[0]) * l2pen / 2;
+    double objective=glm.likelihood() / model1._nobs + params._lambda[params._lambda.length - 1] * params._alpha[0] * l1pen + params._lambda[params._lambda.length - 1] * (1 - params._alpha[0]) * l2pen / 2;
     assertEquals(0.65689,objective,1e-4);
   }
   finally {
     fr.delete();
     if (model1 != null)     model1.delete();
-    if (job != null)     job.remove();
   }
 }

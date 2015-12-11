@@ -10,10 +10,9 @@
     params._solver=Solver.COORDINATE_DESCENT;
     params._response_column="C1";
     params._train=fr._key;
-    GLM job=new GLM(modelKey,"glm test simple coordinate descent",params);
-    job.trainModel().get();
-    assertTrue(job.isDone());
-    model=DKV.get(modelKey).get();
+    GLM glm=new GLM(modelKey,"glm test simple coordinate descent",params);
+    model=glm.trainModel().get();
+    assertTrue(glm.isStopped());
     System.out.println(model._output._training_metrics);
   }
   finally {

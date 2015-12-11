@@ -3,9 +3,9 @@
   Frame ybig=null, qfrm=null;
   final int ncolA=dinfo._adaptedFrame.numCols();
   try {
-    update(1,"Initializing random subspace of training data Y");
+    _job.update(1,"Initializing random subspace of training data Y");
     double[][] gt=ArrayUtils.gaussianArray(_parms._nv,_ncolExp,_parms._seed);
-    RandSubInit rtsk=new RandSubInit(self(),dinfo,gt);
+    RandSubInit rtsk=new RandSubInit(_job._key,dinfo,gt);
     rtsk.doAll(_parms._nv,Vec.T_NUM,dinfo._adaptedFrame);
     ybig=rtsk.outputFrame(Key.make(),null,null);
     Frame ayqfrm=new Frame(dinfo._adaptedFrame);
@@ -15,16 +15,16 @@
     Frame yqfrm=ayqfrm.subframe(ncolA,ayqfrm.numCols());
     Frame aqfrm=ayqfrm.subframe(0,ncolA);
     aqfrm.add(ayqfrm.subframe(ncolA + _parms._nv,ayqfrm.numCols()));
-    update(1,"Computing QR factorization of Y");
+    _job.update(1,"Computing QR factorization of Y");
     yinfo=new DataInfo(Key.make(),ybig,null,true,DataInfo.TransformType.NONE,true,false,false);
     DKV.put(yinfo._key,yinfo);
-    LinearAlgebraUtils.computeQ(self(),yinfo,yqfrm);
+    LinearAlgebraUtils.computeQ(_job._key,yinfo,yqfrm);
     model._output._iterations=0;
     long qobs=dinfo._adaptedFrame.numRows() * _parms._nv;
     double qerr=2 * TOLERANCE * qobs;
     while ((model._output._iterations < 10 || qerr / qobs > TOLERANCE) && model._output._iterations < _parms._max_iterations) {
-      if (!isRunning())       break;
-      update(1,"Iteration " + String.valueOf(model._output._iterations + 1) + " of randomized subspace iteration");
+      if (_job.stop_requested())       break;
+      _job.update(1,"Iteration " + String.valueOf(model._output._iterations + 1) + " of randomized subspace iteration");
       SMulTask stsk=new SMulTask(dinfo,_parms._nv);
       stsk.doAll(aqfrm);
       Matrix ysmall=new Matrix(stsk._atq);
@@ -32,26 +32,15 @@
       double[][] ysmall_q=ysmall_qr.getQ().getArray();
       BMulInPlaceTask tsk=new BMulInPlaceTask(dinfo,ArrayUtils.transpose(ysmall_q));
       tsk.doAll(ayfrm);
-      qerr=LinearAlgebraUtils.computeQ(self(),yinfo,yqfrm);
+      qerr=LinearAlgebraUtils.computeQ(_job._key,yinfo,yqfrm);
       model._output._iterations++;
-      model.update(self());
+      model.update(_job);
     }
     qfrm=ayqfrm.extractFrame(ncolA + _parms._nv,ayqfrm.numCols());
     qfrm=new Frame(Key.make(),qfrm.names(),qfrm.vecs());
     DKV.put(qfrm);
   }
- catch (  Throwable t) {
-    Job thisJob=DKV.getGet(_key);
-    if (thisJob._state == JobState.CANCELLED) {
-      Log.info("Job cancelled by user.");
-    }
- else {
-      t.printStackTrace();
-      failed(t);
-      throw t;
-    }
-  }
- finally {
+  finally {
     if (yinfo != null)     yinfo.remove();
     if (ybig != null)     ybig.delete();
   }

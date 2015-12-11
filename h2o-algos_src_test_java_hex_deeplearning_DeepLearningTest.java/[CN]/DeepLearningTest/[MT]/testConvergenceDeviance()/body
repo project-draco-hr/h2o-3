@@ -19,13 +19,7 @@
     parms._stopping_rounds=2;
     parms._stopping_metric=ScoreKeeper.StoppingMetric.deviance;
     parms._stopping_tolerance=0.0;
-    DeepLearning job=new DeepLearning(parms);
-    try {
-      dl=job.trainModel().get();
-    }
-  finally {
-      job.remove();
-    }
+    dl=new DeepLearning(parms).trainModel().get();
     Assert.assertTrue(dl.epoch_counter < parms._epochs);
   }
   finally {

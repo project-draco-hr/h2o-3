@@ -20,14 +20,7 @@
     parms._hidden=new int[]{100,100};
     parms._seed=0xdecaf;
     parms._model_id=Key.make();
-    DeepLearning job=new DeepLearning(parms);
-    try {
-      dl=job.trainModel().get();
-    }
-  finally {
-      job.remove();
-    }
-    dl=DKV.getGet(parms._model_id);
+    dl=new DeepLearning(parms).trainModel().get();
     assertTrue(dl.stopped_early);
     assertTrue(dl.epoch_counter < 100);
   }
