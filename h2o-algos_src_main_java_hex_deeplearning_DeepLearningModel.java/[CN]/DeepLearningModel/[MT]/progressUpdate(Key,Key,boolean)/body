@@ -1,11 +1,10 @@
 {
   long now=System.currentTimeMillis();
   long timeSinceEntering=now - _timeLastIterationEnter;
-  Log.info("_timeLastIterationEnter: " + _timeLastIterationEnter);
   Job.Progress prog=DKV.getGet(progressKey);
   double progress=prog == null ? 0 : prog.progress();
   int speed=(int)(model_info().get_processed_total() * 1000. / ((total_run_time + timeSinceEntering) - total_scoring_time));
-  Log.info("computing speed from total_run_time: " + total_run_time + ", timeSinceEntering: "+ timeSinceEntering+ " and total_scoring_time: "+ total_scoring_time);
+  assert(speed >= 0);
   String msg="Iterations: " + String.format("%,d",iterations) + ". Epochs: "+ String.format("%g",epoch_counter)+ ". Speed: "+ String.format("%,d",speed)+ " samples/sec."+ (progress == 0 ? "" : " Estimated time left: " + PrettyPrint.msecs((long)(total_run_time * (1. - progress) / progress),true));
   ((Job)DKV.getGet(job_key)).update(actual_train_samples_per_iteration);
   if (progressKey != null)   new Job.ProgressUpdate(msg).fork(progressKey);
