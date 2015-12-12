@@ -35,6 +35,7 @@
     if (chunkSize > maxParseChunkSize)     return maxParseChunkSize;
     if (chunkSize > DFLT_CHUNK_SIZE) {
       int val=1 << MathUtils.log2(chunkSize);
+      if (val / numCols > Value.MAX / 5)       return Value.MAX / 5;
       if (val > minNumberRows * maxLineLength)       return val;
     }
     return Math.max(DFLT_CHUNK_SIZE,Math.min(maxParseChunkSize,(int)(minNumberRows * maxLineLength)));
