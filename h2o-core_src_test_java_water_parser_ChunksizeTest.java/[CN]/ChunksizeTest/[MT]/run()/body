@@ -8,11 +8,11 @@
   int[] counter=new int[2];
   int[] failed=new int[2];
   for (  int oldheuristic : new int[]{0,1}) {
-    for (    int cloudSize : new int[]{1}) {
-      for (      int cores : new int[]{4}) {
-        for (        int numCols : new int[]{16}) {
-          for (          long maxLineLength : new long[]{100}) {
-            for (            double totalSize : new double[]{1e10}) {
+    for (    int cloudSize : new int[]{1,2,4,8,16,32,64,128,256,512,1024}) {
+      for (      int cores : new int[]{2,4,8,16,32,64}) {
+        for (        int numCols : new int[]{1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768}) {
+          for (          long maxLineLength : new long[]{10,100,1000,10000,1000000}) {
+            for (            double totalSize : new double[]{1e4,1e5,1e6,1e7,1e8,1e9,1e10,1e11,1e12}) {
               int numRows=(int)(totalSize / maxLineLength);
               if (maxLineLength > totalSize)               continue;
               if ((double)maxLineLength / numCols < 3)               continue;
@@ -73,5 +73,11 @@
     Log.info("Too large: " + PrettyPrint.formatPct((double)toolarge[i] / counter[i]));
     Log.info("Too few: " + PrettyPrint.formatPct((double)toofew[i] / counter[i]));
     Log.info("Too many: " + PrettyPrint.formatPct((double)toomany[i] / counter[i]));
+    if (i == 0) {
+      Assert.assertTrue("Too small means that files cannot be parsed",toosmall[i] == 0);
+      Assert.assertTrue("Too large means that chunks cannot fit in the DKV",toolarge[i] == 0);
+      Assert.assertTrue("Too few means that cores aren't utilized",toofew[i] == 0);
+      Assert.assertTrue("Too many means that each node has to store more than 4M chunks in its KV store",toomany[i] == 0);
+    }
   }
 }
