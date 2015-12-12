@@ -20,23 +20,18 @@
  else {
     final int minNumberRows=10;
     final int perNodeChunkCountLimit=1 << 21;
-    final int minParseChunkSize=1 << 13;
     final int maxParseChunkSize=1 << 30;
-    if (chunkSize <= minParseChunkSize && DFLT_CHUNK_SIZE > minNumberRows * maxLineLength) {
-      return DFLT_CHUNK_SIZE;
-    }
+    if (totalSize <= 1 << 16)     return Math.max(DFLT_CHUNK_SIZE,(int)(minNumberRows * maxLineLength));
     chunkSize=1L << MathUtils.log2(chunkSize);
-    if (chunkSize < DFLT_CHUNK_SIZE && (localParseSize / chunkSize) * numCols < perNodeChunkCountLimit && chunkSize > minNumberRows * maxLineLength)     return (int)chunkSize;
+    if (chunkSize < DFLT_CHUNK_SIZE && (localParseSize / chunkSize) * numCols < perNodeChunkCountLimit)     return Math.max((int)chunkSize,(int)(minNumberRows * maxLineLength));
     int chunkCount=cores * 4 * numCols;
     if (chunkCount > perNodeChunkCountLimit) {
       double ratio=1 << Math.max(2,MathUtils.log2((int)(double)chunkCount / perNodeChunkCountLimit));
       chunkSize*=ratio;
     }
-    if (chunkSize > maxParseChunkSize)     return maxParseChunkSize;
-    if (chunkSize > DFLT_CHUNK_SIZE) {
-      int val=1 << MathUtils.log2(chunkSize);
-      if (val > minNumberRows * maxLineLength)       return val;
-    }
-    return Math.max(DFLT_CHUNK_SIZE,Math.min(maxParseChunkSize,(int)(minNumberRows * maxLineLength)));
+    chunkSize=Math.min(maxParseChunkSize,chunkSize);
+    long POJOLimit=(long)numCols * (long)Value.MAX >> 4;
+    if (chunkSize > minNumberRows * maxLineLength && chunkSize < POJOLimit)     return (int)chunkSize;
+    return (int)Math.min((numCols * (long)Value.MAX / 10),Math.max(DFLT_CHUNK_SIZE,Math.min(maxParseChunkSize,minNumberRows * maxLineLength)));
   }
 }
