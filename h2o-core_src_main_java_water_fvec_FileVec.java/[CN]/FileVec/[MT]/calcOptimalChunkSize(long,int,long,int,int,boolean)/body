@@ -22,6 +22,7 @@
     final int perNodeChunkCountLimit=1 << 21;
     final int maxParseChunkSize=1 << 30;
     final long maxParseChunkSizePOJOLimit=(long)numCols * (long)Value.MAX / 2;
+    Log.info("ParseSetup heuristic: cloudSize: " + cloudsize + ", cores: "+ cores+ ", numCols: "+ numCols+ ", maxLineLength: "+ maxLineLength+ ", totalSize: "+ totalSize+ ", chunkSize: "+ chunkSize+ ", localParseSize: "+ localParseSize+ ", maxParseChunkSizePOJOLimit: "+ maxParseChunkSizePOJOLimit);
     if (totalSize <= 1 << 16)     return Math.max(DFLT_CHUNK_SIZE,(int)(minNumberRows * maxLineLength));
     chunkSize=1L << MathUtils.log2(chunkSize);
     if (chunkSize < DFLT_CHUNK_SIZE && (localParseSize / chunkSize) * numCols < perNodeChunkCountLimit)     return Math.max((int)chunkSize,(int)(minNumberRows * maxLineLength));
