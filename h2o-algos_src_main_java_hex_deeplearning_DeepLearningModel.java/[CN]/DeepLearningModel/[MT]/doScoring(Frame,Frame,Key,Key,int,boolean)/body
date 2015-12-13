@@ -9,25 +9,25 @@
   if (H2O.CLOUD.size() > 1 && get_params()._train_samples_per_iteration == -2 && iteration > 1) {
     Log.info("Auto-tuning train_samples_per_iteration.");
     if (time_for_communication_us > 1e4) {
-      Log.info("  Time taken for communication: " + PrettyPrint.usecs((long)time_for_communication_us));
-      Log.info("  Time taken for Map/Reduce iteration: " + PrettyPrint.msecs((long)time_since_last_iter,true));
+      Log.debug("  Time taken for communication: " + PrettyPrint.usecs((long)time_for_communication_us));
+      Log.debug("  Time taken for Map/Reduce iteration: " + PrettyPrint.msecs((long)time_since_last_iter,true));
       final double comm_to_work_ratio=(time_for_communication_us * 1e-3) / time_since_last_iter;
-      Log.info("  Ratio of network communication to computation: " + String.format("%.5f",comm_to_work_ratio));
-      Log.info("  target_comm_to_work: " + get_params()._target_ratio_comm_to_comp);
-      Log.info("Old value of train_samples_per_iteration: " + actual_train_samples_per_iteration);
+      Log.debug("  Ratio of network communication to computation: " + String.format("%.5f",comm_to_work_ratio));
+      Log.debug("  target_comm_to_work: " + get_params()._target_ratio_comm_to_comp);
+      Log.debug("Old value of train_samples_per_iteration: " + actual_train_samples_per_iteration);
       double correction=get_params()._target_ratio_comm_to_comp / comm_to_work_ratio;
       correction=Math.max(0.5,Math.min(2,correction));
       if (Math.abs(correction) < 0.8 || Math.abs(correction) > 1.2) {
         actual_train_samples_per_iteration/=correction;
         actual_train_samples_per_iteration=Math.max(1,actual_train_samples_per_iteration);
-        Log.info("New value of train_samples_per_iteration: " + actual_train_samples_per_iteration);
+        Log.debug("New value of train_samples_per_iteration: " + actual_train_samples_per_iteration);
       }
  else {
-        Log.info("Keeping value of train_samples_per_iteration the same (would deviate too little from previous value): " + actual_train_samples_per_iteration);
+        Log.debug("Keeping value of train_samples_per_iteration the same (would deviate too little from previous value): " + actual_train_samples_per_iteration);
       }
     }
  else {
-      Log.info("Communication is faster than 10 ms. Not modifying train_samples_per_iteration: " + actual_train_samples_per_iteration);
+      Log.debug("Communication is faster than 10 ms. Not modifying train_samples_per_iteration: " + actual_train_samples_per_iteration);
     }
   }
   keep_running=(epoch_counter < get_params()._epochs) && !stopped_early;
@@ -38,11 +38,9 @@
     }
     final boolean printme=!get_params()._quiet_mode;
     _timeLastScoreStart=System.currentTimeMillis();
-    Log.info("doScoring. _timeLastScoreStart: " + _timeLastScoreStart);
     model_info().computeStats();
     DeepLearningScoring err=new DeepLearningScoring();
     err.time_stamp=_timeLastScoreStart;
-    Log.info("setting err.training_time_ms to " + total_run_time);
     err.training_time_ms=total_run_time;
     err.epoch_counter=epoch_counter;
     err.iterations=iterations;
@@ -123,9 +121,9 @@
       err.variable_importances=new VarImp(vi,Arrays.copyOfRange(model_info().data_info().coefNames(),0,vi.length));
     }
     _timeLastScoreEnd=System.currentTimeMillis();
-    err.scoring_time=_timeLastScoreEnd - _timeLastScoreStart;
-    err.training_time_ms+=err.scoring_time;
-    total_scoring_time+=err.scoring_time;
+    err.scoring_time_ms=_timeLastScoreEnd - _timeLastScoreStart;
+    err.training_time_ms+=err.scoring_time_ms;
+    total_scoring_time+=err.scoring_time_ms;
     if (scoringInfo == null) {
       scoringInfo=new DeepLearningScoring[]{err};
     }
@@ -168,7 +166,7 @@
         Log.info("Convergence detected based on simple moving average of the loss function for the past " + get_params()._stopping_rounds + " scoring events. Model building completed.");
         stopped_early=true;
       }
-      if (printme)       Log.info("Time taken for scoring and diagnostics: " + PrettyPrint.msecs(err.scoring_time,true));
+      if (printme)       Log.info("Time taken for scoring and diagnostics: " + PrettyPrint.msecs(err.scoring_time_ms,true));
     }
   }
   if (stopped_early) {
