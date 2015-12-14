@@ -4,10 +4,7 @@ def start(self):
         main_class = 'water.H2OClientApp'
     else:
         main_class = 'water.H2OApp'
-    if (('JAVA_HOME' in os.environ) and (not (sys.platform == 'win32'))):
-        java = (os.environ['JAVA_HOME'] + '/bin/java')
-    else:
-        java = 'java'
+    java = (os.environ['JAVA_HOME'] + '/bin/java')
     cmd = [java, ('-Xmx' + self.xmx), '-ea', '-cp', self.h2o_jar, main_class, '-name', self.cloud_name, '-baseport', str(self.my_base_port), '-ga_opt_out']
     self.output_file_name = os.path.join(self.output_dir, (((('java_' + str(self.cloud_num)) + '_') + str(self.node_num)) + '.out.txt'))
     f = open(self.output_file_name, 'w')
