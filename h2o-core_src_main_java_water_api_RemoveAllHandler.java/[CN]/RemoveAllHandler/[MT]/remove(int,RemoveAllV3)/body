@@ -5,9 +5,9 @@
     j.cancel();
     j.remove(fs);
   }
-  if (InitIDHandler.SESSION != null) {
-    InitIDHandler.SESSION.endQuietly(null);
-    InitIDHandler.SESSION=null;
+  if (InitIDHandler.SESSIONS != null) {
+    for (    String k : InitIDHandler.SESSIONS.keySet())     (InitIDHandler.SESSIONS.get(k)).endQuietly(null);
+    InitIDHandler.SESSIONS.clear();
   }
   fs.blockForPending();
   new MRTask(){

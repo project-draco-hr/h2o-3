@@ -61,13 +61,16 @@
       if (!mp._quiet_mode)       Log.info("Enabling training data shuffling to avoid training rows in the same order over and over (no Hogwild since there's only 1 chunk).");
       mp._shuffle_training_data=true;
     }
-    model._timeLastIterationEnter=System.currentTimeMillis();
+    long now=System.currentTimeMillis();
+    model._timeLastIterationEnter=now;
     if (_parms._autoencoder) {
       new ProgressUpdate("Scoring null model of autoencoder...").fork(_progressKey);
       if (!mp._quiet_mode)       Log.info("Scoring the null model of the autoencoder.");
       model.doScoring(trainScoreFrame,validScoreFrame,self(),null,0,false);
     }
     model.update(self());
+    model.total_setup_time_ms+=now - _start_time;
+    Log.info("Total setup time: " + PrettyPrint.msecs(model.total_setup_time_ms,true));
     Log.info("Starting to train the Deep Learning model.");
     new ProgressUpdate("Training...").fork(_progressKey);
     do {
