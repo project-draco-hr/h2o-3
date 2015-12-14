@@ -1,12 +1,12 @@
 {
-  if (SESSION != null) {
+  if (SESSIONS.get(p.session_key) != null) {
     try {
-      SESSION.end(null);
+      SESSIONS.get(p.session_key).end(null);
+      SESSIONS.remove(p.session_key);
     }
  catch (    Throwable ex) {
-      throw SESSION.endQuietly(ex);
+      throw SESSIONS.get(p.session_key).endQuietly(ex);
     }
   }
-  SESSION=null;
   return p;
 }

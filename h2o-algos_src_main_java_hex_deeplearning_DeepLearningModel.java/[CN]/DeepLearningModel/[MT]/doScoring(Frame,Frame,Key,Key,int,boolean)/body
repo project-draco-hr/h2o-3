@@ -1,111 +1,114 @@
 {
   final long now=System.currentTimeMillis();
   final double time_since_last_iter=now - _timeLastIterationEnter;
-  total_run_time+=time_since_last_iter;
+  updateTiming(jobKey);
   _timeLastIterationEnter=now;
   epoch_counter=(double)model_info().get_processed_total() / training_rows;
   boolean keep_running;
   if (H2O.CLOUD.size() > 1 && get_params()._train_samples_per_iteration == -2 && iteration > 1) {
     Log.info("Auto-tuning train_samples_per_iteration.");
     if (time_for_communication_us > 1e4) {
-      Log.info("  Time taken for communication: " + PrettyPrint.usecs((long)time_for_communication_us));
-      Log.info("  Time taken for Map/Reduce iteration: " + PrettyPrint.msecs((long)time_since_last_iter,true));
+      Log.debug("  Time taken for communication: " + PrettyPrint.usecs((long)time_for_communication_us));
+      Log.debug("  Time taken for Map/Reduce iteration: " + PrettyPrint.msecs((long)time_since_last_iter,true));
       final double comm_to_work_ratio=(time_for_communication_us * 1e-3) / time_since_last_iter;
-      Log.info("  Ratio of network communication to computation: " + String.format("%.5f",comm_to_work_ratio));
-      Log.info("  target_comm_to_work: " + get_params()._target_ratio_comm_to_comp);
-      Log.info("Old value of train_samples_per_iteration: " + actual_train_samples_per_iteration);
+      Log.debug("  Ratio of network communication to computation: " + String.format("%.5f",comm_to_work_ratio));
+      Log.debug("  target_comm_to_work: " + get_params()._target_ratio_comm_to_comp);
+      Log.debug("Old value of train_samples_per_iteration: " + actual_train_samples_per_iteration);
       double correction=get_params()._target_ratio_comm_to_comp / comm_to_work_ratio;
       correction=Math.max(0.5,Math.min(2,correction));
       if (Math.abs(correction) < 0.8 || Math.abs(correction) > 1.2) {
         actual_train_samples_per_iteration/=correction;
         actual_train_samples_per_iteration=Math.max(1,actual_train_samples_per_iteration);
-        Log.info("New value of train_samples_per_iteration: " + actual_train_samples_per_iteration);
+        Log.debug("New value of train_samples_per_iteration: " + actual_train_samples_per_iteration);
       }
  else {
-        Log.info("Keeping value of train_samples_per_iteration the same (would deviate too little from previous value): " + actual_train_samples_per_iteration);
+        Log.debug("Keeping value of train_samples_per_iteration the same (would deviate too little from previous value): " + actual_train_samples_per_iteration);
       }
     }
  else {
-      Log.info("Communication is faster than 10 ms. Not modifying train_samples_per_iteration: " + actual_train_samples_per_iteration);
+      Log.debug("Communication is faster than 10 ms. Not modifying train_samples_per_iteration: " + actual_train_samples_per_iteration);
     }
   }
   keep_running=(epoch_counter < get_params()._epochs) && !stopped_early;
   final long sinceLastScore=now - _timeLastScoreStart;
   if (!keep_running || (sinceLastScore > get_params()._score_interval * 1000 && (double)(_timeLastScoreEnd - _timeLastScoreStart) / sinceLastScore < get_params()._score_duty_cycle)) {
     if (progressKey != null) {
-      new Job.ProgressUpdate("Scoring on " + ftrain.numRows() + " training samples"+ (ftest != null ? (", " + ftest.numRows() + " validation samples") : "")).fork(progressKey);
+      new Job.ProgressUpdate("Scoring on " + fTrain.numRows() + " training samples"+ (fTest != null ? (", " + fTest.numRows() + " validation samples") : "")).fork(progressKey);
     }
     final boolean printme=!get_params()._quiet_mode;
     _timeLastScoreStart=System.currentTimeMillis();
     model_info().computeStats();
-    DeepLearningScoring err=new DeepLearningScoring();
-    err.time_stamp=_timeLastScoreStart;
-    err.training_time_ms=total_run_time;
-    err.epoch_counter=epoch_counter;
-    err.iterations=iterations;
-    err.training_samples=(double)model_info().get_processed_total();
-    err.validation=ftest != null;
-    err.score_training_samples=ftrain.numRows();
-    err.classification=_output.isClassifier();
+    DeepLearningScoring scoringInfo=new DeepLearningScoring();
+    scoringInfo.time_stamp_ms=_timeLastScoreStart;
+    updateTiming(jobKey);
+    scoringInfo.total_training_time_ms=total_training_time_ms;
+    scoringInfo.total_scoring_time_ms=total_scoring_time_ms;
+    scoringInfo.total_setup_time_ms=total_setup_time_ms;
+    scoringInfo.epoch_counter=epoch_counter;
+    scoringInfo.iterations=iterations;
+    scoringInfo.training_samples=(double)model_info().get_processed_total();
+    scoringInfo.validation=fTest != null;
+    scoringInfo.score_training_samples=fTrain.numRows();
+    scoringInfo.classification=_output.isClassifier();
     if (get_params()._autoencoder) {
       if (printme)       Log.info("Scoring the auto-encoder.");
 {
-        final Frame mse_frame=scoreAutoEncoder(ftrain,Key.make(),false);
+        final Frame mse_frame=scoreAutoEncoder(fTrain,Key.make(),false);
         mse_frame.delete();
-        ModelMetrics mtrain=ModelMetrics.getFromDKV(this,ftrain);
+        ModelMetrics mtrain=ModelMetrics.getFromDKV(this,fTrain);
         _output._training_metrics=mtrain;
-        err.scored_train=new ScoreKeeper(mtrain);
+        scoringInfo.scored_train=new ScoreKeeper(mtrain);
       }
-      if (ftest != null) {
-        final Frame mse_frame=scoreAutoEncoder(ftest,Key.make(),false);
+      if (fTest != null) {
+        final Frame mse_frame=scoreAutoEncoder(fTest,Key.make(),false);
         mse_frame.delete();
-        ModelMetrics mtest=ModelMetrics.getFromDKV(this,ftest);
+        ModelMetrics mtest=ModelMetrics.getFromDKV(this,fTest);
         _output._validation_metrics=mtest;
-        err.scored_valid=new ScoreKeeper(mtest);
+        scoringInfo.scored_valid=new ScoreKeeper(mtest);
       }
     }
  else {
       if (printme)       Log.info("Scoring the model.");
       final String m=model_info().toString();
       if (m.length() > 0)       Log.info(m);
-      final Frame trainPredict=score(ftrain);
+      final Frame trainPredict=score(fTrain);
       trainPredict.delete();
-      hex.ModelMetrics mtrain=ModelMetrics.getFromDKV(this,ftrain);
+      hex.ModelMetrics mtrain=ModelMetrics.getFromDKV(this,fTrain);
       _output._training_metrics=mtrain;
-      err.scored_train=new ScoreKeeper(mtrain);
+      scoringInfo.scored_train=new ScoreKeeper(mtrain);
       hex.ModelMetrics mtest;
-      hex.ModelMetricsSupervised mm1=(ModelMetricsSupervised)ModelMetrics.getFromDKV(this,ftrain);
+      hex.ModelMetricsSupervised mm1=(ModelMetricsSupervised)mtrain;
       if (mm1 instanceof ModelMetricsBinomial) {
         ModelMetricsBinomial mm=(ModelMetricsBinomial)(mm1);
-        err.training_AUC=mm._auc;
+        scoringInfo.training_AUC=mm._auc;
       }
-      if (ftrain.numRows() != training_rows) {
-        _output._training_metrics._description="Metrics reported on temporary training frame with " + ftrain.numRows() + " samples";
+      if (fTrain.numRows() != training_rows) {
+        _output._training_metrics._description="Metrics reported on temporary training frame with " + fTrain.numRows() + " samples";
       }
- else       if (ftrain._key != null && ftrain._key.toString().contains("chunks")) {
+ else       if (fTrain._key != null && fTrain._key.toString().contains("chunks")) {
         _output._training_metrics._description="Metrics reported on temporary (load-balanced) training frame";
       }
  else {
         _output._training_metrics._description="Metrics reported on full training frame";
       }
-      if (ftest != null) {
-        Frame validPred=score(ftest);
+      if (fTest != null) {
+        Frame validPred=score(fTest);
         validPred.delete();
-        mtest=ModelMetrics.getFromDKV(this,ftest);
+        mtest=ModelMetrics.getFromDKV(this,fTest);
         _output._validation_metrics=mtest;
-        err.scored_valid=new ScoreKeeper(mtest);
+        scoringInfo.scored_valid=new ScoreKeeper(mtest);
         if (mtest != null) {
           if (mtest instanceof ModelMetricsBinomial) {
             ModelMetricsBinomial mm=(ModelMetricsBinomial)mtest;
-            err.validation_AUC=mm._auc;
+            scoringInfo.validation_AUC=mm._auc;
           }
-          if (ftest.numRows() != validation_rows) {
-            _output._validation_metrics._description="Metrics reported on temporary validation frame with " + ftest.numRows() + " samples";
+          if (fTest.numRows() != validation_rows) {
+            _output._validation_metrics._description="Metrics reported on temporary validation frame with " + fTest.numRows() + " samples";
             if (get_params()._score_validation_sampling == DeepLearningParameters.ClassSamplingMethod.Stratified) {
               _output._validation_metrics._description+=" (stratified sampling)";
             }
           }
- else           if (ftest._key != null && ftest._key.toString().contains("chunks")) {
+ else           if (fTest._key != null && fTest._key.toString().contains("chunks")) {
             _output._validation_metrics._description="Metrics reported on temporary (load-balanced) validation frame";
           }
  else {
@@ -117,20 +120,22 @@
     if (get_params()._variable_importances) {
       if (!get_params()._quiet_mode)       Log.info("Computing variable importances.");
       final float[] vi=model_info().computeVariableImportances();
-      err.variable_importances=new VarImp(vi,Arrays.copyOfRange(model_info().data_info().coefNames(),0,vi.length));
+      scoringInfo.variable_importances=new VarImp(vi,Arrays.copyOfRange(model_info().data_info().coefNames(),0,vi.length));
     }
     _timeLastScoreEnd=System.currentTimeMillis();
-    err.scoring_time=_timeLastScoreEnd - _timeLastScoreStart;
-    err.training_time_ms+=err.scoring_time;
-    total_scoring_time+=err.scoring_time;
-    if (scoringInfo == null) {
-      scoringInfo=new DeepLearningScoring[]{err};
+    long scoringTime=_timeLastScoreEnd - _timeLastScoreStart;
+    total_scoring_time_ms+=scoringTime;
+    updateTiming(jobKey);
+    scoringInfo.total_training_time_ms=total_training_time_ms;
+    scoringInfo.this_scoring_time_ms=scoringTime;
+    if (this.scoringInfo == null) {
+      this.scoringInfo=new DeepLearningScoring[]{scoringInfo};
     }
  else {
-      DeepLearningScoring[] err2=new DeepLearningScoring[scoringInfo.length + 1];
-      System.arraycopy(scoringInfo,0,err2,0,scoringInfo.length);
-      err2[err2.length - 1]=err;
-      scoringInfo=err2;
+      DeepLearningScoring[] err2=new DeepLearningScoring[this.scoringInfo.length + 1];
+      System.arraycopy(this.scoringInfo,0,err2,0,this.scoringInfo.length);
+      err2[err2.length - 1]=scoringInfo;
+      this.scoringInfo=err2;
     }
     _output.errors=last_scored();
     makeWeightsBiases(_key);
@@ -148,7 +153,7 @@
       }
       if (!_parms._quiet_mode)       Log.info("Writing weights and biases to Frames took " + t.time() / 1000. + " seconds.");
     }
-    _output._scoring_history=createScoringHistoryTable(scoringInfo);
+    _output._scoring_history=createScoringHistoryTable(this.scoringInfo);
     _output._variable_importances=calcVarImp(last_scored().variable_importances);
     _output._model_summary=model_info.createSummaryTable();
     if (!finalScoring) {
@@ -165,15 +170,15 @@
         Log.info("Convergence detected based on simple moving average of the loss function for the past " + get_params()._stopping_rounds + " scoring events. Model building completed.");
         stopped_early=true;
       }
-      if (printme)       Log.info("Time taken for scoring and diagnostics: " + PrettyPrint.msecs(err.scoring_time,true));
+      if (printme)       Log.info("Time taken for scoring and diagnostics: " + PrettyPrint.msecs(scoringInfo.this_scoring_time_ms,true));
     }
   }
   if (stopped_early) {
-    ((Job)DKV.getGet(job_key)).update((long)(_parms._epochs * training_rows));
-    update(job_key);
+    ((Job)DKV.getGet(jobKey)).update((long)(_parms._epochs * training_rows));
+    update(jobKey);
     return false;
   }
-  progressUpdate(progressKey,job_key,keep_running);
-  update(job_key);
+  progressUpdate(progressKey,jobKey,keep_running);
+  update(jobKey);
   return keep_running;
 }
