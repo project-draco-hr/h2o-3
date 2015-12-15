@@ -10,16 +10,14 @@
   GBMModel modelFinal=null;
   try {
     GBMModel.GBMParameters gbmParams=new GBMModel.GBMParameters();
-    gbmParams._model_id=Key.make("Initial model");
     gbmParams._train=f._key;
     gbmParams._response_column=f.name(responseIdx);
     gbmParams._ntrees=ntreesInPriorModel;
     gbmParams._seed=42;
     gbmParams._max_depth=10;
     gbmParams._score_each_iteration=true;
-    model=new GBM(gbmParams).trainModel().get();
+    model=new GBM(gbmParams,Key.<GBMModel>make("Initial model")).trainModel().get();
     GBMModel.GBMParameters gbmFromCheckpointParams=new GBMModel.GBMParameters();
-    gbmFromCheckpointParams._model_id=Key.make("Model from checkpoint");
     gbmFromCheckpointParams._train=f._key;
     gbmFromCheckpointParams._response_column=f.name(responseIdx);
     gbmFromCheckpointParams._ntrees=ntreesInPriorModel + ntreesInNewModel;
@@ -27,16 +25,15 @@
     gbmFromCheckpointParams._checkpoint=model._key;
     gbmFromCheckpointParams._score_each_iteration=true;
     gbmFromCheckpointParams._max_depth=10;
-    modelFromCheckpoint=new GBM(gbmFromCheckpointParams).trainModel().get();
+    modelFromCheckpoint=new GBM(gbmFromCheckpointParams,Key.<GBMModel>make("Model from checkpoint")).trainModel().get();
     GBMModel.GBMParameters gbmFinalParams=new GBMModel.GBMParameters();
-    gbmFinalParams._model_id=Key.make("Validation model");
     gbmFinalParams._train=f._key;
     gbmFinalParams._response_column=f.name(responseIdx);
     gbmFinalParams._ntrees=ntreesInPriorModel + ntreesInNewModel;
     gbmFinalParams._seed=42;
     gbmFinalParams._score_each_iteration=true;
     gbmFinalParams._max_depth=10;
-    modelFinal=new GBM(gbmFinalParams).trainModel().get();
+    modelFinal=new GBM(gbmFinalParams,Key.<GBMModel>make("Validation model")).trainModel().get();
     CompressedTree[][] treesFromCheckpoint=getTrees(modelFromCheckpoint);
     CompressedTree[][] treesFromFinalModel=getTrees(modelFinal);
     assertTreeEquals("The model created from checkpoint and corresponding model created from scratch should have the same trees!",treesFromCheckpoint,treesFromFinalModel,true);

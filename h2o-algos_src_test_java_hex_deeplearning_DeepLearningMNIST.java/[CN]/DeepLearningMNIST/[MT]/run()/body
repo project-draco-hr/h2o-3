@@ -9,7 +9,6 @@
       NFSFileVec validfv=NFSFileVec.make(valid);
       Frame vframe=ParseDataset.parse(Key.make(),validfv._key);
       DeepLearningParameters p=new DeepLearningParameters();
-      p._model_id=Key.make("dl_mnist_model");
       p._train=frame._key;
       p._response_column="C785";
       p._activation=DeepLearningParameters.Activation.Rectifier;
@@ -32,7 +31,7 @@
       p._overwrite_with_best_model=true;
       p._classification_stop=-1;
       p._score_training_samples=10000;
-      DeepLearning dl=new DeepLearning(p);
+      DeepLearning dl=new DeepLearning(p,Key.<DeepLearningModel>make("dl_mnist_model"));
       DeepLearningModel model=dl.trainModel().get();
       vframe.remove();
       frame.remove();

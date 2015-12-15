@@ -17,7 +17,7 @@
   for (  Solver s : GLMParameters.Solver.values()) {
     try {
       parms._solver=s;
-      model=new GLM(Key.make("prostate_model"),"glm test simple poisson",parms).trainModel().get();
+      model=new GLM(parms).trainModel().get();
       HashMap<String,Double> coefs=model.coefficients();
       System.out.println("coefs = " + coefs);
       for (int i=0; i < cfs1.length; ++i)       assertEquals(vals[i],coefs.get(cfs1[i]),1e-4);

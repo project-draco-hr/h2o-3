@@ -18,14 +18,14 @@
       parms._train=_weighted._key;
       parms._solver=s;
       parms._weights_column="weights";
-      model1=new GLM(Key.make("prostate_model"),"glm test",parms).trainModel().get();
+      model1=new GLM(parms).trainModel().get();
       HashMap<String,Double> coefs1=model1.coefficients();
       System.out.println("coefs1 = " + coefs1);
       parms._train=_upsampled._key;
       parms._weights_column=null;
       parms._lambda=null;
       parms._alpha=null;
-      model2=new GLM(Key.make("prostate_model"),"glm test",parms).trainModel().get();
+      model2=new GLM(parms).trainModel().get();
       HashMap<String,Double> coefs2=model2.coefficients();
       System.out.println("coefs2 = " + coefs2);
       System.out.println("mse1 = " + model1._output._training_metrics.mse() + ", mse2 = "+ model2._output._training_metrics.mse());

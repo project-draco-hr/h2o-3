@@ -22,7 +22,6 @@
       parms._initial_weight_scale=1e20;
       parms._seed=0xdecaf;
       parms._max_w2=1e20f;
-      parms._model_id=Key.make();
       DeepLearning job=new DeepLearning(parms);
       try {
         dl=job.trainModel().get();
@@ -30,7 +29,7 @@
       }
  catch (      RuntimeException de) {
       }
-      dl=DKV.getGet(parms._model_id);
+      dl=DKV.getGet(job.dest());
       assertTrue(dl.model_info().isUnstable());
       assertTrue(dl._output._job.isCrashed());
     }
