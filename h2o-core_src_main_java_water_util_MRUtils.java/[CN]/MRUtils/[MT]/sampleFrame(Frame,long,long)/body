@@ -5,12 +5,15 @@
   Key newKey=fr._key != null ? Key.make(fr._key.toString() + (fr._key.toString().contains("temporary") ? ".sample." : ".temporary.sample.") + PrettyPrint.formatPct(fraction).replace(" ","")) : null;
   Frame r=new MRTask(){
     @Override public void map(    Chunk[] cs,    NewChunk[] ncs){
-      final Random rng=getRNG(seed + cs[0].cidx());
+      final Random rng=getRNG(0);
       int count=0;
-      for (int r=0; r < cs[0]._len; r++)       if (rng.nextFloat() < fraction || (count == 0 && r == cs[0]._len - 1)) {
-        count++;
-        for (int i=0; i < ncs.length; i++) {
-          ncs[i].addNum(cs[i].atd(r));
+      for (int r=0; r < cs[0]._len; r++) {
+        rng.setSeed(seed + r + cs[0].start());
+        if (rng.nextFloat() < fraction || (count == 0 && r == cs[0]._len - 1)) {
+          count++;
+          for (int i=0; i < ncs.length; i++) {
+            ncs[i].addNum(cs[i].atd(r));
+          }
         }
       }
     }
