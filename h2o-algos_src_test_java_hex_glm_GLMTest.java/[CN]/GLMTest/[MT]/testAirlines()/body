@@ -16,7 +16,7 @@
     params._train=fr._key;
     params._lambda=new double[]{0};
     params._standardize=false;
-    model1=new GLM(Key.make("airlines_cat_nostd"),"Airlines with auto-expanded categoricals, no standardization",params).trainModel().get();
+    model1=new GLM(params,glmkey("airlines_cat_nostd")).trainModel().get();
     Frame score1=model1.score(fr);
     ModelMetricsRegressionGLM mm=(ModelMetricsRegressionGLM)ModelMetrics.getFromDKV(model1,fr);
     Assert.assertEquals(((ModelMetricsRegressionGLM)model1._output._training_metrics)._resDev,mm._resDev,1e-4);
@@ -27,7 +27,7 @@
     Assert.assertTrue(model1.testJavaScoring(fr,res,1e-15));
     params._train=frMM._key;
     params._ignored_columns=new String[]{"X"};
-    model2=new GLM(Key.make("airlines_mm"),"Airlines with pre-expanded (mode.matrix) categoricals, no standardization",params).trainModel().get();
+    model2=new GLM(params,glmkey("airlines_mm")).trainModel().get();
     params._standardize=true;
     params._train=frMM._key;
     params._use_all_factor_levels=true;
@@ -44,10 +44,10 @@
     params._standardize=true;
     params._family=Family.binomial;
     params._link=Link.logit;
-    model3=new GLM(Key.make("airlines_mm"),"Airlines with pre-expanded (mode.matrix) categoricals, no standardization",params).trainModel().get();
+    model3=new GLM(params,glmkey("airlines_mm")).trainModel().get();
     params._train=fr._key;
     params._ignored_columns=ignoredCols;
-    model4=new GLM(Key.make("airlines_mm"),"Airlines with pre-expanded (mode.matrix) categoricals, no standardization",params).trainModel().get();
+    model4=new GLM(params,glmkey("airlines_mm")).trainModel().get();
     assertEquals(nullDeviance(model3),nullDeviance(model4),1e-4);
     assertEquals(residualDeviance(model4),residualDeviance(model3),nullDeviance(model3) * 1e-3);
     HashMap<String,Double> coefs1=model1.coefficients();

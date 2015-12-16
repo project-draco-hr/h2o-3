@@ -1,6 +1,6 @@
 {
   Key parsed=Key.make("arcene_parsed");
-  Key modelKey=Key.make("arcene_model");
+  Key<GLMModel> modelKey=Key.make("arcene_model");
   GLMModel model=null;
   Frame fr=parse_test_file(parsed,"smalldata/glm_test/arcene.csv");
   try {
@@ -17,7 +17,7 @@
     params._alpha=new double[]{1};
     for (    Solver s : new Solver[]{Solver.IRLSM}) {
       params._solver=s;
-      GLM glm=new GLM(modelKey,"glm test simple poisson",params);
+      GLM glm=new GLM(params,modelKey);
       glm.trainModel().get();
       model=DKV.get(modelKey).get();
       assertEquals(params._nlambdas,model._output._submodels.length);
@@ -31,7 +31,7 @@
     params._lambda_min_ratio=0.18;
     params._max_active_predictors=20;
     params._alpha=new double[]{1};
-    GLM glm=new GLM(modelKey,"glm test simple poisson",params);
+    GLM glm=new GLM(params,modelKey);
     glm.trainModel().get();
     model=DKV.get(modelKey).get();
     assertTrue(model._output._submodels.length > 3);

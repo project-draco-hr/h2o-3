@@ -37,7 +37,6 @@
               parms._rate=1e-4;
               parms._momentum_start=0.9;
               parms._momentum_stable=0.99;
-              parms._model_id=Key.make();
               DeepLearningModelInfo.gradientCheck=null;
               DeepLearning job=new DeepLearning(parms);
               try {
@@ -125,7 +124,7 @@
                 Log.info("Mean loss: " + meanLoss);
               }
  catch (              RuntimeException ex) {
-                dl=DKV.getGet(parms._model_id);
+                dl=DKV.getGet(job.dest());
                 if (dl != null)                 Assert.assertTrue(dl.model_info().isUnstable());
  else                 Assert.assertTrue(job.isStopped());
               }

@@ -1,0 +1,18 @@
+{
+  List<SchemaMetadata.FieldMetadata> fsMeta=SchemaMetadata.getFieldMetadata(params);
+  for (  Map.Entry<String,Object[]> hparam : hyperParams.entrySet()) {
+    SchemaMetadata.FieldMetadata fieldMetadata=null;
+    for (    SchemaMetadata.FieldMetadata fm : fsMeta) {
+      if (fm.name.equals(hparam.getKey())) {
+        fieldMetadata=fm;
+        break;
+      }
+    }
+    if (fieldMetadata == null) {
+      throw new H2OIllegalArgumentException(hparam.getKey(),"grid","Unknown hyper parameter for grid search!");
+    }
+    if (!fieldMetadata.is_gridable) {
+      throw new H2OIllegalArgumentException(hparam.getKey(),"grid","Illegal hyper parameter for grid search! The parameter '" + fieldMetadata.name + " is not gridable!");
+    }
+  }
+}

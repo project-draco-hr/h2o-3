@@ -14,7 +14,7 @@
     params._response_column=fr._names[1];
     params._lambda=new double[]{0};
     params._standardize=false;
-    model=new GLM(modelKey,"glm test simple poisson",params).trainModel().get();
+    model=new GLM(params,modelKey).trainModel().get();
     for (    double c : model.beta())     assertEquals(Math.log(2),c,1e-2);
     model.delete();
     fr.delete();
@@ -26,7 +26,7 @@
     params2._lambda=new double[]{0};
     params2._standardize=false;
     params2._beta_epsilon=1e-5;
-    model=new GLM(modelKey,"glm test simple poisson",params2).trainModel().get();
+    model=new GLM(params2,modelKey).trainModel().get();
     assertEquals(0.3396,model.beta()[1],1e-4);
     assertEquals(0.2565,model.beta()[0],1e-4);
     res=model.score(fr);

@@ -1,6 +1,6 @@
 {
   Key parsed=Key.make("prostate_parsed");
-  Key modelKey=Key.make("prostate_model");
+  Key<GLMModel> modelKey=Key.make("prostate_model");
   GLMModel model=null;
   Frame fr=parse_test_file(parsed,"smalldata/logreg/prostate.csv");
   fr.remove("ID").remove();
@@ -18,12 +18,12 @@
     params._train=fr._key;
     params._alpha=new double[]{0};
     params._lambda=new double[]{0};
-    GLM glm=new GLM(modelKey,"glm test simple poisson",params);
+    GLM glm=new GLM(params,modelKey);
     model=glm.trainModel().get();
     double[] beta_1=model.beta();
     params._solver=Solver.L_BFGS;
     params._max_iterations=1000;
-    glm=new GLM(modelKey,"glm test simple poisson",params);
+    glm=new GLM(params,modelKey);
     model=glm.trainModel().get();
     fr.add("CAPSULE",fr.remove("CAPSULE"));
     DataInfo dinfo=new DataInfo(Key.make(),fr,null,1,true,TransformType.NONE,DataInfo.TransformType.NONE,true,false,false,false,false,false);

@@ -1,6 +1,6 @@
 {
   Key parsed=Key.make("cars_parsed");
-  Key modelKey=Key.make("cars_model");
+  Key<GLMModel> modelKey=Key.make("cars_model");
   Frame fr=null;
   GLMModel model=null;
   Frame score=null;
@@ -12,7 +12,7 @@
     params._train=parsed;
     params._lambda=new double[]{0};
     params._alpha=new double[]{0};
-    model=new GLM(modelKey,"glm test simple poisson",params).trainModel().get();
+    model=new GLM(params,modelKey).trainModel().get();
     HashMap<String,Double> coefs=model.coefficients();
     String[] cfs1=new String[]{"Intercept","economy (mpg)","cylinders","displacement (cc)","weight (lb)","0-60 mph (s)","year"};
     double[] vls1=new double[]{4.9504805,-0.0095859,-0.0063046,0.0004392,0.0001762,-0.0469810,0.0002891};
@@ -27,7 +27,7 @@
     params._train=parsed;
     params._lambda=new double[]{0};
     params._beta_epsilon=1e-5;
-    model=new GLM(modelKey,"glm test simple poisson",params).trainModel().get();
+    model=new GLM(params,modelKey).trainModel().get();
     coefs=model.coefficients();
     for (int i=0; i < cfs1.length; ++i)     assertEquals(vls2[i],coefs.get(cfs1[i]),1e-4);
     score=model.score(fr);
@@ -38,7 +38,7 @@
     params._ignored_columns=new String[]{"name"};
     params._train=parsed;
     params._lambda=new double[]{0};
-    model=new GLM(modelKey,"glm test simple poisson",params).trainModel().get();
+    model=new GLM(params,modelKey).trainModel().get();
     coefs=model.coefficients();
     for (int i=0; i < cfs1.length; ++i)     assertEquals(vls3[i],coefs.get(cfs1[i]),1e-4);
   }

@@ -18,7 +18,7 @@
     params._train=fr._key;
     params._alpha=new double[]{1};
     params._lambda=new double[]{0.001607};
-    GLM glm=new GLM(modelKey,"glm test simple poisson",params);
+    GLM glm=new GLM(params,modelKey);
     model=glm.trainModel().get();
     assertTrue(glm.isStopped());
     ModelMetricsBinomialGLM val=(ModelMetricsBinomialGLM)model._output._training_metrics;
@@ -29,7 +29,7 @@
     params._alpha=new double[]{0};
     FVecTest.makeByteVec(betaConsKey,"names, lower_bounds, upper_bounds\n RACE, -.5, .5\n DCAPS, -.4, .4\n DPROS, -.5, .5 \nPSA, -.5, .5\n VOL, -.5, .5");
     betaConstraints=ParseDataset.parse(Key.make("beta_constraints.hex"),betaConsKey);
-    glm=new GLM(modelKey,"glm test simple poisson",params);
+    glm=new GLM(params,modelKey);
     model=glm.trainModel().get();
     assertTrue(glm.isStopped());
     double[] beta=model.beta();

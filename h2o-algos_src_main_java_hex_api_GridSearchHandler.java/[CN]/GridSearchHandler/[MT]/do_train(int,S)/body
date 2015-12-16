@@ -1,0 +1,12 @@
+{
+  P parametersSchema=gridSearchSchema.parameters;
+  Map<String,Object[]> hyperParams=gridSearchSchema.hyper_parameters;
+  validateHyperParams(parametersSchema,hyperParams);
+  Key<Grid> destKey=gridSearchSchema.grid_id != null ? gridSearchSchema.grid_id.key() : null;
+  MP params=(MP)parametersSchema.createAndFillImpl();
+  Job<Grid> gsJob=GridSearch.startGridSearch(destKey,params,hyperParams,new DefaultModelParametersBuilderFactory<MP,P>());
+  gridSearchSchema.hyper_parameters=null;
+  gridSearchSchema.total_models=gsJob._result.get().getModelCount();
+  gridSearchSchema.job=(JobV3)Schema.schema(version,Job.class).fillFromImpl(gsJob);
+  return gridSearchSchema;
+}

@@ -10,8 +10,7 @@
     params._response_column=fr._names[1];
     params._train=parsed;
     params._lambda=new double[]{0};
-    Key modelKey=Key.make("gamma_test");
-    model=new GLM(modelKey,"glm test simple gamma",params).trainModel().get();
+    model=new GLM(params,glmkey("gamma_test")).trainModel().get();
     for (    double c : model.beta())     assertEquals(1.0,c,1e-4);
     res=model.score(fr);
     Assert.assertTrue(model.testJavaScoring(fr,res,1e-15));
