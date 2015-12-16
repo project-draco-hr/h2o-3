@@ -8,9 +8,10 @@
   final boolean poisson=false;
   Frame r=new MRTask(){
     @Override public void map(    Chunk[] cs,    NewChunk[] ncs){
-      final Random rng=getRNG(seed + cs[0].cidx());
+      final Random rng=getRNG(seed);
       for (int r=0; r < cs[0]._len; r++) {
         if (cs[labelidx].isNA(r))         continue;
+        rng.setSeed(cs[0].start() + r + seed);
         final int label=(int)cs[labelidx].at8(r);
         assert(sampling_ratios.length > label && label >= 0);
         int sampling_reps;

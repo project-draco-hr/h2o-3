@@ -1,6 +1,9 @@
 {
-  Random rand=_tree.rngForChunk(nids.cidx());
-  for (int row=0; row < nids._len; row++)   if (rand.nextFloat() >= _rate || Double.isNaN(ys.atd(row))) {
-    nids.set(row,ScoreBuildHistogram.OUT_OF_BAG);
+  Random rand=RandomUtils.getRNG(_tree._seed);
+  for (int row=0; row < nids._len; row++) {
+    rand.setSeed(_tree._seed + row + nids.start());
+    if (rand.nextFloat() >= _rate || Double.isNaN(ys.atd(row))) {
+      nids.set(row,ScoreBuildHistogram.OUT_OF_BAG);
+    }
   }
 }
