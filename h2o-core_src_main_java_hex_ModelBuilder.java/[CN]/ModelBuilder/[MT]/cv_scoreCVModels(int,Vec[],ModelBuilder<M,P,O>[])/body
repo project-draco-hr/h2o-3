@@ -7,7 +7,7 @@
     Frame cvTrain=cvModelBuilders[i].train();
     Frame cvValid=cvModelBuilders[i].valid();
     Frame adaptFr=new Frame(cvValid);
-    M cvModel=cvModelBuilders[i].get();
+    M cvModel=cvModelBuilders[i].dest().get();
     cvModel.adaptTestForTrain(adaptFr,true,!isSupervised());
     mbs[i]=cvModel.scoreMetrics(adaptFr);
     if (nclasses() == 2 || _parms._keep_cross_validation_predictions) {
