@@ -1,4 +1,10 @@
 {
+  try {
+    Class.forName("com.mysql.jdbc.Driver");
+  }
+ catch (  ClassNotFoundException e) {
+    e.printStackTrace();
+  }
   String url=String.format("jdbc:mysql://%s:%s/%s",config.getHost(),config.getPort(),config.getDatabasename());
   if (connection == null || connection.isClosed()) {
     connection=DriverManager.getConnection(url,config.getUser(),config.getPassword());
