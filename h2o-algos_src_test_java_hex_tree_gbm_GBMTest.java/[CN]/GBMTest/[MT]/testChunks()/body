@@ -1,8 +1,8 @@
 {
   Frame tfr;
-  final int N=4;
+  int[] chunks=new int[]{1,2,2,39,39,500};
+  final int N=chunks.length;
   double[] mses=new double[N];
-  int[] chunks=new int[]{1,13,19,39};
   for (int i=0; i < N; ++i) {
     Scope.enter();
     tfr=parse_test_file("smalldata/covtype/covtype.20k.data");
@@ -12,7 +12,7 @@
     rb.join();
     tfr.delete();
     tfr=DKV.get(dest).get();
-    Scope.track(tfr.replace(54,tfr.vecs()[54].toCategoricalVec())._key);
+    assertEquals(tfr.vec(0).nChunks(),chunks[i]);
     DKV.put(tfr);
     GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
     parms._train=tfr._key;
@@ -20,8 +20,8 @@
     parms._seed=1234;
     parms._col_sample_rate_per_tree=0.5f;
     parms._col_sample_rate=0.3f;
-    parms._ntrees=10;
-    parms._max_depth=2;
+    parms._ntrees=5;
+    parms._max_depth=5;
     GBM job=new GBM(parms);
     GBMModel drf=job.trainModel().get();
     assertEquals(drf._output._ntrees,parms._ntrees);
