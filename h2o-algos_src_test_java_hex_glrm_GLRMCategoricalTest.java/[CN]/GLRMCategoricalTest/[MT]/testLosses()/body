@@ -7,7 +7,7 @@
   Scope.enter();
   try {
     train=parse_test_file(Key.make("prostate.hex"),"smalldata/logreg/prostate.csv");
-    for (int i=0; i < cats.length; i++)     Scope.track(train.replace(cats[i],train.vec(cats[i]).toCategoricalVec())._key);
+    for (int i=0; i < cats.length; i++)     Scope.track(train.replace(cats[i],train.vec(cats[i]).toCategoricalVec()));
     train.remove("ID").remove();
     DKV.put(train._key,train);
     for (    GLRMParameters.Loss loss : new GLRMParameters.Loss[]{GLRMParameters.Loss.Quadratic,GLRMParameters.Loss.Absolute,GLRMParameters.Loss.Huber,GLRMParameters.Loss.Poisson,GLRMParameters.Loss.Hinge,GLRMParameters.Loss.Logistic}) {
