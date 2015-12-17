@@ -1,13 +1,6 @@
 {
-  HashMap<String,Dataset> result=new HashMap<String,Dataset>();
+  HashMap<Integer,Dataset> result=new HashMap<Integer,Dataset>();
   final String dataSetCharacteristicFilePath="h2o-testng/src/test/resources/datasetCharacteristics.csv";
-  final int numCols=6;
-  final int dataSetId=0;
-  final int dataSetDirectory=1;
-  final int fileName=2;
-  final int responseColumn=3;
-  final int columnNames=4;
-  final int columnTypes=5;
   File file=null;
   List<String> lines=null;
   try {
@@ -22,14 +15,14 @@
   for (  String line : lines) {
     System.out.println("read line: " + line);
     String[] arr=line.trim().split(",",-1);
-    if (arr.length < numCols) {
-      System.out.println("length of line is short");
+    System.out.println("parse to DataSet object");
+    String[] predictorColumnsStrings=arr[3].trim().split(";",-1);
+    int[] predictorColumns=new int[predictorColumnsStrings.length];
+    for (int i=0; i < predictorColumnsStrings.length; i++) {
+      predictorColumns[i]=Integer.parseInt(predictorColumnsStrings[i]);
     }
- else {
-      System.out.println("parse to DataSet object");
-      Dataset dataset=new Dataset(arr[dataSetId],arr[dataSetDirectory],arr[fileName],arr[responseColumn],arr[columnNames],arr[columnTypes]);
-      result.put(arr[dataSetId],dataset);
-    }
+    Dataset dataset=new Dataset(Integer.parseInt(arr[0]),arr[1],Integer.parseInt(arr[2]),predictorColumns);
+    result.put(Integer.parseInt(arr[0]),dataset);
   }
   return result;
 }

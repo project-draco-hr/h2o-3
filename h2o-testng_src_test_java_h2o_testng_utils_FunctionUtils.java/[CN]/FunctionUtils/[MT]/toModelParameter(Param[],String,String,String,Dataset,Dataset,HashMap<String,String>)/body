@@ -78,19 +78,19 @@ rawInput.put(MySQL.tuned_or_defaults,MySQL.tuned);
  else {
 rawInput.put(MySQL.tuned_or_defaults,MySQL.defaults);
 }
-modelParameter._response_column=train_dataset.getResponseColumn();
+modelParameter._response_column=train_dataset.dataSetFrame._names[train_dataset.responseColumn];
 Frame trainFrame=null;
 Frame validateFrame=null;
 Frame betaConstraints=null;
 try {
 System.out.println("Create train frame: " + train_dataset_id);
-trainFrame=train_dataset.getFrame();
-if (StringUtils.isNotEmpty(validate_dataset_id) && validate_dataset != null && validate_dataset.isAvailabel()) {
+trainFrame=train_dataset.dataSetFrame;
+if (StringUtils.isNotEmpty(validate_dataset_id) && validate_dataset != null) {
 System.out.println("Create validate frame: " + validate_dataset_id);
-validateFrame=validate_dataset.getFrame();
+validateFrame=validate_dataset.dataSetFrame;
 }
 if (algorithm.equals(FunctionUtils.glm)) {
-betaConstraints=createBetaConstraints(rawInput,trainFrame,train_dataset.getResponseColumn());
+betaConstraints=createBetaConstraints(rawInput,trainFrame,train_dataset.responseColumn);
 if (betaConstraints != null) {
 ((GLMParameters)modelParameter)._beta_constraints=betaConstraints._key;
 }
