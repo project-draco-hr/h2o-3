@@ -18,21 +18,20 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
     try:
-        try:
-            g_runner.start()
-            if is_flow(args.script):
-                cmd = ['phantomjs', 'run-flow.js', '--host', ((g_runner.ip + ':') + str(g_runner.port)), '--flow', args.script]
-                print ('+ CMD: ' + str(cmd))
-                subprocess.check_call(cmd)
-        except Exception as e:
-            print ''
-            print ''
-            print e
-            print ''
-            print ''
-    finally:
-        try:
-            shutil.rmtree(abspath_tempdir)
-        except Exception as ignore:
-            swallow(ignore)
+        g_runner.start()
+        if is_flow(args.script):
+            cmd = ['phantomjs', 'run-flow.js', '--host', ((g_runner.ip + ':') + str(g_runner.port)), '--flow', args.script]
+            print ('+ CMD: ' + str(cmd))
+            subprocess.check_call(cmd)
+    except Exception as e:
+        print e
+    try:
         g_runner.stop()
+    except Exception as ignore:
+        swallow(ignore)
+    try:
+        print_barrier()
+        print ('Removing temp dir ' + abspath_tempdir)
+        shutil.rmtree(abspath_tempdir)
+    except Exception as ignore:
+        swallow(ignore)
