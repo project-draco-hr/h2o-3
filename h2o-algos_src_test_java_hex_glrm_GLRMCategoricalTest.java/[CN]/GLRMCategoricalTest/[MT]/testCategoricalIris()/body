@@ -13,6 +13,7 @@
     parms._recover_svd=true;
     parms._max_iterations=1000;
     try {
+      Scope.enter();
       job=new GLRM(parms);
       model=job.trainModel().get();
       Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
@@ -26,6 +27,7 @@
     }
  finally {
       job.remove();
+      Scope.exit();
     }
   }
  catch (  Throwable t) {

@@ -1,0 +1,20 @@
+def start(self):
+    print_barrier()
+    cmd = ['hadoop', 'jar', self.driver, '-n', str(self.nodes_per_cloud), '-mapperXmx', self.xmx, '-output', self.output_dir, '-notify', self.notify_file, '-disown']
+    print ('+ CMD: ' + str(cmd))
+    returncode = subprocess.call(cmd)
+    f = None
+    try:
+        f = open(self.notify_file)
+        ip_port = f.readline().rstrip()
+        self.ip = ip_port.split(':')[0]
+        self.port = ip_port.split(':')[1]
+        self.job_id = f.readline().rstrip()
+        f.close()
+    finally:
+        if (f is not None):
+            f.close()
+    if (returncode != 0):
+        print ''
+        print ''
+        raise Exception('Failed to start H2O application instance')

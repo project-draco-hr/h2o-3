@@ -5,7 +5,7 @@ def deeplearning_autoencoder():
     train_hex[resp] = train_hex[resp].asfactor()
     test_hex = h2o.upload_file(pyunit_utils.locate('bigdata/laptop/mnist/test.csv.gz'))
     test_hex[resp] = test_hex[resp].asfactor()
-    sid = train_hex[0].runif(1234)
+    sid = train_hex[0].runif(0)
     train_unsupervised = train_hex[(sid >= 0.5)]
     train_unsupervised.pop(resp)
     train_supervised = train_hex[(sid < 0.5)]
@@ -20,4 +20,4 @@ def deeplearning_autoencoder():
     test_features = test_features.cbind(test_hex[resp])
     cm = drf_model.confusion_matrix(test_features)
     cm.show()
-    assert (abs((cm.cell_values[10][10] - 0.0882)) < 0.001), 'Error. Expected 0.0847, but got {0}'.format(cm.cell_values[10][10])
+    assert (abs((cm.cell_values[10][10] - 0.0882)) < 0.001), 'Error. Expected 0.0882, but got {0}'.format(cm.cell_values[10][10])

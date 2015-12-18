@@ -18,6 +18,7 @@
     parms._user_y=yinit._key;
     parms._seed=seed;
     try {
+      Scope.enter();
       job=new GLRM(parms);
       model=job.trainModel().get();
       Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
@@ -31,6 +32,7 @@
     }
  finally {
       job.remove();
+      Scope.exit();
     }
   }
  catch (  Throwable t) {
