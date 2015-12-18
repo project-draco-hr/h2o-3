@@ -1,6 +1,7 @@
 {
   KMeansModel model=null;
   try {
+    Scope.enter();
     init(true);
     _parms.read_lock_frames(KMeans.this);
     if (error_count() > 0)     throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(KMeans.this);
@@ -50,6 +51,7 @@
     updateModelOutput();
     if (model != null)     model.unlock(_key);
     _parms.read_unlock_frames(KMeans.this);
+    Scope.exit();
   }
   tryComplete();
 }

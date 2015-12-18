@@ -1,5 +1,4 @@
 {
-  Scope.enter();
   DeepLearningModel cp=null;
   if (_parms._checkpoint == null) {
     cp=new DeepLearningModel(dest(),_parms,new DeepLearningModel.DeepLearningModelOutput(DeepLearning.this),_train,_valid,nclasses());
@@ -61,13 +60,7 @@
   trainModel(cp);
   List<Key> keep=new ArrayList<>();
   try {
-    keep.add(dest());
-    keep.add(cp.model_info().data_info()._key);
-    keep.add(cp._output._training_metrics._key);
-    if (cp._output._validation_metrics != null) {
-      keep.add(cp._output._validation_metrics._key);
-    }
-    if (cp._output.weights != null && cp._output.biases != null) {
+    if (_parms._export_weights_and_biases && cp._output.weights != null && cp._output.biases != null) {
       for (      Key k : Arrays.asList(cp._output.weights)) {
         keep.add(k);
         for (        Vec vk : ((Frame)DKV.getGet(k)).vecs()) {

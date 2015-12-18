@@ -34,6 +34,7 @@
           parms._max_iterations=500;
           GLRM job=new GLRM(parms);
           try {
+            Scope.enter();
             model=job.trainModel().get();
             Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
             model.score(train).delete();
@@ -45,6 +46,7 @@
           }
  finally {
             job.remove();
+            Scope.exit();
           }
         }
  catch (        Throwable t) {
