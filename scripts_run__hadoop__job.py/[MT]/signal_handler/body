@@ -1,0 +1,14 @@
+def signal_handler(signum, stackframe):
+    global g_runner
+    global g_handling_signal
+    swallow(stackframe)
+    if g_handling_signal:
+        return
+    g_handling_signal = True
+    print ''
+    print '----------------------------------------------------------------------'
+    print ''
+    print (('SIGNAL CAUGHT (' + str(signum)) + ').  TEARING DOWN CLOUD.')
+    print ''
+    print '----------------------------------------------------------------------'
+    g_runner.stop()

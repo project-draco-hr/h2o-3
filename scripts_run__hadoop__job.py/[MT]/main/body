@@ -1,0 +1,38 @@
+def main():
+    global g_runner
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-driver', '--driver', help='Path to h2odriver.jar', default='./h2odriver.jar')
+    parser.add_argument('-n', '-nodes', '--nodes', help='Number of H2O nodes', required=True, type=int)
+    parser.add_argument('-mapperXmx', '--mapperXmx', help='Size of each H2O node', required=True)
+    parser.add_argument('-script', '--script', help='Name of script to run', required=True)
+    parser.add_argument('-output', '--output', help='HDFS temp output dir', required=True)
+    args = parser.parse_args()
+    print_barrier()
+    print ('Path to h2odriver:  ' + args.driver)
+    print ('Number of nodes:    ' + str(args.nodes))
+    print ('Size of each node:  ' + args.mapperXmx)
+    print ('Script to run:      ' + args.script)
+    print ('HDFS output dir:    ' + args.output)
+    abspath_tempdir = tempfile.mkdtemp()
+    g_runner = H2OCloud(abspath_tempdir, args.driver, args.nodes, args.mapperXmx, args.output)
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    try:
+        try:
+            g_runner.start()
+            if is_flow(args.script):
+                cmd = ['phantomjs', 'run-flow.js', '--host', ((g_runner.ip + ':') + str(g_runner.port)), '--flow', args.script]
+                print ('+ CMD: ' + str(cmd))
+                subprocess.check_call(cmd)
+        except Exception as e:
+            print ''
+            print ''
+            print e
+            print ''
+            print ''
+    finally:
+        try:
+            shutil.rmtree(abspath_tempdir)
+        except Exception as ignore:
+            swallow(ignore)
+        g_runner.stop()
