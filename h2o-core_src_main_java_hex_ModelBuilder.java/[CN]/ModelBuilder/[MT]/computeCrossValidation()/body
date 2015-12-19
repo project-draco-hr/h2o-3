@@ -5,7 +5,7 @@
   final Vec foldAssignment;
   final Vec foldCol=origTrainFrame.vec(_parms._fold_column);
   if (_parms._fold_column != null) {
-    foldAssignment=VecUtils.toCategoricalVec(foldCol);
+    foldAssignment=makeFoldAssignment(foldCol);
   }
  else {
     final long seed=_parms.nFoldSeed();
@@ -72,7 +72,7 @@ if (origWeightsName != null) cvValid[i].remove(origWeightsName);
 cvValid[i].add(weightName,weights[2 * i + 1]);
 DKV.put(cvValid[i]);
 }
-if (foldAssignment != foldCol || _parms._fold_column == null) foldAssignment.remove();
+foldAssignment.remove();
 if (origWeightsName == null) origWeight.remove();
 ModelMetrics.MetricBuilder[] mb=new ModelMetrics.MetricBuilder[N];
 _deleteProgressKey=false;

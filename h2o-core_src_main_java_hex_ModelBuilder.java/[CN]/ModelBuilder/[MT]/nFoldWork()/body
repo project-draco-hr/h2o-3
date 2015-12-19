@@ -1,9 +1,8 @@
 {
   if (_parms._fold_column == null)   return _parms._nfolds;
   Vec f=train().vec(_parms._fold_column);
-  if (!f.isInt() && !f.isCategorical())   error("_fold_column","Invalid fold column '" + _parms._fold_column + "', fold must be integer or categorical");
   Vec fc=VecUtils.toCategoricalVec(f);
   int N=fc.domain().length;
-  if (fc != f)   fc.remove();
+  fc.remove();
   return N;
 }
