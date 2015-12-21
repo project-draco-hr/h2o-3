@@ -1,0 +1,52 @@
+{
+  Log.info("Read testcase: " + fileName);
+  Object[][] result=null;
+  CSVReader csvReader=null;
+  List<String[]> contents=null;
+  String[] headerRow=null;
+  if (StringUtils.isEmpty(fileName)) {
+    Log.info("Not found file: " + fileName);
+    return null;
+  }
+  try {
+    csvReader=new CSVReader(new FileReader(TestNGUtil.find_test_file_static(fileName)));
+  }
+ catch (  Exception ignore) {
+    Log.err("Cannot open file: " + fileName);
+    ignore.printStackTrace();
+    return null;
+  }
+  try {
+    contents=csvReader.readAll();
+  }
+ catch (  IOException e) {
+    Log.err("Cannot read content from CSV file");
+    e.printStackTrace();
+    return null;
+  }
+ finally {
+    try {
+      csvReader.close();
+    }
+ catch (    IOException e) {
+      Log.err("Cannot close CSV file");
+      e.printStackTrace();
+    }
+  }
+  contents.remove(0);
+  result=new Object[contents.size()][8];
+  int r=0;
+  for (  String[] testCase : contents) {
+    HashMap<String,String> rawInput=parseToHashMap(testCaseSchema,testCase);
+    result[r][0]=rawInput.get(CommonHeaders.test_case_id);
+    result[r][1]=rawInput.get(CommonHeaders.training_dataset_id);
+    result[r][2]=rawInput.get(CommonHeaders.testing_dataset_id);
+    result[r][3]=dataSetCharacteristic.get(Integer.parseInt((String)result[r][1]));
+    result[r][4]=dataSetCharacteristic.get(Integer.parseInt((String)result[r][2]));
+    result[r][5]=algorithm;
+    result[r][6]=isNegativeTestcase;
+    result[r][7]=rawInput;
+    r++;
+  }
+  return result;
+}

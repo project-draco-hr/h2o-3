@@ -1,0 +1,10 @@
+{
+  Log.info("Loading data set: " + this.id);
+  frame=TestUtil.parse_test_file(makeDataSetFile(this.uri).getCanonicalPath());
+  if (!regression) {
+    String responseColumnName=frame._names[responseColumn];
+    Log.info("Converting response column idx/name: " + responseColumn + "/"+ responseColumnName+ " to "+ "categorical");
+    Scope.track(frame.replace(responseColumn,frame.vecs()[responseColumn].toCategoricalVec()));
+    DKV.put(frame);
+  }
+}

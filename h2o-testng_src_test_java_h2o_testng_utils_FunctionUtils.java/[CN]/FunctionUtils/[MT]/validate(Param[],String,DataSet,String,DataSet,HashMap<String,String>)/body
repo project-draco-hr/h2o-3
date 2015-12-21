@@ -1,0 +1,25 @@
+{
+  Log.info("Validate Parameters object with testcase: " + rawInput.get(CommonHeaders.test_case_id));
+  String result=null;
+  String verifyTrainDSMessage=validateTestcaseType(train_dataset,rawInput);
+  String verifyValidateDSMessage=validateTestcaseType(validate_dataset,rawInput);
+  if (StringUtils.isEmpty(train_dataset_id)) {
+    result="In testcase, train dataset id is empty";
+  }
+ else   if (train_dataset == null) {
+    result=String.format("Dataset id %s do not have in dataset characteristic",train_dataset_id);
+  }
+ else   if (verifyTrainDSMessage != null) {
+    result=verifyTrainDSMessage;
+  }
+ else   if (verifyValidateDSMessage != null) {
+    result=verifyValidateDSMessage;
+  }
+ else {
+    result=Param.validateAutoSetParams(params,rawInput);
+  }
+  if (result != null) {
+    result="[INVALID] " + result;
+  }
+  return result;
+}

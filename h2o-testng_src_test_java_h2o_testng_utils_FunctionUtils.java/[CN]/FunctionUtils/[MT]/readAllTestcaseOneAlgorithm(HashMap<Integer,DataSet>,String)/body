@@ -1,0 +1,32 @@
+{
+  String positiveTestcaseFilePath=null;
+  String negativeTestcaseFilePath=null;
+  List<String> testCaseSchema=null;
+switch (algorithm) {
+case FunctionUtils.drf:
+    positiveTestcaseFilePath=DRFConfig.positiveTestcaseFilePath;
+  negativeTestcaseFilePath=DRFConfig.negativeTestcaseFilePath;
+testCaseSchema=DRFConfig.testCaseSchema;
+break;
+case FunctionUtils.glm:
+positiveTestcaseFilePath=GLMConfig.positiveTestcaseFilePath;
+negativeTestcaseFilePath=GLMConfig.negativeTestcaseFilePath;
+testCaseSchema=GLMConfig.testCaseSchema;
+break;
+case FunctionUtils.gbm:
+positiveTestcaseFilePath=GBMConfig.positiveTestcaseFilePath;
+negativeTestcaseFilePath=GBMConfig.negativeTestcaseFilePath;
+testCaseSchema=GBMConfig.testCaseSchema;
+break;
+case FunctionUtils.dl:
+positiveTestcaseFilePath=DeepLearningConfig.positiveTestcaseFilePath;
+negativeTestcaseFilePath=DeepLearningConfig.negativeTestcaseFilePath;
+testCaseSchema=DeepLearningConfig.testCaseSchema;
+break;
+default :
+Log.info("do not implement for algorithm: " + algorithm);
+return null;
+}
+Object[][] result=FunctionUtils.dataProvider(dataSetCharacteristic,testCaseSchema,algorithm,positiveTestcaseFilePath,negativeTestcaseFilePath);
+return result;
+}
