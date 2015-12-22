@@ -8,10 +8,9 @@
   GBMModel gbmModel=null;
   DeepLearning dlJob=null;
   DeepLearningModel dlModel=null;
+  double modelStartTime=0, modelStopTime=0;
   try {
     Scope.enter();
-    double modelStartTime=0;
-    double modelStopTime=0;
 switch (algo) {
 case "drf":
       drfJob=new DRF((DRFModel.DRFParameters)params);
@@ -46,10 +45,6 @@ modelStopTime=System.currentTimeMillis();
 modelOutput=dlModel._output;
 break;
 }
-HashMap<String,Double> trainingMetrics=getMetrics(modelOutput._training_metrics);
-trainingMetrics.put("ModelBuildTime",modelStopTime - modelStartTime);
-HashMap<String,Double> testingMetrics=getMetrics(modelOutput._validation_metrics);
-MySQL.save(testCaseId,trainingMetrics,testingMetrics);
 }
  catch (Exception e) {
 Log.err(e.getMessage());
@@ -82,4 +77,15 @@ dlModel.delete();
 }
 Scope.exit();
 }
+String ipAddr="NULL";
+try {
+ipAddr=InetAddress.getLocalHost().getCanonicalHostName();
+}
+ catch (UnknownHostException e) {
+e.printStackTrace();
+}
+int ncpu=Runtime.getRuntime().availableProcessors();
+String h2oVersion=H2O.ABV.projectVersion();
+String gitHash=H2O.ABV.lastCommitHash();
+return new TestCaseResult(testCaseId,getMetrics(modelOutput._training_metrics),getMetrics(modelOutput._validation_metrics),modelStopTime - modelStartTime,ipAddr,ncpu,h2oVersion,gitHash);
 }
