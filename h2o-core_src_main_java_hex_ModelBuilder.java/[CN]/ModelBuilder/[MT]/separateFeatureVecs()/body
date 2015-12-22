@@ -37,7 +37,7 @@
     Vec f=_train.remove(_parms._fold_column);
     if (f == null)     error("_fold_column","Fold column '" + _parms._fold_column + "' not found in the training frame");
  else {
-      if (!f.isInt())       error("_fold_column","Invalid fold column '" + _parms._fold_column + "', fold must be integer");
+      if (!f.isInt() && !f.isCategorical())       error("_fold_column","Invalid fold column '" + _parms._fold_column + "', fold must be integer or categorical");
       if (f.min() < 0)       error("_fold_column","Invalid fold column '" + _parms._fold_column + "', fold must be non-negative");
       if (f.isConst())       error("_fold_column","Invalid fold column '" + _parms._fold_column + "', fold cannot be constant");
       _fold=f;

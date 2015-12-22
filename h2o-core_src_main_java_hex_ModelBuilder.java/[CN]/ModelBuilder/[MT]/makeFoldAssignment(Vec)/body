@@ -1,0 +1,17 @@
+{
+  Vec foldAssignment;
+  int numRange=foldCol.isNumeric() ? (int)(foldCol.max() - foldCol.min() + 1) : 0;
+  Vec foldCat=VecUtils.toCategoricalVec(foldCol);
+  if (numRange == foldCat.domain().length) {
+    foldCat.remove();
+    foldAssignment=VecUtils.toNumericVec(foldCol);
+    Log.info(foldCat.domain().length + "-fold cross-validation holdout fold assignment:");
+    for (int i=(int)foldAssignment.min(); i <= (int)foldAssignment.max(); ++i)     Log.info("(numeric) fold_column value: " + i + " -> fold "+ ((i % numRange) + 1));
+  }
+ else {
+    foldAssignment=foldCat;
+    Log.info(foldCat.domain().length + "-fold cross-validation holdout fold assignment:");
+    for (int i=0; i < foldAssignment.domain().length; ++i)     Log.info("(categorical) fold_column value: " + foldAssignment.domain()[i] + " -> fold "+ (i + 1));
+  }
+  return foldAssignment;
+}
