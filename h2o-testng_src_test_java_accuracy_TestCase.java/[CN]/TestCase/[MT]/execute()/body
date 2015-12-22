@@ -1,0 +1,91 @@
+{
+  Model.Output modelOutput=null;
+  DRF drfJob=null;
+  DRFModel drfModel=null;
+  GLM glmJob=null;
+  GLMModel glmModel=null;
+  GBM gbmJob=null;
+  GBMModel gbmModel=null;
+  DeepLearning dlJob=null;
+  DeepLearningModel dlModel=null;
+  double modelStartTime=0, modelStopTime=0;
+  try {
+    Scope.enter();
+switch (algo) {
+case "drf":
+      drfJob=new DRF((DRFModel.DRFParameters)params);
+    Log.info("Train DRF model:");
+  modelStartTime=System.currentTimeMillis();
+drfModel=drfJob.trainModel().get();
+modelStopTime=System.currentTimeMillis();
+modelOutput=drfModel._output;
+break;
+case "glm":
+glmJob=new GLM(Key.make("GLMModel"),"GLM Model",(GLMModel.GLMParameters)params);
+Log.info("Train GLM model");
+modelStartTime=System.currentTimeMillis();
+glmModel=glmJob.trainModel().get();
+modelStopTime=System.currentTimeMillis();
+modelOutput=glmModel._output;
+break;
+case "gbm":
+gbmJob=new GBM((GBMModel.GBMParameters)params);
+Log.info("Train GBM model");
+modelStartTime=System.currentTimeMillis();
+gbmModel=gbmJob.trainModel().get();
+modelStopTime=System.currentTimeMillis();
+modelOutput=gbmModel._output;
+break;
+case "dl":
+dlJob=new DeepLearning((DeepLearningParameters)params);
+Log.info("Train model");
+modelStartTime=System.currentTimeMillis();
+dlModel=dlJob.trainModel().get();
+modelStopTime=System.currentTimeMillis();
+modelOutput=dlModel._output;
+break;
+}
+}
+ catch (Exception e) {
+Log.err(e.getMessage());
+System.exit(-1);
+}
+ finally {
+if (drfJob != null) {
+drfJob.remove();
+}
+if (drfModel != null) {
+drfModel.delete();
+}
+if (glmJob != null) {
+glmJob.remove();
+}
+if (glmModel != null) {
+glmModel.delete();
+}
+if (gbmJob != null) {
+gbmJob.remove();
+}
+if (gbmModel != null) {
+gbmModel.delete();
+}
+if (dlJob != null) {
+dlJob.remove();
+}
+if (dlModel != null) {
+dlModel.delete();
+}
+Scope.exit();
+}
+String ipAddr="NULL";
+try {
+ipAddr=InetAddress.getLocalHost().getCanonicalHostName();
+}
+ catch (UnknownHostException e) {
+e.printStackTrace();
+}
+int ncpu=Runtime.getRuntime().availableProcessors();
+String h2oVersion=H2O.ABV.projectVersion();
+String gitHash=H2O.ABV.lastCommitHash();
+return new TestCaseResult(testCaseId,getMetrics(modelOutput._training_metrics),getMetrics(modelOutput._validation_metrics),modelStopTime - modelStartTime,ipAddr,ncpu,h2oVersion,gitHash);
+}
