@@ -14,7 +14,7 @@
 switch (algo) {
 case "drf":
       drfJob=new DRF((DRFModel.DRFParameters)params);
-    Log.info("Train DRF model:");
+    AccuracyTestingUtil.info("Train DRF model:");
   modelStartTime=System.currentTimeMillis();
 drfModel=drfJob.trainModel().get();
 modelStopTime=System.currentTimeMillis();
@@ -22,7 +22,7 @@ modelOutput=drfModel._output;
 break;
 case "glm":
 glmJob=new GLM(Key.make("GLMModel"),"GLM Model",(GLMModel.GLMParameters)params);
-Log.info("Train GLM model");
+AccuracyTestingUtil.info("Train GLM model");
 modelStartTime=System.currentTimeMillis();
 glmModel=glmJob.trainModel().get();
 modelStopTime=System.currentTimeMillis();
@@ -30,7 +30,7 @@ modelOutput=glmModel._output;
 break;
 case "gbm":
 gbmJob=new GBM((GBMModel.GBMParameters)params);
-Log.info("Train GBM model");
+AccuracyTestingUtil.info("Train GBM model");
 modelStartTime=System.currentTimeMillis();
 gbmModel=gbmJob.trainModel().get();
 modelStopTime=System.currentTimeMillis();
@@ -38,7 +38,7 @@ modelOutput=gbmModel._output;
 break;
 case "dl":
 dlJob=new DeepLearning((DeepLearningParameters)params);
-Log.info("Train model");
+AccuracyTestingUtil.info("Train model");
 modelStartTime=System.currentTimeMillis();
 dlModel=dlJob.trainModel().get();
 modelStopTime=System.currentTimeMillis();
@@ -47,8 +47,7 @@ break;
 }
 }
  catch (Exception e) {
-Log.err(e.getMessage());
-System.exit(-1);
+throw new Exception(e);
 }
  finally {
 if (drfJob != null) {
@@ -78,12 +77,7 @@ dlModel.delete();
 Scope.exit();
 }
 String ipAddr="NULL";
-try {
 ipAddr=InetAddress.getLocalHost().getCanonicalHostName();
-}
- catch (UnknownHostException e) {
-e.printStackTrace();
-}
 int ncpu=Runtime.getRuntime().availableProcessors();
 String h2oVersion=H2O.ABV.projectVersion();
 String gitHash=H2O.ABV.lastCommitHash();

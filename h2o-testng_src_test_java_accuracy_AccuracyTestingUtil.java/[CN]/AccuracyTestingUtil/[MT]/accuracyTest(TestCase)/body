@@ -1,8 +1,37 @@
 {
-  Log.info("Running test case: " + tc.testCaseId);
-  tc.loadTestCaseDataSets();
-  tc.setModelParameters();
-  TestCaseResult result=tc.execute();
-  result.saveToAccuracyDB();
+  info("Running test case: " + tc.testCaseId);
+  try {
+    tc.loadTestCaseDataSets();
+  }
+ catch (  IOException e) {
+    AccuracyTestingUtil.err("Couldn't load data sets for test case: " + tc.testCaseId);
+    e.printStackTrace();
+    throw new TestNGException("Test case " + tc.testCaseId + " failed");
+  }
+  try {
+    tc.setModelParameters();
+  }
+ catch (  Exception e) {
+    AccuracyTestingUtil.err("Couldn't set the model parameters for test case: " + tc.testCaseId);
+    e.printStackTrace();
+    throw new TestNGException("Test case " + tc.testCaseId + " failed");
+  }
+  TestCaseResult result;
+  try {
+    result=tc.execute();
+  }
+ catch (  Exception e) {
+    AccuracyTestingUtil.err("Couldn't execute test case: " + tc.testCaseId);
+    e.printStackTrace();
+    throw new TestNGException("Test case " + tc.testCaseId + " failed");
+  }
+  try {
+    result.saveToAccuracyDB();
+  }
+ catch (  Exception e) {
+    AccuracyTestingUtil.err("Couldn't save the test case result for test case: " + tc.testCaseId + " to the "+ "Accuracy database.");
+    e.printStackTrace();
+    throw new TestNGException("Test case " + tc.testCaseId + " failed");
+  }
   tc.cleanUp();
 }
