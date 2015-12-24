@@ -1,0 +1,49 @@
+{
+  tc.cleanUp();
+  String errorMessage;
+  AccuracyUtil.info("Running test case: " + tc.testCaseId);
+  AccuracyUtil.log("****************** Running test case: " + tc.testCaseId + "******************");
+  try {
+    tc.loadTestCaseDataSets();
+  }
+ catch (  IOException e) {
+    errorMessage="Couldn't load data sets for test case: " + tc.testCaseId;
+    AccuracyUtil.log(errorMessage);
+    AccuracyUtil.logStackTrace(e);
+    throw new TestNGException(errorMessage);
+  }
+  try {
+    tc.setModelParameters();
+  }
+ catch (  Exception e) {
+    errorMessage="Couldn't set the model parameters for test case: " + tc.testCaseId;
+    AccuracyUtil.log(errorMessage);
+    AccuracyUtil.logStackTrace(e);
+    throw new TestNGException(errorMessage);
+  }
+  TestCaseResult result;
+  try {
+    result=tc.execute();
+  }
+ catch (  Exception e) {
+    errorMessage="Couldn't execute test case: " + tc.testCaseId;
+    AccuracyUtil.log(errorMessage);
+    AccuracyUtil.logStackTrace(e);
+    throw new TestNGException(errorMessage);
+  }
+catch (  AssertionError ae) {
+    errorMessage="Couldn't execute test case: " + tc.testCaseId;
+    AccuracyUtil.log(errorMessage);
+    AccuracyUtil.log(ae.getMessage());
+    throw new TestNGException(errorMessage);
+  }
+  try {
+    result.saveToAccuracyDB();
+  }
+ catch (  Exception e) {
+    errorMessage="Couldn't save the test case result for test case: " + tc.testCaseId + " to the "+ "Accuracy database.";
+    AccuracyUtil.log(errorMessage);
+    AccuracyUtil.logStackTrace(e);
+    throw new TestNGException(errorMessage);
+  }
+}

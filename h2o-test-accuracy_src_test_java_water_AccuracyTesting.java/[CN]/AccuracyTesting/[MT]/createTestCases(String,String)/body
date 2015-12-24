@@ -1,0 +1,43 @@
+{
+  List<String> testCaseEntries=null;
+  try {
+    AccuracyUtil.log("Reading test cases from: " + TestCase.getTestCasesPath());
+    testCaseEntries=Files.readAllLines(TestUtil.find_test_file_static(TestCase.getTestCasesPath()).toPath(),Charset.defaultCharset());
+  }
+ catch (  Exception e) {
+    AccuracyUtil.log("Cannot read the test cases from: " + TestCase.getTestCasesPath());
+    AccuracyUtil.logStackTrace(e);
+    System.exit(-1);
+  }
+  testCaseEntries.remove(0);
+  ArrayList<TestCase> testCaseArray=new ArrayList<>();
+  String[] testCaseEntry;
+  int testCaseCounter=0;
+  for (  String t : testCaseEntries) {
+    testCaseEntry=t.trim().split(",",-1);
+    if (!(null == algorithm)) {
+      if (!(algorithm.equals(testCaseEntry[1]))) {
+        continue;
+      }
+    }
+ else     if (!(testCaseId.isEmpty())) {
+      if (!(testCaseId.equals(testCaseEntry[0]))) {
+        continue;
+      }
+    }
+    AccuracyUtil.log("Creating test case: " + t);
+    try {
+      testCaseArray.add(testCaseCounter++,new TestCase(Integer.parseInt(testCaseEntry[0]),testCaseEntry[1],testCaseEntry[2],testCaseEntry[3].equals("1"),testCaseEntry[4].equals("1"),Integer.parseInt(testCaseEntry[5]),Integer.parseInt(testCaseEntry[6])));
+    }
+ catch (    Exception e) {
+      AccuracyUtil.log("Couldn't create test case: " + t);
+      AccuracyUtil.logStackTrace(e);
+      System.exit(-1);
+    }
+  }
+  Object[][] theTestCases=new Object[testCaseArray.size()][1];
+  for (int t=0; t < testCaseArray.size(); t++) {
+    theTestCases[t][0]=testCaseArray.get(t);
+  }
+  return theTestCases;
+}
