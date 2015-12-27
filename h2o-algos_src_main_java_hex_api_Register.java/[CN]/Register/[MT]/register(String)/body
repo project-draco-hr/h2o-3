@@ -1,11 +1,11 @@
 {
-  String[] algos=new String[]{"hex.deeplearning.DeepLearning","hex.glm.GLM","hex.glrm.GLRM","hex.kmeans.KMeans","hex.naivebayes.NaiveBayes","hex.pca.PCA","hex.svd.SVD","hex.tree.drf.DRF","hex.tree.gbm.GBM"};
-  for (  String algo : algos) {
-    String base=algo.substring(algo.lastIndexOf('.') + 1);
-    hex.ModelBuilder.registerModelBuilder(algo,base);
-    Class bh_clz=Class.forName("hex.api." + base + "BuilderHandler");
-    H2O.registerPOST("/3/ModelBuilders/" + base.toLowerCase(),bh_clz,"train","Train a " + base + " model.");
-    H2O.registerPOST("/3/ModelBuilders/" + base.toLowerCase() + "/parameters",bh_clz,"validate_parameters","Validate a set of " + base + " model builder parameters.");
-    H2O.registerPOST("/99/Grid/" + base.toLowerCase(),GridSearchHandler.class,"train","Run grid search for " + base + " model.");
+  ModelBuilder[] algos=new ModelBuilder[]{new hex.deeplearning.DeepLearning(true),new hex.glm.GLM(true),new hex.glrm.GLRM(true),new hex.kmeans.KMeans(true),new hex.naivebayes.NaiveBayes(true),new hex.pca.PCA(true),new hex.svd.SVD(true),new hex.tree.drf.DRF(true),new hex.tree.gbm.GBM(true)};
+  for (  ModelBuilder algo : algos) {
+    String base=algo.getClass().getSimpleName();
+    String lbase=base.toLowerCase();
+    Class bh_clz=water.api.ModelBuilderHandler.class;
+    H2O.registerPOST("/3/ModelBuilders/" + lbase,bh_clz,"train","Train a " + base + " model.");
+    H2O.registerPOST("/3/ModelBuilders/" + lbase + "/parameters",bh_clz,"validate_parameters","Validate a set of " + base + " model builder parameters.");
+    H2O.registerPOST("/99/Grid/" + lbase,GridSearchHandler.class,"train","Run grid search for " + base + " model.");
   }
 }
