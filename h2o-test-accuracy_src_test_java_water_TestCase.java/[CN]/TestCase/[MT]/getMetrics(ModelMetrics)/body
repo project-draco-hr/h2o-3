@@ -1,0 +1,37 @@
+{
+  HashMap<String,Double> mmMap=new HashMap<String,Double>();
+  mmMap.put("MSE",mm.mse());
+  mmMap.put("R2",((ModelMetricsSupervised)mm).r2());
+  if (mm instanceof ModelMetricsRegression) {
+    mmMap.put("MeanResidualDeviance",((ModelMetricsRegression)mm)._mean_residual_deviance);
+  }
+  if (mm instanceof ModelMetricsBinomial) {
+    mmMap.put("AUC",((ModelMetricsBinomial)mm).auc());
+    mmMap.put("Gini",((ModelMetricsBinomial)mm)._auc._gini);
+    mmMap.put("Logloss",((ModelMetricsBinomial)mm).logloss());
+    mmMap.put("F1",((ModelMetricsBinomial)mm).cm().F1());
+    mmMap.put("F2",((ModelMetricsBinomial)mm).cm().F2());
+    mmMap.put("F0point5",((ModelMetricsBinomial)mm).cm().F0point5());
+    mmMap.put("Accuracy",((ModelMetricsBinomial)mm).cm().accuracy());
+    mmMap.put("Error",((ModelMetricsBinomial)mm).cm().err());
+    mmMap.put("Precision",((ModelMetricsBinomial)mm).cm().precision());
+    mmMap.put("Recall",((ModelMetricsBinomial)mm).cm().recall());
+    mmMap.put("MCC",((ModelMetricsBinomial)mm).cm().mcc());
+    mmMap.put("MaxPerClassError",((ModelMetricsBinomial)mm).cm().max_per_class_error());
+  }
+  if (mm instanceof ModelMetricsRegressionGLM) {
+    mmMap.put("ResidualDeviance",((ModelMetricsRegressionGLM)mm)._resDev);
+    mmMap.put("ResidualDegreesOfFreedom",(double)((ModelMetricsRegressionGLM)mm)._residualDegressOfFreedom);
+    mmMap.put("NullDeviance",((ModelMetricsRegressionGLM)mm)._nullDev);
+    mmMap.put("NullDegreesOfFreedom",(double)((ModelMetricsRegressionGLM)mm)._nullDegressOfFreedom);
+    mmMap.put("AIC",((ModelMetricsRegressionGLM)mm)._AIC);
+  }
+  if (mm instanceof ModelMetricsBinomialGLM) {
+    mmMap.put("ResidualDeviance",((ModelMetricsBinomialGLM)mm)._resDev);
+    mmMap.put("ResidualDegreesOfFreedom",(double)((ModelMetricsBinomialGLM)mm)._residualDegressOfFreedom);
+    mmMap.put("NullDeviance",((ModelMetricsBinomialGLM)mm)._nullDev);
+    mmMap.put("NullDegreesOfFreedom",(double)((ModelMetricsBinomialGLM)mm)._nullDegressOfFreedom);
+    mmMap.put("AIC",((ModelMetricsBinomialGLM)mm)._AIC);
+  }
+  return mmMap;
+}

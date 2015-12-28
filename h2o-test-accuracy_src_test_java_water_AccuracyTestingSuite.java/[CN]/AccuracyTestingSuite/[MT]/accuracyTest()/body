@@ -1,0 +1,45 @@
+{
+  TestCase tc=null;
+  TestCaseResult tcResult;
+  int id;
+  boolean suiteFailure=false;
+  Iterator i=testCasesList.iterator();
+  while (i.hasNext()) {
+    tc=(TestCase)i.next();
+    id=tc.getTestCaseId();
+    try {
+      summaryLog.println("\n-----------------------------");
+      summaryLog.println("Accuracy Suite Test Case: " + id);
+      summaryLog.println("-----------------------------\n");
+      Log.info("-----------------------------");
+      Log.info("Accuracy Suite Test Case: " + id);
+      Log.info("-----------------------------");
+      tcResult=tc.execute();
+      if (recordResults) {
+        summaryLog.println("Recording test case " + id + " result.");
+        tcResult.saveToAccuracyTable(resultsDBTableConn);
+      }
+    }
+ catch (    Exception e) {
+      StringWriter stringWriter=new StringWriter();
+      e.printStackTrace(new PrintWriter(stringWriter));
+      String stackTraceString=stringWriter.toString();
+      Log.err("Test case " + id + " failed on: ");
+      Log.err(stackTraceString);
+      summaryLog.println("Test case " + id + " failed on: ");
+      summaryLog.println(stackTraceString);
+      suiteFailure=true;
+    }
+catch (    AssertionError ae) {
+      Log.err("Test case " + id + " failed on: ");
+      Log.err(ae.getMessage());
+      summaryLog.println("Test case " + id + " failed on: ");
+      summaryLog.println(ae.getMessage());
+      suiteFailure=true;
+    }
+  }
+  if (suiteFailure) {
+    System.out.println("The suite failed due to one or more test case failures.");
+    System.exit(-1);
+  }
+}
