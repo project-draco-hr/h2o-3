@@ -1,3 +1,14 @@
 {
-  throw H2O.unimpl();
+  String schemaName=schema.getClass().getSimpleName();
+  String algoName=schemaName.substring(0,schemaName.lastIndexOf('V'));
+  String algoURLName=algoName.toLowerCase();
+  B builder=ModelBuilder.make(algoURLName,null,schema.parameters.model_id.key());
+  schema.fillImpl(builder);
+  if (builder.error_count() > 0)   throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(builder);
+  Job j=builder._job=new Job<>(builder.dest(),algoName);
+  builder.trainModel();
+  schema.job=(JobV3)Schema.schema(version,Job.class).fillFromImpl(j);
+  PojoUtils.copyProperties(schema.parameters,builder._parms,PojoUtils.FieldNaming.ORIGIN_HAS_UNDERSCORES,null,new String[]{"error_count","messages"});
+  schema.setHttpStatus(HttpResponseStatus.OK.getCode());
+  return schema.job;
 }
