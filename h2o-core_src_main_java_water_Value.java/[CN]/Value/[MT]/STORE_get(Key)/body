@@ -2,7 +2,6 @@
   Value val=H2O.STORE.get(key);
   if (val == null)   return null;
   if (!val.isNull())   return val;
-  if (val._rwlock.get() > 0)   return val;
-  H2O.putIfMatch(key,null,val);
+  if (val._rwlock.get() == 0)   H2O.putIfMatch(key,null,val);
   return null;
 }
