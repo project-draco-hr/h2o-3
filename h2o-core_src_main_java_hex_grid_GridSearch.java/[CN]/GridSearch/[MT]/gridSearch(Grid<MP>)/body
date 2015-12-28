@@ -13,7 +13,10 @@
           model=buildModel(params,grid,counter++,protoModelKey);
         }
  catch (        RuntimeException e) {
-          Log.warn("Grid search: model builder for parameters " + params + " failed! Exception: ",e);
+          StringWriter sw=new StringWriter();
+          PrintWriter pw=new PrintWriter(sw);
+          e.printStackTrace(pw);
+          Log.warn("Grid search: model builder for parameters " + params + " failed! Exception: ",e,sw.toString());
           grid.appendFailedModelParameters(params,e);
         }
       }
