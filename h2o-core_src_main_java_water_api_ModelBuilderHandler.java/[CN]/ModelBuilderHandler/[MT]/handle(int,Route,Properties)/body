@@ -1,0 +1,25 @@
+{
+  String ss[]=route._url_pattern_raw.split("/");
+  String algoURLName=ss[3];
+  String algoJavaName=ModelBuilder.algoJavaName(algoURLName);
+  String schemaName="hex.schemas." + algoJavaName + "V"+ version;
+  ModelBuilderSchema schema=(ModelBuilderSchema)TypeMap.newFreezable(schemaName);
+  String parmName="hex.schemas." + algoJavaName + "V"+ version+ "$"+ algoJavaName+ "ParametersV"+ version;
+  ModelParametersSchema parmSchema=(ModelParametersSchema)TypeMap.newFreezable(parmName);
+  schema.parameters=parmSchema;
+  schema=schema.fillFromParms(parms);
+  _t_start=System.currentTimeMillis();
+  try {
+    route._handler_method.setAccessible(true);
+    return (Schema)route._handler_method.invoke(this,version,schema);
+  }
+ catch (  InvocationTargetException ite) {
+    Throwable t=ite.getCause();
+    if (t instanceof RuntimeException)     throw (RuntimeException)t;
+    if (t instanceof Error)     throw (Error)t;
+    throw new RuntimeException(t);
+  }
+ finally {
+    _t_stop=System.currentTimeMillis();
+  }
+}
