@@ -1,25 +1,28 @@
 {
   String ss[]=route._url_pattern_raw.split("/");
   String algoURLName=ss[3];
-  String algoJavaName=ModelBuilder.algoJavaName(algoURLName);
-  String schemaName="hex.schemas." + algoJavaName + "V"+ version;
+  String algoName=ModelBuilder.algoName(algoURLName);
+  String schemaName="hex.schemas." + algoName + "V"+ version;
   ModelBuilderSchema schema=(ModelBuilderSchema)TypeMap.newFreezable(schemaName);
-  String parmName="hex.schemas." + algoJavaName + "V"+ version+ "$"+ algoJavaName+ "ParametersV"+ version;
+  schema.init_meta();
+  String parmName="hex.schemas." + algoName + "V"+ version+ "$"+ algoName+ "ParametersV"+ version;
   ModelParametersSchema parmSchema=(ModelParametersSchema)TypeMap.newFreezable(parmName);
   schema.parameters=parmSchema;
-  schema=schema.fillFromParms(parms);
+  if (!route._handler_method.getName().equals("train"))   throw water.H2O.unimpl();
+  water.api.KeyV3.ModelKeyV3 mkey=schema.parameters.model_id;
+  Key<Model> key=(Key<Model>)(mkey == null ? ModelBuilder.defaultKey(algoName) : mkey.key());
+  Job job=new Job<>(key,ModelBuilder.javaName(algoURLName),algoName);
+  B builder=ModelBuilder.make(algoURLName,job,key);
+  schema.parameters.fillFromImpl(builder._parms);
+  schema.parameters.fillFromParms(parms);
+  schema.parameters.fillImpl(builder._parms);
+  builder.init(false);
+  if (builder.error_count() > 0)   throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(builder);
   _t_start=System.currentTimeMillis();
-  try {
-    route._handler_method.setAccessible(true);
-    return (Schema)route._handler_method.invoke(this,version,schema);
-  }
- catch (  InvocationTargetException ite) {
-    Throwable t=ite.getCause();
-    if (t instanceof RuntimeException)     throw (RuntimeException)t;
-    if (t instanceof Error)     throw (Error)t;
-    throw new RuntimeException(t);
-  }
- finally {
-    _t_stop=System.currentTimeMillis();
-  }
+  builder.trainModel();
+  _t_stop=System.currentTimeMillis();
+  schema.fillFromImpl(builder);
+  PojoUtils.copyProperties(schema.parameters,builder._parms,PojoUtils.FieldNaming.ORIGIN_HAS_UNDERSCORES,null,new String[]{"error_count","messages"});
+  schema.setHttpStatus(HttpResponseStatus.OK.getCode());
+  return schema;
 }
