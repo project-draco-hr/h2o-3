@@ -3,8 +3,12 @@
   String ss[]=route._url_pattern_raw.split("/");
   String algoURLName=ss[3];
   String algoName=ModelBuilder.algoName(algoURLName);
-  String schemaName="hex.schemas.GridSchemaV" + version;
-  Schema schema=(Schema)TypeMap.newFreezable(schemaName);
-  schema.init_meta();
+  String algoSchemaName=Schema.schemaClass(version,algoName).getSimpleName();
+  int algoVersion=Integer.valueOf(algoSchemaName.substring(algoSchemaName.lastIndexOf("V") + 1));
+  String paramSchemaName="hex.schemas." + algoName + "V"+ algoVersion+ "$"+ ModelBuilder.paramName(algoURLName)+ "V"+ algoVersion;
+  GridSearchSchema gss=new GridSearchSchema();
+  gss.init_meta();
+  gss.parameters=(P)TypeMap.newFreezable(paramSchemaName);
+  gss.fillFromParms(parms);
   throw H2O.unimpl();
 }

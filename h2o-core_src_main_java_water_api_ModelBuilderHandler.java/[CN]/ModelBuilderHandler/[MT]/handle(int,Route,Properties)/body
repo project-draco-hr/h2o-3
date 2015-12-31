@@ -9,7 +9,7 @@
   ModelParametersSchema parmSchema=(ModelParametersSchema)TypeMap.newFreezable(parmName);
   schema.parameters=parmSchema;
   if (!route._handler_method.getName().equals("train"))   throw water.H2O.unimpl();
-  String model_id=(String)parms.get("model_id");
+  String model_id=parms.getProperty("model_id");
   Key<Model> key=(Key<Model>)(model_id == null ? ModelBuilder.defaultKey(algoName) : Key.<Model>make(model_id));
   Job job=new Job<>(key,ModelBuilder.javaName(algoURLName),algoName);
   B builder=ModelBuilder.make(algoURLName,job,key);
