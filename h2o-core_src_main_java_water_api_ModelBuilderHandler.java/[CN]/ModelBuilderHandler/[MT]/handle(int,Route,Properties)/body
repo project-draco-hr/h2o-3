@@ -9,8 +9,8 @@
   ModelParametersSchema parmSchema=(ModelParametersSchema)TypeMap.newFreezable(parmName);
   schema.parameters=parmSchema;
   if (!route._handler_method.getName().equals("train"))   throw water.H2O.unimpl();
-  water.api.KeyV3.ModelKeyV3 mkey=schema.parameters.model_id;
-  Key<Model> key=(Key<Model>)(mkey == null ? ModelBuilder.defaultKey(algoName) : mkey.key());
+  String model_id=(String)parms.get("model_id");
+  Key<Model> key=(Key<Model>)(model_id == null ? ModelBuilder.defaultKey(algoName) : Key.<Model>make(model_id));
   Job job=new Job<>(key,ModelBuilder.javaName(algoURLName),algoName);
   B builder=ModelBuilder.make(algoURLName,job,key);
   schema.parameters.fillFromImpl(builder._parms);
