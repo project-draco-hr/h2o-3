@@ -1,28 +1,2 @@
 {
-  String ss[]=route._url_pattern_raw.split("/");
-  String algoURLName=ss[3];
-  String algoName=ModelBuilder.algoName(algoURLName);
-  String schemaName="hex.schemas." + algoName + "V"+ version;
-  ModelBuilderSchema schema=(ModelBuilderSchema)TypeMap.newFreezable(schemaName);
-  schema.init_meta();
-  String parmName="hex.schemas." + algoName + "V"+ version+ "$"+ algoName+ "ParametersV"+ version;
-  ModelParametersSchema parmSchema=(ModelParametersSchema)TypeMap.newFreezable(parmName);
-  schema.parameters=parmSchema;
-  if (!route._handler_method.getName().equals("train"))   throw water.H2O.unimpl();
-  String model_id=parms.getProperty("model_id");
-  Key<Model> key=(Key<Model>)(model_id == null ? ModelBuilder.defaultKey(algoName) : Key.<Model>make(model_id));
-  Job job=new Job<>(key,ModelBuilder.javaName(algoURLName),algoName);
-  B builder=ModelBuilder.make(algoURLName,job,key);
-  schema.parameters.fillFromImpl(builder._parms);
-  schema.parameters.fillFromParms(parms);
-  schema.parameters.fillImpl(builder._parms);
-  builder.init(false);
-  if (builder.error_count() > 0)   throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(builder);
-  _t_start=System.currentTimeMillis();
-  builder.trainModel();
-  _t_stop=System.currentTimeMillis();
-  schema.fillFromImpl(builder);
-  PojoUtils.copyProperties(schema.parameters,builder._parms,PojoUtils.FieldNaming.ORIGIN_HAS_UNDERSCORES,null,new String[]{"error_count","messages"});
-  schema.setHttpStatus(HttpResponseStatus.OK.getCode());
-  return schema;
 }

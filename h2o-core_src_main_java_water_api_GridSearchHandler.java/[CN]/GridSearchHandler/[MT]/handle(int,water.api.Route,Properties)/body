@@ -10,10 +10,12 @@
   gss.init_meta();
   gss.parameters=(P)TypeMap.newFreezable(paramSchemaName);
   gss.parameters.init_meta();
+  ModelBuilder builder=ModelBuilder.make(algoURLName,null,null);
+  gss.parameters.fillFromImpl(builder._parms);
   gss.fillFromParms(parms);
   validateHyperParams((P)gss.parameters,gss.hyper_parameters);
-  Key<Grid> destKey=gss.grid_id != null ? gss.grid_id.key() : null;
   MP params=(MP)gss.parameters.createAndFillImpl();
+  Key<Grid> destKey=gss.grid_id != null ? gss.grid_id.key() : null;
   Job<Grid> gsJob=GridSearch.startGridSearch(destKey,params,gss.hyper_parameters,new DefaultModelParametersBuilderFactory<MP,P>());
   gss.hyper_parameters=null;
   gss.total_models=gsJob._result.get().getModelCount();

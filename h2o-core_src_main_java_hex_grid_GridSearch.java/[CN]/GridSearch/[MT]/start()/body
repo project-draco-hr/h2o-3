@@ -1,8 +1,8 @@
 {
   final int gridSize=_hyperSpaceWalker.getHyperSpaceSize();
   Log.info("Starting gridsearch: estimated size of search space = " + gridSize);
-  Grid<MP> grid;
-  Keyed keyed=DKV.getGet(_job._result);
+  final Grid<MP> grid;
+  Keyed keyed=DKV.getGet(_result);
   if (keyed != null) {
     if (!(keyed instanceof Grid))     throw new H2OIllegalArgumentException("Name conflict: tried to create a Grid using the ID of a non-Grid object that's already in H2O: " + _job._result + "; it is a: "+ keyed.getClass());
     grid=(Grid)keyed;
@@ -12,13 +12,12 @@
     grid.write_lock(_job);
   }
  else {
-    grid=new Grid<>(_job._result,_hyperSpaceWalker.getParams(),_hyperSpaceWalker.getHyperParamNames(),_hyperSpaceWalker.getParametersBuilderFactory().getFieldNamingStrategy());
+    grid=new Grid<>(_result,_hyperSpaceWalker.getParams(),_hyperSpaceWalker.getHyperParamNames(),_hyperSpaceWalker.getParametersBuilderFactory().getFieldNamingStrategy());
     grid.delete_and_lock(_job);
   }
-  final Grid<MP> gridToExpose=grid;
   return _job.start(new H2O.H2OCountedCompleter(){
     @Override public void compute2(){
-      gridSearch(gridToExpose);
+      gridSearch(grid);
       tryComplete();
     }
   }
