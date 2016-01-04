@@ -1,9 +1,5 @@
 {
   CreateFrame cfr=new CreateFrame(cf.dest.key());
   cf.fillImpl(cfr);
-  Job<Frame> job=cfr.execImpl();
-  CreateFrameV3 cfv3=(CreateFrameV3)Schema.schema(version,CreateFrame.class).fillFromImpl(cfr);
-  cfv3.key=new KeyV3.JobKeyV3(job._key);
-  cfv3.dest=new KeyV3.FrameKeyV3(job._result);
-  return cfv3;
+  return (JobV3)Schema.schema(version,Job.class).fillFromImpl(cfr.execImpl());
 }
