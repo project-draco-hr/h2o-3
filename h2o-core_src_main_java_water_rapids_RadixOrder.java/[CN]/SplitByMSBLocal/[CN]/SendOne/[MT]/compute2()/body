@@ -1,15 +1,20 @@
 {
   int numChunks=0;
   for (int c=0; c < _counts.length; c++) {
-    if (_counts[c] != null && _counts[c][_msb] > 0)     numChunks++;
+    if (_counts[c] != null)     numChunks++;
   }
   int MSBnodeChunkCounts[]=new int[numChunks];
   int j=0;
   long lastCount=0;
   for (int c=0; c < _counts.length; c++) {
-    if (_counts[c] != null && _counts[c][_msb] > 0) {
-      MSBnodeChunkCounts[j]=(int)(_counts[c][_msb] - lastCount);
-      lastCount=_counts[c][_msb];
+    if (_counts[c] != null) {
+      if (_counts[c][_msb] == 0) {
+        MSBnodeChunkCounts[j]=0;
+      }
+ else {
+        MSBnodeChunkCounts[j]=(int)(_counts[c][_msb] - lastCount);
+        lastCount=_counts[c][_msb];
+      }
       j++;
     }
   }
