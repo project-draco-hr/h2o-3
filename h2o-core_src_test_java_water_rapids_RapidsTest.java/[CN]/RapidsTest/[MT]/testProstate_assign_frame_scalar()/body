@@ -1,0 +1,14 @@
+{
+  Frame fr=parse_test_file(Key.make("prostate.hex"),"smalldata/logreg/prostate.csv");
+  try {
+    Val val=Exec.exec("(tmp= py_1 (:= prostate.hex -1 1 (== (cols_py prostate.hex 1) 0)))");
+    if (val instanceof ValFrame) {
+      Frame fr2=((ValFrame)val)._fr;
+      System.out.println(fr2.vec(0));
+      fr2.remove();
+    }
+  }
+  finally {
+    fr.delete();
+  }
+}
