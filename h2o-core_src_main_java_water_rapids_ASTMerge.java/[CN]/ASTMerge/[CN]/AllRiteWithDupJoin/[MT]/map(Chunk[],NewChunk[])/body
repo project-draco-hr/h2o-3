@@ -1,2 +1,21 @@
 {
+  final IcedHashMap<Row,String> rows=_rows;
+  Vec[] vecs=_hashed.vecs();
+  Row row=new Row(_ncols);
+  BufferedString bStr=new BufferedString();
+  int len=chks[0]._len;
+  for (int i=0; i < len; i++) {
+    Row hashed=_rows.getk(row.fill(chks,null,i));
+    if (hashed == null) {
+      if (_allLeft) {
+        int c=0;
+        for (; c < chks.length; ++c)         addElem(nchks[c],chks[c],i);
+        for (; c < nchks.length; ++c)         nchks[c].addNA();
+      }
+    }
+ else {
+      if (hashed._dups != null)       for (      long absrow : hashed._dups)       addRow(nchks,chks,vecs,i,absrow,bStr);
+ else       addRow(nchks,chks,vecs,i,hashed._row,bStr);
+    }
+  }
 }
