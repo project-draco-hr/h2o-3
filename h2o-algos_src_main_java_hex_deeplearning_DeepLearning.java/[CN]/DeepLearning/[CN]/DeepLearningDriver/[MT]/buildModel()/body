@@ -23,8 +23,7 @@
       dinfo=makeDataInfo(_train,_valid,_parms);
       DKV.put(dinfo);
       cp=new DeepLearningModel(dest(),_parms,previous,false,dinfo);
-      cp._output._end_time=0;
-      cp.write_lock(self());
+      cp.write_lock(_job);
       if (!Arrays.equals(cp._output._names,previous._output._names)) {
         throw new H2OIllegalArgumentException("The columns of the training data must be the same as for the checkpointed model. Check ignored columns (or disable ignore_const_cols).");
       }
