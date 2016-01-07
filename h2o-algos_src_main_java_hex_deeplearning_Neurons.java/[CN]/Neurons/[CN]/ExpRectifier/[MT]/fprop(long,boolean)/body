@@ -1,0 +1,10 @@
+{
+  gemv(_a,_w,_previous._a,_b,_dropout != null ? _dropout.bits() : null);
+  final int rows=_a.size();
+  for (int row=0; row < rows; row++) {
+    double x=_a.get(row);
+    double val=x >= 0 ? x : Math.exp(x) - 1;
+    _a.set(row,val);
+  }
+  compute_sparsity();
+}

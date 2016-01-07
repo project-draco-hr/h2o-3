@@ -1,5 +1,8 @@
 {
   if (_parms._fold_column == null)   return _parms._nfolds;
-  Vec fc=train().vec(_parms._fold_column);
-  return ((int)fc.max() - (int)fc.min()) + 1;
+  Vec f=train().vec(_parms._fold_column);
+  Vec fc=VecUtils.toCategoricalVec(f);
+  int N=fc.domain().length;
+  fc.remove();
+  return N;
 }

@@ -67,20 +67,23 @@
   }
   if (dropped_cols.isEmpty())   return new Cholesky(R,new double[0],true);
   double[][] Rnew=new double[R.length - dropped_cols.size()][];
+  for (int i=0; i < Rnew.length; ++i)   Rnew[i]=new double[i + 1];
   int j=0;
   for (int i=0; i < R.length; ++i) {
     if (Z[i][i] == 0)     continue;
     int k=0;
-    for (; k < dropped_cols.size(); ++k)     if (dropped_cols.get(k) > i)     break;
-    double[] newRow=Rnew[j++]=new double[i + 1 - k];
-    k=0;
     for (int l=0; l <= i; ++l) {
       if (k < dropped_cols.size() && l == dropped_cols.get(k)) {
         ++k;
         continue;
       }
-      newRow[l - k]=R[i][l];
+      Rnew[j][l - k]=R[i][l];
     }
+    ++j;
+  }
+  if ((dropped_cols.get(dropped_cols.size() - 1)) == ZdiagInv.length - 1) {
+    dropped_cols.remove(dropped_cols.size() - 1);
+    dropped_cols.add(0,0);
   }
   return new Cholesky(Rnew,new double[0],true);
 }

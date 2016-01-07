@@ -14,10 +14,6 @@
     Frame tra_fr=new Frame(mp._train,_train.names(),_train.vecs());
     Frame val_fr=_valid != null ? new Frame(mp._valid,_valid.names(),_valid.vecs()) : null;
     train=tra_fr;
-    if (mp._force_load_balance) {
-      _job.update(0,"Load balancing training data...");
-      train=reBalance(train,mp._replicate_training_data,mp._train.toString() + "." + model._key.toString()+ ".tmptrain");
-    }
     if (model._output.isClassifier() && mp._balance_classes) {
       _job.update(0,"Balancing class distribution of training data...");
       float[] trainSamplingFactors=new float[train.lastVec().domain().length];
@@ -33,7 +29,7 @@
     }
     model.training_rows=train.numRows();
     trainScoreFrame=sampleFrame(train,mp._score_training_samples,mp._seed);
-    if (trainScoreFrame != train)     _delete_me.add(trainScoreFrame);
+    if (trainScoreFrame != train)     Scope.track(trainScoreFrame);
     if (!_parms._quiet_mode)     Log.info("Number of chunks of the training data: " + train.anyVec().nChunks());
     if (val_fr != null) {
       model.validation_rows=val_fr.numRows();
@@ -44,11 +40,7 @@
  else {
         _job.update(0,"Sampling validation data...");
         validScoreFrame=sampleFrame(val_fr,mp._score_validation_samples,mp._seed + 1);
-        if (validScoreFrame != val_fr)         _delete_me.add(validScoreFrame);
-      }
-      if (mp._force_load_balance) {
-        _job.update(0,"Balancing class distribution of validation data...");
-        validScoreFrame=reBalance(validScoreFrame,false,mp._valid.toString() + "." + model._key.toString()+ ".tmpval");
+        if (validScoreFrame != val_fr)         Scope.track(validScoreFrame);
       }
       if (!_parms._quiet_mode)       Log.info("Number of chunks of the validation data: " + validScoreFrame.anyVec().nChunks());
     }
@@ -61,13 +53,16 @@
       if (!mp._quiet_mode)       Log.info("Enabling training data shuffling to avoid training rows in the same order over and over (no Hogwild since there's only 1 chunk).");
       mp._shuffle_training_data=true;
     }
-    model._timeLastIterationEnter=System.currentTimeMillis();
+    long now=System.currentTimeMillis();
+    model._timeLastIterationEnter=now;
     if (_parms._autoencoder) {
       _job.update(0,"Scoring null model of autoencoder...");
       if (!mp._quiet_mode)       Log.info("Scoring the null model of the autoencoder.");
       model.doScoring(trainScoreFrame,validScoreFrame,_job._key,0,false);
     }
     model.update(_job);
+    model.total_setup_time_ms+=now - _start_time;
+    Log.info("Total setup time: " + PrettyPrint.msecs(model.total_setup_time_ms,true));
     Log.info("Starting to train the Deep Learning model.");
     _job.update(0,"Training...");
     do {
@@ -88,6 +83,7 @@
         assert(best_model.loss() == model.loss());
       }
     }
+    model.model_info().data_info().coefNames();
     if (!_parms._quiet_mode) {
       Log.info("==============================================================================================================================================================================");
       if (_job.stop_requested()) {
@@ -109,7 +105,6 @@
         DKV.remove(model.actual_best_model_key);
       }
     }
-    for (    Frame f : _delete_me)     f.delete();
   }
   return model;
 }

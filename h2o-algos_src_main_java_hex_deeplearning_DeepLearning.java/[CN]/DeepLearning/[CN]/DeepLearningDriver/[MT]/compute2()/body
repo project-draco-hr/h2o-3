@@ -1,5 +1,6 @@
 {
   try {
+    Scope.enter();
     long cs=_parms.checksum();
     init(true);
     _parms.read_lock_frames(_job);
@@ -10,6 +11,7 @@
   }
   finally {
     _parms.read_unlock_frames(_job);
+    Scope.exit();
   }
   tryComplete();
 }

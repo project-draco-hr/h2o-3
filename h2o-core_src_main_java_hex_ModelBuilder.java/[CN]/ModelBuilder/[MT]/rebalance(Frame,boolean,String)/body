@@ -1,0 +1,15 @@
+{
+  if (original_fr == null)   return null;
+  int chunks=desiredChunks(original_fr,local);
+  if (original_fr.anyVec().nChunks() >= chunks) {
+    if (chunks > 1)     Log.info(name.substring(name.length() - 5) + " dataset already contains " + original_fr.anyVec().nChunks()+ " chunks. No need to rebalance.");
+    return original_fr;
+  }
+  Log.info("Rebalancing " + name.substring(name.length() - 5) + " dataset into "+ chunks+ " chunks.");
+  Key newKey=Key.make(name + ".chunks" + chunks);
+  RebalanceDataSet rb=new RebalanceDataSet(original_fr,newKey,chunks);
+  H2O.submitTask(rb).join();
+  Frame rebalanced_fr=DKV.get(newKey).get();
+  Scope.track(rebalanced_fr);
+  return rebalanced_fr;
+}

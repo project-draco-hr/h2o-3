@@ -4,6 +4,7 @@
   long tstart, tstop;
   float tDiff;
   try {
+    Scope.enter();
     _parms.read_lock_frames(_job);
     init(true);
     model=new Word2VecModel(_job._result,_parms,new Word2VecOutput(Word2Vec.this));
@@ -29,6 +30,7 @@
   finally {
     if (model != null)     model.unlock(_job);
     _parms.read_unlock_frames(_job);
+    Scope.exit();
   }
   tryComplete();
 }

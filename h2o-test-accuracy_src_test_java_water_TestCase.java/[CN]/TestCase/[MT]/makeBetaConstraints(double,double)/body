@@ -1,0 +1,21 @@
+{
+  Frame trainingFrame=trainingDataSet.getFrame();
+  int responseColumn=trainingDataSet.getResponseColumn();
+  String betaConstraintsString="names, lower_bounds, upper_bounds\n";
+  List<String> predictorNames=Arrays.asList(trainingFrame._names);
+  for (  String name : predictorNames) {
+    if (!name.equals(trainingFrame._names[responseColumn]) && !trainingFrame.vec(name).isConst()) {
+      if (trainingFrame.vec(name).isCategorical()) {
+        for (        String level : trainingFrame.vec(name).domain()) {
+          betaConstraintsString+=String.format("%s.%s,%s,%s\n",name,level,lowerBound,upperBound);
+        }
+      }
+ else {
+        betaConstraintsString+=String.format("%s,%s,%s\n",name,lowerBound,upperBound);
+      }
+    }
+  }
+  Key betaConsKey=Key.make("beta_constraints");
+  FVecTest.makeByteVec(betaConsKey,betaConstraintsString);
+  return ParseDataset.parse(Key.make("beta_constraints.hex"),betaConsKey)._key;
+}

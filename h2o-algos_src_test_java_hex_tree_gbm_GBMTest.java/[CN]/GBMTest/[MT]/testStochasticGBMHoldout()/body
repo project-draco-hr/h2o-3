@@ -8,41 +8,46 @@
     ksplits=sf._destination_frames;
     GBMModel gbm=null;
     float[] sample_rates=new float[]{0.2f,0.4f,0.6f,0.8f,1.0f};
-    float[] col_sample_rates=new float[]{0.2f,0.4f,0.6f,0.8f,1.0f};
-    Map<Double,Pair<Float,Float>> hm=new TreeMap<>();
+    float[] col_sample_rates=new float[]{0.4f,0.6f,0.8f,1.0f};
+    float[] col_sample_rates_per_tree=new float[]{0.4f,0.6f,0.8f,1.0f};
+    Map<Double,Triple<Float>> hm=new TreeMap<>();
     for (    float sample_rate : sample_rates) {
       for (      float col_sample_rate : col_sample_rates) {
-        Scope.enter();
-        try {
-          GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
-          parms._train=ksplits[0];
-          parms._valid=ksplits[1];
-          parms._response_column="Angaus";
-          parms._seed=234;
-          parms._min_rows=1;
-          parms._max_depth=15;
-          parms._ntrees=10;
-          parms._col_sample_rate=col_sample_rate;
-          parms._sample_rate=sample_rate;
-          gbm=new GBM(parms).trainModel().get();
-          ModelMetricsRegression mm=(ModelMetricsRegression)gbm._output._validation_metrics;
-          hm.put(mm.mse(),new Pair<>(sample_rate,col_sample_rate));
-        }
+        for (        float col_sample_rate_per_tree : col_sample_rates_per_tree) {
+          Scope.enter();
+          try {
+            GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
+            parms._train=ksplits[0];
+            parms._valid=ksplits[1];
+            parms._response_column="Angaus";
+            parms._seed=234;
+            parms._min_rows=1;
+            parms._max_depth=15;
+            parms._ntrees=10;
+            parms._col_sample_rate=col_sample_rate;
+            parms._col_sample_rate_per_tree=col_sample_rate_per_tree;
+            parms._sample_rate=sample_rate;
+            gbm=new GBM(parms).trainModel().get();
+            ModelMetricsRegression mm=(ModelMetricsRegression)gbm._output._validation_metrics;
+            hm.put(mm.mse(),new Triple<>(sample_rate,col_sample_rate,col_sample_rate_per_tree));
+          }
   finally {
-          if (gbm != null)           gbm.delete();
-          Scope.exit();
+            if (gbm != null)             gbm.delete();
+            Scope.exit();
+          }
         }
       }
     }
-    Iterator<Map.Entry<Double,Pair<Float,Float>>> it;
-    Pair<Float,Float> last=null;
+    Iterator<Map.Entry<Double,Triple<Float>>> it;
+    Triple<Float> last=null;
     for (it=hm.entrySet().iterator(); it.hasNext(); ) {
-      Map.Entry<Double,Pair<Float,Float>> n=it.next();
-      Log.info("MSE: " + n.getKey() + ", row sample: "+ ((Pair)n.getValue()).getKey()+ ", col sample: "+ ((Pair)n.getValue()).getValue());
+      Map.Entry<Double,Triple<Float>> n=it.next();
+      Log.info("MSE: " + n.getKey() + ", row sample: "+ n.getValue().v1+ ", col sample: "+ n.getValue().v2+ ", col sample per tree: "+ n.getValue().v3);
       last=n.getValue();
     }
-    Assert.assertTrue(last.getKey() == sample_rates[sample_rates.length - 1]);
-    Assert.assertTrue(last.getValue() == col_sample_rates[col_sample_rates.length - 1]);
+    Assert.assertTrue(last.v1 == sample_rates[sample_rates.length - 1]);
+    Assert.assertTrue(last.v2 == col_sample_rates[col_sample_rates.length - 1]);
+    Assert.assertTrue(last.v3 == col_sample_rates_per_tree[col_sample_rates_per_tree.length - 1]);
   }
   finally {
     if (tfr != null)     tfr.remove();

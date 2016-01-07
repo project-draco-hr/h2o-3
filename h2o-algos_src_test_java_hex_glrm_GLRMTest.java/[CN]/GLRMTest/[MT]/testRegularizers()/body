@@ -5,6 +5,7 @@
   Frame train=null;
   long seed=1234;
   try {
+    Scope.enter();
     train=parse_test_file(Key.make("arrests.hex"),"smalldata/pca_test/USArrests.csv");
     GLRMParameters parms=new GLRMParameters();
     parms._train=train._key;
@@ -85,5 +86,6 @@
   finally {
     init.delete();
     if (train != null)     train.delete();
+    Scope.exit();
   }
 }

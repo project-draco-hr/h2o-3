@@ -8,7 +8,10 @@
     }
  catch (    IOException ioe) {
       _bb.rewind();
-      if (!H2O.getShutdownRequested() && (Paxos._cloudLocked || retries++ > 20))       Log.err("Got IO error when sending batch UDP bytes",ioe);
+      if (!H2O.getShutdownRequested() && (Paxos._cloudLocked || retries++ > 300)) {
+        Log.err("Got IO error when sending batch UDP bytes: ",ioe);
+        retries=150;
+      }
       if (_chan != null)       try {
         _chan.close();
       }
