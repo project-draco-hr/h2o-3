@@ -1,0 +1,12 @@
+def drop_acc_datasets_tables(self):
+    h2o = mysql.connector.connect(user='root', password='0xdata', host='172.16.2.178', database='h2o')
+    cursor = h2o.cursor()
+    try:
+        drop_accuracydata_query = '\n                        DROP TABLES IF EXISTS AccuracyDatasets;\n                        '
+        cursor.execute(drop_accuracydata_query)
+    except:
+        traceback.print_exc()
+        h2o.rollback()
+        assert False, 'Failed to drop AccuracyDatasets table!'
+    cursor.close()
+    h2o.close()

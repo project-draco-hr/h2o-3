@@ -1,0 +1,13 @@
+def create_testcases_table(self):
+    h2o = mysql.connector.connect(user='root', password='0xdata', host='172.16.2.178', database='h2o')
+    cursor = h2o.cursor()
+    self.drop_testcases_table()
+    try:
+        test_cases_query = '\n                                CREATE TABLE TestCases(\n                                test_case_id int(100) NOT NULL AUTO_INCREMENT,\n                                algorithm varchar(100) NOT NULL,\n                                algo_parameters varchar(200) NOT NULL,\n                                tuned int(100) NOT NULL,\n                                regression int(100) NOT NULL,\n                                training_data_set_id int(100) NOT NULL,\n                                testing_data_set_id int(100) NOT NULL,\n                                PRIMARY KEY (`test_case_id`)\n                                )'
+        cursor.execute(test_cases_query)
+    except:
+        traceback.print_exc()
+        h2o.rollback()
+        assert False, 'Failed to build TestCases table for h2o database!'
+    cursor.close()
+    h2o.close()
