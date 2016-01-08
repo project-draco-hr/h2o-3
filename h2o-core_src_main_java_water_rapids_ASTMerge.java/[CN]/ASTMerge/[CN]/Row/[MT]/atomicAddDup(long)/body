@@ -4,7 +4,9 @@ synchronized (this) {
       _dups=new long[]{_row,row};
       _dupIdx=2;
     }
- else     if (_dupIdx == _dups.length)     _dups=Arrays.copyOf(_dups,_dupIdx >> 1);
-    _dups[_dupIdx++]=row;
+ else {
+      if (_dupIdx == _dups.length)       _dups=Arrays.copyOf(_dups,_dups.length << 1);
+      _dups[_dupIdx++]=row;
+    }
   }
 }
