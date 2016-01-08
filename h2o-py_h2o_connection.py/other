@@ -11,12 +11,15 @@ import time
 import subprocess
 import atexit
 import warnings
-warnings.simplefilter('always', UserWarning)
 import site
 from .display import H2ODisplay
 from .h2o_logging import _is_logging, _log_rest
 from .two_dim_table import H2OTwoDimTable
 from six import iteritems, PY3
+from string import ascii_lowercase, digits
+from random import choice
+warnings.simplefilter('always', UserWarning)
+requests.packages.urllib3.disable_warnings()
 __H2OCONN__ = None
 __H2O_REST_API_VERSION__ = 3
 atexit.register(_kill_jvm_fork)
