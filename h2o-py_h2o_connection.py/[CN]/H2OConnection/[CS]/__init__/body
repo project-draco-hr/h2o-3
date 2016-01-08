@@ -1,5 +1,5 @@
-def __init__(self, ip='localhost', port=54321, size=1, start_h2o=False, enable_assertions=False, license=None, max_mem_size_GB=None, min_mem_size_GB=None, ice_root=None, strict_version_check=True, proxies=None, nthreads=(-1)):
-    '\n    Instantiate the package handle to the H2O cluster.\n    :param ip: An IP address, default is "localhost"\n    :param port: A port, default is 54321\n    :param size: The expected number of h2o instances (ignored if start_h2o is True)\n    :param start_h2o: A boolean dictating whether this module should start the H2O jvm. An attempt is made anyways if _connect fails.\n    :param enable_assertions: If start_h2o, pass `-ea` as a VM option.\n    :param license: If not None, is a path to a license file.\n    :param max_mem_size_GB: Maximum heap size (jvm option Xmx) in gigabytes.\n    :param min_mem_size_GB: Minimum heap size (jvm option Xms) in gigabytes.\n    :param ice_root: A temporary directory (default location is determined by tempfile.mkdtemp()) to hold H2O log files.\n    :param strict_version_check: Setting this to False is unsupported and should only be done when advised by technical support.\n    :param proxies: A dictionary with keys \'ftp\', \'http\', \'https\' and values that correspond to a proxy path.\n    :param nthreads: Number of threads in the thread pool. This relates very closely to the number of CPUs used. \n    -1 means use all CPUs on the host. A positive integer specifies the number of CPUs directly. This value is only used when Python starts H2O.\n    :return: None\n    '
+def __init__(self, ip, port, size, start_h2o, enable_assertions, license, max_mem_size, min_mem_size, ice_root, strict_version_check, proxies, nthreads):
+    '\n    Instantiate the package handle to the H2O cluster.\n    :param ip: An IP address, default is "localhost"\n    :param port: A port, default is 54321\n    :param size: The expected number of h2o instances (ignored if start_h2o is True)\n    :param start_h2o: A boolean dictating whether this module should start the H2O jvm. An attempt is made anyways if _connect fails.\n    :param enable_assertions: If start_h2o, pass `-ea` as a VM option.\n    :param license: If not None, is a path to a license file.\n    :param max_mem_size: Maximum heap size (jvm option Xmx) in gigabytes.\n    :param min_mem_size: Minimum heap size (jvm option Xms) in gigabytes.\n    :param ice_root: A temporary directory (default location is determined by tempfile.mkdtemp()) to hold H2O log files.\n    :param strict_version_check: Setting this to False is unsupported and should only be done when advised by technical support.\n    :param proxies: A dictionary with keys \'ftp\', \'http\', \'https\' and values that correspond to a proxy path.\n    :param nthreads: Number of threads in the thread pool. This relates very closely to the number of CPUs used. \n    -1 means use all CPUs on the host. A positive integer specifies the number of CPUs directly. This value is only used when Python starts H2O.\n    :return: None\n    '
     port = as_int(port)
     if (not (isinstance(port, int) and (0 <= port <= sys.maxsize))):
         raise ValueError(('Port out of range, ' + port))
@@ -31,7 +31,7 @@ def __init__(self, ip='localhost', port=54321, size=1, start_h2o=False, enable_a
     if start_h2o:
         if (not ice_root):
             ice_root = tempfile.mkdtemp()
-        cld = self._start_local_h2o_jar(max_mem_size_GB, min_mem_size_GB, enable_assertions, license, ice_root, jar_path, nthreads)
+        cld = self._start_local_h2o_jar(max_mem_size, min_mem_size, enable_assertions, license, ice_root, jar_path, nthreads)
     else:
         try:
             cld = self._connect(size)
@@ -45,7 +45,7 @@ def __init__(self, ip='localhost', port=54321, size=1, start_h2o=False, enable_a
             if path_to_jar:
                 if (not ice_root):
                     ice_root = tempfile.mkdtemp()
-                cld = self._start_local_h2o_jar(max_mem_size_GB, min_mem_size_GB, enable_assertions, license, ice_root, jar_path, nthreads)
+                cld = self._start_local_h2o_jar(max_mem_size, min_mem_size, enable_assertions, license, ice_root, jar_path, nthreads)
             else:
                 print('No jar file found. Could not start local instance.')
                 print('Jar Paths searched: ')
