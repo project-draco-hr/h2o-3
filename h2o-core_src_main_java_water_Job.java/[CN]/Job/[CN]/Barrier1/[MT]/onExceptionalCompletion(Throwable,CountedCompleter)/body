@@ -1,16 +1,6 @@
 {
   final DException dex=new DException(ex,caller.getClass());
-  new JAtomic(){
-    @Override boolean abort(    Job job){
-      return job._ex != null && job._end_time != 0;
-    }
-    @Override void update(    Job job){
-      if (job._ex == null)       job._ex=dex.toEx();
-      job._stop_requested=true;
-      if (job._end_time == 0)       job._end_time=System.currentTimeMillis();
-    }
-  }
-;
+  new Barrier1OnExCom(Job.this,dex);
   if (getCompleter() == null) {
     System.err.println("barrier onExCompletion for " + caller.getClass());
     ex.printStackTrace();
