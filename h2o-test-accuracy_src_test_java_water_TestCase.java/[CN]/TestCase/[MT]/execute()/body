@@ -23,7 +23,7 @@ modelStopTime=System.currentTimeMillis();
 modelOutput=drfModel._output;
 break;
 case "glm":
-glmJob=new GLM(Key.make("GLMModel"),"GLM Model",(GLMModel.GLMParameters)params);
+glmJob=new GLM((GLMModel.GLMParameters)params,Key.<GLMModel>make("GLMModel"));
 AccuracyTestingSuite.summaryLog.println("Training GLM model.");
 modelStartTime=System.currentTimeMillis();
 glmModel=glmJob.trainModel().get();
@@ -39,7 +39,7 @@ modelStopTime=System.currentTimeMillis();
 modelOutput=gbmModel._output;
 break;
 case "dl":
-dlJob=new DeepLearning((DeepLearningParameters)params);
+dlJob=new DeepLearning((DeepLearningModel.DeepLearningParameters)params);
 AccuracyTestingSuite.summaryLog.println("Training DL model.");
 modelStartTime=System.currentTimeMillis();
 dlModel=dlJob.trainModel().get();
@@ -52,26 +52,14 @@ break;
 throw new Exception(e);
 }
  finally {
-if (drfJob != null) {
-drfJob.remove();
-}
 if (drfModel != null) {
 drfModel.delete();
-}
-if (glmJob != null) {
-glmJob.remove();
 }
 if (glmModel != null) {
 glmModel.delete();
 }
-if (gbmJob != null) {
-gbmJob.remove();
-}
 if (gbmModel != null) {
 gbmModel.delete();
-}
-if (dlJob != null) {
-dlJob.remove();
 }
 if (dlModel != null) {
 dlModel.delete();

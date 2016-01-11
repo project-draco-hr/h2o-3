@@ -28,11 +28,9 @@
       parms._balance_classes=true;
       parms._seed=0;
       parms._build_tree_one_node=true;
-      GBM job=new GBM(parms);
-      GBMModel gbm=job.trainModel().get();
+      GBMModel gbm=new GBM(parms).trainModel().get();
       assertEquals(gbm._output._ntrees,parms._ntrees);
       mses[i]=gbm._output._scored_train[gbm._output._scored_train.length - 1]._mse;
-      job.remove();
       gbm.delete();
     }
   }

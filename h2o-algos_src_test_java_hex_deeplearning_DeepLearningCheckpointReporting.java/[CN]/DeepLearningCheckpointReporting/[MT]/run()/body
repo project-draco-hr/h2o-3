@@ -6,7 +6,6 @@
     NFSFileVec trainfv=NFSFileVec.make(file);
     frame=ParseDataset.parse(Key.make(),trainfv._key);
     DeepLearningParameters p=new DeepLearningParameters();
-    p._model_id=Key.make("first_model");
     p._train=frame._key;
     p._response_column="CAPSULE";
     p._activation=DeepLearningParameters.Activation.Rectifier;
@@ -22,29 +21,24 @@
     Scope.track(frame.replace(ci,frame.vecs()[ci].toCategoricalVec()));
     DKV.put(frame);
     long start=System.currentTimeMillis();
-    Thread.sleep(1000);
-    DeepLearning dl=new DeepLearning(p);
-    DeepLearningModel model=null;
     try {
-      model=dl.trainModel().get();
+      Thread.sleep(1000);
     }
- catch (    Throwable t) {
-      t.printStackTrace();
-      throw new RuntimeException(t);
+ catch (    InterruptedException _) {
     }
- finally {
-      dl.remove();
-    }
+    DeepLearningModel model=new DeepLearning(p).trainModel().get();
     long sleepTime=3;
-    Thread.sleep(sleepTime * 1000);
+    try {
+      Thread.sleep(sleepTime * 1000);
+    }
+ catch (    InterruptedException _) {
+    }
     DeepLearningParameters p2=(DeepLearningParameters)p.clone();
-    p2._checkpoint=p2._model_id;
-    p2._model_id=Key.make("second_model");
+    p2._checkpoint=model._key;
     p2._epochs*=2;
-    DeepLearning dl2=new DeepLearning(p2);
     DeepLearningModel model2=null;
     try {
-      model2=dl2.trainModel().get();
+      model2=new DeepLearning(p2).trainModel().get();
       long end=System.currentTimeMillis();
       TwoDimTable table=model2._output._scoring_history;
       double priorDurationDouble=0;
@@ -93,26 +87,13 @@
  catch (      NumberFormatException ex) {
       }
     }
- catch (    Throwable t) {
-      t.printStackTrace();
-      throw new RuntimeException(t);
-    }
- finally {
-      dl2.remove();
-      if (model != null) {
-        model.delete();
-      }
-      if (model2 != null) {
-        model2.delete();
-      }
+  finally {
+      if (model != null)       model.delete();
+      if (model2 != null)       model2.delete();
     }
   }
- catch (  Throwable t) {
-    t.printStackTrace();
-    throw new RuntimeException(t);
-  }
- finally {
-    Scope.exit();
+  finally {
     if (frame != null)     frame.remove();
+    Scope.exit();
   }
 }

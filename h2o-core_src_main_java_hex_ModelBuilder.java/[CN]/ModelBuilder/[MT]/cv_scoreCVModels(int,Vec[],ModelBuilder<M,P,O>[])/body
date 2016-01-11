@@ -1,0 +1,27 @@
+{
+  if (_job.stop_requested())   return null;
+  ModelMetrics.MetricBuilder[] mbs=new ModelMetrics.MetricBuilder[N];
+  Futures fs=new Futures();
+  for (int i=0; i < N; ++i) {
+    if (_job.stop_requested())     return null;
+    Frame cvValid=cvModelBuilders[i].valid();
+    Frame adaptFr=new Frame(cvValid);
+    M cvModel=cvModelBuilders[i].dest().get();
+    cvModel.adaptTestForTrain(adaptFr,true,!isSupervised());
+    mbs[i]=cvModel.scoreMetrics(adaptFr);
+    if (nclasses() == 2 || _parms._keep_cross_validation_predictions) {
+      String predName="prediction_" + cvModelBuilders[i]._result.toString();
+      cvModel.predictScoreImpl(cvValid,adaptFr,predName);
+    }
+    if (adaptFr != null) {
+      Model.cleanup_adapt(adaptFr,cvValid);
+      DKV.remove(adaptFr._key,fs);
+    }
+    DKV.remove(cvModelBuilders[i]._parms._train,fs);
+    DKV.remove(cvModelBuilders[i]._parms._valid,fs);
+    weights[2 * i].remove(fs);
+    weights[2 * i + 1].remove(fs);
+  }
+  fs.blockForPending();
+  return mbs;
+}

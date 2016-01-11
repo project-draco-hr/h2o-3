@@ -1,3 +1,14 @@
 {
-  new ProgressUpdate(newworked,msg).fork(_progressKey);
+  if (newworked > 0 || (msg != null && !msg.equals(_msg))) {
+    new JAtomic(){
+      @Override boolean abort(      Job job){
+        return newworked == 0 && ((msg == null && _msg == null) || (msg != null && msg.equals(job._msg)));
+      }
+      @Override void update(      Job old){
+        old._worked+=newworked;
+        old._msg=msg;
+      }
+    }
+.apply(this);
+  }
 }

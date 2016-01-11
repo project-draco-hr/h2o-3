@@ -2,7 +2,7 @@
   if (!_setup._parse_type._parallelParseSupported)   throw H2O.unimpl();
   StreamData din=new StreamData(is);
   int cidx=0;
-  while (is.available() > 0 && (_jobKey == null || !((Job)DKV.getGet(_jobKey)).isCancelledOrCrashed()))   parseChunk(cidx++,din,dout);
+  while (is.available() > 0 && (_jobKey == null || _jobKey.get().stop_requested()))   parseChunk(cidx++,din,dout);
   parseChunk(cidx,din,dout);
   return dout;
 }

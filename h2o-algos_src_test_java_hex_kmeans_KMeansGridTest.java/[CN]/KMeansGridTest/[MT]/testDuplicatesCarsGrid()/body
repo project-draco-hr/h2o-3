@@ -11,8 +11,8 @@
     hyperParms.put("_seed",new Long[]{123456789L,123456789L,123456789L});
     KMeansModel.KMeansParameters params=new KMeansModel.KMeansParameters();
     params._train=fr._key;
-    GridSearch gs=GridSearch.startGridSearch(params,hyperParms,KMEANS_MODEL_FACTORY);
-    grid=(Grid)gs.get();
+    Job<Grid> gs=GridSearch.startGridSearch(null,params,hyperParms);
+    grid=gs.get();
     Model[] models=grid.getModels();
     assertTrue("Number of returned models has to be > 0",models.length > 0);
     Key<Model> modelKey=models[0]._key;

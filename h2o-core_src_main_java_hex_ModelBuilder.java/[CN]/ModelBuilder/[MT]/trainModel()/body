@@ -1,15 +1,11 @@
 {
   if (error_count() > 0)   throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(this);
-  if (!nFoldCV())   return trainModelImpl(progressUnits(),true);
-  return start(new H2O.H2OCountedCompleter(){
-    @Override protected void compute2(){
+  if (!nFoldCV())   return _job.start(trainModelImpl(),progressUnits());
+  return _job.start(new H2O.H2OCountedCompleter(){
+    @Override public void compute2(){
       computeCrossValidation();
       tryComplete();
     }
-    @Override public boolean onExceptionalCompletion(    Throwable ex,    CountedCompleter caller){
-      failed(ex);
-      return true;
-    }
   }
-,(nFoldWork() + 1) * progressUnits(),true);
+,(1 + nFoldWork() + 1) * progressUnits());
 }

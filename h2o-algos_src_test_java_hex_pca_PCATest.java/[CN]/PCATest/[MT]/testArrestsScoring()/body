@@ -1,7 +1,6 @@
 {
   double[] stddev=new double[]{202.7230564,27.8322637,6.5230482,2.5813652};
   double[][] eigvec=ard(ard(-0.04239181,0.01616262,-0.06588426,0.99679535),ard(-0.94395706,0.32068580,0.06655170,-0.04094568),ard(-0.30842767,-0.93845891,0.15496743,0.01234261),ard(-0.10963744,-0.12725666,-0.98347101,-0.06760284));
-  PCA job=null;
   PCAModel model=null;
   Frame train=null, score=null, scoreR=null;
   try {
@@ -11,29 +10,15 @@
     parms._k=4;
     parms._transform=DataInfo.TransformType.NONE;
     parms._pca_method=PCAParameters.Method.GramSVD;
-    try {
-      job=new PCA(parms);
-      model=job.trainModel().get();
-      TestUtil.checkStddev(stddev,model._output._std_deviation,1e-5);
-      boolean[] flippedEig=TestUtil.checkEigvec(eigvec,model._output._eigenvectors,1e-5);
-      score=model.score(train);
-      scoreR=parse_test_file(Key.make("scoreR.hex"),"smalldata/pca_test/USArrests_PCAscore.csv");
-      TestUtil.checkProjection(scoreR,score,TOLERANCE,flippedEig);
-      Assert.assertTrue(model.testJavaScoring(train,score,1e-5));
-    }
- catch (    Throwable t) {
-      t.printStackTrace();
-      throw new RuntimeException(t);
-    }
- finally {
-      if (job != null)       job.remove();
-    }
+    model=new PCA(parms).trainModel().get();
+    TestUtil.checkStddev(stddev,model._output._std_deviation,1e-5);
+    boolean[] flippedEig=TestUtil.checkEigvec(eigvec,model._output._eigenvectors,1e-5);
+    score=model.score(train);
+    scoreR=parse_test_file(Key.make("scoreR.hex"),"smalldata/pca_test/USArrests_PCAscore.csv");
+    TestUtil.checkProjection(scoreR,score,TOLERANCE,flippedEig);
+    Assert.assertTrue(model.testJavaScoring(train,score,1e-5));
   }
- catch (  Throwable t) {
-    t.printStackTrace();
-    throw new RuntimeException(t);
-  }
- finally {
+  finally {
     if (train != null)     train.delete();
     if (score != null)     score.delete();
     if (scoreR != null)     scoreR.delete();

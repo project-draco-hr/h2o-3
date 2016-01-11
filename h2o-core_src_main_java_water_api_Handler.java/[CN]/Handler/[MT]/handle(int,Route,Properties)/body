@@ -1,7 +1,6 @@
 {
   Class<? extends Schema> handler_schema_class=getHandlerMethodInputSchema(route._handler_method);
   Schema schema=Schema.newInstance(handler_schema_class);
-  if (null == schema)   throw H2O.fail("Failed to instantiate Schema of class: " + handler_schema_class + " for route: "+ route);
   Class<? extends Iced> iced_class=schema.getImplClass();
   if (iced_class != Iced.class) {
     Iced defaults=schema.createImpl();
@@ -12,6 +11,7 @@
   _t_start=System.currentTimeMillis();
   Schema result=null;
   try {
+    route._handler_method.setAccessible(true);
     result=(Schema)route._handler_method.invoke(this,version,schema);
   }
  catch (  InvocationTargetException ite) {

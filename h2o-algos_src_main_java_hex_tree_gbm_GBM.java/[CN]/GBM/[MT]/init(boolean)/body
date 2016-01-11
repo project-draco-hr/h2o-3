@@ -1,10 +1,7 @@
 {
   super.init(expensive);
   if (expensive) {
-    if (error_count() > 0) {
-      GBM.this.updateValidationMessages();
-      throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(GBM.this);
-    }
+    if (error_count() > 0)     throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(GBM.this);
     if (_parms._distribution == Distribution.Family.AUTO) {
       if (_nclass == 1)       _parms._distribution=Distribution.Family.gaussian;
       if (_nclass == 2)       _parms._distribution=Distribution.Family.bernoulli;

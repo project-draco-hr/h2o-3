@@ -1,31 +1,25 @@
 {
   final int gridSize=_hyperSpaceWalker.getHyperSpaceSize();
   Log.info("Starting gridsearch: estimated size of search space = " + gridSize);
-  Grid<MP> grid=null;
-  Keyed keyed=DKV.getGet(dest());
-  if (grid != null) {
-    if (!(keyed instanceof Grid)) {
-      throw new H2OIllegalArgumentException("Name conflict: tried to create a Grid using the ID of a non-Grid object that's already in H2O: " + dest() + "; it is a: "+ keyed.getClass());
-    }
-    grid=(Grid<MP>)keyed;
+  final Grid<MP> grid;
+  Keyed keyed=DKV.getGet(_result);
+  if (keyed != null) {
+    if (!(keyed instanceof Grid))     throw new H2OIllegalArgumentException("Name conflict: tried to create a Grid using the ID of a non-Grid object that's already in H2O: " + _job._result + "; it is a: "+ keyed.getClass());
+    grid=(Grid)keyed;
     Frame specTrainFrame=_hyperSpaceWalker.getParams().train();
     Frame oldTrainFrame=grid.getTrainingFrame();
-    if (!specTrainFrame._key.equals(oldTrainFrame._key) || specTrainFrame.checksum() != oldTrainFrame.checksum()) {
-      throw new H2OIllegalArgumentException("training_frame","grid","Cannot append new models" + " to a grid with different training input");
-    }
-    grid.write_lock(jobKey());
+    if (!specTrainFrame._key.equals(oldTrainFrame._key) || specTrainFrame.checksum() != oldTrainFrame.checksum())     throw new H2OIllegalArgumentException("training_frame","grid","Cannot append new models to a grid with different training input");
+    grid.write_lock(_job);
   }
  else {
-    grid=new Grid<>(dest(),_hyperSpaceWalker.getParams(),_hyperSpaceWalker.getHyperParamNames(),_modelFactory.getModelName(),_hyperSpaceWalker.getParametersBuilderFactory().getFieldNamingStrategy());
-    grid.delete_and_lock(jobKey());
+    grid=new Grid<>(_result,_hyperSpaceWalker.getParams(),_hyperSpaceWalker.getHyperParamNames(),_hyperSpaceWalker.getParametersBuilderFactory().getFieldNamingStrategy());
+    grid.delete_and_lock(_job);
   }
-  final Grid<MP> gridToExpose=grid;
-  start(new H2O.H2OCountedCompleter(){
+  return _job.start(new H2O.H2OCountedCompleter(){
     @Override public void compute2(){
-      gridSearch(gridToExpose);
+      gridSearch(grid);
       tryComplete();
     }
   }
-,gridSize,true);
-  return this;
+,gridSize);
 }

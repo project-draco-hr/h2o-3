@@ -1,0 +1,10 @@
+{
+  final DException dex=new DException(ex,caller.getClass());
+  new Barrier1OnExCom(dex).apply(Job.this);
+  if (getCompleter() == null) {
+    System.err.println("barrier onExCompletion for " + caller.getClass());
+    ex.printStackTrace();
+  }
+  _barrier=null;
+  return true;
+}

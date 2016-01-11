@@ -8,7 +8,7 @@
       final int fi=i;
       H2O.submitTask(new H2OCountedCompleter(this){
         long t1;
-        @Override protected void compute2(){
+        @Override public void compute2(){
           t1=System.currentTimeMillis();
           addToPendingCount(_msgCnt - 1);
           for (int j=0; j < _msgCnt; ++j)           new RPC(H2O.CLOUD._memary[fi],new SendRandomBytesTsk(_msgSz)).addCompleter(this).call();

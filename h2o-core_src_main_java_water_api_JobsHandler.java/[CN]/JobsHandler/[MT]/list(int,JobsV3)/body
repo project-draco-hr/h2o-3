@@ -3,22 +3,11 @@
   s.jobs=new JobV3[jobs.length];
   int i=0;
   for (  Job j : jobs) {
-    if (j instanceof ModelBuilder) {
-      try {
-        s.jobs[i]=new ModelBuilderJobV3().fillFromImpl((ModelBuilder)j);
-      }
- catch (      Exception e) {
-        Log.warn("Caught exception filling a ModelBuilderJobV3; falling back to JobV3: " + e);
-        s.jobs[i]=new JobV3().fillFromImpl(j);
-      }
+    try {
+      s.jobs[i]=(JobV3)Schema.schema(version,j).fillFromImpl(j);
     }
- else {
-      try {
-        s.jobs[i]=(JobV3)Schema.schema(version,j).fillFromImpl(j);
-      }
- catch (      H2ONotFoundArgumentException e) {
-        s.jobs[i]=new JobV3().fillFromImpl(j);
-      }
+ catch (    H2ONotFoundArgumentException e) {
+      s.jobs[i]=new JobV3().fillFromImpl(j);
     }
     i++;
   }

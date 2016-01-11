@@ -1,5 +1,4 @@
 {
-  GLM job=null;
   GLMModel model=null;
   Frame fr=parse_test_file(Key.make("arcene_parsed"),"smalldata/glm_test/arcene.csv"), res=null;
   try {
@@ -11,9 +10,8 @@
     params._max_active_predictors=100000;
     params._alpha=new double[]{0};
     params._solver=Solver.L_BFGS;
-    job=new GLM(Key.make("arcene_model"),"glm test simple poisson",params);
-    job.trainModel().get();
-    model=DKV.getGet(job._dest);
+    GLM glm=new GLM(params,glmkey("arcene_model"));
+    model=glm.trainModel().get();
     res=model.score(fr);
     model.testJavaScoring(fr,res,0.0);
   }
@@ -21,7 +19,6 @@
     fr.delete();
     if (model != null)     model.delete();
     if (res != null)     res.delete();
-    if (job != null)     job.remove();
     Scope.exit();
   }
 }

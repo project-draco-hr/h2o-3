@@ -18,11 +18,9 @@
     parms._ntrees=5;
     parms._mtries=3;
     parms._sample_rate=0.5f;
-    DRF job=new DRF(parms);
-    gbm=job.trainModel().get();
+    gbm=new DRF(parms).trainModel().get();
     ModelMetricsRegression mm=(ModelMetricsRegression)gbm._output._training_metrics;
     assertEquals(0.12413922945308474,mm.mse(),1e-4);
-    job.remove();
   }
   finally {
     if (tfr != null)     tfr.remove();

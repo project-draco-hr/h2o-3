@@ -15,17 +15,7 @@
         parms._transform=std;
         parms._max_iterations=1000;
         parms._pca_method=PCAParameters.Method.Power;
-        PCA job=new PCA(parms);
-        try {
-          model=job.trainModel().get();
-        }
- catch (        Throwable t) {
-          t.printStackTrace();
-          throw new RuntimeException(t);
-        }
- finally {
-          job.remove();
-        }
+        model=new PCA(parms).trainModel().get();
         if (std == DataInfo.TransformType.DEMEAN) {
           TestUtil.checkStddev(stddev,model._output._std_deviation,TOLERANCE);
           TestUtil.checkEigvec(eigvec,model._output._eigenvectors,TOLERANCE);
@@ -35,11 +25,7 @@
           TestUtil.checkEigvec(eigvec_std,model._output._eigenvectors,TOLERANCE);
         }
       }
- catch (      Throwable t) {
-        t.printStackTrace();
-        throw new RuntimeException(t);
-      }
- finally {
+  finally {
         if (model != null)         model.delete();
       }
     }

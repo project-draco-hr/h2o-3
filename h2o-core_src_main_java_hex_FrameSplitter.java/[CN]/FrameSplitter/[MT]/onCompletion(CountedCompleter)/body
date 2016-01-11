@@ -1,18 +1,4 @@
 {
-  boolean exceptional=workersExceptions != null;
   dataset.unlock(jobKey);
-  if (splits != null) {
-    for (    Frame s : splits) {
-      if (s != null) {
-        if (!exceptional) {
-          s.update(jobKey);
-          s.unlock(jobKey);
-        }
- else {
-          s.unlock(jobKey);
-          s.delete(jobKey,new Futures()).blockForPending();
-        }
-      }
-    }
-  }
+  if (splits != null)   for (  Frame s : splits)   if (s != null)   s.update(jobKey).unlock(jobKey);
 }

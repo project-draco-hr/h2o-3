@@ -9,10 +9,9 @@
   parms._alpha=new double[]{0};
   parms._response_column="Claims";
   parms._compute_p_values=true;
-  GLM job=new GLM(Key.make("prostate_model"),"glm test p-values",parms);
   GLMModel model=null;
   try {
-    model=job.trainModel().get();
+    model=new GLM(parms).trainModel().get();
     String[] names_expected=new String[]{"Intercept","Merit.1","Merit.2","Merit.3","Class.2","Class.3","Class.4","Class.5","Insured","Premium","Cost","logInsured"};
     String[] names_actual=model._output.coefficientNames();
     HashMap<String,Integer> coefMap=new HashMap<>();
@@ -29,6 +28,5 @@
   }
   finally {
     if (model != null)     model.delete();
-    if (job != null)     job.remove();
   }
 }

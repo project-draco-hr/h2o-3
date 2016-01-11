@@ -2,15 +2,15 @@
   QuantileModel model=null;
   try {
     Scope.enter();
-    _parms.read_lock_frames(Quantile.this);
+    _parms.read_lock_frames(_job);
     init(true);
     model=new QuantileModel(dest(),_parms,new QuantileModel.QuantileOutput(Quantile.this));
     model._output._parameters=_parms;
     model._output._quantiles=new double[_ncols][_parms._probs.length];
-    model.delete_and_lock(_key);
+    model.delete_and_lock(_job);
     Vec vecs[]=train().vecs();
     for (int n=0; n < _ncols; n++) {
-      if (!isRunning())       return;
+      if (_job.stop_requested())       return;
       Vec vec=vecs[n];
       if (vec.isBad()) {
         model._output._quantiles[n]=new double[_parms._probs.length];
@@ -28,30 +28,17 @@
           h=_weights == null ? h.refinePass(prob).doAll(vec) : h.refinePass(prob).doAll(vec,_weights);
           model._output._iterations++;
         }
-        model.update(_key);
-        update(1);
+        model.update(_job);
+        _job.update(1);
       }
       StringBuilder sb=new StringBuilder();
       sb.append("Quantile: iter: ").append(model._output._iterations).append(" Qs=").append(Arrays.toString(model._output._quantiles[n]));
       Log.debug(sb);
     }
-    done();
   }
- catch (  Throwable t) {
-    Job thisJob=DKV.getGet(_key);
-    if (thisJob._state == JobState.CANCELLED) {
-      Log.info("Job cancelled by user.");
-    }
- else {
-      t.printStackTrace();
-      failed(t);
-      throw t;
-    }
-  }
- finally {
-    updateModelOutput();
-    if (model != null)     model.unlock(_key);
-    _parms.read_unlock_frames(Quantile.this);
+  finally {
+    if (model != null)     model.unlock(_job);
+    _parms.read_unlock_frames(_job);
     Scope.exit(model == null ? null : model._key);
   }
   tryComplete();

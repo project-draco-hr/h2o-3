@@ -15,30 +15,15 @@
     parms._min_step_size=1e-5;
     parms._recover_svd=false;
     parms._max_iterations=2000;
-    try {
-      Scope.enter();
-      job=new GLRM(parms);
-      model=job.trainModel().get();
-      Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
-      checkLossbyCol(parms,model);
-      model.score(train).delete();
-      ModelMetricsGLRM mm=(ModelMetricsGLRM)ModelMetrics.getFromDKV(model,train);
-      Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
-    }
- catch (    Throwable t) {
-      t.printStackTrace();
-      throw new RuntimeException(t);
-    }
- finally {
-      job.remove();
-      Scope.exit();
-    }
+    job=new GLRM(parms);
+    model=job.trainModel().get();
+    Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
+    checkLossbyCol(parms,model);
+    model.score(train).delete();
+    ModelMetricsGLRM mm=(ModelMetricsGLRM)ModelMetrics.getFromDKV(model,train);
+    Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
   }
- catch (  Throwable t) {
-    t.printStackTrace();
-    throw new RuntimeException(t);
-  }
- finally {
+  finally {
     if (train != null)     train.delete();
     if (model != null)     model.delete();
   }

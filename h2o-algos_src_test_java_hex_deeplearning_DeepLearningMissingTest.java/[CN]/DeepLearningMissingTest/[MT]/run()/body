@@ -30,8 +30,7 @@
           frtmp.remove(frtmp.numCols() - 1);
           DKV.put(frtmp._key,frtmp);
           FrameUtils.MissingInserter j=new FrameUtils.MissingInserter(frtmp._key,seed,missing_fraction);
-          j.execImpl();
-          j.get();
+          j.execImpl().get();
           DKV.remove(frtmp._key);
         }
         p=new DeepLearningParameters();
@@ -46,7 +45,6 @@
         p._l1=1e-5;
         p._input_dropout_ratio=0.2;
         p._epochs=3;
-        p._model_id=Key.make();
         p._reproducible=true;
         p._seed=seed;
         p._elastic_averaging=false;
@@ -57,17 +55,8 @@
         DKV.put(train);
         DKV.put(test);
         DeepLearning dl=new DeepLearning(p);
-        try {
-          Log.info("Starting with " + missing_fraction * 100 + "% missing values added.");
-          mymodel=dl.trainModel().get();
-        }
- catch (        Throwable t) {
-          t.printStackTrace();
-          throw new RuntimeException(t);
-        }
- finally {
-          dl.remove();
-        }
+        Log.info("Starting with " + missing_fraction * 100 + "% missing values added.");
+        mymodel=dl.trainModel().get();
         double err=mymodel.loss();
         Log.info("Missing " + missing_fraction * 100 + "% -> logloss: " + err);
         map.put(missing_fraction,err);
