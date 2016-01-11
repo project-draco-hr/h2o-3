@@ -2,7 +2,7 @@
   super.init(expensive);
   if (_parms._max_iterations < 1)   error("_max_iterations","max_iterations must be at least 1");
   if (_train == null)   return;
-  _ncolExp=_train.numColsExp(_parms._use_all_factor_levels,false);
+  _ncolExp=LinearAlgebraUtils.numColsExp(_train,_parms._use_all_factor_levels);
   if (_ncolExp > MAX_COLS_EXPANDED)   warn("_train","_train has " + _ncolExp + " columns when categoricals are expanded. Algorithm may be slow.");
   if (_parms._nv < 1 || _parms._nv > _ncolExp)   error("_nv","Number of right singular values must be between 1 and " + _ncolExp);
   if (_parms._svd_method != SVDParameters.Method.Randomized && expensive && error_count() == 0)   checkMemoryFootPrint();
