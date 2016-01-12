@@ -2,7 +2,7 @@
   super.init(expensive);
   if (_parms._max_iterations < 1 || _parms._max_iterations > 1e6)   error("_max_iterations","max_iterations must be between 1 and 1e6 inclusive");
   if (_train == null)   return;
-  _ncolExp=_train.numColsExp(_parms._use_all_factor_levels,false);
+  _ncolExp=hex.util.LinearAlgebraUtils.numColsExp(_train,_parms._use_all_factor_levels);
   int k_min=(int)Math.min(_ncolExp,_train.numRows());
   if (_parms._k < 1 || _parms._k > k_min)   error("_k","_k must be between 1 and " + k_min);
   if (!_parms._use_all_factor_levels && _parms._pca_method == PCAParameters.Method.GLRM)   error("_use_all_factor_levels","GLRM only implemented for _use_all_factor_levels = true");

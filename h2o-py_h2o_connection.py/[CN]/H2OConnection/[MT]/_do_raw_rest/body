@@ -1,4 +1,4 @@
-def _do_raw_rest(self, url_suffix, method, file_upload_info, proxies=None, **kwargs):
+def _do_raw_rest(self, url_suffix, method, file_upload_info, **kwargs):
     if (not url_suffix):
         raise ValueError('No url suffix supplied.')
     if ('_rest_version' in kwargs):
@@ -6,7 +6,7 @@ def _do_raw_rest(self, url_suffix, method, file_upload_info, proxies=None, **kwa
         del kwargs['_rest_version']
     else:
         _rest_version = self._rest_version
-    url = 'http://{}:{}/{}/{}'.format(self._ip, self._port, _rest_version, url_suffix)
+    url = (('https' if self._https else 'http') + '://{}:{}/{}/{}'.format(self._ip, self._port, _rest_version, url_suffix))
     query_string = ''
     for (k, v) in iteritems(kwargs):
         if isinstance(v, list):
@@ -46,7 +46,7 @@ def _do_raw_rest(self, url_suffix, method, file_upload_info, proxies=None, **kwa
     global _rest_ctr
     _rest_ctr = (_rest_ctr + 1)
     begin_time_seconds = time.time()
-    http_result = self._attempt_rest(url, method, post_body, file_upload_info, proxies)
+    http_result = self._attempt_rest(url, method, post_body, file_upload_info)
     end_time_seconds = time.time()
     elapsed_time_seconds = (end_time_seconds - begin_time_seconds)
     elapsed_time_millis = (elapsed_time_seconds * 1000)
