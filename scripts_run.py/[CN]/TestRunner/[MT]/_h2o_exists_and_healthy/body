@@ -4,7 +4,10 @@ def _h2o_exists_and_healthy(self, ip, port):
     h2o_okay = False
     try:
         http = requests.get('http://{}:{}/{}/{}'.format(ip, port, __H2O_REST_API_VERSION__, 'Cloud?skip_ticks=true'))
-        h2o_okay = http.json()['cloud_healthy']
+        if g_include_jacoco:
+            h2o_okay = True
+        else:
+            h2o_okay = http.json()['cloud_healthy']
     except exceptions.ConnectionError:
         pass
     if (not h2o_okay):
