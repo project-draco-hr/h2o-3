@@ -44,8 +44,7 @@
  else {
         qp._probs=new double[]{0.99,0.98,0.97,0.96,0.95,0.9,0.85,0.8,0.7,0.6,0.5,0.4,0.3,0.2,0.1,0};
       }
-      Quantile q=new Quantile(qp);
-      qm=q.trainModel().get();
+      qm=job != null ? new Quantile(qp,job).trainModelNested() : new Quantile(qp).trainModel().get();
       _quantiles=qm._output._quantiles[0];
       TreeSet<Double> hs=new TreeSet<>();
       for (      double d : _quantiles)       hs.add(d);
@@ -56,7 +55,7 @@
     }
   finally {
       if (qm != null)       qm.remove();
-      DKV.remove(fr._key);
+      if (fr != null)       DKV.remove(fr._key);
     }
   }
 }
