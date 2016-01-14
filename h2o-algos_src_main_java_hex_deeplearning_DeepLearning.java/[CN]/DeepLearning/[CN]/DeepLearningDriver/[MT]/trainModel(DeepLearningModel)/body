@@ -69,8 +69,8 @@
       model.iterations++;
       model.set_model_info(mp._epochs == 0 ? model.model_info() : H2O.CLOUD.size() > 1 && mp._replicate_training_data ? (mp._single_node_mode ? new DeepLearningTask2(_job._key,train,model.model_info(),rowFraction(train,mp,model),model.iterations).doAll(Key.make(H2O.SELF)).model_info() : new DeepLearningTask2(_job._key,train,model.model_info(),rowFraction(train,mp,model),model.iterations).doAllNodes().model_info()) : new DeepLearningTask(_job._key,model.model_info(),rowFraction(train,mp,model),model.iterations).doAll(train).model_info());
     }
- while (!_job.stop_requested() && model.doScoring(trainScoreFrame,validScoreFrame,_job._key,model.iterations,false));
-    if (!_job.stop_requested() && _parms._overwrite_with_best_model && model.actual_best_model_key != null && _parms._nfolds == 0) {
+ while (!stop_requested() && model.doScoring(trainScoreFrame,validScoreFrame,_job._key,model.iterations,false));
+    if (!stop_requested() && _parms._overwrite_with_best_model && model.actual_best_model_key != null && _parms._nfolds == 0) {
       DeepLearningModel best_model=DKV.getGet(model.actual_best_model_key);
       if (best_model != null && best_model.loss() < model.loss() && Arrays.equals(best_model.model_info().units,model.model_info().units)) {
         if (!_parms._quiet_mode)         Log.info("Setting the model to be the best model so far (based on scoring history).");
@@ -86,7 +86,7 @@
     model.model_info().data_info().coefNames();
     if (!_parms._quiet_mode) {
       Log.info("==============================================================================================================================================================================");
-      if (_job.stop_requested()) {
+      if (stop_requested()) {
         Log.info("Deep Learning model training was interrupted.");
       }
  else {
