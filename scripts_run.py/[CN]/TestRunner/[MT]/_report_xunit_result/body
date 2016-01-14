@@ -1,7 +1,0 @@
-def _report_xunit_result(self, testsuite_name, testcase_name, testcase_runtime, skipped=False, failure_type=None, failure_message=None, failure_description=None):
-    errors = 0
-    failures = (1 if failure_type else 0)
-    skip = (1 if skipped else 0)
-    failure = ('' if (not failure_type) else '"<failure type="{}" message="{}">{}</failure>'.format(failure_type, failure_message, failure_description))
-    xml_report = '<?xml version="1.0" encoding="UTF-8"?>\n<testsuite name="{testsuiteName}" tests="1" errors="{errors}" failures="{failures}" skip="{skip}">\n  <testcase classname="{testcaseClassName}" name="{testcaseName}" time="{testcaseRuntime}">\n  {failure}\n  </testcase>\n</testsuite>\n'.format(testsuiteName=testsuite_name, testcaseClassName=testcase_name, testcaseName=testcase_name, testcaseRuntime=testcase_runtime, failure=failure, errors=errors, failures=failures, skip=skip)
-    self._save_xunit_report(testsuite_name, testcase_name, xml_report)
