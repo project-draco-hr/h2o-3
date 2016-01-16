@@ -1,0 +1,106 @@
+def usage():
+    print ''
+    print (('Usage:  ' + g_script_name) + ' [...options...]')
+    print ''
+    print (('    (Output dir is: ' + g_output_dir) + ')')
+    print (('    (Default number of clouds is: ' + str(g_num_clouds)) + ')')
+    print ''
+    print '    --wipeall        Remove all prior test state before starting, particularly'
+    print '                     random seeds.'
+    print '                     (Removes master_seed file and all Rsandbox directories.'
+    print '                     Also wipes the output dir before starting.)'
+    print ''
+    print '    --wipe           Wipes the output dir before starting.  Keeps old random seeds.'
+    print ''
+    print '    --baseport       The first port at which H2O starts searching for free ports.'
+    print ''
+    print '    --numclouds      The number of clouds to start.'
+    print '                     Each test is randomly assigned to a cloud.'
+    print ''
+    print '    --numnodes       The number of nodes in the cloud.'
+    print '                     When this is specified, numclouds must be 1.'
+    print ''
+    print '    --test           If you only want to run one test, specify it like this.'
+    print ''
+    print '    --testlist       A file containing a list of tests to run (for example the'
+    print "                     'failed.txt' file from the output directory)."
+    print ''
+    print '    --testgroup      Test a group of tests by function:'
+    print '                     pca, glm, kmeans, gbm, rf, deeplearning, algos, golden, munging'
+    print ''
+    print '    --testsize       Sizes (and by extension length) of tests to run:'
+    print '                     s=small (seconds), m=medium (a minute or two), l=large (longer), x=xlarge (very big)'
+    print '                     (Default is to run all tests.)'
+    print ''
+    print '    --usecloud       ip:port of cloud to send tests to instead of starting clouds.'
+    print '                     (When this is specified, numclouds is ignored.)'
+    print ''
+    print '    --usecloud2      cloud.cfg: Use a set clouds defined in cloud.config to run tests on.'
+    print '                     (When this is specified, numclouds, numnodes, and usecloud are ignored.)'
+    print ''
+    print '    --client         Send REST API commands through client mode.'
+    print ''
+    print "    --norun          Perform side effects like wipe, but don't actually run tests."
+    print ''
+    print "    --jvm.xmx        Configure size of launched JVM running H2O. E.g. '--jvm.xmx 3g'"
+    print ''
+    print '    --nopass         Run the NOPASS and NOFEATURE tests only and do not ignore any failures.'
+    print ''
+    print "    --nointernal     Don't run the INTERNAL tests."
+    print ''
+    print '    --c              Start the JVMs in a convenient location.'
+    print ''
+    print '    --h2ojar         Supply a path to the H2O jar file.'
+    print ''
+    print '    --tar            Supply a path to the R TAR.'
+    print ''
+    print ''
+    print '    --pto            The phantomjs timeout in seconds. Default is 3600 (1hr).'
+    print ''
+    print '    --noxunit        Do not produce xUnit reports.'
+    print ''
+    print '    --rPkgVerChk     Check that Jenkins-approved R packages/versions are present'
+    print ''
+    print '    --onHadoop       Indication that tests will be run on h2o multinode hadoop clusters.'
+    print '                     `locate` and `sandbox` runit/pyunit test utilities use this indication in order to'
+    print '                     behave properly. --hadoopNamenode must be specified if --onHadoop option is used.'
+    print '    --hadoopNamenode Specifies that the runit/pyunit tests have access to this hadoop namenode.'
+    print '                     runit/pyunit test utilities have ability to retrieve this value.'
+    print ''
+    print '    --perf           Save Jenkins build id, date, machine ip, git hash, name, start time, finish time,'
+    print '                     pass, ncpus, os, and job name of each test to perf.csv in the results directory.'
+    print '                     Takes three parameters: git hash, git branch, and build id, job name in that order.'
+    print ''
+    print '    --jacoco         Generate code coverage data using JaCoCo'
+    print '    If neither --test nor --testlist is specified, then the list of tests is'
+    print "    discovered automatically as files matching '*runit*.R'."
+    print ''
+    print ''
+    print 'Examples:'
+    print ''
+    print '    Just accept the defaults and go (note: output dir must not exist):'
+    print ('        ' + g_script_name)
+    print ''
+    print "    Remove all random seeds (i.e. make new ones) but don't run any tests:"
+    print (('        ' + g_script_name) + ' --wipeall --norun')
+    print ''
+    print '    For a powerful laptop with 8 cores (keep default numclouds):'
+    print (('        ' + g_script_name) + ' --wipeall')
+    print ''
+    print '    For a big server with 32 cores:'
+    print (('        ' + g_script_name) + ' --wipeall --numclouds 16')
+    print ''
+    print '    Just run the tests that finish quickly'
+    print (('        ' + g_script_name) + ' --wipeall --testsize s')
+    print ''
+    print '    Run one specific test, keeping old random seeds:'
+    print (('        ' + g_script_name) + ' --wipe --test path/to/test.R')
+    print ''
+    print '    Rerunning failures from a previous run, keeping old random seeds:'
+    print '        # Copy failures.txt, otherwise --wipe removes the directory with the list!'
+    print (('        cp ' + os.path.join(g_output_dir, 'failures.txt')) + ' .')
+    print (('        ' + g_script_name) + ' --wipe --numclouds 16 --testlist failed.txt')
+    print ''
+    print '    Run tests on a pre-existing cloud (e.g. in a debugger), keeping old random seeds:'
+    print (('        ' + g_script_name) + ' --wipe --usecloud ip:port')
+    sys.exit(1)

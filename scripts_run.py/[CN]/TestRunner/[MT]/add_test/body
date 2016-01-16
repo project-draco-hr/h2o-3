@@ -1,0 +1,14 @@
+def add_test(self, test_path):
+    '\n        Add one test to the list of tests to run.\n\n        @param test_path: File system path to the test.\n        @return: none\n        '
+    abs_test_path = os.path.abspath(test_path)
+    abs_test_dir = os.path.dirname(abs_test_path)
+    test_file = os.path.basename(abs_test_path)
+    if (not os.path.exists(abs_test_path)):
+        print ''
+        print ('ERROR: Test does not exist: ' + abs_test_path)
+        print ''
+        sys.exit(1)
+    test_short_dir = self._calc_test_short_dir(test_path)
+    test = Test(abs_test_dir, test_short_dir, test_file, self.output_dir, self.hadoop_namenode, self.on_hadoop)
+    self.tests.append(test)
+    self.tests_not_started.append(test)

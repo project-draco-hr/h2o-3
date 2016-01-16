@@ -1,0 +1,74 @@
+def main(argv):
+    '\n    Main program.\n\n    @return: none\n    '
+    global g_script_name
+    global g_num_clouds
+    global g_nodes_per_cloud
+    global g_output_dir
+    global g_failed_output_dir
+    global g_test_to_run
+    global g_test_list_file
+    global g_test_group
+    global g_runner
+    global g_nopass
+    global g_nointernal
+    global g_path_to_tar
+    global g_path_to_whl
+    global g_perf
+    global g_git_hash
+    global g_git_branch
+    global g_machine_ip
+    global g_date
+    global g_build_id
+    global g_ncpu
+    global g_os
+    global g_job_name
+    g_script_name = os.path.basename(argv[0])
+    test_root_dir = os.path.realpath(os.getcwd())
+    g_output_dir = os.path.join(test_root_dir, str('results'))
+    g_failed_output_dir = os.path.join(g_output_dir, str('failed'))
+    testreport_dir = os.path.join(test_root_dir, str('../build/test-results'))
+    parse_args(argv)
+    h2o_jar = g_path_to_h2o_jar
+    if (h2o_jar is None):
+        possible_h2o_jar_parent_dir = test_root_dir
+        while True:
+            possible_h2o_jar_dir = os.path.join(possible_h2o_jar_parent_dir, 'build')
+            possible_h2o_jar = os.path.join(possible_h2o_jar_dir, 'h2o.jar')
+            if os.path.exists(possible_h2o_jar):
+                h2o_jar = possible_h2o_jar
+                break
+            next_possible_h2o_jar_parent_dir = os.path.dirname(possible_h2o_jar_parent_dir)
+            if (next_possible_h2o_jar_parent_dir == possible_h2o_jar_parent_dir):
+                break
+            possible_h2o_jar_parent_dir = next_possible_h2o_jar_parent_dir
+    if g_wipe_output_dir:
+        wipe_output_dir()
+    if g_wipe_test_state:
+        wipe_test_state(test_root_dir)
+    if (g_test_to_run is not None):
+        g_num_clouds = 1
+    g_runner = TestRunner(test_root_dir, g_use_cloud, g_use_cloud2, g_use_client, g_config, g_use_ip, g_use_port, g_num_clouds, g_nodes_per_cloud, h2o_jar, g_base_port, g_jvm_xmx, g_output_dir, g_failed_output_dir, g_path_to_tar, g_path_to_whl, g_produce_unit_reports, testreport_dir, g_r_pkg_ver_chk, g_hadoop_namenode, g_on_hadoop, g_perf)
+    if (g_test_to_run is not None):
+        g_runner.add_test(g_test_to_run)
+    elif (g_test_list_file is not None):
+        g_runner.read_test_list_file(g_test_list_file)
+    else:
+        g_runner.build_test_list(g_test_group, g_run_small, g_run_medium, g_run_large, g_run_xlarge, g_nopass, g_nointernal)
+    if g_no_run:
+        sys.exit(0)
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    if ((h2o_jar is None) or (not os.path.exists(h2o_jar))):
+        print ''
+        print 'ERROR: H2O jar not found'
+        print ''
+        sys.exit(1)
+    try:
+        g_runner.start_clouds()
+        g_runner.run_tests(g_nopass)
+    finally:
+        g_runner.check_clouds()
+        g_runner.stop_clouds()
+        g_runner.report_summary(g_nopass)
+    if (not g_runner.get_regression_passed()):
+        sys.exit(1)
