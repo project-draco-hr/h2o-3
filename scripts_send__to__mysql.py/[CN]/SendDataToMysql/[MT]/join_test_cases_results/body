@@ -1,0 +1,13 @@
+def join_test_cases_results(self):
+    h2o = mysql.connector.connect(client_flags=[ClientFlag.LOCAL_FILES], user='root', password='0xdata', host='172.16.2.178', database='h2o')
+    cursor = h2o.cursor()
+    self.drop_join_test_cases_tables()
+    try:
+        join_query = '\n                         CREATE TABLE TestCasesResults AS(\n                         SELECT *\n                         FROM AccuracyTestCaseResults\n                         LEFT JOIN TestCases\n                         ON AccuracyTestCaseResults.testcase_id = TestCases.test_case_id\n                         LEFT JOIN AccuracyDatasets\n                         ON TestCases.training_data_set_id = AccuracyDatasets.data_set_id);\n                         '
+        cursor.execute(join_query)
+    except:
+        traceback.print_exc()
+        h2o.rollback()
+        assert False, 'Failed to join AccuracyTestCaseResults, TestCases, and AccuracyDatasets!'
+    cursor.close()
+    h2o.close()
