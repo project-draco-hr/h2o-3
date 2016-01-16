@@ -1,0 +1,16 @@
+{
+  double step=1;
+  double[] newBeta=direction.clone();
+  for (int i=0; i < maxfev && step >= minStep; ++i, step*=_stepDec) {
+    GradientInfo ginfo=_gslvr.getObjective(ArrayUtils.wadd(_beta,direction,newBeta,step));
+    double objVal=ginfo._objVal + _l1pen * ArrayUtils.l1norm(_beta,true);
+    if (objVal < _objVal) {
+      _ginfo=ginfo;
+      _objVal=objVal;
+      _beta=newBeta;
+      _step=step;
+      return true;
+    }
+  }
+  return false;
+}

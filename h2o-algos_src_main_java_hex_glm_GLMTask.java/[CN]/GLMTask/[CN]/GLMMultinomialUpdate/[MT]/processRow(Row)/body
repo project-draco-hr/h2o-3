@@ -1,0 +1,11 @@
+{
+  double maxrow=0;
+  for (int i=0; i < _beta.length; ++i) {
+    _etas[i]=r.innerProduct(_beta[i]) + _sparseOffsets[i];
+    if (_etas[i] > maxrow)     maxrow=_etas[i];
+  }
+  double sumExp=0;
+  for (int i=0; i < _beta.length; ++i)   if (i != _c)   sumExp+=Math.exp(_etas[i] - maxrow);
+  _maxRowChunk.set(r.cid,maxrow);
+  _sumExpChunk.set(r.cid,sumExp);
+}

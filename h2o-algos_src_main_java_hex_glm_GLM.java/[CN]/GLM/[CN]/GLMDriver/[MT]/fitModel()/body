@@ -1,0 +1,36 @@
+{
+  Solver solver=(_parms._solver == Solver.AUTO) ? defaultSolver() : _parms._solver;
+  if (solver == Solver.IRLSM && _parms._family == Family.multinomial) {
+    if (_dinfo._responses == 1)     _dinfo.addResponse(new String[]{"__glm_sum_exp","__glm_max_row"},_dinfo._adaptedFrame.anyVec().makeDoubles(2));
+  }
+switch (solver) {
+case COORDINATE_DESCENT:
+case IRLSM:
+    if (_parms._family == Family.multinomial)     fitIRLSM_multinomial();
+ else     if (_parms._family == Family.gaussian && _parms._link == Link.identity)     fitLSM();
+ else     fitIRLSM();
+  break;
+case L_BFGS:
+fitLBFGS();
+break;
+case COORDINATE_DESCENT_NAIVE:
+fitCOD();
+break;
+default :
+throw H2O.unimpl();
+}
+if (_parms._compute_p_values) {
+double se=1;
+boolean seEst=false;
+double[] beta=_state.beta();
+if (_parms._family != Family.binomial && _parms._family != Family.poisson) {
+seEst=true;
+ComputeSETsk ct=new ComputeSETsk(null,_state.activeData(),GLM.this.jobKey(),beta,_parms).doAll(_state.activeData()._adaptedFrame);
+se=ct._sumsqe / (_nobs - 1 - _state.activeData().fullN());
+}
+double[] zvalues=new double[_state.activeData().fullN() + 1];
+double[] gInvDiag=_chol.getInvDiag();
+for (int i=0; i < zvalues.length; ++i) zvalues[i]=beta[i] / Math.sqrt(_parms._obj_reg * gInvDiag[i] * se);
+_model.setZValues(expandVec(zvalues,_state.activeData()._activeCols,_dinfo.fullN() + 1,Double.NaN),se,seEst);
+}
+}

@@ -22,18 +22,22 @@
     model.delete();
     fr.delete();
     job.remove();
-    FVecTest.makeByteVec(raw,"x,y\n1,0\n2,1\n3,2\n4,3\n5,1\n6,4\n7,9\n8,18\n9,23\n10,31\n11,20\n12,25\n13,37\n14,45\n");
+    FVecTest.makeByteVec(raw,"x,y\n1,0\n2,1\n3,2\n4,3\n5,1\n6,4\n7,9\n8,18\n9,23\n10,31\n11,20\n12,25\n13,37\n14,45\n150,7.193936e+16\n");
     fr=ParseDataset.parse(parsed,raw);
     GLMParameters params2=new GLMParameters(Family.poisson);
     params2._train=fr._key;
     params2._response_column=fr._names[1];
     params2._lambda=new double[]{0};
-    params2._standardize=false;
-    params2._beta_epsilon=1e-5;
+    params2._standardize=true;
+    params2._beta_epsilon=1e-6;
+    params2._gradient_epsilon=0;
+    params2._objective_epsilon=0;
+    params2._max_iterations=100;
     job=new GLM(modelKey,"glm test simple poisson",params2);
     model=job.trainModel().get();
-    assertEquals(0.3396,model.beta()[1],1e-4);
-    assertEquals(0.2565,model.beta()[0],1e-4);
+    System.out.println(model.coefficients());
+    assertEquals(0.3396,model.beta()[1],1e-1);
+    assertEquals(0.2565,model.beta()[0],1e-1);
     res=model.score(fr);
     Assert.assertTrue(model.testJavaScoring(fr,res,1e-15));
   }

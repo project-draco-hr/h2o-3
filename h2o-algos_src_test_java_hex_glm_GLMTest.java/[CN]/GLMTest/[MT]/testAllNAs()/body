@@ -3,18 +3,22 @@
   Key parsed=Key.make("gamma_test_data_parsed");
   FVecTest.makeByteVec(raw,"x,y,z\n1,0,NA\n2,NA,1\nNA,3,2\n4,3,NA\n5,NA,1\nNA,6,4\n7,NA,9\n8,NA,18\nNA,9,23\n10,31,NA\nNA,11,20\n12,NA,25\nNA,13,37\n14,45,NA\n");
   Frame fr=ParseDataset.parse(parsed,raw);
+  GLM job=null;
   try {
     GLMParameters params=new GLMParameters(Family.gamma);
     params._response_column=fr._names[1];
     params._train=parsed;
     params._lambda=new double[]{0};
     Key modelKey=Key.make("gamma_test");
-    GLM job=new GLM(modelKey,"glm test simple gamma",params);
+    job=new GLM(modelKey,"glm test simple gamma",params);
     job.trainModel().get();
     assertFalse("should've thrown IAE",true);
   }
- catch (  H2OModelBuilderIllegalArgumentException e) {
-    assertTrue(e.getMessage().contains("Got no data to run on after filtering out the rows with missing values."));
+ catch (  IllegalArgumentException e) {
+    assertTrue(e.getMessage().contains("No rows left in the dataset"));
   }
-  fr.delete();
+ finally {
+    if (job != null)     job.remove();
+    fr.delete();
+  }
 }

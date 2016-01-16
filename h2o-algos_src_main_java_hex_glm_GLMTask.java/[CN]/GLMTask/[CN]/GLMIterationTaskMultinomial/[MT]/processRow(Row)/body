@@ -1,0 +1,26 @@
+{
+  double y=r.response(0);
+  double sumExp=r.response(1);
+  double maxRow=r.response(2);
+  int numStart=_dinfo.numStart();
+  y=(y == _c) ? 1 : 0;
+  double eta=r.innerProduct(_beta) + _sparseOffset;
+  if (eta > maxRow)   maxRow=eta;
+  double etaExp=Math.exp(eta - maxRow);
+  sumExp+=etaExp;
+  double mu=(etaExp == Double.POSITIVE_INFINITY ? 1 : (etaExp / sumExp));
+  if (mu < 1e-16)   mu=1e-16;
+  double d=mu * (1 - mu);
+  double wz=r.weight * (eta * d + (y - mu));
+  double w=r.weight * d;
+  for (int i=0; i < r.nBins; ++i) {
+    _xy[r.binIds[i]]+=wz;
+  }
+  for (int i=0; i < r.nNums; ++i) {
+    int id=r.numIds == null ? (i + numStart) : r.numIds[i];
+    double val=r.numVals[i];
+    _xy[id]+=wz * val;
+  }
+  if (_dinfo._intercept)   _xy[_xy.length - 1]+=wz;
+  _gram.addRow(r,w);
+}

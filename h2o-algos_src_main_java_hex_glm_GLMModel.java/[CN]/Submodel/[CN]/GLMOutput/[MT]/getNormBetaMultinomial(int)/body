@@ -1,14 +1,9 @@
 {
   double[][] res=new double[nclasses()][];
   Submodel sm=_submodels[idx];
-  for (int i=0; i < res.length; ++i) {
-    if (sm.idxs == null)     res[i]=sm.betaMultinomial[i].clone();
- else {
-      res[i]=MemoryManager.malloc8d(_dinfo.fullN() + 1);
-      int j=0;
-      for (      int id : sm.idxs)       res[i][id]=sm.betaMultinomial[i][j++];
-      res[i][_dinfo.fullN()]=sm.betaMultinomial[i][sm.betaMultinomial[i].length - 1];
-    }
-  }
+  int N=_dinfo.fullN() + 1;
+  double[] beta=sm.beta;
+  if (sm.idxs != null)   beta=ArrayUtils.expandAndScatter(beta,nclasses() * (_dinfo.fullN() + 1),sm.idxs);
+  for (int i=0; i < res.length; ++i)   res[i]=Arrays.copyOfRange(beta,i * N,(i + 1) * N);
   return res;
 }

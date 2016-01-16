@@ -1,2 +1,40 @@
 {
+  if (r.bad || r.weight == 0)   return;
+  ++_nobs;
+  double y=r.response(0);
+  final int numStart=_dinfo.numStart();
+  double wz, w;
+  if (_glmf._family == Family.multinomial) {
+    double sumExp=r.response(1);
+    double maxRow=r.response(2);
+    y=(y == _c) ? 1 : 0;
+    double eta=r.innerProduct(_beta) + _sparseOffset;
+    if (eta > maxRow)     maxRow=eta;
+    double etaExp=Math.exp(eta - maxRow);
+    sumExp+=etaExp;
+    double mu=(etaExp == Double.POSITIVE_INFINITY ? 1 : (etaExp / sumExp));
+    if (mu < 1e-16)     mu=1e-16;
+    double d=mu * (1 - mu);
+    wz=r.weight * (eta * d + (y - mu));
+    w=r.weight * d;
+  }
+ else   if (_beta != null) {
+    _glmf.computeWeights(y,r.innerProduct(_beta) + _sparseOffset,r.offset,r.weight,_w);
+    w=_w.w;
+    wz=w * _w.z;
+  }
+ else {
+    w=r.weight;
+    wz=w * (y - r.offset);
+  }
+  wsum+=w;
+  wsumu+=r.weight;
+  for (int i=0; i < r.nBins; ++i)   _xy[r.binIds[i]]+=wz;
+  for (int i=0; i < r.nNums; ++i) {
+    int id=r.numIds == null ? (i + numStart) : r.numIds[i];
+    double val=r.numVals[i];
+    _xy[id]+=wz * val;
+  }
+  if (_dinfo._intercept)   _xy[_xy.length - 1]+=wz;
+  _gram.addRow(r,w);
 }

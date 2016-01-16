@@ -1,0 +1,14 @@
+{
+  final double[] fullbeta=_beta.clone();
+  return new GradientSolver(){
+    @Override public GradientInfo getGradient(    double[] beta){
+      System.arraycopy(beta,0,fullbeta,_classOffsets[c],beta.length);
+      GLMGradientInfo fullGinfo=_gslvr.getGradient(fullbeta);
+      return new GLMGradientInfo(fullGinfo._likelihood,fullGinfo._objVal,Arrays.copyOfRange(fullGinfo._gradient,_classOffsets[c],_classOffsets[c + 1]));
+    }
+    @Override public GradientInfo getObjective(    double[] beta){
+      return getGradient(beta);
+    }
+  }
+;
+}

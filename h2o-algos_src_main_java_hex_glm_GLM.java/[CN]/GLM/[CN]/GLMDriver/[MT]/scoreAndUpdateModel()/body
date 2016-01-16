@@ -1,0 +1,15 @@
+{
+  Frame train=DKV.<Frame>getGet(_parms._train);
+  _model.score(train).delete();
+  ModelMetrics mtrain=ModelMetrics.getFromDKV(_model,train);
+  _model._output._training_metrics=mtrain;
+  _keys2Keep.put("training_metrics",mtrain._key);
+  if (_valid != null) {
+    Frame valid=DKV.<Frame>getGet(_parms._valid);
+    _model.score(valid).delete();
+    _model._output._validation_metrics=ModelMetrics.getFromDKV(_model,valid);
+    _keys2Keep.put("validation_metrics",_model._output._validation_metrics._key);
+  }
+  _model.update(jobKey());
+  _lastScore=System.currentTimeMillis();
+}

@@ -1,0 +1,10 @@
+{
+  double y=row.response(0);
+  double eta=row.innerProduct(_beta) + _sparseOffset;
+  double mu=1 / (Math.exp(-eta) + 1);
+  if (mu < 1e-16)   mu=1e-16;
+  double d=mu * (1 - mu);
+  row.setOutput(0,row.weight * d);
+  row.setOutput(1,eta + (y - mu) / d);
+  _likelihood+=row.weight * (MathUtils.y_log_y(y,mu) + MathUtils.y_log_y(1 - y,1 - mu));
+}

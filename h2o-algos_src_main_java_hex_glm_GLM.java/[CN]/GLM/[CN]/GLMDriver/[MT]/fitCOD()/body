@@ -1,0 +1,114 @@
+{
+  double[] beta=_state.beta();
+  int p=_state.activeData().fullN() + 1;
+  double wsum, wsumu;
+  double[] denums;
+  boolean skipFirstLevel=!_state.activeData()._useAllFactorLevels;
+  double[] betaold=beta.clone();
+  double objold=_state.objVal();
+  int iter2=0;
+  Vec[] newVecs=_state.activeData()._adaptedFrame.anyVec().makeZeros(3);
+  Vec w=newVecs[0];
+  Vec z=newVecs[1];
+  Vec zTilda=newVecs[2];
+  long startTimeTotalNaive=System.currentTimeMillis();
+  while (iter2++ < 30) {
+    Frame fr=new Frame(_state.activeData()._adaptedFrame);
+    fr.add("w",w);
+    fr.add("z",z);
+    fr.add("zTilda",zTilda);
+    GLMGenerateWeightsTask gt=new GLMGenerateWeightsTask(GLM.this._key,_state.activeData(),_parms,beta).doAll(fr);
+    double objVal=objVal(gt._likelihood,gt._betaw,_state.lambda());
+    denums=gt.denums;
+    wsum=gt.wsum;
+    wsumu=gt.wsumu;
+    int iter1=0;
+    while (iter1++ < 100) {
+      Frame fr2=new Frame();
+      fr2.add("w",w);
+      fr2.add("z",z);
+      fr2.add("zTilda",zTilda);
+      for (int i=0; i < _state.activeData()._cats; i++) {
+        Frame fr3=new Frame(fr2);
+        int level_num=_state.activeData()._catOffsets[i + 1] - _state.activeData()._catOffsets[i];
+        int prev_level_num=0;
+        fr3.add("xj",_state.activeData()._adaptedFrame.vec(i));
+        boolean intercept=(i == 0);
+        if (!intercept) {
+          prev_level_num=_state.activeData()._catOffsets[i] - _state.activeData()._catOffsets[i - 1];
+          fr3.add("xjm1",_state.activeData()._adaptedFrame.vec(i - 1));
+        }
+        int start_old=_state.activeData()._catOffsets[i];
+        GLMCoordinateDescentTaskSeqNaive stupdate;
+        if (intercept)         stupdate=new GLMCoordinateDescentTaskSeqNaive(intercept,false,4,Arrays.copyOfRange(betaold,start_old,start_old + level_num),new double[]{beta[p - 1]},_state.activeData()._catLvls[i],null,null,null,null,null,skipFirstLevel).doAll(fr3);
+ else         stupdate=new GLMCoordinateDescentTaskSeqNaive(intercept,false,1,Arrays.copyOfRange(betaold,start_old,start_old + level_num),Arrays.copyOfRange(beta,_state.activeData()._catOffsets[i - 1],_state.activeData()._catOffsets[i]),_state.activeData()._catLvls[i],_state.activeData()._catLvls[i - 1],null,null,null,null,skipFirstLevel).doAll(fr3);
+        for (int j=0; j < level_num; ++j)         beta[_state.activeData()._catOffsets[i] + j]=ADMM.shrinkage(stupdate._temp[j] / wsumu,_parms._lambda[_lambdaId] * _parms._alpha[0]) / (denums[_state.activeData()._catOffsets[i] + j] / wsumu + _parms._lambda[_lambdaId] * (1 - _parms._alpha[0]));
+      }
+      int cat_num=2;
+      for (int i=0; i < _state.activeData()._nums; ++i) {
+        GLMCoordinateDescentTaskSeqNaive stupdate;
+        Frame fr3=new Frame(fr2);
+        fr3.add("xj",_state.activeData()._adaptedFrame.vec(i + _state.activeData()._cats));
+        boolean intercept=(i == 0 && _state.activeData().numStart() == 0);
+        double[] meannew=null, meanold=null, varnew=null, varold=null;
+        if (i > 0 || intercept) {
+          cat_num=3;
+          if (!intercept)           fr3.add("xjm1",_state.activeData()._adaptedFrame.vec(i - 1 + _state.activeData()._cats));
+          if (_state.activeData()._normMul != null) {
+            varold=new double[]{_state.activeData()._normMul[i]};
+            meanold=new double[]{_state.activeData()._normSub[i]};
+            if (i != 0) {
+              varnew=new double[]{_state.activeData()._normMul[i - 1]};
+              meannew=new double[]{_state.activeData()._normSub[i - 1]};
+            }
+          }
+          stupdate=new GLMCoordinateDescentTaskSeqNaive(intercept,false,cat_num,new double[]{betaold[_state.activeData().numStart() + i]},new double[]{beta[(_state.activeData().numStart() + i - 1 + p) % p]},null,null,varold,meanold,varnew,meannew,skipFirstLevel).doAll(fr3);
+          beta[i + _state.activeData().numStart()]=ADMM.shrinkage(stupdate._temp[0] / wsumu,_parms._lambda[_lambdaId] * _parms._alpha[0]) / (denums[i + _state.activeData().numStart()] / wsumu + _parms._lambda[_lambdaId] * (1 - _parms._alpha[0]));
+        }
+ else         if (i == 0 && !intercept) {
+          int prev_level_num=_state.activeData().numStart() - _state.activeData()._catOffsets[_state.activeData()._cats - 1];
+          fr3.add("xjm1",_state.activeData()._adaptedFrame.vec(_state.activeData()._cats - 1));
+          if (_state.activeData()._normMul != null) {
+            varold=new double[]{_state.activeData()._normMul[i]};
+            meanold=new double[]{_state.activeData()._normSub[i]};
+          }
+          stupdate=new GLMCoordinateDescentTaskSeqNaive(intercept,false,cat_num,new double[]{betaold[_state.activeData().numStart()]},Arrays.copyOfRange(beta,_state.activeData()._catOffsets[_state.activeData()._cats - 1],_state.activeData().numStart()),null,_state.activeData()._catLvls[_state.activeData()._cats - 1],varold,meanold,null,null,skipFirstLevel).doAll(fr3);
+          beta[_state.activeData().numStart()]=ADMM.shrinkage(stupdate._temp[0] / wsumu,_parms._lambda[_lambdaId] * _parms._alpha[0]) / (denums[_state.activeData().numStart()] / wsumu + _parms._lambda[_lambdaId] * (1 - _parms._alpha[0]));
+        }
+      }
+      if (_state.activeData()._nums + _state.activeData()._cats > 0) {
+        Frame fr3=new Frame(fr2);
+        fr3.add("xjm1",_state.activeData()._adaptedFrame.vec(_state.activeData()._cats + _state.activeData()._nums - 1));
+        GLMCoordinateDescentTaskSeqNaive iupdate;
+        if (_state.activeData()._adaptedFrame.vec(_state.activeData()._cats + _state.activeData()._nums - 1).isCategorical()) {
+          cat_num=2;
+          iupdate=new GLMCoordinateDescentTaskSeqNaive(false,true,cat_num,new double[]{betaold[betaold.length - 1]},Arrays.copyOfRange(beta,_state.activeData()._catOffsets[_state.activeData()._cats - 1],_state.activeData()._catOffsets[_state.activeData()._cats]),null,_state.activeData()._catLvls[_state.activeData()._cats - 1],null,null,null,null,skipFirstLevel).doAll(fr3);
+        }
+ else {
+          cat_num=3;
+          double[] meannew=null, varnew=null;
+          if (_state.activeData()._normMul != null) {
+            varnew=new double[]{_state.activeData()._normMul[_state.activeData()._normMul.length - 1]};
+            meannew=new double[]{_state.activeData()._normSub[_state.activeData()._normSub.length - 1]};
+          }
+          iupdate=new GLMCoordinateDescentTaskSeqNaive(false,true,cat_num,new double[]{betaold[betaold.length - 1]},new double[]{beta[beta.length - 2]},null,null,null,null,varnew,meannew,skipFirstLevel).doAll(fr3);
+        }
+        if (_parms._intercept)         beta[beta.length - 1]=iupdate._temp[0] / wsum;
+      }
+      double maxdiff=ArrayUtils.linfnorm(ArrayUtils.subtract(beta,betaold),false);
+      System.arraycopy(beta,0,betaold,0,beta.length);
+      if (maxdiff < _parms._beta_epsilon)       break;
+    }
+    double percdiff=Math.abs((objold - objVal) / objold);
+    if (percdiff < _parms._objective_epsilon & iter2 > 1)     break;
+    objold=objVal;
+    System.out.println("iter1 = " + iter1);
+  }
+  System.out.println("iter2 = " + iter2);
+  long endTimeTotalNaive=System.currentTimeMillis();
+  long durationTotalNaive=(endTimeTotalNaive - startTimeTotalNaive) / 1000;
+  System.out.println("Time to run Naive Coordinate Descent " + durationTotalNaive);
+  _state._iter=iter2;
+  for (  Vec v : newVecs)   v.remove();
+  _state.updateState(beta,objold);
+}

@@ -1,2 +1,95 @@
 {
+  super.init(expensive);
+  hide("_balance_classes","Not applicable since class balancing is not required for GLM.");
+  hide("_max_after_balance_size","Not applicable since class balancing is not required for GLM.");
+  hide("_class_sampling_factors","Not applicable since class balancing is not required for GLM.");
+  _parms.validate(this);
+  if (error_count() > 0)   return;
+  if (expensive) {
+    if (_parms._alpha == null)     _parms._alpha=new double[]{_parms._solver == Solver.IRLSM || _parms._solver == Solver.COORDINATE_DESCENT_NAIVE ? .5 : 0};
+    _train.bulkRollups();
+    _sc=new ScoringHistory();
+    _t0=System.currentTimeMillis();
+    if (_parms._lambda_search || !_parms._intercept || _parms._lambda == null || _parms._lambda[0] > 0)     _parms._use_all_factor_levels=true;
+    if (_parms._max_active_predictors == -1)     _parms._max_active_predictors=_parms._solver == Solver.IRLSM ? 7000 : 100000000;
+    if (_parms._link == Link.family_default)     _parms._link=_parms._family.defaultLink;
+    _dinfo=new DataInfo(_train.clone(),_valid,1,_parms._use_all_factor_levels || _parms._lambda_search,_parms._standardize ? DataInfo.TransformType.STANDARDIZE : DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true,false,false,hasWeightCol(),hasOffsetCol(),hasFoldCol());
+    checkMemoryFootPrint(_dinfo);
+    if (_parms._max_iterations == -1) {
+      int numclasses=nclasses();
+      if (_parms._solver == Solver.IRLSM) {
+        _parms._max_iterations=_parms._lambda_search ? numclasses * 10 * _parms._nlambdas : numclasses * 50;
+      }
+ else {
+        _parms._max_iterations=numclasses * Math.max(20,_dinfo.fullN() >> 2);
+        if (_parms._lambda_search)         _parms._max_iterations=_parms._nlambdas * 100 * numclasses;
+      }
+    }
+    BetaConstraint bc=(_parms._beta_constraints != null) ? new BetaConstraint(_parms._beta_constraints.get()) : new BetaConstraint();
+    if (_valid != null)     _validDinfo=_dinfo.validDinfo(_valid);
+    _state=new ComputationState(_parms,_dinfo,bc,nclasses());
+    boolean skippingRows=(_parms._missing_value_handling == MissingValuesHandling.Skip && _train.hasNAs());
+    if (hasWeightCol() || skippingRows) {
+      boolean setWeights=skippingRows && _parms._lambda_search && _parms._alpha[0] > 0;
+      if (setWeights) {
+        Vec wc=_weights == null ? _dinfo._adaptedFrame.anyVec().makeCon(1) : _weights.makeCopy();
+        _dinfo.setWeights(_generatedWeights="__glm_gen_weights",wc);
+      }
+      YMUTask ymt=new YMUTask(_dinfo,nclasses(),!_parms._stdOverride,setWeights).doAll(_dinfo._adaptedFrame);
+      if (ymt._wsum == 0)       throw new IllegalArgumentException("No rows left in the dataset after filtering out rows with missing values. Ignore columns with many NAs or impute your missing values prior to calling glm.");
+      LogInfo("GLM uses " + ymt._nobs + " nobs out of "+ _dinfo._adaptedFrame.numRows()+ " total");
+      _nobs=ymt._nobs;
+      if (_parms._obj_reg == -1)       _parms._obj_reg=1.0 / ymt._wsum;
+      _dinfo.updateWeightedSigmaAndMean(ymt._basicStats.sigma(),ymt._basicStats.mean());
+      _state._ymu=ymt._yMu;
+    }
+ else {
+      _nobs=_train.numRows();
+      if (_parms._obj_reg == -1)       _parms._obj_reg=1.0 / _nobs;
+      if (_parms._family == Family.multinomial) {
+        long[] bins=_train.lastVec().bins();
+        double reg=1.0 / ArrayUtils.sum(bins);
+        _state._ymu=MemoryManager.malloc8d(bins.length);
+        for (int i=0; i < _state._ymu.length; ++i)         _state._ymu[i]=bins[i] * reg;
+      }
+ else       _state._ymu=new double[]{_train.lastVec().mean()};
+    }
+    if (hasOffsetCol() && _parms._intercept) {
+      GLMGradientSolver gslvr=new GLMGradientSolver(_parms,_dinfo.filterExpandedColumns(new int[0]),0,_state.activeBC());
+      double[] x=new L_BFGS().solve(gslvr,new double[1]).coefs;
+      x[0]=_parms.linkInv(x[0]);
+      _state._ymu=x;
+    }
+    if (_parms._prior > 0)     _iceptAdjust=-Math.log(_state._ymu[0] * (1 - _parms._prior) / (_parms._prior * (1 - _state._ymu[0])));
+    ArrayList<Vec> vecs=new ArrayList<>();
+    if (_weights != null)     vecs.add(_weights);
+    if (_offset != null)     vecs.add(_offset);
+    vecs.add(_response);
+    if (_valid != null) {
+      ArrayList<Vec> testVecs=new ArrayList<>();
+      boolean testWeights=false;
+      boolean testOffset=false;
+      testVecs.add(_valid.vec(_parms._response_column));
+    }
+    _model=new GLMModel(_dest,_parms,GLM.this,_state._ymu,_dinfo._adaptedFrame.lastVec().sigma(),_lmax,_nobs);
+    String[] warns=_model.adaptTestForTrain(_valid,true,true);
+    for (    String s : warns)     warn("_validation_frame",s);
+    if (_parms._lambda_min_ratio == -1)     _parms._lambda_min_ratio=_nobs > 10 * _dinfo.fullN() ? 1e-4 : 1e-2;
+    double[] beta=getNullBeta();
+    GLMGradientInfo ginfo=new GLMGradientSolver(_parms,_dinfo,0,_state.activeBC()).getGradient(beta);
+    _state.updateState(beta,ginfo);
+    if (_parms._lambda == null) {
+      _lmax=lmax(_state.ginfo()._gradient);
+      if (_parms._lambda_search) {
+        if (_parms._nlambdas == -1)         _parms._nlambdas=100;
+        _parms._lambda=new double[_parms._nlambdas];
+        double dec=Math.pow(_parms._lambda_min_ratio,1.0 / (_parms._nlambdas - 1));
+        _parms._lambda[0]=_lmax;
+        double l=_lmax;
+        for (int i=1; i < _parms._nlambdas; ++i)         _parms._lambda[i]=(l*=dec);
+      }
+ else       _parms._lambda=new double[]{_parms._lambda_min_ratio * _lmax};
+    }
+    _model.clone2().delete_and_lock(GLM.this._key);
+  }
 }

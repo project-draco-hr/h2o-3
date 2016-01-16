@@ -1,0 +1,10 @@
+{
+  _sc.addIterationScore(_state._iter,_state.likelihood(),_state.objVal());
+  int iterDelta=_state._iter < 4 ? 1 : 4;
+  _state._worked+=_workPerIteration * iterDelta;
+  if (_state._iter < 4 || (_state._iter & 3) == 0)   update(_workPerIteration * iterDelta,"iteration " + (_state._iter + 1) + ", objective value = "+ MathUtils.roundToNDigits(_state.objVal(),4),GLM.this._key);
+  if (!_parms._lambda_search && (_parms._score_each_iteration || timeSinceLastScoring() > SCORING_INTERVAL_MSEC)) {
+    _model.update(_state.expandBeta(_state.beta()),-1,-1,_state._iter);
+    scoreAndUpdateModel();
+  }
+}

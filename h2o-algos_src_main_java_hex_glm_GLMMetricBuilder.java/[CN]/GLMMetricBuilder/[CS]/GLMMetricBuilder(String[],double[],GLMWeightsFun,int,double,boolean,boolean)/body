@@ -1,0 +1,23 @@
+{
+  super(domain == null ? 1 : domain.length,domain);
+  _rank=rank;
+  _glmf=glmf;
+  _threshold=threshold;
+  _computeMetrics=computeMetrics;
+  _intercept=intercept;
+  _ymu=ymu;
+  if (_computeMetrics) {
+switch (_glmf._family) {
+case binomial:
+      _metricBuilder=new MetricBuilderBinomial(domain);
+    break;
+case multinomial:
+  _metricBuilder=new MetricBuilderMultinomial(domain.length,domain);
+((MetricBuilderMultinomial)_metricBuilder)._priorDistribution=ymu;
+break;
+default :
+_metricBuilder=new MetricBuilderRegression();
+break;
+}
+}
+}

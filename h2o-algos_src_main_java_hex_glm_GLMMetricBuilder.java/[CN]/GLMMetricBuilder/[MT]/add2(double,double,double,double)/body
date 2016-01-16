@@ -1,0 +1,12 @@
+{
+  _wcount+=weight;
+  ++_nobs;
+  residual_deviance+=weight * _glmf.deviance(yreal,ymodel);
+  if (offset == 0)   null_devince+=weight * _glmf.deviance(yreal,_ymu[0]);
+ else   null_devince+=weight * _glmf.deviance(yreal,_glmf.linkInv(offset + _glmf.link(_ymu[0])));
+  if (_glmf._family == Family.poisson) {
+    long y=Math.round(yreal);
+    double logfactorial=MathUtils.logFactorial(y);
+    _aic2+=weight * (yreal * Math.log(ymodel) - logfactorial - ymodel);
+  }
+}

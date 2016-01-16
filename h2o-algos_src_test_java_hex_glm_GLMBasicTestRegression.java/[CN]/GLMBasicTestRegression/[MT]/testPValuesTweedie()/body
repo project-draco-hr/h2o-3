@@ -11,10 +11,12 @@
   parms._alpha=new double[]{0};
   parms._response_column="Infections";
   parms._compute_p_values=true;
+  parms._objective_epsilon=0;
   GLM job=new GLM(Key.make("prostate_model"),"glm test p-values",parms);
   GLMModel model=null;
   try {
     model=job.trainModel().get();
+    System.out.println(model.coefficients());
     String[] names_expected=new String[]{"Intercept","Swimmer.Occas","Location.NonBeach","Age.20-24","Age.25-29","Sex.Male"};
     String[] names_actual=model._output.coefficientNames();
     HashMap<String,Integer> coefMap=new HashMap<>();

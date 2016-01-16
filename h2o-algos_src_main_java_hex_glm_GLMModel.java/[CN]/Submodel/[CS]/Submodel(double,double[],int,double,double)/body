@@ -6,14 +6,17 @@
   this.betaMultinomial=null;
   int r=0;
   if (beta != null) {
-    for (int i=0; i < beta.length - 1; ++i)     if (beta[i] != 0)     ++r;
-    idxs=MemoryManager.malloc4(r);
-    int j=0;
-    for (int i=0; i < beta.length - 1; ++i)     if (beta[i] != 0)     idxs[j++]=i;
-    j=0;
-    this.beta=MemoryManager.malloc8d(idxs.length + 1);
-    for (    int i : idxs)     this.beta[j++]=beta[i];
-    this.beta[this.beta.length - 1]=beta[beta.length - 1];
+    for (int i=0; i < beta.length; ++i)     if (beta[i] != 0)     ++r;
+    if (r < beta.length) {
+      idxs=MemoryManager.malloc4(r);
+      int j=0;
+      for (int i=0; i < beta.length; ++i)       if (beta[i] != 0)       idxs[j++]=i;
+      this.beta=ArrayUtils.select(beta,idxs);
+    }
+ else {
+      this.beta=beta;
+      idxs=null;
+    }
   }
  else {
     this.beta=null;

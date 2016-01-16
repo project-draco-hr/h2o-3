@@ -1,0 +1,136 @@
+{
+  Vec v=beta_constraints.vec("names");
+  String[] dom;
+  int[] map;
+  if (v.isString()) {
+    dom=new String[(int)v.length()];
+    map=new int[dom.length];
+    BufferedString tmpStr=new BufferedString();
+    for (int i=0; i < dom.length; ++i) {
+      dom[i]=v.atStr(tmpStr,i).toString();
+      map[i]=i;
+    }
+    String[] sortedDom=dom.clone();
+    Arrays.sort(sortedDom);
+    for (int i=1; i < sortedDom.length; ++i)     if (sortedDom[i - 1].equals(sortedDom[i]))     throw new IllegalArgumentException("Illegal beta constraints file, got duplicate constraint for predictor '" + sortedDom[i - 1] + "'!");
+  }
+ else   if (v.isCategorical()) {
+    dom=v.domain();
+    map=FrameUtils.asInts(v);
+    int[] sortedMap=MemoryManager.arrayCopyOf(map,map.length);
+    Arrays.sort(sortedMap);
+    for (int i=1; i < sortedMap.length; ++i)     if (sortedMap[i - 1] == sortedMap[i])     throw new IllegalArgumentException("Illegal beta constraints file, got duplicate constraint for predictor '" + dom[sortedMap[i - 1]] + "'!");
+  }
+ else   throw new IllegalArgumentException("Illegal beta constraints file, names column expected to contain column names (strings)");
+  String[] names=ArrayUtils.append(_dinfo.coefNames(),"Intercept");
+  if (!Arrays.deepEquals(dom,names)) {
+    HashMap<String,Integer> m=new HashMap<String,Integer>();
+    for (int i=0; i < names.length; ++i)     m.put(names[i],i);
+    int[] newMap=MemoryManager.malloc4(dom.length);
+    for (int i=0; i < map.length; ++i) {
+      if (_removedCols.contains(dom[map[i]])) {
+        newMap[i]=-1;
+        continue;
+      }
+      Integer I=m.get(dom[map[i]]);
+      if (I == null) {
+        throw new IllegalArgumentException("Unrecognized coefficient name in beta-constraint file, unknown name '" + dom[map[i]] + "'");
+      }
+      newMap[i]=I;
+    }
+    map=newMap;
+  }
+  final int numoff=_dinfo.numStart();
+  String[] valid_col_names=new String[]{"names","beta_given","beta_start","lower_bounds","upper_bounds","rho","mean","std_dev"};
+  Arrays.sort(valid_col_names);
+  for (  String s : beta_constraints.names())   if (Arrays.binarySearch(valid_col_names,s) < 0)   error("beta_constraints","Unknown column name '" + s + "'");
+  if ((v=beta_constraints.vec("beta_start")) != null) {
+    _betaStart=MemoryManager.malloc8d(_dinfo.fullN() + (_dinfo._intercept ? 1 : 0));
+    for (int i=0; i < (int)v.length(); ++i)     if (map[i] != -1)     _betaStart[map[i]]=v.at(i);
+  }
+  if ((v=beta_constraints.vec("beta_given")) != null) {
+    _betaGiven=MemoryManager.malloc8d(_dinfo.fullN() + (_dinfo._intercept ? 1 : 0));
+    for (int i=0; i < (int)v.length(); ++i)     if (map[i] != -1)     _betaGiven[map[i]]=v.at(i);
+  }
+  if ((v=beta_constraints.vec("upper_bounds")) != null) {
+    _betaUB=MemoryManager.malloc8d(_dinfo.fullN() + (_dinfo._intercept ? 1 : 0));
+    Arrays.fill(_betaUB,Double.POSITIVE_INFINITY);
+    for (int i=0; i < (int)v.length(); ++i)     if (map[i] != -1)     _betaUB[map[i]]=v.at(i);
+  }
+  if ((v=beta_constraints.vec("lower_bounds")) != null) {
+    _betaLB=MemoryManager.malloc8d(_dinfo.fullN() + (_dinfo._intercept ? 1 : 0));
+    Arrays.fill(_betaLB,Double.NEGATIVE_INFINITY);
+    for (int i=0; i < (int)v.length(); ++i)     if (map[i] != -1)     _betaLB[map[i]]=v.at(i);
+  }
+  if ((v=beta_constraints.vec("rho")) != null) {
+    _rho=MemoryManager.malloc8d(_dinfo.fullN() + (_dinfo._intercept ? 1 : 0));
+    for (int i=0; i < (int)v.length(); ++i)     if (map[i] != -1)     _rho[map[i]]=v.at(i);
+  }
+  if ((v=beta_constraints.vec("mean")) != null) {
+    _parms._stdOverride=true;
+    for (int i=0; i < v.length(); ++i) {
+      if (!v.isNA(i) && map[i] != -1) {
+        int idx=map == null ? i : map[i];
+        if (idx > _dinfo.numStart() && idx < _dinfo.fullN()) {
+          _dinfo._normSub[idx - _dinfo.numStart()]=v.at(i);
+        }
+ else {
+        }
+      }
+    }
+  }
+  if ((v=beta_constraints.vec("std_dev")) != null) {
+    _parms._stdOverride=true;
+    for (int i=0; i < v.length(); ++i) {
+      if (!v.isNA(i) && map[i] != -1) {
+        int idx=map == null ? i : map[i];
+        if (idx > _dinfo.numStart() && idx < _dinfo.fullN()) {
+          _dinfo._normMul[idx - _dinfo.numStart()]=1.0 / v.at(i);
+        }
+ else {
+        }
+      }
+    }
+  }
+  if (_dinfo._normMul != null) {
+    double normG=0, normS=0, normLB=0, normUB=0;
+    for (int i=numoff; i < _dinfo.fullN(); ++i) {
+      double s=_dinfo._normSub[i - numoff];
+      double d=1.0 / _dinfo._normMul[i - numoff];
+      if (_betaUB != null && !Double.isInfinite(_betaUB[i])) {
+        normUB*=s;
+        _betaUB[i]*=d;
+      }
+      if (_betaLB != null && !Double.isInfinite(_betaUB[i])) {
+        normLB*=s;
+        _betaLB[i]*=d;
+      }
+      if (_betaGiven != null) {
+        normG+=_betaGiven[i] * s;
+        _betaGiven[i]*=d;
+      }
+      if (_betaStart != null) {
+        normS+=_betaStart[i] * s;
+        _betaStart[i]*=d;
+      }
+    }
+    if (_dinfo._intercept) {
+      int n=_dinfo.fullN();
+      if (_betaGiven != null)       _betaGiven[n]+=normG;
+      if (_betaStart != null)       _betaStart[n]+=normS;
+      if (_betaLB != null)       _betaLB[n]+=normLB;
+      if (_betaUB != null)       _betaUB[n]+=normUB;
+    }
+  }
+  if (_betaStart == null && _betaGiven != null)   _betaStart=_betaGiven.clone();
+  if (_betaStart != null) {
+    if (_betaLB != null || _betaUB != null) {
+      for (int i=0; i < _betaStart.length; ++i) {
+        if (_betaLB != null && _betaLB[i] > _betaStart[i])         _betaStart[i]=_betaLB[i];
+        if (_betaUB != null && _betaUB[i] < _betaStart[i])         _betaStart[i]=_betaUB[i];
+      }
+    }
+  }
+  if (_parms._non_negative)   setNonNegative();
+  check();
+}
