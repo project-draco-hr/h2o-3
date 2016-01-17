@@ -2,13 +2,13 @@
   System.out.println("\nCreating left index ...");
   long t0=System.nanoTime();
   RadixOrder leftIndex;
-  H2O.H2OCountedCompleter left=H2O.submitTask(leftIndex=new RadixOrder(leftFrame,true,leftCols));
+  H2O.H2OCountedCompleter left=H2O.submitTask(leftIndex=new RadixOrder(leftFrame,true,leftCols,null));
   left.join();
   System.out.println("***\n*** Creating left index took: " + (System.nanoTime() - t0) / 1e9 + "\n***\n");
   System.out.println("\nCreating right index ...");
   t0=System.nanoTime();
   RadixOrder rightIndex;
-  H2O.H2OCountedCompleter right=H2O.submitTask(rightIndex=new RadixOrder(rightFrame,false,rightCols));
+  H2O.H2OCountedCompleter right=H2O.submitTask(rightIndex=new RadixOrder(rightFrame,false,rightCols,id_maps));
   right.join();
   System.out.println("***\n*** Creating right index took: " + (System.nanoTime() - t0) / 1e9 + "\n***\n");
   int bitShift=Math.max(8,rightIndex._biggestBit[0]) - Math.max(8,leftIndex._biggestBit[0]);

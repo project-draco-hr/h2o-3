@@ -7,6 +7,7 @@ def main(argv):
     global g_failed_output_dir
     global g_test_to_run
     global g_test_list_file
+    global g_exclude_list_file
     global g_test_group
     global g_runner
     global g_nopass
@@ -48,6 +49,8 @@ def main(argv):
     if (g_test_to_run is not None):
         g_num_clouds = 1
     g_runner = TestRunner(test_root_dir, g_use_cloud, g_use_cloud2, g_use_client, g_config, g_use_ip, g_use_port, g_num_clouds, g_nodes_per_cloud, h2o_jar, g_base_port, g_jvm_xmx, g_output_dir, g_failed_output_dir, g_path_to_tar, g_path_to_whl, g_produce_unit_reports, testreport_dir, g_r_pkg_ver_chk, g_hadoop_namenode, g_on_hadoop, g_perf)
+    if (g_exclude_list_file is not None):
+        g_runner.read_exclude_list_file(g_exclude_list_file)
     if (g_test_to_run is not None):
         g_runner.add_test(g_test_to_run)
     elif (g_test_list_file is not None):
