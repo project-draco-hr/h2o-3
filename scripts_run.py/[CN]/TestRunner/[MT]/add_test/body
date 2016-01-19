@@ -10,5 +10,8 @@ def add_test(self, test_path):
         sys.exit(1)
     test_short_dir = self._calc_test_short_dir(test_path)
     test = Test(abs_test_dir, test_short_dir, test_file, self.output_dir, self.hadoop_namenode, self.on_hadoop)
-    self.tests.append(test)
-    self.tests_not_started.append(test)
+    if (test_path.split('/')[(-1)] in self.exclude_list):
+        print 'INFO: Skipping {0} because it was placed on the exclude list.'.format(test_path)
+    else:
+        self.tests.append(test)
+        self.tests_not_started.append(test)

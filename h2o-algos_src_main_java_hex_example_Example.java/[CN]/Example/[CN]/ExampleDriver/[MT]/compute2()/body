@@ -7,7 +7,7 @@
     model=new ExampleModel(_job._result,_parms,new ExampleModel.ExampleOutput(Example.this));
     model.delete_and_lock(_job);
     for (; model._output._iterations < _parms._max_iterations; model._output._iterations++) {
-      if (_job.stop_requested())       break;
+      if (stop_requested())       break;
       double[] maxs=new Max().doAll(_parms.train())._maxs;
       model._output._maxs=maxs;
       model.update(_job);

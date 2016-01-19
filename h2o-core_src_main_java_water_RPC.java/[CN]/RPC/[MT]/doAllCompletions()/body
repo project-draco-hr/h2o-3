@@ -1,7 +1,7 @@
 {
   final Exception e=_dt.getDException();
   if (_fjtasks != null)   for (  final H2OCountedCompleter task : _fjtasks) {
-    H2O.submitTask(new H2OCountedCompleter(){
+    H2O.submitTask(new H2OCountedCompleter(task.priority()){
       @Override public void compute2(){
         if (e != null)         task.completeExceptionally(e);
  else         try {
@@ -10,9 +10,6 @@
  catch (        Throwable e) {
           task.completeExceptionally(e);
         }
-      }
-      @Override public byte priority(){
-        return task.priority();
       }
     }
 );

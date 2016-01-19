@@ -2,7 +2,7 @@
   if (glmIterationTask._likelihood > _likelihood) {
     if (++_iter < 50) {
       InitTsk.this.addToPendingCount(1);
-      new GLMTask.GLMIterationTask(_job._key,_nullDinfo,0,_parms,false,new double[]{.5 * (_yMu[0] + glmIterationTask._beta[0])},0,_parms._intercept,new NullModelIteration(_nullDinfo)).asyncExec(_nullDinfo._adaptedFrame);
+      new GLMTask.GLMIterationTask(_job._key,_nullDinfo,0,_parms,false,new double[]{.5 * (_yMu[0] + glmIterationTask._beta[0])},0,_parms._intercept,new NullModelIteration(_nullDinfo)).dfork(_nullDinfo._adaptedFrame);
     }
  else {
       _ymuLink=_yMu[0];
@@ -16,7 +16,7 @@
   double ymu=glmIterationTask._xy[0] / glmIterationTask._gram.get(0,0);
   if (++_iter < 50 && Math.abs(ymu - glmIterationTask._beta[0]) > _parms._beta_epsilon) {
     InitTsk.this.addToPendingCount(1);
-    new GLMTask.GLMIterationTask(_job._key,_nullDinfo,0,_parms,false,new double[]{ymu},0,_parms._intercept,new NullModelIteration(_nullDinfo)).asyncExec(_nullDinfo._adaptedFrame);
+    new GLMTask.GLMIterationTask(_job._key,_nullDinfo,0,_parms,false,new double[]{ymu},0,_parms._intercept,new NullModelIteration(_nullDinfo)).dfork(_nullDinfo._adaptedFrame);
   }
  else {
     System.out.println("computed null intercept in " + _iter + " iterations, intercept = "+ _yMu[0]);

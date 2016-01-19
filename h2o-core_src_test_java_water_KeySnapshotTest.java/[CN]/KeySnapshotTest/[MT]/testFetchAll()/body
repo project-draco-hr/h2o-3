@@ -5,12 +5,12 @@
   try {
     for (int i=0; i < (userKeys.length >> 1); ++i) {
       DKV.put(userKeys[i]=Key.make("key" + i),new IcedInt(i),fs,false);
-      systemKeys[i]=Key.makeUserHidden(Key.make());
+      systemKeys[i]=Key.make(H2O.SELF);
       DKV.put(systemKeys[i],new Value(systemKeys[i],new IcedInt(i)));
     }
     for (int i=(userKeys.length >> 1); i < userKeys.length; ++i) {
       DKV.put(userKeys[i]=Key.make("key" + i),new IcedDouble(i),fs,false);
-      systemKeys[i]=Key.makeUserHidden(Key.make());
+      systemKeys[i]=Key.make(H2O.SELF);
       DKV.put(systemKeys[i],new Value(systemKeys[i],new IcedDouble(i)));
     }
     fs.blockForPending();
