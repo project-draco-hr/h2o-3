@@ -19,7 +19,10 @@ from six import iteritems, PY3
 from string import ascii_lowercase, digits
 from random import choice
 warnings.simplefilter('always', UserWarning)
-warnings.simplefilter('ignore', requests.packages.urllib3.exceptions.InsecureRequestWarning)
+try:
+    warnings.simplefilter('ignore', requests.packages.urllib3.exceptions.InsecureRequestWarning)
+except:
+    pass
 __H2OCONN__ = None
 __H2O_REST_API_VERSION__ = 3
 atexit.register(_kill_jvm_fork)
