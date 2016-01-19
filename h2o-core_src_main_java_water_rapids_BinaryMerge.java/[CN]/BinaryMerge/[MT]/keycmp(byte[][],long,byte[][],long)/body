@@ -4,10 +4,10 @@
   int xoff=(int)(xi % _leftBatchSize) * _leftKeySize;
   int yoff=(int)(yi % _rightBatchSize) * _rightKeySize;
   byte xByte=0, yByte=0;
-  int i=0, xlen=0, ylen=0;
-  while (i < _numJoinCols && xlen == 0) {
-    xlen=_leftFieldSizes[i];
-    ylen=_rightFieldSizes[i];
+  int i=0;
+  while (i < _numJoinCols && xByte == yByte) {
+    int xlen=_leftFieldSizes[i];
+    int ylen=_rightFieldSizes[i];
     if (xlen != ylen) {
       while (xlen > ylen && xbatch[xoff] == 0) {
         xoff++;

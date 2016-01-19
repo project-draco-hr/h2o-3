@@ -3,9 +3,10 @@
   String ss[]=route._url_pattern_raw.split("/");
   String algoURLName=ss[3];
   String algoName=ModelBuilder.algoName(algoURLName);
+  String schemaDir=ModelBuilder.schemaDirectory(algoURLName);
   String algoSchemaName=Schema.schemaClass(version,algoName).getSimpleName();
   int algoVersion=Integer.valueOf(algoSchemaName.substring(algoSchemaName.lastIndexOf("V") + 1));
-  String paramSchemaName="hex.schemas." + algoName + "V"+ algoVersion+ "$"+ ModelBuilder.paramName(algoURLName)+ "V"+ algoVersion;
+  String paramSchemaName=schemaDir + algoName + "V"+ algoVersion+ "$"+ ModelBuilder.paramName(algoURLName)+ "V"+ algoVersion;
   GridSearchSchema gss=new GridSearchSchema();
   gss.init_meta();
   gss.parameters=(P)TypeMap.newFreezable(paramSchemaName);
