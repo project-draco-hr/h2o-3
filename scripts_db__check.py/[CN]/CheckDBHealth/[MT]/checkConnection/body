@@ -1,0 +1,12 @@
+def checkConnection(self):
+    try:
+        db = mysql.connector.connect(user='root', password='0xdata', host='172.16.2.178', database='h2o')
+        cursor = db.cursor()
+        cursor.execute('SELECT VERSION()')
+        results = cursor.fetchone()
+        if results:
+            print 'Connection is Healthy to Accuracy Test Database.'
+        else:
+            return 'Connection might not be healthy. Nothing returned from query.'
+    except mysql.connector.Error as err:
+        print 'Something went wrong: {}'.format(err)
