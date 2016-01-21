@@ -1,0 +1,10 @@
+def drop_join_test_cases_tables(self):
+    h2o = mysql.connector.connect(user='root', password='0xdata', host='172.16.2.178', database='h2o')
+    cursor = h2o.cursor()
+    try:
+        drop_join_test_cases_query = '\n                        DROP TABLES IF EXISTS TestCasesResults;\n                        '
+        cursor.execute(drop_join_test_cases_query)
+    except:
+        traceback.print_exc()
+        h2o.rollback()
+        assert False, 'Failed to drop TestCasesResults table!'
