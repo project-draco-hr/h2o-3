@@ -1,0 +1,15 @@
+{
+  Frame fr=parse_test_file(Key.make("hex"),fname);
+  try {
+    Val val=Exec.exec(tree);
+    Assert.assertFalse(expectThrow);
+    System.out.println(val.toString());
+    if (val instanceof ValFrame)     return ((ValFrame)val)._fr;
+    throw new IllegalArgumentException("exepcted a frame return");
+  }
+ catch (  IllegalArgumentException iae) {
+    if (!expectThrow)     throw iae;
+    fr.delete();
+    return null;
+  }
+}

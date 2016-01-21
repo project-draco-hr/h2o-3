@@ -6,7 +6,7 @@ def _do_raw_rest(self, url_suffix, method, file_upload_info, **kwargs):
         del kwargs['_rest_version']
     else:
         _rest_version = self._rest_version
-    url = (('https' if self._https else 'http') + '://{}:{}/{}/{}'.format(self._ip, self._port, _rest_version, url_suffix))
+    url = H2OConnection.make_url(url_suffix, _rest_version)
     query_string = ''
     for (k, v) in iteritems(kwargs):
         if isinstance(v, list):
