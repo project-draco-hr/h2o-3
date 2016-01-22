@@ -14,30 +14,6 @@
   ModelBuilder builder=ModelBuilder.make(algoURLName,null,null);
   gss.parameters.fillFromImpl(builder._parms);
   gss.fillFromParms(parms);
-  if (parms.contains("strategy"))   try {
-    gss.strategy=GridSearch.Strategy.valueOf((String)parms.get("strategy"));
-  }
- catch (  IllegalArgumentException iae) {
-    throw new H2OIllegalValueException("strategy",parms.get("strategy"));
-  }
-  if (parms.contains("max_models"))   try {
-    gss.max_models=Integer.valueOf((String)parms.get("max_models"));
-  }
- catch (  NumberFormatException nfe) {
-    throw new H2OIllegalValueException("max_models",parms.get("max_models"));
-  }
-  if (parms.contains("max_time_ms"))   try {
-    gss.max_time_ms=Integer.valueOf((String)parms.get("max_time_ms"));
-  }
- catch (  NumberFormatException nfe) {
-    throw new H2OIllegalValueException("max_time_ms",parms.get("max_time_ms"));
-  }
-  if (parms.contains("seed"))   try {
-    gss.seed=Long.valueOf((String)parms.get("seed"));
-  }
- catch (  NumberFormatException nfe) {
-    throw new H2OIllegalValueException("seed",parms.get("seed"));
-  }
   validateHyperParams((P)gss.parameters,gss.hyper_parameters);
   MP params=(MP)gss.parameters.createAndFillImpl();
   Key<Grid> destKey=gss.grid_id != null ? gss.grid_id.key() : null;
