@@ -1,0 +1,22 @@
+def get_table_size(self):
+    db = mysql.connector.connect(user='root', password='0xdata', host='172.16.2.178', database='h2o')
+    cursor = db.cursor()
+    cursor.execute(' SELECT table_schema as `Database`,table_name AS `Table`,round(((data_length + index_length) / 1024 / 1024), 2) `Size in MB` FROM information_schema.TABLES ORDER BY (data_length + index_length) DESC;')
+    results = cursor.fetchall()
+    widths = []
+    columns = []
+    pipe = '|'
+    separator = '+'
+    for cd in cursor.description:
+        widths.append(max(cd[2], len(cd[0])))
+        columns.append(cd[0])
+    for w in widths:
+        pipe += (' %-' + ('%ss |' % (w,)))
+        separator += (('-' * w) + '--+')
+    print '\n*****Size of every table in mysql server in MB (desc order):*****'
+    print separator
+    print (pipe % tuple(columns))
+    print separator
+    for row in results:
+        print (pipe % row)
+    print separator
