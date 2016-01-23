@@ -1,0 +1,18 @@
+{
+  final double[] rawRow=new double[row.numCols()];
+  for (int i=0; i < rawRow.length; ++i)   rawRow[i]=row.vec(i).isNumeric() ? row.vec(i).at(0) : Double.NaN;
+  Frame res=new MRTask(){
+    @Override public void map(    Chunk[] chks,    NewChunk[] cress){
+      for (int c=0; c < cress.length; c++) {
+        Chunk clf=chks[c];
+        NewChunk cres=cress[c];
+        for (int r=0; r < clf._len; ++r) {
+          if (clf.vec().isString())           cres.addNum(Double.NaN);
+ else           cres.addNum(op(clf.atd(r),rawRow[c]));
+        }
+      }
+    }
+  }
+.doAll(lf.numCols(),Vec.T_NUM,lf).outputFrame(lf._names,null);
+  return cleanCategorical(lf,res);
+}
