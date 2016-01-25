@@ -23,7 +23,7 @@ def _do_raw_rest(self, url_suffix, method, file_upload_info, **kwargs):
             x += ']'
         else:
             x = (str(v) if PY3 else str(v).encode(H2OConnection.__ENCODING__, errors=H2OConnection.__ENCODING_ERROR__))
-        query_string += (((k + '=') + x) + '&')
+        query_string += (((k + '=') + quote(x)) + '&')
     query_string = query_string[:(-1)]
     post_body = ''
     if (not file_upload_info):
