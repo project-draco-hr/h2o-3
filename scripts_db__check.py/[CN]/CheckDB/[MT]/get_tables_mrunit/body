@@ -1,0 +1,22 @@
+def get_tables_mrunit(self):
+    db = mysql.connector.connect(user='root', password='0xdata', host='172.16.2.178', database='h2o')
+    cursor_mrunit = db.cursor()
+    cursor_mrunit.execute("select table_name as mr_unit_tables from information_schema.tables where table_schema = 'mr_unit';")
+    results = cursor_mrunit.fetchall()
+    widths = []
+    columns = []
+    pipe = '|'
+    separator = '+'
+    for cd in cursor_mrunit.description:
+        widths.append(max(cd[2], len(cd[0])))
+        columns.append(cd[0])
+    for w in widths:
+        pipe += (' %-' + ('%ss |' % (w,)))
+        separator += (('-' * w) + '--+')
+    print '\n*****Tables currently in the mr_unit database:*****'
+    print separator
+    print (pipe % tuple(columns))
+    print separator
+    for row in results:
+        print (pipe % row)
+    print separator

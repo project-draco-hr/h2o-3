@@ -7,7 +7,7 @@
   String algoSchemaName=Schema.schemaClass(version,algoName).getSimpleName();
   int algoVersion=Integer.valueOf(algoSchemaName.substring(algoSchemaName.lastIndexOf("V") + 1));
   String paramSchemaName=schemaDir + algoName + "V"+ algoVersion+ "$"+ ModelBuilder.paramName(algoURLName)+ "V"+ algoVersion;
-  GridSearchSchema gss=new GridSearchSchema();
+  S gss=(S)new GridSearchSchema();
   gss.init_meta();
   gss.parameters=(P)TypeMap.newFreezable(paramSchemaName);
   gss.parameters.init_meta();
@@ -17,7 +17,7 @@
   validateHyperParams((P)gss.parameters,gss.hyper_parameters);
   MP params=(MP)gss.parameters.createAndFillImpl();
   Key<Grid> destKey=gss.grid_id != null ? gss.grid_id.key() : null;
-  Job<Grid> gsJob=GridSearch.startGridSearch(destKey,params,gss.hyper_parameters,new DefaultModelParametersBuilderFactory<MP,P>());
+  Job<Grid> gsJob=GridSearch.startGridSearch(destKey,params,gss.hyper_parameters,new DefaultModelParametersBuilderFactory<MP,P>(),gss.strategy,gss.max_models,gss.max_time_ms,gss.seed);
   gss.hyper_parameters=null;
   gss.total_models=gsJob._result.get().getModelCount();
   gss.job=(JobV3)Schema.schema(version,Job.class).fillFromImpl(gsJob);
