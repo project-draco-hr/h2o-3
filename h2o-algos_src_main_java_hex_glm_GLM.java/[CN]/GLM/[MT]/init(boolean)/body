@@ -28,7 +28,7 @@
     BetaConstraint bc=(_parms._beta_constraints != null) ? new BetaConstraint(_parms._beta_constraints.get()) : new BetaConstraint();
     if (_valid != null)     _validDinfo=_dinfo.validDinfo(_valid);
     _state=new ComputationState(_parms,_dinfo,bc,nclasses());
-    boolean skippingRows=(_parms._missing_value_handling == MissingValuesHandling.Skip && _train.hasNAs());
+    boolean skippingRows=true;
     if (hasWeightCol() || skippingRows) {
       boolean setWeights=skippingRows && _parms._lambda_search && _parms._alpha[0] > 0;
       if (setWeights) {
@@ -37,7 +37,7 @@
       }
       YMUTask ymt=new YMUTask(_dinfo,nclasses(),!_parms._stdOverride,setWeights).doAll(_dinfo._adaptedFrame);
       if (ymt._wsum == 0)       throw new IllegalArgumentException("No rows left in the dataset after filtering out rows with missing values. Ignore columns with many NAs or impute your missing values prior to calling glm.");
-      LogInfo("GLM uses " + ymt._nobs + " nobs out of "+ _dinfo._adaptedFrame.numRows()+ " total");
+      Log.info(LogMsg("using " + ymt._nobs + " nobs out of "+ _dinfo._adaptedFrame.numRows()+ " total"));
       _nobs=ymt._nobs;
       if (_parms._obj_reg == -1)       _parms._obj_reg=1.0 / ymt._wsum;
       _dinfo.updateWeightedSigmaAndMean(ymt._basicStats.sigma(),ymt._basicStats.mean());

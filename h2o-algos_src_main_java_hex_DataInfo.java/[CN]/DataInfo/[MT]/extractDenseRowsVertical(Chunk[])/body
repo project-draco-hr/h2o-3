@@ -1,8 +1,8 @@
 {
   Row[] rows=new Row[chunks[0]._len];
+  long start=chunks[0].start();
   for (int i=0; i < rows.length; ++i) {
-    rows[i]=new Row(false,_nums,_cats,_responses,0);
-    rows[i].rid=chunks[0].start() + i;
+    rows[i]=new Row(false,_nums,_cats,_responses,i,start);
     if (_offset) {
       rows[i].offset=chunks[offsetChunkId()].atd(i);
       if (Double.isNaN(rows[i].offset))       rows[i].bad=true;
@@ -41,7 +41,7 @@
     }
   }
   for (int i=1; i <= _responses; ++i) {
-    Chunk rChunk=chunks[responseChunkId()];
+    Chunk rChunk=chunks[responseChunkId(i - 1)];
     for (int r=0; r < chunks[0]._len; ++r) {
       Row row=rows[r];
       if (row.bad)       continue;

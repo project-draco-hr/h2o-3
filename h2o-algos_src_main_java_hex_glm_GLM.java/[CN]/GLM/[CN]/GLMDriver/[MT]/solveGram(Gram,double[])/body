@@ -23,7 +23,10 @@
     GramSolver slvr=new GramSolver(gram.clone(),xy.clone(),_parms._intercept,_state.l2pen(),_state.l1pen(),_state.activeBC()._betaGiven,_state.activeBC()._rho,_state.activeBC()._betaLB,_state.activeBC()._betaUB);
     _chol=slvr._chol;
     if (_state.l1pen() == 0 && !_state.activeBC().hasBounds())     slvr.solve(xy);
- else     new ADMM.L1Solver(1e-4,10000).solve(slvr,xy,_state.l1pen(),_parms._intercept,_state.activeBC()._betaLB,_state.activeBC()._betaUB);
+ else {
+      xy=MemoryManager.malloc8d(xy.length);
+      (_lslvr=new ADMM.L1Solver(1e-4,10000)).solve(slvr,xy,_state.l1pen(),_parms._intercept,_state.activeBC()._betaLB,_state.activeBC()._betaUB);
+    }
   }
   return _parms._intercept ? xy : Arrays.copyOf(xy,xy.length + 1);
 }

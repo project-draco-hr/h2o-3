@@ -28,6 +28,7 @@
       _activeDataMultinomial[c]=_dinfo.filterExpandedColumns(Arrays.copyOfRange(cols,_classOffsets[c],selected));
       for (int i=_classOffsets[c]; i < selected; ++i)       cols[i]+=c * N;
     }
+    _classOffsets[_nclasses]=selected;
     _allIn=_alpha == 0 || selected == cols.length;
     if (!_allIn) {
       cols=Arrays.copyOf(cols,selected);
@@ -35,6 +36,6 @@
       _ginfo=new GLMGradientInfo(_ginfo._likelihood,_ginfo._objVal,ArrayUtils.select(_ginfo._gradient,cols));
     }
   }
- else   for (int c=1; c < _nclasses; ++c)   _classOffsets[c]=c * N;
+ else   for (int c=1; c <= _nclasses; ++c)   _classOffsets[c]=c * N;
   return selected;
 }

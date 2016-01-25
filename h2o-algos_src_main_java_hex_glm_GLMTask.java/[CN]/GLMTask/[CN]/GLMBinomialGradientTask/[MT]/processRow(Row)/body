@@ -1,0 +1,15 @@
+{
+  double[] g=_gradient;
+  double[] b=_beta;
+  double y=-1 + 2 * row.response(0);
+  ++_nobs;
+  double eta=row.innerProduct(b) + _sparseOffset + row.offset;
+  double gval;
+  double d=1 + Math.exp(-y * eta);
+  _likelihood+=row.weight * Math.log(d);
+  gval=row.weight * -y * (1 - 1.0 / d);
+  for (int i=0; i < row.nBins; ++i)   g[row.binIds[i]]+=gval;
+  int off=_dinfo.numStart();
+  for (int j=0; j < row.nNums; ++j)   _gradient[(row.numIds == null ? j + off : row.numIds[j])]+=row.numVals[j] * gval;
+  g[_icptId]+=gval;
+}

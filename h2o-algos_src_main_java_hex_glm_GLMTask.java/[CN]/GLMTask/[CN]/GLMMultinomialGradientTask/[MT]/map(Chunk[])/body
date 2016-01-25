@@ -13,7 +13,12 @@
     if (row.bad || row.weight == 0)     continue;
     _wsum+=row.weight;
     _nobs++;
-    processRow(row,_beta,etas,etaOffsets,exps);
+    try {
+      processRow(row,_beta,etas,etaOffsets,exps);
+    }
+ catch (    Throwable t) {
+      throw new RuntimeException(t);
+    }
   }
   if (rows._sparse && _dinfo._normSub != null) {
     int off=_dinfo.numStart();
