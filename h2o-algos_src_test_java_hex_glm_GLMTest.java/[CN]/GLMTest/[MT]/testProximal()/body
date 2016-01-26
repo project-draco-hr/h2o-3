@@ -18,6 +18,7 @@
     params._train=fr._key;
     params._alpha=new double[]{0};
     params._lambda=new double[]{0};
+    params._obj_reg=1.0 / 380;
     GLM job=new GLM(modelKey,"glm test simple poisson",params);
     job.trainModel().get();
     model=DKV.get(modelKey).get();
@@ -29,8 +30,7 @@
     model=DKV.get(modelKey).get();
     fr.add("CAPSULE",fr.remove("CAPSULE"));
     DataInfo dinfo=new DataInfo(fr,null,1,true,TransformType.NONE,DataInfo.TransformType.NONE,true,false,false,false,false,false);
-    LBFGS_LogisticGradientTask lt=(LBFGS_LogisticGradientTask)new LBFGS_LogisticGradientTask(dinfo,params,0,beta_1,1.0 / 380.0,true).doAll(dinfo._adaptedFrame);
-    new GLMGradientTask(dinfo,params,0,beta_1,1.0 / 380,true,null).doAll(dinfo._adaptedFrame);
+    GLMGradientTask lt=new GLMBinomialGradientTask(null,dinfo,params,0,beta_1).doAll(dinfo._adaptedFrame);
     double[] grad=lt._gradient;
     for (int i=0; i < beta_1.length; ++i)     assertEquals(0,grad[i] + betaConstraints.vec("rho").at(i) * (beta_1[i] - betaConstraints.vec("beta_given").at(i)),1e-4);
   }

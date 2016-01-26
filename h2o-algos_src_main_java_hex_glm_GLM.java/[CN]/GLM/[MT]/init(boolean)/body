@@ -27,7 +27,7 @@
     }
     BetaConstraint bc=(_parms._beta_constraints != null) ? new BetaConstraint(_parms._beta_constraints.get()) : new BetaConstraint();
     if (_valid != null)     _validDinfo=_dinfo.validDinfo(_valid);
-    _state=new ComputationState(_parms,_dinfo,bc,nclasses());
+    _state=new ComputationState(jobKey(),_parms,_dinfo,bc,nclasses());
     boolean skippingRows=true;
     if (hasWeightCol() || skippingRows) {
       boolean setWeights=skippingRows && _parms._lambda_search && _parms._alpha[0] > 0;
@@ -55,7 +55,7 @@
  else       _state._ymu=new double[]{_parms._intercept ? _train.lastVec().mean() : 0};
     }
     if (hasOffsetCol() && _parms._intercept) {
-      GLMGradientSolver gslvr=new GLMGradientSolver(_parms,_dinfo.filterExpandedColumns(new int[0]),0,_state.activeBC());
+      GLMGradientSolver gslvr=new GLMGradientSolver(jobKey(),_parms,_dinfo.filterExpandedColumns(new int[0]),0,_state.activeBC());
       double[] x=new L_BFGS().solve(gslvr,new double[1]).coefs;
       x[0]=_parms.linkInv(x[0]);
       _state._ymu=x;
@@ -76,7 +76,7 @@
     for (    String s : warns)     warn("_validation_frame",s);
     if (_parms._lambda_min_ratio == -1)     _parms._lambda_min_ratio=_nobs > 10 * _dinfo.fullN() ? 1e-4 : 1e-2;
     double[] beta=getNullBeta();
-    GLMGradientInfo ginfo=new GLMGradientSolver(_parms,_dinfo,0,_state.activeBC()).getGradient(beta);
+    GLMGradientInfo ginfo=new GLMGradientSolver(jobKey(),_parms,_dinfo,0,_state.activeBC()).getGradient(beta);
     _state.updateState(beta,ginfo);
     if (_parms._lambda == null) {
       _lmax=lmax(_state.ginfo()._gradient);
