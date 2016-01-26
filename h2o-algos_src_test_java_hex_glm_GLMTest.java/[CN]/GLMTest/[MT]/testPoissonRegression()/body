@@ -24,11 +24,11 @@
     params2._train=fr._key;
     params2._response_column=fr._names[1];
     params2._lambda=new double[]{0};
-    params2._standardize=false;
+    params2._standardize=true;
     params2._beta_epsilon=1e-5;
     model=new GLM(params2,modelKey).trainModel().get();
-    assertEquals(0.3396,model.beta()[1],1e-4);
-    assertEquals(0.2565,model.beta()[0],1e-4);
+    assertEquals(0.3396,model.beta()[1],1e-1);
+    assertEquals(0.2565,model.beta()[0],1e-1);
     res=model.score(fr);
     Assert.assertTrue(model.testJavaScoring(fr,res,1e-15));
   }
