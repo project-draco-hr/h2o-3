@@ -1,0 +1,19 @@
+{
+  Connection connection=null;
+  try {
+    summaryLog.println("Reading the database configuration settings from: " + resultsDBTableConfig);
+    File configFile=new File(resultsDBTableConfig);
+    Properties properties=new Properties();
+    properties.load(new BufferedReader(new FileReader(configFile)));
+    summaryLog.println("Establishing connection to the database.");
+    Class.forName("com.mysql.jdbc.Driver");
+    String url=String.format("jdbc:mysql://%s:%s/%s",properties.getProperty("db.host"),properties.getProperty("db.port"),properties.getProperty("db.databaseName"));
+    connection=DriverManager.getConnection(url,properties.getProperty("db.user"),properties.getProperty("db.password"));
+  }
+ catch (  Exception e) {
+    summaryLog.println("Couldn't connect to the database.");
+    writeStackTrace(e,summaryLog);
+    System.exit(-1);
+  }
+  return connection;
+}

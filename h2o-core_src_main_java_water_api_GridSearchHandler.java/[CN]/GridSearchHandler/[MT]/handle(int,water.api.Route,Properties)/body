@@ -1,0 +1,25 @@
+{
+  if (!route._handler_method.getName().equals("train"))   throw water.H2O.unimpl();
+  String ss[]=route._url_pattern_raw.split("/");
+  String algoURLName=ss[3];
+  String algoName=ModelBuilder.algoName(algoURLName);
+  String schemaDir=ModelBuilder.schemaDirectory(algoURLName);
+  String algoSchemaName=Schema.schemaClass(version,algoName).getSimpleName();
+  int algoVersion=Integer.valueOf(algoSchemaName.substring(algoSchemaName.lastIndexOf("V") + 1));
+  String paramSchemaName=schemaDir + algoName + "V"+ algoVersion+ "$"+ ModelBuilder.paramName(algoURLName)+ "V"+ algoVersion;
+  S gss=(S)new GridSearchSchema();
+  gss.init_meta();
+  gss.parameters=(P)TypeMap.newFreezable(paramSchemaName);
+  gss.parameters.init_meta();
+  ModelBuilder builder=ModelBuilder.make(algoURLName,null,null);
+  gss.parameters.fillFromImpl(builder._parms);
+  gss.fillFromParms(parms);
+  validateHyperParams((P)gss.parameters,gss.hyper_parameters);
+  MP params=(MP)gss.parameters.createAndFillImpl();
+  Key<Grid> destKey=gss.grid_id != null ? gss.grid_id.key() : null;
+  Job<Grid> gsJob=GridSearch.startGridSearch(destKey,params,gss.hyper_parameters,new DefaultModelParametersBuilderFactory<MP,P>(),gss.strategy,gss.max_models,gss.max_time_ms,gss.seed);
+  gss.hyper_parameters=null;
+  gss.total_models=gsJob._result.get().getModelCount();
+  gss.job=(JobV3)Schema.schema(version,Job.class).fillFromImpl(gsJob);
+  return gss;
+}

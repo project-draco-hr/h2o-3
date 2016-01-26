@@ -1,5 +1,5 @@
 {
-  if (_jobKey != null && !Job.isRunning(_jobKey))   return;
+  if (_jobKey.get().stop_requested())   return;
   final int nrows=chunks[0]._len;
   final long offset=chunks[0].start();
   boolean doWork=chunkInit();
@@ -71,8 +71,8 @@
         assert(row.weight > 0);
         long seed=offset + rep * nrows + r;
         miniBatchCounter++;
-        if (outputs != null && outputs.length > 0)         processRow(seed++,row,outputs);
- else         processRow(seed++,row);
+        if (outputs != null && outputs.length > 0)         processRow(seed,row,outputs);
+ else         processRow(seed,row);
       }
       num_processed_rows++;
       if (miniBatchCounter > 0 && miniBatchCounter % miniBatchSize == 0) {

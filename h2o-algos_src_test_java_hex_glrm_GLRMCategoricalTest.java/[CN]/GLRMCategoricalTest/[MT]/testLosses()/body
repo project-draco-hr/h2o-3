@@ -7,7 +7,7 @@
   Scope.enter();
   try {
     train=parse_test_file(Key.make("prostate.hex"),"smalldata/logreg/prostate.csv");
-    for (int i=0; i < cats.length; i++)     Scope.track(train.replace(cats[i],train.vec(cats[i]).toCategoricalVec())._key);
+    for (int i=0; i < cats.length; i++)     Scope.track(train.replace(cats[i],train.vec(cats[i]).toCategoricalVec()));
     train.remove("ID").remove();
     DKV.put(train._key,train);
     for (    GLRMParameters.Loss loss : new GLRMParameters.Loss[]{GLRMParameters.Loss.Quadratic,GLRMParameters.Loss.Absolute,GLRMParameters.Loss.Huber,GLRMParameters.Loss.Poisson,GLRMParameters.Loss.Hinge,GLRMParameters.Loss.Logistic}) {
@@ -32,26 +32,13 @@
           parms._seed=myseed;
           parms._verbose=false;
           parms._max_iterations=500;
-          GLRM job=new GLRM(parms);
-          try {
-            model=job.trainModel().get();
-            Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
-            model.score(train).delete();
-            ModelMetricsGLRM mm=(ModelMetricsGLRM)ModelMetrics.getFromDKV(model,train);
-            Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
-          }
- catch (          Throwable t) {
-            throw t;
-          }
- finally {
-            job.remove();
-          }
+          model=new GLRM(parms).trainModel().get();
+          Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
+          model.score(train).delete();
+          ModelMetricsGLRM mm=(ModelMetricsGLRM)ModelMetrics.getFromDKV(model,train);
+          Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
         }
- catch (        Throwable t) {
-          t.printStackTrace();
-          throw new RuntimeException(t);
-        }
- finally {
+  finally {
           if (model != null)           model.delete();
           Scope.exit();
         }

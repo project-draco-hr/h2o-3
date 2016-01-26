@@ -4,32 +4,32 @@
   if (_firstScore == 0)   _firstScore=now;
   long sinceLastScore=now - _timeLastScoreStart;
   boolean updated=false;
-  new ProgressUpdate("Built " + _model._output._ntrees + " trees so far (out of "+ _parms._ntrees+ ").").fork(_progressKey);
+  _job.update(0,"Built " + _model._output._ntrees + " trees so far (out of "+ _parms._ntrees+ ").");
   if (_parms._score_each_iteration || finalScoring || (now - _firstScore < _parms._initial_score_interval)|| (sinceLastScore > _parms._score_interval && (double)(_timeLastScoreEnd - _timeLastScoreStart) / sinceLastScore < 0.1)) {
     checkMemoryFootPrint();
-    _model.update(_key);
+    _model.update(_job);
     updated=true;
     Log.info("============================================================== ");
     SharedTreeModel.SharedTreeOutput out=_model._output;
     _timeLastScoreStart=now;
     final boolean printout=(_parms._score_each_iteration || finalScoring || sinceLastScore > _parms._score_interval);
     final boolean computeGainsLift=true;
-    new ProgressUpdate("Scoring the model.").fork(_progressKey);
-    Score sc=new Score(this,true,oob,_model._output.getModelCategory(),computeGainsLift).doAll(train(),build_tree_one_node);
+    _job.update(0,"Scoring the model.");
+    Score sc=new Score(this,true,oob,response()._key,_model._output.getModelCategory(),computeGainsLift).doAll(train(),build_tree_one_node);
     ModelMetrics mm=sc.makeModelMetrics(_model,_parms.train());
     out._training_metrics=mm;
     training_r2=((ModelMetricsSupervised)mm).r2();
     if (oob)     out._training_metrics._description="Metrics reported on Out-Of-Bag training samples";
     out._scored_train[out._ntrees].fillFrom(mm);
     if (_parms._valid != null) {
-      Score scv=new Score(this,false,false,_model._output.getModelCategory(),computeGainsLift).doAll(valid(),build_tree_one_node);
+      Score scv=new Score(this,false,false,vresponse()._key,_model._output.getModelCategory(),computeGainsLift).doAll(valid(),build_tree_one_node);
       ModelMetrics mmv=scv.makeModelMetrics(_model,_parms.valid());
       out._validation_metrics=mmv;
       out._scored_valid[out._ntrees].fillFrom(mmv);
     }
+    out._model_summary=createModelSummaryTable(out);
+    out._scoring_history=createScoringHistoryTable(out);
     if (out._ntrees > 0) {
-      out._model_summary=createModelSummaryTable(out);
-      out._scoring_history=createScoringHistoryTable(out);
       out._varimp=new hex.VarImp(_improvPerVar,out._names);
       out._variable_importances=hex.ModelMetrics.calcVarImp(out._varimp);
     }
@@ -38,6 +38,6 @@
     }
     _timeLastScoreEnd=System.currentTimeMillis();
   }
-  if (updated)   _model.update(_key);
+  if (updated)   _model.update(_job);
   return training_r2;
 }

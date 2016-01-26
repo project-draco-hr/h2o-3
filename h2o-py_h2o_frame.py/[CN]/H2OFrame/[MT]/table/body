@@ -1,3 +1,3 @@
-def table(self, data2=None):
-    'Compute the counts of values appearing in a column, or co-occurence counts between\n    two columns.\n\n    Parameters\n    ----------\n      data2 : H2OFrame\n        Default is None, can be an optional single column to aggregate counts by.\n\n    Returns\n    -------\n      H2OFrame of the counts at each combination of factor levels\n    '
-    return (H2OFrame._expr(expr=ExprNode('table', self, data2)) if (data2 is not None) else H2OFrame._expr(expr=ExprNode('table', self)))
+def table(self, data2=None, dense=True):
+    'Compute the counts of values appearing in a column, or co-occurence counts between\n    two columns.\n\n    Parameters\n    ----------\n      data2 : H2OFrame\n        Default is None, can be an optional single column to aggregate counts by.\n      dense : bool\n        Default is True, for dense representation, which lists only non-zero counts, 1 combination per row. Set to False \n        to expand counts across all combinations.  \n\n    Returns\n    -------\n      H2OFrame of the counts at each combination of factor levels\n    '
+    return (H2OFrame._expr(expr=ExprNode('table', self, data2, dense)) if (data2 is not None) else H2OFrame._expr(expr=ExprNode('table', self, dense)))

@@ -16,23 +16,10 @@
     parms._min_step_size=1e-8;
     parms._recover_svd=true;
     GLRM job=new GLRM(parms);
-    try {
-      model=job.trainModel().get();
-      Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
-    }
- catch (    Throwable t) {
-      t.printStackTrace();
-      throw new RuntimeException(t);
-    }
- finally {
-      job.remove();
-    }
+    model=job.trainModel().get();
+    Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
   }
- catch (  Throwable t) {
-    t.printStackTrace();
-    throw new RuntimeException(t);
-  }
- finally {
+  finally {
     if (train != null)     train.delete();
     if (model != null)     model.delete();
   }

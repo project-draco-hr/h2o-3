@@ -3,7 +3,13 @@
   int[] leafs=new int[_nclass];
   new ComputePredAndRes().doAll(_train,_parms._build_tree_one_node);
   growTrees(ktrees,leafs,_rand);
-  fitBestConstants(ktrees,leafs,new GammaPass(ktrees,leafs,_parms._distribution).doAll(_train));
+  GammaPass gp=new GammaPass(ktrees,leafs,_parms._distribution).doAll(_train);
+  if (_parms._distribution == Distribution.Family.laplace) {
+    fitBestConstantsQuantile(ktrees,leafs,0.5);
+  }
+ else {
+    fitBestConstants(ktrees,leafs,gp);
+  }
   if (_parms._distribution == Distribution.Family.gamma || _parms._distribution == Distribution.Family.poisson || _parms._distribution == Distribution.Family.tweedie) {
     truncatePreds(ktrees,leafs,_parms._distribution,new ComputeMinMax(leafs[0],ktrees[0].len()).doAll(_train));
   }

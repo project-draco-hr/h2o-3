@@ -18,29 +18,23 @@
     parms._max_depth=5;
     parms._ntrees=5;
     parms._nfolds=0;
-    DRF job1=new DRF(parms);
-    drf1=job1.trainModel().get();
+    drf1=new DRF(parms).trainModel().get();
     parms._nfolds=1;
-    DRF job2=new DRF(parms);
     try {
       Log.info("Trying nfolds==1.");
-      drf2=job2.trainModel().get();
+      drf2=new DRF(parms).trainModel().get();
       Assert.fail("Should toss H2OModelBuilderIllegalArgumentException instead of reaching here");
     }
  catch (    H2OModelBuilderIllegalArgumentException e) {
     }
     parms._nfolds=-99;
-    DRF job3=new DRF(parms);
     try {
       Log.info("Trying nfolds==-99.");
-      drf3=job3.trainModel().get();
+      drf3=new DRF(parms).trainModel().get();
       Assert.fail("Should toss H2OModelBuilderIllegalArgumentException instead of reaching here");
     }
  catch (    H2OModelBuilderIllegalArgumentException e) {
     }
-    job1.remove();
-    job2.remove();
-    job3.remove();
   }
   finally {
     if (tfr != null)     tfr.remove();

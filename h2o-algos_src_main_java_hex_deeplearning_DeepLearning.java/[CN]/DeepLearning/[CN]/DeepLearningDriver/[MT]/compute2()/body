@@ -1,31 +1,17 @@
 {
   try {
+    Scope.enter();
     long cs=_parms.checksum();
     init(true);
-    _parms.read_lock_frames(DeepLearning.this);
-    if (error_count() > 0) {
-      DeepLearning.this.updateValidationMessages();
-      throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(DeepLearning.this);
-    }
+    _parms.read_lock_frames(_job);
+    if (error_count() > 0)     throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(DeepLearning.this);
     buildModel();
-    if (isRunning())     done();
     long cs2=_parms.checksum();
     assert(cs == cs2);
   }
- catch (  Throwable t) {
-    Job thisJob=DKV.getGet(_key);
-    if (thisJob._state == JobState.CANCELLED) {
-      Log.info("Job cancelled by user.");
-    }
- else {
-      t.printStackTrace();
-      failed(t);
-      throw t;
-    }
-  }
- finally {
-    updateModelOutput();
-    _parms.read_unlock_frames(DeepLearning.this);
+  finally {
+    _parms.read_unlock_frames(_job);
+    Scope.exit();
   }
   tryComplete();
 }

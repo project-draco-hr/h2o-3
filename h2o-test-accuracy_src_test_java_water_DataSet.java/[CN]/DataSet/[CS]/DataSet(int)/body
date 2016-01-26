@@ -1,0 +1,17 @@
+{
+  this.id=id;
+  String[] dataSetEntry;
+  boolean foundDataSet=false;
+  for (  String d : AccuracyTestingSuite.dataSetsCSVRows) {
+    dataSetEntry=d.trim().split(",",-1);
+    if (dataSetEntry[0].equals(Integer.toString(this.id))) {
+      uri=dataSetEntry[1];
+      responseColumn=Integer.parseInt(dataSetEntry[2]);
+      foundDataSet=true;
+      break;
+    }
+  }
+  if (!foundDataSet) {
+    throw new Exception("Couldn't find data set id: " + this.id + " in data sets csv.");
+  }
+}

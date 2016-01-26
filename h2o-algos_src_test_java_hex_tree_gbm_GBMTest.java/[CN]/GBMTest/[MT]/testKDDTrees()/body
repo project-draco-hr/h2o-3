@@ -20,12 +20,10 @@
     parms._distribution=Distribution.Family.gaussian;
     GBM job1=new GBM(parms);
     GBMModel gbm1=job1.trainModel().get();
-    job1.remove();
     ScoreKeeper[] firstScored=gbm1._output._scored_valid;
     for (int i=0; i < 10; i++) {
       GBM job2=new GBM(parms);
       GBMModel gbm2=job2.trainModel().get();
-      job2.remove();
       ScoreKeeper[] secondScored=gbm2._output._scored_valid;
       int j;
       for (j=0; j < firstScored.length; j++)       if (firstScored[j] != secondScored[j])       break;

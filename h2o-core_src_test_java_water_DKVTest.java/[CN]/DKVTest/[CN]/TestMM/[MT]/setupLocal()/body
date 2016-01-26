@@ -1,6 +1,6 @@
 {
   final H2OCountedCompleter barrier=(new H2OCountedCompleter(){
-    @Override protected void compute2(){
+    @Override public void compute2(){
     }
   }
 );
@@ -15,7 +15,7 @@
           if (node != H2O.SELF) {
             barrier.addToPendingCount(1);
             new RPC(node,new DTask(){
-              @Override protected void compute2(){
+              @Override public void compute2(){
                 IcedInt val=DKV.getGet(fk);
                 if (val._val < lb)                 throw new IllegalArgumentException("DKV seems to be in inconsistent state after TAtomic, value lower than expected, expected at least " + lb + ", got "+ val._val);
                 tryComplete();

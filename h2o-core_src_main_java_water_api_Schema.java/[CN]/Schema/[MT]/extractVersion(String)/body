@@ -1,6 +1,10 @@
 {
-  if (null == _version_pattern)   _version_pattern=Pattern.compile(".*V(\\d+)");
-  Matcher m=_version_pattern.matcher(clz_name);
-  if (!m.matches())   return -1;
-  return Integer.valueOf(m.group(1));
+  int idx=clz_name.lastIndexOf('V');
+  if (idx == -1)   return -1;
+  try {
+    return Integer.valueOf(clz_name.substring(idx + 1));
+  }
+ catch (  NumberFormatException ex) {
+    return -1;
+  }
 }

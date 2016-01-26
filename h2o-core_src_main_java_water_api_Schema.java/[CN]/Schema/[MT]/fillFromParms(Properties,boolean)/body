@@ -27,20 +27,16 @@
       if (Modifier.isTransient(mods) || Modifier.isStatic(mods)) {
         throw new H2OIllegalArgumentException("Bad parameter for field: " + key + " for class: "+ this.getClass().toString(),"Bad parameter definition for field: " + key + " in fillFromParms for class: "+ this.getClass().toString()+ " (field was declared static or transient)");
       }
-      API api=(API)f.getAnnotations()[0];
+      Annotation[] apis=f.getAnnotations();
+      if (apis.length == 0)       throw H2O.fail("Broken internal schema; missing API annotation for field: " + key);
+      API api=(API)apis[0];
       if (api.direction() == API.Direction.OUTPUT) {
         throw new H2OIllegalArgumentException("Attempting to set output field: " + key + " for class: "+ this.getClass().toString(),"Attempting to set output field: " + key + " in fillFromParms for class: "+ this.getClass().toString()+ " (field was annotated as API.Direction.OUTPUT)");
       }
       setField(this,f,key,parms.getProperty(key),api.required(),thisSchemaClass);
     }
- catch (    ArrayIndexOutOfBoundsException aioobe) {
-      throw H2O.fail("Broken internal schema; missing API annotation for field: " + key);
-    }
-catch (    IllegalAccessException iae) {
+ catch (    IllegalAccessException iae) {
       throw H2O.fail("Broken internal schema; field cannot be private nor final: " + key);
-    }
-catch (    Exception e) {
-      throw new H2OIllegalArgumentException(key,this.getClass().getSimpleName() + ".fillFromParms",parms.getProperty(key));
     }
   }
   if (checkRequiredFields) {

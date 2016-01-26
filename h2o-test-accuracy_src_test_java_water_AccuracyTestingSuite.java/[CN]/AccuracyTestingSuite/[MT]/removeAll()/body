@@ -1,0 +1,17 @@
+{
+  summaryLog.println("Removing all.");
+  Futures fs=new Futures();
+  for (  Job j : Job.jobs()) {
+    j.stop();
+    j.remove(fs);
+  }
+  fs.blockForPending();
+  new MRTask(){
+    @Override public void setupLocal(){
+      H2O.raw_clear();
+      water.fvec.Vec.ESPC.clear();
+    }
+  }
+.doAllNodes();
+  H2O.getPM().getIce().cleanUp();
+}

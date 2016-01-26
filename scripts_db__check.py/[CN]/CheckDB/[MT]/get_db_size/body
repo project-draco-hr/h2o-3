@@ -1,0 +1,23 @@
+def get_db_size(selfs):
+    db = mysql.connector.connect(user='root', password='0xdata', host='172.16.2.178', database='information_schema')
+    cursor_h2o = db.cursor()
+    cursor_h2o.execute("SELECT table_schema as 'Database', sum(round(((data_length + index_length) / 1024 / 1024 / 1024), 5)) as 'Size in GB' FROM TABLES group by table_schema;")
+    results = cursor_h2o.fetchall()
+    widths = []
+    columns = []
+    pipe = '|'
+    separator = '+'
+    for cd in cursor_h2o.description:
+        widths.append(max(cd[2], len(cd[0])))
+        columns.append(cd[0])
+    widths[0] = 30
+    for w in widths:
+        pipe += (' %-' + ('%ss |' % (w,)))
+        separator += (('-' * w) + '--+')
+    print '\n*****Size of each database in MySQL Server in GB:*****'
+    print separator
+    print (pipe % tuple(columns))
+    print separator
+    for row in results:
+        print (pipe % row)
+    print separator

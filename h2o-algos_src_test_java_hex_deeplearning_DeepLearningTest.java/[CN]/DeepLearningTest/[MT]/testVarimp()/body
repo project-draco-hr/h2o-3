@@ -14,15 +14,7 @@
     parms._hidden=new int[]{100,100};
     parms._seed=0xdecaf;
     parms._variable_importances=true;
-    parms._model_id=Key.make();
-    DeepLearning job=new DeepLearning(parms);
-    try {
-      dl=job.trainModel().get();
-    }
-  finally {
-      job.remove();
-    }
-    dl=DKV.getGet(parms._model_id);
+    dl=new DeepLearning(parms).trainModel().get();
     Assert.assertTrue(dl.varImp()._varimp != null);
     Log.info(dl.model_info().toStringAll());
     Assert.assertTrue(ArrayUtils.minValue(dl.varImp()._varimp) > 0.5);

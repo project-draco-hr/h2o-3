@@ -7,41 +7,37 @@
   params._lambda=new double[]{0};
   GLM job0=null;
   try {
-    job0=new GLM(Key.make("prostate_model"),"glm test p-values",params);
+    job0=new GLM(params);
     params._solver=Solver.L_BFGS;
     GLMModel model=job0.trainModel().get();
     assertFalse("should've thrown, p-values only supported with IRLSM",true);
   }
  catch (  H2OModelBuilderIllegalArgumentException t) {
-    if (job0 != null)     job0.remove();
   }
   try {
-    job0=new GLM(Key.make("prostate_model"),"glm test p-values",params);
+    job0=new GLM(params);
     params._solver=Solver.COORDINATE_DESCENT_NAIVE;
     GLMModel model=job0.trainModel().get();
     assertFalse("should've thrown, p-values only supported with IRLSM",true);
   }
  catch (  H2OModelBuilderIllegalArgumentException t) {
-    if (job0 != null)     job0.remove();
   }
   try {
-    job0=new GLM(Key.make("prostate_model"),"glm test p-values",params);
+    job0=new GLM(params);
     params._solver=Solver.COORDINATE_DESCENT;
     GLMModel model=job0.trainModel().get();
     assertFalse("should've thrown, p-values only supported with IRLSM",true);
   }
  catch (  H2OModelBuilderIllegalArgumentException t) {
-    if (job0 != null)     job0.remove();
   }
   params._solver=Solver.IRLSM;
   try {
-    job0=new GLM(Key.make("prostate_model"),"glm test p-values",params);
+    job0=new GLM(params);
     params._lambda=new double[]{1};
     GLMModel model=job0.trainModel().get();
     assertFalse("should've thrown, p-values only supported with no regularization",true);
   }
  catch (  H2OModelBuilderIllegalArgumentException t) {
-    if (job0 != null)     job0.remove();
   }
   params._lambda=new double[]{0};
   try {
@@ -50,12 +46,9 @@
     assertFalse("should've thrown, p-values only supported with no regularization (i.e. no lambda search)",true);
   }
  catch (  H2OModelBuilderIllegalArgumentException t) {
-    if (job0 != null)     job0.remove();
   }
   params._lambda_search=false;
-  params._objective_epsilon=0;
-  params._gradient_epsilon=0;
-  GLM job=new GLM(Key.make("prostate_model"),"glm test p-values",params);
+  GLM job=new GLM(params);
   GLMModel model=null;
   try {
     model=job.trainModel().get();
@@ -78,10 +71,9 @@
   }
   finally {
     if (model != null)     model.delete();
-    if (job != null)     job.remove();
   }
   params._standardize=true;
-  job=new GLM(Key.make("prostate_model"),"glm test p-values",params);
+  job=new GLM(params);
   try {
     model=job.trainModel().get();
     String[] names_expected=new String[]{"Intercept","ID","AGE","RACE.R2","RACE.R3","DPROS.b","DPROS.c","DPROS.d","DCAPS.b","PSA","VOL","GLEASON"};
@@ -101,6 +93,5 @@
   }
   finally {
     if (model != null)     model.delete();
-    if (job != null)     job.remove();
   }
 }

@@ -1,5 +1,4 @@
 {
-  GLM job=null;
   GLMModel model1=null;
   Frame fr=parse_test_file(Key.make("Airlines"),"smalldata/airlines/AirlinesTrain.csv.zip");
   String[] ignoredCols=new String[]{"IsDepDelayed_REC"};
@@ -15,8 +14,8 @@
     params._standardize=false;
     params._solver=Solver.COORDINATE_DESCENT;
     params._lambda_search=true;
-    job=new GLM(Key.make("airlines_cat_nostd"),"Airlines with auto-expanded categorical variables, no standardization",params);
-    model1=job.trainModel().get();
+    GLM glm=new GLM(params,glmkey("airlines_cat_nostd"));
+    model1=glm.trainModel().get();
     double[] beta=model1.beta();
     double l1pen=ArrayUtils.l1norm(beta,true);
     double l2pen=ArrayUtils.l2norm2(beta,true);
@@ -24,6 +23,5 @@
   finally {
     fr.delete();
     if (model1 != null)     model1.delete();
-    if (job != null)     job.remove();
   }
 }

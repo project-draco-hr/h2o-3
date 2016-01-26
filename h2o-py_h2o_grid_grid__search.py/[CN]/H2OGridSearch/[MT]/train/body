@@ -2,8 +2,10 @@ def train(self, x, y=None, training_frame=None, offset_column=None, fold_column=
     algo_params = locals()
     parms = self._parms.copy()
     parms.update({k: v for (k, v) in algo_params.items() if (k not in ['self', 'params', 'algo_params', 'parms'])})
+    if self.search_criteria:
+        parms.update({k: v for (k, v) in self.search_criteria.items()})
     parms['hyper_parameters'] = self.hyper_params
-    parms.update({k: v for (k, v) in list(self.model._parms.items()) if v})
+    parms.update({k: v for (k, v) in list(self.model._parms.items()) if (v is not None)})
     if ('__class__' in parms):
         del parms['__class__']
     y = algo_params['y']

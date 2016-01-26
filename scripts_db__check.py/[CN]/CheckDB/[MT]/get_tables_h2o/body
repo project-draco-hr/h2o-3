@@ -1,0 +1,23 @@
+def get_tables_h2o(self):
+    db = mysql.connector.connect(user='root', password='0xdata', host='172.16.2.178', database='h2o')
+    cursor_h2o = db.cursor()
+    cursor_h2o.execute("select table_name as h2o_tables from information_schema.tables where table_schema = 'h2o';")
+    results = cursor_h2o.fetchall()
+    widths = []
+    columns = []
+    pipe = '|'
+    separator = '+'
+    for cd in cursor_h2o.description:
+        widths.append(max(cd[2], len(cd[0])))
+        columns.append(cd[0])
+    widths[0] = 30
+    for w in widths:
+        pipe += (' %-' + ('%ss |' % (w,)))
+        separator += (('-' * w) + '--+')
+    print '\n*****Tables currently in the h2o database:*****'
+    print separator
+    print (pipe % tuple(columns))
+    print separator
+    for row in results:
+        print (pipe % row)
+    print separator

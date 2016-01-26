@@ -1,0 +1,27 @@
+{
+  GBMModel gbm=null;
+  GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
+  Frame pred=null, res=null;
+  Scope.enter();
+  try {
+    Frame train=parse_test_file("smalldata/gbm_test/ecology_model.csv");
+    train.remove("Site").remove();
+    train.remove("Method").remove();
+    DKV.put(train);
+    parms._train=train._key;
+    parms._response_column="DSDist";
+    parms._distribution=Distribution.Family.laplace;
+    GBM job=new GBM(parms);
+    gbm=job.trainModel().get();
+    pred=parse_test_file("smalldata/gbm_test/ecology_eval.csv");
+    res=gbm.score(pred);
+    Assert.assertTrue(gbm.testJavaScoring(pred,res,1e-15));
+  }
+  finally {
+    parms._train.remove();
+    if (gbm != null)     gbm.delete();
+    if (pred != null)     pred.remove();
+    if (res != null)     res.remove();
+    Scope.exit();
+  }
+}

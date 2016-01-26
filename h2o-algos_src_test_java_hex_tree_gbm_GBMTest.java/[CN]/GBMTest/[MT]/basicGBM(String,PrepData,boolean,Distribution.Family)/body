@@ -7,7 +7,7 @@
     int idx=prep.prep(fr);
     if (family == Distribution.Family.bernoulli || family == Distribution.Family.multinomial) {
       if (!fr.vecs()[idx].isCategorical()) {
-        Scope.track(fr.replace(idx,fr.vecs()[idx].toCategoricalVec())._key);
+        Scope.track(fr.replace(idx,fr.vecs()[idx].toCategoricalVec()));
       }
     }
     DKV.put(fr);
@@ -27,17 +27,11 @@
       DKV.put(vfr);
       parms._valid=vfr._key;
     }
-    GBM job=null;
-    try {
-      job=new GBM(parms);
-      gbm=job.trainModel().get();
-    }
-  finally {
-      if (job != null)       job.remove();
-    }
+    GBM job=new GBM(parms);
+    gbm=job.trainModel().get();
     fr2=gbm.score(fr);
     Assert.assertTrue(gbm.testJavaScoring(fr,fr2,1e-15));
-    Assert.assertTrue(job._state == water.Job.JobState.DONE);
+    Assert.assertTrue(job.isStopped());
     return gbm._output;
   }
   finally {

@@ -5,20 +5,12 @@
   Iced ice=val.get();
   if (!(ice instanceof Job))   throw new IllegalArgumentException("Must be a Job not a " + ice.getClass());
   Job j=(Job)ice;
-  Jobs jobs=new Jobs();
-  jobs._jobs=new Job[1];
-  jobs._jobs[0]=(Job)ice;
   s.jobs=new JobV3[1];
-  if (j instanceof ModelBuilder) {
-    s.jobs[0]=new ModelBuilderJobV3().fillFromImpl(j);
+  try {
+    s.jobs[0]=(JobV3)Schema.schema(version,j).fillFromImpl(j);
   }
- else {
-    try {
-      s.jobs[0]=(JobV3)Schema.schema(version,j).fillFromImpl(j);
-    }
- catch (    H2ONotFoundArgumentException e) {
-      s.jobs[0]=new JobV3().fillFromImpl(j);
-    }
+ catch (  H2ONotFoundArgumentException e) {
+    s.jobs[0]=new JobV3().fillFromImpl(j);
   }
   return s;
 }

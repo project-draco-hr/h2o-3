@@ -1,4 +1,4 @@
-def _start_local_h2o_jar(self, mmax, mmin, ea, license, ice, jar_path):
+def _start_local_h2o_jar(self, mmax, mmin, ea, license, ice, jar_path, nthreads):
     command = H2OConnection._check_java()
     if license:
         if (not os.path.exists(license)):
@@ -10,6 +10,8 @@ def _start_local_h2o_jar(self, mmax, mmin, ea, license, ice, jar_path):
     print(('Using ice_root: ' + ice))
     print()
     jver = subprocess.check_output([command, '-version'], stderr=subprocess.STDOUT)
+    if PY3:
+        jver = str(jver, H2OConnection.__ENCODING__)
     print()
     print(('Java Version: ' + jver))
     print()
@@ -28,7 +30,9 @@ def _start_local_h2o_jar(self, mmax, mmin, ea, license, ice, jar_path):
         vm_opts += ['-Xmx{}g'.format(mmax)]
     if ea:
         vm_opts += ['-ea']
-    h2o_opts = ['-verbose:gc', '-XX:+PrintGCDetails', '-XX:+PrintGCTimeStamps', '-jar', jar_path, '-name', 'H2O_started_from_python', '-ip', '127.0.0.1', '-port', '54321', '-ice_root', ice]
+    h2o_opts = ['-verbose:gc', '-XX:+PrintGCDetails', '-XX:+PrintGCTimeStamps', '-jar', jar_path, '-name', ((('H2O_started_from_python_' + re.sub('[^A-Za-z0-9]', '_', ((os.getenv('USERNAME') if (sys.platform == 'win32') else os.getenv('USER')) or 'unknownUser'))) + '_') + ''.join(([choice(ascii_lowercase) for _ in range(3)] + [choice(digits) for _ in range(3)]))), '-ip', '127.0.0.1', '-port', '54321', '-ice_root', ice]
+    if (nthreads > 0):
+        h2o_opts += ['-nthreads', str(nthreads)]
     if license:
         h2o_opts += ['-license', license]
     cmd = (([command] + vm_opts) + h2o_opts)

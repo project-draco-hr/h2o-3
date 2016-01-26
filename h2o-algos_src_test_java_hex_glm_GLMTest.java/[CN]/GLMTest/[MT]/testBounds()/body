@@ -20,10 +20,9 @@
     params._alpha=new double[]{1};
     params._lambda=new double[]{0.001607};
     params._obj_reg=1.0 / 380;
-    GLM job=new GLM(modelKey,"glm test simple poisson",params);
-    job.trainModel().get();
-    assertTrue(job.isDone());
-    model=DKV.get(modelKey).get();
+    GLM glm=new GLM(params,modelKey);
+    model=glm.trainModel().get();
+    assertTrue(glm.isStopped());
     ModelMetricsBinomialGLM val=(ModelMetricsBinomialGLM)model._output._training_metrics;
     assertEquals(512.2888,val._nullDev,1e-1);
     assertEquals(388.4686,val._resDev,5e-1);
@@ -32,10 +31,9 @@
     params._alpha=new double[]{0};
     FVecTest.makeByteVec(betaConsKey,"names, lower_bounds, upper_bounds\n RACE, -.5, .5\n DCAPS, -.4, .4\n DPROS, -.5, .5 \nPSA, -.5, .5\n VOL, -.5, .5");
     betaConstraints=ParseDataset.parse(Key.make("beta_constraints.hex"),betaConsKey);
-    job=new GLM(modelKey,"glm test simple poisson",params);
-    job.trainModel().get();
-    assertTrue(job.isDone());
-    model=DKV.get(modelKey).get();
+    glm=new GLM(params,modelKey);
+    model=glm.trainModel().get();
+    assertTrue(glm.isStopped());
     double[] beta=model.beta();
     System.out.println("beta = " + Arrays.toString(beta));
     fr.add("CAPSULE",fr.remove("CAPSULE"));

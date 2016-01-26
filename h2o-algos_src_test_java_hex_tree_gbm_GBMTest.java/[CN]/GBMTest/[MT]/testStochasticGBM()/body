@@ -19,11 +19,9 @@
         parms._ntrees=10;
         parms._col_sample_rate=col_sample_rate;
         parms._sample_rate=sample_rate;
-        GBM job=new GBM(parms);
-        gbm=job.trainModel().get();
+        gbm=new GBM(parms).trainModel().get();
         ModelMetricsRegression mm=(ModelMetricsRegression)gbm._output._training_metrics;
         hm.put(mm.mse(),new Pair<>(sample_rate,col_sample_rate));
-        job.remove();
       }
   finally {
         if (tfr != null)         tfr.remove();

@@ -1,12 +1,11 @@
 {
-  NaiveBayes job=null;
   NaiveBayesModel model=null;
   Frame train=null, score=null;
   final int[] cats=new int[]{1,3,4,5};
   try {
     Scope.enter();
     train=parse_test_file(Key.make("prostate.hex"),"smalldata/logreg/prostate.csv");
-    for (int i=0; i < cats.length; i++)     Scope.track(train.replace(cats[i],train.vec(cats[i]).toCategoricalVec())._key);
+    for (int i=0; i < cats.length; i++)     Scope.track(train.replace(cats[i],train.vec(cats[i]).toCategoricalVec()));
     train.remove("ID").remove();
     DKV.put(train._key,train);
     NaiveBayesParameters parms=new NaiveBayesParameters();
@@ -14,25 +13,11 @@
     parms._laplace=0;
     parms._response_column=train._names[0];
     parms._compute_metrics=true;
-    try {
-      job=new NaiveBayes(parms);
-      model=job.trainModel().get();
-      score=model.score(train);
-      Assert.assertTrue(model.testJavaScoring(train,score,1e-6));
-    }
- catch (    Throwable t) {
-      t.printStackTrace();
-      throw new RuntimeException(t);
-    }
- finally {
-      if (job != null)       job.remove();
-    }
+    model=new NaiveBayes(parms).trainModel().get();
+    score=model.score(train);
+    Assert.assertTrue(model.testJavaScoring(train,score,1e-6));
   }
- catch (  Throwable t) {
-    t.printStackTrace();
-    throw new RuntimeException(t);
-  }
- finally {
+  finally {
     if (train != null)     train.delete();
     if (score != null)     score.delete();
     if (model != null)     model.delete();

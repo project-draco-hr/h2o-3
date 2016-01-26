@@ -3,10 +3,10 @@
   Scope.enter();
   try {
     tfr=parse_test_file("bigdata/laptop/mnist/train.csv.gz");
-    Scope.track(tfr.replace(784,tfr.vecs()[784].toCategoricalVec())._key);
+    Scope.track(tfr.replace(784,tfr.vecs()[784].toCategoricalVec()));
     DKV.put(tfr);
     vfr=parse_test_file("bigdata/laptop/mnist/test.csv.gz");
-    Scope.track(vfr.replace(784,vfr.vecs()[784].toCategoricalVec())._key);
+    Scope.track(vfr.replace(784,vfr.vecs()[784].toCategoricalVec()));
     DKV.put(vfr);
     GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
     parms._train=tfr._key;
@@ -15,13 +15,11 @@
     parms._ntrees=2;
     parms._max_depth=4;
     parms._distribution=Distribution.Family.multinomial;
-    GBM job=new GBM(parms);
-    GBMModel gbm=job.trainModel().get();
+    GBMModel gbm=new GBM(parms).trainModel().get();
     Frame pred=gbm.score(vfr);
     double sq_err=new MathUtils.SquareError().doAll(vfr.lastVec(),pred.vecs()[0])._sum;
     double mse=sq_err / pred.numRows();
     assertEquals(3.0199,mse,1e-15);
-    job.remove();
     gbm.delete();
   }
   finally {

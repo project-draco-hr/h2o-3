@@ -1,10 +1,7 @@
 {
   super.init(expensive);
   if (expensive) {
-    if (error_count() > 0) {
-      GBM.this.updateValidationMessages();
-      throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(GBM.this);
-    }
+    if (error_count() > 0)     throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(GBM.this);
     if (_parms._distribution == Distribution.Family.AUTO) {
       if (_nclass == 1)       _parms._distribution=Distribution.Family.gaussian;
       if (_nclass == 2)       _parms._distribution=Distribution.Family.bernoulli;
@@ -36,6 +33,9 @@ if (isClassifier()) error("_distribution",H2O.technote(2,"Tweedie requires the r
 break;
 case gaussian:
 if (isClassifier()) error("_distribution",H2O.technote(2,"Gaussian requires the response to be numeric."));
+break;
+case laplace:
+if (isClassifier()) error("_distribution",H2O.technote(2,"Laplace requires the response to be numeric."));
 break;
 case AUTO:
 break;

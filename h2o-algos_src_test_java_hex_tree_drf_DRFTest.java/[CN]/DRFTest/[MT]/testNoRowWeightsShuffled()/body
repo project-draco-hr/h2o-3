@@ -13,14 +13,12 @@
     parms._max_depth=2;
     parms._ntrees=3;
     parms._r2_stopping=Double.MAX_VALUE;
-    DRF job=new DRF(parms);
-    drf=job.trainModel().get();
+    drf=new DRF(parms).trainModel().get();
     ModelMetricsBinomial mm=(ModelMetricsBinomial)drf._output._training_metrics;
-    assertEquals(0.975,mm.auc_obj()._auc,1e-8);
-    assertEquals(0.09254807692307693,mm.mse(),1e-8);
-    assertEquals(0.6089843749999999,mm.r2(),1e-6);
-    assertEquals(0.24567709133200652,mm.logloss(),1e-6);
-    job.remove();
+    assertEquals(1.0,mm.auc_obj()._auc,1e-8);
+    assertEquals(0.0290178571428571443,mm.mse(),1e-8);
+    assertEquals(0.8815104166666666,mm.r2(),1e-6);
+    assertEquals(0.10824081452821664,mm.logloss(),1e-6);
   }
   finally {
     if (tfr != null)     tfr.remove();

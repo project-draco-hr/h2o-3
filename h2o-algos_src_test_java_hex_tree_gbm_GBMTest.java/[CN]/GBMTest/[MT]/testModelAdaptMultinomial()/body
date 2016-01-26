@@ -1,5 +1,4 @@
 {
-  GBM job=null;
   GBMModel gbm=null;
   GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
   try {
@@ -12,8 +11,7 @@
     parms._learn_rate=1.0f;
     parms._min_rows=1;
     parms._distribution=Distribution.Family.multinomial;
-    job=new GBM(parms);
-    gbm=job.trainModel().get();
+    gbm=new GBM(parms).trainModel().get();
     Frame res=gbm.score(v);
     int[] ps=new int[(int)v.numRows()];
     Vec.Reader vr=res.vecs()[0].new Reader();
@@ -28,7 +26,6 @@
     parms._train.remove();
     parms._valid.remove();
     if (gbm != null)     gbm.delete();
-    if (job != null)     job.remove();
     Scope.exit();
   }
 }

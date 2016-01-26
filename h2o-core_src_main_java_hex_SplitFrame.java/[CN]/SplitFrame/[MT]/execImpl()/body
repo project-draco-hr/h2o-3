@@ -1,39 +1,23 @@
 {
-  if (ratios.length < 0)   throw new IllegalArgumentException("No ratio specified!");
-  if (ratios.length > 100)   throw new IllegalArgumentException("Too many frame splits demanded!");
-  for (  double r : ratios)   if (r <= 0.0)   new IllegalArgumentException("Ratio must be > 0!");
-  if (ratios.length == 1)   if (ratios[0] < 0.0 || ratios[0] > 1.0)   throw new IllegalArgumentException("Ratio must be between 0 and 1!");
-  if (destination_frames != null && !((ratios.length == 1 && destination_frames.length == 2) || (ratios.length == destination_frames.length)))   throw new IllegalArgumentException("Number of destination keys has to match to a number of split ratios!");
+  if (_ratios.length < 0)   throw new IllegalArgumentException("No ratio specified!");
+  if (_ratios.length > 100)   throw new IllegalArgumentException("Too many frame splits demanded!");
+  for (  double r : _ratios)   if (r <= 0.0)   new IllegalArgumentException("Ratio must be > 0!");
+  if (_ratios.length == 1)   if (_ratios[0] < 0.0 || _ratios[0] > 1.0)   throw new IllegalArgumentException("Ratio must be between 0 and 1!");
+  if (_destination_frames != null && !((_ratios.length == 1 && _destination_frames.length == 2) || (_ratios.length == _destination_frames.length)))   throw new IllegalArgumentException("Number of destination keys has to match to a number of split ratios!");
   final double[] computedRatios;
-  if (ratios.length > 1) {
-    double sum=ArrayUtils.sum(ratios);
+  if (_ratios.length > 1) {
+    double sum=ArrayUtils.sum(_ratios);
     if (sum <= 0.0)     throw new IllegalArgumentException("Ratios sum has to be > 0!");
-    if (sum < 1)     computedRatios=ratios;
+    if (sum < 1)     computedRatios=_ratios;
  else {
-      computedRatios=new double[ratios.length - 1];
-      for (int i=0; i < ratios.length - 1; i++)       computedRatios[i]=ratios[i] / sum;
+      computedRatios=new double[_ratios.length - 1];
+      for (int i=0; i < _ratios.length - 1; i++)       computedRatios[i]=_ratios[i] / sum;
     }
   }
  else {
-    computedRatios=ratios;
+    computedRatios=_ratios;
   }
-  if (destination_frames == null)   destination_frames=generateNumKeys(dataset._key,computedRatios.length + 1);
-  H2O.H2OCountedCompleter hcc=new H2O.H2OCountedCompleter(){
-    @Override protected void compute2(){
-      FrameSplitter fs=new FrameSplitter(this,dataset,computedRatios,destination_frames,_key);
-      H2O.submitTask(fs);
-    }
-    @Override public void onCompletion(    CountedCompleter caller){
-      FrameSplitter fs=(FrameSplitter)caller;
-      Job j=DKV.getGet(_key);
-      if (fs.getErrors() != null)       j.failed(fs.getErrors()[0]);
- else       j.done();
-    }
-    @Override public boolean onExceptionalCompletion(    Throwable ex,    CountedCompleter caller){
-      ((Job)DKV.getGet(_key)).failed(ex);
-      return false;
-    }
-  }
-;
-  return (SplitFrame)start(hcc,computedRatios.length + 1,true);
+  if (_destination_frames == null)   _destination_frames=generateNumKeys(_dataset._key,computedRatios.length + 1);
+  FrameSplitter fs=new FrameSplitter(_dataset,computedRatios,_destination_frames,_job._key);
+  return _job.start(fs,computedRatios.length + 1);
 }

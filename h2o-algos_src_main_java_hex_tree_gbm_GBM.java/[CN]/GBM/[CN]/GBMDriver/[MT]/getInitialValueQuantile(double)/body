@@ -1,0 +1,30 @@
+{
+  Vec y=hasOffsetCol() ? new MRTask(){
+    @Override public void map(    Chunk[] chks,    NewChunk[] nc){
+      final Chunk resp=chk_resp(chks);
+      final Chunk offset=chk_offset(chks);
+      for (int i=0; i < chks[0]._len; ++i)       nc[0].addNum(resp.atd(i) - offset.atd(i));
+    }
+  }
+.doAll(1,(byte)3,_train).outputFrame().anyVec() : response();
+  double res=Double.NaN;
+  QuantileModel qm=null;
+  Frame tempFrame=null;
+  try {
+    tempFrame=new Frame(Key.make(H2O.SELF),new String[]{"y"},new Vec[]{y});
+    if (hasWeightCol())     tempFrame.add("w",_weights);
+    DKV.put(tempFrame);
+    QuantileModel.QuantileParameters parms=new QuantileModel.QuantileParameters();
+    parms._train=tempFrame._key;
+    parms._probs=new double[]{quantile};
+    parms._weights_column=hasWeightCol() ? "w" : null;
+    Job<QuantileModel> job1=new Quantile(parms).trainModel();
+    qm=job1.get();
+    res=qm._output._quantiles[0][0];
+  }
+  finally {
+    if (qm != null)     qm.remove();
+    if (tempFrame != null)     DKV.remove(tempFrame._key);
+  }
+  return res;
+}

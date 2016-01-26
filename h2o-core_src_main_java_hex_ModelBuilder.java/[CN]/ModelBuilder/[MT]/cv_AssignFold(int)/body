@@ -1,0 +1,20 @@
+{
+  Vec fold=train().vec(_parms._fold_column);
+  if (fold != null) {
+    if (!fold.isInt() || (!(fold.min() == 0 && fold.max() == N - 1) && !(fold.min() == 1 && fold.max() == N)))     throw new H2OIllegalArgumentException("Fold column must be either categorical or contiguous integers from 0..N-1 or 1..N");
+    return fold;
+  }
+  final long seed=_parms.nFoldSeed();
+  Log.info("Creating " + N + " cross-validation splits with random number seed: "+ seed);
+switch (_parms._fold_assignment) {
+case AUTO:
+case Random:
+    return ASTKFold.kfoldColumn(train().anyVec().makeZero(),N,seed);
+case Modulo:
+  return ASTKFold.moduloKfoldColumn(train().anyVec().makeZero(),N);
+case Stratified:
+return ASTKFold.stratifiedKFoldColumn(response(),N,seed);
+default :
+throw H2O.unimpl();
+}
+}

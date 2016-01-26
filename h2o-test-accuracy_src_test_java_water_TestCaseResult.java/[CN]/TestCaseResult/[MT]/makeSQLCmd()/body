@@ -1,0 +1,12 @@
+{
+  AccuracyTestingSuite.summaryLog.println("Making the sql statement.");
+  String sql=String.format("insert into %s values(%s, ",resultsDBTableName,testCaseId);
+  for (  String m : metrics) {
+    sql+=(trainingMetrics.get(m) == null || Double.isNaN(trainingMetrics.get(m)) ? "NULL, " : Double.toString(trainingMetrics.get(m)) + ", ");
+  }
+  for (  String m : metrics) {
+    sql+=(testingMetrics.get(m) == null || Double.isNaN(testingMetrics.get(m)) ? "NULL, " : Double.toString(testingMetrics.get(m)) + ", ");
+  }
+  sql+=String.format("%s, '%s', '%s', '%s', %s, '%s', %s)","NOW()","H2O",h2oVersion,ipAddr,ncpu,gitHash,modelBuildTime);
+  return sql;
+}

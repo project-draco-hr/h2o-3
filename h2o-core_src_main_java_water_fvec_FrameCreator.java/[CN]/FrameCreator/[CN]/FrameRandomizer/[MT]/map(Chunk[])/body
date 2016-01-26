@@ -1,5 +1,6 @@
 {
-  if (_createFrame.isCancelledOrCrashed())   return;
+  Job<Frame> job=_createFrame._job;
+  if (job.stop_requested())   return;
   if (!_createFrame.randomize)   return;
   final Random rng=RandomUtils.getRNG(new Random().nextLong());
   if (_createFrame.has_response) {
@@ -10,33 +11,33 @@
  else       cs[0].set(r,_createFrame.real_range * (1 - 2 * rng.nextDouble()));
     }
   }
-  _createFrame.update(1);
+  job.update(1);
   for (  int c : _cat_cols) {
     for (int r=0; r < cs[c]._len; r++) {
       setSeed(rng,c,cs[c]._start + r);
       cs[c].set(r,(int)(rng.nextDouble() * _createFrame.factors));
     }
   }
-  _createFrame.update(1);
+  job.update(1);
   for (  int c : _int_cols) {
     for (int r=0; r < cs[c]._len; r++) {
       setSeed(rng,c,cs[c]._start + r);
       cs[c].set(r,-_createFrame.integer_range + (long)(rng.nextDouble() * (2 * _createFrame.integer_range + 1)));
     }
   }
-  _createFrame.update(1);
+  job.update(1);
   for (  int c : _real_cols) {
     for (int r=0; r < cs[c]._len; r++) {
       setSeed(rng,c,cs[c]._start + r);
       cs[c].set(r,_createFrame.real_range * (1 - 2 * rng.nextDouble()));
     }
   }
-  _createFrame.update(1);
+  job.update(1);
   for (  int c : _bin_cols) {
     for (int r=0; r < cs[c]._len; r++) {
       setSeed(rng,c,cs[c]._start + r);
       cs[c].set(r,rng.nextFloat() > _createFrame.binary_ones_fraction ? 0 : 1);
     }
   }
-  _createFrame.update(1);
+  job.update(1);
 }

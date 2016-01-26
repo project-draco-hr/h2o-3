@@ -5,6 +5,7 @@
   Frame train=null;
   long seed=1234;
   try {
+    Scope.enter();
     train=parse_test_file(Key.make("arrests.hex"),"smalldata/pca_test/USArrests.csv");
     GLRMParameters parms=new GLRMParameters();
     parms._train=train._key;
@@ -28,12 +29,7 @@
       ModelMetricsGLRM mm=(ModelMetricsGLRM)ModelMetrics.getFromDKV(model,train);
       Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
     }
- catch (    Throwable t) {
-      t.printStackTrace();
-      throw new RuntimeException(t);
-    }
- finally {
-      job.remove();
+  finally {
       if (model != null)       model.delete();
     }
     Log.info("\nOrthogonal non-negative matrix factorization");
@@ -49,12 +45,7 @@
       ModelMetricsGLRM mm=(ModelMetricsGLRM)ModelMetrics.getFromDKV(model,train);
       Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
     }
- catch (    Throwable t) {
-      t.printStackTrace();
-      throw new RuntimeException(t);
-    }
- finally {
-      job.remove();
+  finally {
       if (model != null)       model.delete();
     }
     Log.info("\nQuadratic clustering (k-means)");
@@ -71,12 +62,7 @@
       ModelMetricsGLRM mm=(ModelMetricsGLRM)ModelMetrics.getFromDKV(model,train);
       Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
     }
- catch (    Throwable t) {
-      t.printStackTrace();
-      throw new RuntimeException(t);
-    }
- finally {
-      job.remove();
+  finally {
       if (model != null)       model.delete();
     }
     Log.info("\nQuadratic mixture (soft k-means)");
@@ -93,21 +79,13 @@
       ModelMetricsGLRM mm=(ModelMetricsGLRM)ModelMetrics.getFromDKV(model,train);
       Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
     }
- catch (    Throwable t) {
-      t.printStackTrace();
-      throw new RuntimeException(t);
-    }
- finally {
-      job.remove();
+  finally {
       if (model != null)       model.delete();
     }
   }
- catch (  Throwable t) {
-    t.printStackTrace();
-    throw new RuntimeException(t);
-  }
- finally {
+  finally {
     init.delete();
     if (train != null)     train.delete();
+    Scope.exit();
   }
 }

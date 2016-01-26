@@ -1,10 +1,12 @@
 from __future__ import print_function
-import h2o as h
-h.init()
-h2o = h.H2OConnection()
-cluster_up = h2o.cluster_is_up(h2o)
-h2o.json = h.H2OConnection.get_json('Cloud?skip_ticks=true')
-nodes = h2o.json['nodes']
+import h2o
+h2o.init(strict_version_check=False)
+h2o.shutdown(prompt=False)
+h2o.init(strict_version_check=False)
+conn = h2o.H2OConnection(ip='localhost', port=54321, start_h2o=True, enable_assertions=True, license=None, nthreads=(-1), max_mem_size=None, min_mem_size=None, ice_root=None, strict_version_check=False, proxy=None, https=False, insecure=False, username=None, password=None, max_mem_size_GB=None, min_mem_size_GB=None)
+cluster_up = conn.cluster_is_up(conn)
+conn.json = h2o.H2OConnection.get_json('Cloud?skip_ticks=true')
+nodes = conn.json['nodes']
 nodes = nodes[0]
 cluster_health = nodes['healthy']
 if (cluster_health == (True & cluster_up) == True):

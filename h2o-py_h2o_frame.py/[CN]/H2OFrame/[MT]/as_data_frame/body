@@ -1,29 +1,6 @@
 def as_data_frame(self, use_pandas=False):
     "Obtain the dataset as a python-local object.\n\n    Parameters\n    ----------\n      use_pandas : bool, default=False\n        A flag specifying whether or not to return a pandas DataFrame.\n\n    Returns\n    -------\n      A local python object (a list of lists of strings, each list is a row, if\n      use_pandas=False, otherwise a pandas DataFrame) containing this H2OFrame instance's\n      data.\n    "
-    url = 'http://{}:{}/3/DownloadDataset?frame_id={}&hex_string=false'.format(H2OConnection.ip(), H2OConnection.port(), quote(self.frame_id))
-    if PY3:
-        from urllib import request
-        response = StringIO(request.urlopen(url).read().decode())
-    else:
-        import urllib2
-        response = urllib2.urlopen(url)
     if (can_use_pandas() and use_pandas):
         import pandas
-        df = pandas.read_csv(response, low_memory=False)
-        time_cols = []
-        if (self.types is not None):
-            for col_name in self.names:
-                xtype = self.type(col_name)
-                if (xtype.lower() == 'time'):
-                    time_cols.append(col_name)
-            if time_cols:
-                sample_timestamp = 1380610868
-                utc_offset = (1000 * (datetime.utcfromtimestamp(sample_timestamp) - datetime.fromtimestamp(sample_timestamp)).total_seconds())
-                try:
-                    df[time_cols] = (df[time_cols] - utc_offset).astype('datetime64[ms]')
-                except pandas.tslib.OutOfBoundsDatetime:
-                    pass
-        return df
-    else:
-        cr = csv.reader(response)
-        return [([''] if (row == []) else row) for row in cr]
+        return pandas.read_csv(StringIO(self.get_frame_data()), low_memory=False)
+    return [row for row in csv.reader(StringIO(self.get_frame_data()))]

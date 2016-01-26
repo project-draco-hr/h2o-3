@@ -1,20 +1,9 @@
 {
+  _job=new Job(_dataset,Frame.class.getName(),"MissingValueInserter");
   if (DKV.get(_dataset) == null)   throw new IllegalArgumentException("Invalid Frame key " + _dataset + " (Frame doesn't exist).");
   if (_fraction < 0 || _fraction > 1)   throw new IllegalArgumentException("fraction must be between 0 and 1.");
-  try {
-    final Frame frame=DKV.getGet(_dataset);
-    MissingInserterDriver mid=new MissingInserterDriver(frame);
-    int work=frame.vecs()[0].nChunks();
-    start(mid,work,true);
-  }
- catch (  Throwable t) {
-    Job thisJob=DKV.getGet(_key);
-    if (thisJob._state == JobState.CANCELLED) {
-      Log.info("Job cancelled by user.");
-    }
- else {
-      failed(t);
-      throw t;
-    }
-  }
+  final Frame frame=DKV.getGet(_dataset);
+  MissingInserterDriver mid=new MissingInserterDriver(frame);
+  int work=frame.vecs()[0].nChunks();
+  return _job.start(mid,work);
 }

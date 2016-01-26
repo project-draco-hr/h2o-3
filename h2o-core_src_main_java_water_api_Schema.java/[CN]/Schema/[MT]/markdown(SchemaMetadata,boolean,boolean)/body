@@ -1,0 +1,43 @@
+{
+  MarkdownBuilder builder=new MarkdownBuilder();
+  builder.comment("Preview with http://jbt.github.io/markdown-editor");
+  builder.heading1("schema ",this.getClass().getSimpleName());
+  builder.hline();
+  boolean first;
+  try {
+    if (include_input_fields) {
+      first=true;
+      builder.heading2("input fields");
+      for (      SchemaMetadata.FieldMetadata field_meta : meta.fields) {
+        if (field_meta.direction == API.Direction.INPUT || field_meta.direction == API.Direction.INOUT) {
+          if (first) {
+            builder.tableHeader("name","required?","level","type","schema?","schema","default","description","values","is member of frames","is mutually exclusive with");
+            first=false;
+          }
+          builder.tableRow(field_meta.name,String.valueOf(field_meta.required),field_meta.level.name(),field_meta.type,String.valueOf(field_meta.is_schema),field_meta.is_schema ? field_meta.schema_name : "",(null == field_meta.value ? "(null)" : field_meta.value.toString()),field_meta.help,(field_meta.values == null || field_meta.values.length == 0 ? "" : Arrays.toString(field_meta.values)),(field_meta.is_member_of_frames == null ? "[]" : Arrays.toString(field_meta.is_member_of_frames)),(field_meta.is_mutually_exclusive_with == null ? "[]" : Arrays.toString(field_meta.is_mutually_exclusive_with)));
+        }
+      }
+      if (first)       builder.paragraph("(none)");
+    }
+    if (include_output_fields) {
+      first=true;
+      builder.heading2("output fields");
+      for (      SchemaMetadata.FieldMetadata field_meta : meta.fields) {
+        if (field_meta.direction == API.Direction.OUTPUT || field_meta.direction == API.Direction.INOUT) {
+          if (first) {
+            builder.tableHeader("name","type","schema?","schema","default","description","values","is member of frames","is mutually exclusive with");
+            first=false;
+          }
+          builder.tableRow(field_meta.name,field_meta.type,String.valueOf(field_meta.is_schema),field_meta.is_schema ? field_meta.schema_name : "",(null == field_meta.value ? "(null)" : field_meta.value.toString()),field_meta.help,(field_meta.values == null || field_meta.values.length == 0 ? "" : Arrays.toString(field_meta.values)),(field_meta.is_member_of_frames == null ? "[]" : Arrays.toString(field_meta.is_member_of_frames)),(field_meta.is_mutually_exclusive_with == null ? "[]" : Arrays.toString(field_meta.is_mutually_exclusive_with)));
+        }
+      }
+      if (first)       builder.paragraph("(none)");
+    }
+  }
+ catch (  Exception e) {
+    IcedHashMap.IcedHashMapStringObject values=new IcedHashMap.IcedHashMapStringObject();
+    values.put("schema",this);
+    throw new H2OIllegalArgumentException("Caught exception using reflection on schema: " + this,"Caught exception using reflection on schema: " + this + ": "+ e,values);
+  }
+  return builder.stringBuffer();
+}

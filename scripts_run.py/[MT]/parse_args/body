@@ -6,6 +6,7 @@ def parse_args(argv):
     global g_wipe_output_dir
     global g_test_to_run
     global g_test_list_file
+    global g_exclude_list_file
     global g_test_group
     global g_run_small
     global g_run_medium
@@ -43,6 +44,7 @@ def parse_args(argv):
     global g_os
     global g_job_name
     global g_py3
+    global g_pycoverage
     i = 1
     while (i < len(argv)):
         s = argv[i]
@@ -56,6 +58,11 @@ def parse_args(argv):
             if (i > len(argv)):
                 usage()
             g_py3 = True
+        elif (s == '--coverage'):
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_pycoverage = True
         elif (s == '--numclouds'):
             i += 1
             if (i > len(argv)):
@@ -81,6 +88,11 @@ def parse_args(argv):
             if (i > len(argv)):
                 usage()
             g_test_list_file = argv[i]
+        elif (s == '--excludelist'):
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_exclude_list_file = argv[i]
         elif (s == '--testgroup'):
             i += 1
             if (i > len(argv)):

@@ -1,9 +1,14 @@
 {
-  _mtry=Math.max(1,(int)(_parms._col_sample_rate * _ncols));
+  _mtry_per_tree=Math.max(1,(int)(_parms._col_sample_rate_per_tree * _ncols));
+  if (!(1 <= _mtry_per_tree && _mtry_per_tree <= _ncols))   throw new IllegalArgumentException("Computed mtry_per_tree should be in interval <1," + _ncols + "> but it is "+ _mtry_per_tree);
+  _mtry=Math.max(1,(int)(_parms._col_sample_rate * _parms._col_sample_rate_per_tree * _ncols));
   if (!(1 <= _mtry && _mtry <= _ncols))   throw new IllegalArgumentException("Computed mtry should be in interval <1," + _ncols + "> but it is "+ _mtry);
-  _initialPrediction=_nclass > 2 ? 0 : getInitialValue();
-  if (hasOffsetCol() && _parms._distribution == Distribution.Family.bernoulli) {
-    _initialPrediction=getInitialValueBernoulliOffset(_train);
+  _initialPrediction=_nclass > 2 || _parms._distribution == Distribution.Family.laplace ? 0 : getInitialValue();
+  if (_parms._distribution == Distribution.Family.bernoulli) {
+    if (hasOffsetCol())     _initialPrediction=getInitialValueBernoulliOffset(_train);
+  }
+ else   if (_parms._distribution == Distribution.Family.laplace) {
+    _initialPrediction=getInitialValueQuantile(0.5);
   }
   _model._output._init_f=_initialPrediction;
   if (_initialPrediction != 0.0) {

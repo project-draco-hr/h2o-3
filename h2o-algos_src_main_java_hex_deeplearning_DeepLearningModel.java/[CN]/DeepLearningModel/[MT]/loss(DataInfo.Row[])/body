@@ -1,6 +1,7 @@
 {
   double loss=0;
   Neurons[] neurons=DeepLearningTask.makeNeuronsForTraining(model_info());
+  final double prefactor=_parms._distribution == Distribution.Family.laplace ? 1 : 0.5;
   for (  DataInfo.Row myRow : myRows) {
     if (myRow == null)     continue;
     long seed=-1;
@@ -28,7 +29,7 @@
       double actual=myRow.response[0];
       Distribution dist=new Distribution(model_info.get_params()._distribution,model_info.get_params()._tweedie_power);
       pred=dist.linkInv(pred);
-      loss+=0.5 * dist.deviance(1,actual,pred);
+      loss+=prefactor * dist.deviance(1,actual,pred);
     }
     for (int i=0; i < _parms._hidden.length + 1; ++i) {
       if (neurons[i]._w == null)       continue;

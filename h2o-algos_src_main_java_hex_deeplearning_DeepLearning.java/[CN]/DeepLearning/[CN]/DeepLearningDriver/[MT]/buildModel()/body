@@ -1,5 +1,4 @@
 {
-  Scope.enter();
   DeepLearningModel cp=null;
   if (_parms._checkpoint == null) {
     cp=new DeepLearningModel(dest(),_parms,new DeepLearningModel.DeepLearningModelOutput(DeepLearning.this),_train,_valid,nclasses());
@@ -9,7 +8,7 @@
     final DeepLearningModel previous=DKV.getGet(_parms._checkpoint);
     if (previous == null)     throw new IllegalArgumentException("Checkpoint not found.");
     Log.info("Resuming from checkpoint.");
-    new ProgressUpdate("Resuming from checkpoint").fork(_progressKey);
+    _job.update(0,"Resuming from checkpoint");
     if (isClassifier() != previous._output.isClassifier())     throw new H2OIllegalArgumentException("Response type must be the same as for the checkpointed model.");
     if (isSupervised() != previous._output.isSupervised())     throw new H2OIllegalArgumentException("Model type must be the same as for the checkpointed model.");
     DeepLearningParameters oldP=previous._parms;
@@ -21,11 +20,12 @@
     DeepLearningParameters.Sanity.checkpoint(oldP2,newP2);
     DataInfo dinfo;
     try {
+      for (      String st : previous.adaptTestForTrain(_train,true,false))       Log.warn(st);
+      for (      String st : previous.adaptTestForTrain(_valid,true,false))       Log.warn(st);
       dinfo=makeDataInfo(_train,_valid,_parms);
       DKV.put(dinfo);
       cp=new DeepLearningModel(dest(),_parms,previous,false,dinfo);
-      cp._output._end_time=0;
-      cp.write_lock(self());
+      cp.write_lock(_job);
       if (!Arrays.equals(cp._output._names,previous._output._names)) {
         throw new H2OIllegalArgumentException("The columns of the training data must be the same as for the checkpointed model. Check ignored columns (or disable ignore_const_cols).");
       }
@@ -44,30 +44,24 @@
       assert(actualNewP != oldP);
       DeepLearningParameters.Sanity.update(actualNewP,newP,nclasses());
       Log.info("Continuing training after " + String.format("%.3f",previous.epoch_counter) + " epochs from the checkpointed model.");
-      cp.update(self());
+      cp.update(_job);
     }
  catch (    H2OIllegalArgumentException ex) {
       if (cp != null) {
-        cp.unlock(self());
+        cp.unlock(_job);
         cp.delete();
         cp=null;
       }
       throw ex;
     }
  finally {
-      if (cp != null)       cp.unlock(self());
+      if (cp != null)       cp.unlock(_job);
     }
   }
   trainModel(cp);
   List<Key> keep=new ArrayList<>();
   try {
-    keep.add(dest());
-    keep.add(cp.model_info().data_info()._key);
-    keep.add(cp._output._training_metrics._key);
-    if (cp._output._validation_metrics != null) {
-      keep.add(cp._output._validation_metrics._key);
-    }
-    if (cp._output.weights != null && cp._output.biases != null) {
+    if (_parms._export_weights_and_biases && cp._output.weights != null && cp._output.biases != null) {
       for (      Key k : Arrays.asList(cp._output.weights)) {
         keep.add(k);
         for (        Vec vk : ((Frame)DKV.getGet(k)).vecs()) {
@@ -83,6 +77,6 @@
     }
   }
   finally {
-    Scope.exit(keep.toArray(new Key[0]));
+    Scope.exit(keep.toArray(new Key[keep.size()]));
   }
 }

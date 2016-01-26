@@ -1,5 +1,4 @@
 {
-  GLM job=null;
   GLMModel model=null, model2=null, model3=null, model4=null;
   Frame fr=parse_test_file("smalldata/glm_test/prostate_cat_replaced.csv");
   try {
@@ -12,9 +11,8 @@
     params._train=fr._key;
     params._lambda=new double[]{0};
     params._standardize=false;
-    params._objective_epsilon=1e-16;
-    job=new GLM(Key.make("prostate_model"),"glm test simple glm",params);
-    model=job.trainModel().get();
+    GLM glm=new GLM(params,glmkey("prostate_model"));
+    model=glm.trainModel().get();
     HashMap<String,Double> coefs=model.coefficients();
     for (int i=0; i < cfs1.length; ++i)     assertEquals(vals[i],coefs.get(cfs1[i]),1e-4);
     assertEquals(512.3,nullDeviance(model),1e-1);
@@ -35,9 +33,8 @@
     assertEquals(((ModelMetricsBinomialGLM)model._output._training_metrics)._resDev,((ModelMetricsBinomialGLM)mm)._resDev,1e-8);
     double prior=1e-5;
     params._prior=prior;
-    job.remove();
-    job=new GLM(Key.make("prostate_model2"),"glm test glm with prior",params);
-    model2=job.trainModel().get();
+    glm=new GLM(params,glmkey("prostate_model2"));
+    model2=glm.trainModel().get();
     for (int i=0; i < model2.beta().length - 1; ++i)     assertEquals(model.beta()[i],model2.beta()[i],1e-8);
     assertEquals(model.beta()[model.beta().length - 1] - Math.log(model._ymu[0] * (1 - prior) / (prior * (1 - model._ymu[0]))),model2.beta()[model.beta().length - 1],1e-10);
     params._lambda_search=true;
@@ -46,22 +43,26 @@
     params._prior=-1;
     params._obj_reg=-1;
     params._max_iterations=500;
-    job.remove();
-    job=new GLM(Key.make("prostate_model2"),"glm test simple glm lambda search",params);
-    model3=job.trainModel().get();
-    job.remove();
-    System.out.println("metrics key = " + model3._output._training_metrics._key);
-    System.out.println("metrics key exist? " + (DKV.get(model3._output._training_metrics._key) != null));
+    glm=new GLM(params,glmkey("prostate_model2"));
+    model3=glm.trainModel().get();
+    double lambda=model3._output._submodels[model3._output._best_lambda_idx].lambda_value;
+    params._lambda_search=false;
+    params._lambda=new double[]{lambda};
     ModelMetrics mm3=ModelMetrics.getFromDKV(model3,fr);
     assertEquals("mse don't match, " + model3._output._training_metrics._MSE + " != "+ mm3._MSE,model3._output._training_metrics._MSE,mm3._MSE,1e-8);
     assertEquals("res-devs don't match, " + ((ModelMetricsBinomialGLM)model3._output._training_metrics)._resDev + " != "+ ((ModelMetricsBinomialGLM)mm3)._resDev,((ModelMetricsBinomialGLM)model3._output._training_metrics)._resDev,((ModelMetricsBinomialGLM)mm3)._resDev,1e-4);
-    double lambda=model3._output._submodels[model3._output._best_lambda_idx].lambda_value;
-    System.out.println("best lambda = " + lambda);
-    params._lambda_search=false;
-    params._lambda=new double[]{lambda};
-    job=new GLM(Key.make("prostate_model2"),"glm test simple poisson",params);
-    model4=job.trainModel().get();
-    assertEquals("mse don't match, " + model3._output._training_metrics._MSE + " != "+ model4._output._training_metrics._MSE,model3._output._training_metrics._MSE,model4._output._training_metrics._MSE,1e-6);
+    fr.add("CAPSULE",fr.remove("CAPSULE"));
+    fr.remove("ID").remove();
+    DKV.put(fr._key,fr);
+    DataInfo dinfo=new DataInfo(fr,null,1,true,TransformType.NONE,DataInfo.TransformType.NONE,true,false,false,false,false,false);
+    GLMIterationTaskTest gtt=(GLMIterationTaskTest)new GLMIterationTaskTest(null,dinfo,1,params,true,model3.beta(),model3._ymu[0],model3).doAll(dinfo._adaptedFrame);
+    model3.score(fr).delete();
+    mm3=ModelMetrics.getFromDKV(model3,fr);
+    assertEquals("mse don't match, " + model3._output._training_metrics._MSE + " != "+ mm3._MSE,model3._output._training_metrics._MSE,mm3._MSE,1e-8);
+    assertEquals("res-devs don't match, " + ((ModelMetricsBinomialGLM)model3._output._training_metrics)._resDev + " != "+ ((ModelMetricsBinomialGLM)mm3)._resDev,((ModelMetricsBinomialGLM)model3._output._training_metrics)._resDev,((ModelMetricsBinomialGLM)mm3)._resDev,1e-4);
+    glm=new GLM(params,glmkey("prostate_model2"));
+    model4=glm.trainModel().get();
+    assertEquals("mse don't match, " + model3._output._training_metrics._MSE + " != "+ model4._output._training_metrics._MSE,model3._output._training_metrics._MSE,model4._output._training_metrics._MSE,1e-8);
     assertEquals("res-devs don't match, " + ((ModelMetricsBinomialGLM)model3._output._training_metrics)._resDev + " != "+ ((ModelMetricsBinomialGLM)model4._output._training_metrics)._resDev,((ModelMetricsBinomialGLM)model3._output._training_metrics)._resDev,((ModelMetricsBinomialGLM)model4._output._training_metrics)._resDev,1e-4);
     model4.score(fr).delete();
     ModelMetrics mm4=ModelMetrics.getFromDKV(model4,fr);
@@ -74,7 +75,6 @@
     if (model2 != null)     model2.delete();
     if (model3 != null)     model3.delete();
     if (model4 != null)     model4.delete();
-    if (job != null)     job.remove();
     Scope.exit();
   }
 }

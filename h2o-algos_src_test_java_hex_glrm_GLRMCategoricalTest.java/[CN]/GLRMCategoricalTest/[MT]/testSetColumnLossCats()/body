@@ -1,12 +1,11 @@
 {
-  GLRM job=null;
   GLRMModel model=null;
   Frame train=null;
   final int[] cats=new int[]{1,3,4,5};
   Scope.enter();
   try {
     train=parse_test_file(Key.make("prostate.hex"),"smalldata/logreg/prostate.csv");
-    for (int i=0; i < cats.length; i++)     Scope.track(train.replace(cats[i],train.vec(cats[i]).toCategoricalVec())._key);
+    for (int i=0; i < cats.length; i++)     Scope.track(train.replace(cats[i],train.vec(cats[i]).toCategoricalVec()));
     train.remove("ID").remove();
     DKV.put(train._key,train);
     GLRMParameters parms=new GLRMParameters();
@@ -20,28 +19,14 @@
     parms._min_step_size=1e-5;
     parms._recover_svd=false;
     parms._max_iterations=2000;
-    try {
-      job=new GLRM(parms);
-      model=job.trainModel().get();
-      Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
-      GLRMTest.checkLossbyCol(parms,model);
-      model.score(train).delete();
-      ModelMetricsGLRM mm=(ModelMetricsGLRM)ModelMetrics.getFromDKV(model,train);
-      Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
-    }
- catch (    Throwable t) {
-      t.printStackTrace();
-      throw new RuntimeException(t);
-    }
- finally {
-      job.remove();
-    }
+    model=new GLRM(parms).trainModel().get();
+    Log.info("Iteration " + model._output._iterations + ": Objective value = "+ model._output._objective);
+    GLRMTest.checkLossbyCol(parms,model);
+    model.score(train).delete();
+    ModelMetricsGLRM mm=(ModelMetricsGLRM)ModelMetrics.getFromDKV(model,train);
+    Log.info("Numeric Sum of Squared Error = " + mm._numerr + "\tCategorical Misclassification Error = "+ mm._caterr);
   }
- catch (  Throwable t) {
-    t.printStackTrace();
-    throw new RuntimeException(t);
-  }
- finally {
+  finally {
     if (train != null)     train.delete();
     if (model != null)     model.delete();
     Scope.exit();

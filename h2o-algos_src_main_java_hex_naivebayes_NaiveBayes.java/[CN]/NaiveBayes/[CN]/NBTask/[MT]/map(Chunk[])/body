@@ -1,7 +1,5 @@
 {
-  if (_jobKey != null && !isRunning(_jobKey)) {
-    throw new JobCancelledException();
-  }
+  if (_jobKey.get().stop_requested())   return;
   _nobs=0;
   _rescnt=new int[_nrescat];
   if (_dinfo._cats > 0) {
@@ -18,8 +16,8 @@
   }
   Chunk res=chks[_npreds];
   OUTER:   for (int row=0; row < chks[0]._len; row++) {
-    for (int col=0; col < chks.length; col++) {
-      if (Double.isNaN(chks[col].atd(row)))       continue OUTER;
+    for (    Chunk chk : chks) {
+      if (Double.isNaN(chk.atd(row)))       continue OUTER;
     }
     int rlevel=(int)res.atd(row);
     for (int col=0; col < _dinfo._cats; col++) {

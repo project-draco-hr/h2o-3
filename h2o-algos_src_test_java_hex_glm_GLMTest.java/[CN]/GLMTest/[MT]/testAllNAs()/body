@@ -9,16 +9,14 @@
     params._response_column=fr._names[1];
     params._train=parsed;
     params._lambda=new double[]{0};
-    Key modelKey=Key.make("gamma_test");
-    job=new GLM(modelKey,"glm test simple gamma",params);
-    job.trainModel().get();
+    GLM glm=new GLM(params,glmkey("gamma_test"));
+    glm.trainModel().get();
     assertFalse("should've thrown IAE",true);
   }
  catch (  IllegalArgumentException e) {
     assertTrue(e.getMessage().contains("No rows left in the dataset"));
   }
  finally {
-    if (job != null)     job.remove();
     fr.delete();
   }
 }

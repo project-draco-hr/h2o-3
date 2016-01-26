@@ -2,10 +2,10 @@
   GrepModel model=null;
   try {
     Scope.enter();
-    _parms.read_lock_frames(Grep.this);
+    _parms.read_lock_frames(_job);
     init(true);
     model=new GrepModel(dest(),_parms,new GrepModel.GrepOutput(Grep.this));
-    model.delete_and_lock(_key);
+    model.delete_and_lock(_job);
     GrepGrep gg=new GrepGrep(_parms._regex).doAll(train().vecs()[0]);
     model._output._matches=Arrays.copyOf(gg._matches,gg._cnt);
     model._output._offsets=Arrays.copyOf(gg._offsets,gg._cnt);
@@ -14,23 +14,10 @@
     sb.append(Arrays.toString(model._output._matches)).append("\n");
     sb.append(Arrays.toString(model._output._offsets)).append("\n");
     Log.info(sb);
-    done();
   }
- catch (  Throwable t) {
-    Job thisJob=DKV.getGet(_key);
-    if (thisJob._state == JobState.CANCELLED) {
-      Log.info("Job cancelled by user.");
-    }
- else {
-      t.printStackTrace();
-      failed(t);
-      throw t;
-    }
-  }
- finally {
-    updateModelOutput();
-    if (model != null)     model.unlock(_key);
-    _parms.read_unlock_frames(Grep.this);
+  finally {
+    if (model != null)     model.unlock(_job);
+    _parms.read_unlock_frames(_job);
     Scope.exit(model == null ? null : model._key);
   }
   tryComplete();

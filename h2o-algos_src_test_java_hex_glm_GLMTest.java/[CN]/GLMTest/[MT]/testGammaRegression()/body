@@ -1,0 +1,23 @@
+{
+  GLMModel model=null;
+  Frame fr=null, res=null;
+  try {
+    Key raw=Key.make("gamma_test_data_raw");
+    Key parsed=Key.make("gamma_test_data_parsed");
+    FVecTest.makeByteVec(raw,"x,y\n0,1\n1,0.5\n2,0.3333333\n3,0.25\n4,0.2\n5,0.1666667\n6,0.1428571\n7,0.125");
+    fr=ParseDataset.parse(parsed,raw);
+    GLMParameters params=new GLMParameters(Family.gamma);
+    params._response_column=fr._names[1];
+    params._train=parsed;
+    params._lambda=new double[]{0};
+    model=new GLM(params,glmkey("gamma_test")).trainModel().get();
+    for (    double c : model.beta())     assertEquals(1.0,c,1e-4);
+    res=model.score(fr);
+    Assert.assertTrue(model.testJavaScoring(fr,res,1e-15));
+  }
+  finally {
+    if (fr != null)     fr.delete();
+    if (res != null)     res.delete();
+    if (model != null)     model.delete();
+  }
+}

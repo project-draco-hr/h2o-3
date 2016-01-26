@@ -1,6 +1,6 @@
 {
   if (_parms._checkpoint != null)   return;
-  long p=_train.degreesOfFreedom() - (_parms._autoencoder ? 0 : _train.lastVec().cardinality());
+  long p=hex.util.LinearAlgebraUtils.numColsExp(_train,true) - (_parms._autoencoder ? 0 : _train.lastVec().cardinality());
   String[][] dom=_train.domains();
   for (int i=0; i < _train.numCols() - (_parms._autoencoder ? 0 : 1); ++i) {
     if (dom[i] != null) {
@@ -17,6 +17,5 @@
   if (model_size > 1e8) {
     String msg="Model is too large: " + model_size + " parameters. Try reducing the number of neurons in the hidden layers (or reduce the number of categorical factors).";
     error("_hidden",msg);
-    cancel(msg);
   }
 }

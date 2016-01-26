@@ -1,12 +1,12 @@
 {
-  CoxPHModel model=null;
+  CoxPHModel model;
   try {
     Scope.enter();
-    _parms.read_lock_frames(CoxPH.this);
+    _parms.read_lock_frames(_job);
     init(true);
     applyScoringFrameSideEffects();
-    model=new CoxPHModel(dest(),_parms,new CoxPHModel.CoxPHOutput(CoxPH.this));
-    model.delete_and_lock(_key);
+    model=new CoxPHModel(_job._result,_parms,new CoxPHModel.CoxPHOutput(CoxPH.this));
+    model.delete_and_lock(_job);
     applyTrainingFrameSideEffects();
     int nResponses=1;
     boolean useAllFactorLevels=false;
@@ -26,7 +26,7 @@
     final boolean has_weights_column=(model._parms.weights_column != null);
     for (int i=0; i <= model._parms.iter_max; ++i) {
       model._output.iter=i;
-      final CoxPHTask coxMR=new CoxPHTask(self(),dinfo,newCoef,model._output.min_time,n_time,n_offsets,has_start_column,has_weights_column).doAll(dinfo._adaptedFrame);
+      final CoxPHTask coxMR=new CoxPHTask(_job._key,dinfo,newCoef,model._output.min_time,n_time,n_offsets,has_start_column,has_weights_column).doAll(dinfo._adaptedFrame);
       final double newLoglik=calcLoglik(model,coxMR);
       if (newLoglik > oldLoglik) {
         if (i == 0)         calcCounts(model,coxMR);
@@ -46,24 +46,11 @@
       }
       for (int j=0; j < n_coef; ++j)       newCoef[j]=oldCoef[j] - step[j];
     }
-    model.update(_key);
+    model.update(_job);
   }
- catch (  Throwable t) {
-    Job thisJob=DKV.getGet(_key);
-    if (thisJob._state == JobState.CANCELLED) {
-      Log.info("Job cancelled by user.");
-    }
- else {
-      t.printStackTrace();
-      failed(t);
-      throw t;
-    }
-  }
- finally {
-    updateModelOutput();
-    _parms.read_unlock_frames(CoxPH.this);
+  finally {
+    _parms.read_unlock_frames(_job);
     Scope.exit();
-    done();
   }
   tryComplete();
 }

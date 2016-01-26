@@ -1,0 +1,7 @@
+def nacnt():
+    fr = h2o.import_file(pyunit_utils.locate('smalldata/logreg/prostate.csv'))
+    nacnts1 = fr.nacnt()
+    assert all([(i == 0) for i in nacnts1])
+    fr.insert_missing_values()
+    nacnts2 = fr.nacnt()
+    assert all([(i > 0) for i in nacnts2])

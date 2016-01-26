@@ -1,7 +1,7 @@
 {
   GLMModel model=null;
   Key parsed=Key.make("airlines_parsed");
-  Key modelKey=Key.make("airlines_model");
+  Key<GLMModel> modelKey=Key.make("airlines_model");
   Frame fr=parse_test_file(parsed,"smalldata/airlines/AirlinesTrain.csv.zip");
   try {
     GLMParameters params=new GLMParameters();
@@ -11,10 +11,9 @@
     params._response_column="IsDepDelayed";
     params._ignored_columns=new String[]{"IsDepDelayed_REC"};
     params._train=fr._key;
-    GLM job=new GLM(modelKey,"glm test simple coordinate descent",params);
-    job.trainModel().get();
-    assertTrue(job.isDone());
-    model=DKV.get(modelKey).get();
+    GLM glm=new GLM(params,modelKey);
+    model=glm.trainModel().get();
+    assertTrue(glm.isStopped());
     System.out.println(model._output._training_metrics);
   }
   finally {

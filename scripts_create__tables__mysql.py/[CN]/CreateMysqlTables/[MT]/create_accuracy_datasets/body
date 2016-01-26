@@ -1,0 +1,13 @@
+def create_accuracy_datasets(self):
+    h2o = mysql.connector.connect(user='root', password='0xdata', host='172.16.2.178', database='h2o')
+    cursor = h2o.cursor()
+    self.drop_acc_datasets_tables()
+    try:
+        acc_data_query = '\n                                CREATE TABLE IF NOT EXISTS AccuracyDatasets(\n                                data_set_id int(100) NOT NULL AUTO_INCREMENT,\n                                uri varchar(100) NOT NULL,\n                                respose_col_idx int(100) NOT NULL,\n                                PRIMARY KEY (`data_set_id`)\n                                )'
+        cursor.execute(acc_data_query)
+    except:
+        traceback.print_exc()
+        h2o.rollback()
+        assert False, 'Failed to build AccuracyDatasets table for h2o database!'
+    cursor.close()
+    h2o.close()

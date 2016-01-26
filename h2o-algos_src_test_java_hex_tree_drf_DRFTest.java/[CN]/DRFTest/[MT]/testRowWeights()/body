@@ -13,21 +13,19 @@
     parms._min_rows=1;
     parms._max_depth=2;
     parms._ntrees=3;
-    DRF job=new DRF(parms);
-    drf=job.trainModel().get();
+    drf=new DRF(parms).trainModel().get();
     ModelMetricsBinomial mm=(ModelMetricsBinomial)drf._output._training_metrics;
-    assertEquals(0.9,mm.auc_obj()._auc,1e-8);
-    assertEquals(0.09090909090909091,mm.mse(),1e-8);
-    assertEquals(0.6333333333333333,mm.r2(),1e-6);
-    assertEquals(3.1398887631736985,mm.logloss(),1e-6);
+    assertEquals(1.0,mm.auc_obj()._auc,1e-8);
+    assertEquals(0.05823863636363636,mm.mse(),1e-8);
+    assertEquals(0.7651041666666667,mm.r2(),1e-6);
+    assertEquals(0.21035264541934587,mm.logloss(),1e-6);
     Frame pred=drf.score(parms.train());
     hex.ModelMetricsBinomial mm2=hex.ModelMetricsBinomial.getFromDKV(drf,parms.train());
     assertEquals(1,mm2.auc_obj()._auc,1e-8);
-    assertEquals(0.006172839506172841,mm2.mse(),1e-8);
-    assertEquals(0.9753086419753086,mm2.r2(),1e-8);
-    assertEquals(0.02252583933934247,mm2.logloss(),1e-8);
+    assertEquals(0.0154320987654321,mm2.mse(),1e-8);
+    assertEquals(0.93827160493827166,mm2.r2(),1e-8);
+    assertEquals(0.08349430638608361,mm2.logloss(),1e-8);
     pred.remove();
-    job.remove();
   }
   finally {
     if (tfr != null)     tfr.remove();

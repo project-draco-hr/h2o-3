@@ -1,8 +1,9 @@
 {
+  final int r=v._rowLayout;
+  if (r == -1)   return null;
   final Key kespc=espcKey(v._key);
   ESPC local=getLocal(kespc);
-  final int r=v._rowLayout;
-  if (r < local._espcs.length)   return r == -1 ? null : local._espcs[r];
+  if (r < local._espcs.length)   return local._espcs[r];
   final ESPC remote=getRemote(local,kespc);
   if (r < remote._espcs.length)   return remote._espcs[r];
   throw H2O.fail("Vec " + v._key + " asked for layout "+ r+ ", but only "+ remote._espcs.length+ " layouts defined");

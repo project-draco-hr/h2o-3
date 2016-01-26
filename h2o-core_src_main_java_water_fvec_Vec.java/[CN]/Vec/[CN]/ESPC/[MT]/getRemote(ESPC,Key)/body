@@ -1,14 +1,2 @@
 {
-  final ESPC remote=DKV.getGet(kespc);
-  if (remote == null || remote == local)   return local;
-  long[][] local_espcs=local._espcs;
-  long[][] remote_espcs=remote._espcs;
-  while (true) {
-    if (local_espcs.length >= remote_espcs.length)     return local;
-    System.arraycopy(local._espcs,0,remote._espcs,0,local._espcs.length);
-    ESPC res=ESPCS.putIfMatch(kespc,remote,local);
-    local=res;
-    local_espcs=local._espcs;
-    remote_espcs=remote._espcs;
-  }
 }

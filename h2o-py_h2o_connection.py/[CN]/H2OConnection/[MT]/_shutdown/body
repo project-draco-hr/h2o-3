@@ -15,7 +15,8 @@ def _shutdown(conn, prompt):
     if (not isinstance(prompt, bool)):
         raise ValueError('`prompt` must be TRUE or FALSE')
     if prompt:
-        response = input('Are you sure you want to shutdown the H2O instance running at {0}:{1} (Y/N)? '.format(conn.ip(), conn.port()))
+        question = 'Are you sure you want to shutdown the H2O instance running at {0}:{1} (Y/N)? '.format(conn.ip(), conn.port())
+        response = (input(question) if PY3 else raw_input(question))
     else:
         response = 'Y'
     if ((response == 'Y') or (response == 'y')):

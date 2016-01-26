@@ -59,25 +59,3 @@ endpoints_meta = []
 for num in range(len(endpoints)):
     meta = a_node.endpoint_by_number(num)['routes'][0]
     endpoints_meta.append(meta)
-retrofitProxies = generate_retrofit_proxies(endpoints_meta, all_schemas_map)
-for (entity, proxy) in retrofitProxies.iteritems():
-    save_full = ((((args.dest + os.sep) + 'water/bindings/proxies/retrofit/') + entity) + '.java')
-    save_dir = os.path.dirname(save_full)
-    try:
-        os.makedirs(save_dir)
-    except OSError as exception:
-        if (exception.errno != errno.EEXIST):
-            raise
-    with open(save_full, 'w') as the_file:
-        for line in proxy:
-            the_file.write(('%s\n' % line))
-retrofit_example = '\npackage water.bindings.proxies.retrofit;\n\nimport retrofit.*;\nimport retrofit.http.*;\nimport water.bindings.pojos.*;\n\npublic class Example {\n\n    public static void main (String[] args) {\n        RestAdapter restAdapter = new RestAdapter.Builder()\n            .setEndpoint("http://localhost:54321")\n            .build();\n\n        Frames framesService = restAdapter.create(Frames.class);\n        Models modelsService = restAdapter.create(Models.class);\n\n        FramesV3 all_frames = framesService.list();\n        ModelsV3 all_models = modelsService.list();\n    }\n}\n'
-save_full = ((((args.dest + os.sep) + 'water/bindings/proxies/retrofit/') + 'Example') + '.java')
-save_dir = os.path.dirname(save_full)
-try:
-    os.makedirs(save_dir)
-except OSError as exception:
-    if (exception.errno != errno.EEXIST):
-        raise
-with open(save_full, 'w') as the_file:
-    the_file.write(('%s\n' % retrofit_example))
