@@ -9,6 +9,42 @@
     }
     parms.remove("hyper_parameters");
   }
+  if (parms.containsKey("strategy"))   try {
+    strategy=GridSearch.Strategy.valueOf((String)parms.get("strategy"));
+  }
+ catch (  IllegalArgumentException iae) {
+    throw new H2OIllegalArgumentException("strategy",(String)parms.get("strategy"));
+  }
+ finally {
+    parms.remove("strategy");
+  }
+  if (parms.containsKey("max_models"))   try {
+    max_models=Integer.valueOf((String)parms.get("max_models"));
+  }
+ catch (  NumberFormatException nfe) {
+    throw new H2OIllegalArgumentException("max_models",(String)parms.get("max_models"));
+  }
+ finally {
+    parms.remove("max_models");
+  }
+  if (parms.containsKey("max_time_ms"))   try {
+    max_time_ms=Integer.valueOf((String)parms.get("max_time_ms"));
+  }
+ catch (  NumberFormatException nfe) {
+    throw new H2OIllegalArgumentException("max_time_ms",(String)parms.get("max_time_ms"));
+  }
+ finally {
+    parms.remove("max_time_ms");
+  }
+  if (parms.containsKey("seed"))   try {
+    seed=Long.valueOf((String)parms.get("seed"));
+  }
+ catch (  NumberFormatException nfe) {
+    throw new H2OIllegalArgumentException("seed",(String)parms.get("seed"));
+  }
+ finally {
+    parms.remove("seed");
+  }
   if (parms.containsKey("grid_id")) {
     grid_id=new KeyV3.GridKeyV3(Key.<Grid>make(parms.getProperty("grid_id")));
     parms.remove("grid_id");
