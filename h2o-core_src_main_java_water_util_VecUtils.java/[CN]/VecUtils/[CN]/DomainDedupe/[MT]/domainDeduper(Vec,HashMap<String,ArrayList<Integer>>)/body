@@ -1,0 +1,14 @@
+{
+  HashMap<Integer,Integer> oldToNewDomainIndex=new HashMap<>();
+  int newDomainIndex=0;
+  SortedSet<String> alphabetizedSubstrings=new TreeSet<>(substringToOldDomainIndices.keySet());
+  for (  String sub : alphabetizedSubstrings) {
+    for (    int oldDomainIndex : substringToOldDomainIndices.get(sub)) {
+      oldToNewDomainIndex.put(oldDomainIndex,newDomainIndex);
+    }
+    newDomainIndex++;
+  }
+  VecUtils.DomainDedupe domainDedupe=new VecUtils.DomainDedupe(oldToNewDomainIndex);
+  String[][] dom2D={Arrays.copyOf(alphabetizedSubstrings.toArray(),alphabetizedSubstrings.size(),String[].class)};
+  return domainDedupe.doAll(new byte[]{Vec.T_CAT},vec).outputFrame(null,null,dom2D).anyVec();
+}
