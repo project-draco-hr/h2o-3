@@ -6,6 +6,10 @@
     int counter=0;
     while (it.hasNext(model)) {
       if (_job.stop_requested())       return;
+      if (it.timeRemaining() < 0) {
+        Log.info("Grid max_time_ms has expired; stopping early.");
+        return;
+      }
       MP params;
       try {
         params=it.nextModelParameters(model);
