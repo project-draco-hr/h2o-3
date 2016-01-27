@@ -26,7 +26,8 @@ def parse_args(argv):
     global g_path_to_h2o_jar
     global g_path_to_tar
     global g_path_to_whl
-    global g_include_jacoco
+    global g_jacoco_include
+    global g_jacoco_options
     global g_produce_unit_reports
     global g_phantomjs_to
     global g_phantomjs_packs
@@ -169,7 +170,7 @@ def parse_args(argv):
         elif (s == '--noxunit'):
             g_produce_unit_reports = False
         elif (s == '--jacoco'):
-            g_include_jacoco = True
+            g_jacoco_include = True
         elif ((s == '-h') or (s == '--h') or (s == '-help') or (s == '--help')):
             usage()
         elif (s == '--rPkgVerChk'):
@@ -200,7 +201,13 @@ def parse_args(argv):
                 usage()
             g_job_name = argv[i]
         else:
-            unknown_arg(s)
+            m = re.match('--jacoco=(?P<includes>([^:,]+(,[^:,]+)*)?):(?P<excludes>([^:,]+(,[^:,]+)*)?)$', s)
+            if (m is not None):
+                g_jacoco_include = True
+                g_jacoco_options[0] = m.group('includes')
+                g_jacoco_options[1] = m.group('excludes')
+            else:
+                unknown_arg(s)
         i += 1
     if (((int(g_use_client) + int(g_use_cloud)) + int(g_use_cloud2)) > 1):
         print ''
