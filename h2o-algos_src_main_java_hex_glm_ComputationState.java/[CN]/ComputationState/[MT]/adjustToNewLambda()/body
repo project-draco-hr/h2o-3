@@ -4,8 +4,8 @@
   int N=_dinfo.fullN() + (_intercept ? 1 : 0);
   double l1norm=0, l2norm=0;
   for (int c=0; c < _nclasses; ++c)   for (int i=0; i < _activeData.fullN(); ++i) {
-    double b=_beta[_classOffsets[c] + i];
-    _ginfo._gradient[_classOffsets[c] + i]+=ldiff * b;
+    double b=_beta[c * N + i];
+    _ginfo._gradient[c * N + i]+=ldiff * b;
     l2norm+=b * b;
     l1norm+=b >= 0 ? b : -b;
   }

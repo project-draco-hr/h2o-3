@@ -13,6 +13,7 @@
       for (int i=0; i < collinear_cols.length; ++i)       collinear_cols[i]=ignoredCols.get(i);
       String[] collinear_col_names=ArrayUtils.select(_state.activeData().coefNames(),collinear_cols);
       if (!_parms._remove_collinear_columns)       throw new IllegalArgumentException("Got collinear columns, can not compute p-values unless some of the co-lienar columns are removed, please re-run with remove collinear_columns flag on or remove the collinear columns manually. Found following dependent columns " + collinear_col_names);
+      Log.info(LogMsg("Removed collinear columns " + collinear_col_names));
       _model.addWarning("Removed collinear columns " + collinear_col_names);
       Log.warn("Removed collinear columns " + Arrays.toString(collinear_col_names));
       xy=ArrayUtils.select(xy,_state.removeCols(collinear_cols));
