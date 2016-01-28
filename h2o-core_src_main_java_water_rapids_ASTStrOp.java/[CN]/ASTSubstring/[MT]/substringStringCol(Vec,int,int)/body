@@ -1,0 +1,24 @@
+{
+  return new MRTask(){
+    @Override public void map(    Chunk chk,    NewChunk newChk){
+      if (chk instanceof C0DChunk)       for (int i=0; i < chk.len(); i++)       newChk.addNA();
+ else       if (startIndex >= endIndex) {
+        for (int i=0; i < chk.len(); i++)         newChk.addStr("");
+      }
+ else       if (((CStrChunk)chk)._isAllASCII) {
+        ((CStrChunk)chk).asciiSubstring(newChk,startIndex,endIndex);
+      }
+ else {
+        BufferedString tmpStr=new BufferedString();
+        for (int i=0; i < chk._len; i++) {
+          if (chk.isNA(i))           newChk.addNA();
+ else {
+            String str=chk.atStr(tmpStr,i).toString();
+            newChk.addStr(str.substring(startIndex < str.length() ? startIndex : str.length(),endIndex < str.length() ? endIndex : str.length()));
+          }
+        }
+      }
+    }
+  }
+.doAll(new byte[]{Vec.T_STR},vec).outputFrame().anyVec();
+}
