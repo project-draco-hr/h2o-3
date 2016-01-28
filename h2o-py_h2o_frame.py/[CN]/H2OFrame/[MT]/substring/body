@@ -1,0 +1,6 @@
+def substring(self, start_index, end_index=None):
+    'For each string, return a new string that is a substring of the original string. If end_index is not \n    specified, then the substring extends to the end of the original string. If the start_index is longer than\n    the length of the string, or is greater than or equal to the end_index, an empty string is returned. Negative\n    start_index is coerced to 0. \n\n    Parameters\n    ----------\n    start_index : int\n      The index of the original string at which to start the substring, inclusive.\n    end_index: int, optional\n      The index of the original string at which to end the substring, exclusive. \n\n    Returns\n    -------\n      An H2OFrame containing the specified substrings.\n    '
+    fr = H2OFrame._expr(expr=ExprNode('substring', self, start_index, end_index))
+    fr._ex._cache.nrows = self.nrow
+    fr._ex._cache.ncol = self.ncol
+    return fr
