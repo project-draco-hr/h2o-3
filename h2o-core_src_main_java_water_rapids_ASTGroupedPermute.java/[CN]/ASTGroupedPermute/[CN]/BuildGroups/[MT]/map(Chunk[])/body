@@ -1,0 +1,22 @@
+{
+  String[] dom=chks[_permuteBy].vec().domain();
+  IcedHashMap<Long,IcedHashMap<Long,double[]>[]> grps=new IcedHashMap<>();
+  for (int row=0; row < chks[0]._len; ++row) {
+    long jid=chks[_gbCols[0]].at8(row);
+    long rid=chks[_permuteCol].at8(row);
+    double[] aci=new double[]{rid,chks[_amntCol].atd(row)};
+    int type=dom[(int)chks[_permuteBy].at8(row)].equals("D") ? 0 : 1;
+    if (grps.containsKey(jid)) {
+      IcedHashMap<Long,double[]>[] dcWork=grps.get(jid);
+      dcWork[type].putIfAbsent(rid,aci);
+    }
+ else {
+      IcedHashMap<Long,double[]>[] dcAcnts=new IcedHashMap[2];
+      dcAcnts[0]=new IcedHashMap<>();
+      dcAcnts[1]=new IcedHashMap<>();
+      dcAcnts[type].putIfAbsent(rid,aci);
+      grps.put(jid,dcAcnts);
+    }
+  }
+  reduce(grps);
+}

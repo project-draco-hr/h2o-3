@@ -1,0 +1,13 @@
+{
+  Frame dVec=new Frame(Vec.makeSeq(0,a.length));
+  long s=System.currentTimeMillis();
+  Frame res=new MRTask(){
+    @Override public void map(    Chunk[] cs,    NewChunk[] ncs){
+      for (int i=0; i < cs[0]._len; ++i)       for (      double[] anAa : a[(int)cs[0].at8(i)])       for (int k=0; k < anAa.length; ++k)       ncs[k].addNum(anAa[k]);
+    }
+  }
+.doAll(5,Vec.T_NUM,dVec).outputFrame(null,names,domains);
+  Log.info("Elapsed time: " + (System.currentTimeMillis() - s) / 1000. + "s");
+  dVec.delete();
+  return res;
+}
