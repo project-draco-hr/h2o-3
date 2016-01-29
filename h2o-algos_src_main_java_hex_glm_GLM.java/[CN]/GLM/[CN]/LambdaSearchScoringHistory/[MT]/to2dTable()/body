@@ -1,7 +1,7 @@
 {
   String[] cnames=new String[]{"timestamp","duration","iteration","lambda","predictors","Explained Deviance (train)","Explained Deviance (test)"};
-  String[] ctypes=new String[]{"string","string","int","double","int","double","double"};
-  String[] cformats=new String[]{"%s","%s","%d","%d","%.5f","%.5f","%.5f"};
+  String[] ctypes=new String[]{"string","string","int","string","int","double","double"};
+  String[] cformats=new String[]{"%s","%s","%d","%s","%d","%.3f","%.3f"};
   TwoDimTable res=new TwoDimTable("Scoring History","",new String[_lambdaIters.size()],cnames,ctypes,cformats,"");
   int j=0;
   DateTimeFormatter fmt=DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
@@ -10,7 +10,7 @@
     res.set(i,col++,fmt.print(_scoringTimes.get(i)));
     res.set(i,col++,PrettyPrint.msecs(_scoringTimes.get(i) - _scoringTimes.get(0),true));
     res.set(i,col++,_lambdaIters.get(i));
-    res.set(i,col++,_lambdas.get(i));
+    res.set(i,col++,lambdaFormatter.format(_lambdas.get(i)));
     res.set(i,col++,_lambdaPredictors.get(i));
     res.set(i,col++,_lambdaDevTrain.get(i));
     if (_lambdaDevTest.size() > i)     res.set(i,col++,_lambdaDevTest.get(i));
