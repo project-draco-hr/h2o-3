@@ -1,0 +1,30 @@
+def grab_java_message(cloud_list, curr_testname):
+    global g_java_start_text
+    java_messages = ''
+    java_messages += '\n\n**********************************************************\n'
+    java_messages += '**********************************************************\n'
+    java_messages += 'JAVA Messages\n'
+    java_messages += '**********************************************************\n'
+    java_messages += '**********************************************************\n\n'
+    startTest = False
+    for each_cloud in cloud_list:
+        java_filename = each_cloud.output_file_name
+        if os.path.isfile(java_filename):
+            java_file = open(java_filename, 'r')
+            for each_line in java_file:
+                if (g_java_start_text in each_line):
+                    (startStr, found, endStr) = each_line.partition(g_java_start_text)
+                    if (len(found) > 0):
+                        current_testname = endStr.strip()
+                        if (current_testname == curr_testname):
+                            startTest = True
+                        elif startTest:
+                            break
+                if startTest:
+                    java_messages += each_line
+            java_file.close()
+        if startTest:
+            break
+    if (not startTest):
+        java_messages += (('The java_*_0.out.txt file or Java messages associated with the unit test ' + curr_testname) + ' was not found.  Please alert the QE team of this problem.')
+    return java_messages

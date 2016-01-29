@@ -1,0 +1,24 @@
+{
+  if (startIndex >= endIndex) {
+    Vec v=Vec.makeZero(vec.length());
+    v.setDomain(new String[]{""});
+    return v;
+  }
+  String[] dom=vec.domain().clone();
+  HashMap<String,ArrayList<Integer>> substringToOldDomainIndices=new HashMap<>();
+  String substr;
+  for (int i=0; i < dom.length; i++) {
+    substr=dom[i].substring(startIndex < dom[i].length() ? startIndex : dom[i].length(),endIndex < dom[i].length() ? endIndex : dom[i].length());
+    dom[i]=substr;
+    if (!substringToOldDomainIndices.containsKey(substr)) {
+      ArrayList<Integer> val=new ArrayList<>();
+      val.add(i);
+      substringToOldDomainIndices.put(substr,val);
+    }
+ else {
+      substringToOldDomainIndices.get(substr).add(i);
+    }
+  }
+  if (substringToOldDomainIndices.size() < dom.length)   return VecUtils.DomainDedupe.domainDeduper(vec,substringToOldDomainIndices);
+  return vec.makeCopy(dom);
+}

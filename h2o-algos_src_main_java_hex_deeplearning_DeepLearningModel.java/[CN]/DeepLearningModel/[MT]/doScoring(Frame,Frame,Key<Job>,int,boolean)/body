@@ -31,7 +31,7 @@
   }
   keep_running=(epoch_counter < get_params()._epochs) && !stopped_early;
   final long sinceLastScore=now - _timeLastScoreStart;
-  if (!keep_running || (sinceLastScore > get_params()._score_interval * 1000 && (double)(_timeLastScoreEnd - _timeLastScoreStart) / sinceLastScore < get_params()._score_duty_cycle)) {
+  if (!keep_running || get_params()._score_each_iteration || (sinceLastScore > get_params()._score_interval * 1000 && (double)(_timeLastScoreEnd - _timeLastScoreStart) / sinceLastScore < get_params()._score_duty_cycle)) {
     jobKey.get().update(0,"Scoring on " + fTrain.numRows() + " training samples"+ (fTest != null ? (", " + fTest.numRows() + " validation samples") : ""));
     final boolean printme=!get_params()._quiet_mode;
     _timeLastScoreStart=System.currentTimeMillis();
