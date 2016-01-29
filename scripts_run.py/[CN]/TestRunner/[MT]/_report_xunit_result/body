@@ -8,11 +8,14 @@ def _report_xunit_result(self, testsuite_name, testcase_name, testcase_runtime, 
         if (not (failure_description == None)):
             failure_file = failure_description.split()[1]
             failure_message = open(failure_file, 'r').read()
+            java_errors = ''
             for each_cloud in self.clouds:
                 java_errors = grab_java_message(each_cloud.nodes, testcase_name)
                 if (len(java_errors) > 0):
                     failure_message += java_errors
                     break
+            if (len(java_errors) < 1):
+                failure_message += '\n\n###################################################################################\n########### Problems encountered extracting Java messages.  Please alert the QA team. \n###################################################################################\n\n'
             if failure_message:
                 failure = ('' if (not failure_type) else '<failure type="{}" message="{}"><![CDATA[{}]]></failure>'.format(failure_type, failure_description, failure_message))
     xml_report = '<?xml version="1.0" encoding="UTF-8"?>\n<testsuite name="{testsuiteName}" tests="1" errors="{errors}" failures="{failures}" skip="{skip}">\n  <testcase classname="{testcaseClassName}" name="{testcaseName}" time="{testcaseRuntime}">\n  {failure}\n  </testcase>\n</testsuite>\n'.format(testsuiteName=testsuite_name, testcaseClassName=testcase_name, testcaseName=testcase_name, testcaseRuntime=testcase_runtime, failure=failure, errors=errors, failures=failures, skip=skip)
