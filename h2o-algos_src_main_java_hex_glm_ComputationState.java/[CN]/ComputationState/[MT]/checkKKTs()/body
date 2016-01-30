@@ -6,7 +6,7 @@
   _gslvr=new GLMGradientSolver(_jobKey,_parms,_dinfo,(1 - _alpha) * _lambda,_bc);
   GLMGradientInfo ginfo=_gslvr.getGradient(beta);
   double[] grad=ginfo._gradient.clone();
-  double err=0;
+  double err=1e-4;
   ADMM.subgrad(_alpha * _lambda,beta,grad);
   for (  int c : activeCols)   if (grad[c] > err)   err=grad[c];
  else   if (grad[c] < -err)   err=-grad[c];
