@@ -1,14 +1,10 @@
-def grab_java_message(cloud_list, curr_testname):
+def grab_java_message(node_list, curr_testname):
+    'scan through the java output text and extract the java messages related to running\n    test specified in curr_testname.\n    Parameters\n    ----------\n    node_list :  list of H2O nodes\n      List of H2o nodes associated with a H2OCloud that are performing the test specified in curr_testname.\n    curr_testname : str\n      Store the unit test name (can be R unit or Py unit) that has been completed and failed.\n    :return: a string object that is either empty or the java messages that associated with the test in curr_testname.\n     The java messages can usually be found in one of the java_*_0.out.txt\n    '
     global g_java_start_text
     java_messages = ''
-    java_messages += '\n\n**********************************************************\n'
-    java_messages += '**********************************************************\n'
-    java_messages += 'JAVA Messages\n'
-    java_messages += '**********************************************************\n'
-    java_messages += '**********************************************************\n\n'
     startTest = False
-    for each_cloud in cloud_list:
-        java_filename = each_cloud.output_file_name
+    for each_node in node_list:
+        java_filename = each_node.output_file_name
         if os.path.isfile(java_filename):
             java_file = open(java_filename, 'r')
             for each_line in java_file:
@@ -18,6 +14,11 @@ def grab_java_message(cloud_list, curr_testname):
                         current_testname = endStr.strip()
                         if (current_testname == curr_testname):
                             startTest = True
+                            java_messages += '\n\n**********************************************************\n'
+                            java_messages += '**********************************************************\n'
+                            java_messages += 'JAVA Messages\n'
+                            java_messages += '**********************************************************\n'
+                            java_messages += '**********************************************************\n\n'
                         elif startTest:
                             break
                 if startTest:
@@ -25,6 +26,4 @@ def grab_java_message(cloud_list, curr_testname):
             java_file.close()
         if startTest:
             break
-    if (not startTest):
-        java_messages += (('The java_*_0.out.txt file or Java messages associated with the unit test ' + curr_testname) + ' was not found.  Please alert the QE team of this problem.')
     return java_messages
