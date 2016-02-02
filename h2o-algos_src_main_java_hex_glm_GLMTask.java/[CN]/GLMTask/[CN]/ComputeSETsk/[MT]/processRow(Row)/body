@@ -1,9 +1,9 @@
 {
   double z=r.response(0) - r.offset;
   double w=r.weight;
-  if (_parms._family != Family.gaussian) {
+  if (_glmf._family != Family.gaussian) {
     double etaOld=r.innerProduct(_betaNew) + _sparseOffsetNew;
-    _glmw.compute(etaOld,r.response(0),r.weight,r.offset);
+    _glmf.computeWeights(r.response(0),etaOld,r.offset,r.weight,_glmw);
     z=_glmw.z;
     w=_glmw.w;
   }

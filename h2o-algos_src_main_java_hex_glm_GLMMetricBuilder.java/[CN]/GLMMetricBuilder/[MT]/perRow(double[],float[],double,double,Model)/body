@@ -1,0 +1,10 @@
+{
+  if (weight == 0)   return ds;
+  _metricBuilder.perRow(ds,yact,weight,offset,m);
+  if (!ArrayUtils.hasNaNsOrInfs(ds) && !ArrayUtils.hasNaNsOrInfs(yact)) {
+    if (_glmf._family == Family.multinomial)     add2(yact[0],ds,weight,offset);
+ else     if (_glmf._family == Family.binomial)     add2(yact[0],ds[2],weight,offset);
+ else     add2(yact[0],ds[0],weight,offset);
+  }
+  return ds;
+}

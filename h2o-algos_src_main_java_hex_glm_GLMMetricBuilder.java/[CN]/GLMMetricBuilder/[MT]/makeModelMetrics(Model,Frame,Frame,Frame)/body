@@ -1,0 +1,27 @@
+{
+  GLMModel gm=(GLMModel)m;
+  computeAIC();
+  ModelMetrics metrics=_metricBuilder.makeModelMetrics(gm,f,null,null);
+  if (_glmf._family == Family.binomial) {
+    ModelMetricsBinomial metricsBinommial=(ModelMetricsBinomial)metrics;
+    GainsLift gl=null;
+    if (preds != null) {
+      Vec resp=f.vec(m._parms._response_column);
+      Vec weights=f.vec(m._parms._weights_column);
+      if (resp != null) {
+        gl=new GainsLift(preds.lastVec(),resp,weights);
+        gl.exec(m._output._job);
+      }
+    }
+    metrics=new ModelMetricsBinomialGLM(m,f,metrics._MSE,_domain,metricsBinommial._sigma,metricsBinommial._auc,metricsBinommial._logloss,residualDeviance(),null_devince,_aic,nullDOF(),resDOF(),gl);
+  }
+ else   if (_glmf._family == Family.multinomial) {
+    ModelMetricsMultinomial metricsMultinomial=(ModelMetricsMultinomial)metrics;
+    metrics=new ModelMetricsMultinomialGLM(m,f,metricsMultinomial._MSE,metricsMultinomial._domain,metricsMultinomial._sigma,metricsMultinomial._cm,metricsMultinomial._hit_ratios,metricsMultinomial._logloss,residualDeviance(),null_devince,_aic,nullDOF(),resDOF());
+  }
+ else {
+    ModelMetricsRegression metricsRegression=(ModelMetricsRegression)metrics;
+    metrics=new ModelMetricsRegressionGLM(m,f,metricsRegression._MSE,metricsRegression._sigma,residualDeviance(),residualDeviance() / _wcount,null_devince,_aic,nullDOF(),resDOF());
+  }
+  return gm._output.addModelMetrics(metrics);
+}

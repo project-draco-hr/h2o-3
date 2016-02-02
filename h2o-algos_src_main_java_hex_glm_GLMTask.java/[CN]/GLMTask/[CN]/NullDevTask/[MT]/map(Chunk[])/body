@@ -1,0 +1,14 @@
+{
+  int i=0;
+  int len=chks[0]._len;
+  Chunk w=_hasWeights ? chks[i++] : new C0DChunk(1.0,len);
+  Chunk o=_hasOffset ? chks[i++] : new C0DChunk(0.0,len);
+  Chunk r=chks[i];
+  if (_glmf._family != Family.multinomial) {
+    double ymu=_glmf.link(_ymu[0]);
+    for (int j=0; j < len; ++j)     _nullDev+=w.atd(j) * _glmf.deviance(r.atd(j),_glmf.linkInv(ymu + o.atd(j)));
+  }
+ else {
+    throw H2O.unimpl();
+  }
+}

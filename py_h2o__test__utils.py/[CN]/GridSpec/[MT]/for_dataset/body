@@ -1,5 +1,5 @@
 @staticmethod
-def for_dataset(dest_key, algo, dataset, params, grid_params):
+def for_dataset(dest_key, algo, dataset, params, grid_params, search_criteria=None):
     '\n        Factory for creating a GridSpec for a given Dataset (frame and additional metadata).\n        '
     dataset_params = {}
     assert ('model_category' in dataset), ('FAIL: Failed to find model_category in dataset: ' + repr(dataset))
@@ -7,4 +7,4 @@ def for_dataset(dest_key, algo, dataset, params, grid_params):
         dataset_params['response_column'] = dataset['response_column']
     if ('ignored_columns' in dataset):
         dataset_params['ignored_columns'] = dataset['ignored_columns']
-    return GridSpec(dest_key, algo, dataset['dest_key'], dict((dataset_params.items() + params.items())), grid_params, dataset['model_category'])
+    return GridSpec(dest_key, algo, dataset['dest_key'], dict((dataset_params.items() + params.items())), grid_params, dataset['model_category'], search_criteria)

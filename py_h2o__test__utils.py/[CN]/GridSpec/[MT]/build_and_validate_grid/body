@@ -2,7 +2,7 @@ def build_and_validate_grid(self, a_node):
     before = time.time()
     if isVerbose():
         print ((((((((('About to build: ' + self['dest_key']) + ', a ') + self['algo']) + ' model grid on frame: ') + self['frame_key']) + ' with params: ') + repr(self['params'])) + ' and grid_params: ') + repr(self['grid_params']))
-    result = a_node.build_model_grid(algo=self['algo'], grid_id=self['dest_key'], training_frame=self['frame_key'], parameters=self['params'], grid_parameters=self['grid_params'], timeoutSecs=240)
+    result = a_node.build_model_grid(algo=self['algo'], grid_id=self['dest_key'], training_frame=self['frame_key'], parameters=self['params'], grid_parameters=self['grid_params'], search_criteria=self['search_criteria'], timeoutSecs=240)
     if isVerboser():
         print ('result: ' + repr(result))
     grid = a_node.grid(key=self['dest_key'])
@@ -20,7 +20,13 @@ def build_and_validate_grid(self, a_node):
     combos = 1
     for (k, vals) in self['grid_params'].iteritems():
         combos *= len(vals)
-    assert (combos == len(grid['model_ids'])), ((('FAIL: Expected ' + str(combos)) + ' models; got: ') + str(len(grid['model_ids'])))
+    expected = None
+    if ((self['search_criteria'] is None) or (self['search_criteria']['strategy'] is 'Cartesian')):
+        expected = combos
+    elif ((self['search_criteria'] is not None) and ('max_models' in self['search_criteria']) and ('max_time_ms' not in self['search_criteria'])):
+        expected = min(combos, self['search_criteria']['max_models'])
+    if (expected is not None):
+        assert (expected == len(grid['model_ids'])), ((('FAIL: Expected ' + str(expected)) + ' models; got: ') + str(len(grid['model_ids'])))
     if isVerbose():
         print (((('Done building: ' + self['dest_key']) + ' (') + str((time.time() - before))) + ')')
     return grid

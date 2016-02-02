@@ -1,13 +1,13 @@
 {
-  _parms.read_unlock_frames(_job);
-  if (_adapt_keys != null)   for (  Key k : _adapt_keys)   Keyed.remove(k);
-  if (_dinfo != null)   _dinfo.remove();
-  if (_validDinfo != null)   _validDinfo.remove();
-  if (_tInfos != null && _tInfos[0] != null) {
-    if (_tInfos[0]._wVec != null)     _tInfos[0]._wVec.remove();
-    if (_tInfos[0]._zVec != null)     _tInfos[0]._zVec.remove();
-    if (_tInfos[0]._eVec != null)     _tInfos[0]._eVec.remove();
-    if (_tInfos[0]._iVec != null)     _tInfos[0]._iVec.remove();
+  try {
+    _model.unlock(_job);
   }
-  Scope.exit();
+ catch (  Throwable t) {
+  }
+  try {
+    _parms.read_unlock_frames(_job);
+  }
+ catch (  Throwable t) {
+  }
+  Scope.exit(_keys2Keep.values().toArray(new Key[0]));
 }

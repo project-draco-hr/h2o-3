@@ -1,0 +1,22 @@
+{
+  double y=row.response(0);
+  double maxRow=row.getOutput(2);
+  double etaY=row.getOutput(3);
+  double eta=row.innerProduct(_beta) + _sparseOffset;
+  if (classId == y) {
+    etaY=eta;
+    row.setOutput(3,eta);
+  }
+  if (eta > maxRow) {
+    maxRow=eta;
+    row.setOutput(2,eta);
+  }
+  double etaExp=Math.exp(eta - maxRow);
+  double sumExp=row.getOutput(4) + etaExp;
+  double mu=etaExp / sumExp;
+  if (mu < 1e-16)   mu=1e-16;
+  double d=mu * (1 - mu);
+  row.setOutput(0,row.weight * d);
+  row.setOutput(1,eta + (y - mu) / d);
+  _likelihood+=row.weight * (etaY - Math.log(sumExp) - maxRow);
+}
