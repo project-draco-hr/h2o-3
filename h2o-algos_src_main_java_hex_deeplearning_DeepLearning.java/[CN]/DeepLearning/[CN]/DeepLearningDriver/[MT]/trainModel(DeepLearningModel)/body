@@ -28,6 +28,11 @@
       model._output._modelClassDist=_weights != null ? cd.doAll(l,w).rel_dist() : cd.doAll(l).rel_dist();
     }
     model.training_rows=train.numRows();
+    if (_weights != null && _weights.min() == 0 && _weights.max() == 1 && _weights.isInt()) {
+      model.training_rows=Math.round(train.numRows() * _weights.mean());
+      Log.warn("Not counting " + (train.numRows() - model.training_rows) + " rows with weight=0 towards an epoch.");
+    }
+    Log.info("One epoch corresponds to " + model.training_rows + " training data rows.");
     trainScoreFrame=sampleFrame(train,mp._score_training_samples,mp._seed);
     if (trainScoreFrame != train)     Scope.track(trainScoreFrame);
     if (!_parms._quiet_mode)     Log.info("Number of chunks of the training data: " + train.anyVec().nChunks());
@@ -44,12 +49,12 @@
       }
       if (!_parms._quiet_mode)       Log.info("Number of chunks of the validation data: " + validScoreFrame.anyVec().nChunks());
     }
-    model.actual_train_samples_per_iteration=computeTrainSamplesPerIteration(mp,train.numRows(),model);
-    if (mp._replicate_training_data && (model.actual_train_samples_per_iteration == train.numRows() * (mp._single_node_mode ? 1 : H2O.CLOUD.size())) && !mp._shuffle_training_data&& H2O.CLOUD.size() > 1 && !mp._reproducible) {
+    model.actual_train_samples_per_iteration=computeTrainSamplesPerIteration(mp,model.training_rows,model);
+    if (mp._replicate_training_data && (model.actual_train_samples_per_iteration == model.training_rows * (mp._single_node_mode ? 1 : H2O.CLOUD.size())) && !mp._shuffle_training_data&& H2O.CLOUD.size() > 1 && !mp._reproducible) {
       if (!mp._quiet_mode)       Log.info("Enabling training data shuffling, because all nodes train on the full dataset (replicated training data).");
       mp._shuffle_training_data=true;
     }
-    if (!mp._shuffle_training_data && model.actual_train_samples_per_iteration == train.numRows() && train.anyVec().nChunks() == 1) {
+    if (!mp._shuffle_training_data && model.actual_train_samples_per_iteration == model.training_rows && train.anyVec().nChunks() == 1) {
       if (!mp._quiet_mode)       Log.info("Enabling training data shuffling to avoid training rows in the same order over and over (no Hogwild since there's only 1 chunk).");
       mp._shuffle_training_data=true;
     }
