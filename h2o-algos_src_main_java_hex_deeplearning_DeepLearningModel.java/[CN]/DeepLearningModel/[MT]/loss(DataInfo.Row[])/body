@@ -27,7 +27,7 @@
       if (model_info.get_params()._autoencoder)       throw H2O.unimpl();
       double pred=neurons[neurons.length - 1]._a.get(0);
       double actual=myRow.response[0];
-      Distribution dist=new Distribution(model_info.get_params()._distribution,model_info.get_params()._tweedie_power);
+      Distribution dist=new Distribution(model_info.get_params());
       pred=dist.linkInv(pred);
       loss+=prefactor * dist.deviance(1,actual,pred);
     }

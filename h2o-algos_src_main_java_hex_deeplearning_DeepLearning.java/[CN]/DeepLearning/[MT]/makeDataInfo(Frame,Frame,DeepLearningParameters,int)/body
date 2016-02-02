@@ -1,6 +1,6 @@
 {
   double x=0.782347234;
-  boolean identityLink=new Distribution(parms._distribution,parms._tweedie_power).link(x) == x;
+  boolean identityLink=new Distribution(parms).link(x) == x;
   DataInfo dinfo=new DataInfo(train,valid,parms._autoencoder ? 0 : 1,parms._autoencoder || parms._use_all_factor_levels,parms._standardize ? (parms._autoencoder ? DataInfo.TransformType.NORMALIZE : parms._sparse ? DataInfo.TransformType.DESCALE : DataInfo.TransformType.STANDARDIZE) : DataInfo.TransformType.NONE,!parms._standardize || train.lastVec().isCategorical() ? DataInfo.TransformType.NONE : identityLink ? DataInfo.TransformType.STANDARDIZE : DataInfo.TransformType.NONE,parms._missing_values_handling == DeepLearningParameters.MissingValuesHandling.Skip,false,true,parms._weights_column != null,parms._offset_column != null,parms._fold_column != null);
   GLMTask.YMUTask ymt=new GLMTask.YMUTask(dinfo,nClasses,true,!parms._autoencoder && nClasses == 1,false,!parms._autoencoder).doAll(dinfo._adaptedFrame);
   if (ymt._wsum == 0 && parms._missing_values_handling == DeepLearningParameters.MissingValuesHandling.Skip)   throw new H2OIllegalArgumentException("No rows left in the dataset after filtering out rows with missing values. Ignore columns with many NAs or set missing_values_handling to 'MeanImputation'.");

@@ -68,6 +68,9 @@ case Quadratic:
 case Absolute:
     toParms._distribution=Distribution.Family.laplace;
   break;
+case Quantile:
+toParms._distribution=Distribution.Family.quantile;
+break;
 case Huber:
 toParms._distribution=Distribution.Family.huber;
 break;
@@ -80,6 +83,9 @@ if (fromParms._loss == Loss.Automatic) {
 switch (toParms._distribution) {
 case gaussian:
 toParms._loss=Loss.Quadratic;
+break;
+case quantile:
+toParms._loss=Loss.Quantile;
 break;
 case laplace:
 toParms._loss=Loss.Absolute;
