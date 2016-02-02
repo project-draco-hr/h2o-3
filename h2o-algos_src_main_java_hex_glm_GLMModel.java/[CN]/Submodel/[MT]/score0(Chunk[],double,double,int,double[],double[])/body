@@ -1,0 +1,12 @@
+{
+  if (_parms._family == Family.multinomial)   return scoreMultinomial(chks,row_in_chunk,tmp,preds);
+  Row r=_row.get();
+  if (r == null)   _row.set(r=_output._scoringDinfo.newDenseRow());
+  _output._scoringDinfo.extractDenseRow(chks,row_in_chunk,r);
+  double mu=preds[0]=_parms.linkInv(r.innerProduct(beta()) + offset);
+  if (_parms._family == Family.binomial) {
+    preds[1]=1.0 - mu;
+    preds[2]=mu;
+  }
+  return preds;
+}

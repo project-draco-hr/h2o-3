@@ -1,11 +1,10 @@
 {
-  double wsum=_wsum + bs._wsum;
-  double reg=1. / wsum;
   for (int i=0; i < _mean.length; ++i) {
+    double wsum=_wsum[i] + bs._wsum[i];
     double delta=bs._mean[i] - _mean[i];
-    _mean[i]=(_wsum * _mean[i] + bs._wsum * bs._mean[i]) * reg;
-    _m2[i]+=bs._m2[i] + delta * delta * _wsum* bs._wsum* reg;
+    _mean[i]=(_wsum[i] * _mean[i] + bs._wsum[i] * bs._mean[i]) / wsum;
+    _m2[i]+=bs._m2[i] + delta * delta * _wsum[i]* bs._wsum[i] / wsum;
+    _wsum[i]=wsum;
   }
-  _wsum=wsum;
   _nobs+=bs._nobs;
 }
