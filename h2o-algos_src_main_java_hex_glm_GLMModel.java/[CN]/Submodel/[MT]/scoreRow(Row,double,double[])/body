@@ -16,11 +16,13 @@
     preds[0]=ArrayUtils.maxIndex(eta);
   }
  else {
-    double mu=preds[0]=_parms.linkInv(r.innerProduct(beta()) + o);
+    double mu=_parms.linkInv(r.innerProduct(beta()) + o);
     if (_parms._family == Family.binomial) {
+      preds[0]=mu >= defaultThreshold() ? 1 : 0;
       preds[1]=1.0 - mu;
       preds[2]=mu;
     }
+ else     preds[0]=mu;
   }
   return preds;
 }

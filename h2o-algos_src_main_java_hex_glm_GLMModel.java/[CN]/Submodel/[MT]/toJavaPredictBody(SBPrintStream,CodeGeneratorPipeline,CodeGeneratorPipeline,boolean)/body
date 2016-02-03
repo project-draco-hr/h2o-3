@@ -2,11 +2,17 @@
   classCtx.add(new CodeGenerator(){
     @Override public void generate(    JCodeSB out){
       JCodeGen.toClassWithArray(out,"static","BETA",beta_internal());
+      JCodeGen.toClassWithArray(out,"static","NUM_MEANS",_output._dinfo._numMeans,"Imputed numeric values");
+      JCodeGen.toClassWithArray(out,"static","CAT_MODES",_output._dinfo._catModes,"Imputed categorical values.");
       JCodeGen.toStaticVar(out,"CATOFFS",dinfo()._catOffsets,"Categorical Offsets");
     }
   }
 );
   body.ip("final double [] b = BETA.VALUES;").nl();
+  if (_parms._missing_values_handling == MissingValuesHandling.MeanImputation) {
+    body.ip("for(int i = 0; i < " + _output._dinfo._cats + "; ++i) if(Double.isNaN(data[i])) data[i] = CAT_MODES.VALUES[i];").nl();
+    body.ip("for(int i = 0; i < " + _output._dinfo._nums + "; ++i) if(Double.isNaN(data[i + "+ _output._dinfo._cats+ "])) data[i+"+ _output._dinfo._cats+ "] = NUM_MEANS.VALUES[i];").nl();
+  }
   if (_parms._family != Family.multinomial) {
     body.ip("double eta = 0.0;").nl();
     if (!_parms._use_all_factor_levels) {
