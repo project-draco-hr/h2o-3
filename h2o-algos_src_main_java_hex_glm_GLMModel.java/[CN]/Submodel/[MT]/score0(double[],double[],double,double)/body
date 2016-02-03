@@ -1,13 +1,3 @@
 {
-  if (_parms._family == Family.multinomial)   return scoreMultinomial(data,preds,w,o);
-  Row r=_row.get();
-  if (r == null)   _row.set(r=_output._scoringDinfo.newDenseRow());
-  _output._scoringDinfo.extractDenseRow(data,r,w,0);
-  double eta=r.innerProduct(beta());
-  double mu=preds[0]=_parms.linkInv(eta + o);
-  if (_parms._family == Family.binomial) {
-    preds[1]=1.0 - mu;
-    preds[2]=mu;
-  }
-  return preds;
+  return scoreRow(_output._scoringDinfo.extractDenseRow(data,getRow()),o,preds);
 }
