@@ -16,14 +16,16 @@
     params._response_column="CAPSULE";
     params._ignored_columns=new String[]{"ID"};
     params._train=fr._key;
+    params._objective_epsilon=0;
     params._alpha=new double[]{1};
     params._lambda=new double[]{0.001607};
+    params._obj_reg=1.0 / 380;
     GLM glm=new GLM(params,modelKey);
     model=glm.trainModel().get();
     assertTrue(glm.isStopped());
     ModelMetricsBinomialGLM val=(ModelMetricsBinomialGLM)model._output._training_metrics;
     assertEquals(512.2888,val._nullDev,1e-1);
-    assertEquals(388.4686,val._resDev,1e-1);
+    assertEquals(388.4686,val._resDev,5e-1);
     model.delete();
     params._lambda=new double[]{0};
     params._alpha=new double[]{0};
@@ -38,7 +40,7 @@
     fr.remove("ID").remove();
     DKV.put(fr._key,fr);
     DataInfo dinfo=new DataInfo(fr,null,1,true,TransformType.NONE,DataInfo.TransformType.NONE,true,false,false,false,false,false);
-    LBFGS_LogisticGradientTask lt=(LBFGS_LogisticGradientTask)new LBFGS_LogisticGradientTask(dinfo,params,0,beta,1.0 / 380.0,true).doAll(dinfo._adaptedFrame);
+    GLMGradientTask lt=new GLMBinomialGradientTask(null,dinfo,params,0,beta).doAll(dinfo._adaptedFrame);
     double[] grad=lt._gradient;
     String[] names=model.dinfo().coefNames();
     BufferedString tmpStr=new BufferedString();

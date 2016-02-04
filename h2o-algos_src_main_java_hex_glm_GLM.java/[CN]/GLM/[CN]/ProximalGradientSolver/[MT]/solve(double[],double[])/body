@@ -9,6 +9,7 @@
   _ginfo=new ProximalGradientInfo(_ginfo._origGinfo,obj,gradient);
   System.arraycopy(beta_given,0,_betaGiven,0,_betaGiven.length);
   L_BFGS.Result r=new L_BFGS().setObjEps(_objEps).setGradEps(_gradEps).solve(this,beta,_ginfo,_pm);
+  System.arraycopy(r.coefs,0,beta,0,r.coefs.length);
   _iter+=r.iter;
   _ginfo=(ProximalGradientInfo)r.ginfo;
   return r.converged;

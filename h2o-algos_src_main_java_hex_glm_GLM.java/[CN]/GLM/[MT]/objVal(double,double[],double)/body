@@ -1,10 +1,11 @@
 {
   double alpha=_parms._alpha[0];
   double proximalPen=0;
-  if (_bc._betaGiven != null && _bc._rho != null) {
-    for (int i=0; i < _bc._betaGiven.length; ++i) {
-      double diff=beta[i] - _bc._betaGiven[i];
-      proximalPen+=diff * diff * _bc._rho[i];
+  BetaConstraint bc=_state.activeBC();
+  if (_state.activeBC()._betaGiven != null && bc._rho != null) {
+    for (int i=0; i < bc._betaGiven.length; ++i) {
+      double diff=beta[i] - bc._betaGiven[i];
+      proximalPen+=diff * diff * bc._rho[i];
     }
   }
   return (likelihood * _parms._obj_reg + .5 * proximalPen + lambda * (alpha * ArrayUtils.l1norm(beta,_parms._intercept) + (1 - alpha) * .5 * ArrayUtils.l2norm2(beta,_parms._intercept)));

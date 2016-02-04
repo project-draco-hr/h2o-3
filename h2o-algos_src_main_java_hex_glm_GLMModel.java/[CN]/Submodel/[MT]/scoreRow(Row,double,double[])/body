@@ -1,0 +1,28 @@
+{
+  if (_parms._family == Family.multinomial) {
+    if (_eta == null)     _eta=new ThreadLocal<>();
+    double[] eta=_eta.get();
+    if (eta == null)     _eta.set(eta=MemoryManager.malloc8d(_output.nclasses()));
+    final double[][] bm=_output._global_beta_multinomial;
+    double sumExp=0;
+    double maxRow=0;
+    for (int c=0; c < bm.length; ++c) {
+      eta[c]=r.innerProduct(bm[c]) + o;
+      if (eta[c] > maxRow)       maxRow=eta[c];
+    }
+    for (int c=0; c < bm.length; ++c)     sumExp+=eta[c]=Math.exp(eta[c] - maxRow);
+    sumExp=1.0 / sumExp;
+    for (int c=0; c < bm.length; ++c)     preds[c + 1]=eta[c] * sumExp;
+    preds[0]=ArrayUtils.maxIndex(eta);
+  }
+ else {
+    double mu=_parms.linkInv(r.innerProduct(beta()) + o);
+    if (_parms._family == Family.binomial) {
+      preds[0]=mu >= defaultThreshold() ? 1 : 0;
+      preds[1]=1.0 - mu;
+      preds[2]=mu;
+    }
+ else     preds[0]=mu;
+  }
+  return preds;
+}

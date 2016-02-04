@@ -1,0 +1,16 @@
+{
+  double ldiff=_lambda - _previousLambda;
+  if (ldiff == 0)   return;
+  int N=_dinfo.fullN() + (_intercept ? 1 : 0);
+  double l1norm=0, l2norm=0;
+  for (int c=0; c < _nclasses; ++c)   for (int i=0; i < _activeData.fullN(); ++i) {
+    double b=_beta[c * N + i];
+    _ginfo._gradient[c * N + i]+=ldiff * b;
+    l2norm+=b * b;
+    l1norm+=b >= 0 ? b : -b;
+  }
+  double l2pen=.5 * (1 - _alpha) * l2norm;
+  double l1pen=_alpha * l1norm;
+  _ginfo=new GLMGradientInfo(_ginfo._likelihood,_ginfo._objVal + ldiff * l2pen,_ginfo._gradient);
+  _objVal=_objVal + ldiff * (l1pen + l2pen);
+}

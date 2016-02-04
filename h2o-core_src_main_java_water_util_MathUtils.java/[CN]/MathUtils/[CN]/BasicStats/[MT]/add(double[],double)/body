@@ -1,11 +1,13 @@
 {
-  double wsum=_wsum + w;
   for (int i=0; i < x.length; ++i) {
-    double delta=x[i] - _mean[i];
-    double R=delta * w / wsum;
-    _mean[i]+=R;
-    _m2[i]+=_wsum * delta * R;
+    if (!Double.isNaN(x[i])) {
+      double wsum=_wsum[i] + w;
+      double delta=x[i] - _mean[i];
+      double R=delta * w / wsum;
+      _mean[i]+=R;
+      _m2[i]+=_wsum[i] * delta * R;
+      _wsum[i]=wsum;
+    }
   }
-  _wsum=wsum;
   _nobs++;
 }

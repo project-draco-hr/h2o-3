@@ -1,17 +1,13 @@
 {
-  double bestDev=Double.POSITIVE_INFINITY;
   int bestId=0;
-  if (!Double.isNaN(_submodels[_submodels.length - 1].devianceTest)) {
-    for (int i=1; i < _submodels.length; ++i)     if (_submodels[i] != null && _submodels[i].devianceTest < bestDev) {
+  Submodel best=_submodels[0];
+  for (int i=1; i < _submodels.length; ++i) {
+    Submodel sm=_submodels[i];
+    if ((sm.devianceTest != -1 && sm.devianceTest < best.devianceTest) || (sm.devianceTest == best.devianceTest && sm.devianceTrain < best.devianceTrain)) {
       bestId=i;
-      bestDev=_submodels[i].devianceTest;
-    }
-  }
- else {
-    for (int i=1; i < _submodels.length; ++i)     if (_submodels[i] != null && _submodels[i].devianceTrain < bestDev) {
-      bestId=i;
-      bestDev=_submodels[i].devianceTrain;
+      best=sm;
     }
   }
   setSubmodelIdx(_best_lambda_idx=bestId);
+  return best;
 }

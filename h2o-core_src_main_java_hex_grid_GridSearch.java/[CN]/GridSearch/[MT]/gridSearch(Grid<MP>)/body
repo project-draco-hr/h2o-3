@@ -1,18 +1,32 @@
 {
   Model model=null;
   String protoModelKey=grid._key + "_model_";
+  NumberFormat mSformatter=new DecimalFormat("#0.000");
   try {
     HyperSpaceWalker.HyperSpaceIterator<MP> it=_hyperSpaceWalker.iterator();
     int counter=0;
     while (it.hasNext(model)) {
       if (_job.stop_requested())       return;
-      if (it.timeRemaining() < 0) {
+      long remaining_time=it.timeRemaining();
+      if (remaining_time < 0) {
         Log.info("Grid max_time_ms has expired; stopping early.");
         return;
       }
       MP params;
       try {
         params=it.nextModelParameters(model);
+        if (_max_time_ms < Integer.MAX_VALUE) {
+          Log.info("Grid time is limited to: " + _max_time_ms + " for grid: "+ grid._key+ ". Remaining time is: "+ remaining_time);
+          if (params._max_runtime_secs == 0) {
+            params._max_runtime_secs=remaining_time / 1000.0;
+            Log.info("Due to the grid time limit, changing model max runtime to: " + mSformatter.format(params._max_runtime_secs) + "S.");
+          }
+ else {
+            double was=params._max_runtime_secs;
+            params._max_runtime_secs=Math.min(params._max_runtime_secs,remaining_time / 1000.0);
+            Log.info("Due to the grid time limit, changing model max runtime from: " + mSformatter.format(was) + " to: "+ mSformatter.format(params._max_runtime_secs)+ "S.");
+          }
+        }
         try {
           model=buildModel(params,grid,counter++,protoModelKey);
         }

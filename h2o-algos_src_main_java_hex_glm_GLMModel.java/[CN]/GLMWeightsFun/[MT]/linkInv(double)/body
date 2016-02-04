@@ -1,0 +1,17 @@
+{
+switch (_link) {
+case identity:
+    return x;
+case logit:
+  return 1.0 / (Math.exp(-x) + 1.0);
+case log:
+return Math.exp(x);
+case inverse:
+double xx=(x < 0) ? Math.min(-1e-5,x) : Math.max(1e-5,x);
+return 1.0 / xx;
+case tweedie:
+return _link_power == 0 ? Math.max(2e-16,Math.exp(x)) : Math.pow(x,1 / _link_power);
+default :
+throw new RuntimeException("unexpected link function id  " + _link);
+}
+}

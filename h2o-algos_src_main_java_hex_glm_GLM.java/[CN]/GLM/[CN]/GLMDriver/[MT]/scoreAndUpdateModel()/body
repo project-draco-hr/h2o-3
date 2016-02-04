@@ -1,0 +1,24 @@
+{
+  Log.info(LogMsg("Scoring after " + timeSinceLastScoring() + "ms"));
+  long t1=System.currentTimeMillis();
+  Frame train=DKV.<Frame>getGet(_parms._train);
+  _model.score(train).delete();
+  ModelMetrics mtrain=ModelMetrics.getFromDKV(_model,train);
+  _model._output._training_metrics=mtrain;
+  long t2=System.currentTimeMillis();
+  Log.info(LogMsg("Training metrics computed in " + (t2 - t1) + "ms"));
+  Log.info(LogMsg(mtrain.toString()));
+  _keys2Keep.put("training_metrics",mtrain._key);
+  if (_valid != null) {
+    Frame valid=DKV.<Frame>getGet(_parms._valid);
+    _model.score(valid).delete();
+    _model._output._validation_metrics=ModelMetrics.getFromDKV(_model,valid);
+    _keys2Keep.put("validation_metrics",_model._output._validation_metrics._key);
+  }
+  _model._output._scoring_history=_parms._lambda_search ? _lsc.to2dTable() : _sc.to2dTable();
+  _model.update(_job._key);
+  _model.generateSummary(_parms._train,_state._iter);
+  _lastScore=System.currentTimeMillis();
+  long scoringTime=System.currentTimeMillis() - t1;
+  _scoringInterval=Math.max(_scoringInterval,20 * scoringTime);
+}

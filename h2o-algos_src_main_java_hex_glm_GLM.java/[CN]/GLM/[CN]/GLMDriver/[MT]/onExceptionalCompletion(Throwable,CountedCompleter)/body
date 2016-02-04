@@ -1,19 +1,5 @@
 {
-  if (_gotException.getAndSet(true))   return false;
-  if (ex instanceof GLMCancelledException) {
-    tryComplete();
-    return false;
-  }
-  if (ex instanceof TooManyPredictorsException) {
-    tryComplete();
-    return false;
-  }
-  try {
-    if (!(ex instanceof IllegalArgumentException))     doCleanup();
-    new water.DTask.RemoveCall(null,_job._result).invokeTask();
-  }
- catch (  Throwable t) {
-    Log.err(t);
-  }
+  _keys2Keep.clear();
+  doCleanup();
   return true;
 }

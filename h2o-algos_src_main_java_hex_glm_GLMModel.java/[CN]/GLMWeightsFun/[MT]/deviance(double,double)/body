@@ -1,0 +1,21 @@
+{
+  double y1=yr == 0 ? .1 : yr;
+switch (_family) {
+case gaussian:
+    return (yr - ym) * (yr - ym);
+case binomial:
+  return 2 * ((MathUtils.y_log_y(yr,ym)) + MathUtils.y_log_y(1 - yr,1 - ym));
+case poisson:
+if (yr == 0) return 2 * ym;
+return 2 * ((yr * Math.log(yr / ym)) - (yr - ym));
+case gamma:
+if (yr == 0) return -2;
+return -2 * (Math.log(yr / ym) - (yr - ym) / ym);
+case tweedie:
+double theta=_var_power == 1 ? Math.log(y1 / ym) : (Math.pow(y1,1. - _var_power) - Math.pow(ym,1 - _var_power)) / (1 - _var_power);
+double kappa=_var_power == 2 ? Math.log(y1 / ym) : (Math.pow(yr,2 - _var_power) - Math.pow(ym,2 - _var_power)) / (2 - _var_power);
+return 2 * (yr * theta - kappa);
+default :
+throw new RuntimeException("unknown family " + _family);
+}
+}
