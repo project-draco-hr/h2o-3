@@ -1,20 +1,6 @@
 {
   _gram=new Gram(_dinfo.fullN(),_dinfo.largestCat(),_dinfo._nums,_dinfo._cats,true);
-  if (_params._family == Family.multinomial)   _etas=new double[_beta_multinomial.length];
-  if (_validate) {
-    int rank=0;
-    if (_beta != null)     for (    double d : _beta)     if (d != 0)     ++rank;
-    String[] domain=_dinfo._adaptedFrame.lastVec().domain();
-    if (domain == null && _params._family == Family.binomial)     domain=new String[]{"0","1"};
-    _val=new GLMValidation(domain,_ymu,_params,rank,.5,true,_intercept);
-  }
   _xy=MemoryManager.malloc8d(_dinfo.fullN() + 1);
-  if (_params._family == Family.binomial && _validate) {
-    _ti=new int[2];
-  }
-  if (_params._family == Family.multinomial) {
-    _sparseOffsets=new double[_beta_multinomial.length];
-    if (_sparse)     for (int i=0; i < _beta_multinomial.length; ++i)     _sparseOffsets[i]=GLM.sparseOffset(_beta_multinomial[i],_dinfo);
-  }
- else   if (_sparse)   _sparseOffset=GLM.sparseOffset(_beta,_dinfo);
+  if (_sparse)   _sparseOffset=GLM.sparseOffset(_beta,_dinfo);
+  _w=new GLMWeights();
 }

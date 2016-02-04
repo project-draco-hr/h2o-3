@@ -1,0 +1,23 @@
+{
+  final int ncolsx=cs.length - 1;
+  final Chunk cy=cs[0];
+  final int len=cy._len;
+  _ss=new double[ncolsx];
+  _xsum=new double[ncolsx];
+  _ysum=new double[ncolsx];
+  double xval, yval;
+  for (int x=0; x < ncolsx; x++) {
+    double ss=0, xsum=0, ysum=0;
+    final Chunk cx=cs[x + 1];
+    for (int row=0; row < len; row++) {
+      xval=cx.atd(row);
+      yval=cy.atd(row);
+      xsum+=xval;
+      ysum+=yval;
+      ss+=xval * yval;
+    }
+    _ss[x]=ss;
+    _xsum[x]=xsum;
+    _ysum[x]=ysum;
+  }
+}

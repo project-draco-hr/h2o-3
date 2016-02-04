@@ -1,0 +1,10 @@
+{
+  double[] nb=getNullBeta();
+  if (_parms._family != Family.multinomial)   return new double[]{_parms.linkInv(nb[nb.length - 1])};
+  double[] res=new double[_nclass];
+  if (_parms._intercept) {
+    int N=_dinfo.fullN() + 1;
+    for (int i=0; i < res.length; ++i)     res[i]=Math.exp(nb[_dinfo.fullN() + i * N]);
+  }
+  return res;
+}

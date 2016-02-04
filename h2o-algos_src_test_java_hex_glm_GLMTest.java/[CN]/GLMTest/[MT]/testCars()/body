@@ -12,6 +12,7 @@
     params._train=parsed;
     params._lambda=new double[]{0};
     params._alpha=new double[]{0};
+    params._missing_values_handling=MissingValuesHandling.Skip;
     model=new GLM(params,modelKey).trainModel().get();
     HashMap<String,Double> coefs=model.coefficients();
     String[] cfs1=new String[]{"Intercept","economy (mpg)","cylinders","displacement (cc)","weight (lb)","0-60 mph (s)","year"};
@@ -27,6 +28,7 @@
     params._train=parsed;
     params._lambda=new double[]{0};
     params._beta_epsilon=1e-5;
+    params._missing_values_handling=MissingValuesHandling.Skip;
     model=new GLM(params,modelKey).trainModel().get();
     coefs=model.coefficients();
     for (int i=0; i < cfs1.length; ++i)     assertEquals(vls2[i],coefs.get(cfs1[i]),1e-4);
@@ -38,6 +40,7 @@
     params._ignored_columns=new String[]{"name"};
     params._train=parsed;
     params._lambda=new double[]{0};
+    params._missing_values_handling=MissingValuesHandling.Skip;
     model=new GLM(params,modelKey).trainModel().get();
     coefs=model.coefficients();
     for (int i=0; i < cfs1.length; ++i)     assertEquals(vls3[i],coefs.get(cfs1[i]),1e-4);
@@ -46,5 +49,6 @@
     if (fr != null)     fr.delete();
     if (score != null)     score.delete();
     if (model != null)     model.delete();
+    checkLeakedKeys();
   }
 }

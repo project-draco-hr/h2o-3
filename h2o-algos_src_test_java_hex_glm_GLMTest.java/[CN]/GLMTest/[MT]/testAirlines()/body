@@ -15,7 +15,9 @@
     params._ignored_columns=ignoredCols;
     params._train=fr._key;
     params._lambda=new double[]{0};
+    params._alpha=new double[]{0};
     params._standardize=false;
+    params._use_all_factor_levels=false;
     model1=new GLM(params,glmkey("airlines_cat_nostd")).trainModel().get();
     Frame score1=model1.score(fr);
     ModelMetricsRegressionGLM mm=(ModelMetricsRegressionGLM)ModelMetrics.getFromDKV(model1,fr);
@@ -28,11 +30,25 @@
     params._train=frMM._key;
     params._ignored_columns=new String[]{"X"};
     model2=new GLM(params,glmkey("airlines_mm")).trainModel().get();
+    HashMap<String,Double> coefs1=model1.coefficients();
+    HashMap<String,Double> coefs2=model2.coefficients();
+    boolean failed=false;
+    for (    String s : coefs2.keySet()) {
+      String s1=s;
+      if (s.startsWith("Origin"))       s1="Origin." + s.substring(6);
+      if (s.startsWith("Dest"))       s1="Dest." + s.substring(4);
+      if (s.startsWith("UniqueCarrier"))       s1="UniqueCarrier." + s.substring(13);
+      if (Math.abs(coefs1.get(s1) - coefs2.get(s)) > 1e-4) {
+        System.out.println("coeff " + s1 + " differs, "+ coefs1.get(s1)+ " != "+ coefs2.get(s));
+        failed=true;
+      }
+    }
+    assertFalse(failed);
     params._standardize=true;
     params._train=frMM._key;
     params._use_all_factor_levels=true;
     DataInfo dinfo=new DataInfo(frMM,null,1,true,DataInfo.TransformType.STANDARDIZE,DataInfo.TransformType.NONE,true,false,false,false,false,false);
-    GLMIterationTask glmt=new GLMIterationTask(null,dinfo,1e-5,params,false,null,0,true,null).doAll(dinfo._adaptedFrame);
+    GLMIterationTask glmt=new GLMIterationTask(null,dinfo,new GLMWeightsFun(params),null).doAll(dinfo._adaptedFrame);
     for (int i=0; i < glmt._xy.length; ++i) {
       for (int j=0; j <= i; ++j) {
         assertEquals(frG.vec(j).at(i),glmt._gram.get(i,j),1e-5);
@@ -41,7 +57,7 @@
     }
     xy.remove();
     params=(GLMParameters)params.clone();
-    params._standardize=true;
+    params._standardize=false;
     params._family=Family.binomial;
     params._link=Link.logit;
     model3=new GLM(params,glmkey("airlines_mm")).trainModel().get();
@@ -50,16 +66,6 @@
     model4=new GLM(params,glmkey("airlines_mm")).trainModel().get();
     assertEquals(nullDeviance(model3),nullDeviance(model4),1e-4);
     assertEquals(residualDeviance(model4),residualDeviance(model3),nullDeviance(model3) * 1e-3);
-    HashMap<String,Double> coefs1=model1.coefficients();
-    HashMap<String,Double> coefs2=model2.coefficients();
-    for (    String s : coefs2.keySet()) {
-      String s1=s;
-      if (s.startsWith("Origin"))       s1="Origin." + s.substring(6);
-      if (s.startsWith("Dest"))       s1="Dest." + s.substring(4);
-      if (s.startsWith("UniqueCarrier"))       s1="UniqueCarrier." + s.substring(13);
-      assertEquals("coeff " + s1 + " differs, "+ coefs1.get(s1)+ " != "+ coefs2.get(s),coefs1.get(s1),coefs2.get(s),1e-4);
-      DKV.put(frMM._key,frMM);
-    }
     assertEquals(nullDeviance(model1),nullDeviance(model2),1e-4);
     assertEquals(residualDeviance(model1),residualDeviance(model2),1e-4);
     assertEquals(5336.918,residualDeviance(model1),1);

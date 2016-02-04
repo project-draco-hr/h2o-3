@@ -1,22 +1,18 @@
 def _r_pkg_ver_chk(self):
     '\n        Run R script that checks if the Jenkins-approve R packages and versions are present. Exit, if they are not\n        present or if the requirements file cannot be retrieved.\n        '
+    global g_r_pkg_ver_chk_script
     self._log('')
     self._log('Conducting R package/version check...')
     out_file_name = os.path.join(self.output_dir, 'package_version_check_out.txt')
     out = open(out_file_name, 'w')
-    pkg_ver_chk_update_r = os.path.normpath(os.path.join(self.test_root_dir, '..', 'scripts', 'package_version_check_update.R'))
-    cmd = ['R', '--vanilla', '-f', pkg_ver_chk_update_r, '--args', 'check']
+    cmd = ['R', '--vanilla', '-f', g_r_pkg_ver_chk_script, '--args', 'check']
     child = subprocess.Popen(args=cmd, stdout=out)
     rv = child.wait()
     if self.terminated:
         return
-    if ((rv == 1) or (rv == 3)):
+    if (rv == 1):
         self._log('')
-        self._log((('ERROR: ' + pkg_ver_chk_update_r) + ' failed.'))
+        self._log((('ERROR: ' + g_r_pkg_ver_chk_script) + ' failed.'))
         self._log(('       See ' + out_file_name))
         sys.exit(1)
-    if (rv == 2):
-        self._log('')
-        self._log('WARNING: System version of R differs from Jenkins-approved version.')
-        self._log(('         See ' + out_file_name))
     out.close()

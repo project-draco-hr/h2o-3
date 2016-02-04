@@ -1,5 +1,6 @@
 {
   gerr=Double.POSITIVE_INFINITY;
+  iter=0;
   if (l1pen == 0 && lb == null && ub == null) {
     solver.solve(null,z);
     return true;
@@ -13,7 +14,8 @@
   double[] x=z.clone();
   double[] beta_given=MemoryManager.malloc8d(N);
   double[] kappa=MemoryManager.malloc8d(rho.length);
-  if (l1pen > 0)   for (int i=0; i < N - 1; ++i)   kappa[i]=rho[i] != 0 ? l1pen / rho[i] : 0;
+  int hasIcpt=hasIntercept ? 1 : 0;
+  if (l1pen > 0)   for (int i=0; i < N - hasIcpt; ++i)   kappa[i]=rho[i] != 0 ? l1pen / rho[i] : 0;
   int i;
   double orlx=1.0;
   double reltol=RELTOL;
@@ -21,7 +23,7 @@
   for (i=0; i < max_iter && solver.solve(beta_given,x); ++i) {
     double rnorm=0, snorm=0, unorm=0, xnorm=0;
     boolean allzeros=true;
-    for (int j=0; j < N - 1; ++j) {
+    for (int j=0; j < N - hasIcpt; ++j) {
       double xj=x[j];
       double zjold=z[j];
       double x_hat=xj * orlx + (1 - orlx) * zjold;
@@ -66,7 +68,6 @@
       }
       if (gerr > _eps)       Log.warn("ADMM solver finished with gerr = " + gerr + " >  eps = "+ _eps);
       iter=i;
-      Log.info("ADMM.L1Solver: converged at iteration = " + i + ", gerr = "+ gerr+ ", inner solver took "+ solver.iter()+ " iterations");
       return true;
     }
   }

@@ -2,11 +2,6 @@
   String[] cnames=new String[]{"timestamp","duration","iteration","negative_log_likelihood","objective"};
   String[] ctypes=new String[]{"string","string","int","double","double"};
   String[] cformats=new String[]{"%s","%s","%d","%.5f","%.5f"};
-  if (_lambdaIters.size() > 1) {
-    cnames=ArrayUtils.append(cnames,new String[]{"lambda","Number of Predictors","Explained Deviance (train)","Explained Deviance (test)"});
-    ctypes=ArrayUtils.append(ctypes,new String[]{"double","int","double","double"});
-    cformats=ArrayUtils.append(cformats,new String[]{"%.3f","%d","%.3f","%.3f"});
-  }
   TwoDimTable res=new TwoDimTable("Scoring History","",new String[_scoringIters.size()],cnames,ctypes,cformats,"");
   int j=0;
   DateTimeFormatter fmt=DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
@@ -17,13 +12,6 @@
     res.set(i,col++,_scoringIters.get(i));
     res.set(i,col++,_likelihoods.get(i));
     res.set(i,col++,_objectives.get(i));
-    if (_lambdaIters.size() > 1 && j < _lambdaIters.size() && (_scoringIters.get(i).equals(_lambdaIters.get(j)))) {
-      res.set(i,col++,_lambdas.get(j));
-      res.set(i,col++,_lambdaPredictors.get(j));
-      res.set(i,col++,_lambdaDevTrain.get(j));
-      if (j < _lambdaDevTest.size())       res.set(i,col++,_lambdaDevTest.get(j));
-      j++;
-    }
   }
   return res;
 }

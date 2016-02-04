@@ -1,0 +1,13 @@
+{
+  double wz=r.weight * (r.response(0) - r.offset);
+  for (int i=0; i < r.nBins; ++i) {
+    _xy[r.binIds[i]]+=wz;
+  }
+  for (int i=0; i < r.nNums; ++i) {
+    int id=r.numIds == null ? (i + numStart) : r.numIds[i];
+    double val=r.numVals[i];
+    _xy[id]+=wz * val;
+  }
+  if (_dinfo._intercept)   _xy[_xy.length - 1]+=wz;
+  _gram.addRow(r,r.weight);
+}

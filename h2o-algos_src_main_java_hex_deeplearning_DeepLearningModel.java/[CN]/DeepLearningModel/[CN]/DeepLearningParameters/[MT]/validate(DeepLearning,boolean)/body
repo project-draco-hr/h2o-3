@@ -1,5 +1,4 @@
 {
-  dl.hide("_score_each_iteration","Not used by Deep Learning.");
   boolean classification=expensive || dl.nclasses() != 0 ? dl.isClassifier() : _loss == Loss.CrossEntropy;
   if (_hidden == null || _hidden.length == 0)   dl.error("_hidden","There must be at least one hidden layer.");
   for (  int h : _hidden)   if (h <= 0)   dl.error("_hidden","Hidden layer size must be positive.");
@@ -75,6 +74,7 @@ switch (_distribution) {
 case gaussian:
 case huber:
 case laplace:
+case quantile:
 case tweedie:
 case gamma:
 case poisson:
@@ -100,6 +100,9 @@ if (_loss != Loss.Automatic) dl.error("_distribution","Only Automatic loss (devi
 break;
 case laplace:
 if (_loss != Loss.Absolute && _loss != Loss.Automatic) dl.error("_distribution","Only Automatic or Absolute loss is allowed for " + _distribution + " distribution.");
+break;
+case quantile:
+if (_loss != Loss.Quantile && _loss != Loss.Automatic) dl.error("_distribution","Only Automatic or Quantile loss is allowed for " + _distribution + " distribution.");
 break;
 case huber:
 if (_loss != Loss.Huber && _loss != Loss.Automatic) dl.error("_distribution","Only Automatic or Huber loss is allowed for " + _distribution + " distribution.");

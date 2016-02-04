@@ -1,35 +1,3 @@
 {
-  if (_parms._family == Family.multinomial)   return scoreMultinomial(data,preds,w,o);
-  double eta=0.0;
-  final double[] b=beta();
-  final DataInfo dinfo=_output._dinfo;
-  for (int i=0; i < dinfo._cats; ++i) {
-    if (Double.isNaN(data[i])) {
-      eta=Double.NaN;
-      break;
-    }
-    int ival=(int)data[i];
-    if (ival != data[i])     throw new IllegalArgumentException("categorical value out of range");
-    ival+=dinfo._catOffsets[i];
-    if (!_parms._use_all_factor_levels)     --ival;
-    if (ival >= dinfo._catOffsets[i] && ival < dinfo._catOffsets[i + 1])     eta+=b[ival];
-  }
-  int noff=dinfo.numStart();
-  for (int i=0; i < dinfo._nums; ++i)   eta+=b[noff + i] * data[dinfo._cats + i];
-  eta+=b[b.length - 1];
-  double mu=_parms.linkInv(eta + o);
-  preds[0]=mu;
-  if (_parms._family == Family.binomial) {
-    if (Double.isNaN(mu)) {
-      preds[0]=Double.NaN;
-      preds[1]=Double.NaN;
-      preds[2]=Double.NaN;
-    }
- else {
-      preds[0]=(mu >= _output._threshold ? 1 : 0);
-      preds[1]=1.0 - mu;
-      preds[2]=mu;
-    }
-  }
-  return preds;
+  return scoreRow(_output._scoringDinfo.extractDenseRow(data,getRow()),o,preds);
 }
