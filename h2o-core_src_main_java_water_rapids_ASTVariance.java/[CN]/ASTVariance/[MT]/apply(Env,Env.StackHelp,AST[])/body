@@ -2,7 +2,6 @@
   Frame frx=stk.track(asts[1].exec(env)).getFrame();
   Frame fry=stk.track(asts[2].exec(env)).getFrame();
   if (frx.numRows() != fry.numRows())   throw new IllegalArgumentException("Frames must have the same number of rows, found " + frx.numRows() + " and "+ fry.numRows());
-  if (frx.numCols() != fry.numCols())   throw new IllegalArgumentException("Frames must have the same number of columns, found " + frx.numCols() + " and "+ fry.numCols());
   String use=stk.track(asts[3].exec(env)).getStr();
   Mode mode;
 switch (use) {
@@ -14,6 +13,9 @@ mode=Mode.AllObs;
 break;
 case "complete.obs":
 mode=Mode.CompleteObs;
+break;
+case "pairwise.complete.obs":
+mode=Mode.PairwiseCompleteObs;
 break;
 default :
 throw new IllegalArgumentException("unknown use mode, found: " + use);
