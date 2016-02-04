@@ -60,12 +60,16 @@ long numNAs=v.naCnt();
 String naStr=(numNAs > 0) ? String.format("%d",numNAs) : "";
 String isConstantStr=isConstant ? "constant" : "";
 String numLevelsStr=isCategorical ? String.format("%d",v.domain().length) : "";
+boolean launchedWithHadoopJar=H2O.ARGS.launchedWithHadoopJar();
 boolean printLogSeparatorToStdout=false;
 boolean printColumnToStdout;
 {
 final int MAX_HEAD_TO_PRINT_ON_STDOUT=10;
 final int MAX_TAIL_TO_PRINT_ON_STDOUT=10;
-if (vecArr.length <= (MAX_HEAD_TO_PRINT_ON_STDOUT + MAX_TAIL_TO_PRINT_ON_STDOUT)) {
+if (launchedWithHadoopJar) {
+printColumnToStdout=true;
+}
+ else if (vecArr.length <= (MAX_HEAD_TO_PRINT_ON_STDOUT + MAX_TAIL_TO_PRINT_ON_STDOUT)) {
 printColumnToStdout=true;
 }
  else if (i < MAX_HEAD_TO_PRINT_ON_STDOUT) {
