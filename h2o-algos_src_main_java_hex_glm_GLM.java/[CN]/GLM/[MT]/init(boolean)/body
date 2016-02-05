@@ -52,6 +52,7 @@ if (_parms._lambda_search) _parms._max_iterations=_parms._nlambdas * 100 * numcl
 }
 }
 BetaConstraint bc=(_parms._beta_constraints != null) ? new BetaConstraint(_parms._beta_constraints.get()) : new BetaConstraint();
+if ((bc.hasBounds() || bc.hasProximalPenalty()) && _parms._compute_p_values) error("_compute_p_values","P-values can not be computed for constrained problems");
 if (_valid != null) _validDinfo=_dinfo.validDinfo(_valid);
 _state=new ComputationState(_job._key,_parms,_dinfo,bc,nclasses());
 boolean skippingRows=(_parms._missing_values_handling == MissingValuesHandling.Skip && _train.hasNAs());
