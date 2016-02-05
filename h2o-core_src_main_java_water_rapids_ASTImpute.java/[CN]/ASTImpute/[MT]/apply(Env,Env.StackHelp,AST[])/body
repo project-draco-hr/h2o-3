@@ -1,9 +1,12 @@
 {
   Frame fr=stk.track(asts[1].exec(env)).getFrame();
   final int col=(int)asts[2].exec(env).getNum();
-  if (col < 0 || col >= fr.numCols())   throw new IllegalArgumentException("Column not in range 0 to " + fr.numCols());
-  final Vec vec=fr.vec(col);
-  AST method;
+  if (col >= fr.numCols())   throw new IllegalArgumentException("Column not in range 0 to " + fr.numCols());
+  final boolean doAllVecs=col == -1;
+  final Vec vec=doAllVecs ? null : fr.vec(col);
+  AST method=null;
+  boolean ffill0=false;
+  boolean bfill0=false;
 switch (asts[3].exec(env).getStr().toUpperCase()) {
 case "MEAN":
     method=new ASTMean();
@@ -13,6 +16,12 @@ method=new ASTMedian();
 break;
 case "MODE":
 method=new ASTMode();
+break;
+case "FFILL":
+ffill0=true;
+break;
+case "BFILL":
+bfill0=true;
 break;
 default :
 throw new IllegalArgumentException("Method must be one of mean, median or mode");
@@ -31,24 +40,59 @@ Arrays.sort(list);
 by2=new ASTNumList(list);
 }
  else throw new IllegalArgumentException("Requires a number-list, but found a " + ast.getClass());
-final ASTNumList by=by2;
+Frame groupByFrame=asts[6].str().equals("_") ? null : stk.track(asts[6].exec(env)).getFrame();
+AST vals=asts[7];
+ASTNumList values;
+if (vals instanceof ASTNumList) values=(ASTNumList)vals;
+ else if (vals instanceof ASTNum) values=new ASTNumList(((ASTNum)vals)._v.getNum());
+ else values=null;
+ASTNumList by=by2;
+boolean doGrpBy=!by.isEmpty() || groupByFrame != null;
 IcedHashMap<ASTGroup.G,IcedDouble> group_impute_map;
-if (by.isEmpty()) {
-double res=Double.NaN;
-if (method instanceof ASTMean) res=vec.mean();
-if (method instanceof ASTMedian) res=ASTMedian.median(new Frame(vec),combine);
-if (method instanceof ASTMode) res=ASTMode.mode(vec);
-(group_impute_map=new IcedHashMap<>()).put(new ASTGroup.G(0,null).fill(0,null,new int[0]),new IcedDouble(res));
+if (!doGrpBy) {
+if (ffill0 || bfill0) {
+final boolean ffill=ffill0;
+final boolean bfill=bfill0;
+throw H2O.unimpl("No ffill or bfill imputation supported");
 }
  else {
-AST ast_grp=new ASTGroup();
-Frame imputes=ast_grp.apply(env,stk,new AST[]{ast_grp,new ASTFrame(fr),by,method,new ASTNumList(col,col + 1),new ASTStr("rm")}).getFrame();
-final int[] bycols=ArrayUtils.seq(0,imputes.numCols() - 1);
-group_impute_map=new Gather(bycols).doAll(imputes)._group_impute_map;
-imputes.delete();
+final double[] res=values == null ? new double[fr.numCols()] : values.expand();
+if (values == null) {
+if (doAllVecs) {
+for (int i=0; i < res.length; ++i) if (fr.vec(i).isNumeric() || fr.vec(i).isCategorical()) res[i]=fr.vec(i).isNumeric() ? fr.vec(i).mean() : ArrayUtils.maxIndex(fr.vec(i).bins());
 }
-env._ses.copyOnWrite(fr,new int[]{col});
+ else {
+Arrays.fill(res,Double.NaN);
+if (method instanceof ASTMean) res[col]=vec.mean();
+if (method instanceof ASTMedian) res[col]=ASTMedian.median(new Frame(vec),combine);
+if (method instanceof ASTMode) res[col]=ASTMode.mode(vec);
+}
+}
+new MRTask(){
+@Override public void map(Chunk[] cs){
+int len=cs[0]._len;
+for (int c=0; c < cs.length; ++c) if (!Double.isNaN(res[c])) for (int row=0; row < len; ++row) if (cs[c].isNA(row)) cs[c].set(row,res[c]);
+}
+}
+.doAll(fr);
+return new ValNums(res);
+}
+}
+ else {
+if (col < 0 || col >= fr.numCols()) throw new IllegalArgumentException("Column not in range 0 to " + fr.numCols());
+Frame imputes=groupByFrame;
+if (imputes == null) {
+AST ast_grp=new ASTGroup();
+imputes=ast_grp.apply(env,stk,new AST[]{ast_grp,new ASTFrame(fr),by,method,new ASTNumList(col,col + 1),new ASTStr("rm")}).getFrame();
+}
+final int[] bycols0=ArrayUtils.seq(0,imputes.numCols() - 1);
+group_impute_map=new Gather(bycols0).doAll(imputes)._group_impute_map;
 final IcedHashMap<ASTGroup.G,IcedDouble> final_group_impute_map=group_impute_map;
+if (by.isEmpty()) {
+int[] byCols=new int[imputes.numCols() - 1];
+for (int i=0; i < byCols.length; ++i) byCols[i]=fr.find(imputes.name(i));
+by=new ASTNumList(byCols);
+}
 final int[] bycols=by.expand4();
 new MRTask(){
 @Override public void map(Chunk cs[]){
@@ -58,5 +102,6 @@ for (int row=0; row < x._len; row++) if (x.isNA(row)) x.set(row,final_group_impu
 }
 }
 .doAll(fr);
-return new ValFrame(fr);
+return new ValFrame(imputes);
+}
 }
