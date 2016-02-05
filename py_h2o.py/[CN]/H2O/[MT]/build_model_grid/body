@@ -14,15 +14,7 @@ def build_model_grid(self, algo, training_frame, parameters, grid_parameters, gr
     post_parameters = {}
     post_parameters.update(parameters)
     post_parameters['hyper_parameters'] = grid_parameters
-    if (search_criteria is not None):
-        if ('strategy' in search_criteria):
-            post_parameters['strategy'] = search_criteria['strategy']
-        if ('max_models' in search_criteria):
-            post_parameters['max_models'] = search_criteria['max_models']
-        if ('max_time_ms' in search_criteria):
-            post_parameters['max_time_ms'] = search_criteria['max_time_ms']
-        if ('seed' in search_criteria):
-            post_parameters['seed'] = search_criteria['seed']
+    post_parameters['search_criteria'] = search_criteria
     if (grid_id is not None):
         post_parameters['grid_id'] = grid_id
     result = self.__do_json_request(('/99/Grid/' + algo), cmd='post', timeout=timeoutSecs, postData=post_parameters, raiseIfNon200=False)
