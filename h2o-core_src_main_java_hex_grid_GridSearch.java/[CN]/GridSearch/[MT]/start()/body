@@ -15,17 +15,11 @@
     grid=new Grid<>(_result,_hyperSpaceWalker.getParams(),_hyperSpaceWalker.getHyperParamNames(),_hyperSpaceWalker.getParametersBuilderFactory().getFieldNamingStrategy());
     grid.delete_and_lock(_job);
   }
-  Model model=null;
-  HyperSpaceWalker.HyperSpaceIterator<MP> it=_hyperSpaceWalker.iterator();
-  long gridWork=0;
-  if (gridSize > 0)   while (it.hasNext(model))   gridWork+=it.nextModelParameters(model).progressUnits();
- else   gridWork=Long.MAX_VALUE;
-  it.reset();
   return _job.start(new H2O.H2OCountedCompleter(){
     @Override public void compute2(){
       gridSearch(grid);
       tryComplete();
     }
   }
-,gridWork);
+,gridSize);
 }
