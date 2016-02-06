@@ -11,23 +11,19 @@
   H2O.H2OCountedCompleter right=H2O.submitTask(rightIndex=new RadixOrder(rightFrame,false,rightCols,id_maps));
   right.join();
   System.out.println("***\n*** Creating right index took: " + (System.nanoTime() - t0) / 1e9 + "\n***\n");
-  int bitShift=Math.max(8,rightIndex._biggestBit[0]) - Math.max(8,leftIndex._biggestBit[0]);
-  int leftExtent=256, rightExtent=1;
-  if (bitShift < 0) {
-    leftExtent>>=-bitShift;
-    rightExtent<<=-bitShift;
-  }
   long ansN=0;
   int numChunks=0;
   System.out.print("Making BinaryMerge RPC calls ... ");
   t0=System.nanoTime();
   List<RPC> bmList=new ArrayList<>();
-  for (int leftMSB=0; leftMSB < leftExtent; leftMSB++) {
-    int rightMSBBase=leftMSB >> bitShift;
-    for (int k=0; k < rightExtent; k++) {
-      int rightMSB=rightMSBBase + k;
+  for (int leftMSB=0; leftMSB < 256; leftMSB++) {
+    for (int rightMSB=0; rightMSB < 256; rightMSB++) {
+      long tt=(leftMSB << (Math.max(8,leftIndex._biggestBit[0]) - 8)) + leftIndex._colMin[0] - rightIndex._colMin[0];
+      if (tt < 0)       continue;
+      tt>>=(Math.max(8,rightIndex._biggestBit[0]) - 8);
+      if (tt != rightMSB)       continue;
       H2ONode rightNode=SplitByMSBLocal.ownerOfMSB(rightMSB);
-      RPC bm=new RPC<>(rightNode,new BinaryMerge(leftFrame,rightFrame,leftMSB,rightMSB,leftIndex._bytesUsed,rightIndex._bytesUsed,allLeft));
+      RPC bm=new RPC<>(rightNode,new BinaryMerge(leftFrame,rightFrame,leftMSB,rightMSB,leftIndex._bytesUsed,rightIndex._bytesUsed,leftIndex._colMin,rightIndex._colMin,allLeft));
       bmList.add(bm);
       System.out.print(rightNode.index() + " ");
     }
@@ -35,7 +31,11 @@
   System.out.println("... took: " + (System.nanoTime() - t0) / 1e9);
   int queueSize=Math.max(H2O.CLOUD.size() * 20,40);
   t0=System.nanoTime();
-  System.out.print("Sending BinaryMerge async RPC calls in a queue of " + queueSize + " ... ");
+  if (queueSize > bmList.size()) {
+    System.out.println("Small number of MSB joins (" + bmList.size() + ") means we won't get full parallelization benefit");
+    queueSize=bmList.size();
+  }
+  System.out.println("Sending " + bmList.size() + " BinaryMerge async RPC calls in a queue of "+ queueSize+ " ... ");
   int queue[]=new int[queueSize];
   BinaryMerge bmResults[]=new BinaryMerge[bmList.size()];
   int nextItem;
