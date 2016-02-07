@@ -23,10 +23,7 @@
   if (ncols == 0)   throw new IllegalArgumentException("Frames must have at least one column in common to merge them");
   boolean walkLeft;
   if (allLeft == allRite) {
-    long lsize=0, rsize=0;
-    for (int i=ncols; i < l.numCols(); i++)     lsize+=l.vecs()[i].byteSize();
-    for (int i=ncols; i < r.numCols(); i++)     rsize+=r.vecs()[i].byteSize();
-    walkLeft=lsize < rsize;
+    walkLeft=l.numRows() > r.numRows();
   }
  else {
     walkLeft=allLeft;
