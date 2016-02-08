@@ -1,0 +1,8 @@
+{
+  _group_impute_map=new IcedHashMap<>();
+  for (int row=0; row < cs[0]._len; ++row) {
+    IcedDouble[] imputes=new IcedDouble[_aggCols.length + _byCols.length];
+    for (int c=0; c < imputes.length; ++c)     imputes[c]=ArrayUtils.contains(_aggCols,c) ? new IcedDouble(cs[c + _byCols.length].atd(row)) : new IcedDouble(Double.NaN);
+    _group_impute_map.put(new ASTGroup.G(_byCols.length,null).fill(row,cs,_byCols),imputes);
+  }
+}
