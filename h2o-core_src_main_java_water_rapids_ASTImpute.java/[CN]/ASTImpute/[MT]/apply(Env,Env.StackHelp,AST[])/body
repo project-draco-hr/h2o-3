@@ -79,11 +79,9 @@ return new ValNums(res);
  else {
 if (col >= fr.numCols()) throw new IllegalArgumentException("Column not -1 or in range 0 to " + fr.numCols());
 Frame imputes=groupByFrame;
-int[] aggCols;
 if (imputes == null) {
 AST ast_grp=new ASTGroup();
 if (doAllVecs) {
-aggCols=new int[(int)(fr.numCols() - by2.cnt())];
 AST[] aggs=new AST[(int)(3 + 3 * (fr.numCols() - by2.cnt()))];
 aggs[0]=ast_grp;
 aggs[1]=new ASTFrame(fr);
@@ -94,7 +92,6 @@ for (int i=0; i < fr.numCols(); ++i) {
 if (!by2.has(i) && (fr.vec(i).isCategorical() || fr.vec(i).isNumeric())) {
 aggs[c]=fr.vec(i).isNumeric() ? new ASTMean() : new ASTMode();
 aggs[c + 1]=new ASTNumList(i,i + 1);
-aggCols[z++]=i;
 aggs[c + 2]=new ASTStr("rm");
 c+=3;
 }
@@ -103,15 +100,11 @@ imputes=ast_grp.apply(env,stk,aggs).getFrame();
 }
  else {
 imputes=ast_grp.apply(env,stk,new AST[]{ast_grp,new ASTFrame(fr),by2,method,new ASTNumList(col,col + 1),new ASTStr("rm")}).getFrame();
-aggCols=new int[]{col};
 }
-}
- else {
-aggCols=new int[imputes.numCols()];
 }
 if (by2.isEmpty() && imputes.numCols() > 2) throw new IllegalArgumentException("Ambiguous group-by frame. Supply the `by` columns to proceed.");
 final int[] bycols0=ArrayUtils.seq(0,Math.max((int)by2.cnt(),1));
-group_impute_map=new MakeIHM(aggCols,bycols0).doAll(imputes)._group_impute_map;
+group_impute_map=new MakeIHM(by2.expand4(),bycols0,fr.numCols()).doAll(imputes)._group_impute_map;
 final IcedHashMap<ASTGroup.G,IcedDouble[]> final_group_impute_map=group_impute_map;
 if (by2.isEmpty()) {
 int[] byCols=new int[imputes.numCols() - 1];
@@ -120,14 +113,14 @@ by2=new ASTNumList(byCols);
 }
 final int[] bycols=by2.expand4();
 new MRTask(){
+private transient Set<Integer> _bycolz;
+@Override public void setupLocal(){
+_bycolz=new HashSet<>();
+for (int b : bycols) _bycolz.add(b);
+}
 @Override public void map(Chunk cs[]){
 ASTGroup.G g=new ASTGroup.G(bycols.length,null);
-for (int row=0; row < cs[0]._len; row++) {
-for (int c=0; c < cs.length; ++c) {
-double imputeVal=final_group_impute_map.get(g.fill(row,cs,bycols))[c]._val;
-if (cs[c].isNA(row) && !Double.isNaN(imputeVal)) cs[c].set(row,imputeVal);
-}
-}
+for (int row=0; row < cs[0]._len; row++) for (int c=0; c < cs.length; ++c) if (!_bycolz.contains(c)) if (cs[c].isNA(row)) cs[c].set(row,final_group_impute_map.get(g.fill(row,cs,bycols))[c]._val);
 }
 }
 .doAll(fr);
