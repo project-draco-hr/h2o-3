@@ -1,7 +1,7 @@
 {
   if (_parms._family == Family.multinomial)   return checkKKTsMultinomial();
   double[] beta=_beta;
-  if (_activeData._activeCols != null)   beta=ArrayUtils.expandAndScatter(beta,_dinfo.fullN() + (_intercept ? 1 : 0),_activeData._activeCols);
+  if (_activeData._activeCols != null)   beta=ArrayUtils.expandAndScatter(beta,_dinfo.fullN() + 1,_activeData._activeCols);
   int[] activeCols=_activeData.activeCols();
   _gslvr=new GLMGradientSolver(_jobKey,_parms,_dinfo,(1 - _alpha) * _lambda,_bc);
   GLMGradientInfo ginfo=_gslvr.getGradient(beta);
@@ -14,7 +14,7 @@
   _beta=beta;
   _ginfo=ginfo;
   _activeBC=null;
-  if (!_allIn && _lambda * _alpha > 0) {
+  if (!_allIn) {
     int[] failedCols=new int[64];
     int fcnt=0;
     for (int i=0; i < grad.length - 1; ++i) {
@@ -25,6 +25,7 @@
       }
     }
     if (fcnt > 0) {
+      Log.info(fcnt + " variables failed KKT conditions, adding them to the model and recomputing.");
       final int n=activeCols.length;
       int[] newCols=Arrays.copyOf(activeCols,activeCols.length + fcnt);
       for (int i=0; i < fcnt; ++i)       newCols[n + i]=failedCols[i];
