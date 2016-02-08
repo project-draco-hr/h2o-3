@@ -1,16 +1,13 @@
 {
-  boolean any=false;
   for (int i=0; i < f.vecs().length - _specialVecs; i++) {
     if (filter(f.vecs()[i])) {
-      if (any)       msg+=", ";
-      any=true;
-      msg+=f._names[i];
       _removedCols.add(f._names[i]);
       f.remove(i);
       i--;
     }
   }
-  if (any) {
+  if (!_removedCols.isEmpty()) {
+    msg+=_removedCols.toString();
     warn("_train",msg);
     if (expensive)     Log.info(msg);
   }
