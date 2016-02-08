@@ -1,12 +1,12 @@
 {
   if (error_count() > 0)   throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(this);
   _start_time=System.currentTimeMillis();
-  if (!nFoldCV())   return _job.start(trainModelImpl(),progressUnits());
+  if (!nFoldCV())   return _job.start(trainModelImpl(),_parms.progressUnits());
   return _job.start(new H2O.H2OCountedCompleter(){
     @Override public void compute2(){
       computeCrossValidation();
       tryComplete();
     }
   }
-,(1 + nFoldWork() + 1) * progressUnits());
+,(1 + nFoldWork() + 1) * _parms.progressUnits());
 }
