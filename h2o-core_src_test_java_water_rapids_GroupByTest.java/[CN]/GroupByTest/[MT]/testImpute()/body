@@ -1,20 +1,24 @@
 {
   Frame fr=null;
+  Frame fr2=null;
   try {
-    String tree="(h2o.impute hex 1 \"mean\" \"low\" [])";
-    fr=chkTree(tree,"smalldata/junit/cars.csv");
+    String tree="(h2o.impute hex 1 \"mean\" \"low\" [] _ _)";
+    chkTree(tree,"smalldata/junit/cars.csv",1f);
+    fr=DKV.getGet("hex");
     chkDim(fr,8,406);
     Assert.assertEquals(0,fr.vec(1).naCnt());
     Assert.assertEquals(23.51,fr.vec(1).at(26),1e-1);
     fr.delete();
-    tree="(h2o.impute hex 1 \"mean\" \"low\" [7])";
-    fr=chkTree(tree,"smalldata/junit/cars.csv");
+    tree="(h2o.impute hex 1 \"mean\" \"low\" [7] _ _)";
+    fr2=chkTree(tree,"smalldata/junit/cars.csv",1f);
+    fr=DKV.getGet("hex");
     chkDim(fr,8,406);
     Assert.assertEquals(0,fr.vec(1).naCnt());
     Assert.assertEquals(17.69,fr.vec(1).at(26),1e-1);
   }
   finally {
     if (fr != null)     fr.delete();
+    if (fr2 != null)     fr2.delete();
     Keyed.remove(Key.make("hex"));
   }
 }
