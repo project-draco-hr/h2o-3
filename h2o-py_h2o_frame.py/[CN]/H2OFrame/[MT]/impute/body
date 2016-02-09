@@ -1,7 +1,17 @@
-def impute(self, column, method='mean', combine_method='interpolate', by=None):
-    'Impute a column in this H2OFrame\n\n    Parameters\n    ----------\n    column : int, str\n      The column to impute\n    method: str, default="mean"\n      How to compute the imputation value.\n    combine_method: str, default="interpolate"\n      For even samples and method="median", how to combine quantiles.\n    by : list\n      Columns to group-by for computing imputation value per groups of columns.\n\n    Returns\n    -------\n      An H2OFrame with the desired column\'s NAs filled with imputed values.\n      Note that the returned Frame is in conceptually a new Frame, but due \n      to back-end optimizations is frequently not actually a copy.\n    '
+def impute(self, column=(-1), method='mean', combine_method='interpolate', by=None, group_by_frame=None, values=None):
+    'Impute in place.\n\n    Parameters\n    ----------\n    column: int, default=-1\n        The column to impute, if -1 then impute the whole frame\n    method : str, default="mean"\n        The method of imputation: mean, median, mode\n    combine_method : str, default="interpolate"\n        When method is "median", dictates how to combine quantiles for even samples.\n    by : list, default=None\n        The columns to group on.\n    group_by_frame : H2OFrame, default=None\n        Impute the column col with this pre-computed grouped frame.\n    values : list\n        A list of impute values (one per column). NaN indicates to skip the column.\n\n    Returns\n    -------\n      A list of values used in the imputation or the group by result used in imputation.\n    '
     if isinstance(column, basestring):
         column = self.names.index(column)
     if isinstance(by, basestring):
         by = self.names.index(by)
-    return H2OFrame._expr(expr=ExprNode('h2o.impute', self, column, method, combine_method, by), cache=self._ex._cache)
+    if (values is None):
+        values = '_'
+    if (group_by_frame is None):
+        group_by_frame = '_'
+    if ((by is not None) or (group_by_frame is not '_')):
+        res = H2OFrame._expr(expr=ExprNode('h2o.impute', self, column, method, combine_method, by, group_by_frame, values))._frame()
+    else:
+        res = ExprNode('h2o.impute', self, column, method, combine_method, by, group_by_frame, values)._eager_scalar()
+    self._ex._cache.flush()
+    self._ex._cache.fill(10)
+    return res
