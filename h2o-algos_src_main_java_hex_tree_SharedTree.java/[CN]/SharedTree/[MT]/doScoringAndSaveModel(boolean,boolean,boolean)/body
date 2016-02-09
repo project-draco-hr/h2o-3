@@ -5,7 +5,9 @@
   long sinceLastScore=now - _timeLastScoreStart;
   boolean updated=false;
   _job.update(0,"Built " + _model._output._ntrees + " trees so far (out of "+ _parms._ntrees+ ").");
-  if (_parms._score_each_iteration || finalScoring || (now - _firstScore < _parms._initial_score_interval)|| (sinceLastScore > _parms._score_interval && (double)(_timeLastScoreEnd - _timeLastScoreStart) / sinceLastScore < 0.1)) {
+  boolean timeToScore=(now - _firstScore < _parms._initial_score_interval) || (sinceLastScore > _parms._score_interval && (double)(_timeLastScoreEnd - _timeLastScoreStart) / sinceLastScore < 0.1);
+  boolean manualInterval=_parms._score_tree_interval > 0 && _model._output._ntrees % _parms._score_tree_interval == 0;
+  if (_parms._score_each_iteration || finalScoring || (timeToScore && _parms._score_tree_interval == 0)|| manualInterval) {
     checkMemoryFootPrint();
     _model.update(_job);
     updated=true;

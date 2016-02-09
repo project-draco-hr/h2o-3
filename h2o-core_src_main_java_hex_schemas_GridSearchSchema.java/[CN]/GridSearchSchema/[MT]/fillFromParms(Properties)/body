@@ -9,41 +9,27 @@
     }
     parms.remove("hyper_parameters");
   }
-  if (parms.containsKey("strategy"))   try {
-    strategy=GridSearch.Strategy.valueOf((String)parms.get("strategy"));
+  if (parms.containsKey("search_criteria")) {
+    Properties p=water.util.JSONUtils.parseToProperties(parms.getProperty("search_criteria"));
+    if (!p.containsKey("strategy")) {
+      throw new H2OIllegalArgumentException("search_criteria.strategy","null");
+    }
+    String strategy=(String)p.get("strategy");
+    if ("Cartesian".equals(strategy)) {
+      search_criteria=new HyperSpaceSearchCriteriaV99.CartesianSearchCriteriaV99();
+    }
+ else     if ("RandomDiscrete".equals(strategy)) {
+      search_criteria=new HyperSpaceSearchCriteriaV99.RandomDiscreteValueSearchCriteriaV99();
+    }
+ else {
+      throw new H2OIllegalArgumentException("search_criteria.strategy",strategy);
+    }
+    search_criteria.fillWithDefaults();
+    search_criteria.fillFromParms(p);
+    parms.remove("search_criteria");
   }
- catch (  IllegalArgumentException iae) {
-    throw new H2OIllegalArgumentException("strategy",(String)parms.get("strategy"));
-  }
- finally {
-    parms.remove("strategy");
-  }
-  if (parms.containsKey("max_models"))   try {
-    max_models=Integer.valueOf((String)parms.get("max_models"));
-  }
- catch (  NumberFormatException nfe) {
-    throw new H2OIllegalArgumentException("max_models",(String)parms.get("max_models"));
-  }
- finally {
-    parms.remove("max_models");
-  }
-  if (parms.containsKey("max_time_ms"))   try {
-    max_time_ms=Integer.valueOf((String)parms.get("max_time_ms"));
-  }
- catch (  NumberFormatException nfe) {
-    throw new H2OIllegalArgumentException("max_time_ms",(String)parms.get("max_time_ms"));
-  }
- finally {
-    parms.remove("max_time_ms");
-  }
-  if (parms.containsKey("seed"))   try {
-    seed=Long.valueOf((String)parms.get("seed"));
-  }
- catch (  NumberFormatException nfe) {
-    throw new H2OIllegalArgumentException("seed",(String)parms.get("seed"));
-  }
- finally {
-    parms.remove("seed");
+ else {
+    search_criteria=new HyperSpaceSearchCriteriaV99.CartesianSearchCriteriaV99();
   }
   if (parms.containsKey("grid_id")) {
     grid_id=new KeyV3.GridKeyV3(Key.<Grid>make(parms.getProperty("grid_id")));

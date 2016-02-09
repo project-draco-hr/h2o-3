@@ -3,30 +3,34 @@
   byte ybatch[]=y[(int)(yi / _rightBatchSize)];
   int xoff=(int)(xi % _leftBatchSize) * _leftKeySize;
   int yoff=(int)(yi % _rightBatchSize) * _rightKeySize;
-  byte xByte=0, yByte=0;
+  long xval=0, yval=0;
   int i=0;
-  while (i < _numJoinCols && xByte == yByte) {
+  while (i < _numJoinCols && xval == yval) {
     int xlen=_leftFieldSizes[i];
     int ylen=_rightFieldSizes[i];
-    if (xlen != ylen) {
-      while (xlen > ylen && xbatch[xoff] == 0) {
-        xoff++;
-        xlen--;
-      }
-      while (ylen > xlen && ybatch[yoff] == 0) {
-        yoff++;
-        ylen--;
-      }
-      if (xlen != ylen) {
-        return (xlen - ylen);
-      }
-    }
-    while (xlen > 0 && (xByte=xbatch[xoff]) == (yByte=ybatch[yoff])) {
-      xoff++;
-      yoff++;
+    xval=xbatch[xoff] & 0xFF;
+    while (xlen > 1) {
+      xval<<=8;
+      xval|=xbatch[++xoff] & 0xFF;
       xlen--;
     }
+    xoff++;
+    yval=ybatch[yoff] & 0xFF;
+    while (ylen > 1) {
+      yval<<=8;
+      yval|=ybatch[++yoff] & 0xFF;
+      ylen--;
+    }
+    yoff++;
+    xval=xval == 0 ? Long.MIN_VALUE : xval - 1 + _leftColMins[i];
+    yval=yval == 0 ? Long.MIN_VALUE : yval - 1 + _rightColMins[i];
     i++;
   }
-  return (xByte & 0xFF) - (yByte & 0xFF);
+  long diff=xval - yval;
+  if (xval > yval) {
+    return ((diff < 0 | diff > Integer.MAX_VALUE) ? Integer.MAX_VALUE : (int)diff);
+  }
+ else {
+    return ((diff > 0 | diff < Integer.MIN_VALUE + 1) ? Integer.MIN_VALUE + 1 : (int)diff);
+  }
 }

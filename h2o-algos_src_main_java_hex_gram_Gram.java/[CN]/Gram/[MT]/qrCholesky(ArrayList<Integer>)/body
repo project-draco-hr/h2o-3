@@ -1,14 +1,5 @@
 {
-  final double[][] Z=getXX(true);
-  int icpt_id=Z.length - 1;
-  double d=Z[0][0];
-  Z[0][0]=Z[icpt_id][icpt_id];
-  Z[icpt_id][icpt_id]=d;
-  for (int i=1; i < Z.length - 1; ++i) {
-    d=Z[i][0];
-    Z[i][0]=Z[icpt_id][i];
-    Z[icpt_id][i]=d;
-  }
+  final double[][] Z=getXX(true,true);
   final double[][] R=new double[Z.length][];
   final double[] ZdiagInv=new double[Z.length];
   for (int i=0; i < Z.length; ++i)   ZdiagInv[i]=1.0 / Z[i][i];
@@ -18,9 +9,9 @@
     double zjj=Z[j][j];
     for (int k=0; k < j; ++k)     zjj+=gamma[k] * (gamma[k] * Z[k][k] - 2 * Z[j][k]);
     ZdiagInv[j]=1. / zjj;
-    if (-f_eps < zjj && zjj < f_eps) {
+    if (zjj < f_eps) {
       zjj=0;
-      dropped_cols.add(j);
+      dropped_cols.add(j - 1);
       ZdiagInv[j]=0;
     }
     Z[j][j]=zjj;
@@ -73,17 +64,13 @@
     if (Z[i][i] == 0)     continue;
     int k=0;
     for (int l=0; l <= i; ++l) {
-      if (k < dropped_cols.size() && l == dropped_cols.get(k)) {
+      if (k < dropped_cols.size() && l == (dropped_cols.get(k) + 1)) {
         ++k;
         continue;
       }
       Rnew[j][l - k]=R[i][l];
     }
     ++j;
-  }
-  if ((dropped_cols.get(dropped_cols.size() - 1)) == ZdiagInv.length - 1) {
-    dropped_cols.remove(dropped_cols.size() - 1);
-    dropped_cols.add(0,0);
   }
   return new Cholesky(Rnew,new double[0],true);
 }
