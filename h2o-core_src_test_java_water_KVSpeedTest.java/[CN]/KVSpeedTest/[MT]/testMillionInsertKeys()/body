@@ -1,6 +1,6 @@
 {
   final int PAR=100;
-  final int NKEY=1000000;
+  final int NKEY=100000;
   final int WARMKEY=10000;
   H2O.H2OCountedCompleter foo=H2O.submitTask(new H2O.H2OCountedCompleter(){
     final Key[][] keys=new Key[PAR][NKEY];
@@ -102,4 +102,6 @@
   }
 );
   foo.join();
+  System.out.printf("STORE size = %d\n",H2O.STORE.size());
+  System.out.printf("STORE raw array length = %d\n",H2O.STORE.raw_array().length);
 }
