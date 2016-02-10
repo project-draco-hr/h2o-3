@@ -8,11 +8,15 @@
     old=fr.remove("economy");
     fr.add("economy",old);
     DKV.put(fr);
-    HashMap<String,Object[]> hyperParms=new HashMap<>();
-    hyperParms.put("_ntrees",new Integer[]{5,5});
-    hyperParms.put("_max_depth",new Integer[]{2,2});
-    hyperParms.put("_mtries",new Integer[]{-1,-1});
-    hyperParms.put("_sample_rate",new Float[]{.1f,.1f});
+    HashMap<String,Object[]> hyperParms=new HashMap<String,Object[]>(){
+{
+        put("_ntrees",new Integer[]{5,5});
+        put("_max_depth",new Integer[]{2,2});
+        put("_mtries",new Integer[]{-1,-1});
+        put("_sample_rate",new Float[]{.1f,.1f});
+      }
+    }
+;
     DRFModel.DRFParameters params=new DRFModel.DRFParameters();
     params._train=fr._key;
     params._response_column="economy";
