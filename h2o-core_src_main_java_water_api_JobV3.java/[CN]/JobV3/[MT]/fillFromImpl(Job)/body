@@ -13,6 +13,12 @@
   Throwable ex=job.ex();
   if (ex != null)   status="FAILED";
   exception=ex == null ? null : ex.toString();
+  if (ex != null) {
+    StringWriter sw=new StringWriter();
+    PrintWriter pw=new PrintWriter(sw);
+    ex.printStackTrace(pw);
+    stacktrace=sw.toString();
+  }
   msec=job.msec();
   Keyed dest_type=(Keyed)TypeMap.theFreezable(job._typeid);
   dest=job._result == null ? null : KeyV3.make(dest_type.makeSchema(),job._result);
