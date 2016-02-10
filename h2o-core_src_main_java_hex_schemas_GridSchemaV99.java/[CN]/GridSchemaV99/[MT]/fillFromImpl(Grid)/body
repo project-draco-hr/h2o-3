@@ -6,6 +6,19 @@
       modelKeys.add(k);
     }
   }
+  if (sort_by == null && modelKeys.size() > 0 && modelKeys.get(0) != null) {
+    Model m=DKV.getGet(modelKeys.get(0));
+    if (m != null && m.isSupervised()) {
+      if (m._output.nclasses() > 1) {
+        sort_by="logloss";
+        sort_order="asc";
+      }
+ else {
+        sort_by="residual_deviance";
+        sort_order="asc";
+      }
+    }
+  }
   if (null != sort_by && !sort_by.isEmpty()) {
     modelKeys=ModelMetrics.sortModelsByMetric(sort_by,sort_order,modelKeys);
     training_metrics=new ModelMetricsBase[modelKeys.size()];
@@ -22,8 +35,10 @@
     }
   }
   KeyV3.ModelKeyV3[] modelIds=new KeyV3.ModelKeyV3[modelKeys.size()];
+  Key<Model>[] keys=new Key[modelKeys.size()];
   for (int i=0; i < modelIds.length; i++) {
     modelIds[i]=new KeyV3.ModelKeyV3(modelKeys.get(i));
+    keys[i]=modelIds[i].key();
   }
   grid_id=new KeyV3.GridKeyV3(grid._key);
   model_ids=modelIds;
@@ -32,5 +47,7 @@
   failure_details=grid.getFailureDetails();
   failure_stack_traces=grid.getFailureStackTraces();
   failed_raw_params=grid.getFailedRawParameters();
+  TwoDimTable t=grid.createSummaryTable(keys,sort_by,sort_order);
+  if (t != null)   summary_table=new TwoDimTableBase().fillFromImpl(t);
   return this;
 }

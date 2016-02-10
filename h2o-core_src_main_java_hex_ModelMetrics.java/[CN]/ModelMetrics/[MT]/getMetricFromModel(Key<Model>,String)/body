@@ -1,0 +1,28 @@
+{
+  Model model=DKV.getGet(key);
+  if (null == model)   throw new H2OIllegalArgumentException("Cannot find model " + key);
+  ModelMetrics m=model._output._cross_validation_metrics != null ? model._output._cross_validation_metrics : model._output._validation_metrics != null ? model._output._validation_metrics : model._output._training_metrics;
+  Method method=null;
+  ConfusionMatrix cm=m.cm();
+  try {
+    method=m.getClass().getMethod(criterion);
+  }
+ catch (  Exception e) {
+  }
+  if (null == criterion && null != cm) {
+    try {
+      method=cm.getClass().getMethod(criterion);
+    }
+ catch (    Exception e) {
+    }
+  }
+  if (null == method)   throw new H2OIllegalArgumentException("Failed to find ModelMetrics for criterion: " + criterion);
+  double c;
+  try {
+    c=(double)method.invoke(m);
+  }
+ catch (  Exception e) {
+    throw new H2OIllegalArgumentException("Failed to get metric: " + criterion + " from ModelMetrics object: "+ m,"Failed to get metric: " + criterion + " from ModelMetrics object: "+ m+ ", criterion: "+ method+ ", exception: "+ e);
+  }
+  return c;
+}
