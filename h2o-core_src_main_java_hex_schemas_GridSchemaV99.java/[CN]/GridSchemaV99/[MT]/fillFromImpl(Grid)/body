@@ -19,6 +19,12 @@
       }
     }
   }
+  if (modelKeys.size() > 0 && sort_by != null) {
+    Set<String> possibleMetrics=ModelMetrics.getAllowedMetrics(modelKeys.get(0));
+    if (!possibleMetrics.contains(sort_by)) {
+      throw new H2OIllegalArgumentException("Invalid argument for sort_by specified. Must be one of: " + Arrays.toString(possibleMetrics.toArray(new String[0])));
+    }
+  }
   if (null != sort_by && !sort_by.isEmpty()) {
     modelKeys=ModelMetrics.sortModelsByMetric(sort_by,decreasing,modelKeys);
     training_metrics=new ModelMetricsBase[modelKeys.size()];

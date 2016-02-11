@@ -1,0 +1,43 @@
+{
+  Grid<GLRMModel.GLRMParameters> grid=null;
+  Frame fr=null;
+  try {
+    fr=parse_test_file("smalldata/iris/iris_wheader.csv");
+    HashMap<String,Object[]> hyperParms=new HashMap<String,Object[]>(){
+{
+        put("_k",new Integer[]{2,4});
+        put("_transform",new DataInfo.TransformType[]{DataInfo.TransformType.NONE,DataInfo.TransformType.DEMEAN});
+      }
+    }
+;
+    String[] hyperParamNames=hyperParms.keySet().toArray(new String[hyperParms.size()]);
+    Arrays.sort(hyperParamNames);
+    int hyperSpaceSize=ArrayUtils.crossProductSize(hyperParms);
+    GLRMModel.GLRMParameters params=new GLRMModel.GLRMParameters();
+    params._train=fr._key;
+    params._seed=4224L;
+    params._loss=GLRMModel.GLRMParameters.Loss.Absolute;
+    params._init=GLRM.Initialization.SVD;
+    final int ITER_CNT=2;
+    Key<Model>[][] modelKeys=new Key[ITER_CNT][];
+    Key<Grid> gridKey=Key.make("GLRM_grid_iris" + Key.rand());
+    for (int i=0; i < ITER_CNT; i++) {
+      Job<Grid> gs=GridSearch.startGridSearch(gridKey,params,hyperParms);
+      grid=(Grid<GLRMModel.GLRMParameters>)gs.get();
+      modelKeys[i]=grid.getModelKeys();
+      Assert.assertEquals("Size of grid should match to size of hyper space",hyperSpaceSize,grid.getModelCount() + grid.getFailureCount());
+      String[] gridHyperNames=grid.getHyperNames();
+      Arrays.sort(gridHyperNames);
+      Assert.assertArrayEquals("Hyper parameters names should match!",hyperParamNames,gridHyperNames);
+    }
+    Assert.assertArrayEquals("The model keys should be same between two iterations!",modelKeys[0],modelKeys[1]);
+  }
+  finally {
+    if (fr != null) {
+      fr.remove();
+    }
+    if (grid != null) {
+      grid.remove();
+    }
+  }
+}
