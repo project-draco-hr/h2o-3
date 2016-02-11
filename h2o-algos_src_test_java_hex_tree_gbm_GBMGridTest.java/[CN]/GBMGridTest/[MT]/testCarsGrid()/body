@@ -8,13 +8,17 @@
     old=fr.remove("cylinders");
     fr.add("cylinders",old.toCategoricalVec());
     DKV.put(fr);
-    HashMap<String,Object[]> hyperParms=new HashMap<>();
-    hyperParms.put("_ntrees",new Integer[]{1,2});
-    hyperParms.put("_distribution",new Distribution.Family[]{Distribution.Family.multinomial});
-    hyperParms.put("_max_depth",new Integer[]{1,2,5});
-    Float[] legalLearnRateOpts=new Float[]{0.01f,0.1f,0.3f};
-    Float[] illegalLearnRateOpts=new Float[]{-1f};
-    hyperParms.put("_learn_rate",ArrayUtils.join(legalLearnRateOpts,illegalLearnRateOpts));
+    final Float[] legalLearnRateOpts=new Float[]{0.01f,0.1f,0.3f};
+    final Float[] illegalLearnRateOpts=new Float[]{-1f};
+    HashMap<String,Object[]> hyperParms=new HashMap<String,Object[]>(){
+{
+        put("_ntrees",new Integer[]{1,2});
+        put("_distribution",new Distribution.Family[]{Distribution.Family.multinomial});
+        put("_max_depth",new Integer[]{1,2,5});
+        put("_learn_rate",ArrayUtils.join(legalLearnRateOpts,illegalLearnRateOpts));
+      }
+    }
+;
     String[] hyperParamNames=hyperParms.keySet().toArray(new String[hyperParms.size()]);
     Arrays.sort(hyperParamNames);
     int hyperSpaceSize=ArrayUtils.crossProductSize(hyperParms);
