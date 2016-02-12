@@ -3,14 +3,15 @@
   sb.nl();
   sb.ip("// Column domains. The last array contains domain of response column.").nl();
   sb.ip("public static final String[][] DOMAINS = new String[][] {").nl();
-  for (int i=0; i < _output._domains.length; i++) {
+  String[][] domains=scoringDomains();
+  for (int i=0; i < domains.length; i++) {
     final int idx=i;
-    final String[] dom=_output._domains[i];
+    final String[] dom=domains[i];
     final String colInfoClazz=modelName + "_ColInfo_" + i;
     sb.i(1).p("/* ").p(_output._names[i]).p(" */ ");
     if (dom != null)     sb.p(colInfoClazz).p(".VALUES");
  else     sb.p("null");
-    if (i != _output._domains.length - 1)     sb.p(',');
+    if (i != domains.length - 1)     sb.p(',');
     sb.nl();
     if (dom != null) {
       fileCtx.add(new CodeGenerator(){

@@ -9,6 +9,7 @@
   boolean manualInterval=_parms._score_tree_interval > 0 && _model._output._ntrees % _parms._score_tree_interval == 0;
   if (_parms._score_each_iteration || finalScoring || (timeToScore && _parms._score_tree_interval == 0)|| manualInterval) {
     checkMemoryFootPrint();
+    if (error_count() > 0)     throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(SharedTree.this);
     _model.update(_job);
     updated=true;
     Log.info("============================================================== ");

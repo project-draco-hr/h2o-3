@@ -1,0 +1,53 @@
+{
+  Grid<GLRMModel.GLRMParameters> grid=null;
+  Frame fr=null;
+  try {
+    fr=parse_test_file("smalldata/iris/iris_wheader.csv");
+    HashMap<String,Object[]> hyperParms=new HashMap<String,Object[]>(){
+{
+        put("_k",new Integer[]{2,4});
+        put("_transform",new DataInfo.TransformType[]{DataInfo.TransformType.NONE,DataInfo.TransformType.DEMEAN});
+      }
+    }
+;
+    final String[] hyperParamNames1=hyperParms.keySet().toArray(new String[hyperParms.size()]);
+    Arrays.sort(hyperParamNames1);
+    final int hyperSpaceSize1=ArrayUtils.crossProductSize(hyperParms);
+    GLRMModel.GLRMParameters params=new GLRMModel.GLRMParameters();
+    params._train=fr._key;
+    params._seed=4224L;
+    params._loss=GLRMModel.GLRMParameters.Loss.Absolute;
+    params._init=GLRM.Initialization.SVD;
+    Key<Grid> gridKey=Key.make("GLRM_grid_iris" + Key.rand());
+    final Job<Grid> gs1=GridSearch.startGridSearch(gridKey,params,hyperParms);
+    grid=(Grid<GLRMModel.GLRMParameters>)gs1.get();
+    Assert.assertEquals("Size of grid should match to size of hyper space",hyperSpaceSize1,grid.getModelCount() + grid.getFailureCount());
+    String[] gridHyperNames1=grid.getHyperNames();
+    Arrays.sort(gridHyperNames1);
+    Assert.assertArrayEquals("Hyper parameters names should match!",hyperParamNames1,gridHyperNames1);
+    hyperParms.put("_k",new Integer[]{3});
+    final String[] hyperParamNames2=hyperParms.keySet().toArray(new String[hyperParms.size()]);
+    Arrays.sort(hyperParamNames2);
+    final int hyperSpaceSize2=ArrayUtils.crossProductSize(hyperParms);
+    Assert.assertArrayEquals("Names of hyperspaces should be same!",hyperParamNames1,hyperParamNames2);
+    final Job<Grid> gs2=GridSearch.startGridSearch(gridKey,params,hyperParms);
+    grid=(Grid<GLRMModel.GLRMParameters>)gs2.get();
+    Assert.assertEquals("Size of grid should match to size of hyper space",hyperSpaceSize1 + hyperSpaceSize2,grid.getModelCount() + grid.getFailureCount());
+    String[] gridHyperNames2=grid.getHyperNames();
+    Arrays.sort(gridHyperNames2);
+    Assert.assertArrayEquals("Hyper parameters names should match!",hyperParamNames2,gridHyperNames2);
+    Set<String> modelNames=new HashSet<>(grid.getModelCount());
+    for (    Key<Model> modelKey : grid.getModelKeys()) {
+      modelNames.add(modelKey.toString());
+    }
+    Assert.assertEquals("Model names should be unique!",grid.getModelCount(),modelNames.size());
+  }
+  finally {
+    if (fr != null) {
+      fr.remove();
+    }
+    if (grid != null) {
+      grid.remove();
+    }
+  }
+}

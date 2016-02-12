@@ -20,6 +20,9 @@
     assertEquals(378.3,residualDeviance(model),1e-1);
     assertEquals(371,resDOF(model),0);
     assertEquals(396.3,aic(model),1e-1);
+    Frame testFr=model.score(fr);
+    model.testJavaScoring(fr,testFr,1e-8);
+    testFr.delete();
     model.delete();
     model.score(fr).delete();
     hex.ModelMetricsBinomial mm=hex.ModelMetricsBinomial.getFromDKV(model,fr);

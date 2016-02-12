@@ -8,11 +8,15 @@
     old=fr.remove("economy");
     fr.add("economy",old);
     DKV.put(fr);
-    HashMap<String,Object[]> hyperParms=new HashMap<>();
-    hyperParms.put("_distribution",new Distribution.Family[]{Distribution.Family.gaussian});
-    hyperParms.put("_ntrees",new Integer[]{5,5});
-    hyperParms.put("_max_depth",new Integer[]{2,2});
-    hyperParms.put("_learn_rate",new Float[]{.1f,.1f});
+    HashMap<String,Object[]> hyperParms=new HashMap<String,Object[]>(){
+{
+        put("_distribution",new Distribution.Family[]{Distribution.Family.gaussian});
+        put("_ntrees",new Integer[]{5,5});
+        put("_max_depth",new Integer[]{2,2});
+        put("_learn_rate",new Float[]{.1f,.1f});
+      }
+    }
+;
     GBMModel.GBMParameters params=new GBMModel.GBMParameters();
     params._train=fr._key;
     params._response_column="economy";
