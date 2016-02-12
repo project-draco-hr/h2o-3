@@ -1,12 +1,4 @@
 def score_history(self):
-    '\n    Retrieve Model Score History\n    \n    Returns\n    -------\n      The score history as an H2OTwoDimTable.\n    '
-    model = self._model_json['output']
-    if (('scoring_history' in list(model.keys())) and (model['scoring_history'] != None)):
-        s = model['scoring_history']
-        if can_use_pandas():
-            import pandas
-            pandas.options.display.max_rows = 20
-            return pandas.DataFrame(s.cell_values, columns=s.col_header)
-        return s
-    else:
-        print('No score history for this model')
+    '\n    Deprecated for scoring_history\n    '
+    warnings.warn('`score_history` is deprecated. Use `scoring_history`', category=DeprecationWarning, stacklevel=2)
+    return self.scoring_history()
