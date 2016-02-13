@@ -9,7 +9,9 @@
   String inter=asts[3].exec(env).getStr();
   parms._combine_method=QuantileModel.CombineMethod.valueOf(inter.toUpperCase());
   parms._weights_column=asts[4].str().equals("_") ? null : asts[4].str();
-  QuantileModel q=new Quantile(parms).trainModel().get();
+  Job j=new Quantile(parms).trainModel();
+  QuantileModel q=(QuantileModel)j.get();
+  DKV.remove(j._key);
   DKV.remove(fr_wkey._key);
   int ncols=fr.numCols();
   if (parms._weights_column != null)   ncols--;
