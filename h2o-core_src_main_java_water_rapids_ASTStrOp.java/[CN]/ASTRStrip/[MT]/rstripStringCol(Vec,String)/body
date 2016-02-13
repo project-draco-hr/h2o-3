@@ -1,0 +1,19 @@
+{
+  final String charSet=set;
+  return new MRTask(){
+    @Override public void map(    Chunk chk,    NewChunk newChk){
+      if (chk instanceof C0DChunk)       for (int i=0; i < chk.len(); i++)       newChk.addNA();
+ else       if (((CStrChunk)chk)._isAllASCII && StringUtils.isAsciiPrintable(charSet)) {
+        ((CStrChunk)chk).asciiRStrip(newChk,charSet);
+      }
+ else {
+        BufferedString tmpStr=new BufferedString();
+        for (int i=0; i < chk.len(); i++) {
+          if (chk.isNA(i))           newChk.addNA();
+ else           newChk.addStr(StringUtils.stripEnd(chk.atStr(tmpStr,i).toString(),charSet));
+        }
+      }
+    }
+  }
+.doAll(new byte[]{Vec.T_STR},vec).outputFrame().anyVec();
+}
