@@ -1,0 +1,19 @@
+{
+  String[] doms=vec.domain().clone();
+  HashMap<String,ArrayList<Integer>> strippedToOldDomainIndices=new HashMap<>();
+  String stripped;
+  for (int i=0; i < doms.length; i++) {
+    stripped=StringUtils.stripStart(doms[i],set);
+    doms[i]=stripped;
+    if (!strippedToOldDomainIndices.containsKey(stripped)) {
+      ArrayList<Integer> val=new ArrayList<>();
+      val.add(i);
+      strippedToOldDomainIndices.put(stripped,val);
+    }
+ else {
+      strippedToOldDomainIndices.get(stripped).add(i);
+    }
+  }
+  if (strippedToOldDomainIndices.size() < doms.length)   return VecUtils.DomainDedupe.domainDeduper(vec,strippedToOldDomainIndices);
+  return vec.makeCopy(doms);
+}
