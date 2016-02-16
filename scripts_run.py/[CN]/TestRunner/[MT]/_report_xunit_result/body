@@ -11,8 +11,17 @@ def _report_xunit_result(self, testsuite_name, testcase_name, testcase_runtime, 
             for each_cloud in self.clouds:
                 java_errors = grab_java_message(each_cloud.nodes, testcase_name)
                 if (len(java_errors) > 0):
+                    if g_use_client:
+                        failure_message += '\n##### Java message from server node #####\n'
                     failure_message += java_errors
                     break
+            if g_use_client:
+                for each_cloud in self.clouds:
+                    java_errors = grab_java_message(each_cloud.client_nodes, testcase_name)
+                    if (len(java_errors) > 0):
+                        failure_message += '\n\n##### Java message from client node #####\n'
+                        failure_message += java_errors
+                        break
             if (len(java_errors) < 1):
                 failure_message += '\n\n###################################################################################\n########### Problems encountered extracting Java messages.  Please alert the QA team. \n###################################################################################\n\n'
             if failure_message:

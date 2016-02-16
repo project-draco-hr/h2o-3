@@ -25,7 +25,7 @@ seEst=true;
 ComputeSETsk ct=new ComputeSETsk(null,_state.activeData(),_job._key,beta,_parms).doAll(_state.activeData()._adaptedFrame);
 se=ct._sumsqe / (_nobs - 1 - _state.activeData().fullN());
 }
-double[] zvalues=new double[_state.activeData().fullN() + 1];
+double[] zvalues=MemoryManager.malloc8d(_state.activeData().fullN() + 1);
 double[] gInvDiag=_chol.getInvDiag();
 for (int i=0; i < zvalues.length; ++i) zvalues[i]=beta[i] / Math.sqrt(_parms._obj_reg * gInvDiag[i] * se);
 _model.setZValues(expandVec(zvalues,_state.activeData()._activeCols,_dinfo.fullN() + 1,Double.NaN),se,seEst);
