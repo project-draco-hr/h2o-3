@@ -1,0 +1,8 @@
+def lstrip(self, set=' '):
+    'Return a copy of the column with leading characters removed.\n    The set argument is a string specifying the set of characters to be removed.\n    If omitted, the set argument defaults to removing whitespace.\n\n    Parameters\n      ----------\n      set : str\n        Set of characters to lstrip from strings in column\n\n    Returns\n    -------\n      H2OFrame with lstripped strings.\n    '
+    if (set is None):
+        set = ' '
+    fr = H2OFrame._expr(expr=ExprNode('lstrip', self, set))
+    fr._ex._cache.nrows = self.nrow
+    fr._ex._cache.ncol = self.ncol
+    return fr
