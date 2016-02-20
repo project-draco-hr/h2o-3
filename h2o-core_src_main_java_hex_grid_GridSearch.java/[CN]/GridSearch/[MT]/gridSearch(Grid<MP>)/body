@@ -34,7 +34,7 @@
           model=buildModel(params,grid,counter++,protoModelKey);
           model.fillScoringInfo(scoringInfo);
           this.scoringInfos=ScoringInfo.prependScoringInfo(scoringInfo,this.scoringInfos);
-          ScoringInfo.sort(this.scoringInfos,ScoreKeeper.StoppingMetric.MSE);
+          ScoringInfo.sort(this.scoringInfos,ScoreKeeper.StoppingMetric.AUTO);
         }
  catch (        RuntimeException e) {
           StringWriter sw=new StringWriter();
@@ -53,6 +53,10 @@
  finally {
         _job.update(1);
         grid.update(_job);
+      }
+      if (ScoringInfo.stopEarly(this.scoringInfos,5,model._output.isClassifier(),ScoreKeeper.StoppingMetric.AUTO,0.01)) {
+        Log.info("Convergence detected based on simple moving average of the loss function for the past " + 5 + " scoring events. Grid building completed.");
+        break;
       }
     }
     Log.info("For grid: " + grid._key + " built: "+ grid.getModelCount()+ " models.");
