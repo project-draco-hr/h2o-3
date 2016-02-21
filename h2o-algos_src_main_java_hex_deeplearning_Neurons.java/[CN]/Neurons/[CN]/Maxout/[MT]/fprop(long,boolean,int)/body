@@ -1,10 +1,10 @@
 {
-  for (int mb=0; mb < n; ++mb) {
-    assert(_b.size() == _a[mb].size() * _k);
-    assert(_w.size() == _a[mb].size() * _previous._a[mb].size() * _k);
-    final int rows=_a[mb].size();
-    double[] channel=new double[_k];
-    for (int row=0; row < rows; row++) {
+  assert(_b.size() == _a[0].size() * _k);
+  assert(_w.size() == _a[0].size() * _previous._a[0].size() * _k);
+  final int rows=_a[0].size();
+  double[] channel=new double[_k];
+  for (int row=0; row < rows; row++) {
+    for (int mb=0; mb < n; ++mb) {
       _a[mb].set(row,0);
       if (!training || _dropout == null || _dropout.unit_active(row)) {
         final int cols=_previous._a[mb].size();
@@ -17,7 +17,7 @@
           channel[k]+=_b.raw()[_k * row + k];
           if (channel[k] > channel[maxK])           maxK=k;
         }
-        _maxIncoming[row]=maxK;
+        _maxIncoming[mb][row]=maxK;
         _a[mb].set(row,channel[maxK]);
       }
     }

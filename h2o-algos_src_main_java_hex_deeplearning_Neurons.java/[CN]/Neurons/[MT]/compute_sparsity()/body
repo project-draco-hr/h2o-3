@@ -1,5 +1,6 @@
 {
   if (_avg_a != null) {
+    if (params._mini_batch_size > 1)     throw H2O.unimpl("Sparsity constraint is not yet implemented for mini-batch size > 1.");
     for (int mb=0; mb < _minfo.get_params()._mini_batch_size; ++mb) {
       for (int row=0; row < _avg_a.size(); row++) {
         _avg_a.set(row,0.999 * (_avg_a.get(row)) + 0.001 * (_a[mb].get(row)));

@@ -17,7 +17,7 @@
     final boolean update_prev=_previous._e != null && _previous._e[mb] != null;
     for (int col=0; col < cols; col++) {
       int w=idx + col;
-      if (_k != 0)       w=_k * w + _maxIncoming[row];
+      if (_k != 0)       w=_k * w + _maxIncoming[mb][row];
       final double weight=_w.raw()[w];
       if (update_prev)       _previous._e[mb].add(col,partial_grad[mb] * weight);
       final double previous_a=_previous._a[mb].get(col);
@@ -54,7 +54,7 @@
       }
     }
   }
-  if (max_w2 != Float.POSITIVE_INFINITY)   rescale_weights(_w,row,max_w2);
+  if (max_w2 != Float.POSITIVE_INFINITY)   for (int mb=0; mb < n; mb++)   rescale_weights(_w,row,max_w2,mb);
   if (have_ada)   avg_grad2/=cols * n;
   for (int mb=0; mb < n; mb++) {
     update_bias(_b,_bEA,_bm,row,partial_grad,avg_grad2,rate,momentum,mb);
