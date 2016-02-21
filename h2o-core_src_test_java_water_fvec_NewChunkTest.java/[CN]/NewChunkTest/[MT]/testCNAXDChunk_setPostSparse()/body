@@ -1,0 +1,32 @@
+{
+  try {
+    pre();
+    double extra=3.5;
+    nc.addNAs(K - 5);
+    nc.addNum(extra);
+    nc.addNAs(2);
+    nc.addZeros(2);
+    assertTrue(nc.isSparseNA());
+    assertEquals(nc._sparseLen,3);
+    assertEquals(nc.sparseLenZero(),K);
+    assertEquals(nc.sparseLenNA(),3);
+    for (int i=0; i < K - 5; i++)     assertEquals(Double.NaN,nc.atd(i),Math.ulp(0));
+    assertEquals(extra,nc.atd(K - 5),Math.ulp(extra));
+    for (int i=K - 4; i < K - 2; i++)     assertEquals(Double.NaN,nc.atd(i),Math.ulp(0));
+    for (int i=K - 2; i < K; i++)     assertEquals(0,nc.atd(i),Math.ulp(0));
+    post();
+    cc.set(K - 3,0);
+    post_write();
+    assertEquals(K,nc._len);
+    assertEquals(0,cc.atd(K - 3),Math.ulp(0));
+    assertTrue(cc.chk2() instanceof CNAXDChunk);
+    for (int i=0; i < K - 5; i++)     assertEquals(Double.NaN,cc.atd(i),Math.ulp(0));
+    assertEquals(extra,cc.atd(K - 5),Math.ulp(extra));
+    assertEquals(Double.NaN,cc.atd(K - 4),Math.ulp(0));
+    for (int i=K - 3; i < K; i++)     assertEquals(0,cc.atd(i),Math.ulp(0));
+    assertEquals(4,cc.chk2().sparseLenNA());
+  }
+  finally {
+    remove();
+  }
+}

@@ -32,7 +32,7 @@
     return this;
   }
   if (min == 0 && max == 1) {
-    int zs=c._len - c.sparseLen();
+    int zs=c._len - c.sparseLenZero();
     int nans=0;
     for (int i=c.nextNZ(-1); i < c._len; i=c.nextNZ(i))     if (c.isNA(i))     nans++;
  else     if (c.at8(i) == 0)     zs++;
@@ -85,8 +85,8 @@
  else     if (c instanceof C8Chunk)     checksum=new RollupStatsHelpers(this).numericChunkRollup((C8Chunk)c,start,checksum);
  else     if (c instanceof C8DChunk)     checksum=new RollupStatsHelpers(this).numericChunkRollup((C8DChunk)c,start,checksum);
  else     checksum=new RollupStatsHelpers(this).numericChunkRollup(c,start,checksum);
-    if (c.isSparse()) {
-      int zeros=c._len - c.sparseLen();
+    if (c.isSparseZero()) {
+      int zeros=c._len - c.sparseLenZero();
       if (zeros > 0) {
         for (int i=0; i < Math.min(_mins.length,zeros); i++) {
           min(0);
