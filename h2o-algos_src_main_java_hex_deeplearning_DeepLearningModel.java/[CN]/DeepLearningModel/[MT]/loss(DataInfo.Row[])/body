@@ -2,30 +2,38 @@
   double loss=0;
   Neurons[] neurons=DeepLearningTask.makeNeuronsForTraining(model_info());
   final double prefactor=_parms._distribution == Distribution.Family.laplace || _parms._distribution == Distribution.Family.quantile ? 1 : 0.5;
-  for (  DataInfo.Row myRow : myRows) {
+  long seed=-1;
+  double[] responses=new double[myRows.length];
+  double[] offsets=new double[myRows.length];
+  for (int mb=0; mb < myRows.length; ++mb) {
+    DataInfo.Row myRow=myRows[mb];
     if (myRow == null)     continue;
-    long seed=-1;
+    ((Neurons.Input)neurons[0]).setInput(seed,myRow.numIds,myRow.numVals,myRow.nBins,myRow.binIds,mb);
+    responses[mb]=myRow.response(0);
+    offsets[mb]=myRow.offset;
     for (int i=0; i < neurons.length - 1; ++i) {
-      Storage.DenseVector e=neurons[i]._e;
+      Storage.DenseVector e=neurons[i]._e == null ? null : neurons[i]._e[mb];
       if (e == null)       continue;
       assert(ArrayUtils.sum(e.raw()) == 0);
     }
-    ((Neurons.Input)neurons[0]).setInput(seed,myRow.numIds,myRow.numVals,myRow.nBins,myRow.binIds);
-    DeepLearningTask.step(seed,neurons,model_info(),null,false,null,myRow.offset);
+  }
+  DeepLearningTask.fpropMiniBatch(seed,neurons,model_info(),null,false,responses,offsets,myRows.length);
+  for (int mb=0; mb < myRows.length; ++mb) {
+    DataInfo.Row myRow=myRows[mb];
     for (int i=0; i < neurons.length - 1; ++i) {
-      Storage.DenseVector e=neurons[i]._e;
+      Storage.DenseVector e=neurons[i]._e == null ? null : neurons[i]._e[mb];
       if (e == null)       continue;
       assert(ArrayUtils.sum(e.raw()) == 0);
     }
     if (get_params()._loss == DeepLearningParameters.Loss.CrossEntropy) {
       if (_parms._balance_classes)       throw H2O.unimpl();
       int actual=(int)myRow.response[0];
-      double pred=neurons[neurons.length - 1]._a.get(actual);
+      double pred=neurons[neurons.length - 1]._a[mb].get(actual);
       loss+=-Math.log(Math.max(1e-15,pred));
     }
  else {
       if (model_info.get_params()._autoencoder)       throw H2O.unimpl();
-      double pred=neurons[neurons.length - 1]._a.get(0);
+      double pred=neurons[neurons.length - 1]._a[mb].get(0);
       double actual=myRow.response[0];
       Distribution dist=new Distribution(model_info.get_params());
       pred=dist.linkInv(pred);

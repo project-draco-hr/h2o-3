@@ -38,6 +38,9 @@
     for (int i=0; i < nrows; ++i)     shufIdx[i]=i;
     ArrayUtils.shuffleArray(shufIdx,skip_rng);
   }
+  double[] responses=new double[getMiniBatchSize()];
+  double[] offsets=new double[getMiniBatchSize()];
+  long seed=0;
   final int miniBatchSize=getMiniBatchSize();
   long num_processed_rows=0;
   long num_skipped_rows=0;
@@ -70,19 +73,33 @@
       }
  else {
         assert(row.weight > 0);
-        long seed=offset + rep * nrows + r;
-        miniBatchCounter++;
-        if (outputs != null && outputs.length > 0)         processRow(seed,row,outputs);
- else         processRow(seed,row);
+        seed=offset + rep * nrows + r;
+        if (outputs != null && outputs.length > 0) {
+          assert(miniBatchSize == 0);
+          processRow(seed,row,outputs);
+        }
+ else {
+          if (miniBatchSize > 0) {
+            processRow(seed,row,miniBatchCounter);
+            responses[miniBatchCounter]=row.response != null && row.response.length > 0 ? row.response(0) : 0;
+            offsets[miniBatchCounter]=row.offset;
+            miniBatchCounter++;
+          }
+ else           processRow(seed,row);
+        }
       }
       num_processed_rows++;
       if (miniBatchCounter > 0 && miniBatchCounter % miniBatchSize == 0) {
-        applyMiniBatchUpdate(miniBatchCounter);
+        processMiniBatch(seed,responses,offsets,miniBatchCounter);
         miniBatchCounter=0;
+        Arrays.fill(responses,0);
+        Arrays.fill(offsets,0);
       }
     }
   }
-  if (miniBatchCounter > 0)   applyMiniBatchUpdate(miniBatchCounter);
+  if (miniBatchCounter > 0) {
+    processMiniBatch(seed,responses,offsets,miniBatchCounter);
+  }
   assert(fraction != 1 || num_processed_rows + num_skipped_rows == repeats * nrows);
   chunkDone(num_processed_rows);
 }

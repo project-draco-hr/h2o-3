@@ -1,12 +1,14 @@
 {
+  int mb=0;
+  int n=1;
   if (model_info().isUnstable()) {
     Log.err(unstable_msg);
     throw new UnsupportedOperationException(unstable_msg);
   }
   Neurons[] neurons=DeepLearningTask.makeNeuronsForTesting(model_info);
-  ((Neurons.Input)neurons[0]).setInput(-1,data);
-  DeepLearningTask.step(-1,neurons,model_info,null,false,null,offset);
-  double[] out=neurons[neurons.length - 1]._a.raw();
+  ((Neurons.Input)neurons[0]).setInput(-1,data,mb);
+  DeepLearningTask.fpropMiniBatch(-1,neurons,model_info,null,false,null,new double[]{offset},n);
+  double[] out=neurons[neurons.length - 1]._a[mb].raw();
   if (_output.isClassifier()) {
     assert(preds.length == out.length + 1);
     for (int i=0; i < preds.length - 1; ++i) {

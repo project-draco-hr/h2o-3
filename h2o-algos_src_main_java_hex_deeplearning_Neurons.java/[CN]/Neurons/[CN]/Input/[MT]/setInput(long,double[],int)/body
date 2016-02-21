@@ -1,0 +1,27 @@
+{
+  assert(_dinfo != null);
+  double[] nums=MemoryManager.malloc8d(_dinfo._nums);
+  int[] cats=MemoryManager.malloc4(_dinfo._cats);
+  int i=0, ncats=0;
+  for (; i < _dinfo._cats; ++i) {
+    assert(_dinfo._catMissing[i]);
+    if (Double.isNaN(data[i])) {
+      cats[ncats]=(_dinfo._catOffsets[i + 1] - 1);
+    }
+ else {
+      int c=(int)data[i];
+      if (_dinfo._useAllFactorLevels)       cats[ncats]=c + _dinfo._catOffsets[i];
+ else       if (c != 0)       cats[ncats]=c + _dinfo._catOffsets[i] - 1;
+      if (cats[ncats] >= _dinfo._catOffsets[i + 1]) {
+        cats[ncats]=(_dinfo._catOffsets[i + 1] - 1);
+      }
+    }
+    ncats++;
+  }
+  for (; i < data.length; ++i) {
+    double d=data[i];
+    if (_dinfo._normMul != null)     d=(d - _dinfo._normSub[i - _dinfo._cats]) * _dinfo._normMul[i - _dinfo._cats];
+    nums[i - _dinfo._cats]=d;
+  }
+  setInput(seed,null,nums,ncats,cats,mb);
+}
