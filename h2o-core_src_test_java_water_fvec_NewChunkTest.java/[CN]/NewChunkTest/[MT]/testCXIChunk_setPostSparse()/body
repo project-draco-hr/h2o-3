@@ -1,0 +1,33 @@
+{
+  try {
+    pre();
+    double extra=3.5;
+    nc.addZeros(K - 5);
+    nc.addNum(extra);
+    nc.addNum(0);
+    nc.addNA();
+    nc.addZeros(2);
+    assertTrue(nc.isSparseZero());
+    assertEquals(nc._sparseLen,2);
+    assertEquals(nc.sparseLenZero(),2);
+    assertEquals(nc.sparseLenNA(),K);
+    for (int i=0; i < K - 5; i++)     assertEquals(0,nc.atd(0),Math.ulp(0));
+    assertEquals(extra,nc.atd(K - 5),Math.ulp(extra));
+    assertEquals(0,nc.atd(K - 4),Math.ulp(0));
+    assertEquals(Double.NaN,nc.atd(K - 3),Math.ulp(Double.NaN));
+    for (int i=K - 2; i < K; i++)     assertEquals(0,nc.atd(i),Math.ulp(0));
+    post();
+    cc.set(K - 5,0);
+    post_write();
+    assertEquals(K,nc._len);
+    assertEquals(0,cc.atd(K - 5),Math.ulp(0));
+    assertTrue(cc.chk2() instanceof CXIChunk);
+    for (int i=0; i < K - 3; i++)     assertEquals(0,cc.atd(i),Math.ulp(0));
+    assertEquals(Double.NaN,cc.atd(K - 3),Math.ulp(Double.NaN));
+    for (int i=K - 2; i < K; i++)     assertEquals(0,cc.atd(i),Math.ulp(0));
+    assertEquals(1,cc.chk2().sparseLenZero());
+  }
+  finally {
+    remove();
+  }
+}
