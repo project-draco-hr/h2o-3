@@ -1,15 +1,14 @@
 {
-  if (_con != 0) {
+  if (_con == 0) {
+    nc.set_len(nc.set_sparseLen(0));
+    nc.set_sparse(0,NewChunk.Compress.ZERO);
+    nc.addZeros(_len);
+  }
+ else {
     nc.alloc_mantissa(_len);
     Arrays.fill(nc.mantissa(),_con);
     nc.alloc_exponent(_len);
     nc.set_len(nc.set_sparseLen(_len));
-  }
- else {
-    nc.set_len(nc.set_sparseLen(0));
-    nc.set_sparse(0);
-    nc.addZeros(_len);
-    assert(nc.sparseLen() == 0);
   }
   return nc;
 }

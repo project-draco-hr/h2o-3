@@ -1,11 +1,11 @@
 {
   final int lId, gId;
   final int to=Math.min(toIdx,_len);
-  if (sparse()) {
-    int x=Arrays.binarySearch(_id,0,sparseLen(),fromIdx);
+  if (_id != null) {
+    int x=Arrays.binarySearch(_id,0,_sparseLen,fromIdx);
     if (x < 0)     x=-x - 1;
     lId=x;
-    gId=x == sparseLen() ? _len : _id[x];
+    gId=x == _sparseLen ? _len : _id[x];
   }
  else   lId=gId=fromIdx;
   final Value v=new Value(lId,gId);
@@ -19,7 +19,7 @@
       v._gId=next._gId;
       v._lId=next._lId;
       next._lId++;
-      if (sparse())       next._gId=next._lId < sparseLen() ? _id[next._lId] : _len;
+      if (_id != null)       next._gId=next._lId < _sparseLen ? _id[next._lId] : _len;
  else       next._gId++;
       return v;
     }

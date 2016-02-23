@@ -8,6 +8,7 @@
     for (int j=0; j < tgtChunks.length; ++j)     tgtChunks[j]=new NewChunk(tgt.vec(j + colStart),fi);
     for (int c=((int)espc[fi]); c < (int)espc[fi + 1]; ++c) {
       NewChunk nc=chks[c].inflate();
+      if (nc.isSparseNA())       nc.cancel_sparse();
       Iterator<Value> it=nc.values();
       while (it.hasNext()) {
         Value v=it.next();
