@@ -1,0 +1,12 @@
+{
+  for (int mb=0; mb < n; ++mb)   gemv(_a[mb],_w,_previous._a[mb],_b,_dropout != null ? _dropout.bits() : null);
+  final int rows=_a[0].size();
+  for (int row=0; row < rows; row++) {
+    for (int mb=0; mb < n; ++mb) {
+      double x=_a[mb].get(row);
+      double val=x >= 0 ? x : Math.exp(x) - 1;
+      _a[mb].set(row,val);
+    }
+  }
+  compute_sparsity();
+}

@@ -1,10 +1,11 @@
 {
-  if (_len != sparseLen()) {
-    int idx=Arrays.binarySearch(_id,0,sparseLen(),i);
+  if (_len != _sparseLen) {
+    int idx=Arrays.binarySearch(_id,0,_sparseLen,i);
     if (idx >= 0)     i=idx;
- else     return 0;
+ else {
+      if (_sparseNA)       throw new RuntimeException("Attempting to access NA as integer value.");
+      return 0;
+    }
   }
-  if (isNA2(i))   throw new RuntimeException("Attempting to access NA as integer value.");
-  if (_ls == null)   return (long)_ds[i];
-  return _ls[i] * PrettyPrint.pow10i(_xs[i]);
+  return at8_impl2(i);
 }

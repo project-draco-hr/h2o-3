@@ -1,15 +1,19 @@
 {
-  if (sparseLen() != _len) {
+  if (_sparseLen != _len) {
     if (_is != null) {
       int[] is=MemoryManager.malloc4(_len);
-      for (int i=0; i < _len; i++)       is[i]=-1;
-      for (int i=0; i < sparseLen(); i++)       is[_id[i]]=_is[i];
+      Arrays.fill(is,-1);
+      for (int i=0; i < _sparseLen; i++)       is[_id[i]]=_is[i];
       _is=is;
     }
  else     if (_ds == null) {
       int[] xs=MemoryManager.malloc4(_len);
       long[] ls=MemoryManager.malloc8(_len);
-      for (int i=0; i < sparseLen(); ++i) {
+      if (_sparseNA) {
+        Arrays.fill(xs,Integer.MIN_VALUE);
+        Arrays.fill(ls,Long.MAX_VALUE);
+      }
+      for (int i=0; i < _sparseLen; ++i) {
         xs[_id[i]]=_xs[i];
         ls[_id[i]]=_ls[i];
       }
@@ -18,10 +22,12 @@
     }
  else {
       double[] ds=MemoryManager.malloc8d(_len);
-      for (int i=0; i < sparseLen(); ++i)       ds[_id[i]]=_ds[i];
+      if (_sparseNA)       Arrays.fill(ds,Double.NaN);
+      for (int i=0; i < _sparseLen; ++i)       ds[_id[i]]=_ds[i];
       _ds=ds;
     }
     set_sparseLen(_len);
   }
   _id=null;
+  _sparseNA=false;
 }

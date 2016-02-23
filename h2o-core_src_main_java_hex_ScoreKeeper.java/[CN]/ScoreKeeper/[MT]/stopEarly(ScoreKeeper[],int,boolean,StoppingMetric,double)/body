@@ -1,0 +1,60 @@
+{
+  if (k == 0)   return false;
+  int len=sk.length - 1;
+  if (len < 2 * k)   return false;
+  if (criterion == StoppingMetric.AUTO) {
+    criterion=classification ? StoppingMetric.logloss : StoppingMetric.deviance;
+  }
+  boolean moreIsBetter=moreIsBetter(criterion);
+  double movingAvg[]=new double[k + 1];
+  double lastBeforeK=moreIsBetter ? -Double.MAX_VALUE : Double.MAX_VALUE;
+  double bestInLastK=moreIsBetter ? -Double.MAX_VALUE : Double.MAX_VALUE;
+  for (int i=0; i < movingAvg.length; ++i) {
+    movingAvg[i]=0;
+    int startIdx=sk.length - 2 * k + i;
+    for (int j=0; j < k; ++j) {
+      ScoreKeeper skj=sk[startIdx + j];
+      double val;
+switch (criterion) {
+case AUC:
+        val=skj._AUC;
+      break;
+case MSE:
+    val=skj._mse;
+  break;
+case deviance:
+val=skj._mean_residual_deviance;
+break;
+case logloss:
+val=skj._logloss;
+break;
+case r2:
+val=skj._r2;
+break;
+case misclassification:
+val=skj._classError;
+break;
+case lift_top_group:
+val=skj._lift;
+break;
+default :
+throw H2O.unimpl("Undefined stopping criterion.");
+}
+movingAvg[i]+=val;
+}
+movingAvg[i]/=k;
+if (Double.isNaN(movingAvg[i])) return false;
+if (i == 0) lastBeforeK=movingAvg[i];
+ else bestInLastK=moreIsBetter ? Math.max(movingAvg[i],bestInLastK) : Math.min(movingAvg[i],bestInLastK);
+}
+if (Math.signum(ArrayUtils.maxValue(movingAvg)) != Math.signum(ArrayUtils.minValue(movingAvg))) return false;
+if (Math.signum(bestInLastK) != Math.signum(lastBeforeK)) return false;
+assert(lastBeforeK != Double.MAX_VALUE);
+assert(bestInLastK != Double.MAX_VALUE);
+Log.info("Moving averages (length " + k + ") of last "+ (k + 1)+ " "+ criterion.toString()+ " metrics: "+ Arrays.toString(movingAvg));
+double ratio=bestInLastK / lastBeforeK;
+if (Double.isNaN(ratio)) return false;
+boolean improved=moreIsBetter ? ratio > 1 + rel_improvement : ratio < 1 - rel_improvement;
+Log.info("Checking model convergence with " + criterion.toString() + " metric: "+ lastBeforeK+ " --> "+ bestInLastK+ (improved ? " (still improving)." : " (converged)."));
+return !improved;
+}

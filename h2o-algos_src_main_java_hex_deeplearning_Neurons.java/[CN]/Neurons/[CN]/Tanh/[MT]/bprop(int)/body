@@ -1,0 +1,11 @@
+{
+  assert(_index < _minfo.get_params()._hidden.length);
+  float m=_minfo.adaDelta() ? 0 : momentum();
+  float r=_minfo.adaDelta() ? 0 : rate(_minfo.get_processed_total()) * (1f - m);
+  final int rows=_a[0].size();
+  double[] g=new double[n];
+  for (int row=0; row < rows; row++) {
+    for (int mb=0; mb < n; ++mb)     g[mb]=_e[mb].get(row) * (1 - _a[mb].get(row) * _a[mb].get(row));
+    bprop(row,g,r,m,n);
+  }
+}

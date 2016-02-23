@@ -1,0 +1,11 @@
+{
+  assert(_training);
+  if (_localmodel.get_params()._reproducible) {
+    seed+=_localmodel.get_processed_global();
+  }
+ else {
+    seed=_dropout_rng.nextLong();
+  }
+  fpropMiniBatch(seed,_neurons,_localmodel,_localmodel.get_params()._elastic_averaging ? _sharedmodel : null,_training,responses,offsets,n);
+  bpropMiniBatch(_neurons,n);
+}

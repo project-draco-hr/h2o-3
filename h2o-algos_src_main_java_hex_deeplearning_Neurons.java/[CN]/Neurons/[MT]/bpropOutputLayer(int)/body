@@ -1,0 +1,12 @@
+{
+  assert(_index == params._hidden.length);
+  assert(_a.length == params._mini_batch_size);
+  final int rows=_a[0].size();
+  float m=_minfo.adaDelta() ? 0 : momentum();
+  float r=_minfo.adaDelta() ? 0 : rate(_minfo.get_processed_total()) * (1f - m);
+  for (int row=0; row < rows; row++) {
+    double[] g=new double[n];
+    for (int mb=0; mb < n; ++mb)     g[mb]=_e[mb].raw()[row];
+    bprop(row,g,r,m,n);
+  }
+}

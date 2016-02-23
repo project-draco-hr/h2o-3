@@ -1,0 +1,11 @@
+{
+  neurons[neurons.length - 1].bpropOutputLayer(n);
+  for (int i=neurons.length - 2; i > 0; --i)   neurons[i].bprop(n);
+  for (int mb=0; mb < n; ++mb) {
+    for (int i=0; i < neurons.length; ++i) {
+      Storage.DenseVector e=neurons[i]._e == null ? null : neurons[i]._e[mb];
+      if (e == null)       continue;
+      Arrays.fill(e.raw(),0);
+    }
+  }
+}

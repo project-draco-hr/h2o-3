@@ -5,12 +5,15 @@
   params._rate*=Math.pow(params._rate_decay,index - 1);
   params._distribution=minfo.get_params()._distribution;
   _dist=new Distribution(params);
-  _a=new Storage.DenseVector(units);
+  _a=new Storage.DenseVector[params._mini_batch_size];
+  for (int mb=0; mb < _a.length; ++mb)   _a[mb]=new Storage.DenseVector(units);
   if (!(this instanceof Input)) {
-    _e=new Storage.DenseVector(units);
+    _e=new Storage.DenseVector[params._mini_batch_size];
+    for (int mb=0; mb < _e.length; ++mb)     _e[mb]=new Storage.DenseVector(units);
   }
  else   if (params._autoencoder && params._input_dropout_ratio > 0) {
-    _origa=new Storage.DenseVector(units);
+    _origa=new Storage.DenseVector[params._mini_batch_size];
+    for (int mb=0; mb < _origa.length; ++mb)     _origa[mb]=new Storage.DenseVector(units);
   }
   if (training && (this instanceof MaxoutDropout || this instanceof TanhDropout || this instanceof RectifierDropout|| this instanceof ExpRectifierDropout|| this instanceof Input)) {
     _dropout=this instanceof Input ? (params._input_dropout_ratio == 0 ? null : new Dropout(units,params._input_dropout_ratio)) : new Dropout(units,params._hidden_dropout_ratios[_index]);

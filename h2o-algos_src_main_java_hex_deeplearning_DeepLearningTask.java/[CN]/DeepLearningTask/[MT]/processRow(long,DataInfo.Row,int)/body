@@ -1,0 +1,10 @@
+{
+  if (_localmodel.get_params()._reproducible) {
+    seed+=_localmodel.get_processed_global();
+  }
+ else {
+    seed=_dropout_rng.nextLong();
+  }
+  _localmodel.checkMissingCats(r.binIds);
+  ((Neurons.Input)_neurons[0]).setInput(seed,r.isSparse() ? r.numIds : null,r.numVals,r.nBins,r.binIds,mb);
+}

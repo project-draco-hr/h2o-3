@@ -1,0 +1,15 @@
+{
+  for (int mb=0; mb < n; ++mb)   gemv(_a[mb],_w,_previous._a[mb],_b,null);
+  for (int mb=0; mb < n; ++mb) {
+    final double max=ArrayUtils.maxValue(_a[mb].raw());
+    double scaling=0;
+    final int rows=_a[mb].size();
+    for (int row=0; row < rows; row++) {
+      _a[mb].set(row,Math.exp(_a[mb].get(row) - max));
+      scaling+=_a[mb].get(row);
+    }
+    for (int row=0; row < rows; row++) {
+      _a[mb].raw()[row]/=scaling;
+    }
+  }
+}

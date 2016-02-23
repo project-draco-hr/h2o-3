@@ -1,0 +1,11 @@
+{
+  if (training) {
+    seed+=params._seed + 0x51C8D00D;
+    _dropout.fillBytes(seed);
+    super.fprop(seed,true,n);
+  }
+ else {
+    super.fprop(seed,false,n);
+    for (int mb=0; mb < n; ++mb)     ArrayUtils.mult(_a[mb].raw(),1 - params._hidden_dropout_ratios[_index]);
+  }
+}

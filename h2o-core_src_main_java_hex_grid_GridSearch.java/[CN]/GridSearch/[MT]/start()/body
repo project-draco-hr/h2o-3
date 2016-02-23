@@ -21,7 +21,8 @@
   if (gridSize > 0) {
     while (it.hasNext(model)) {
       try {
-        gridWork+=it.nextModelParameters(model).progressUnits();
+        Model.Parameters parms=it.nextModelParameters(model);
+        gridWork+=(parms._nfolds > 1 ? (parms._nfolds + 2) : 1) * parms.progressUnits();
       }
  catch (      Throwable ex) {
       }

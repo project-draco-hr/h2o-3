@@ -47,7 +47,8 @@
     scoringInfo.training_samples=(double)model_info().get_processed_total();
     scoringInfo.validation=fTest != null;
     scoringInfo.score_training_samples=fTrain.numRows();
-    scoringInfo.classification=_output.isClassifier();
+    scoringInfo.is_classification=_output.isClassifier();
+    scoringInfo.is_autoencoder=_output.isAutoencoder();
     if (get_params()._autoencoder) {
       if (printme)       Log.info("Scoring the auto-encoder.");
 {
@@ -152,7 +153,7 @@
       }
       if (!_parms._quiet_mode)       Log.info("Writing weights and biases to Frames took " + t.time() / 1000. + " seconds.");
     }
-    _output._scoring_history=DeepLearningScoringInfo.createScoringHistoryTable(this.scoringInfo,get_params(),_output);
+    _output._scoring_history=DeepLearningScoringInfo.createScoringHistoryTable(this.scoringInfo,(null != get_params()._valid),_output.getModelCategory(),_output.isAutoencoder());
     _output._variable_importances=calcVarImp(last_scored().variable_importances);
     _output._model_summary=model_info.createSummaryTable();
     if (!finalScoring) {
@@ -165,7 +166,7 @@
         Log.info("Achieved requested predictive accuracy on the training data. Model building completed.");
         stopped_early=true;
       }
-      if (ScoreKeeper.earlyStopping(scoreKeepers(),get_params()._stopping_rounds,_output.isClassifier(),get_params()._stopping_metric,get_params()._stopping_tolerance)) {
+      if (ScoreKeeper.stopEarly(ScoringInfo.scoreKeepers(scoring_history()),get_params()._stopping_rounds,_output.isClassifier(),get_params()._stopping_metric,get_params()._stopping_tolerance)) {
         Log.info("Convergence detected based on simple moving average of the loss function for the past " + get_params()._stopping_rounds + " scoring events. Model building completed.");
         stopped_early=true;
       }
