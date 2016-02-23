@@ -1,26 +1,2 @@
 {
-  LineSearchSolver ls=(_state.l1pen() == 0 && !_state.activeBC().hasBounds()) ? new MoreThuente(_state.gslvr(),_state.beta(),_state.ginfo()) : new SimpleBacktrackingLS(_state.gslvr(),_state.beta().clone(),_state.l1pen(),_state.ginfo());
-  GLMWeightsFun glmw=new GLMWeightsFun(_parms);
-  try {
-    while (true) {
-      long t1=System.currentTimeMillis();
-      GLMIterationTask t=new GLMTask.GLMIterationTask(_job._key,_state.activeData(),glmw,ls.getX()).doAll(_state.activeData()._adaptedFrame);
-      long t2=System.currentTimeMillis();
-      double[] betaCnd=_parms._solver == Solver.COORDINATE_DESCENT ? COD_solve(t,_state._alpha,_state.lambda()) : solveGram(t._gram,t._xy);
-      if (betaCnd.length < ls.getX().length) {
-        ls=(_state.l1pen() == 0 && !_state.activeBC().hasBounds()) ? new MoreThuente(_state.gslvr(),_state.beta(),_state.ginfo()) : new SimpleBacktrackingLS(_state.gslvr(),_state.beta().clone(),_state.l1pen(),_state.ginfo());
-      }
-      long t3=System.currentTimeMillis();
-      if (!ls.evaluate(ArrayUtils.subtract(betaCnd,ls.getX(),betaCnd))) {
-        Log.info(LogMsg("Ls failed " + ls));
-        break;
-      }
-      long t4=System.currentTimeMillis();
-      if (!progress(ls.getX(),ls.ginfo()))       break;
-      Log.info(LogMsg("computed in " + (t2 - t1) + "+"+ (t3 - t2)+ "+"+ (t4 - t3)+ "="+ (t4 - t1)+ "ms, step = "+ ls.step()+ ((_lslvr != null) ? ", l1solver " + _lslvr : "")));
-    }
-  }
- catch (  NonSPDMatrixException e) {
-    Log.warn(LogMsg("Got Non SPD matrix, stopped."));
-  }
 }

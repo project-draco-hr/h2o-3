@@ -1,0 +1,13 @@
+{
+  if (anyVec() == null)   return f.vecs();
+  Vec v1=anyVec();
+  Vec v2=f.anyVec();
+  if (v1.length() != v2.length())   throw new IllegalArgumentException("Can not make vectors of different length compatible!");
+  if (v2 == null || (!force && v1.checkCompatible(v2)))   return f.vecs();
+  Key k=Key.make();
+  H2O.submitTask(new RebalanceDataSet(this,f,k)).join();
+  Frame f2=(Frame)k.get();
+  DKV.remove(k);
+  for (  Vec v : f2.vecs())   Scope.track(v);
+  return f2.vecs();
+}

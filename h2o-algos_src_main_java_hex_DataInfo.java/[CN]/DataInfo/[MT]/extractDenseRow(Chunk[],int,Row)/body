@@ -13,17 +13,8 @@
   }
   int nbins=0;
   for (int i=0; i < _cats; ++i) {
-    if (chunks[i].isNA(rid)) {
-      if (_imputeMissing) {
-        int c=getCategoricalId(i,_catModes[i]);
-        if (c >= 0)         row.binIds[nbins++]=c;
-      }
- else       if (_catMissing[i])       row.binIds[nbins++]=_catOffsets[i + 1] - 1;
-    }
- else {
-      int c=getCategoricalId(i,(int)chunks[i].at8(rid));
-      if (c >= 0)       row.binIds[nbins++]=c;
-    }
+    int cid=getCategoricalId(i,chunks[i].isNA(rid) ? _catModes[i] : (int)chunks[i].at8(rid));
+    if (cid >= 0)     row.binIds[nbins++]=cid;
   }
   row.nBins=nbins;
   final int n=_nums;
