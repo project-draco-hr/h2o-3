@@ -9,17 +9,8 @@
   }
   int nbins=0;
   for (int i=0; i < _cats; ++i) {
-    if (Double.isNaN(vals[i])) {
-      if (_imputeMissing) {
-        int c=getCategoricalId(i,_catModes[i]);
-        if (c >= 0)         row.binIds[nbins++]=c;
-      }
- else       if (_catMissing[i])       row.binIds[nbins++]=_catOffsets[i + 1] - 1;
-    }
- else {
-      int c=getCategoricalId(i,(int)vals[i]);
-      if (c >= 0)       row.binIds[nbins++]=c;
-    }
+    int c=getCategoricalId(i,Double.isNaN(vals[i]) ? _catModes[i] : (int)vals[i]);
+    if (c >= 0)     row.binIds[nbins++]=c;
   }
   row.nBins=nbins;
   final int n=_nums;

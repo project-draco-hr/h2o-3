@@ -3,7 +3,7 @@
   final DeepLearningParameters params=minfo.get_params();
   final int[] h=params._hidden;
   Neurons[] neurons=new Neurons[h.length + 2];
-  neurons[0]=new Neurons.Input(minfo.units[0],dinfo);
+  neurons[0]=new Neurons.Input(params,minfo.units[0],dinfo);
   for (int i=0; i < h.length + (params._autoencoder ? 1 : 0); i++) {
     int n=params._autoencoder && i == h.length ? minfo.units[0] : h[i];
 switch (params._activation) {
@@ -20,10 +20,10 @@ case RectifierWithDropout:
 neurons[i + 1]=params._autoencoder && i == h.length ? new Neurons.Rectifier(n) : new Neurons.RectifierDropout(n);
 break;
 case Maxout:
-neurons[i + 1]=new Neurons.Maxout((short)2,n);
+neurons[i + 1]=new Neurons.Maxout(params,(short)2,n);
 break;
 case MaxoutWithDropout:
-neurons[i + 1]=params._autoencoder && i == h.length ? new Neurons.Maxout((short)2,n) : new Neurons.MaxoutDropout((short)2,n);
+neurons[i + 1]=params._autoencoder && i == h.length ? new Neurons.Maxout(params,(short)2,n) : new Neurons.MaxoutDropout(params,(short)2,n);
 break;
 case ExpRectifier:
 neurons[i + 1]=new Neurons.ExpRectifier(n);

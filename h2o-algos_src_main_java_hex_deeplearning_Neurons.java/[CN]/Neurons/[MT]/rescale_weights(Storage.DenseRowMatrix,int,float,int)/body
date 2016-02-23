@@ -1,0 +1,19 @@
+{
+  final int cols=_previous._a[0].size();
+  int start;
+  int end;
+  if (_k != 0) {
+    start=_k * (row * cols) + _maxIncoming[mb][row];
+    end=_k * (row * cols + (cols - 1)) + _maxIncoming[mb][row];
+  }
+ else {
+    if (mb > 0)     return;
+    start=row * cols;
+    end=row * cols + cols;
+  }
+  float r2=MathUtils.sumSquares(w.raw(),start,end);
+  if (r2 > max_w2) {
+    final float scale=MathUtils.approxSqrt(max_w2 / r2);
+    for (int c=start; c < end; c++)     w.raw()[c]*=scale;
+  }
+}
