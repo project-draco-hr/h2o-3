@@ -1,0 +1,12 @@
+def extract_job_build_url(url_string):
+    '\n    From user input, grab the jenkins job name and saved it in g_failed_test_info_dict.\n    In addition, it will grab the jenkins url and the view name into g_jenkins_url, and\n    g_view_name.\n\n    Parameters\n    ----------\n    url_string :  str\n        contains information on the jenkins job whose console output we are interested in.\n\n    :return: none\n    '
+    global g_failed_test_info_dict
+    global g_jenkins_url
+    global g_view_name
+    tempString = url_string.strip('/').split('/')
+    if (len(tempString) < 6):
+        print 'Illegal URL resource address.\n'
+        sys.exit(1)
+    g_failed_test_info_dict['1.jobName'] = tempString[6]
+    g_jenkins_url = tempString[2]
+    g_view_name = tempString[4]

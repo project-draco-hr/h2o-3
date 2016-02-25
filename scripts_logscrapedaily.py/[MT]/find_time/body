@@ -1,0 +1,11 @@
+def find_time(each_line, temp_func_list):
+    '\n    calculate the approximate date/time from the timestamp about when the job\n    was built.  This information was then saved in dict g_failed_test_info_dict.\n    In addition, it will delete this particular function handle off the temp_func_list\n    as we do not need to perform this action again.\n\n    Parameters\n    ----------\n\n    each_line :  str\n        contains a line read in from jenkins console\n    temp_func_list :  list of Python function handles\n        contains a list of functions that we want to invoke to extract information from\n        the Jenkins console text.\n\n    :return: bool to determine if text mining should continue on the jenkins console text\n    '
+    global g_weekdays
+    global g_months
+    global g_failed_test_info_dict
+    temp_strings = each_line.strip().split()
+    if (len(temp_strings) > 2):
+        if (((temp_strings[0] in g_weekdays) or (temp_strings[1] in g_weekdays)) and ((temp_strings[1] in g_months) or (temp_strings[2] in g_months))):
+            g_failed_test_info_dict['3.timestamp'] = each_line.strip()
+            temp_func_list.remove(find_time)
+    return True
