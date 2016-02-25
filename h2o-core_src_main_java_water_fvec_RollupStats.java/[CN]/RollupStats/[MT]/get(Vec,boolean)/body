@@ -6,7 +6,13 @@
   while (rs == null || (!rs.isReady() || (computeHisto && !rs.hasHisto()))) {
     if (rs != null && rs.isMutating())     throw new IllegalArgumentException("Can not compute rollup stats while vec is being modified. (1)");
     try {
-      RPC.call(rskey.home_node(),new ComputeRollupsTask(vec,computeHisto)).get();
+      RPC rpcNew=new RPC(rskey.home_node(),new ComputeRollupsTask(vec,computeHisto));
+      RPC rpcOld=_pendingRollups.putIfAbsent(rskey,rpcNew);
+      if (rpcOld == null) {
+        rpcNew.call().get();
+        _pendingRollups.remove(rskey);
+      }
+ else       rpcOld.get();
     }
  catch (    Throwable t) {
       System.err.println("Remote rollups failed with an exception, wrapping and rethrowing: " + t);
