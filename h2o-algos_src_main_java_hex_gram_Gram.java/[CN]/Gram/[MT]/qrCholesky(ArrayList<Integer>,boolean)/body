@@ -8,12 +8,12 @@
     for (int l=0; l <= j; ++l)     gamma[l]=Z[j][l] * ZdiagInv[l];
     double zjj=Z[j][j];
     for (int k=0; k < j; ++k)     zjj+=gamma[k] * (gamma[k] * Z[k][k] - 2 * Z[j][k]);
-    ZdiagInv[j]=1. / zjj;
-    if (zjj < f_eps) {
+    if (j > 0 && (standardized ? zjj * ZdiagInv[j] : zjj / (Z[j][j] - Z[j][0])) < r2_eps) {
       zjj=0;
       dropped_cols.add(j - 1);
       ZdiagInv[j]=0;
     }
+ else     ZdiagInv[j]=1. / zjj;
     Z[j][j]=zjj;
     int jchunk=Math.max(1,MIN_PAR / (Z.length - j));
     int nchunks=(Z.length - j - 1) / jchunk;
