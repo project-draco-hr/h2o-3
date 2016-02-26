@@ -1,0 +1,22 @@
+def addJavaMessages(tempMessage, messageType, java_messages, java_message_types):
+    '\n    Insert Java messages into java_messages and java_message_types if they are associated\n    with a unit test or into g_java_general_bad_messages/g_java_general_bad_message_types\n    otherwise.\n\n    Parameters\n    ----------\n    tempMessage :  str\n        contains the bad java messages\n    messageType :  str\n        contains the bad java message type\n    java_messages : list of str\n        contains the bad java message list associated with a unit test\n    java_message_tuypes :  list of str\n        contains the bad java message type list associated with a unit test.\n\n    :return: none\n    '
+    global g_current_testname
+    global g_java_general_bad_messages
+    global g_java_general_bad_message_types
+    global g_failure_occurred
+    tempMess = tempMessage.strip()
+    if (tempMess not in g_ok_java_messages['general']):
+        if (len(g_current_testname) == 0):
+            g_java_general_bad_messages.append(tempMess)
+            g_java_general_bad_message_types.append(messageType)
+            g_failure_occurred = True
+        else:
+            write_test = False
+            if ((g_current_testname in g_ok_java_messages.keys()) and (tempMess in g_ok_java_messages[g_current_testname])):
+                write_test = False
+            else:
+                write_test = True
+            if write_test:
+                java_messages.append(tempMess)
+                java_message_types.append(messageType)
+                g_failure_occurred = True
