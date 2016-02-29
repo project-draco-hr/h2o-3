@@ -1,0 +1,30 @@
+def extract_message_to_dict(filename):
+    '\n    Read in a text file that java messages to be ignored and generate a dictionary structure out of\n    it with key and value pairs.  The keys are test names and the values are lists of java message\n    strings associated with that test name where we are either going to add to the existing java messages\n    to ignore or remove them from g_ok_java_messages.\n\n    Parameters\n    ----------\n\n    filename :  Str\n       filename that contains ignored java messages.  The text file shall contain something like this:\n        keyName = general\n        Message = nfolds: nfolds cannot be larger than the number of rows (406).\n        KeyName = pyunit_cv_cars_gbm.py\n        Message = Caught exception: Illegal argument(s) for GBM model: GBM_model_python_1452503348770_2586.              Details: ERRR on field: _nfolds: nfolds must be either 0 or >1.\n        ...\n\n    :return:\n    message_dict : dict\n        contains java message to be ignored with key as unit test name or "general" and values as list of ignored java\n        messages.\n    '
+    message_dict = {}
+    if os.path.isfile(filename):
+        with open(filename, 'r') as wfile:
+            key = ''
+            val = ''
+            startMess = False
+            while 1:
+                each_line = wfile.readline()
+                if (not each_line):
+                    if startMess:
+                        add_to_dict(val.strip(), key, message_dict)
+                    break
+                if ('keyname' in each_line.lower()):
+                    temp_strings = each_line.strip().split('=')
+                    if (len(temp_strings) > 1):
+                        if startMess:
+                            add_to_dict(val.strip(), key, message_dict)
+                            val = ''
+                        key = temp_strings[1].strip()
+                        startMess = False
+                if ((len(each_line) > 1) and startMess):
+                    val += each_line
+                if ('ignoredmessage' in each_line.lower()):
+                    startMess = True
+                    temp_mess = each_line.split('=')
+                    if (len(temp_mess) > 1):
+                        val = temp_mess[1]
+    return message_dict

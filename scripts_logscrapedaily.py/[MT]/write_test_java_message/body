@@ -1,0 +1,18 @@
+def write_test_java_message(key, val, text_file):
+    '\n   Write key/value into log file when the value is a list of strings\n   or even a list of list of string.  These lists are associated with\n   unit tests that are executed in the jenkins job.\n\n    Parameters\n    ----------\n    key :  str\n        key value in g_failed_test_info_dict\n    value :  list of str or list of list of str\n        corresponding value associated with the key in key\n    text_file : file handle\n        file handle of log file to write the info to.\n\n   :return: none\n   '
+    global g_failed_jobs
+    text_file.write(key)
+    text_file.write('\n')
+    for index in range(len(val[0])):
+        if ((val[0][index] in g_failed_jobs) or ((val[0][index] not in g_failed_jobs) and (len(val[1][index]) > 0))):
+            text_file.write('\nTest Name: ')
+            text_file.write(val[0][index])
+            text_file.write('\n')
+        if ((len(val[1][index]) > 0) and (len(val) >= 3)):
+            text_file.write('Java Message Type and Message: \n')
+            for eleIndex in range(len(val[1][index])):
+                text_file.write((val[2][index][eleIndex] + ' '))
+                text_file.write(val[1][index][eleIndex])
+                text_file.write('\n\n')
+    text_file.write('\n')
+    text_file.write('\n')

@@ -1,0 +1,17 @@
+def find_build_failure(each_line, temp_func_list):
+    '\n    Find if a Jenkins job has failed to build.  It will save this\n    information in g_failed_test_info_dict.  In addition, it will delete this particular\n    function handle off the temp_func_list as we do not need to perform this action again.\n\n    Parameters\n    ----------\n\n    each_line :  str\n        contains a line read in from jenkins console\n    temp_func_list :  list of Python function handles\n        contains a list of functions that we want to invoke to extract information from\n        the Jenkins console text.\n\n    :return: bool to determine if text mining should continue on the jenkins console text\n    '
+    global g_build_success
+    global g_build_success_tests
+    global g_failed_test_info_dict
+    global g_failure_occurred
+    global g_build_failed_message
+    for ind in range(0, len(g_build_failed_message)):
+        if (g_build_failed_message[ind] in each_line.lower()):
+            if ((ind == 0) and (len(g_failed_jobs) > 0)):
+                continue
+            else:
+                g_failure_occurred = True
+                g_failed_test_info_dict['7.build_failure'] = 'Yes'
+                temp_func_list.remove(find_build_failure)
+                return False
+    return True

@@ -1,0 +1,30 @@
+def extract_java_messages():
+    '\n    loop through java_*_0.out.txt and extract potentially dangerous WARN/ERRR/FATAL\n    messages associated with a test.  The test may even pass but something terrible\n    has actually happened.\n\n    :return: none\n    '
+    global g_jenkins_url
+    global g_failed_test_info_dict
+    global g_java_filenames
+    global g_failed_jobs
+    global g_failed_job_java_messages
+    global g_failed_job_java_message_types
+    global g_success_jobs
+    global g_success_job_java_messages
+    global g_success_job_java_message_types
+    global g_java_general_bad_messages
+    global g_java_general_bad_message_types
+    if (len(g_failed_jobs) > 0):
+        for fname in g_java_filenames:
+            temp_strings = fname.split('/')
+            start_url = g_jenkins_url
+            for windex in range(6, len(temp_strings)):
+                start_url = os.path.join(start_url, temp_strings[windex])
+            try:
+                get_console_out(start_url)
+                grab_java_message()
+            except:
+                pass
+    if (len(g_failed_jobs) > 0):
+        g_failed_test_info_dict['failed_tests_info *********'] = [g_failed_jobs, g_failed_job_java_messages, g_failed_job_java_message_types]
+    if (len(g_success_jobs) > 0):
+        g_failed_test_info_dict['passed_tests_info *********'] = [g_success_jobs, g_success_job_java_messages, g_success_job_java_message_types]
+    if (len(g_java_general_bad_messages) > 0):
+        g_failed_test_info_dict['9.general_bad_java_messages'] = [g_java_general_bad_messages, g_java_general_bad_message_types]

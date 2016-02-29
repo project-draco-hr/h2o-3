@@ -1,0 +1,11 @@
+def find_build_timeout(each_line, temp_func_list):
+    '\n    Find if a Jenkins job has taken too long to finish and was killed.  It will save this\n    information in g_failed_test_info_dict.\n\n    Parameters\n    ----------\n\n    each_line :  str\n        contains a line read in from jenkins console\n    temp_func_list :  list of Python function handles\n        contains a list of functions that we want to invoke to extract information from\n        the Jenkins console text.\n\n    :return: bool to determine if text mining should continue on the jenkins console text\n'
+    global g_build_timeout
+    global g_failed_test_info_dict
+    global g_failure_occurred
+    if (g_build_timeout in each_line):
+        g_failed_test_info_dict['8.build_timeout'] = 'Yes'
+        g_failure_occurred = True
+        return False
+    else:
+        return True

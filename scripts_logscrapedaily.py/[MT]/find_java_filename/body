@@ -1,0 +1,10 @@
+def find_java_filename(each_line, temp_func_list):
+    '\n    Find if all the java_*_0.out.txt files that were mentioned in the console output.\n    It will save this information in g_java_filenames as a list of strings.\n\n    Parameters\n    ----------\n\n    each_line :  str\n        contains a line read in from jenkins console\n    temp_func_list :  list of Python function handles\n        contains a list of functions that we want to invoke to extract information from\n        the Jenkins console text.\n\n    :return: bool to determine if text mining should continue on the jenkins console text\n'
+    global g_before_java_file
+    global g_java_filenames
+    for each_word in g_before_java_file:
+        if (each_word not in each_line):
+            return True
+    temp_strings = each_line.split()
+    g_java_filenames.append(temp_strings[(-1)])
+    return True
