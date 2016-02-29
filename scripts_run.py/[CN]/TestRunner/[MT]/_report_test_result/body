@@ -4,7 +4,7 @@ def _report_test_result(self, test, nopass):
     duration = (finish_seconds - test.start_seconds)
     test_name = test.get_test_name()
     if (not test.get_skipped()):
-        if self.perf:
+        if (self.perf and (not is_javascript_test_file(test.test_name))):
             self._report_perf(test, finish_seconds)
     if test.get_passed():
         s = ('PASS      %d %4ds %-60s' % (port, duration, test_name))
