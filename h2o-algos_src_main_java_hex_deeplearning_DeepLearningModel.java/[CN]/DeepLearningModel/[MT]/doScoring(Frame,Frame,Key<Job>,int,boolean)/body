@@ -151,7 +151,7 @@
       for (int i=0; i < _output.biases.length; ++i) {
         model_info.get_biases(i).toFrame(_output.biases[i]);
       }
-      if (!_parms._quiet_mode)       Log.info("Writing weights and biases to Frames took " + t.time() / 1000. + " seconds.");
+      if (!get_params()._quiet_mode)       Log.info("Writing weights and biases to Frames took " + t.time() / 1000. + " seconds.");
     }
     _output._scoring_history=DeepLearningScoringInfo.createScoringHistoryTable(this.scoringInfo,(null != get_params()._valid),false,_output.getModelCategory(),_output.isAutoencoder());
     _output._variable_importances=calcVarImp(last_scored().variable_importances);
@@ -174,7 +174,7 @@
     }
   }
   if (stopped_early) {
-    ((Job)DKV.getGet(jobKey)).update((long)(_parms._epochs * training_rows));
+    ((Job)DKV.getGet(jobKey)).update((long)(get_params()._epochs * training_rows));
     update(jobKey);
     return false;
   }
