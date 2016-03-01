@@ -1,7 +1,7 @@
 {
   double loss=0;
   Neurons[] neurons=DeepLearningTask.makeNeuronsForTraining(model_info());
-  final double prefactor=_parms._distribution == Distribution.Family.laplace || _parms._distribution == Distribution.Family.quantile ? 1 : 0.5;
+  final double prefactor=get_params()._distribution == Distribution.Family.laplace || get_params()._distribution == Distribution.Family.quantile ? 1 : 0.5;
   long seed=-1;
   double[] responses=new double[myRows.length];
   double[] offsets=new double[myRows.length];
@@ -26,7 +26,7 @@
       assert(ArrayUtils.sum(e.raw()) == 0);
     }
     if (get_params()._loss == DeepLearningParameters.Loss.CrossEntropy) {
-      if (_parms._balance_classes)       throw H2O.unimpl();
+      if (get_params()._balance_classes)       throw H2O.unimpl();
       int actual=(int)myRow.response[0];
       double pred=neurons[neurons.length - 1]._a[mb].get(actual);
       loss+=-Math.log(Math.max(1e-15,pred));
@@ -39,17 +39,17 @@
       pred=dist.linkInv(pred);
       loss+=prefactor * dist.deviance(1,actual,pred);
     }
-    for (int i=0; i < _parms._hidden.length + 1; ++i) {
+    for (int i=0; i < get_params()._hidden.length + 1; ++i) {
       if (neurons[i]._w == null)       continue;
       for (int row=0; row < neurons[i]._w.rows(); ++row) {
         for (int col=0; col < neurons[i]._w.cols(); ++col) {
-          loss+=_parms._l1 * Math.abs(neurons[i]._w.get(row,col));
-          loss+=0.5 * _parms._l2 * Math.pow(neurons[i]._w.get(row,col),2);
+          loss+=get_params()._l1 * Math.abs(neurons[i]._w.get(row,col));
+          loss+=0.5 * get_params()._l2 * Math.pow(neurons[i]._w.get(row,col),2);
         }
       }
       for (int row=0; row < neurons[i]._b.size(); ++row) {
-        loss+=_parms._l1 * Math.abs(neurons[i]._b.get(row));
-        loss+=0.5 * _parms._l2 * Math.pow(neurons[i]._b.get(row),2);
+        loss+=get_params()._l1 * Math.abs(neurons[i]._b.get(row));
+        loss+=0.5 * get_params()._l2 * Math.pow(neurons[i]._b.get(row),2);
       }
     }
   }
