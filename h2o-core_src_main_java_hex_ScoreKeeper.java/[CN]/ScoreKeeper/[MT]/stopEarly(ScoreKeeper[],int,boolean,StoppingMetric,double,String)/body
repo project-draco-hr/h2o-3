@@ -51,10 +51,10 @@ if (Math.signum(ArrayUtils.maxValue(movingAvg)) != Math.signum(ArrayUtils.minVal
 if (Math.signum(bestInLastK) != Math.signum(lastBeforeK)) return false;
 assert(lastBeforeK != Double.MAX_VALUE);
 assert(bestInLastK != Double.MAX_VALUE);
-Log.info("Moving averages (length " + k + ") of last "+ (k + 1)+ " "+ criterion.toString()+ " metrics: "+ Arrays.toString(movingAvg));
+Log.info("Windowed averages (window size " + k + ") of "+ what+ " "+ (k + 1)+ " "+ criterion.toString()+ " metrics: "+ Arrays.toString(movingAvg));
 double ratio=bestInLastK / lastBeforeK;
 if (Double.isNaN(ratio)) return false;
 boolean improved=moreIsBetter ? ratio > 1 + rel_improvement : ratio < 1 - rel_improvement;
-Log.info("Checking model convergence with " + criterion.toString() + " metric: "+ lastBeforeK+ " --> "+ bestInLastK+ (improved ? " (still improving)." : " (converged)."));
+Log.info("Checking convergence with " + criterion.toString() + " metric: "+ lastBeforeK+ " --> "+ bestInLastK+ (improved ? " (still improving)." : " (converged)."));
 return !improved;
 }
