@@ -1,7 +1,7 @@
 def benign_grid():
     training_data = h2o.import_file(pyunit_utils.locate('smalldata/logreg/benign.csv'))
     Y = 3
-    X = (list(range(3)) + list(range(4, 11)))
+    X = [4, 5, 6, 7, 8, 9, 10, 11]
     hyper_parameters = {'alpha': [0.01, 0.3, 0.5, 'a'], 'lambda': [1e-05, 1e-06, 1e-07, 1e-08], }
     gs = H2OGridSearch(H2OGeneralizedLinearEstimator(family='binomial'), hyper_parameters)
     gs.train(x=X, y=Y, training_frame=training_data)
@@ -26,7 +26,7 @@ def benign_grid():
     print(max_models_g.sorted_metric_table())
     print(max_models_g.get_grid('r2'))
     search_criteria = {'strategy': 'RandomDiscrete', 'seed': 42, 'stopping_metric': 'AUTO', 'stopping_tolerance': 0.1, 'stopping_rounds': 2, }
-    asymp_g = H2OGridSearch(H2OGeneralizedLinearEstimator(family='binomial'), hyper_parameters, search_criteria=search_criteria)
+    asymp_g = H2OGridSearch(H2OGeneralizedLinearEstimator(family='binomial', nfolds=5), hyper_parameters, search_criteria=search_criteria)
     asymp_g.train(x=X, y=Y, training_frame=training_data)
     asymp_g.show()
     print(asymp_g.grid_id)
