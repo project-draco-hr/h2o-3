@@ -1,0 +1,20 @@
+{
+  for (  Field fTarget : tgtParms.getClass().getFields()) {
+    if (ArrayUtils.contains(cp_modifiable,fTarget.getName())) {
+      for (      Field fSource : srcParms.getClass().getFields()) {
+        if (fTarget.equals(fSource)) {
+          try {
+            if (fSource.get(srcParms) == null || fTarget.get(tgtParms) == null || !fTarget.get(tgtParms).toString().equals(fSource.get(srcParms).toString())) {
+              if (fTarget.get(tgtParms) == null && fSource.get(srcParms) == null)               continue;
+              if (!tgtParms._quiet_mode && !quiet)               Log.info("Applying user-requested modification of '" + fTarget.getName() + "': "+ fTarget.get(tgtParms)+ " -> "+ fSource.get(srcParms));
+              if (doIt)               fTarget.set(tgtParms,fSource.get(srcParms));
+            }
+          }
+ catch (          IllegalAccessException e) {
+            e.printStackTrace();
+          }
+        }
+      }
+    }
+  }
+}

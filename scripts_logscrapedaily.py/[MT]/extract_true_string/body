@@ -1,0 +1,7 @@
+def extract_true_string(string_content):
+    "\n    remove extra characters before the actual string we are\n    looking for.  The Jenkins console output is encoded using utf-8.  However, the stupid\n    redirect function can only encode using ASCII.  I have googled for half a day with no\n    results to how to resolve the issue.  Hence, we are going to the heat and just manually\n    get rid of the junk.\n\n    Parameters\n    ----------\n\n    string_content :  str\n        contains a line read in from jenkins console\n\n    :return: str: contains the content of the line after the string '[0m'\n\n    "
+    (startL, found, endL) = string_content.partition('[0m')
+    if found:
+        return endL
+    else:
+        return string_content

@@ -2,31 +2,31 @@
 switch (criterion) {
 case AUC:
 {
-      return validation ? scored_valid._AUC : scored_train._AUC;
+      return cross_validation ? scored_xval._AUC : validation ? scored_valid._AUC : scored_train._AUC;
     }
 case MSE:
 {
-    return validation ? scored_valid._mse : scored_train._mse;
+    return cross_validation ? scored_xval._mse : validation ? scored_valid._mse : scored_train._mse;
   }
 case deviance:
 {
-  return validation ? scored_valid._mean_residual_deviance : scored_train._mean_residual_deviance;
+  return cross_validation ? scored_xval._mean_residual_deviance : validation ? scored_valid._mean_residual_deviance : scored_train._mean_residual_deviance;
 }
 case logloss:
 {
-return validation ? scored_valid._logloss : scored_train._logloss;
+return cross_validation ? scored_xval._logloss : validation ? scored_valid._logloss : scored_train._logloss;
 }
 case r2:
 {
-return validation ? scored_valid._r2 : scored_train._r2;
+return cross_validation ? scored_xval._r2 : validation ? scored_valid._r2 : scored_train._r2;
 }
 case misclassification:
 {
-return validation ? scored_valid._classError : scored_train._classError;
+return cross_validation ? scored_xval._classError : validation ? scored_valid._classError : scored_train._classError;
 }
 case lift_top_group:
 {
-return validation ? scored_valid._lift : scored_train._lift;
+return cross_validation ? scored_xval._lift : validation ? scored_valid._lift : scored_train._lift;
 }
 default :
 throw H2O.unimpl("Undefined stopping criterion: " + criterion);

@@ -1,0 +1,12 @@
+def find_git_hash_branch(each_line, temp_func_list):
+    '\n    Find the git hash and branch info that  a Jenkins job was taken from.  It will save this\n    information in g_failed_test_info_dict.  In addition, it will delete this particular\n    function handle off the temp_func_list as we do not need to perform this action again.\n\n    Parameters\n    ----------\n\n    each_line :  str\n        contains a line read in from jenkins console\n    temp_func_list :  list of Python function handles\n        contains a list of functions that we want to invoke to extract information from\n        the Jenkins console text.\n\n    :return: bool to determine if text mining should continue on the jenkins console text\n    '
+    global g_git_hash_branch
+    global g_failed_test_info_dict
+    if (g_git_hash_branch in each_line):
+        [start, found, endstr] = each_line.partition(g_git_hash_branch)
+        temp_strings = endstr.strip().split()
+        if (len(temp_strings) > 1):
+            g_failed_test_info_dict['4.git_hash'] = temp_strings[0]
+            g_failed_test_info_dict['5.git_branch'] = temp_strings[1]
+        temp_func_list.remove(find_git_hash_branch)
+    return True

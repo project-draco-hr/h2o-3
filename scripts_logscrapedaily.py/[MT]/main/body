@@ -1,0 +1,41 @@
+def main(argv):
+    '\n    Main program.\n\n    @return: none\n    '
+    global g_script_name
+    global g_test_root_dir
+    global g_temp_filename
+    global g_output_filename_failed_tests
+    global g_output_filename_passed_tests
+    global g_output_pickle_filename
+    global g_failure_occurred
+    global g_failed_test_info_dict
+    global g_java_message_pickle_filename
+    global g_summary_text_filename
+    if (len(argv) < 3):
+        print 'Must resource url like http://mr-0xa1:8080/view/wendy_jenkins/job/h2o_regression_pyunit_medium_large/lastBuild/consoleFull, filename of summary text, filename (optional ending in .pickle) to retrieve Java error messages to exclude.\n'
+        sys.exit(1)
+    else:
+        g_script_name = os.path.basename(argv[0])
+        resource_url = argv[1]
+        g_temp_filename = os.path.join(g_test_root_dir, 'tempText')
+        g_summary_text_filename = os.path.join(g_test_root_dir, argv[2])
+        if (len(argv) == 4):
+            g_java_message_pickle_filename = argv[3]
+        get_console_out(resource_url)
+        extract_job_build_url(resource_url)
+        log_filename = g_failed_test_info_dict['1.jobName']
+        log_pickle_filename = g_failed_test_info_dict['1.jobName']
+        g_java_message_pickle_filename = os.path.join(g_test_root_dir, g_java_message_pickle_filename)
+        g_output_filename_failed_tests = os.path.join(g_test_root_dir, log_filename)
+        g_output_filename_passed_tests = os.path.join(g_test_root_dir, log_filename)
+        g_output_pickle_filename = os.path.join(g_test_root_dir, log_pickle_filename)
+        load_java_messages_to_ignore()
+        extract_test_results()
+        extract_java_messages()
+        if ((len(g_failed_jobs) > 0) or (g_failed_test_info_dict['7.build_failure'] == 'Yes')):
+            g_failure_occurred = True
+        if g_failure_occurred:
+            save_dict()
+            update_summary_file()
+            print (((g_failed_test_info_dict['1.jobName'] + ' build ') + g_failed_test_info_dict['2.build_id']) + ',')
+        else:
+            print ''
