@@ -39,10 +39,12 @@
           }
         }
  catch (        RuntimeException e) {
-          StringWriter sw=new StringWriter();
-          PrintWriter pw=new PrintWriter(sw);
-          e.printStackTrace(pw);
-          Log.warn("Grid search: model builder for parameters " + params + " failed! Exception: ",e,sw.toString());
+          if (!Job.isCancelledException(e)) {
+            StringWriter sw=new StringWriter();
+            PrintWriter pw=new PrintWriter(sw);
+            e.printStackTrace(pw);
+            Log.warn("Grid search: model builder for parameters " + params + " failed! Exception: ",e,sw.toString());
+          }
           grid.appendFailedModelParameters(params,e);
         }
       }
