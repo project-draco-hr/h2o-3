@@ -144,16 +144,16 @@
       for (int i=0; i < _output.weights.length; ++i) {
         Frame f=model_info.get_weights(i).toFrame(_output.weights[i]);
         if (i == 0) {
-          f._names=model_info.data_info.coefNames();
+          f.setNames(model_info.data_info.coefNames());
           DKV.put(f);
         }
       }
       for (int i=0; i < _output.biases.length; ++i) {
         model_info.get_biases(i).toFrame(_output.biases[i]);
       }
-      if (!_parms._quiet_mode)       Log.info("Writing weights and biases to Frames took " + t.time() / 1000. + " seconds.");
+      if (!get_params()._quiet_mode)       Log.info("Writing weights and biases to Frames took " + t.time() / 1000. + " seconds.");
     }
-    _output._scoring_history=DeepLearningScoringInfo.createScoringHistoryTable(this.scoringInfo,(null != get_params()._valid),_output.getModelCategory(),_output.isAutoencoder());
+    _output._scoring_history=DeepLearningScoringInfo.createScoringHistoryTable(this.scoringInfo,(null != get_params()._valid),false,_output.getModelCategory(),_output.isAutoencoder());
     _output._variable_importances=calcVarImp(last_scored().variable_importances);
     _output._model_summary=model_info.createSummaryTable();
     if (!finalScoring) {
@@ -166,7 +166,7 @@
         Log.info("Achieved requested predictive accuracy on the training data. Model building completed.");
         stopped_early=true;
       }
-      if (ScoreKeeper.stopEarly(ScoringInfo.scoreKeepers(scoring_history()),get_params()._stopping_rounds,_output.isClassifier(),get_params()._stopping_metric,get_params()._stopping_tolerance)) {
+      if (ScoreKeeper.stopEarly(ScoringInfo.scoreKeepers(scoring_history()),get_params()._stopping_rounds,_output.isClassifier(),get_params()._stopping_metric,get_params()._stopping_tolerance,"model's last")) {
         Log.info("Convergence detected based on simple moving average of the loss function for the past " + get_params()._stopping_rounds + " scoring events. Model building completed.");
         stopped_early=true;
       }
@@ -174,7 +174,7 @@
     }
   }
   if (stopped_early) {
-    ((Job)DKV.getGet(jobKey)).update((long)(_parms._epochs * training_rows));
+    ((Job)DKV.getGet(jobKey)).update((long)(get_params()._epochs * training_rows));
     update(jobKey);
     return false;
   }

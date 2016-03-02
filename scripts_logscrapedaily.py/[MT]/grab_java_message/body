@@ -1,0 +1,44 @@
+def grab_java_message():
+    'scan through the java output text and extract the bad java messages that may or may not happened when\n    unit tests are run.  It will not record any bad java messages that are stored in g_ok_java_messages.\n\n    :return: none\n    '
+    global g_temp_filename
+    global g_current_testname
+    global g_java_start_text
+    global g_ok_java_messages
+    global g_java_general_bad_messages
+    global g_java_general_bad_message_types
+    global g_failure_occurred
+    global g_java_message_type
+    global g_all_java_message_type
+    global g_toContinue
+    java_messages = []
+    java_message_types = []
+    if os.path.isfile(g_temp_filename):
+        java_file = open(g_temp_filename, 'r')
+        g_toContinue = False
+        tempMessage = ''
+        messageType = ''
+        for each_line in java_file:
+            if (g_java_start_text in each_line):
+                (startStr, found, endStr) = each_line.partition(g_java_start_text)
+                if (len(found) > 0):
+                    if (len(g_current_testname) > 0):
+                        associate_test_with_java(g_current_testname, java_messages, java_message_types)
+                    g_current_testname = endStr.strip()
+                    java_messages = []
+                    java_message_types = []
+            temp_strings = each_line.strip().split()
+            if ((len(temp_strings) >= 6) and (temp_strings[5] in g_all_java_message_type)):
+                if (g_toContinue == True):
+                    addJavaMessages(tempMessage, messageType, java_messages, java_message_types)
+                    tempMessage = ''
+                    messageType = ''
+                g_toContinue = False
+            elif g_toContinue:
+                tempMessage += each_line
+            if ((len(temp_strings) > 5) and (temp_strings[5] in g_java_message_type)):
+                (startStr, found, endStr) = each_line.partition(temp_strings[5])
+                if (found and (len(endStr.strip()) > 0)):
+                    tempMessage += endStr
+                    messageType = temp_strings[5]
+                    g_toContinue = True
+        java_file.close()

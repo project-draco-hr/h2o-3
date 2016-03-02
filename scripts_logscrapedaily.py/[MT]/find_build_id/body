@@ -1,0 +1,14 @@
+def find_build_id(each_line, temp_func_list):
+    '\n    Find the build id of a jenkins job.  It will save this\n    information in g_failed_test_info_dict.  In addition, it will delete this particular\n    function handle off the temp_func_list as we do not need to perform this action again.\n\n    Parameters\n    ----------\n\n    each_line :  str\n        contains a line read in from jenkins console\n    temp_func_list :  list of Python function handles\n        contains a list of functions that we want to invoke to extract information from\n        the Jenkins console text.\n\n    :return: bool to determine if text mining should continue on the jenkins console text\n    '
+    global g_before_java_file
+    global g_java_filenames
+    global g_build_id_text
+    global g_jenkins_url
+    global g_output_filename
+    global g_output_pickle_filename
+    if (g_build_id_text in each_line):
+        [startStr, found, endStr] = each_line.partition(g_build_id_text)
+        g_failed_test_info_dict['2.build_id'] = endStr.strip()
+        temp_func_list.remove(find_build_id)
+        g_jenkins_url = os.path.join('http://', g_jenkins_url, 'view', g_view_name, 'job', g_failed_test_info_dict['1.jobName'], g_failed_test_info_dict['2.build_id'], 'artifact')
+    return True

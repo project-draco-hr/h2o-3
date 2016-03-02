@@ -1,0 +1,25 @@
+def main(argv):
+    '\n    Main program.\n\n    @return: none\n    '
+    global g_script_name
+    global g_test_root_dir
+    global g_new_messages_to_exclude
+    global g_old_messages_to_remove
+    global g_load_java_message_filename
+    global g_save_java_message_filename
+    global g_print_java_messages
+    global g_java_messages_to_ignore_text_filename
+    g_script_name = os.path.basename(argv[0])
+    parse_args(argv)
+    g_load_java_message_filename = os.path.join(g_test_root_dir, g_load_java_message_filename)
+    load_dict()
+    if (len(g_new_messages_to_exclude) > 0):
+        g_new_messages_to_exclude = os.path.join(g_test_root_dir, g_new_messages_to_exclude)
+        add_new_message()
+    if (len(g_old_messages_to_remove) > 0):
+        g_old_messages_to_remove = os.path.join(g_test_root_dir, g_old_messages_to_remove)
+        remove_old_message()
+    g_save_java_message_filename = os.path.join(g_test_root_dir, g_save_java_message_filename)
+    save_dict()
+    if g_print_java_messages:
+        g_java_messages_to_ignore_text_filename = os.path.join(g_test_root_dir, g_java_messages_to_ignore_text_filename)
+        print_dict()
