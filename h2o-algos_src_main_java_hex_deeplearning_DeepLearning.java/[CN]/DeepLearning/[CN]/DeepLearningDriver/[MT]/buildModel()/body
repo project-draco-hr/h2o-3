@@ -11,13 +11,7 @@
     _job.update(0,"Resuming from checkpoint");
     if (isClassifier() != previous._output.isClassifier())     throw new H2OIllegalArgumentException("Response type must be the same as for the checkpointed model.");
     if (isSupervised() != previous._output.isSupervised())     throw new H2OIllegalArgumentException("Model type must be the same as for the checkpointed model.");
-    DeepLearningParameters oldP=previous._parms;
-    DeepLearningParameters newP=_parms;
-    DeepLearningParameters oldP2=(DeepLearningParameters)oldP.clone();
-    DeepLearningParameters newP2=(DeepLearningParameters)newP.clone();
-    DeepLearningParameters.Sanity.modifyParms(oldP,oldP2,nclasses());
-    DeepLearningParameters.Sanity.modifyParms(newP,newP2,nclasses());
-    DeepLearningParameters.Sanity.checkpoint(oldP2,newP2);
+    DeepLearningParameters.Sanity.checkIfParameterChangeAllowed(previous._parms,_parms);
     DataInfo dinfo;
     try {
       for (      String st : previous.adaptTestForTrain(_train,true,false))       Log.warn(st);
@@ -38,11 +32,13 @@
       if (_parms._epochs <= previous.epoch_counter) {
         throw new H2OIllegalArgumentException("Total number of epochs must be larger than the number of epochs already trained for the checkpointed model (" + previous.epoch_counter + ").");
       }
-      final DeepLearningParameters actualNewP=cp.model_info().get_params();
-      assert(actualNewP != previous.model_info().get_params());
-      assert(actualNewP != newP);
-      assert(actualNewP != oldP);
-      DeepLearningParameters.Sanity.update(actualNewP,newP,nclasses());
+      final DeepLearningParameters actualParms=cp.model_info().get_params();
+      assert(actualParms != previous.model_info().get_params());
+      assert(actualParms != _parms);
+      assert(actualParms != previous._parms);
+      DeepLearningParameters.Sanity.updateParametersDuringCheckpointRestart(_parms,previous._parms,false,false);
+      DeepLearningParameters.Sanity.updateParametersDuringCheckpointRestart(_parms,cp.model_info().get_params(),true,true);
+      DeepLearningParameters.Sanity.modifyParms(_parms,cp.model_info().get_params(),nclasses());
       Log.info("Continuing training after " + String.format("%.3f",previous.epoch_counter) + " epochs from the checkpointed model.");
       cp.update(_job);
     }
