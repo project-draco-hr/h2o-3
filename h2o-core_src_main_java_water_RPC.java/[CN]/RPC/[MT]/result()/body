@@ -1,5 +1,5 @@
 {
   Throwable t=_dt.getDException();
-  if (t != null)   throw new RuntimeException(t);
+  if (t != null)   throw (t instanceof DistributedException) ? new DistributedException(t.getMessage(),t.getCause()) : new DistributedException(t);
   return _dt;
 }
