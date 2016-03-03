@@ -4,8 +4,33 @@
   sb.append(supers);
   String mimpl=impl + "_impl";
   for (  CtMethod mth : iced_cc.getDeclaredMethods())   if (mth.getName().equals(mimpl)) {
-    if (javassist.Modifier.isAbstract(mth.getModifiers()) || javassist.Modifier.isVolatile(mth.getModifiers()))     sb.append(impl.startsWith("write") ? "    return ab;\n  }" : "    return ice;\n  }");
- else     sb.append("    return ice.").append(mimpl).append("(ab);\n  }");
+    int mods=mth.getModifiers();
+    String ice_handle;
+    String ice_args;
+    if (javassist.Modifier.isStatic(mods)) {
+      ice_handle=iced_clazz.getName() + ".";
+      ice_args="(ice,ab)";
+    }
+ else     if (javassist.Modifier.isFinal(mods)) {
+      ice_handle="ice.";
+      ice_args="(ab)";
+    }
+ else     if (javassist.Modifier.isAbstract(mods)) {
+      ice_handle=null;
+      ice_args=null;
+    }
+ else     throw barf(iced_cc," Custom serialization methods must be declared either static or final. Failed for method " + mimpl);
+    if (javassist.Modifier.isAbstract(mods) || javassist.Modifier.isVolatile(mods))     sb.append(impl.startsWith("write") ? "    return ab;\n  }" : "    return ice;\n  }");
+ else {
+      if (!supers.isEmpty() && impl.equals("writeJSON")) {
+        sb.append("    ab.put1(',');\n");
+        sb.append("    int pos = ab.position();\n");
+        sb.append("    " + ice_handle).append(mimpl).append(ice_args).append(";\n");
+        sb.append("    if(ab.position() == pos) ab.position(pos-1);\n");
+        sb.append("    return ab;\n  }");
+      }
+ else       sb.append("    return " + ice_handle).append(mimpl).append(ice_args).append(";\n  }");
+    }
     mimpl=null;
     break;
   }
