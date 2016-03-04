@@ -1,11 +1,17 @@
 {
-  final DException dex=new DException(ex,caller.getClass());
-  try {
-    Log.err(ex);
+  if (Job.isCancelledException(ex)) {
+    new Barrier1OnCom().apply(Job.this);
+    _barrier=null;
   }
- catch (  Throwable t) {
+ else {
+    final DException dex=new DException(ex,caller.getClass());
+    try {
+      Log.err(ex);
+    }
+ catch (    Throwable t) {
+    }
+    new Barrier1OnExCom(dex).apply(Job.this);
   }
-  new Barrier1OnExCom(dex).apply(Job.this);
   _barrier=null;
   return true;
 }
