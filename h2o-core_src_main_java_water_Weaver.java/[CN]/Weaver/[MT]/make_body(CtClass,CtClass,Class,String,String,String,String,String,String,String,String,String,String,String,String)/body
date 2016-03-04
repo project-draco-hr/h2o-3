@@ -1,7 +1,17 @@
 {
   StringBuilder sb=new StringBuilder();
   sb.append(header);
-  sb.append(supers);
+  if (impl.equals("writeJSON")) {
+    if (supers.isEmpty()) {
+      sb.append("  boolean supers = false;");
+    }
+ else {
+      sb.append("  int position = ab.position();\n");
+      sb.append(supers);
+      sb.append("  boolean supers = ab.position() != position;\n");
+    }
+  }
+ else   sb.append(supers);
   String mimpl=impl + "_impl";
   for (  CtMethod mth : iced_cc.getDeclaredMethods())   if (mth.getName().equals(mimpl)) {
     int mods=mth.getModifiers();
@@ -23,11 +33,13 @@
     if (javassist.Modifier.isAbstract(mods) || javassist.Modifier.isVolatile(mods))     sb.append(impl.startsWith("write") ? "    return ab;\n  }" : "    return ice;\n  }");
  else {
       if (!supers.isEmpty() && impl.equals("writeJSON")) {
-        sb.append("    ab.put1(',');\n");
-        sb.append("    int pos = ab.position();\n");
+        sb.append("    if(supers) {\n");
+        sb.append("       ab.put1(',');\n");
+        sb.append("       int pos = ab.position();\n");
         sb.append("    " + ice_handle).append(mimpl).append(ice_args).append(";\n");
-        sb.append("    if(ab.position() == pos) ab.position(pos-1);\n");
-        sb.append("    return ab;\n  }");
+        sb.append("      if(ab.position() == pos) ab.position(pos-1);\n");
+        sb.append("      return ab;\n    } \n");
+        sb.append("    return " + ice_handle).append(mimpl).append(ice_args).append(";\n  }");
       }
  else       sb.append("    return " + ice_handle).append(mimpl).append(ice_args).append(";\n  }");
     }
