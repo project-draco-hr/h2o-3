@@ -2,6 +2,9 @@
   File f=new File(URI.create(path));
   if (f.exists() && !overwrite)   throw new FSIOException(path,"File already exists");
   try {
+    if (!f.getParentFile().exists()) {
+      f.getParentFile().mkdirs();
+    }
     return new FileOutputStream(f,false);
   }
  catch (  IOException e) {
