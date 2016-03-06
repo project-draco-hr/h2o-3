@@ -1,12 +1,8 @@
 {
-  if (t._nodeLocalDomains != _nodeLocalDomains) {
-    IcedHashMap.IcedHashMapStringString l=_nodeLocalDomains;
-    IcedHashMap.IcedHashMapStringString r=t._nodeLocalDomains;
-    if (r.size() < l.size()) {
-      l=r;
-      r=_nodeLocalDomains;
-    }
-    for (    String rk : r.keySet())     l.putIfAbsent(rk,"");
-    _nodeLocalDomains=l;
+  for (  Map.Entry<String,IcedLong> e : t._perChkMap.entrySet()) {
+    IcedLong i=_perChkMap.get(e.getKey());
+    if (i != null)     i._val+=e.getValue()._val;
+ else     _perChkMap.put(e.getKey(),e.getValue());
   }
+  t._perChkMap=null;
 }
