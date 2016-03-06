@@ -1,0 +1,19 @@
+{
+  Frame fr=null;
+  InteractionWrappedVec interactionVec=null;
+  try {
+    fr=makeFrame(1 << 20);
+    interactionVec=new InteractionWrappedVec(fr.anyVec().group().addVec(),fr.anyVec()._rowLayout,null,null,true,fr.vec(0)._key,fr.vec(2)._key);
+    Assert.assertTrue(interactionVec.expandedLength() == 5);
+    interactionVec.remove();
+    interactionVec=new InteractionWrappedVec(fr.anyVec().group().addVec(),fr.anyVec()._rowLayout,null,null,false,fr.vec(1)._key,fr.vec(4)._key);
+    Assert.assertTrue(interactionVec.expandedLength() == 4);
+    interactionVec.remove();
+    interactionVec=new InteractionWrappedVec(fr.anyVec().group().addVec(),fr.anyVec()._rowLayout,null,null,true,fr.vec(0)._key,fr.vec(1)._key);
+    Assert.assertTrue(interactionVec.expandedLength() == 1);
+  }
+  finally {
+    if (fr != null)     fr.delete();
+    if (interactionVec != null)     interactionVec.remove();
+  }
+}

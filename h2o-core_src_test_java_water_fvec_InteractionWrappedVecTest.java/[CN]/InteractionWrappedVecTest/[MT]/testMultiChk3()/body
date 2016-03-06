@@ -1,0 +1,30 @@
+{
+  Frame fr=null;
+  InteractionWrappedVec interactionVec=null;
+  int FAKEMAXFORTEST=1000;
+  String[] A;
+  String[] B;
+  try {
+    fr=makeFrame(1 << 20);
+    String[] fullA=fr.vec(3).domain();
+    String[] fullB=fr.vec(8).domain();
+    A=new String[]{fullA[0],fullA[3],fullA[4]};
+    B=new String[]{fullB[1],fullB[0]};
+    interactionVec=new InteractionWrappedVec(fr.anyVec().group().addVec(),fr.anyVec()._rowLayout,A,B,true,fr.vec(3)._key,fr.vec(8)._key);
+    int[] a=new int[A.length];
+    int[] b=new int[B.length];
+    int idx=0;
+    for (    String s : A)     a[idx++]=Arrays.asList(fullA).indexOf(s);
+    idx=0;
+    for (    String s : B)     b[idx++]=Arrays.asList(fullB).indexOf(s);
+    CreateInteractions.createInteractionDomain cid=new CreateInteractions.createInteractionDomain(false,false,a,b);
+    cid.doAll(fr.vec(3),fr.vec(8));
+    String[] domain=new CreateInteractions(FAKEMAXFORTEST,1).makeDomain(cid.getMap(),fullA,fullB);
+    Arrays.sort(domain);
+    Assert.assertArrayEquals(interactionVec.domain(),domain);
+  }
+  finally {
+    if (fr != null)     fr.delete();
+    if (interactionVec != null)     interactionVec.remove();
+  }
+}
