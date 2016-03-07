@@ -1,5 +1,5 @@
 {
-  if (isCancelled())   return;
+  if (isCancelled() || _j != null && _j.stop_requested())   return;
   Chunk weightsChunk=_hasWeights && _computeMetrics ? chks[_output.weightsIdx()] : new C0DChunk(1,chks[0]._len);
   Chunk offsetChunk=_output.hasOffset() ? chks[_output.offsetIdx()] : new C0DChunk(0,chks[0]._len);
   Chunk responseChunk=null;
@@ -38,4 +38,5 @@
       for (int c=0; c < _npredcols; c++)       cpreds[c].addNum(p[c]);
     }
   }
+  if (_j != null)   _j.update(1);
 }
