@@ -29,10 +29,10 @@
       v2.min();
       assertTrue("should have thrown IAE since we're requesting rollups while changing the Vec (got Vec.Writer)",false);
     }
- catch (    DistributedException de) {
-      assertTrue(de.getMessage().contains("IllegalArgumentException"));
+ catch (    IllegalArgumentException ie) {
     }
-catch (    IllegalArgumentException ie) {
+catch (    RuntimeException re) {
+      assertTrue(re.getCause() instanceof IllegalArgumentException);
     }
     w.close(fs);
     fs.blockForPending();
