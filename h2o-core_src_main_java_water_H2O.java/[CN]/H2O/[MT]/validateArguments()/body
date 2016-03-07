@@ -1,0 +1,23 @@
+{
+  if (ARGS.jks != null) {
+    if (!new File(ARGS.jks).exists()) {
+      parseFailed("File does not exist: " + ARGS.jks);
+    }
+  }
+  if (ARGS.login_conf != null) {
+    if (!new File(ARGS.login_conf).exists()) {
+      parseFailed("File does not exist: " + ARGS.login_conf);
+    }
+  }
+  if (ARGS.hash_login && ARGS.ldap_login) {
+    parseFailed("Can only specify one of -hash_login and -ldap_login");
+  }
+  if (ARGS.hash_login || ARGS.ldap_login) {
+    if (H2O.ARGS.login_conf == null) {
+      parseFailed("Must specify -login_conf argument");
+    }
+  }
+  for (  AbstractH2OExtension e : H2O.getExtensions()) {
+    e.validateArguments();
+  }
+}
