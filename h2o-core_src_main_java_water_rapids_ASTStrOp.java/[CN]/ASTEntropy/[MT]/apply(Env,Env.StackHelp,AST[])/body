@@ -1,0 +1,12 @@
+{
+  Frame fr=stk.track(asts[1].exec(env)).getFrame();
+  for (  Vec v : fr.vecs())   if (!(v.isCategorical() || v.isString()))   throw new IllegalArgumentException("entropy() requires a string or categorical column. " + "Received " + fr.anyVec().get_type_str() + ". Please convert column to a string or categorical first.");
+  Vec nvs[]=new Vec[fr.numCols()];
+  int i=0;
+  for (  Vec v : fr.vecs()) {
+    if (v.isCategorical())     nvs[i]=entropyCategoricalCol(v);
+ else     nvs[i]=entropyStringCol(v);
+    i++;
+  }
+  return new ValFrame(new Frame(nvs));
+}

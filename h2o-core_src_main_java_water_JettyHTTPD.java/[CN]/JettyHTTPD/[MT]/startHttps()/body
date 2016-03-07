@@ -1,0 +1,11 @@
+{
+  _server=new Server();
+  SslContextFactory sslContextFactory=new SslContextFactory(H2O.ARGS.jks);
+  sslContextFactory.setKeyStorePassword(H2O.ARGS.jks_pass);
+  SslSocketConnector httpsConnector=new SslSocketConnector(sslContextFactory);
+  if (getIp() != null) {
+    httpsConnector.setHost(getIp());
+  }
+  httpsConnector.setPort(getPort());
+  createServer(httpsConnector);
+}
