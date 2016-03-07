@@ -1,5 +1,43 @@
 {
   _server.setConnectors(new Connector[]{connector});
-  registerHandlers(_server);
+  if (H2O.ARGS.hash_login || H2O.ARGS.ldap_login) {
+    if (H2O.ARGS.login_conf == null) {
+      Log.err("Must specify -login_conf argument");
+      H2O.exit(1);
+    }
+    LoginService loginService;
+    if (H2O.ARGS.hash_login) {
+      Log.info("Configuring HashLoginService");
+      loginService=new HashLoginService("H2O",H2O.ARGS.login_conf);
+    }
+ else     if (H2O.ARGS.ldap_login) {
+      Log.info("Configuring JAASLoginService (with LDAP)");
+      System.setProperty("java.security.auth.login.config",H2O.ARGS.login_conf);
+      loginService=new JAASLoginService("ldaploginmodule");
+    }
+ else {
+      throw H2O.fail();
+    }
+    IdentityService identityService=new DefaultIdentityService();
+    loginService.setIdentityService(identityService);
+    _server.addBean(loginService);
+    ConstraintSecurityHandler security=new ConstraintSecurityHandler();
+    Constraint constraint=new Constraint();
+    constraint.setName("auth");
+    constraint.setAuthenticate(true);
+    security.setStrict(false);
+    constraint.setRoles(new String[]{Constraint.ANY_ROLE});
+    ConstraintMapping mapping=new ConstraintMapping();
+    mapping.setPathSpec("/*");
+    mapping.setConstraint(constraint);
+    security.setConstraintMappings(Collections.singletonList(mapping));
+    security.setAuthenticator(new BasicAuthenticator());
+    security.setLoginService(loginService);
+    registerHandlers(security);
+    _server.setHandler(security);
+  }
+ else {
+    registerHandlers(_server);
+  }
   _server.start();
 }

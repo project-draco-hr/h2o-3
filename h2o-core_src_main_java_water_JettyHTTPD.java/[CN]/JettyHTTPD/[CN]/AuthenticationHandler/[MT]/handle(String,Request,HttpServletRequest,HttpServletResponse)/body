@@ -1,0 +1,11 @@
+{
+  if (!H2O.ARGS.ldap_login) {
+    return;
+  }
+  String loginName=request.getUserPrincipal().getName();
+  if (!loginName.equals(H2O.ARGS.user_name)) {
+    Log.warn("Login name (" + loginName + ") does not match cluster owner name ("+ H2O.ARGS.user_name+ ")");
+    sendResponseError(response,HttpServletResponse.SC_UNAUTHORIZED,"Login name does not match cluster owner name");
+    baseRequest.setHandled(true);
+  }
+}

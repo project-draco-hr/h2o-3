@@ -6,7 +6,7 @@
       final ByteHistoThrow bh=new ByteHistoThrow(H2O.CLOUD._memary[i]);
       final boolean[] ok=new boolean[]{false};
       try {
-        bh.setCompleter(new CountedCompleter(){
+        CountedCompleter cc=new CountedCompleter(){
           @Override public void compute(){
             tryComplete();
           }
@@ -15,15 +15,13 @@
             return super.onExceptionalCompletion(ex,cc);
           }
         }
-);
+;
+        bh.setCompleter(cc);
         bh.dfork(vec);
-        int MAX_CNT=50;
-        while (!ok[0] && MAX_CNT-- > 0) {
-          Thread.sleep(100);
-        }
+        cc.join();
       }
- catch (      DException.DistributedException e) {
-        assertTrue(e.getMessage().contains("test"));
+ catch (      RuntimeException re) {
+        assertTrue(re.getMessage().contains("test") || re.getCause().getMessage().contains("test"));
       }
 catch (      java.lang.AssertionError ae) {
         throw ae;

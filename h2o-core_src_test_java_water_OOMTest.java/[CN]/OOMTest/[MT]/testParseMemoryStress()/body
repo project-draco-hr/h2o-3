@@ -4,12 +4,6 @@
   ArrayList<Frame> frames=new ArrayList<>();
   File ice=new File(water.H2O.ICE_ROOT.toString(),"ice" + water.H2O.API_PORT);
   String[] dirs=ice.list();
-  if (dirs != null && dirs.length > 0) {
-    for (    File f : ice.listFiles()) {
-      FileUtils.delete(f);
-    }
-    dirs=ice.list();
-  }
   Assert.assertTrue(dirs == null || dirs.length == 0);
   Assert.assertTrue(MemoryManager.MEM_MAX <= 1536L * 1024L * 1024L);
   try {
@@ -26,6 +20,11 @@
     for (    Frame fr : frames)     fr.delete();
   }
   dirs=ice.list();
+  if (dirs.length > 0) {
+    Log.info("Remaining swap files at test end:");
+    for (    String dir : dirs) {
+      Log.info(dir);
+    }
+  }
   Assert.assertTrue(dirs.length == 0);
-  FileUtils.delete(ice);
 }
