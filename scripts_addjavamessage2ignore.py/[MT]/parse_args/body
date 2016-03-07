@@ -1,0 +1,41 @@
+def parse_args(argv):
+    '\n    Parse user inputs and set the corresponing global variables to perform the\n    necessary tasks.\n\n    Parameters\n    ----------\n\n    argv : string array\n        contains flags and input options from users\n\n    :return:\n    '
+    global g_new_messages_to_exclude
+    global g_old_messages_to_remove
+    global g_load_java_message_filename
+    global g_save_java_message_filename
+    global g_print_java_messages
+    if (len(argv) < 2):
+        usage()
+    i = 1
+    while (i < len(argv)):
+        s = argv[i]
+        if (s == '--inputfileadd'):
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_new_messages_to_exclude = argv[i]
+        elif (s == '--inputfilerm'):
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_old_messages_to_remove = argv[i]
+        elif (s == '--loadjavamessage'):
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_load_java_message_filename = argv[i]
+        elif (s == '--savejavamessage'):
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_save_java_message_filename = argv[i]
+        elif (s == '--printjavamessage'):
+            i += 1
+            g_print_java_messages = True
+            g_load_java_message_filename = argv[i]
+        elif (s == '--help'):
+            usage()
+        else:
+            unknown_arg(s)
+        i += 1

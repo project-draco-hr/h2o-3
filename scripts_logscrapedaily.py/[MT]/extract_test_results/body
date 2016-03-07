@@ -1,0 +1,23 @@
+def extract_test_results():
+    '\n    Extract error messages from jenkins console output and from java_*_0.out.txt if they exist to\n    warn users of potentially bad tests.  In addition, it will grab the following info about the jenkins\n    job from the console output and saved it into g_failed_test_info_dict:\n    1.jobName\n    2.build_id\n    3.timestamp\n    4.git_hash\n    5.git_branch\n    6.node_name\n    7.build_failure\n    8.build_timeout\n    9.general_bad_java_messages\n    failed_tests_info *********: list of failed tests and their associated bad java messages\n    passed_tests_info *********: list of passed tests and their associated bad java messages\n\n    This is achieved by calling various functions.\n\n    :return: none\n    '
+    global g_test_root_dir
+    global g_temp_filename
+    global g_output_filename
+    global g_build_func_list
+    temp_func_list = copy.copy(g_build_func_list)
+    if os.path.isfile(g_temp_filename):
+        console_file = open(g_temp_filename, 'r')
+        for each_line in console_file:
+            each_line.strip()
+            for each_function in temp_func_list:
+                to_continue = perform(each_function, each_line, temp_func_list)
+                if (not to_continue):
+                    break
+            if (not to_continue):
+                break
+            else:
+                update_test_dict(each_line)
+        console_file.close()
+    else:
+        print (('Error: console output file ' + g_temp_filename) + ' does not exist.')
+        sys.exit(1)

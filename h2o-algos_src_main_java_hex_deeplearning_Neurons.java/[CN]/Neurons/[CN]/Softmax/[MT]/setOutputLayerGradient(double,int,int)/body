@@ -1,0 +1,43 @@
+{
+  assert(target == (int)target);
+  double g;
+  final int rows=_a[mb].size();
+  for (int row=0; row < rows; row++) {
+    final double t=(row == (int)target ? 1 : 0);
+    final double y=_a[mb].get(row);
+switch (params._loss) {
+case Automatic:
+case CrossEntropy:
+      g=t - y;
+    break;
+case Absolute:
+  g=(2 * t - 1) * (1f - y) * y;
+break;
+case Quadratic:
+g=(t - y) * (1f - y) * y;
+break;
+case Huber:
+if (t == 0) {
+if (y < 0.5) {
+g=-4 * y;
+}
+ else {
+g=-2;
+}
+}
+ else {
+if (y > 0.5) {
+g=4 * (1 - y);
+}
+ else {
+g=2;
+}
+}
+g*=(1f - y) * y;
+break;
+default :
+throw H2O.unimpl();
+}
+_e[mb].set(row,g / n);
+}
+}

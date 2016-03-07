@@ -1,0 +1,9 @@
+def load_java_messages_to_ignore():
+    '\n    Load in pickle file that contains dict structure with bad java messages to ignore per unit test\n    or for all cases.  The ignored bad java info is stored in g_ok_java_messages dict.\n\n    :return:\n    '
+    global g_ok_java_messages
+    global g_java_message_pickle_filename
+    if os.path.isfile(g_java_message_pickle_filename):
+        with open(g_java_message_pickle_filename, 'rb') as tfile:
+            g_ok_java_messages = pickle.load(tfile)
+    else:
+        g_ok_java_messages['general'] = []
