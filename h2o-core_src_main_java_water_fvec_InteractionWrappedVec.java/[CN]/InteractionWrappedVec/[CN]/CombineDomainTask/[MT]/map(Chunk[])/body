@@ -7,9 +7,13 @@
   HashSet<String> B=_riteLimit == null ? null : new HashSet<String>();
   if (A != null)   Collections.addAll(A,_leftLimit);
   if (B != null)   Collections.addAll(B,_riteLimit);
+  int lval, rval;
   for (int i=0; i < left._len; ++i)   if (!(left.isNA(i) || rite.isNA(i))) {
-    String l=_left[(int)left.at8(i)];
-    String r=_rite[(int)rite.at8(i)];
+    lval=(int)left.at8(i);
+    rval=(int)rite.at8(i);
+    if (!_useAllLvls && (0 == lval || 0 == rval))     continue;
+    String l=_left[lval];
+    String r=_rite[rval];
     if (A != null && !A.contains(l))     continue;
     if (B != null && !B.contains(r))     continue;
     if (_perChkMap.putIfAbsent((k=l + "_" + r),new IcedLong(1)) != null)     _perChkMap.get(k)._val++;
