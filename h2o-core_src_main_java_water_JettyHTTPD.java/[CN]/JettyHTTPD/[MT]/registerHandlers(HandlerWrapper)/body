@@ -1,6 +1,7 @@
 {
   GateHandler gh=new GateHandler();
   AddCommonResponseHeadersHandler rhh=new AddCommonResponseHeadersHandler();
+  AuthenticationHandler authh=new AuthenticationHandler();
   ExtensionHandler1 eh1=new ExtensionHandler1();
   ServletContextHandler context=new ServletContextHandler(ServletContextHandler.SECURITY | ServletContextHandler.SESSIONS);
   context.setContextPath("/");
@@ -10,7 +11,7 @@
   context.addServlet(H2oDatasetServlet.class,"/3/DownloadDataset");
   context.addServlet(H2oDatasetServlet.class,"/3/DownloadDataset.bin");
   context.addServlet(H2oDefaultServlet.class,"/");
-  Handler[] handlers={gh,rhh,eh1,context};
+  Handler[] handlers={gh,rhh,authh,eh1,context};
   HandlerCollection hc=new HandlerCollection();
   hc.setHandlers(handlers);
   s.setHandler(hc);
