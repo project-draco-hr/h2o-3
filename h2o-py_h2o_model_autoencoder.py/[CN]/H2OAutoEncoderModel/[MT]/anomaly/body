@@ -1,5 +1,5 @@
 def anomaly(self, test_data, per_feature=False):
-    'Obtain the reconstruction error for the input test_data.\n\n    Parameters\n    ----------\n      test_data : H2OFrame\n        The dataset upon which the reconstruction error is computed.\n      per_feature : bool\n        Whether to return the square reconstruction error per feature. Otherwise, return\n        the mean square error.\n\n    Returns\n    -------\n      Return the reconstruction error.\n    '
+    'Obtain the reconstruction error for the input test_data.\n\n    Parameters\n    ----------\n      test_data : H2OFrame\n        The dataset upon which the reconstruction error is computed.\n\n      per_feature : bool\n        Whether to return the square reconstruction error per feature. Otherwise, return\n        the mean square error.\n\n    Returns\n    -------\n      Return the reconstruction error.\n    '
     if ((test_data is None) or (test_data.nrow == 0)):
         raise ValueError('Must specify test data')
     j = h2o.H2OConnection.post_json(((('Predictions/models/' + self.model_id) + '/frames/') + test_data.frame_id), reconstruction_error=True, reconstruction_error_per_feature=per_feature)
