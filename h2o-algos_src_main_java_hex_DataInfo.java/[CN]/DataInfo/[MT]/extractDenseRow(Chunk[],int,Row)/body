@@ -19,10 +19,21 @@
   row.nBins=nbins;
   final int n=_nums;
   for (int i=0; i < n; ++i) {
-    double d=chunks[_cats + i].atd(rid);
-    if (Double.isNaN(d))     d=_numMeans[i];
-    if (_normMul != null && _normSub != null)     d=(d - _normSub[i]) * _normMul[i];
-    row.numVals[i]=d;
+    if (isInteractionVec(i)) {
+      int offset;
+      int v1=_adaptedFrame.find(((InteractionWrappedVec)chunks[_cats + i].vec()).v1());
+      int v2=_adaptedFrame.find(((InteractionWrappedVec)chunks[_cats + i].vec()).v2());
+      if (chunks[v1].vec().isCategorical())       offset=(int)chunks[v1].at8(rid);
+ else       if (chunks[v2].vec().isCategorical())       offset=(int)chunks[v2].at8(rid);
+ else       offset=0;
+      row.numVals[i + offset]=chunks[_cats + i].atd(rid);
+    }
+ else {
+      double d=chunks[_cats + i].atd(rid);
+      if (Double.isNaN(d))       d=_numMeans[i];
+      if (_normMul != null && _normSub != null)       d=(d - _normSub[i]) * _normMul[i];
+      row.numVals[i]=d;
+    }
   }
   for (int i=0; i < _responses; ++i) {
     try {
