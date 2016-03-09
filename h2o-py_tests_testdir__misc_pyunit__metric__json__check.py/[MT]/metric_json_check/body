@@ -15,6 +15,7 @@ def metric_json_check():
     reg_metric_diff = list((set(reg_metric_json_keys_have) - set(reg_metric_json_keys_desired)))
     assert (not reg_metric_diff), "There's a difference between the current ({0}) and the desired ({1}) glm-regression metric json. The difference is {2}".format(reg_metric_json_keys_have, reg_metric_json_keys_desired, reg_metric_diff)
     bin_mod = H2OGradientBoostingEstimator(distribution='bernoulli')
+    df['CAPSULE'] = df['CAPSULE'].asfactor()
     bin_mod.train(x=range(3, df.ncol), y='CAPSULE', training_frame=df)
     bin_met = bin_mod.model_performance()
     bin_metric_json_keys_have = list(bin_met._metric_json.keys())
@@ -40,7 +41,7 @@ def metric_json_check():
     df = h2o.import_file(path=pyunit_utils.locate('smalldata/iris/iris.csv'))
     from h2o.estimators.kmeans import H2OKMeansEstimator
     clus_mod = H2OKMeansEstimator(k=3, standardize=False)
-    clus_mod.train(x=range(4), taining_frame=df)
+    clus_mod.train(x=range(4), training_frame=df)
     clus_met = clus_mod.model_performance()
     clus_metric_json_keys_have = list(clus_met._metric_json.keys())
     clus_metric_json_keys_desired = [u'tot_withinss', u'model_category', u'description', u'frame', u'model_checksum', u'MSE', u'__meta', u'scoring_time', u'betweenss', u'predictions', u'totss', u'model', u'duration_in_ms', u'frame_checksum', u'centroid_stats']
