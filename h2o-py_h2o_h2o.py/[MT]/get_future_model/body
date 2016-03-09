@@ -1,3 +1,7 @@
 def get_future_model(future_model):
     'Waits for the future model to finish building, and then returns the model.\n\n  Parameters\n  ----------\n    future_model : H2OModelFuture\n      an H2OModelFuture object\n\n  Returns\n  -------\n    H2OEstimator\n  '
-    return _resolve_model(future_model)
+    future_model.poll()
+    m = H2OEstimator()
+    model_json = H2OConnection.get_json(('Models/' + future_model.job.dest_key))['models'][0]
+    m._resolve_model(future_model.job.dest_key, model_json)
+    return m
