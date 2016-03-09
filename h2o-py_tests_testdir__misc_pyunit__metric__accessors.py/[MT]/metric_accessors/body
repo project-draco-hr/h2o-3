@@ -6,7 +6,8 @@ def metric_accessors():
     response_col = 'economy'
     distribution = 'gaussian'
     predictors = ['displacement', 'power', 'weight', 'acceleration', 'year']
-    gbm = h2o.gbm(y=train[response_col], x=train[predictors], validation_y=valid[response_col], validation_x=valid[predictors], nfolds=3, distribution=distribution, fold_assignment='Random')
+    gbm = H2OGradientBoostingEstimator(nfolds=3, distribution=distribution, fold_assignment='Random')
+    gbm.train(x=predictors, y=response_col, training_frame=train, validation_frame=valid)
     mse1 = gbm.mse(train=True, valid=False, xval=False)
     assert isinstance(mse1, float)
     mse2 = gbm.mse(train=False, valid=True, xval=False)
@@ -96,7 +97,8 @@ def metric_accessors():
     response_col = 'economy_20mpg'
     distribution = 'bernoulli'
     predictors = ['displacement', 'power', 'weight', 'acceleration', 'year']
-    gbm = h2o.gbm(y=train[response_col], x=train[predictors], validation_y=valid[response_col], validation_x=valid[predictors], nfolds=3, distribution=distribution, fold_assignment='Random')
+    gbm = H2OGradientBoostingEstimator(nfolds=3, distribution=distribution, fold_assignment='Random')
+    gbm.train(y=response_col, x=predictors, validation_frame=valid, training_fram=train)
     auc1 = gbm.auc(train=True, valid=False, xval=False)
     assert isinstance(auc1, float)
     auc2 = gbm.auc(train=False, valid=True, xval=False)
@@ -292,7 +294,7 @@ def metric_accessors():
     response_col = 'cylinders'
     distribution = 'multinomial'
     predictors = ['displacement', 'power', 'weight', 'acceleration', 'year']
-    gbm = h2o.gbm(y=train[response_col], x=train[predictors], validation_y=valid[response_col], validation_x=valid[predictors], nfolds=3, distribution=distribution, fold_assignment='Random')
+    gbm.train(x=predictors, y=response_col, training_frame=train, validation_frame=valid)
     mse1 = gbm.mse(train=True, valid=False, xval=False)
     assert isinstance(mse1, float)
     mse2 = gbm.mse(train=False, valid=True, xval=False)
@@ -356,7 +358,9 @@ def metric_accessors():
     hit_ratio_table = gbm.hit_ratio_table(train=False, valid=False, xval=False)
     hit_ratio_table = gbm.hit_ratio_table(train=False, valid=True, xval=True)
     iris = h2o.import_file(path=pyunit_utils.locate('smalldata/iris/iris.csv'))
-    km = h2o.kmeans(x=iris[0:4], nfolds=3, k=3)
+    from h2o.estimators.kmeans import H2OKMeansEstimator
+    km = H2OKMeansEstimator(k=3, nfolds=3)
+    km.train(x=range(4), training_frame=iris)
     betweenss1 = km.betweenss(train=True, valid=False, xval=False)
     assert isinstance(betweenss1, float)
     betweenss3 = km.betweenss(train=False, valid=False, xval=True)
