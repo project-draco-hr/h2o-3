@@ -12,15 +12,21 @@
     }
     if (_catMissing[i] && getCategoricalId(i,_catModes[i]) >= 0)     res[k++]=_adaptedFrame._names[i] + ".missing(NA)";
   }
-  for (int i=_cats; i < _nums; ++i) {
-    InteractionWrappedVec v;
-    if (vecs[i] instanceof InteractionWrappedVec && ((v=(InteractionWrappedVec)vecs[i]).domains() != null)) {
-      for (int j=0; k < v.domains().length; ++j) {
-        if (getCategoricalIdFromInteraction(i,j) < 0)         continue;
-        res[k++]=_adaptedFrame._names[i] + "." + v.domains()[j];
+  if (_interactions == null) {
+    final int nums=n - k;
+    System.arraycopy(_adaptedFrame._names,_cats,res,k,nums);
+  }
+ else {
+    for (int i=_cats; i < _nums; ++i) {
+      InteractionWrappedVec v;
+      if (vecs[i] instanceof InteractionWrappedVec && ((v=(InteractionWrappedVec)vecs[i]).domains() != null)) {
+        for (int j=0; k < v.domains().length; ++j) {
+          if (getCategoricalIdFromInteraction(i,j) < 0)           continue;
+          res[k++]=_adaptedFrame._names[i] + "." + v.domains()[j];
+        }
       }
+ else       res[k++]=_adaptedFrame._names[i];
     }
- else     res[k++]=_adaptedFrame._names[i];
   }
   _coefNames=res;
   return res;
