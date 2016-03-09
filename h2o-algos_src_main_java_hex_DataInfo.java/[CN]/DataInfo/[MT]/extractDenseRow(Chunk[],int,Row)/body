@@ -21,10 +21,11 @@
   for (int i=0; i < n; ++i) {
     if (isInteractionVec(i)) {
       int offset;
-      int v1=_adaptedFrame.find(((InteractionWrappedVec)chunks[_cats + i].vec()).v1());
-      int v2=_adaptedFrame.find(((InteractionWrappedVec)chunks[_cats + i].vec()).v2());
-      if (chunks[v1].vec().isCategorical())       offset=(int)chunks[v1].at8(rid);
- else       if (chunks[v2].vec().isCategorical())       offset=(int)chunks[v2].at8(rid);
+      InteractionWrappedVec iwv=((InteractionWrappedVec)_adaptedFrame.vec(_cats + i));
+      int v1=_adaptedFrame.find(iwv.v1());
+      int v2=_adaptedFrame.find(iwv.v2());
+      if (v1 < _cats)       offset=(int)chunks[v1].at8(rid);
+ else       if (v2 < _cats)       offset=(int)chunks[v2].at8(rid);
  else       offset=0;
       row.numVals[i + offset]=chunks[_cats + i].atd(rid);
     }
