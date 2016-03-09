@@ -8,14 +8,30 @@
   if (A != null)   Collections.addAll(A,_leftLimit);
   if (B != null)   Collections.addAll(B,_riteLimit);
   int lval, rval;
-  for (int i=0; i < left._len; ++i)   if (!(left.isNA(i) || rite.isNA(i))) {
+  String l, r;
+  boolean leftIsNA, riteIsNA;
+  for (int i=0; i < left._len; ++i)   if ((!((leftIsNA=left.isNA(i)) | (riteIsNA=rite.isNA(i))))) {
     lval=(int)left.at8(i);
     rval=(int)rite.at8(i);
     if (!_useAllLvls && (0 == lval || 0 == rval))     continue;
-    String l=_left[lval];
-    String r=_rite[rval];
+    l=_left[lval];
+    r=_rite[rval];
     if (A != null && !A.contains(l))     continue;
     if (B != null && !B.contains(r))     continue;
-    if (_perChkMap.putIfAbsent((k=l + "_" + r),new IcedLong(1)) != null)     _perChkMap.get(k)._val++;
+    if (null != _perChkMap.putIfAbsent((k=l + "_" + r),new IcedLong(1)))     _perChkMap.get(k)._val++;
+  }
+ else   if (!_skipMissing) {
+    if (!(leftIsNA && riteIsNA)) {
+      if (leftIsNA) {
+        r=_rite[(int)rite.at8(i)];
+        if (B != null && !B.contains(r))         continue;
+        if (null != _perChkMap.putIfAbsent((k="NA_" + r),new IcedLong(1)))         _perChkMap.get(k)._val++;
+      }
+ else {
+        l=_left[(int)left.at8(i)];
+        if (null != A && !A.contains(l))         continue;
+        if (null != _perChkMap.putIfAbsent((k=l + "_NA"),new IcedLong(1)))         _perChkMap.get(k)._val++;
+      }
+    }
   }
 }

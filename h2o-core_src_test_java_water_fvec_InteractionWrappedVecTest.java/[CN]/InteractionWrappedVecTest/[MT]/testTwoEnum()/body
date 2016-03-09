@@ -4,7 +4,7 @@
   int FAKEMAXFORTEST=1000;
   try {
     fr=parse_test_file(Key.make("a.hex"),"smalldata/airlines/allyears2k_headers.zip");
-    interactionVec=new InteractionWrappedVec(fr.anyVec().group().addVec(),fr.anyVec()._rowLayout,null,null,true,fr.vec(8)._key,fr.vec(16)._key);
+    interactionVec=new InteractionWrappedVec(fr.anyVec().group().addVec(),fr.anyVec()._rowLayout,null,null,true,true,fr.vec(8)._key,fr.vec(16)._key);
     CreateInteractions.createInteractionDomain cid=new CreateInteractions.createInteractionDomain(false,false);
     cid.doAll(fr.vec(8),fr.vec(16));
     String[] domain=new CreateInteractions(FAKEMAXFORTEST,1).makeDomain(cid.getMap(),fr.vec(8).domain(),fr.vec(16).domain());
@@ -14,7 +14,7 @@
     Assert.assertArrayEquals(interactionVec.domain(),domain);
     Assert.assertTrue(interactionVec.expandedLength() == domain.length);
     interactionVec.remove();
-    interactionVec=new InteractionWrappedVec(fr.anyVec().group().addVec(),fr.anyVec()._rowLayout,null,null,false,fr.vec(8)._key,fr.vec(16)._key);
+    interactionVec=new InteractionWrappedVec(fr.anyVec().group().addVec(),fr.anyVec()._rowLayout,null,null,false,true,fr.vec(8)._key,fr.vec(16)._key);
     Assert.assertTrue(interactionVec.expandedLength() == domain.length - 2);
     System.out.println(interactionVec.mode());
     System.out.println(interactionVec.domain()[interactionVec.mode()]);
