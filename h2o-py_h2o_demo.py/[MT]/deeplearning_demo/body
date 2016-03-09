@@ -20,7 +20,9 @@ def deeplearning_demo(interactive, echo, test):
     train['CAPSULE'] = train['CAPSULE'].asfactor()
     test['CAPSULE'] = test['CAPSULE'].asfactor()
     echo_and_interact(demo_commands, interactive, echo)
-    prostate_dl = h2o.deeplearning(x=train[list((set(prostate.col_names) - set(['ID', 'CAPSULE'])))], y=train['CAPSULE'], activation='Tanh', hidden=[10, 10, 10], epochs=10000)
+    from h2o.estimators.deeplearning import H2ODeepLearningEstimator
+    prostate_dl = H2ODeepLearningEstimator(activation='Tanh', hidden=[10, 10, 10], epochs=10000)
+    prostate_dl.train(x=list((set(prostate.col_names) - set(['ID', 'CAPSULE']))), y='CAPSULE', training_frame=train)
     echo_and_interact(demo_commands, interactive, echo)
     prostate_dl.show()
     echo_and_interact(demo_commands, interactive, echo, npop=3)

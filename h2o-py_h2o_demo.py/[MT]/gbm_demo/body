@@ -20,7 +20,9 @@ def gbm_demo(interactive, echo, test):
     train['CAPSULE'] = train['CAPSULE'].asfactor()
     test['CAPSULE'] = test['CAPSULE'].asfactor()
     echo_and_interact(demo_commands, interactive, echo)
-    prostate_gbm = h2o.gbm(x=train[['AGE', 'RACE', 'PSA', 'VOL', 'GLEASON']], y=train['CAPSULE'], distribution='bernoulli', ntrees=10, max_depth=8, min_rows=10, learn_rate=0.2)
+    from h2o.estimators.gbm import H2OGradientBoostingEstimator
+    prostate_gbm = H2OGradientBoostingEstimator(distribution='bernoulli', ntrees=10, max_depth=8, min_rows=10, learn_rate=0.2)
+    prostate_gbm.train(x=['AGE', 'RACE', 'PSA', 'VOL', 'GLEASON'], y='CAPSULE', training_frame=train)
     echo_and_interact(demo_commands, interactive, echo)
     prostate_gbm.show()
     echo_and_interact(demo_commands, interactive, echo, npop=3)
