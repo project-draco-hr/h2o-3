@@ -18,6 +18,8 @@ def _model_build(self, x, y, tframe, vframe, kwargs):
     kwargs = dict([(k, (kwargs[k].frame_id if isinstance(kwargs[k], H2OFrame) else kwargs[k])) for k in kwargs if (kwargs[k] is not None)])
     algo = self.model._compute_algo()
     kwargs['_rest_version'] = 99
+    if (self.grid_id is not None):
+        kwargs['grid_id'] = self.grid_id
     grid = H2OJob(H2OConnection.post_json(('Grid/' + algo), **kwargs), job_type=(algo + ' Grid Build'))
     if self._future:
         self._job = grid

@@ -1,0 +1,21 @@
+{
+  SimpleFreezableTest a=new SimpleFreezableTest(12,345,"6789");
+  SimpleFreezableTest b=new SimpleFreezableTest().read(new AutoBuffer(a.write(new AutoBuffer()).bufClose()));
+  byte[] abytes=AutoBuffer.javaSerializeWritePojo(a);
+  b=new AutoBuffer(new AutoBuffer().put(a).bufClose()).get();
+  Assert.assertArrayEquals(abytes,AutoBuffer.javaSerializeWritePojo(b));
+  byte[] jsonBytes=a.writeJSON(new AutoBuffer()).buf();
+  String jsonStr=new String(jsonBytes);
+  Map<String,Object> m=JSONUtils.parse(jsonStr);
+  int x=(int)((Double)m.get("x")).doubleValue();
+  int y=(int)((Double)m.get("y")).doubleValue();
+  String str=(String)m.get("str");
+  Assert.assertEquals(12,x);
+  Assert.assertEquals(345,y);
+  Assert.assertEquals("6789",str);
+  SimpleFreezableTestChild d=new SimpleFreezableTestChild(12,345,"6789",new int[]{10,20,30,40,50},new double[]{10.1,10.2,10.3,10.4,10.5});
+  Assert.assertArrayEquals(AutoBuffer.javaSerializeWritePojo(d),AutoBuffer.javaSerializeWritePojo(new SimpleFreezableTestChild().reloadFromBytes(d.asBytes())));
+  SimpleFreezableTestChild3 e=new SimpleFreezableTestChild3(12,345,"6789",new int[]{10,20,30,40,50},new double[]{10.1,10.2,10.3,10.4,10.5});
+  SimpleFreezableTest e2=new AutoBuffer(new AutoBuffer().put(e).buf()).get();
+  Assert.assertArrayEquals(AutoBuffer.javaSerializeWritePojo(e),AutoBuffer.javaSerializeWritePojo(e2));
+}

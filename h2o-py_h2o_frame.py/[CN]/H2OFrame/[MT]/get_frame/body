@@ -3,5 +3,8 @@ def get_frame(frame_id):
     'Create an H2OFrame mapped to an existing id in the cluster.\n\n    Returns\n    -------\n      H2OFrame that points to a pre-existing big data H2OFrame in the cluster\n    '
     fr = H2OFrame()
     fr._ex._cache._id = frame_id
-    fr._ex._cache.fill()
+    try:
+        fr._ex._cache.fill()
+    except EnvironmentError:
+        return None
     return fr

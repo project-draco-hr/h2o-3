@@ -1,25 +1,3 @@
 {
-  Frame adaptFr=new Frame(fr);
-  boolean computeMetrics=(!isSupervised() || adaptFr.find(_output.responseName()) != -1);
-  adaptTestForTrain(adaptFr,true,computeMetrics);
-  Frame output=predictScoreImpl(fr,adaptFr,destination_key);
-  Vec predicted=output.vecs()[0];
-  String mdomain[]=predicted.domain();
-  if (_output.isClassifier() && computeMetrics) {
-    ModelMetrics mm=ModelMetrics.getFromDKV(this,fr);
-    ConfusionMatrix cm=mm.cm();
-    if (cm != null && cm._domain != null)     if (cm._cm.length < _parms._max_confusion_matrix_size) {
-      Log.info(cm.table().toString(1));
-    }
-    if (mm.hr() != null) {
-      Log.info(getHitRatioTable(mm.hr()));
-    }
-    Vec actual=fr.vec(_output.responseName());
-    if (actual != null) {
-      String sdomain[]=actual.domain();
-      if (sdomain != null && mdomain != sdomain && !Arrays.equals(mdomain,sdomain))       output.replace(0,new CategoricalWrappedVec(actual.group().addVec(),actual._rowLayout,sdomain,predicted._key));
-    }
-  }
-  cleanup_adapt(adaptFr,fr);
-  return output;
+  return score(fr,destination_key,null);
 }

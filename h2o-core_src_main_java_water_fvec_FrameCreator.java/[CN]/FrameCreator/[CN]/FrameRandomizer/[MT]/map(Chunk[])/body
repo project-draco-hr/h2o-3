@@ -40,4 +40,18 @@
     }
   }
   job.update(1);
+  for (  int c : _time_cols) {
+    for (int r=0; r < cs[c]._len; r++) {
+      setSeed(rng,c,cs[c]._start + r);
+      cs[c].set(r,Math.abs(rng.nextLong() % (50L * 365 * 24* 3600* 1000)));
+    }
+  }
+  job.update(1);
+  for (  int c : _string_cols) {
+    for (int r=0; r < cs[c]._len; r++) {
+      setSeed(rng,c,cs[c]._start + r);
+      cs[c].set(r,UUID.randomUUID().toString().substring(0,8));
+    }
+  }
+  job.update(1);
 }

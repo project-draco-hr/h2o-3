@@ -10,7 +10,9 @@ def add_test(self, test_path):
         sys.exit(1)
     test_short_dir = self._calc_test_short_dir(test_path)
     test = Test(abs_test_dir, test_short_dir, test_file, self.output_dir, self.hadoop_namenode, self.on_hadoop)
-    if (test_path.split('/')[(-1)] in self.exclude_list):
+    if is_javascript_test_file(test.test_name):
+        test.exclude_flows = ';'.join(self.exclude_list)
+    if (test.test_name in self.exclude_list):
         print 'INFO: Skipping {0} because it was placed on the exclude list.'.format(test_path)
     else:
         self.tests.append(test)
