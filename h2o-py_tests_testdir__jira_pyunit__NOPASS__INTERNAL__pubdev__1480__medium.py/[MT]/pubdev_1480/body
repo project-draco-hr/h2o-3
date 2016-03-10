@@ -3,7 +3,8 @@ def pubdev_1480():
         raise EnvironmentError
     train = h2o.import_file('hdfs://mr-0xd6/datasets/kaggle/sf.crime.train.gz')
     test = h2o.import_file('hdfs://mr-0xd6/datasets/kaggle/sf.crime.test.gz')
-    model = h2o.gbm(x=train[list(range(2, 9))], y=train[1])
+    model = H2OGradientBoostingEstimator()
+    model.train(x=list(range(2, 9)), y=1, training_frame=train)
     predictions = model.predict(test)
     results_dir = pyunit_utils.locate('results')
     h2o.download_csv(predictions, os.path.join(results_dir, 'predictions.csv'))
