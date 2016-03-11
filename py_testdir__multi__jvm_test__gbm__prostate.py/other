@@ -10,16 +10,16 @@ h2o.init(ip=ip, port=port, strict_version_check=False)
 df = h2o.import_file(path='../../../smalldata/logreg/prostate.csv')
 df.describe()
 df.pop('ID')
-vol = df['VOL']
-vol[(vol == 0)] = float('nan')
-gle = df['GLEASON']
-gle[(gle == 0)] = float('nan')
+df[(df['VOL'], 'VOL')] = None
+df[(df['GLEASON'], 'GLEASON')] = None
 df['CAPSULE'] = df['CAPSULE'].asfactor()
-r = vol.runif()
+r = df.runif()
 train = df[(r < 0.8)]
 test = df[(r >= 0.8)]
 train.describe()
 test.describe()
-gbm = h2o.gbm(y=train['CAPSULE'], validation_y=test['CAPSULE'], x=train[1:], validation_x=test[1:], ntrees=50, max_depth=5, learn_rate=0.1, distribution='bernoulli')
+from h2o.estimators.gbm import H2OGradientBoostingEstimator
+gbm = H2OGradientBoostingEstimator(ntrees=5, max_depth=3, distribution='bernoulli')
+gbm.train(x=list(range(2, train.ncol)), y='CAPSULE', training_frame=train, validation_frame=test)
 mm = gbm.model_performance(test)
 mm.show()
