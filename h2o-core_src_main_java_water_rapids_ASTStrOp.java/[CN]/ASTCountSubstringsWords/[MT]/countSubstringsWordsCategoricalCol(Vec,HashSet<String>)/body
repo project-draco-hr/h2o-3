@@ -1,15 +1,15 @@
 {
   Vec res=new MRTask(){
-    transient double[] catPros;
+    transient double[] catCounts;
     @Override public void setupLocal(){
       String[] doms=_fr.anyVec().domain();
-      catPros=new double[doms.length];
-      for (int i=0; i < doms.length; i++)       catPros[i]=calcProSubstringsWords(doms[i],words);
+      catCounts=new double[doms.length];
+      for (int i=0; i < doms.length; i++)       catCounts[i]=calcCountSubstringsWords(doms[i],words);
     }
     @Override public void map(    Chunk chk,    NewChunk newChk){
       newChk._ds=MemoryManager.malloc8d(chk._len);
       for (int i=0; i < chk._len; i++)       if (chk.isNA(i))       newChk.addNA();
- else       newChk.addNum(catPros[(int)chk.atd(i)]);
+ else       newChk.addNum(catCounts[(int)chk.atd(i)]);
     }
   }
 .doAll(1,Vec.T_NUM,new Frame(vec)).outputFrame().anyVec();
