@@ -20,13 +20,7 @@
   final int n=_nums;
   for (int i=0; i < n; ++i) {
     if (isInteractionVec(i)) {
-      int offset;
-      InteractionWrappedVec iwv=((InteractionWrappedVec)_adaptedFrame.vec(_cats + i));
-      int v1=_adaptedFrame.find(iwv.v1());
-      int v2=_adaptedFrame.find(iwv.v2());
-      if (v1 < _cats)       offset=(int)chunks[v1].at8(rid);
- else       if (v2 < _cats)       offset=(int)chunks[v2].at8(rid);
- else       offset=0;
+      int offset=getInteractionOffset(chunks,_cats + i,rid);
       row.numVals[i + offset]=chunks[_cats + i].atd(rid);
     }
  else {
