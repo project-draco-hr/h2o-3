@@ -2,9 +2,9 @@ def milsong_checkpoint():
     milsong_train = h2o.upload_file(pyunit_utils.locate('bigdata/laptop/milsongs/milsongs-train.csv.gz'))
     milsong_valid = h2o.upload_file(pyunit_utils.locate('bigdata/laptop/milsongs/milsongs-test.csv.gz'))
     distribution = 'gaussian'
-    ntrees1 = random.sample(list(range(50, 100)), 1)[0]
-    max_depth1 = random.sample(list(range(2, 6)), 1)[0]
-    min_rows1 = random.sample(list(range(10, 16)), 1)[0]
+    ntrees1 = 2
+    max_depth1 = 2
+    min_rows1 = 10
     print('ntrees model 1: {0}'.format(ntrees1))
     print('max_depth model 1: {0}'.format(max_depth1))
     print('min_rows model 1: {0}'.format(min_rows1))
@@ -15,7 +15,7 @@ def milsong_checkpoint():
     model_path = h2o.save_model(model1, path=path, force=True)
     assert os.path.isfile(model_path), 'Expected load file {0} to exist, but it does not.'.format(model_path)
     restored_model = h2o.load_model(model_path)
-    ntrees2 = (ntrees1 + 50)
+    ntrees2 = (ntrees1 + 1)
     max_depth2 = max_depth1
     min_rows2 = min_rows1
     print('ntrees model 2: {0}'.format(ntrees2))

@@ -40,4 +40,20 @@
     }
   }
   job.update(1);
+  for (  int c : _time_cols) {
+    for (int r=0; r < cs[c]._len; r++) {
+      setSeed(rng,c,cs[c]._start + r);
+      cs[c].set(r,Math.abs(rng.nextLong() % (50L * 365 * 24* 3600* 1000)));
+    }
+  }
+  job.update(1);
+  byte[] by=new byte[8];
+  for (  int c : _string_cols) {
+    for (int r=0; r < cs[c]._len; r++) {
+      setSeed(rng,c,cs[c]._start + r);
+      for (int i=0; i < by.length; ++i)       by[i]=(byte)(65 + rng.nextInt(25));
+      cs[c].set(r,new String(by));
+    }
+  }
+  job.update(1);
 }

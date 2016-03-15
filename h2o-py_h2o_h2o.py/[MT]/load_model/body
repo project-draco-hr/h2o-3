@@ -1,4 +1,4 @@
 def load_model(path):
-    '\n  Load a saved H2O model from disk.\n  Example:\n      >>> path = h2o.save_model(my_model,dir=my_path)\n      >>> h2o.load_model(path)                         # use the result of save_model\n\n\n  Parameters\n  ----------\n  path : str\n    The full path of the H2O Model to be imported.\n\n  :return: the model\n  '
+    '\n  Load a saved H2O model from disk.\n\n  Parameters\n  ----------\n  path : str\n    The full path of the H2O Model to be imported.\n\n  Returns\n  -------\n    H2OEstimator object\n\n  Examples\n  --------\n    >>> path = h2o.save_mode(my_model,dir=my_path)\n    >>> h2o.load_model(path)\n  '
     res = H2OConnection.post_json('Models.bin/', dir=path, _rest_version=99)
     return get_model(res['models'][0]['model_id']['name'])

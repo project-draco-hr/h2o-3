@@ -15,6 +15,16 @@
   row.nBins=nbins;
   final int n=_nums;
   for (int i=0; i < n; ++i) {
+    if (isInteractionVec(i)) {
+      int offset;
+      InteractionWrappedVec iwv=((InteractionWrappedVec)_adaptedFrame.vec(_cats + i));
+      int v1=_adaptedFrame.find(iwv.v1());
+      int v2=_adaptedFrame.find(iwv.v2());
+      if (v1 < _cats)       offset=getCategoricalId(v1,Double.isNaN(vals[v1]) ? _catModes[v1] : (int)vals[v1]);
+ else       if (v2 < _cats)       offset=getCategoricalId(v2,Double.isNaN(vals[v2]) ? _catModes[v1] : (int)vals[v2]);
+ else       offset=0;
+      row.numVals[i + offset]=vals[_cats + i];
+    }
     double d=vals[_cats + i];
     if (Double.isNaN(d))     d=_numMeans[i];
     if (_normMul != null && _normSub != null)     d=(d - _normSub[i]) * _normMul[i];

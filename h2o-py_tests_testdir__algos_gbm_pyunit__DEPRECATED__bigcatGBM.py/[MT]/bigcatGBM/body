@@ -1,8 +1,0 @@
-def bigcatGBM():
-    bigcat = h2o.import_file(path=pyunit_utils.locate('smalldata/gbm_test/bigcat_5000x2.csv'))
-    bigcat['y'] = bigcat['y'].asfactor()
-    model = h2o.gbm(x=bigcat[['X']], y=bigcat['y'], distribution='bernoulli', ntrees=1, max_depth=1, nbins=100)
-    model.show()
-    performance = model.model_performance(bigcat)
-    performance.show()
-    test_auc = performance.auc()

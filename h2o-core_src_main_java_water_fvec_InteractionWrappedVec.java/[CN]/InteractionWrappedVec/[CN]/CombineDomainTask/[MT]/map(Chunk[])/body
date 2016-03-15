@@ -1,0 +1,37 @@
+{
+  _perChkMap=new IcedHashMap<>();
+  Chunk left=c[0];
+  Chunk rite=c[1];
+  String k;
+  HashSet<String> A=_leftLimit == null ? null : new HashSet<String>();
+  HashSet<String> B=_riteLimit == null ? null : new HashSet<String>();
+  if (A != null)   Collections.addAll(A,_leftLimit);
+  if (B != null)   Collections.addAll(B,_riteLimit);
+  int lval, rval;
+  String l, r;
+  boolean leftIsNA, riteIsNA;
+  for (int i=0; i < left._len; ++i)   if ((!((leftIsNA=left.isNA(i)) | (riteIsNA=rite.isNA(i))))) {
+    lval=(int)left.at8(i);
+    rval=(int)rite.at8(i);
+    if (!_useAllLvls && (0 == lval || 0 == rval))     continue;
+    l=_left[lval];
+    r=_rite[rval];
+    if (A != null && !A.contains(l))     continue;
+    if (B != null && !B.contains(r))     continue;
+    if (null != _perChkMap.putIfAbsent((k=l + "_" + r),new IcedLong(1)))     _perChkMap.get(k)._val++;
+  }
+ else   if (!_skipMissing) {
+    if (!(leftIsNA && riteIsNA)) {
+      if (leftIsNA) {
+        r=_rite[(int)rite.at8(i)];
+        if (B != null && !B.contains(r))         continue;
+        if (null != _perChkMap.putIfAbsent((k="NA_" + r),new IcedLong(1)))         _perChkMap.get(k)._val++;
+      }
+ else {
+        l=_left[(int)left.at8(i)];
+        if (null != A && !A.contains(l))         continue;
+        if (null != _perChkMap.putIfAbsent((k=l + "_NA"),new IcedLong(1)))         _perChkMap.get(k)._val++;
+      }
+    }
+  }
+}
