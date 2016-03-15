@@ -1,6 +1,10 @@
 {
   Val val=_scope == null ? null : _scope.lookup(id);
   if (val != null)   return val;
+  if (id.equals("TRUE") || id.equals("FALSE") || id.equals("NA")|| id.equals("NaN")) {
+    AST ast=AST.PRIMS.get(id);
+    return ast.exec(this);
+  }
   Value value=DKV.get(Key.make(id));
   if (value != null) {
     if (value.isFrame())     return addGlobals((Frame)value.get());
