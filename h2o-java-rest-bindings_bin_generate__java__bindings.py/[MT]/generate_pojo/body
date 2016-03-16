@@ -29,6 +29,8 @@ def generate_pojo(schema, pojo_name):
             continue
         if type.startswith('Map'):
             java_type = type
+            java_type = java_type.replace('<string,', '<String,')
+            java_type = java_type.replace(',string>', ',String>')
         else:
             java_type = cons_java_type(pojo_name, name, type, schema_name)
         if type.startswith('enum'):
