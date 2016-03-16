@@ -18,16 +18,18 @@
   }
   row.nBins=nbins;
   final int n=_nums;
-  for (int i=0; i < n; ++i) {
-    if (isInteractionVec(i)) {
+  int numValsIdx=0;
+  for (int i=0; i < n; i++) {
+    if (isInteractionVec(_cats + i)) {
       int offset=getInteractionOffset(chunks,_cats + i,rid);
-      row.numVals[i + offset]=chunks[_cats + i].atd(rid);
+      row.numVals[numValsIdx + offset]=chunks[_cats + i].atd(rid);
+      numValsIdx+=_numOffsets[i];
     }
  else {
       double d=chunks[_cats + i].atd(rid);
       if (Double.isNaN(d))       d=_numMeans[i];
       if (_normMul != null && _normSub != null)       d=(d - _normSub[i]) * _normMul[i];
-      row.numVals[i]=d;
+      row.numVals[numValsIdx++]=d;
     }
   }
   for (int i=0; i < _responses; ++i) {
