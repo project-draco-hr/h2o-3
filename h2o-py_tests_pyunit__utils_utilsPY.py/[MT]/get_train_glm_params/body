@@ -1,0 +1,36 @@
+def get_train_glm_params(model, what_param, family_type='gaussian'):
+    "\n    This function will grab the various attributes (like coefficients, p-values, and others) off a GLM\n    model that has been built.\n\n    :param model: GLM model that we want to extract information from\n    :param what_param: string indicating the model attribute of interest like 'p-value','weights',...\n    :param family_type: string, optional, represents the various distribution families (gaussian, multinomial, binomial)\n    supported by our GLM algo\n\n    :return: attribute value of interest\n    "
+    coeff_pvalues = model._model_json['output']['coefficients_table'].cell_values
+    if (what_param == 'p-values'):
+        if ('gaussian' in family_type.lower()):
+            p_value_h2o = []
+            for ind in range(len(coeff_pvalues)):
+                p_value_h2o.append(coeff_pvalues[ind][(-1)])
+            return p_value_h2o
+        else:
+            print('P-values are only available to Gaussian family.')
+            sys.exit(1)
+    elif (what_param == 'weights'):
+        if ('gaussian' in family_type.lower()):
+            weights = []
+            for ind in range(len(coeff_pvalues)):
+                weights.append(coeff_pvalues[ind][1])
+            return weights
+        elif (('multinomial' in family_type.lower()) or ('binomial' in family_type.lower())):
+            num_feature = len(coeff_pvalues)
+            num_class = ((len(coeff_pvalues[0]) - 1) / 2)
+            coeffs = np.zeros((num_class, num_feature), dtype=np.float)
+            for col_index in range(len(coeff_pvalues)):
+                coeffs[:, col_index] = coeff_pvalues[col_index][1:(num_class + 1)]
+            return coeffs
+    elif (what_param == 'best_lambda'):
+        lambda_str = model._model_json['output']['model_summary'].cell_values[0][4].split('=')
+        return float(lambda_str[(-1)])
+    elif (what_param == 'confusion_matrix'):
+        if ('multinomial' in family_type.lower()):
+            return model._model_json['output']['training_metrics']._metric_json['cm']['table']
+        elif ('binomial' in family_type.lower()):
+            return model.confusion_matrix().table
+    else:
+        print('parameter value not found in GLM model')
+        sys.exit(1)

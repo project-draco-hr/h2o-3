@@ -1,0 +1,39 @@
+def extract_comparison_attributes_and_print_multinomial(model_h2o, h2o_model_test_metrics, family_type, end_test_str, compare_att_str=['', '', '', '', '', '', ''], h2o_att_str=['', '', '', '', '', '', ''], template_att_str=['', '', '', '', '', '', ''], att_str_fail=['', '', '', '', '', '', ''], att_str_success=['', '', '', '', '', '', ''], test_model=None, test_model_metric=None, template_params=None, can_be_better_than_template=[False, False, False, False, False, False], just_print=[True, True, True, True, True, True], ignored_eps=1e-15, allowed_diff=1e-05, failed_test_number=0):
+    "\n    This function basically will compare and print out six performance metrics of a test with a\n    template model.  If the difference of comparison exceeds a certain threshold, the test will be determined as\n    failed and vice versa.  There are times when we do not care about comparisons but mainly concerned with\n    logloss/prediction accuracy in determining if a test shall fail.  We can set the input parameters to indicate\n    if this is the case.\n\n    :param model_h2o: H2O model that we want to evaluate\n    :param h2o_model_test_metrics: test performance of H2O model under evaluation\n    :param family_type: string represents the various distribution families (gaussian, multinomial, binomial)\n    supported by our GLM algo\n    :param end_test_str: string to be printed at the end of a test\n    :param compare_att_str: array of strings describing what we are trying to compare\n    :param h2o_att_str: array of strings describing each H2O attribute of interest\n    :param template_att_str: array of strings describing template attribute of interest\n    :param att_str_fail: array of strings to be printed if the comparison failed\n    :param att_str_success: array of strings to be printed if comparison succeeded\n    :param test_model: template model whose attributes we want to compare our H2O model with\n    :param test_model_metric: performance on test data set of template model\n    :param template_params: array containing template attribute values that we want to compare our H2O model with\n    :param can_be_better_than_template: array of bool: True: template value must be lower, False: don't care\n    :param just_print: array of bool for each attribute if True, no comparison is performed, just print the attributes\n    and if False, will compare the attributes and print the attributes as well\n    :param ignored_eps: if value < than this value, no comparison is performed\n    :param allowed_diff: threshold if exceeded will fail a test\n    :param failed_test_number: integer denote the number of tests failed so far\n\n    :return: accumulated number of tests that have failed so far\n    "
+    (h2o_weight, h2o_logloss_train, h2o_confusion_matrix_train, h2o_accuracy_train, h2o_logloss_test, h2o_confusion_matrix_test, h2o_accuracy_test) = grab_model_params_metrics(model_h2o, h2o_model_test_metrics, family_type)
+    if (test_model and test_model_metric):
+        (template_weight, template_logloss_train, template_confusion_matrix_train, template_accuracy_train, template_logloss_test, template_confusion_matrix_test, template_accuracy_test) = grab_model_params_metrics(test_model, test_model_metric, family_type)
+    elif template_params:
+        (template_weight, template_logloss_train, template_confusion_matrix_train, template_accuracy_train, template_logloss_test, template_confusion_matrix_test, template_accuracy_test) = template_params
+    else:
+        print('No valid template parameters are given for comparison.')
+        sys.exit(1)
+    compare_index = 0
+    failed_test_number += compare_two_arrays(h2o_weight, template_weight, ignored_eps, allowed_diff, compare_att_str[compare_index], h2o_att_str[compare_index], template_att_str[compare_index], att_str_fail[compare_index], att_str_success[compare_index], True, just_print[compare_index])
+    compare_index += 1
+    if ((not just_print[compare_index]) and (not can_be_better_than_template[compare_index])):
+        if (h2o_logloss_train < template_logloss_train):
+            failed_test_number += 1
+            compare_two_arrays([h2o_logloss_train], [template_logloss_train], ignored_eps, allowed_diff, compare_att_str[compare_index], h2o_att_str[compare_index], template_att_str[compare_index], att_str_fail[compare_index], att_str_success[compare_index], True, True)
+        else:
+            failed_test_number += compare_two_arrays([h2o_logloss_train], [template_logloss_train], ignored_eps, allowed_diff, compare_att_str[compare_index], h2o_att_str[compare_index], template_att_str[compare_index], att_str_fail[compare_index], att_str_success[compare_index], True, False)
+    else:
+        template_better = is_template_better(just_print[compare_index], can_be_better_than_template[compare_index], h2o_logloss_train, template_logloss_train, False)
+        failed_test_number += compare_two_arrays([h2o_logloss_train], [template_logloss_train], ignored_eps, allowed_diff, compare_att_str[compare_index], h2o_att_str[compare_index], template_att_str[compare_index], att_str_fail[compare_index], att_str_success[compare_index], template_better, just_print[compare_index])
+    compare_index += 1
+    template_better = is_template_better(just_print[compare_index], can_be_better_than_template[compare_index], h2o_logloss_test, template_logloss_test, False)
+    failed_test_number += compare_two_arrays([h2o_logloss_test], [template_logloss_test], ignored_eps, allowed_diff, compare_att_str[compare_index], h2o_att_str[compare_index], template_att_str[compare_index], att_str_fail[compare_index], att_str_success[compare_index], template_better, just_print[compare_index])
+    compare_index += 1
+    failed_test_number += compare_two_arrays(h2o_confusion_matrix_train, template_confusion_matrix_train, ignored_eps, allowed_diff, compare_att_str[compare_index], h2o_att_str[compare_index], template_att_str[compare_index], att_str_fail[compare_index], att_str_success[compare_index], True, just_print[compare_index])
+    compare_index += 1
+    failed_test_number += compare_two_arrays(h2o_confusion_matrix_test, template_confusion_matrix_test, ignored_eps, allowed_diff, compare_att_str[compare_index], h2o_att_str[compare_index], template_att_str[compare_index], att_str_fail[compare_index], att_str_success[compare_index], True, just_print[compare_index])
+    compare_index += 1
+    template_better = is_template_better(just_print[compare_index], can_be_better_than_template[compare_index], h2o_accuracy_train, template_accuracy_train, True)
+    failed_test_number += compare_two_arrays([h2o_accuracy_train], [template_accuracy_train], ignored_eps, allowed_diff, compare_att_str[compare_index], h2o_att_str[compare_index], template_att_str[compare_index], att_str_fail[compare_index], att_str_success[compare_index], template_better, just_print[compare_index])
+    compare_index += 1
+    template_better = is_template_better(just_print[compare_index], can_be_better_than_template[compare_index], h2o_accuracy_test, template_accuracy_test, True)
+    failed_test_number += compare_two_arrays([h2o_accuracy_test], [template_accuracy_test], ignored_eps, allowed_diff, compare_att_str[compare_index], h2o_att_str[compare_index], template_att_str[compare_index], att_str_fail[compare_index], att_str_success[compare_index], template_better, just_print[compare_index])
+    print(end_test_str)
+    print('*******************************************************************************************')
+    sys.stdout.flush()
+    return failed_test_number

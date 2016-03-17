@@ -1,0 +1,10 @@
+def generate_redundant_parameters(hyper_params):
+    '\n    This function will randomly choose a set of hyper_params and make a dict out of it so we can\n    duplicate the parameter specification in both the model and grid search.\n\n    :param hyper_params: dict containing all griddable parameters as hyper_param to grid search\n\n    :return: dict containing duplicated parameters with specification\n    '
+    params_dict = {}
+    num_params = random.randint(1, len(hyper_params))
+    params_list = hyper_params.keys()
+    for index in range(num_params):
+        param_name = params_list[index]
+        param_value_index = random.randint(0, (len(hyper_params[param_name]) - 1))
+        params_dict[param_name] = hyper_params[param_name][param_value_index]
+    return params_dict
