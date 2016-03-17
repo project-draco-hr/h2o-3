@@ -51,7 +51,7 @@ if (_parms._lambda_search) _parms._max_iterations=_parms._nlambdas * 100 * numcl
 }
 }
 if (_valid != null) _validDinfo=_dinfo.validDinfo(_valid);
-_state=new ComputationState(_job._key,_parms,_dinfo,null,nclasses());
+_state=new ComputationState(_job,_parms,_dinfo,null,nclasses());
 boolean skippingRows=(_parms._missing_values_handling == MissingValuesHandling.Skip && _train.hasNAs());
 if (true || hasWeightCol() || _train.hasNAs()) {
 boolean setWeights=skippingRows && _parms._lambda_search && _parms._alpha[0] > 0;
@@ -80,7 +80,7 @@ BetaConstraint bc=(_parms._beta_constraints != null) ? new BetaConstraint(_parms
 if ((bc.hasBounds() || bc.hasProximalPenalty()) && _parms._compute_p_values) error("_compute_p_values","P-values can not be computed for constrained problems");
 _state.setBC(bc);
 if (hasOffsetCol() && _parms._intercept) {
-GLMGradientSolver gslvr=new GLMGradientSolver(_job._key,_parms,_dinfo.filterExpandedColumns(new int[0]),0,_state.activeBC());
+GLMGradientSolver gslvr=new GLMGradientSolver(_job,_parms,_dinfo.filterExpandedColumns(new int[0]),0,_state.activeBC());
 double[] x=new L_BFGS().solve(gslvr,new double[]{-_offset.mean()}).coefs;
 x[0]=_parms.linkInv(x[0]);
 _state._ymu=x;
@@ -96,7 +96,7 @@ String[] warns=_model.adaptTestForTrain(_valid,true,true);
 for (String s : warns) warn("_validation_frame",s);
 if (_parms._lambda_min_ratio == -1) _parms._lambda_min_ratio=(_nobs >> 4) > _dinfo.fullN() ? 1e-4 : 1e-2;
 double[] beta=getNullBeta();
-GLMGradientInfo ginfo=new GLMGradientSolver(_job._key,_parms,_dinfo,0,_state.activeBC()).getGradient(beta);
+GLMGradientInfo ginfo=new GLMGradientSolver(_job,_parms,_dinfo,0,_state.activeBC()).getGradient(beta);
 _state.updateState(beta,ginfo);
 if (_parms._lambda == null) {
 _lmax=lmax(ginfo._gradient);

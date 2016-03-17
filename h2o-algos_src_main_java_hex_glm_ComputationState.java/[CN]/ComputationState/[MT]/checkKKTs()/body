@@ -3,7 +3,7 @@
   double[] beta=_beta;
   if (_activeData._activeCols != null)   beta=ArrayUtils.expandAndScatter(beta,_dinfo.fullN() + 1,_activeData._activeCols);
   int[] activeCols=_activeData.activeCols();
-  _gslvr=new GLMGradientSolver(_jobKey,_parms,_dinfo,(1 - _alpha) * _lambda,_bc);
+  _gslvr=new GLMGradientSolver(_job,_parms,_dinfo,(1 - _alpha) * _lambda,_bc);
   GLMGradientInfo ginfo=_gslvr.getGradient(beta);
   double[] grad=ginfo._gradient.clone();
   double err=1e-4;
@@ -34,7 +34,7 @@
       _ginfo=new GLMGradientInfo(ginfo._likelihood,ginfo._objVal,ArrayUtils.select(ginfo._gradient,newCols));
       _activeData=_dinfo.filterExpandedColumns(newCols);
       _activeBC=_bc.filterExpandedColumns(_activeData.activeCols());
-      _gslvr=new GLMGradientSolver(_jobKey,_parms,_activeData,(1 - _alpha) * _lambda,_activeBC);
+      _gslvr=new GLMGradientSolver(_job,_parms,_activeData,(1 - _alpha) * _lambda,_activeBC);
       return false;
     }
   }
