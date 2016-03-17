@@ -1,0 +1,11 @@
+{
+  _nobs=len;
+  _wsum=wsum;
+  _var=MemoryManager.malloc8d(_mean.length);
+  for (int i=0; i < _mean.length; ++i) {
+    long zeros=len - _nzCnt[i];
+    double reg=_nobs / (wsum * (_nobs - 1.0));
+    _mean[i]*=_wsums[i] * reg;
+    _var[i]=(_m2[i] + zeros * _mean[i] * _mean[i]) * reg;
+  }
+}
