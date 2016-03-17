@@ -1,0 +1,8 @@
+def duplicate_scale_cols(col_indices, col_scale, old_filename, new_filename):
+    '\n    This function actually performs the column duplication with scaling giving the column\n    indices and scaling factors for each column.  It will first load the original data set\n    from old_filename.  After performing column duplication and scaling, the new data set\n    will be written to file with new_filename.\n\n    :param col_indices: vector indicating the column indices of the original data matrix that will be included\n        in the new data matrix with duplicated columns\n    :param col_scale: vector indicating for each new column in the new data matrix with duplicated columns,\n        what scale should be applied to that column\n    :param old_filename: string representing full directory path and filename where data set is stored\n    :param new_filename: string representing full directory path and filename where new data set is to be stored\n\n    :return: None\n    '
+    pd_frame = pd.read_csv(old_filename, header=None)
+    pd_frame_new = pd.DataFrame()
+    for ind in range(len(col_indices)):
+        tempc = (pd_frame.ix[:, col_indices[ind]] * col_scale[ind])
+        pd_frame_new = pd.concat([pd_frame_new, tempc], axis=1)
+    pd_frame_new.to_csv(new_filename, sep=',', header=False, index=False)

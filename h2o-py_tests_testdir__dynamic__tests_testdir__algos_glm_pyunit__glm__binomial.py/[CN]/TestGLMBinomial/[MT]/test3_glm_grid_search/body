@@ -1,0 +1,24 @@
+def test3_glm_grid_search(self, solver_name):
+    '\n        This test is used to test GridSearch with the following parameters:\n        1. Lambda = best_lambda value from test2\n        2. alpha = [0 0.5 0.99]\n        3. cross-validation with k = 5, fold_assignment = "Random"\n\n        We will look at the best results from the grid search and compare it with H2O model built in test 1.\n\n        :param solver_name: string representing the solver method that we would like to use for our GLM model\n\n        :return: None\n        '
+    print('*******************************************************************************************')
+    print(('Test3: explores various parameter settings in training the GLM using GridSearch using solver ' + solver_name))
+    hyper_parameters = {'alpha': [0, 0.5, 0.99], }
+    model_h2o_gridsearch = H2OGridSearch(H2OGeneralizedLinearEstimator(family=self.family, Lambda=self.best_lambda, nfolds=5, fold_assignment='Random', solver=solver_name), hyper_parameters)
+    model_h2o_gridsearch.train(x=self.x_indices, y=self.y_index, training_frame=self.training_data_grid)
+    temp_model = model_h2o_gridsearch.sort_by('logloss(xval=True)')
+    best_model_id = temp_model['Model Id'][0]
+    best_xval_logloss = temp_model['logloss(xval=True)'][0]
+    best_model = h2o.get_model(best_model_id)
+    best_model_test_metrics = best_model.model_performance(test_data=self.test_data)
+    if (self.best_grid_logloss < 0):
+        self.best_grid_logloss = best_xval_logloss
+        self.best_alpha = model_h2o_gridsearch.get_hyperparams(best_model_id)
+        self.best_solver = solver_name
+    elif (best_xval_logloss < self.best_grid_logloss):
+        self.best_grid_logloss = best_xval_logloss
+        self.best_alpha = model_h2o_gridsearch.get_hyperparams(best_model_id)
+        self.best_solver = solver_name
+    num_test_failed = self.test_failed
+    self.test_failed = pyunit_utils.extract_comparison_attributes_and_print_multinomial(best_model, best_model_test_metrics, self.family, (('\nTest3 ' + solver_name) + ' Done!'), test_model=self.test1_model, test_model_metric=self.test1_model_metrics, compare_att_str=['\nComparing intercept and weights ....', '\nComparing logloss from training dataset ....', '\nComparing logloss from test dataset ....', '\nComparing confusion matrices from training dataset ....', '\nComparing confusion matrices from test dataset ...', '\nComparing accuracy from training dataset ....', '\nComparing accuracy from test  sdataset ....'], h2o_att_str=['H2O lambda search intercept and weights: \n', 'H2O grid search logloss from training dataset: ', 'H2O grid search logloss from test dataset', 'H2O grid search confusion matrix from training dataset: \n', 'H2O grid search confusion matrix from test dataset: \n', 'H2O grid search accuracy from training dataset: ', 'H2O grid search accuracy from test dataset: '], template_att_str=['H2O no regularization intercept and weights: \n', 'H2O no regularization logloss from training dataset: ', 'H2O no regularization logloss from test dataset: ', 'H2O no regularization confusion matrix from training dataset: \n', 'H2O no regularization confusion matrix from test dataset: \n', 'H2O no regularization accuracy from training dataset: ', 'H2O no regularization accuracy from test dataset: '], att_str_fail=['Intercept and weights are not equal!', 'Logloss from training dataset differ too much!', 'Logloss from test dataset differ too much!', '', '', 'Accuracies from training dataset differ too much!', 'Accuracies from test dataset differ too much!'], att_str_success=['Intercept and weights are close enough!', 'Logloss from training dataset are close enough!', 'Logloss from test dataset are close enough!', '', '', 'Accuracies from training dataset are close enough!', 'Accuracies from test dataset are close enough!'], can_be_better_than_template=[False, True, True, False, False, True, True], just_print=[True, True, False, True, True, True, False], failed_test_number=self.test_failed, ignored_eps=self.ignored_eps, allowed_diff=self.allowed_diff)
+    self.test_failed_array[self.test_num] += pyunit_utils.show_test_results('test_glm_grid_search_over_params', num_test_failed, self.test_failed)
+    self.test_num += 1

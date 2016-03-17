@@ -1,0 +1,30 @@
+def sklearn_binomial_result(self, training_data_file, test_data_file, has_categorical, true_one_hot):
+    '\n        This function will generate a Sklearn logistic model using the same set of data sets we have used to build\n        our H2O models.  The purpose here is to be able to compare the performance of H2O\n        models with the Sklearn model built here.  This is useful in cases where theoretical solutions\n        do not exist.  If the data contains missing values, mean imputation is applied to the data set before\n        a Sklearn model is built.  In addition, if there are enum columns in predictors and also missing values,\n        the same encoding and missing value imputation method used by H2O is applied to the data set before we build\n        the Sklearn model.\n\n        :param training_data_file: string storing training data set filename with directory path.\n        :param test_data_file: string storing test data set filename with directory path.\n        :param has_categorical: bool indicating if we data set contains mixed predictors (both enum and real)\n        :param true_one_hot: bool True: true one hot encoding is used.  False: reference level plus one hot encoding\n         is used\n\n        :return: a tuple containing the weights, logloss, confusion matrix, prediction accuracy calculated on training\n        data set and test data set respectively.\n        '
+    training_data_xy = np.asmatrix(np.genfromtxt(training_data_file, delimiter=',', dtype=None))
+    test_data_xy = np.asmatrix(np.genfromtxt(test_data_file, delimiter=',', dtype=None))
+    if has_categorical:
+        training_data_xy = pyunit_utils.encode_enum_dataset(training_data_xy, self.enum_level_vec, self.enum_col, true_one_hot, np.any(training_data_xy))
+        test_data_xy = pyunit_utils.encode_enum_dataset(test_data_xy, self.enum_level_vec, self.enum_col, true_one_hot, np.any(training_data_xy))
+    if np.isnan(training_data_xy).any():
+        inds = np.where(np.isnan(training_data_xy))
+        col_means = stats.nanmean(training_data_xy, axis=0)
+        training_data_xy[inds] = np.take(col_means, inds[1])
+        if np.isnan(test_data_xy).any():
+            inds = np.where(np.isnan(test_data_xy))
+            test_data_xy = pyunit_utils.replace_nan_with_mean(test_data_xy, inds, col_means)
+    (response_y, x_mat) = pyunit_utils.prepare_data_sklearn_multinomial(training_data_xy)
+    (t_response_y, t_x_mat) = pyunit_utils.prepare_data_sklearn_multinomial(test_data_xy)
+    sklearn_model = LogisticRegression(class_weight=self.sklearn_class_weight)
+    sklearn_model = sklearn_model.fit(x_mat, response_y)
+    accuracy_training = sklearn_model.score(x_mat, response_y)
+    weights = sklearn_model.coef_
+    p_response_y = sklearn_model.predict(x_mat)
+    log_prob = sklearn_model.predict_log_proba(x_mat)
+    logloss_training = self.logloss_sklearn(response_y, log_prob)
+    cm_train = metrics.confusion_matrix(response_y, p_response_y)
+    p_response_y = sklearn_model.predict(t_x_mat)
+    log_prob = sklearn_model.predict_log_proba(t_x_mat)
+    logloss_test = self.logloss_sklearn(t_response_y, log_prob)
+    cm_test = metrics.confusion_matrix(t_response_y, p_response_y)
+    accuracy_test = metrics.accuracy_score(t_response_y, p_response_y)
+    return (weights, logloss_training, cm_train, accuracy_training, logloss_test, cm_test, accuracy_test)

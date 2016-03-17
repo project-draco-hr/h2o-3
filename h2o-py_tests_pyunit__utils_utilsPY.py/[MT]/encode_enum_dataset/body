@@ -1,0 +1,27 @@
+def encode_enum_dataset(dataset, enum_level_vec, enum_col, true_one_hot, include_nans):
+    '\n    Given 2-d numpy array of predictors with categorical and real columns, this function will\n    encode the enum columns with 1-hot encoding or with reference plus one hot encoding\n\n    :param dataset: 2-d numpy array of predictors with both categorical and real columns\n    :param enum_level_vec: vector containing maximum level for each categorical column\n    :param enum_col: number of categorical columns in the data set\n    :param true_one_hot: bool indicating if we are using true one hot encoding or with one reference level + one hot\n     encoding\n    :param include_nans: bool indicating if we have nans in categorical columns\n\n    :return: data set with categorical columns encoded with 1-hot encoding or 1-hot encoding plus reference\n    '
+    (num_row, num_col) = dataset.shape
+    enum_arrays = dataset[:, 0:enum_col]
+    new_enum_arrays = []
+    for indc in range(enum_col):
+        enum_col_num = (enum_level_vec[indc] + 1)
+        if (not true_one_hot):
+            enum_col_num -= 1
+        if (include_nans and np.any(enum_arrays[:, indc])):
+            all_vals = list(reversed(range((enum_col_num + 1))))
+        else:
+            all_vals = list(reversed(range(enum_col_num)))
+        new_temp_enum = np.zeros((num_row, len(all_vals)), dtype=np.int)
+        one_hot_matrix = pd.get_dummies(all_vals)
+        last_col_index = (len(all_vals) - 1)
+        for indr in range(num_row):
+            enum_val = enum_arrays[(indr, indc)]
+            if true_one_hot:
+                new_temp_enum[indr, :] = replace_with_encoded_bits(one_hot_matrix, enum_val, 0, last_col_index)
+            elif enum_val:
+                new_temp_enum[indr, :] = replace_with_encoded_bits(one_hot_matrix, enum_val, 1, last_col_index)
+        if (indc == 0):
+            new_enum_arrays = new_temp_enum
+        else:
+            new_enum_arrays = np.concatenate((new_enum_arrays, new_temp_enum), axis=1)
+    return np.concatenate((new_enum_arrays, dataset[:, enum_col:num_col]), axis=1)

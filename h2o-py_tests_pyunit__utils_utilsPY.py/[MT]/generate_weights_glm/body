@@ -1,0 +1,25 @@
+def generate_weights_glm(csv_weight_filename, col_count, data_type, min_w_value, max_w_value, family_type='gaussian', class_number=2):
+    '\n    Generate random intercept and weight vectors (integer or real) for GLM algo and save\n    the values in a file specified by csv_weight_filename.\n\n    :param csv_weight_filename: string representing full path filename to store intercept and weight used to generate\n    all data set\n    :param col_count: integer representing the number of predictors in the data set\n    :param data_type: integer representing the type of predictors or weights (1: integers, 2: real)\n    :param max_w_value: integer representing maximum intercept/weight values\n    :param min_w_value: integer representing minimum intercept/weight values\n    :param family_type: string ,optional, represents the various distribution families (gaussian, multinomial, binomial)\n        supported by our GLM algo\n    :param class_number: integer, optional, representing number classes for binomial and multinomial\n\n    :return: column vector of size 1+colCount representing intercept and weight or matrix of size\n        1+colCount by class_number\n    '
+    if ('gaussian' in family_type.lower()):
+        if (data_type == 1):
+            weight = np.random.random_integers(min_w_value, max_w_value, [(col_count + 1), 1])
+        elif (data_type == 2):
+            weight = np.random.uniform(min_w_value, max_w_value, [(col_count + 1), 1])
+        else:
+            print('dataType must be 1 or 2 for now.')
+            sys.exit(1)
+    elif (('binomial' in family_type.lower()) or ('multinomial' in family_type.lower())):
+        if ('binomial' in family_type.lower()):
+            class_number -= 1
+        if (class_number <= 0):
+            print('class_number must be >= 2!')
+            sys.exit(1)
+        if (data_type == 1):
+            weight = np.random.random_integers(min_w_value, max_w_value, [(col_count + 1), class_number])
+        elif (data_type == 2):
+            weight = np.random.uniform(min_w_value, max_w_value, [(col_count + 1), class_number])
+        else:
+            print('dataType must be 1 or 2 for now.')
+            sys.exit(1)
+    np.savetxt(csv_weight_filename, weight.transpose(), delimiter=',')
+    return weight

@@ -1,0 +1,11 @@
+def insert_bad_value(error_hyper_params, param_name, param_type):
+    '\n    This function is written to insert a value that is of a different type into an array than the one\n    its other elements are for.\n\n    :param error_hyper_params: dict containing all hyper-parameters for a grid search\n    :param param_name:  string denoting the hyper-parameter we want to insert bad element to\n    :param param_type: string denoting hyper-parameter type\n\n    :return: dict containing new inserted error value\n    '
+    if ('int' in param_type):
+        error_hyper_params[param_name].append(random.uniform((-10), 10))
+    elif ('enum' in param_type):
+        error_hyper_params[param_name].append(random.uniform((-10), 10))
+    elif ('double' in param_type):
+        error_hyper_params[param_name].append((random.uniform(0, 1) > 0.5))
+    else:
+        error_hyper_params[param_name].append(generate_random_words(random.randint(20, 100)))
+    return error_hyper_params

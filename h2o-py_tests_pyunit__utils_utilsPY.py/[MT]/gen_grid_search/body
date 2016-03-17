@@ -1,0 +1,18 @@
+def gen_grid_search(model_params, hyper_params, exclude_parameters, gridable_parameters, gridable_types, gridable_defaults, max_int_number, max_int_val, min_int_val, max_real_number, max_real_val, min_real_val):
+    '\n    This function is written to randomly generate griddable parameters for a gridsearch.  For parameters already\n    found in hyper_params, no random list will be generated.  In addition, we will check to make sure that the\n    griddable parameters are actually used by the model before adding them to the hyper_params dict.\n\n    :param model_params: list of string containing names of argument to the model\n    :param hyper_params: dict structure containing a list of gridable parameters names with their list\n    :param exclude_parameters: list containing parameter names not to be added to hyper_params\n    :param gridable_parameters: list of gridable parameter names\n    :param gridable_types: list of gridable parameter types\n    :param gridable_defaults: list of gridable parameter default value\n    :param max_int_number: integer, size of integer gridable parameter list\n    :param max_int_val: integer, maximum integer value for integer gridable parameter\n    :param min_int_val: integer, minimum integer value for integer gridable parameter\n    :param max_real_number: integer, size of real gridable parameter list\n    :param max_real_val: float, maximum real value for real gridable parameter\n    :param min_real_val: float, minimum real value for real gridable parameter\n\n    :return: a tuple of hyper_params: dict of hyper parameters for gridsearch, true_gridable_parameters:\n    a list of string containing names of truely griddable parameters, true_gridable_types: a list of string\n    denoting parameter types\n    '
+    count_index = 0
+    true_gridable_parameters = []
+    true_gridable_types = []
+    for para_name in gridable_parameters:
+        if ((para_name in model_params) and (para_name not in exclude_parameters)):
+            true_gridable_parameters.append(para_name)
+            true_gridable_types.append(gridable_types[count_index])
+            if (para_name in hyper_params.keys()):
+                hyper_params[para_name].append(gridable_defaults[count_index])
+                hyper_params[para_name] = list(set(hyper_params[para_name]))
+            elif ('int' in gridable_types[count_index]):
+                hyper_params[para_name] = list(set(np.random.random_integers(min_int_val, max_int_val, max_int_number)))
+            elif ('double' in gridable_types[count_index]):
+                hyper_params[para_name] = list(set(np.random.uniform(min_real_val, max_real_val, max_real_number)))
+        count_index += 1
+    return (hyper_params, true_gridable_parameters, true_gridable_types)

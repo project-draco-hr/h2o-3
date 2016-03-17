@@ -1,0 +1,13 @@
+def move_files(dir_path, old_name, new_file, action='move'):
+    "\n    Simple function to move or copy a data set (old_name) to a special directory (dir_path)\n    with new name (new_file) so that we will be able to re-run the tests if we\n    have found something wrong with the algorithm under test with the data set.\n    This is done to avoid losing the data set.\n\n    :param dir_path: string representing full directory path where a file is to be moved to\n    :param old_name: string representing file (filename with full directory path) to be moved to new directory.\n    :param new_file: string representing the file name of the moved in the new directory\n    :param action: string, optional, represent the action 'move' or 'copy' file\n\n    :return: None\n    "
+    new_name = os.path.join(dir_path, new_file)
+    if os.path.isfile(old_name):
+        if ('move' in action):
+            motion = 'mv '
+        elif ('copy' in action):
+            motion = 'cp '
+        else:
+            print("Illegal action setting.  It can only be 'move' or 'copy'!")
+            sys.exit(1)
+        cmd = (((motion + old_name) + ' ') + new_name)
+        subprocess.call(cmd, shell=True)

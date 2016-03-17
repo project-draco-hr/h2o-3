@@ -1,0 +1,22 @@
+def test7_missing_enum_values_lambda_search(self):
+    '\n        Test parameter missing_values_handling="MeanImputation" with mixed predictors (categorical/real value columns).\n        Test parameter missing_values_handling="MeanImputation" with\n        mixed predictors (categorical/real value columns).  We first generate a data set that\n        contains a random number of columns of categorical and real value columns.  Next, we\n        encode the categorical columns.  Then, we generate the random data set using the formula\n        Y = W^T * X+ E as before.  Next, we go into the predictor matrix and randomly\n        decide to change a value to be nan and create missing values.  Lambda-search will be\n        enabled with alpha set to 0.5.  Since the encoding is different in this case\n        than in test6, we will compute a theoretical weights/MSEs and compare the best H2O\n        model MSEs with theoretical calculations and hope that they are close.\n        '
+    print('*******************************************************************************************')
+    print('Test7: test the GLM with imputation of missing enum/real values under lambda search.')
+    (weight_theory, p_values_theory, mse_train_theory, mse_test_theory) = self.theoretical_glm(self.training_data_file_enum_nans_true_one_hot, self.test_data_file_enum_nans_true_one_hot, True, True)
+    training_data = h2o.import_file(pyunit_utils.locate(self.training_data_file_enum_nans_true_one_hot))
+    validation_data = h2o.import_file(pyunit_utils.locate(self.validation_data_file_enum_nans_true_one_hot))
+    test_data = h2o.import_file(pyunit_utils.locate(self.test_data_file_enum_nans_true_one_hot))
+    for ind in range(self.enum_col):
+        training_data[ind] = training_data[ind].asfactor()
+        validation_data[ind] = validation_data[ind].asfactor()
+        test_data[ind] = test_data[ind].asfactor()
+    num_col = training_data.ncol
+    y_index = (num_col - 1)
+    x_indices = list(range(y_index))
+    model_h2o_0p5 = H2OGeneralizedLinearEstimator(family=self.family, lambda_search=True, alpha=0.5, lambda_min_ratio=1e-20, missing_values_handling='MeanImputation')
+    model_h2o_0p5.train(x=x_indices, y=y_index, training_frame=training_data, validation_frame=validation_data)
+    h2o_model_0p5_test_metrics = model_h2o_0p5.model_performance(test_data=test_data)
+    num_test_failed = self.test_failed
+    (_, _, _, _, _, _, self.test_failed) = pyunit_utils.extract_comparison_attributes_and_print(model_h2o_0p5, h2o_model_0p5_test_metrics, '\nTest7 Done!', False, False, True, weight_theory, None, mse_train_theory, mse_test_theory, 'Comparing intercept and weights with categorical columns, missing values and lambda search....', 'H2O intercept and weights: ', 'Theoretical intercept and weights: ', 'Intercept and weights are not equal!', 'Intercept and weights are close enough!', 'Comparing p-values ....', 'H2O p-values: ', 'Theoretical p-values: ', 'P-values are not equal!', 'P-values are close enough!', 'Comparing training MSEs ....', 'H2O training MSE: ', 'Theoretical training MSE: ', 'Training MSEs are not equal!', 'Training MSEs are close enough!', 'Comparing test MSEs ....', 'H2O test MSE: ', 'Theoretical test MSE: ', 'Test MSEs are not equal!', 'Test MSEs are close enough!', self.test_failed, self.ignored_eps, self.allowed_diff, self.noise_var, False, attr3_bool=False)
+    self.test_failed_array[self.test_num] += pyunit_utils.show_test_results('test7_missing_enum_values_lambda_search', num_test_failed, self.test_failed)
+    self.test_num += 1
