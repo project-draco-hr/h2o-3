@@ -1,0 +1,18 @@
+def test4_glm_remove_collinear_columns(self):
+    '\n        With the best parameters obtained from test 3 grid search, we will trained GLM\n        with duplicated columns and enable remove_collinear_columns and see if the\n        algorithm catches the duplicated columns.  We will compare the results with test\n        1 results.\n        '
+    print('*******************************************************************************************')
+    print('Test4: test the GLM remove_collinear_columns.')
+    h2o.cluster_info()
+    training_data = h2o.import_file(pyunit_utils.locate(self.training_data_file_duplicate))
+    test_data = h2o.import_file(pyunit_utils.locate(self.test_data_file_duplicate))
+    y_index = (training_data.ncol - 1)
+    x_indices = list(range(y_index))
+    training_data[y_index] = training_data[y_index].asfactor()
+    test_data[y_index] = test_data[y_index].asfactor()
+    model_h2o = H2OGeneralizedLinearEstimator(family=self.family, Lambda=self.best_lambda, alpha=self.best_alpha, solver=self.best_solver, remove_collinear_columns=True)
+    model_h2o.train(x=x_indices, y=y_index, training_frame=training_data)
+    model_h2o_metrics = model_h2o.model_performance(test_data=test_data)
+    num_test_failed = self.test_failed
+    self.test_failed = pyunit_utils.extract_comparison_attributes_and_print_multinomial(model_h2o, model_h2o_metrics, self.family, '\nTest3 Done!', test_model=self.test1_model, test_model_metric=self.test1_model_metrics, compare_att_str=['\nComparing intercept and weights ....', '\nComparing logloss from training dataset ....', '\nComparing logloss from test dataset ....', '\nComparing confusion matrices from training dataset ....', '\nComparing confusion matrices from test dataset ...', '\nComparing accuracy from training dataset ....', '\nComparing accuracy from test dataset ....'], h2o_att_str=['H2O lambda search intercept and weights: \n', 'H2O grid search logloss from training dataset: ', 'H2O grid search logloss from test dataset', 'H2O grid search confusion matrix from training dataset: \n', 'H2O grid search confusion matrix from test dataset: \n', 'H2O grid search accuracy from training dataset: ', 'H2O grid search accuracy from test dataset: '], template_att_str=['H2O no regularization intercept and weights: \n', 'H2O no regularization logloss from training dataset: ', 'H2O no regularization logloss from test dataset: ', 'H2O no regularization confusion matrix from training dataset: \n', 'H2O no regularization confusion matrix from test dataset: \n', 'H2O no regularization accuracy from training dataset: ', 'H2O no regularization accuracy from test dataset: '], att_str_fail=['Intercept and weights are not equal!', 'Logloss from training dataset differ too much!', 'Logloss from test dataset differ too much!', '', '', 'Accuracies from training dataset differ too much!', 'Accuracies from test dataset differ too much!'], att_str_success=['Intercept and weights are close enough!', 'Logloss from training dataset are close enough!', 'Logloss from test dataset are close enough!', '', '', 'Accuracies from training dataset are close enough!', 'Accuracies from test dataset are close enough!'], can_be_better_than_template=[True, True, True, True, True, True, True], just_print=[True, True, False, True, True, True, False], failed_test_number=self.test_failed, ignored_eps=self.ignored_eps, allowed_diff=self.allowed_diff)
+    self.test_failed_array[self.test_num] += pyunit_utils.show_test_results('test4_glm_remove_collinear_columns', num_test_failed, self.test_failed)
+    self.test_num += 1
