@@ -1,0 +1,33 @@
+{
+  int[][] ids=new int[chks[0]._len][32];
+  int[] cnts=MemoryManager.malloc4(chks[0]._len);
+  for (int cid=0; cid < chks.length - 1; ++cid) {
+    Chunk c=chks[cid];
+    for (int i=c.nextNZ(-1); i < c._len; i=c.nextNZ(i)) {
+      if (ids[i].length == cnts[i])       ids[i]=Arrays.copyOf(ids[i],ids[i].length * 2);
+      ids[i][cnts[i]++]=cid;
+    }
+  }
+  Chunk pred=chks[chks.length - 1];
+  BufferedString tmpStr=new BufferedString();
+  int nobs=0;
+  for (int i=0; i < pred._len; i++) {
+    if (pred.atd(i) != 0 && !pred.isNA(i)) {
+      for (int j=0; j < cnts[i]; ++j) {
+        int cid=ids[i][j];
+        int zeros=nobs - nchks[cid].len();
+        if (zeros > 0) {
+          if (chks[cid].isSparseNA())           nchks[cid].addNAs(zeros);
+ else           nchks[cid].addZeros(zeros);
+        }
+        addToChunk(chks[cid],nchks[cid],i,tmpStr);
+        nobs++;
+      }
+    }
+  }
+  for (int cid=0; cid < nchks.length; ++cid) {
+    int zeros=nobs - nchks[cid].len();
+    if (zeros > 0)     if (chks[cid].isSparseNA())     nchks[cid].addNAs(zeros);
+ else     nchks[cid].addZeros(zeros);
+  }
+}

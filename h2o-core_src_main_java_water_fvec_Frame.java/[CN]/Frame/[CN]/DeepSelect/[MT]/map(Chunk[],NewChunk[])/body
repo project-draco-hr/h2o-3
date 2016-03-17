@@ -1,16 +1,16 @@
 {
+  if (FrameUtils.sparseRatio(chks) < .5) {
+    doSparse(chks,nchks);
+    return;
+  }
   Chunk pred=chks[chks.length - 1];
   BufferedString tmpStr=new BufferedString();
   for (int j=0; j < chks.length - 1; j++) {
     Chunk chk=chks[j];
     NewChunk nchk=nchks[j];
-    for (int i=0; i < pred._len; ++i) {
+    for (int i=0; i < pred._len; i++) {
       if (pred.atd(i) != 0 && !pred.isNA(i)) {
-        if (chk.isNA(i))         nchk.addNA();
- else         if (chk instanceof C16Chunk)         nchk.addUUID(chk,i);
- else         if (chk instanceof CStrChunk)         nchk.addStr(chk.atStr(tmpStr,i));
- else         if (chk.hasFloat())         nchk.addNum(chk.atd(i));
- else         nchk.addNum(chk.at8(i),0);
+        addToChunk(chk,nchk,i,tmpStr);
       }
     }
   }
