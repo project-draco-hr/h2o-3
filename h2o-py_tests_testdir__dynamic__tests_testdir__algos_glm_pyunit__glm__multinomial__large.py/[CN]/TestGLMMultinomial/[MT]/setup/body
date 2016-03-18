@@ -11,13 +11,6 @@ def setup(self):
     self.enum_col = random.randint(1, (self.train_col_count - 1))
     self.enum_level_vec = np.random.random_integers(2, (self.enum_levels - 1), [self.enum_col, 1])
     pyunit_utils.write_syn_floating_point_dataset_glm(self.training_data_file, self.validation_data_file, self.test_data_file, self.weight_data_file, self.train_row_count, self.train_col_count, self.data_type, self.max_p_value, self.min_p_value, self.max_w_value, self.min_w_value, self.noise_std, self.family, self.train_row_count, self.train_row_count, class_number=self.class_number, class_method=[self.class_method, self.class_method, self.test_class_method], class_margin=[self.margin, self.margin, self.test_class_margin])
-    (self.duplicate_col_indices, self.duplicate_col_scales) = pyunit_utils.random_col_duplication(self.train_col_count, self.duplicate_threshold, self.duplicate_col_counts, True, self.duplicate_max_scale)
-    dup_col_indices = self.duplicate_col_indices
-    dup_col_indices.append(self.train_col_count)
-    dup_col_scale = self.duplicate_col_scales
-    dup_col_scale.append(1.0)
-    pyunit_utils.duplicate_scale_cols(dup_col_indices, dup_col_scale, self.training_data_file, self.training_data_file_duplicate)
-    pyunit_utils.duplicate_scale_cols(dup_col_indices, dup_col_scale, self.test_data_file, self.test_data_file_duplicate)
     pyunit_utils.insert_nan_in_data(self.training_data_file, self.training_data_file_nans, self.nan_fraction)
     pyunit_utils.insert_nan_in_data(self.test_data_file, self.test_data_file_nans, self.nan_fraction)
     pyunit_utils.write_syn_mixed_dataset_glm(self.training_data_file_enum, self.training_data_file_enum_true_one_hot, self.validation_data_file_enum, self.validation_data_file_enum_true_one_hot, self.test_data_file_enum, self.test_data_file_enum_true_one_hot, self.weight_data_file_enum, self.train_row_count, self.train_col_count, self.max_p_value, self.min_p_value, self.max_w_value, self.min_w_value, self.noise_std, self.family, self.train_row_count, self.train_row_count, self.enum_col, self.enum_level_vec, class_number=self.class_number, class_method=[self.class_method, self.class_method, self.test_class_method], class_margin=[self.margin, self.margin, self.test_class_margin])
