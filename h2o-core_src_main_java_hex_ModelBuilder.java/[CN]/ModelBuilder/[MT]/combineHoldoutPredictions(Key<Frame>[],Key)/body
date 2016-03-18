@@ -1,0 +1,8 @@
+{
+  int N=predKeys.length;
+  Frame template=predKeys[0].get();
+  Vec[] vecs=new Vec[N * template.numCols()];
+  int idx=0;
+  for (int i=0; i < N; ++i)   for (int j=0; j < predKeys[i].get().numCols(); ++j)   vecs[idx++]=predKeys[i].get().vec(j);
+  return new HoldoutPredictionCombiner(N,template.numCols()).doAll(template.types(),new Frame(vecs)).outputFrame(key,template.names(),template.domains());
+}
