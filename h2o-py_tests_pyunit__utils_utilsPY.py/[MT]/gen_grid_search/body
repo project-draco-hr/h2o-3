@@ -7,12 +7,10 @@ def gen_grid_search(model_params, hyper_params, exclude_parameters, gridable_par
         if ((para_name in model_params) and (para_name not in exclude_parameters)):
             true_gridable_parameters.append(para_name)
             true_gridable_types.append(gridable_types[count_index])
-            if (para_name in hyper_params.keys()):
-                hyper_params[para_name].append(gridable_defaults[count_index])
-                hyper_params[para_name] = list(set(hyper_params[para_name]))
-            elif ('int' in gridable_types[count_index]):
-                hyper_params[para_name] = list(set(np.random.random_integers(min_int_val, max_int_val, max_int_number)))
-            elif ('double' in gridable_types[count_index]):
-                hyper_params[para_name] = list(set(np.random.uniform(min_real_val, max_real_val, max_real_number)))
+            if (para_name not in hyper_params.keys()):
+                if ('int' in gridable_types[count_index]):
+                    hyper_params[para_name] = list(set(np.random.random_integers(min_int_val, max_int_val, max_int_number)))
+                elif ('double' in gridable_types[count_index]):
+                    hyper_params[para_name] = list(set(np.random.uniform(min_real_val, max_real_val, max_real_number)))
         count_index += 1
     return (hyper_params, true_gridable_parameters, true_gridable_types)
