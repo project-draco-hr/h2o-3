@@ -20,6 +20,7 @@ case NONE:
  else {
         InputStream bvs=vec.openStream(_jobKey);
         _dout[_lo]=streamParse(bvs,localSetup,makeDout(localSetup,chunkStartIdx,vec.nChunks()),bvs);
+        _errors=_dout[_lo].removeErrors();
         chunksAreLocal(vec,chunkStartIdx,key);
       }
     break;
@@ -29,6 +30,7 @@ case ZIP:
     ZipInputStream zis=new ZipInputStream(bvs);
     ZipEntry ze=zis.getNextEntry();
     if (ze != null && !ze.isDirectory())     _dout[_lo]=streamParse(zis,localSetup,makeDout(localSetup,chunkStartIdx,vec.nChunks()),bvs);
+    _errors=_dout[_lo].removeErrors();
     ZipEntry ze2=zis.getNextEntry();
     if (ze2 != null && !ze.isDirectory()) {
       Log.warn("Only single file zip archives are currently supported, only file: " + ze.getName() + " has been parsed.  Remaining files have been ignored.");
@@ -41,6 +43,7 @@ case GZIP:
 {
   InputStream bvs=vec.openStream(_jobKey);
   _dout[_lo]=streamParse(new GZIPInputStream(bvs),localSetup,makeDout(localSetup,chunkStartIdx,vec.nChunks()),bvs);
+  _errors=_dout[_lo].removeErrors();
   chunksAreLocal(vec,chunkStartIdx,key);
   break;
 }

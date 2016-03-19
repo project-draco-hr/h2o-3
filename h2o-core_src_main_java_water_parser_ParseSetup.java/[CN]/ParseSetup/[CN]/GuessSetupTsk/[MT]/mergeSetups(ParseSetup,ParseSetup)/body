@@ -13,12 +13,14 @@
  else   if (setupA._parse_type == setupB._parse_type) {
     mergedSetup._column_previews=PreviewParseWriter.unifyColumnPreviews(setupA._column_previews,setupB._column_previews);
   }
- else   throw new H2OParseException("File type mismatch. Cannot parse files of type " + setupA._parse_type + " and "+ setupB._parse_type+ " as one dataset.");
+ else   throw new ParseDataset.H2OParseException("File type mismatch. Cannot parse files of type " + setupA._parse_type + " and "+ setupB._parse_type+ " as one dataset.");
   if (mergedSetup._data.length < PreviewParseWriter.MAX_PREVIEW_LINES) {
     int n=mergedSetup._data.length;
     int m=Math.min(PreviewParseWriter.MAX_PREVIEW_LINES,n + setupB._data.length - 1);
     mergedSetup._data=Arrays.copyOf(mergedSetup._data,m);
     System.arraycopy(setupB._data,1,mergedSetup._data,n,m - n);
   }
+  mergedSetup._errs=ArrayUtils.append(setupA._errs,setupB._errs);
+  if (mergedSetup._errs.length > 20)   mergedSetup._errs=Arrays.copyOf(mergedSetup._errs,20);
   return mergedSetup;
 }

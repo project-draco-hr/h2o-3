@@ -9,5 +9,10 @@
     }
     for (int i=0; i < dout._vecs.length; ++i)     _vecs[i].reduce(dout._vecs[i]);
   }
+  _errCnt+=((FVecParseWriter)sdout)._errCnt;
+  if (_errs.length < 20 && ((FVecParseWriter)sdout)._errs.length > 0) {
+    _errs=ArrayUtils.append(_errs,((FVecParseWriter)sdout)._errs);
+    if (_errs.length > 20)     _errs=Arrays.copyOf(_errs,20);
+  }
   return this;
 }
