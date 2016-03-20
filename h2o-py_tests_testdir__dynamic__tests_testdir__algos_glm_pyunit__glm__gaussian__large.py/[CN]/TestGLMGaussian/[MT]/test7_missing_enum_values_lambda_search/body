@@ -7,9 +7,9 @@ def test7_missing_enum_values_lambda_search(self):
     validation_data = h2o.import_file(pyunit_utils.locate(self.validation_data_file_enum_nans_true_one_hot))
     test_data = h2o.import_file(pyunit_utils.locate(self.test_data_file_enum_nans_true_one_hot))
     for ind in range(self.enum_col):
-        training_data[ind] = training_data[ind].asfactor()
-        validation_data[ind] = validation_data[ind].asfactor()
-        test_data[ind] = test_data[ind].asfactor()
+        training_data[ind] = training_data[ind].round().asfactor()
+        validation_data[ind] = validation_data[ind].round().asfactor()
+        test_data[ind] = test_data[ind].round().asfactor()
     num_col = training_data.ncol
     y_index = (num_col - 1)
     x_indices = list(range(y_index))

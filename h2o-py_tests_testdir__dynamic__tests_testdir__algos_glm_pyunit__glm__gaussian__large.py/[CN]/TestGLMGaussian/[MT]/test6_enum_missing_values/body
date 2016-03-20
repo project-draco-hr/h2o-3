@@ -6,8 +6,8 @@ def test6_enum_missing_values(self):
     training_data = h2o.import_file(pyunit_utils.locate(self.training_data_file_enum_nans))
     test_data = h2o.import_file(pyunit_utils.locate(self.test_data_file_enum_nans))
     for ind in range(self.enum_col):
-        training_data[ind] = training_data[ind].asfactor()
-        test_data[ind] = test_data[ind].asfactor()
+        training_data[ind] = training_data[ind].round().asfactor()
+        test_data[ind] = test_data[ind].round().asfactor()
     num_col = training_data.ncol
     y_index = (num_col - 1)
     x_indices = list(range(y_index))

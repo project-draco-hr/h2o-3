@@ -1,12 +1,14 @@
-def extract_used_params(model_param_names, grid_model_params, family):
-    "\n    This function is used to build a dict out of parameters used by our gridsearch to build a H2O model given\n    the dict structure that describes the parameters and their values used by gridsearch to build that\n    particular mode.\n\n    :param model_param_names: list contains parameter names that we are interested in extracting\n    :param grid_model_params: dict contains key as names of parameter and values as list of two values: default and\n    actual.\n    :param family: distribution family, e.g. 'gaussian', 'binomial', ...\n\n    :return: params_used: a dict structure containing only parameters that take on non-default values as\n    name/value pairs\n    "
+def extract_used_params(model_param_names, grid_model_params, params_dict):
+    "\n    This function is used to build a dict out of parameters used by our gridsearch to build a H2O model given\n    the dict structure that describes the parameters and their values used by gridsearch to build that\n    particular mode.\n\n    :param model_param_names: list contains parameter names that we are interested in extracting\n    :param grid_model_params: dict contains key as names of parameter and values as list of two values: default and\n    actual.\n    :param params_dict: dict containing extrac parameters to add to params_used like family, e.g. 'gaussian',\n    'binomial', ...\n\n    :return: params_used: a dict structure containing only parameters that take on non-default values as\n    name/value pairs\n    "
     params_used = {}
     for each_parameter in grid_model_params.keys():
         parameter_name = str(each_parameter)
         if (parameter_name in model_param_names):
             if (not (grid_model_params[each_parameter]['default'] == grid_model_params[each_parameter]['actual'])):
                 params_used[parameter_name] = grid_model_params[each_parameter]['actual']
-    params_used['family'] = family
+    if params_dict:
+        for (key, value) in params_dict.items():
+            params_used[key] = value
     if ('lambda' in params_used.keys()):
         params_used['Lambda'] = params_used['lambda']
         del params_used['lambda']
