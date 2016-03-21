@@ -2,8 +2,8 @@
   final String[] names=tm._names;
   final SB sb=new SB();
   new TreeVisitor<RuntimeException>(this){
-    int _d;
     @Override protected void pre(    int col,    float fcmp,    IcedBitSet gcmp,    int equal){
+      if (equal == 1)       sb.p("!Double.isNaN(" + sb.i().p(names[col]).p(") && "));
       sb.i().p(names[col]).p(' ');
       if (equal == 0)       sb.p("< ").p(fcmp);
  else       if (equal == 1)       sb.p("!=").p(fcmp);

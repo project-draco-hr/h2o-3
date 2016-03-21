@@ -1,0 +1,8 @@
+def make_Rsandbox_dir(base_dir, test_name, make_dir):
+    '\n    This function will remove directory "Rsandbox/test_name" off directory base_dir and contents if it exists.\n    If make_dir is True, it will create a clean directory "Rsandbox/test_name" off directory base_dir.\n\n    :param base_dir: string contains directory path where we want to build our Rsandbox/test_name off from\n    :param test_name: string contains unit test name that the Rsandbox is created for\n    :param make_dir: bool, True: will create directory baseDir/Rsandbox/test_name, False: will not create\n        directory.\n\n    :return: syndatasets_dir: string containing the full path of the directory name specified by base_dir, test_name\n    '
+    syndatasets_dir = os.path.join(base_dir, ('Rsandbox_' + test_name))
+    if os.path.exists(syndatasets_dir):
+        shutil.rmtree(syndatasets_dir)
+    if make_dir:
+        os.mkdir(syndatasets_dir)
+    return syndatasets_dir

@@ -1,0 +1,69 @@
+def generate_retrofit_proxies(endpoints_meta, all_schemas_map):
+    '\n    Walk across all the endpoint metadata returning a map of classnames to interface definitions.\n    Retrofit interfaces look like this:\n\n    public interface GitHubService {\n        @GET("/users/{user}/repos")\n        List<Repo> listRepos(@Path("user") String user);\n    }\n    '
+    structs = {}
+    thrift_type_map = {'string': 'String', }
+    endpoints_by_entity = {}
+    entity_pattern_str = '/[0-9]+?/([^/]+)(/.*)?'
+    entity_pattern = re.compile(entity_pattern_str)
+    for meta in endpoints_meta:
+        h2o.H2O.verboseprint(('finding entity for url_pattern: ' + meta['url_pattern']))
+        m = entity_pattern.match(meta['url_pattern'])
+        entity = m.group(1)
+        if ('.' in entity):
+            entity = entity.split('.')[0]
+        h2o.H2O.verboseprint(('found entity: ' + entity))
+        if (entity not in endpoints_by_entity):
+            endpoints_by_entity[entity] = []
+        endpoints_by_entity[entity].append(meta)
+    var_pattern_str = '\\(\\?<(.+?)>\\.\\*\\)'
+    var_pattern = re.compile(var_pattern_str)
+    for entity in endpoints_by_entity:
+        struct = []
+        struct.append('package water.bindings.proxies.retrofit;')
+        struct.append('')
+        struct.append('import water.bindings.structs.*;')
+        struct.append('import retrofit.*;')
+        struct.append('import retrofit.http.*;')
+        struct.append('')
+        struct.append((('public interface ' + entity) + ' {'))
+        first = True
+        for meta in endpoints_by_entity[entity]:
+            path = meta['url_pattern']
+            retrofit_path = var_pattern.sub('{\\1}', path)
+            retrofit_path = retrofit_path.replace('\\', '\\\\')
+            http_method = meta['http_method']
+            input_schema_name = meta['input_schema']
+            output_schema_name = meta['output_schema']
+            handler_method = meta['handler_method']
+            method = handler_method
+            if (http_method == 'POST'):
+                parms = ((input_schema_name + ' ') + 'parms')
+            else:
+                parms = ''
+                path_parm_names = meta['path_params']
+                input_schema = all_schemas_map[input_schema_name]
+                first_parm = True
+                for parm in path_parm_names:
+                    fields = [field for field in input_schema['fields'] if (field['name'] == parm)]
+                    if (len(fields) != 1):
+                        print ((('Failed to find parameter: ' + parm) + ' for endpoint: ') + repr(meta))
+                    field = fields[0]
+                    parm_type = (field['schema_name'] if field['is_schema'] else field['type'])
+                    if (parm_type in thrift_type_map):
+                        parm_type = thrift_type_map[parm_type]
+                    if (not first_parm):
+                        parms += ', '
+                    parms += parm_type
+                    parms += ' '
+                    parms += parm
+                    first_parm = False
+            if (not first):
+                struct.append('')
+            if (http_method == 'POST'):
+                struct.append('    @Headers("Content-Type: application/x-www-form-urlencoded; charset=UTF-8")')
+            struct.append('    @{http_method}("{path}")'.format(http_method=http_method, path=retrofit_path))
+            struct.append('    {output_schema_name} {method}({parms});'.format(output_schema_name=output_schema_name, method=method, parms=parms))
+            first = False
+        struct.append('}')
+        structs[entity] = struct
+    return structs

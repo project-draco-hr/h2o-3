@@ -1,0 +1,14 @@
+def test5_missing_values(self):
+    '\n        Test parameter missing_values_handling="MeanImputation" with\n        only real value predictors.  The same data sets as before are used.  However, we\n        go into the predictor matrix and randomly decide to change a value to be\n        nan and create missing values.  Since no regularization is enabled in this case,\n        we are able to calculate a theoretical weight/p-values/MSEs where we can\n        compare our H2O models with.\n        '
+    print('*******************************************************************************************')
+    print('Test5: test the GLM with imputation of missing values with column averages.')
+    (weight_theory, p_values_theory, mse_train_theory, mse_test_theory) = self.theoretical_glm(self.training_data_file_nans, self.test_data_file_nans, False, False)
+    training_data = h2o.import_file(pyunit_utils.locate(self.training_data_file_nans))
+    test_data = h2o.import_file(pyunit_utils.locate(self.test_data_file_nans))
+    model_h2o = H2OGeneralizedLinearEstimator(family=self.family, Lambda=0, compute_p_values=True, missing_values_handling='MeanImputation', standardize=False)
+    model_h2o.train(x=self.x_indices, y=self.y_index, training_frame=training_data)
+    h2o_model_test_metrics = model_h2o.model_performance(test_data=test_data)
+    num_test_failed = self.test_failed
+    (_, _, _, _, _, _, self.test_failed) = pyunit_utils.extract_comparison_attributes_and_print(model_h2o, h2o_model_test_metrics, '\nTest5 Done!', True, True, True, weight_theory, p_values_theory, mse_train_theory, mse_test_theory, 'Comparing intercept and weights ....', 'H2O missing values intercept and weights: ', 'Theoretical intercept and weights: ', 'Intercept and weights are not equal!', 'Intercept and weights are close enough!', 'Comparing p-values ....', 'H2O missing values p-values: ', 'Theoretical p-values: ', 'P-values are not equal!', 'P-values are close enough!', 'Comparing training MSEs ....', 'H2O missing values training MSE: ', 'Theoretical training MSE: ', 'Training MSEs are not equal!', 'Training MSEs are close enough!', 'Comparing test MSEs ....', 'H2O missing values test MSE: ', 'Theoretical test MSE: ', 'Test MSEs are not equal!', 'Test MSEs are close enough!', self.test_failed, self.ignored_eps, self.allowed_diff, self.noise_var, False)
+    self.test_failed_array[self.test_num] += pyunit_utils.show_test_results('test5_missing_values', num_test_failed, self.test_failed)
+    self.test_num += 1

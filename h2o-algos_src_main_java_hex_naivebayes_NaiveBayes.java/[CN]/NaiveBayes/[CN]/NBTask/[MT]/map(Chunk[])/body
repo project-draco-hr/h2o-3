@@ -14,8 +14,10 @@
       _jntsum[i]=new double[_nrescat][2];
     }
   }
-  Chunk res=chks[_npreds];
+  Chunk res=chks[_dinfo.responseChunkId(0)];
   OUTER:   for (int row=0; row < chks[0]._len; row++) {
+    if (_dinfo._weights && chks[_dinfo.weightChunkId()].atd(row) == 0)     continue OUTER;
+    if (_dinfo._weights && chks[_dinfo.weightChunkId()].atd(row) != 1)     throw new IllegalArgumentException("Weights must be either 0 or 1 for Naive Bayes.");
     for (    Chunk chk : chks) {
       if (Double.isNaN(chk.atd(row)))       continue OUTER;
     }

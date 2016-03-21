@@ -1,0 +1,10 @@
+def insert_nan_in_data(old_filename, new_filename, missing_fraction):
+    '\n    Give the filename of a data set stored in old_filename, this function will randomly determine\n    for each predictor to replace its value with nan or not with probability missing_frac.  The\n    new data set will be stored in filename new_filename.\n\n    :param old_filename: string representing full directory path and filename where data set is stored\n    :param new_filename: string representing full directory path and filename where new data set with missing\n        values is to be stored\n    :param missing_fraction: real value representing the probability of replacing a predictor with nan.\n\n\n    :return: None\n    '
+    pd_frame = pd.read_csv(old_filename, header=None)
+    (row_count, col_count) = pd_frame.shape
+    random_matrix = np.random.uniform(0, 1, [row_count, (col_count - 1)])
+    for indr in range(row_count):
+        for indc in range((col_count - 1)):
+            if (random_matrix[(indr, indc)] < missing_fraction):
+                pd_frame.loc[(indr, indc)] = np.nan
+    pd_frame.to_csv(new_filename, sep=',', header=False, index=False, na_rep='nan')
