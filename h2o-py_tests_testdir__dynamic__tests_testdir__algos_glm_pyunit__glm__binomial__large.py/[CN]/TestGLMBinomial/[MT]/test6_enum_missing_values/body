@@ -7,13 +7,16 @@ def test6_enum_missing_values(self):
     training_data = h2o.import_file(pyunit_utils.locate(self.training_data_file_enum_nans))
     test_data = h2o.import_file(pyunit_utils.locate(self.test_data_file_enum_nans))
     for ind in range(self.enum_col):
-        training_data[ind] = training_data[ind].asfactor()
-        test_data[ind] = test_data[ind].asfactor()
+        training_data[ind] = training_data[ind].round().asfactor()
+        test_data[ind] = test_data[ind].round().asfactor()
     num_col = training_data.ncol
     y_index = (num_col - 1)
     x_indices = list(range(y_index))
-    training_data[y_index] = training_data[y_index].asfactor()
-    test_data[y_index] = test_data[y_index].asfactor()
+    training_data[y_index] = training_data[y_index].round().asfactor()
+    if (training_data[y_index].nlevels()[0] < self.class_number):
+        print('Response classes are not represented in training dataset.')
+        sys.exit(0)
+    test_data[y_index] = test_data[y_index].round().asfactor()
     model_h2o = H2OGeneralizedLinearEstimator(family=self.family, Lambda=0, missing_values_handling='MeanImputation')
     model_h2o.train(x=x_indices, y=y_index, training_frame=training_data)
     h2o_model_test_metrics = model_h2o.model_performance(test_data=test_data)

@@ -6,8 +6,6 @@ def setup(self):
     self.train_col_count = random.randint(3, self.max_col_count)
     self.train_row_count = round((self.train_col_count * random.uniform(self.min_col_count_ratio, self.max_col_count_ratio)))
     self.class_number = random.randint(3, self.max_class_number)
-    self.y_index = self.train_col_count
-    self.x_indices = list(range(self.train_col_count))
     self.enum_col = random.randint(1, (self.train_col_count - 1))
     self.enum_level_vec = np.random.random_integers(2, (self.enum_levels - 1), [self.enum_col, 1])
     pyunit_utils.write_syn_floating_point_dataset_glm(self.training_data_file, self.validation_data_file, self.test_data_file, self.weight_data_file, self.train_row_count, self.train_col_count, self.data_type, self.max_p_value, self.min_p_value, self.max_w_value, self.min_w_value, self.noise_std, self.family, self.train_row_count, self.train_row_count, class_number=self.class_number, class_method=[self.class_method, self.class_method, self.test_class_method], class_margin=[self.margin, self.margin, self.test_class_margin])
@@ -21,13 +19,17 @@ def setup(self):
     pyunit_utils.insert_nan_in_data(self.validation_data_file_enum_true_one_hot, self.validation_data_file_enum_nans_true_one_hot, self.nan_fraction)
     pyunit_utils.insert_nan_in_data(self.test_data_file_enum_true_one_hot, self.test_data_file_enum_nans_true_one_hot, self.nan_fraction)
     self.training_data = h2o.import_file(pyunit_utils.locate(self.training_data_file))
-    self.training_data[self.y_index] = self.training_data[self.y_index].asfactor()
+    self.y_index = (self.training_data.ncol - 1)
+    self.x_indices = list(range(self.y_index))
+    self.training_data[self.y_index] = self.training_data[self.y_index].round().asfactor()
+    if (self.training_data[self.y_index].nlevels()[0] < self.class_number):
+        print('Response classes are not represented in training dataset.')
+        sys.exit(0)
     self.valid_data = h2o.import_file(pyunit_utils.locate(self.validation_data_file))
-    self.valid_data[self.y_index] = self.valid_data[self.y_index].asfactor()
+    self.valid_data[self.y_index] = self.valid_data[self.y_index].round().asfactor()
     self.test_data = h2o.import_file(pyunit_utils.locate(self.test_data_file))
-    self.test_data[self.y_index] = self.test_data[self.y_index].asfactor()
+    self.test_data[self.y_index] = self.test_data[self.y_index].round().asfactor()
     self.training_data_grid = self.training_data.rbind(self.valid_data)
-    self.training_data_grid[self.y_index] = self.training_data_grid[self.y_index].asfactor()
     for ind in range(self.class_number):
         self.sklearn_class_weight[ind] = 1.0
     pyunit_utils.remove_csv_files(self.current_dir, '.csv', action='copy', new_dir_path=self.sandbox_dir)
