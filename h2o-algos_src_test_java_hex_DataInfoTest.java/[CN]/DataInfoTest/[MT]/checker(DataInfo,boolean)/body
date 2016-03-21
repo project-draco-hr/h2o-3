@@ -8,7 +8,7 @@
         for (int j=0; j < di.fullN(); ++j) {
           double sparseDoubleScaled=sparseRows[i].get(j);
           if (j >= di.numStart()) {
-            sparseDoubleScaled-=di._normSub[j - di.numStart()] * di._normMul[j - di.numStart()];
+            sparseDoubleScaled-=(standardize ? (di._normSub[j - di.numStart()] * di._normMul[j - di.numStart()]) : 0);
           }
           if (r.bad || sparseRows[i].bad) {
             if (sparseRows[i].bad && r.bad)             continue;
@@ -23,6 +23,4 @@
     }
   }
 .doAll(di._adaptedFrame);
-  di.dropInteractions();
-  di.remove();
 }
