@@ -1,4 +1,5 @@
 {
+  _file=key.toString();
   Iced ice=DKV.getGet(key);
   if (ice == null)   throw new H2OIllegalArgumentException("Missing data","Did not find any data under key " + key);
   ByteVec bv=(ByteVec)(ice instanceof ByteVec ? ice : ((Frame)ice).vecs()[0]);
@@ -13,6 +14,7 @@
     if (_maxLineLength == -1)     throw new H2OIllegalArgumentException("The first 4MB of the data don't contain any line breaks. Cannot parse.");
     try {
       _gblSetup=guessSetup(bits,_userSetup);
+      for (      ParseWriter.ParseErr e : _gblSetup._errs)       e._file=_file;
     }
  catch (    ParseDataset.H2OParseException pse) {
       throw pse.resetMsg(pse.getMessage() + " for " + key);
