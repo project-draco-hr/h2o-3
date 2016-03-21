@@ -1,0 +1,28 @@
+{
+  new MRTask(){
+    @Override public void map(    Chunk[] cs){
+      DataInfo.Row[] sparseRows=di.extractSparseRows(cs);
+      for (int i=0; i < cs[0]._len; ++i) {
+        DataInfo.Row r=di.newDenseRow();
+        di.extractDenseRow(cs,i,r);
+        for (int j=0; j < di.fullN(); ++j) {
+          double sparseDoubleScaled=sparseRows[i].get(j);
+          if (j >= di.numStart()) {
+            sparseDoubleScaled-=di._normSub[j - di.numStart()] * di._normMul[j - di.numStart()];
+          }
+          if (r.bad || sparseRows[i].bad) {
+            if (sparseRows[i].bad && r.bad)             continue;
+            throw new RuntimeException("dense row was " + (r.bad ? "bad" : "not bad") + "; but sparse row was "+ (sparseRows[i].bad ? "bad" : "not bad"));
+          }
+          if (Math.abs(r.get(j) - sparseDoubleScaled) > 1e-14) {
+            printVals(di,r,sparseRows[i]);
+            throw new RuntimeException("Row mismatch on row " + i);
+          }
+        }
+      }
+    }
+  }
+.doAll(di._adaptedFrame);
+  di.dropInteractions();
+  di.remove();
+}

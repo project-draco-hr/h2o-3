@@ -1,33 +1,16 @@
 {
   Frame fr=parse_test_file(Key.make("a.hex"),"smalldata/airlines/allyears2k_headers.zip");
   DataInfo.InteractionPair[] ips=DataInfo.InteractionPair.generatePairwiseInteractionsFromList(8,16,2);
+  DataInfo di=null;
   try {
-    final DataInfo di=new DataInfo(fr.clone(),null,1,true,DataInfo.TransformType.STANDARDIZE,DataInfo.TransformType.NONE,true,false,false,false,false,false,ips);
-    new MRTask(){
-      @Override public void map(      Chunk[] cs){
-        DataInfo.Row[] sparseRows=di.extractSparseRows(cs);
-        for (int i=0; i < cs[0]._len; ++i) {
-          DataInfo.Row r=di.newDenseRow();
-          di.extractDenseRow(cs,i,r);
-          for (int j=0; j < di.fullN(); ++j) {
-            double sparseDoubleScaled=sparseRows[i].get(j);
-            if (j >= di.numStart()) {
-              sparseDoubleScaled-=di._normSub[j - di.numStart()] * di._normMul[j - di.numStart()];
-            }
-            if (r.bad && sparseRows[i].bad)             continue;
-            if (Math.abs(r.get(j) - sparseDoubleScaled) > 1e-14) {
-              printVals(di,r,sparseRows[i]);
-              throw new RuntimeException("Row mismatch on row " + i);
-            }
-          }
-        }
-      }
-    }
-.doAll(di._adaptedFrame);
-    di.dropInteractions();
-    di.remove();
+    di=new DataInfo(fr.clone(),null,1,true,DataInfo.TransformType.STANDARDIZE,DataInfo.TransformType.NONE,true,false,false,false,false,false,ips);
+    checker(di);
   }
   finally {
     fr.delete();
+    if (di != null) {
+      di.dropInteractions();
+      di.remove();
+    }
   }
 }
