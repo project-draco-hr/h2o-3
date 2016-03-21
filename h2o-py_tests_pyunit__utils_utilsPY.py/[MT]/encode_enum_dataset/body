@@ -8,12 +8,10 @@ def encode_enum_dataset(dataset, enum_level_vec, enum_col, true_one_hot, include
         if (not true_one_hot):
             enum_col_num -= 1
         if (include_nans and np.any(enum_arrays[:, indc])):
-            all_vals = list(reversed(range((enum_col_num + 1))))
-        else:
-            all_vals = list(reversed(range(enum_col_num)))
-        new_temp_enum = np.zeros((num_row, len(all_vals)), dtype=np.int)
-        one_hot_matrix = pd.get_dummies(all_vals)
-        last_col_index = (len(all_vals) - 1)
+            enum_col_num += 1
+        new_temp_enum = np.zeros((num_row, enum_col_num), dtype=np.int)
+        one_hot_matrix = one_hot_encoding(enum_col_num)
+        last_col_index = (enum_col_num - 1)
         for indr in range(num_row):
             enum_val = enum_arrays[(indr, indc)]
             if true_one_hot:
