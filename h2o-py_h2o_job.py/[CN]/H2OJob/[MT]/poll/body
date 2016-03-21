@@ -16,6 +16,8 @@ def poll(self):
     self._update_progress()
     if H2OJob.__PROGRESS_BAR__:
         print()
+    for w in self.warnings:
+        warnings.warn(w)
     if (self.status == 'CANCELLED'):
         raise EnvironmentError('Job with key {} was cancelled by the user.'.format(self.job_key))
     if (self.status == 'FAILED'):
