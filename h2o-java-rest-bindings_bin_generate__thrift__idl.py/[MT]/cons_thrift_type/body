@@ -1,0 +1,30 @@
+def cons_thrift_type(struct_name, name, h2o_type, schema_name):
+    global type_mapping
+    if h2o_type.startswith('Map'):
+        generics = h2o_type[4:(-1)]
+        if (string.count(generics, '[') != 0):
+            raise Exception(("Can't yet handle maps of arrays: " + name))
+        generics_array = string.split(generics, ',')
+        if (len(generics_array) != 2):
+            raise Exception(("Can't yet handle maps of maps: " + name))
+        thrift_type = ((((('map' + '<') + (type_mapping[generics_array[0]] if (generics_array[0] in type_mapping) else generics_array[0])) + ',') + (type_mapping[generics_array[1]] if (generics_array[1] in type_mapping) else generics_array[1])) + '>')
+        return thrift_type
+    if ((schema_name is None) or h2o_type.startswith('enum')):
+        simple_type = h2o_type.replace('[]', '')
+    else:
+        simple_type = schema_name
+    idx = h2o_type.find('[]')
+    brackets = ('' if (idx is (-1)) else h2o_type[idx:])
+    if (simple_type in type_mapping):
+        return optionally_to_list(type_mapping[simple_type], brackets)
+    if h2o_type.startswith('Key<'):
+        return optionally_to_list('string', brackets)
+    if (simple_type == 'enum'):
+        return optionally_to_list(schema_name, brackets)
+    if (schema_name is not None):
+        return optionally_to_list(simple_type, brackets)
+    if (simple_type == 'Polymorphic'):
+        return 'PrimitiveUnion'
+    if (simple_type == 'IcedWrapper'):
+        return 'PrimitiveUnion'
+    raise Exception(((((('Unexpectedly found a ' + simple_type) + ' field: ') + name) + ' in struct: ') + struct_name))

@@ -6,7 +6,7 @@
     init(true);
     _parms.read_lock_frames(_job);
     if (error_count() > 0)     throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(NaiveBayes.this);
-    dinfo=new DataInfo(_train,_valid,1,false,DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true,false,false,false,false,false);
+    dinfo=new DataInfo(_train,_valid,1,false,DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true,false,false,_weights != null,false,_fold != null);
     model=new NaiveBayesModel(dest(),_parms,new NaiveBayesOutput(NaiveBayes.this));
     model.delete_and_lock(_job);
     _train.read_lock(_job._key);

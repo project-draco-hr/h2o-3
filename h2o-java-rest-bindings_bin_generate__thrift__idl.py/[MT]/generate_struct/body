@@ -1,0 +1,34 @@
+def generate_struct(schema, struct_name):
+    global args
+    global enums
+    global thrift_reserved_words
+    if args.verbose:
+        print ('Generating Struct: ', struct_name)
+    struct = []
+    superclass = schema['superclass']
+    if ('Iced' == superclass):
+        superclass = 'Object'
+    struct.append((('struct ' + struct_name) + ' {'))
+    first = True
+    field_num = 1
+    for field in schema['fields']:
+        help = field['help']
+        type = (field['type'] if (field['type'] != 'enum') else field['schema_name'])
+        name = field['name']
+        schema_name = field['schema_name']
+        if (name == '__meta'):
+            continue
+        if (name in thrift_reserved_words):
+            continue
+        if (type == 'Iced'):
+            continue
+        thrift_type = cons_thrift_type(struct_name, name, type, schema_name)
+        if (not first):
+            struct.append('')
+        required = ('required' if field['required'] else 'optional')
+        struct.append('    /** {help} */'.format(help=help))
+        struct.append('    {num}: {required} {type} {name};'.format(num=field_num, required=required, type=thrift_type, name=name))
+        first = False
+        field_num += 1
+    struct.append('}')
+    return struct

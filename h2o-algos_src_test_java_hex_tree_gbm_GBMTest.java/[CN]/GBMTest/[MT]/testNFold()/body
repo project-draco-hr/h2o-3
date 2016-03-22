@@ -15,6 +15,7 @@
     parms._nfolds=2;
     parms._ntrees=3;
     parms._learn_rate=1e-3f;
+    parms._keep_cross_validation_predictions=true;
     gbm=new GBM(parms).trainModel().get();
     ModelMetricsBinomial mm=(ModelMetricsBinomial)gbm._output._cross_validation_metrics;
     assertEquals(0.6296296296296297,mm.auc_obj()._auc,1e-8);
@@ -28,6 +29,8 @@
     if (gbm != null) {
       gbm.deleteCrossValidationModels();
       gbm.delete();
+      for (      Key k : gbm._output._cross_validation_predictions)       k.remove();
+      gbm._output._cross_validation_holdout_predictions_frame_id.remove();
     }
     Scope.exit();
   }
