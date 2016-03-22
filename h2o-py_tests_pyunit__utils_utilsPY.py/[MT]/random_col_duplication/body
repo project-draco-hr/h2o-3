@@ -1,0 +1,22 @@
+def random_col_duplication(num_cols, duplication_threshold, max_number, to_scale, max_scale_factor):
+    '\n    This function will randomly determine for each column if it should be duplicated.\n    If it is to be duplicated, how many times, the duplication should be.  In addition, a\n    scaling factor will be randomly applied to each duplicated column if enabled.\n\n    :param num_cols: integer representing number of predictors used\n    :param duplication_threshold: threshold to determine if a column is to be duplicated.  Set\n    this number to be low if you want to encourage column duplication and vice versa\n    :param max_number: maximum number of times a column is to be duplicated\n    :param to_scale: bool indicating if a duplicated column is to be scaled\n    :param max_scale_factor: real representing maximum scale value for repeated columns\n\n    :return: a tuple containing two vectors: col_return, col_scale_return.\n    col_return: vector indicating the column indices of the original data matrix that will be included\n        in the new data matrix with duplicated columns\n    col_scale_return: vector indicating for each new column in the new data matrix with duplicated columns,\n        what scale should be applied to that column.\n    '
+    col_indices = list(range(num_cols))
+    col_scales = ([1] * num_cols)
+    for ind in range(num_cols):
+        temp = random.uniform(0, 1)
+        if (temp > duplication_threshold):
+            rep_num = random.randint(1, max_number)
+            more_col_indices = ([ind] * rep_num)
+            col_indices.extend(more_col_indices)
+            temp_scale = []
+            for ind in range(rep_num):
+                if to_scale:
+                    temp_scale.append(random.uniform(0, max_scale_factor))
+                else:
+                    temp_scale.append(1)
+            col_scales.extend(temp_scale)
+    new_col_indices = list(range(len(col_indices)))
+    random.shuffle(new_col_indices)
+    col_return = [col_indices[i] for i in new_col_indices]
+    col_scale_return = [col_scales[i] for i in new_col_indices]
+    return (col_return, col_scale_return)

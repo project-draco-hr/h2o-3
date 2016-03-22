@@ -1,0 +1,17 @@
+def add_fold_weights_offset_columns(h2o_frame, nfold_max_weight_offset, column_names, column_type='fold_assignment'):
+    "\n    Add fold_columns to H2O training frame specified in h2o_frame according to nfold.  The new added\n    columns should use the names in column_names.  Returns a h2o_frame with newly added fold_columns.\n    Copied from Eric's code.\n\n    :param h2o_frame: H2O frame containing training data\n    :param nfold_max_weight_offset: integer, number of fold in the cross-validation or maximum weight scale or offset\n    :param column_names: list of strings denoting the column names for the new fold columns\n    :param column_type: optional string denoting whether we are trying to generate fold_assignment or\n    weights_column or offset_column\n\n    :return: H2O frame with added fold column assignments\n    "
+    number_row = h2o_frame.nrow
+    for index in range(len(column_names)):
+        if ('fold_assignment' in column_type):
+            temp_a = np.random.random_integers(0, (nfold_max_weight_offset - 1), [number_row, 1])
+        elif ('weights_column' in column_type):
+            temp_a = np.random.uniform(0, nfold_max_weight_offset, [number_row, 1])
+        elif ('offset_column' in column_type):
+            temp_a = (random.uniform(0, nfold_max_weight_offset) * np.asmatrix(np.ones(number_row)).transpose())
+        else:
+            print("column_type must be either 'fold_assignment' or 'weights_column'!")
+            sys.exit(1)
+        fold_assignments = h2o.H2OFrame(temp_a)
+        fold_assignments.set_names([column_names[index]])
+        h2o_frame = h2o_frame.cbind(fold_assignments)
+    return h2o_frame

@@ -1,0 +1,19 @@
+def compare_two_arrays(array1, array2, eps, tolerance, comparison_string, array1_string, array2_string, error_string, success_string, template_is_better, just_print=False):
+    '\n    This function is written to print out the performance comparison results for various values that\n    we care about.  It will return 1 if the values of the two arrays exceed threshold specified in tolerance.\n    The actual comparison is performed by calling function equal_two_array.\n\n    :param array1: numpy array containing some values of interest\n    :param array2: numpy array containing some values of interest that we would like to compare it with array1\n    :param eps: significance level that we care about in order to perform the comparison\n    :param tolerance: threshold for which we allow the two array elements to be different by\n    :param comparison_string: string stating what the comparison is about, e.g. "Comparing p-values ...."\n    :param array1_string: string stating what is the array1 attribute of interest, e.g. "H2O p-values: "\n    :param array2_string: string stating what is the array2 attribute of interest, e.g. "Theoretical p-values: "\n    :param error_string: string stating what you want to say if the difference between array1 and array2\n    exceeds tolerance, e.g "P-values are not equal!"\n    :param success_string: string stating what you want to say if the difference between array1 and array2 does not\n        exceed tolerance   "P-values are close enough!"\n    :param template_is_better: bool, True, will return 1 if difference among elements of array1 and array2 exceeds\n    tolerance.  False, will always return 0 even if difference among elements of array1 and array2 exceeds tolerance.\n    In this case, the system under test actually performs better than the template.\n    :param just_print: bool if True will print attribute values without doing comparison.  False will print\n    attribute values and perform comparison\n\n    :return: if template_is_better = True, return 0 if elements in array1 and array2 are close and 1 otherwise;\n             if template_is_better = False, will always return 0 since system under tests performs better than\n             template system.\n    '
+    print(comparison_string)
+    print(array1_string, array1)
+    print(array2_string, array2)
+    if just_print:
+        return 0
+    elif template_is_better:
+        try:
+            assert equal_two_arrays(array1, array2, eps, tolerance), error_string
+            print(success_string)
+            sys.stdout.flush()
+            return 0
+        except:
+            sys.stdout.flush()
+            return 1
+    else:
+        print('Test result is actually better than comparison template!')
+        return 0

@@ -1,0 +1,27 @@
+def test6_enum_missing_values(self):
+    '\n        Test parameter missing_values_handling="MeanImputation" with\n        mixed predictors (categorical/real value columns).  We first generate a data set that\n        contains a random number of columns of categorical and real value columns.  Next, we\n        encode the categorical columns.  Then, we generate the random data set using the formula\n        as before.  Next, we go into the predictor matrix and randomly\n        decide to change a value to be nan and create missing values.  Since no regularization\n        is enabled in this case, we are able to build Sklearn model\n        where we can compare our H2O models with.\n        '
+    print('*******************************************************************************************')
+    print('Test6: test the GLM with enum/real values.')
+    h2o.cluster_info()
+    (p_weights, p_logloss_train, p_cm_train, p_accuracy_training, p_logloss_test, p_cm_test, p_accuracy_test) = self.sklearn_multinomial_result(self.training_data_file_enum_nans, self.test_data_file_enum_nans, True, False)
+    training_data = h2o.import_file(pyunit_utils.locate(self.training_data_file_enum_nans))
+    test_data = h2o.import_file(pyunit_utils.locate(self.test_data_file_enum_nans))
+    for ind in range(self.enum_col):
+        training_data[ind] = training_data[ind].round().asfactor()
+        test_data[ind] = test_data[ind].round().asfactor()
+    num_col = training_data.ncol
+    y_index = (num_col - 1)
+    x_indices = list(range(y_index))
+    training_data[y_index] = training_data[y_index].round().asfactor()
+    if (training_data[y_index].nlevels()[0] < self.class_number):
+        print('Response classes are not represented in training dataset.')
+        sys.exit(0)
+    test_data[y_index] = test_data[y_index].round().asfactor()
+    model_h2o = H2OGeneralizedLinearEstimator(family=self.family, Lambda=0, missing_values_handling='MeanImputation')
+    model_h2o.train(x=x_indices, y=y_index, training_frame=training_data)
+    h2o_model_test_metrics = model_h2o.model_performance(test_data=test_data)
+    num_test_failed = self.test_failed
+    self.test_failed = pyunit_utils.extract_comparison_attributes_and_print_multinomial(model_h2o, h2o_model_test_metrics, self.family, '\nTest6 Done!', compare_att_str=['\nComparing intercept and weights ....', '\nComparing logloss from training data set ....', '\nComparing logloss from test data set ....', '\nComparing confusion matrices from training data set ....', '\nComparing confusion matrices from test data set ...', '\nComparing accuracy from training data set ....', '\nComparing accuracy from test data set ....'], h2o_att_str=['H2O with enum/real values, no regularization and missing values intercept and weights: \n', 'H2O with enum/real values, no regularization and missing values logloss from training data set: ', 'H2O with enum/real values, no regularization and missing values logloss from test data set', 'H2O with enum/real values, no regularization and missing values confusion matrix from training data set: \n', 'H2O with enum/real values, no regularization and missing values confusion matrix from test data set: \n', 'H2O with enum/real values, no regularization and missing values accuracy from training data set: ', 'H2O with enum/real values, no regularization and missing values accuracy from test data set: '], template_att_str=['Sklearn with enum/real values, missing values intercept and weights: \n', 'Sklearn with enum/real values, missing values logloss from training data set: ', 'Sklearn with enum/real values, missing values logloss from test data set: ', 'Sklearn with enum/real values, missing values confusion matrix from training dataset: \n', 'Sklearn with enum/real values, missing values confusion matrix from test dataset: \n', 'Sklearn with enum/real values, missing values accuracy from training data set: ', 'Sklearn with enum/real values, and missing values accuracy from test data set: '], att_str_fail=['Intercept and weights are not equal!', 'Logloss from training data set differ too much!', 'Logloss from test dataset differ too much!', '', '', 'Accuracies from training data set differ too much!', 'Accuracies from test data set differ too much!'], att_str_success=['Intercept and weights are close enough!', 'Logloss from training dataset are close enough!', 'Logloss from test dataset are close enough!', '', '', 'Accuracies from training data set are close enough!', 'Accuracies from test data set are close enough!'], can_be_better_than_template=[True, True, True, True, True, True, True], just_print=[True, True, True, True, True, True, False], failed_test_number=self.test_failed, template_params=[p_weights, p_logloss_train, p_cm_train, p_accuracy_training, p_logloss_test, p_cm_test, p_accuracy_test], ignored_eps=self.ignored_eps, allowed_diff=self.allowed_diff)
+    h2o.cluster_info()
+    self.test_failed_array[self.test_num] += pyunit_utils.show_test_results('test6_enum_missing_values', num_test_failed, self.test_failed)
+    self.test_num += 1

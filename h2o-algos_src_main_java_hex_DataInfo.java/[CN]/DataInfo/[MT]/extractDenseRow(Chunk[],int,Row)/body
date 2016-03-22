@@ -18,22 +18,18 @@
   }
   row.nBins=nbins;
   final int n=_nums;
-  for (int i=0; i < n; ++i) {
-    if (isInteractionVec(i)) {
-      int offset;
-      InteractionWrappedVec iwv=((InteractionWrappedVec)_adaptedFrame.vec(_cats + i));
-      int v1=_adaptedFrame.find(iwv.v1());
-      int v2=_adaptedFrame.find(iwv.v2());
-      if (v1 < _cats)       offset=(int)chunks[v1].at8(rid);
- else       if (v2 < _cats)       offset=(int)chunks[v2].at8(rid);
- else       offset=0;
-      row.numVals[i + offset]=chunks[_cats + i].atd(rid);
+  int numValsIdx=0;
+  for (int i=0; i < n; i++) {
+    if (isInteractionVec(_cats + i)) {
+      int offset=getInteractionOffset(chunks,_cats + i,rid);
+      row.numVals[numValsIdx + offset]=chunks[_cats + i].atd(rid);
+      numValsIdx+=nextNumericIdx(i);
     }
  else {
       double d=chunks[_cats + i].atd(rid);
       if (Double.isNaN(d))       d=_numMeans[i];
-      if (_normMul != null && _normSub != null)       d=(d - _normSub[i]) * _normMul[i];
-      row.numVals[i]=d;
+      if (_normMul != null && _normSub != null)       d=(d - _normSub[numValsIdx]) * _normMul[numValsIdx];
+      row.numVals[numValsIdx++]=d;
     }
   }
   for (int i=0; i < _responses; ++i) {
