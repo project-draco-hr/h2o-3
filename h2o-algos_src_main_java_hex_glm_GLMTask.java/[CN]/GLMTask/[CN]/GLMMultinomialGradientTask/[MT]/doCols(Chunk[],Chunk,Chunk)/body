@@ -11,14 +11,15 @@
       if (id >= 0)       for (int k=0; k < _beta.length; ++k)       etas[rid][k]+=_beta[k][id];
     }
   }
-  Chunk.DVec dvec=new Chunk.DVec(chks[0].len());
+  double[] vals=new double[chks[0].len()];
+  int[] ids=new int[vals.length];
   for (int cid=0; cid < _dinfo._nums; ++cid) {
     Chunk c=chks[cid + _dinfo._cats];
     double scale=_dinfo._normMul == null ? 1 : _dinfo._normMul[cid];
-    c.asDoubles(dvec);
-    for (int i=0; i < dvec.nVals; ++i) {
-      int rid=dvec.ids[i];
-      double d=dvec.vals[i] * scale;
+    int nVals=c.asSparseDoubles(vals,ids);
+    for (int i=0; i < nVals; ++i) {
+      int rid=ids[i];
+      double d=vals[i] * scale;
       for (int k=0; k < _beta.length; ++k)       etas[rid][k]+=d * _beta[k][cid + numOff];
     }
   }
@@ -42,10 +43,10 @@
   for (int cid=0; cid < chks.length; ++cid) {
     Chunk c=chks[cid];
     double scale=_dinfo._normMul == null ? 1 : _dinfo._normMul[cid];
-    c.asDoubles(dvec);
-    for (int i=0; i < dvec.nVals; ++i) {
-      int rid=dvec.ids[i];
-      double d=dvec.vals[i] * scale;
+    int nVals=c.asSparseDoubles(vals,ids);
+    for (int i=0; i < nVals; ++i) {
+      int rid=ids[i];
+      double d=vals[i] * scale;
       double[] erid=etas[rid];
       for (int k=0; k < _beta.length; ++k)       grad[k]+=d * erid[k];
     }

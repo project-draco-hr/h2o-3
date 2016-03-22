@@ -1,0 +1,63 @@
+{
+  if (vals.length != _len)   throw new IllegalArgumentException();
+  int off=_OFF;
+  final int inc=_valsz + _ridsz;
+  if (_ridsz == 2) {
+switch (_valsz) {
+case 1:
+      for (int i=0; i < _sparseLen; ++i, off+=inc) {
+        ids[i]=UnsafeUtils.get2(_mem,off);
+        vals[i]=_mem[off + 2] & 0xFF;
+      }
+    break;
+case 2:
+  for (int i=0; i < _sparseLen; ++i, off+=inc) {
+    ids[i]=UnsafeUtils.get2(_mem,off);
+    vals[i]=UnsafeUtils.get2(_mem,off + 2);
+  }
+break;
+case 4:
+for (int i=0; i < _sparseLen; ++i, off+=inc) {
+ids[i]=UnsafeUtils.get2(_mem,off);
+vals[i]=UnsafeUtils.get4(_mem,off + 2);
+}
+break;
+case 8:
+for (int i=0; i < _sparseLen; ++i, off+=inc) {
+ids[i]=UnsafeUtils.get2(_mem,off);
+vals[i]=UnsafeUtils.get8(_mem,off + 2);
+}
+break;
+}
+}
+ else if (_ridsz == 4) {
+switch (_valsz) {
+case 1:
+for (int i=0; i < _sparseLen; ++i, off+=inc) {
+ids[i]=UnsafeUtils.get4(_mem,off);
+vals[i]=_mem[off + 4] & 0xFF;
+}
+break;
+case 2:
+for (int i=0; i < _sparseLen; ++i, off+=inc) {
+ids[i]=UnsafeUtils.get4(_mem,off);
+vals[i]=UnsafeUtils.get2(_mem,off + 4);
+}
+break;
+case 4:
+for (int i=0; i < _sparseLen; ++i, off+=inc) {
+ids[i]=UnsafeUtils.get4(_mem,off);
+vals[i]=UnsafeUtils.get4(_mem,off + 4);
+}
+break;
+case 8:
+for (int i=0; i < _sparseLen; ++i, off+=inc) {
+ids[i]=UnsafeUtils.get4(_mem,off);
+vals[i]=UnsafeUtils.get8(_mem,off + 4);
+}
+break;
+}
+}
+ else throw H2O.unimpl();
+return len();
+}
