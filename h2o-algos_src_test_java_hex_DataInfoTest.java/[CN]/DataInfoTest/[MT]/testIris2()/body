@@ -1,0 +1,17 @@
+{
+  Frame fr=parse_test_file(Key.make("a.hex"),"smalldata/iris/iris_wheader.csv");
+  fr.swap(1,4);
+  Model.InteractionPair[] ips=Model.InteractionPair.generatePairwiseInteractionsFromList(0,1);
+  DataInfo di=null;
+  try {
+    di=new DataInfo(fr.clone(),null,1,true,DataInfo.TransformType.STANDARDIZE,DataInfo.TransformType.NONE,true,false,false,false,false,false,ips);
+    checker(di,true);
+  }
+  finally {
+    fr.delete();
+    if (di != null) {
+      di.dropInteractions();
+      di.remove();
+    }
+  }
+}
