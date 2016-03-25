@@ -58,6 +58,15 @@
   if (_initial_weight_distribution == InitialWeightDistribution.UniformAdaptive) {
     dl.hide("_initial_weight_scale","initial_weight_scale is not used if initial_weight_distribution == UniformAdaptive.");
   }
+  if ((_initial_weights != null || _initial_biases != null) && _checkpoint != null) {
+    dl.error("_checkpoint","Cannot specify initial weights or biases during checkpoint restart. Will use the checkpoint model's weights and biases.");
+  }
+  if (_initial_weights != null && _initial_weights.length != _hidden.length + 1) {
+    dl.error("_initial_weights","The number of initial weights matrices must be " + (_hidden.length + 1) + " (some weight matrices can be NULL/None/null).");
+  }
+  if (_initial_biases != null && _initial_biases.length != _hidden.length + 1) {
+    dl.error("_initial_biases","The number of initial bias vectors must be " + (_hidden.length + 1) + " (some bias vectors can be NULL/None/null).");
+  }
   if (_loss == null) {
     if (expensive || dl.nclasses() != 0) {
       dl.error("_loss","Loss function must be specified. Try CrossEntropy for categorical response (classification), Quadratic, Absolute or Huber for numerical response (regression).");

@@ -1,30 +1,17 @@
 {
   Frame fr=parse_test_file(Key.make("a.hex"),"smalldata/iris/iris_wheader.csv");
   fr.swap(2,4);
-  DataInfo.InteractionPair[] ips=DataInfo.InteractionPair.generatePairwiseInteractionsFromList(0,1,2,3);
+  Model.InteractionPair[] ips=Model.InteractionPair.generatePairwiseInteractionsFromList(0,1,2,3);
+  DataInfo di=null;
   try {
-    final DataInfo di=new DataInfo(fr.clone(),null,1,true,DataInfo.TransformType.STANDARDIZE,DataInfo.TransformType.NONE,true,false,false,false,false,false,ips);
-    new MRTask(){
-      @Override public void map(      Chunk[] cs){
-        DataInfo.Row[] sparseRows=di.extractSparseRows(cs);
-        for (int i=0; i < cs[0]._len; ++i) {
-          DataInfo.Row r=di.newDenseRow();
-          di.extractDenseRow(cs,i,r);
-          for (int j=0; j < di.fullN(); ++j) {
-            double sparseDoubleScaled=sparseRows[i].get(j);
-            if (j >= di.numStart()) {
-              sparseDoubleScaled-=di._normSub[j - di.numStart()] * di._normMul[j - di.numStart()];
-            }
-            if (Math.abs(r.get(j) - sparseDoubleScaled) > 1e-14)             throw new RuntimeException("Row mismatch on row " + i);
-          }
-        }
-      }
-    }
-.doAll(di._adaptedFrame);
-    di.dropInteractions();
-    di.remove();
+    di=new DataInfo(fr.clone(),null,1,true,DataInfo.TransformType.STANDARDIZE,DataInfo.TransformType.NONE,true,false,false,false,false,false,ips);
+    checker(di,true);
   }
   finally {
     fr.delete();
+    if (di != null) {
+      di.dropInteractions();
+      di.remove();
+    }
   }
 }
