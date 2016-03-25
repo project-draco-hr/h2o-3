@@ -16,7 +16,7 @@
   Vec[] vecs=v != null ? v.makeZeros(features) : null;
   if (vecs == null)   throw new IllegalArgumentException("Cannot create deep features from a frame with no columns.");
   Scope.enter();
-  adaptTestForTrain(_output._names,_output.weightsName(),_output.offsetName(),_output.foldName(),null,_output._domains,adaptFrm,get_params().missingColumnsType(),true,true);
+  adaptTestForTrain(_output._names,_output.weightsName(),_output.offsetName(),_output.foldName(),null,_output._domains,adaptFrm,get_params().missingColumnsType(),true,true,_output.interactions());
   for (int j=0; j < features; ++j) {
     adaptFrm.add("DF.L" + (layer + 1) + ".C"+ (j + 1),vecs[j]);
   }
@@ -40,7 +40,6 @@
 .doAll(adaptFrm);
   int x=_output._names.length, y=adaptFrm.numCols();
   Frame ret=adaptFrm.extractFrame(x,y);
-  if (resp != null)   ret.prepend(_output.responseName(),resp);
   Scope.exit();
   return ret;
 }

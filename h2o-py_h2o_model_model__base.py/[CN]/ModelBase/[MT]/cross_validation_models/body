@@ -1,0 +1,9 @@
+def cross_validation_models(self):
+    '\n    Obtain a list of cross-validation models.\n    :return: list of H2OModel objects\n    '
+    cvmodels = self._model_json['output']['cross_validation_models']
+    if (cvmodels is None):
+        return None
+    m = []
+    for p in cvmodels:
+        m.append(h2o.get_model(p['name']))
+    return m
