@@ -12,13 +12,16 @@
   int binslen=bins.length;
   int cols=_ncols;
   int hcslen=hcs.length;
+  double[] ws=new double[1024];
+  double[] cs=new double[1024];
+  double[] ys=new double[1024];
   for (int n=0; n < hcslen; n++) {
     int sCols[]=_tree.undecided(n + _leaf)._scoreCols;
     if (sCols == null) {
-      for (int c=0; c < cols; c++)       overAllRows(chks,wrks,weight,nh,rows,hcs,c,n,bins,sums,ssqs,binslen);
+      for (int c=0; c < cols; c++)       overAllRows(chks,wrks,weight,nh,rows,hcs,c,n,bins,sums,ssqs,binslen,ws,cs,ys);
     }
  else {
-      for (      int c : sCols)       overAllRows(chks,wrks,weight,nh,rows,hcs,c,n,bins,sums,ssqs,binslen);
+      for (      int c : sCols)       overAllRows(chks,wrks,weight,nh,rows,hcs,c,n,bins,sums,ssqs,binslen,ws,cs,ys);
     }
   }
 }

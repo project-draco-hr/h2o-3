@@ -13,15 +13,24 @@
     sums=new double[rhbinslen];
     ssqs=new double[rhbinslen];
   }
-  for (int xrow=lo; xrow < hi; xrow++) {
-    int row=rows[xrow];
-    double w=weight.atd(row);
+  int[] which=new int[hi - lo];
+  System.arraycopy(rows,lo,which,0,hi - lo);
+  if (hi - lo > ws.length) {
+    ws=new double[hi - lo];
+    cs=new double[hi - lo];
+    ys=new double[hi - lo];
+  }
+  weight.getDoubles(ws,which);
+  chk.getDoubles(cs,which);
+  wrks.getDoubles(ys,which);
+  for (int k=0; k < hi - lo; ++k) {
+    double w=ws[k];
     if (w == 0)     continue;
-    double col_data=chk.atd(row);
+    double col_data=cs[k];
     if (col_data < min)     min=col_data;
     if (col_data > max)     max=col_data;
     int b=rh.bin(col_data);
-    double resp=wrks.atd(row);
+    double resp=ys[k];
     double wy=w * resp;
     bins[b]+=w;
     sums[b]+=wy;
