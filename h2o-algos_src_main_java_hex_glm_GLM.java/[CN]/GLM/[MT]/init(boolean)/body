@@ -111,6 +111,13 @@ for (int i=1; i < _parms._nlambdas; ++i) _parms._lambda[i]=(l*=dec);
 }
  else _parms._lambda=new double[]{10 * _parms._lambda_min_ratio * _lmax};
 }
+if (!Double.isNaN(_lambdaCVEstimate)) {
+for (int i=0; i < _parms._lambda.length; ++i) if (_parms._lambda[i] < _lambdaCVEstimate) {
+_parms._lambda=Arrays.copyOf(_parms._lambda,i + 1);
+break;
+}
+_parms._lambda[_parms._lambda.length - 1]=_lambdaCVEstimate;
+}
 _model.clone2().delete_and_lock(_job._key);
 }
 }
