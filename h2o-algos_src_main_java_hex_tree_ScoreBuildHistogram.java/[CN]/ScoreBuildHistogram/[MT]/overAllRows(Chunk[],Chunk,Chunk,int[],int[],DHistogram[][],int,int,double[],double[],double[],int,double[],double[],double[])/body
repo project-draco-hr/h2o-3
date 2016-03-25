@@ -23,21 +23,10 @@
   weight.getDoubles(ws,which);
   chk.getDoubles(cs,which);
   wrks.getDoubles(ys,which);
-  for (int k=0; k < hi - lo; ++k) {
-    double w=ws[k];
-    if (w == 0)     continue;
-    double col_data=cs[k];
-    if (col_data < min)     min=col_data;
-    if (col_data > max)     max=col_data;
-    int b=rh.bin(col_data);
-    double resp=ys[k];
-    double wy=w * resp;
-    bins[b]+=w;
-    sums[b]+=wy;
-    ssqs[b]+=wy * resp;
-  }
-  rh.setMin(min);
-  rh.setMax(max);
+  double minmax[]=new double[]{min,max};
+  fillLocalHistoForNode(bins,sums,ssqs,ws,cs,ys,rh,hi - lo,minmax);
+  rh.setMin(minmax[0]);
+  rh.setMax(minmax[1]);
   int len=rhbinslen;
   for (int b=0; b < len; b++) {
     if (bins[b] != 0) {
