@@ -12,16 +12,16 @@
   int binslen=bins.length;
   int cols=_ncols;
   int hcslen=hcs.length;
-  double[] ws=new double[1024];
-  double[] cs=new double[1024];
-  double[] ys=new double[1024];
-  for (int n=0; n < hcslen; n++) {
-    int sCols[]=_tree.undecided(n + _leaf)._scoreCols;
-    if (sCols == null) {
-      for (int c=0; c < cols; c++)       overAllRows(chks,wrks,weight,nh,rows,hcs,c,n,bins,sums,ssqs,binslen,ws,cs,ys);
-    }
- else {
-      for (      int c : sCols)       overAllRows(chks,wrks,weight,nh,rows,hcs,c,n,bins,sums,ssqs,binslen,ws,cs,ys);
+  double[] ws=new double[chks[0]._len];
+  double[] cs=new double[chks[0]._len];
+  double[] ys=new double[chks[0]._len];
+  weight.getDoubles(ws,0,ws.length);
+  wrks.getDoubles(ys,0,ys.length);
+  for (int c=0; c < cols; c++) {
+    chks[c].getDoubles(cs,0,cs.length);
+    for (int n=0; n < hcslen; n++) {
+      int sCols[]=_tree.undecided(n + _leaf)._scoreCols;
+      if (sCols == null || ArrayUtils.find(sCols,c) >= 0)       overAllRows(cs,ys,ws,rows,hcs[n][c],n == 0 ? 0 : nh[n - 1],nh[n],bins,sums,ssqs,binslen);
     }
   }
 }

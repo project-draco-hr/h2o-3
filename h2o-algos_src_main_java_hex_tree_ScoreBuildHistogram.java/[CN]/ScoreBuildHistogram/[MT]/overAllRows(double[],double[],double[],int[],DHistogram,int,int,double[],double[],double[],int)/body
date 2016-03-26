@@ -1,11 +1,7 @@
 {
-  Chunk chk=chks[c];
-  final DHistogram rh=hcs[n][c];
   if (rh == null)   return;
   double[] rhbins=rh._bins;
   int rhbinslen=rhbins.length;
-  final int lo=n == 0 ? 0 : nh[n - 1];
-  final int hi=nh[n];
   double min=rh._min2;
   double max=rh._maxIn;
   if (rhbinslen >= binslen) {
@@ -13,18 +9,8 @@
     sums=new double[rhbinslen];
     ssqs=new double[rhbinslen];
   }
-  int[] which=new int[hi - lo];
-  System.arraycopy(rows,lo,which,0,hi - lo);
-  if (hi - lo > ws.length) {
-    ws=new double[hi - lo];
-    cs=new double[hi - lo];
-    ys=new double[hi - lo];
-  }
-  weight.getDoubles(ws,which);
-  chk.getDoubles(cs,which);
-  wrks.getDoubles(ys,which);
   double minmax[]=new double[]{min,max};
-  fillLocalHistoForNode(bins,sums,ssqs,ws,cs,ys,rh,hi - lo,minmax);
+  fillLocalHistoForNode(bins,sums,ssqs,ws,cs,ys,rh,rows,hi,lo,minmax);
   rh.setMin(minmax[0]);
   rh.setMax(minmax[1]);
   int len=rhbinslen;
