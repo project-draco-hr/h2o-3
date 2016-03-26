@@ -6,9 +6,7 @@
   if (_compute_p_values && _non_negative)   glm.error("_compute_p_values","P values are currently not supported for family=multinomial");
   if (_weights_column != null && _offset_column != null && _weights_column.equals(_offset_column))   glm.error("_offset_column","Offset must be different from weights");
   if (_alpha != null && (_alpha[0] < 0 || _alpha[0] > 1))   glm.error("_alpha","Alpha value must be between 0 and 1");
-  if (_lambda_search)   if (glm.nFoldCV())   glm.error("_lambda_search","Lambda search is not currently supported in conjunction with N-fold cross-validation");
-  if (_nlambdas == -1)   _nlambdas=100;
- else   _exactLambdas=false;
+  if (_lambda_search)   if (_nlambdas == -1)   _nlambdas=100;
   if (_obj_reg != -1 && _obj_reg <= 0)   glm.error("obj_reg","Must be positive or -1 for default");
   if (_prior != -1 && _prior <= 0 || _prior >= 1)   glm.error("_prior","Prior must be in (exclusive) range (0,1)");
   if (_family != Family.tweedie) {
