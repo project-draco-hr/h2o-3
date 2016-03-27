@@ -9,11 +9,6 @@
     sums=new double[rhbinslen];
     ssqs=new double[rhbinslen];
   }
- else {
-    Arrays.fill(bins,0);
-    Arrays.fill(sums,0);
-    Arrays.fill(ssqs,0);
-  }
   double minmax[]=new double[]{min,max};
   fillLocalHistoForNode(bins,sums,ssqs,ws,cs,ys,rh,rows,hi,lo,minmax);
   rh.setMin(minmax[0]);
@@ -24,7 +19,7 @@
       AtomicUtils.DoubleArray.add(rhbins,b,bins[b]);
       bins[b]=0;
     }
-    if (sums[b] != 0) {
+    if (sums[b] != 0 || ssqs[b] != 0) {
       rh.incr1(b,sums[b],ssqs[b]);
       sums[b]=ssqs[b]=0;
     }
