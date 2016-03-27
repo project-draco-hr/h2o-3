@@ -52,7 +52,7 @@ def weights_and_biases():
     p2 = dl2.predict(df)
     ll2 = dl2.model_performance(df).logloss()
     print(ll2)
-    assert (max(abs((p1[:, 1:4] - p2[:, 1:4]))) < 1e-06)
+    assert (abs((p1[:, 1:4] - p2[:, 1:4])).max() < 1e-06)
     assert (abs((ll2 - ll1)) < 1e-06)
     dl3 = H2ODeepLearningEstimator(hidden=[10, 10], initial_weights=[w1, None, w3], initial_biases=[b1, b2, None], epochs=10)
     dl3.train(x=list(range(4)), y=4, training_frame=df)
