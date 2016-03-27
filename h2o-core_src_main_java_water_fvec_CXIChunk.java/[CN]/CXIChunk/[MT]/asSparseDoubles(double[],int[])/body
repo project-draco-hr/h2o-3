@@ -25,7 +25,8 @@ break;
 case 8:
 for (int i=0; i < _sparseLen; ++i, off+=inc) {
 ids[i]=UnsafeUtils.get2(_mem,off);
-vals[i]=UnsafeUtils.get8(_mem,off + 2);
+long v=UnsafeUtils.get8(_mem,off + 2);
+vals[i]=v == C8Chunk._NA ? Double.NaN : v;
 }
 break;
 }
@@ -53,14 +54,13 @@ break;
 case 8:
 for (int i=0; i < _sparseLen; ++i, off+=inc) {
 ids[i]=UnsafeUtils.get4(_mem,off);
-vals[i]=UnsafeUtils.get8(_mem,off + 4);
+long v=UnsafeUtils.get8(_mem,off + 4);
+vals[i]=v == C8Chunk._NA ? Double.NaN : v;
 }
 break;
 }
 }
  else throw H2O.unimpl();
-for (int i=0; i < _sparseLen; ++i, off+=inc) {
-vals[i]=vals[i] == NAS[_valsz_log] ? Double.NaN : vals[i];
-}
+for (int i=0; i < _sparseLen; ++i) vals[i]=vals[i] == NAS[_valsz_log] ? Double.NaN : vals[i];
 return sparseLenZero();
 }
