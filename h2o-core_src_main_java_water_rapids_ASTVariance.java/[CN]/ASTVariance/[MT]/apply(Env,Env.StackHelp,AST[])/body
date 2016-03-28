@@ -2,8 +2,8 @@
   Frame frx=stk.track(asts[1].exec(env)).getFrame();
   Frame fry=stk.track(asts[2].exec(env)).getFrame();
   if (frx.numRows() != fry.numRows())   throw new IllegalArgumentException("Frames must have the same number of rows, found " + frx.numRows() + " and "+ fry.numRows());
+  if (frx.numCols() != fry.numCols())   throw new IllegalArgumentException("Frames must have the same number of columns, found " + frx.numCols() + " and "+ fry.numCols());
   String use=stk.track(asts[3].exec(env)).getStr();
-  boolean symmetric=asts[4].exec(env).getNum() == 1;
   Mode mode;
 switch (use) {
 case "everything":
@@ -15,11 +15,8 @@ break;
 case "complete.obs":
 mode=Mode.CompleteObs;
 break;
-case "pairwise.complete.obs":
-mode=Mode.PairwiseCompleteObs;
-break;
 default :
 throw new IllegalArgumentException("unknown use mode, found: " + use);
 }
-return frx.numRows() == 1 ? scalar(frx,fry,mode) : array(frx,fry,mode,symmetric);
+return frx.numRows() == 1 ? scalar(frx,fry,mode) : array(frx,fry,mode);
 }
