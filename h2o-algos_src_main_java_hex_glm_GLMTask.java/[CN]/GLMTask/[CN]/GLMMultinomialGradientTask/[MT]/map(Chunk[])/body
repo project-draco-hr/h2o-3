@@ -1,0 +1,13 @@
+{
+  if (_job != null && _job.stop_requested())   throw new Job.JobCancelledException();
+  if (_beta[0].length > 5000) {
+    Chunk response=chks[chks.length - 1];
+    Chunk weights=_dinfo._weights ? chks[_dinfo.weightChunkId()] : new C0DChunk(1,response._len);
+    chks=Arrays.copyOf(chks,chks.length - 1 - (_dinfo._weights ? 1 : 0));
+    doCols(chks,weights,response);
+  }
+ else {
+    _gradient=new double[_beta.length * _beta[0].length];
+    doRows(chks);
+  }
+}

@@ -1,10 +1,13 @@
 {
+  ArrayUtils.add(_nzCnt,bs._nzCnt);
   for (int i=0; i < _mean.length; ++i) {
-    double wsum=_wsum[i] + bs._wsum[i];
-    double delta=bs._mean[i] - _mean[i];
-    _mean[i]=(_wsum[i] * _mean[i] + bs._wsum[i] * bs._mean[i]) / wsum;
-    _m2[i]+=bs._m2[i] + delta * delta * _wsum[i]* bs._wsum[i] / wsum;
-    _wsum[i]=wsum;
+    double wsum=_wsums[i] + bs._wsums[i];
+    if (wsum != 0) {
+      double delta=bs._mean[i] - _mean[i];
+      _mean[i]=(_wsums[i] * _mean[i] + bs._wsums[i] * bs._mean[i]) / wsum;
+      _m2[i]+=bs._m2[i] + delta * delta * _wsums[i]* bs._wsums[i] / wsum;
+    }
+    _wsums[i]=wsum;
   }
   _nobs+=bs._nobs;
 }

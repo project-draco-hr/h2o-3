@@ -22,6 +22,7 @@ throw H2O.unimpl();
 }
 p.parseChunk(in.cidx(),din,dout);
 (_dout=dout).close(_fs);
+if (_dout.hasErrors()) for (ParseWriter.ParseErr err : _dout._errs) err._file=_srckey.toString();
 Job.update(in._len,_jobKey);
 freeMem(in);
 }

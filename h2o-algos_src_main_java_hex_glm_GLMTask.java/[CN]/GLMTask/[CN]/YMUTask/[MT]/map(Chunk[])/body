@@ -1,2 +1,47 @@
 {
+  _yMu=new double[_nClasses];
+  Chunk weight=_weightId == -1 ? new C0DChunk(1.0,chunks[0]._len) : chunks[_weightId];
+  boolean[] skip=MemoryManager.mallocZ(chunks[0]._len);
+  for (int i=0; i < chunks.length; ++i) {
+    for (int r=chunks[i].nextNZ(-1); r < chunks[i]._len; r=chunks[i].nextNZ(r)) {
+      if (skip[r])       continue;
+      if ((skip[r]=_skipNAs && chunks[i].isNA(r)) && _weightId != -1)       weight.set(r,0);
+    }
+  }
+  Chunk response=_responseId < 0 ? null : chunks[_responseId];
+  double[] numsResponse=null;
+  if (_computeWeightedSigma)   _basicStats=new BasicStats(_nums);
+  if (_computeWeightedMeanSigmaResponse) {
+    _basicStatsResponse=new BasicStats(_nClasses);
+    numsResponse=MemoryManager.malloc8d(_nClasses);
+  }
+  double w;
+  if (response == null)   return;
+  if (_computeWeightedSigma) {
+    for (int i=0; i < _nums; ++i) {
+      Chunk c=chunks[i + _numOff];
+      for (int r=c.nextNZ(-1); r < c._len; r=c.nextNZ(r)) {
+        if (skip[r] || (w=weight.atd(r)) == 0)         continue;
+        double d=chunks[i + _numOff].atd(r);
+        if (Double.isNaN(d))         d=_means[i];
+        _basicStats.add(d,w,i);
+      }
+    }
+  }
+  for (int r=0; r < response._len; ++r) {
+    if (skip[r] || (w=weight.atd(r)) == 0)     continue;
+    if (_computeWeightedMeanSigmaResponse) {
+      for (int i=0; i < _nClasses; ++i)       numsResponse[i]=chunks[chunks.length - _nClasses + i].atd(r);
+      _basicStatsResponse.add(numsResponse,w);
+    }
+    double d=response.atd(r);
+    if (!Double.isNaN(d)) {
+      if (_nClasses > 2)       _yMu[(int)d]+=w;
+ else       _yMu[0]+=w * d;
+      if (d < _yMin)       _yMin=d;
+      if (d > _yMax)       _yMax=d;
+      _nobs++;
+      _wsum+=w;
+    }
+  }
 }

@@ -1,0 +1,19 @@
+{
+  if (isCancelled() || _j != null && _j.stop_requested())   return;
+  if (_computeMetrics)   _mb=_m.makeMetricBuilder(_domain);
+  double[] ps=_mb._work;
+  float[] res=new float[1];
+  final int nc=_m._output.nclasses();
+  final int ncols=nc == 1 ? 1 : nc + 1;
+  if (_sparse) {
+    for (    DataInfo.Row r : _dinfo.extractSparseRows(chks))     processRow(r,res,ps,preds,ncols);
+  }
+ else {
+    DataInfo.Row r=_dinfo.newDenseRow();
+    for (int rid=0; rid < chks[0]._len; ++rid) {
+      _dinfo.extractDenseRow(chks,rid,r);
+      processRow(r,res,ps,preds,ncols);
+    }
+  }
+  if (_j != null)   _j.update(1);
+}

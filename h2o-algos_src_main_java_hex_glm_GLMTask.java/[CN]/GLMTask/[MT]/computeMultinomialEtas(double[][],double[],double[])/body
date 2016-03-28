@@ -1,0 +1,14 @@
+{
+  double maxRow=ArrayUtils.maxValue(etas);
+  double sumExp=0;
+  for (int c=0; c < beta.length; ++c) {
+    double x=Math.exp(etas[c] - maxRow);
+    sumExp+=x;
+    exps[c + 1]=x;
+  }
+  double reg=1.0 / (sumExp);
+  for (int c=0; c < etas.length; ++c)   exps[c + 1]*=reg;
+  exps[0]=0;
+  exps[0]=ArrayUtils.maxIndex(exps) - 1;
+  return Math.log(sumExp) + maxRow;
+}

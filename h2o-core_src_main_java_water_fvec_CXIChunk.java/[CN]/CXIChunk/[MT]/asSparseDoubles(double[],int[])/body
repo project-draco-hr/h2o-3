@@ -1,0 +1,66 @@
+{
+  if (vals.length < _sparseLen)   throw new IllegalArgumentException();
+  int off=_OFF;
+  final int inc=_valsz + _ridsz;
+  if (_ridsz == 2) {
+switch (_valsz) {
+case 1:
+      for (int i=0; i < _sparseLen; ++i, off+=inc) {
+        ids[i]=UnsafeUtils.get2(_mem,off);
+        vals[i]=_mem[off + 2] & 0xFF;
+      }
+    break;
+case 2:
+  for (int i=0; i < _sparseLen; ++i, off+=inc) {
+    ids[i]=UnsafeUtils.get2(_mem,off);
+    vals[i]=UnsafeUtils.get2(_mem,off + 2);
+  }
+break;
+case 4:
+for (int i=0; i < _sparseLen; ++i, off+=inc) {
+ids[i]=UnsafeUtils.get2(_mem,off);
+vals[i]=UnsafeUtils.get4(_mem,off + 2);
+}
+break;
+case 8:
+for (int i=0; i < _sparseLen; ++i, off+=inc) {
+ids[i]=UnsafeUtils.get2(_mem,off);
+long v=UnsafeUtils.get8(_mem,off + 2);
+vals[i]=v == C8Chunk._NA ? Double.NaN : v;
+}
+break;
+}
+}
+ else if (_ridsz == 4) {
+switch (_valsz) {
+case 1:
+for (int i=0; i < _sparseLen; ++i, off+=inc) {
+ids[i]=UnsafeUtils.get4(_mem,off);
+vals[i]=_mem[off + 4] & 0xFF;
+}
+break;
+case 2:
+for (int i=0; i < _sparseLen; ++i, off+=inc) {
+ids[i]=UnsafeUtils.get4(_mem,off);
+vals[i]=UnsafeUtils.get2(_mem,off + 4);
+}
+break;
+case 4:
+for (int i=0; i < _sparseLen; ++i, off+=inc) {
+ids[i]=UnsafeUtils.get4(_mem,off);
+vals[i]=UnsafeUtils.get4(_mem,off + 4);
+}
+break;
+case 8:
+for (int i=0; i < _sparseLen; ++i, off+=inc) {
+ids[i]=UnsafeUtils.get4(_mem,off);
+long v=UnsafeUtils.get8(_mem,off + 4);
+vals[i]=v == C8Chunk._NA ? Double.NaN : v;
+}
+break;
+}
+}
+ else throw H2O.unimpl();
+for (int i=0; i < _sparseLen; ++i) vals[i]=vals[i] == NAS[_valsz_log] ? Double.NaN : vals[i];
+return sparseLenZero();
+}
