@@ -1,0 +1,14 @@
+{
+  final int ncolsx=cs.length - 1;
+  final Chunk cy=cs[0];
+  final int len=cy._len;
+  _covs=new double[ncolsx];
+  double sum;
+  for (int x=0; x < ncolsx; x++) {
+    sum=0;
+    final Chunk cx=cs[x + 1];
+    final double xmean=_xmeans[x];
+    for (int row=0; row < len; row++)     sum+=(cx.atd(row) - xmean) * (cy.atd(row) - _ymean);
+    _covs[x]=sum;
+  }
+}

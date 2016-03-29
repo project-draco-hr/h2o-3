@@ -1,0 +1,85 @@
+{
+  Vec[] vecxs=frx.vecs();
+  int ncolx=vecxs.length;
+  Vec[] vecys=fry.vecs();
+  int ncoly=vecys.length;
+  if (mode.equals(Mode.Everything) || mode.equals(Mode.AllObs)) {
+    if (mode.equals(Mode.AllObs)) {
+      for (      Vec v : vecxs)       if (v.naCnt() != 0)       throw new IllegalArgumentException("Mode is 'all.obs' but NAs are present");
+      if (!symmetric)       for (      Vec v : vecys)       if (v.naCnt() != 0)       throw new IllegalArgumentException("Mode is 'all.obs' but NAs are present");
+    }
+    CoVarTaskEverything[] cvs=new CoVarTaskEverything[ncoly];
+    double[] xmeans=new double[ncolx];
+    for (int x=0; x < ncoly; x++)     xmeans[x]=vecxs[x].mean();
+    if (symmetric) {
+      if (ncoly == 1)       return new ValNum(vecys[0].naCnt() == 0 ? vecys[0].sigma() * vecys[0].sigma() : Double.NaN);
+      int[] idx=new int[ncoly];
+      for (int y=1; y < ncoly; y++)       idx[y]=y;
+      int[] first_index=new int[]{0};
+      Frame reduced_fr;
+      for (int y=0; y < ncoly - 1; y++) {
+        idx=ArrayUtils.removeIds(idx,first_index);
+        reduced_fr=new Frame(frx.vecs(idx));
+        cvs[y]=new CoVarTaskEverything(vecys[y].mean(),xmeans).dfork(new Frame(vecys[y]).add(reduced_fr));
+      }
+      double[][] res_array=new double[ncoly][ncoly];
+      for (int y=0; y < ncoly; y++)       res_array[y][y]=vecys[y].naCnt() == 0 ? vecys[y].sigma() * vecys[y].sigma() : Double.NaN;
+      for (int y=0; y < ncoly - 1; y++)       System.arraycopy(ArrayUtils.div(cvs[y].getResult()._covs,(fry.numRows() - 1)),0,res_array[y],y + 1,ncoly - y - 1);
+      for (int y=0; y < ncoly - 1; y++) {
+        for (int x=y + 1; x < ncoly; x++) {
+          res_array[x][y]=res_array[y][x];
+        }
+      }
+      Vec[] res=new Vec[ncoly];
+      Key<Vec>[] keys=Vec.VectorGroup.VG_LEN1.addVecs(ncoly);
+      for (int y=0; y < ncoly; y++) {
+        res[y]=Vec.makeVec(res_array[y],keys[y]);
+      }
+      return new ValFrame(new Frame(fry._names,res));
+    }
+    for (int y=0; y < ncoly; y++)     cvs[y]=new CoVarTaskEverything(vecys[y].mean(),xmeans).dfork(new Frame(vecys[y]).add(frx));
+    if (ncolx == 1 && ncoly == 1) {
+      return new ValNum(cvs[0].getResult()._covs[0] / (fry.numRows() - 1));
+    }
+    Vec[] res=new Vec[ncoly];
+    Key<Vec>[] keys=Vec.VectorGroup.VG_LEN1.addVecs(ncoly);
+    for (int y=0; y < ncoly; y++)     res[y]=Vec.makeVec(ArrayUtils.div(cvs[y].getResult()._covs,(fry.numRows() - 1)),keys[y]);
+    return new ValFrame(new Frame(fry._names,res));
+  }
+ else {
+    if (symmetric) {
+      if (ncoly == 1)       return new ValNum(vecys[0].sigma() * vecys[0].sigma());
+      CoVarTaskCompleteObsMeanSym taskCompleteObsMeanSym=new CoVarTaskCompleteObsMeanSym().doAll(fry);
+      long NACount=taskCompleteObsMeanSym._NACount;
+      double[] ymeans=ArrayUtils.div(taskCompleteObsMeanSym._ysum,fry.numRows() - NACount);
+      CoVarTaskCompleteObsSym cvs=new CoVarTaskCompleteObsSym(ymeans).doAll(new Frame(fry));
+      double[][] res_array=new double[ncoly][ncoly];
+      for (int y=0; y < ncoly; y++) {
+        System.arraycopy(ArrayUtils.div(cvs._covs[y],(fry.numRows() - 1 - NACount)),y,res_array[y],y,ncoly - y);
+      }
+      for (int y=0; y < ncoly - 1; y++) {
+        for (int x=y + 1; x < ncoly; x++) {
+          res_array[x][y]=res_array[y][x];
+        }
+      }
+      Vec[] res=new Vec[ncoly];
+      Key<Vec>[] keys=Vec.VectorGroup.VG_LEN1.addVecs(ncoly);
+      for (int y=0; y < ncoly; y++) {
+        res[y]=Vec.makeVec(res_array[y],keys[y]);
+      }
+      return new ValFrame(new Frame(fry._names,res));
+    }
+    CoVarTaskCompleteObsMean taskCompleteObsMean=new CoVarTaskCompleteObsMean(ncoly,ncolx).doAll(new Frame(fry).add(frx));
+    long NACount=taskCompleteObsMean._NACount;
+    double[] ymeans=ArrayUtils.div(taskCompleteObsMean._ysum,fry.numRows() - NACount);
+    double[] xmeans=ArrayUtils.div(taskCompleteObsMean._xsum,fry.numRows() - NACount);
+    CoVarTaskCompleteObs cvs=new CoVarTaskCompleteObs(ymeans,xmeans).doAll(new Frame(fry).add(frx));
+    if (ncolx == 1 && ncoly == 1) {
+      return new ValNum(cvs._covs[0][0] / (fry.numRows() - 1 - NACount));
+    }
+    Vec[] res=new Vec[ncoly];
+    Key<Vec>[] keys=Vec.VectorGroup.VG_LEN1.addVecs(ncoly);
+    for (int y=0; y < ncoly; y++)     res[y]=Vec.makeVec(ArrayUtils.div(cvs._covs[y],(fry.numRows() - 1 - NACount)),keys[y]);
+    return new ValFrame(new Frame(fry._names,res));
+  }
+}
