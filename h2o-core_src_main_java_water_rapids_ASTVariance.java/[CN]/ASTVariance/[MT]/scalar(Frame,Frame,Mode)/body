@@ -1,21 +1,27 @@
 {
-  if (frx.numCols() != fry.numCols())   throw new IllegalArgumentException("Single rows have the same number of columns, found " + frx.numCols() + " and "+ fry.numCols());
+  if (frx.numCols() != fry.numCols())   throw new IllegalArgumentException("Single rows must have the same number of columns, found " + frx.numCols() + " and "+ fry.numCols());
   Vec vecxs[]=frx.vecs();
   Vec vecys[]=fry.vecs();
-  double xsum=0, ysum=0, NACount=0, ncols=frx.numCols(), xval, yval, ss=0;
-  for (int i=0; i < vecxs.length; i++) {
-    xval=vecxs[i].at(0);
-    yval=vecys[i].at(0);
+  double xmean=0, ymean=0, ncols=frx.numCols(), NACount=0, xval, yval, ss=0;
+  for (int r=0; r < ncols; r++) {
+    xval=vecxs[r].at(0);
+    yval=vecys[r].at(0);
     if (Double.isNaN(xval) || Double.isNaN(yval))     NACount++;
  else {
-      xsum+=xval;
-      ysum+=yval;
-      ss+=xval * yval;
+      xmean+=xval;
+      ymean+=yval;
     }
   }
-  if (NACount > 0) {
+  xmean/=(ncols - NACount);
+  ymean/=(ncols - NACount);
+  if (NACount != 0) {
     if (mode.equals(Mode.AllObs))     throw new IllegalArgumentException("Mode is 'all.obs' but NAs are present");
     if (mode.equals(Mode.Everything))     return new ValNum(Double.NaN);
   }
-  return new ValNum((ss - xsum * ysum / (ncols - NACount)) / (ncols - 1 - NACount));
+  for (int r=0; r < ncols; r++) {
+    xval=vecxs[r].at(0);
+    yval=vecys[r].at(0);
+    if (!(Double.isNaN(xval) || Double.isNaN(yval)))     ss+=(vecxs[r].at(0) - xmean) * (vecys[r].at(0) - ymean);
+  }
+  return new ValNum(ss / (ncols - NACount - 1));
 }
