@@ -1,11 +1,5 @@
 {
-  if (_sparse && _dinfo._normSub != null) {
-    int numStart=_dinfo.numStart();
-    for (int i=0; i < _dinfo._normSub.length; ++i) {
-      double d=_dinfo._normSub[i] * _dinfo._normMul[i];
-      _gradient[numStart + i]-=d * _gradient[_gradient.length - 1];
-    }
-  }
   ArrayUtils.mult(_gradient,_reg);
   for (int j=0; j < _beta.length - 1; ++j)   _gradient[j]+=_currentLambda * _beta[j];
+  System.out.println("grad at " + Arrays.toString(_beta) + " = "+ Arrays.toString(_gradient)+ ", likelihood = "+ _likelihood);
 }

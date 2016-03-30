@@ -1,0 +1,31 @@
+{
+  _gradient=MemoryManager.malloc8d(_beta.length);
+  Chunk response=chks[chks.length - 1];
+  Chunk weights=_dinfo._weights ? chks[_dinfo.weightChunkId()] : new C0DChunk(1,response._len);
+  Chunk offset=_dinfo._offset ? chks[_dinfo.offsetChunkId()] : new C0DChunk(0,response._len);
+  double[] ws=weights.getDoubles(MemoryManager.malloc8d(weights._len),0,weights._len);
+  double[] ys=response.getDoubles(MemoryManager.malloc8d(weights._len),0,response._len);
+  double[] etas=MemoryManager.malloc8d(response._len);
+  if (_dinfo._offset)   chks[_dinfo.offsetChunkId()].getDoubles(etas,0,etas.length);
+  double sparseOffset=0;
+  int numStart=_dinfo.numStart();
+  if (_dinfo._normSub != null)   for (int i=0; i < _dinfo._nums; ++i)   if (chks[_dinfo._cats + i].isSparseZero())   sparseOffset-=_beta[numStart + i] * _dinfo._normSub[i] * _dinfo._normMul[i];
+  ArrayUtils.add(etas,sparseOffset + _beta[_beta.length - 1]);
+  double[] vals=MemoryManager.malloc8d(response._len);
+  int[] ids=MemoryManager.malloc4(response._len);
+  computeCategoricalEtas(chks,etas,vals,ids);
+  computeNumericEtas(chks,etas,vals,ids);
+  comuteGradientMultipliers(etas,ys,ws);
+  computeCategoricalGrads(chks,etas,vals,ids);
+  computeNumericGrads(chks,etas,vals,ids);
+  _gradient[_gradient.length - 1]=ArrayUtils.sum(etas);
+  if (_dinfo._normSub != null) {
+    double icpt=_gradient[_gradient.length - 1];
+    for (int i=0; i < _dinfo._normSub.length; ++i) {
+      if (chks[_dinfo._cats + i].isSparseZero()) {
+        double d=_dinfo._normSub[i] * _dinfo._normMul[i];
+        _gradient[numStart + i]-=d * icpt;
+      }
+    }
+  }
+}
