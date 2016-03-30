@@ -1,5 +1,5 @@
 def generate_retrofit_proxies(endpoints_meta, all_schemas_map):
-    '\n    Walk across all the endpoint metadata returning a map of classnames to interface definitions.\n    Retrofit interfaces look like this:\n\n    public interface GitHubService {\n        @GET("/users/{user}/repos")\n        List<Repo> listRepos(@Path("user") String user);\n    }\n    '
+    '\n    Walk across all the endpoint metadata returning a map of classnames to interface definitions.\n    Retrofit interfaces look like this:\n\n    public interface GitHubService {\n        @GET("/users/{user}/repos")\n        Call<List<Repo>> listRepos(@Path("user") String user);\n    }\n    '
     pojos = {}
     java_type_map = {'string': 'String', }
     endpoints_by_entity = {}
@@ -19,11 +19,12 @@ def generate_retrofit_proxies(endpoints_meta, all_schemas_map):
     var_pattern = re.compile(var_pattern_str)
     for entity in endpoints_by_entity:
         pojo = []
+        signatures = {}
         pojo.append('package water.bindings.proxies.retrofit;')
         pojo.append('')
         pojo.append('import water.bindings.pojos.*;')
-        pojo.append('import retrofit.*;')
-        pojo.append('import retrofit.http.*;')
+        pojo.append('import retrofit2.*;')
+        pojo.append('import retrofit2.http.*;')
         pojo.append('')
         pojo.append((('public interface ' + entity) + ' {'))
         first = True
@@ -36,6 +37,18 @@ def generate_retrofit_proxies(endpoints_meta, all_schemas_map):
             output_schema_name = meta['output_schema']
             handler_method = meta['handler_method']
             method = handler_method
+            if (((entity == 'Grid') or (entity == 'ModelBuilders')) and (method == 'train')):
+                pieces = path.split('/')
+                if (len(pieces) != 4):
+                    raise Exception(('Expected 3 parts to this path (something like /99/Grid/glm): ' + path))
+                algo = pieces[3]
+                method = ((method + '_') + algo)
+            elif ((entity == 'ModelBuilders') and (method == 'validate_parameters')):
+                pieces = path.split('/')
+                if (len(pieces) != 5):
+                    raise Exception(('Expected 3 parts to this path (something like /3/ModelBuilders/glm/parameters): ' + path))
+                algo = pieces[3]
+                method = ((method + '_') + algo)
             if (http_method == 'POST'):
                 parms = ((input_schema_name + ' ') + 'parms')
             else:
@@ -57,12 +70,17 @@ def generate_retrofit_proxies(endpoints_meta, all_schemas_map):
                     parms += ' '
                     parms += parm
                     first_parm = False
+            signature = '{method}({parms});'.format(method=method, parms=parms)
+            if (signature in signatures):
+                print ((('ERROR: found a duplicate method signature in entity ' + entity) + ': ') + signature)
+            else:
+                signatures[signature] = signature
             if (not first):
                 pojo.append('')
             if (http_method == 'POST'):
                 pojo.append('    @Headers("Content-Type: application/x-www-form-urlencoded; charset=UTF-8")')
             pojo.append('    @{http_method}("{path}")'.format(http_method=http_method, path=retrofit_path))
-            pojo.append('    {output_schema_name} {method}({parms});'.format(output_schema_name=output_schema_name, method=method, parms=parms))
+            pojo.append('    Call<{output_schema_name}> {method}({parms});'.format(output_schema_name=output_schema_name, method=method, parms=parms))
             first = False
         pojo.append('}')
         pojos[entity] = pojo

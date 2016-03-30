@@ -1,7 +1,6 @@
-def generate_retrofit_proxies(endpoints_meta, all_schemas_map):
-    '\n    Walk across all the endpoint metadata returning a map of classnames to interface definitions.\n    Retrofit interfaces look like this:\n\n    public interface GitHubService {\n        @GET("/users/{user}/repos")\n        List<Repo> listRepos(@Path("user") String user);\n    }\n    '
+def generate_thrift_services(endpoints_meta, all_schemas_map):
+    '\n    Walk across all the endpoint metadata returning a map of classnames to service definitions.\n    Thrift methods look like this:\n\n    bool postTweet(1:Tweet tweet) throws (1:TwitterUnavailable unavailable)\n    '
     structs = {}
-    thrift_type_map = {'string': 'String', }
     endpoints_by_entity = {}
     entity_pattern_str = '/[0-9]+?/([^/]+)(/.*)?'
     entity_pattern = re.compile(entity_pattern_str)

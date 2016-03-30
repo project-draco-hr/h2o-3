@@ -10,6 +10,7 @@ def generate_pojo(schema, pojo_name):
     for field in schema['fields']:
         if field['type'].startswith('Map'):
             has_map = True
+    pojo.append('import com.google.gson.Gson;')
     if has_map:
         pojo.append('import java.util.Map;')
         pojo.append('')
@@ -39,8 +40,16 @@ def generate_pojo(schema, pojo_name):
                 enums[enum_name] = field['values']
         if (not first):
             pojo.append('')
-        pojo.append('    /** {help} */'.format(help=help))
-        pojo.append('    public {type} {name};'.format(type=java_type, name=name))
+        if field['is_inherited']:
+            pojo.append('    /* INHERITED: {help} '.format(help=help))
+            pojo.append('     * public {type} {name};'.format(type=java_type, name=name))
+            pojo.append('     */')
+        else:
+            pojo.append('    /** {help} */'.format(help=help))
+            pojo.append('    public {type} {name};'.format(type=java_type, name=name))
         first = False
+    pojo.append('    public String toString() {')
+    pojo.append('        return new Gson().toJson(this);')
+    pojo.append('    }')
     pojo.append('}')
     return pojo
