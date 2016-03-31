@@ -1,0 +1,24 @@
+{
+  int numOff=_dinfo.numStart();
+  for (int cid=0; cid < _dinfo._nums; ++cid) {
+    double[] b=_beta[numOff + cid];
+    double scale=_dinfo._normMul != null ? _dinfo._normMul[cid] : 1;
+    double NA=_dinfo._numMeans[cid];
+    Chunk c=chks[cid + _dinfo._cats];
+    if (c.isSparseZero() || c.isSparseNA()) {
+      int nvals=c.asSparseDoubles(vals,ids,NA);
+      for (int i=0; i < nvals; ++i) {
+        double d=vals[i] * scale;
+        ArrayUtils.wadd(etas[ids[i]],b,d);
+      }
+    }
+ else {
+      c.getDoubles(vals,0,vals.length,NA);
+      double off=_dinfo._normSub != null ? _dinfo._normSub[cid] : 0;
+      for (int i=0; i < vals.length; ++i) {
+        double d=(vals[i] - off) * scale;
+        ArrayUtils.wadd(etas[i],b,d);
+      }
+    }
+  }
+}
