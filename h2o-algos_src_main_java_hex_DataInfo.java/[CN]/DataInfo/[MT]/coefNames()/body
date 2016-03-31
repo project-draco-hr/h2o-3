@@ -11,6 +11,12 @@
       res[k++]=_adaptedFrame._names[i] + "." + vecs[i].domain()[j];
     }
     if (_catMissing[i] && getCategoricalId(i,_catModes[i]) >= 0)     res[k++]=_adaptedFrame._names[i] + ".missing(NA)";
+    if (vecs[i] instanceof InteractionWrappedVec) {
+      InteractionWrappedVec iwv=(InteractionWrappedVec)vecs[i];
+      if (null != iwv.missingDomains()) {
+        for (        String s : iwv.missingDomains())         res[k++]=s + ".missing(NA)";
+      }
+    }
   }
   if (_interactions == null) {
     final int nums=n - k;
