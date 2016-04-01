@@ -5,4 +5,12 @@
  else     _perChkMap.put(e.getKey(),e.getValue());
   }
   t._perChkMap=null;
+  if (_perChkMapMissing == null && t._perChkMapMissing != null) {
+    _perChkMapMissing=new IcedHashMap<>();
+    _perChkMapMissing.putAll(t._perChkMapMissing);
+  }
+ else   if (_perChkMapMissing != null && t._perChkMapMissing != null) {
+    for (    String s : t._perChkMapMissing.keySet())     _perChkMapMissing.putIfAbsent(s,"");
+  }
+  t._perChkMapMissing=null;
 }

@@ -11,18 +11,25 @@
       res[k++]=_adaptedFrame._names[i] + "." + vecs[i].domain()[j];
     }
     if (_catMissing[i] && getCategoricalId(i,_catModes[i]) >= 0)     res[k++]=_adaptedFrame._names[i] + ".missing(NA)";
+    if (vecs[i] instanceof InteractionWrappedVec) {
+      InteractionWrappedVec iwv=(InteractionWrappedVec)vecs[i];
+      if (null != iwv.missingDomains()) {
+        for (        String s : iwv.missingDomains())         res[k++]=s + ".missing(NA)";
+      }
+    }
   }
   if (_interactions == null) {
     final int nums=n - k;
     System.arraycopy(_adaptedFrame._names,_cats,res,k,nums);
   }
  else {
-    for (int i=_cats; i < _nums; ++i) {
+    for (int i=_cats; i <= _nums; i++) {
       InteractionWrappedVec v;
-      if (vecs[i] instanceof InteractionWrappedVec && ((v=(InteractionWrappedVec)vecs[i]).domains() != null)) {
-        for (int j=0; k < v.domains().length; ++j) {
+      if (i >= n)       break;
+      if (vecs[i] instanceof InteractionWrappedVec && ((v=(InteractionWrappedVec)vecs[i]).domain() != null)) {
+        for (int j=_useAllFactorLevels ? 0 : 1; j < v.domain().length; ++j) {
           if (getCategoricalIdFromInteraction(i,j) < 0)           continue;
-          res[k++]=_adaptedFrame._names[i] + "." + v.domains()[j];
+          res[k++]=_adaptedFrame._names[i] + "." + v.domain()[j];
         }
       }
  else       res[k++]=_adaptedFrame._names[i];
