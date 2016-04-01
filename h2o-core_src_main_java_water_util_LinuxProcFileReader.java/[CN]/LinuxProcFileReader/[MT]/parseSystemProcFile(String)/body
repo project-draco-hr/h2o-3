@@ -1,28 +1,39 @@
 {
   if (s == null)   return;
-  BufferedReader reader=new BufferedReader(new StringReader(s));
   try {
+    BufferedReader reader=new BufferedReader(new StringReader(s));
     String line=reader.readLine();
-    Matcher m=sysTicksPattern.matcher(line);
-    if (!m.matches())     return;
-    int matchGroupBase=0;
-    long systemUserTicks=0;
-    long systemSystemTicks=0;
-    long systemOtherTicks=0;
-    systemUserTicks+=Long.parseLong(m.group(1 + matchGroupBase));
-    systemOtherTicks+=Long.parseLong(m.group(2 + matchGroupBase));
-    systemSystemTicks+=Long.parseLong(m.group(3 + matchGroupBase));
-    _systemIdleTicks=Long.parseLong(m.group(4 + matchGroupBase));
-    systemOtherTicks+=Long.parseLong(m.group(5 + matchGroupBase));
-    systemSystemTicks+=Long.parseLong(m.group(6 + matchGroupBase));
-    systemSystemTicks+=Long.parseLong(m.group(7 + matchGroupBase));
-    _systemTotalTicks=systemUserTicks + systemOtherTicks + systemSystemTicks+ _systemIdleTicks;
-    int cpu=0;
+{
+      Pattern p=Pattern.compile("cpu\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*");
+      Matcher m=p.matcher(line);
+      boolean b=m.matches();
+      if (!b) {
+        return;
+      }
+      int matchGroupBase=0;
+      long systemUserTicks=0;
+      long systemSystemTicks=0;
+      long systemOtherTicks=0;
+      _systemIdleTicks=0;
+      systemUserTicks+=Long.parseLong(m.group(1 + matchGroupBase));
+      systemOtherTicks+=Long.parseLong(m.group(2 + matchGroupBase));
+      systemSystemTicks+=Long.parseLong(m.group(3 + matchGroupBase));
+      _systemIdleTicks+=Long.parseLong(m.group(4 + matchGroupBase));
+      systemOtherTicks+=Long.parseLong(m.group(5 + matchGroupBase));
+      systemSystemTicks+=Long.parseLong(m.group(6 + matchGroupBase));
+      systemSystemTicks+=Long.parseLong(m.group(7 + matchGroupBase));
+      _systemTotalTicks=systemUserTicks + systemOtherTicks + systemSystemTicks+ _systemIdleTicks;
+    }
+    _cpuTicks=new ArrayList<long[]>();
     line=reader.readLine();
     while (line != null) {
-      m=cpuTicksPattern.matcher(line);
-      if (!m.matches())       break;
-      matchGroupBase=1;
+      Pattern p=Pattern.compile("cpu(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).*");
+      Matcher m=p.matcher(line);
+      boolean b=m.matches();
+      if (!b) {
+        break;
+      }
+      int matchGroupBase=1;
       long cpuUserTicks=0;
       long cpuSystemTicks=0;
       long cpuOtherTicks=0;
@@ -34,14 +45,11 @@
       cpuOtherTicks+=Long.parseLong(m.group(5 + matchGroupBase));
       cpuSystemTicks+=Long.parseLong(m.group(6 + matchGroupBase));
       cpuSystemTicks+=Long.parseLong(m.group(7 + matchGroupBase));
-      CPUTICKS[cpu][0]=cpuUserTicks;
-      CPUTICKS[cpu][1]=cpuSystemTicks;
-      CPUTICKS[cpu][2]=cpuOtherTicks;
-      CPUTICKS[cpu][3]=cpuIdleTicks;
-      cpu++;
+      long[] oneCpuTicks={cpuUserTicks,cpuSystemTicks,cpuOtherTicks,cpuIdleTicks};
+      _cpuTicks.add(oneCpuTicks);
       line=reader.readLine();
     }
   }
- catch (  IOException ignore) {
+ catch (  Exception ignore) {
   }
 }
