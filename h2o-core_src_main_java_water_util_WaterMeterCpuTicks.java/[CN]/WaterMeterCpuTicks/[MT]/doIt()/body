@@ -1,4 +1,8 @@
 {
   H2ONode node=H2O.CLOUD._memary[nodeidx];
-  cpu_ticks=new RPC<>(node,new GetTicksTask()).call().get()._cpuTicks;
+  GetTicksTask ppt=new GetTicksTask();
+  Log.trace("GetTicksTask starting to node " + nodeidx + "...");
+  new RPC<>(node,ppt).call().get();
+  Log.trace("GetTicksTask completed to node " + nodeidx);
+  cpu_ticks=ppt._cpuTicks;
 }

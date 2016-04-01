@@ -1,13 +1,21 @@
 {
+  char[] buffer=new char[16 * 1024];
+  FileReader fr=new FileReader(f);
   int bytesRead=0;
-  try (FileReader fr=new FileReader(f)){
-synchronized (buffer) {
-      while (true) {
-        int n=fr.read(buffer,bytesRead,buffer.length - bytesRead);
-        if (n < 0)         return new String(buffer,0,bytesRead);
-        bytesRead+=n;
-        if (bytesRead >= buffer.length)         throw new IOException("LinuxProcFileReader readFile unexpected buffer full");
-      }
+  while (true) {
+    int n=fr.read(buffer,bytesRead,buffer.length - bytesRead);
+    if (n < 0) {
+      fr.close();
+      return new String(buffer,0,bytesRead);
+    }
+ else     if (n == 0) {
+      fr.close();
+      throw new Exception("LinuxProcFileReader readFile read 0 bytes");
+    }
+    bytesRead+=n;
+    if (bytesRead >= buffer.length) {
+      fr.close();
+      throw new Exception("LinuxProcFileReader readFile unexpected buffer full");
     }
   }
- }
+}
