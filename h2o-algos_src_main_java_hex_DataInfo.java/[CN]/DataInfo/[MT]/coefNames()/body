@@ -23,16 +23,16 @@
     System.arraycopy(_adaptedFrame._names,_cats,res,k,nums);
   }
  else {
-    for (int i=_cats; i <= _nums; i++) {
+    for (int i=0; i <= _nums; i++) {
       InteractionWrappedVec v;
-      if (i >= n)       break;
-      if (vecs[i] instanceof InteractionWrappedVec && ((v=(InteractionWrappedVec)vecs[i]).domain() != null)) {
+      if (i + _cats >= n || k >= n)       break;
+      if (vecs[i + _cats] instanceof InteractionWrappedVec && ((v=(InteractionWrappedVec)vecs[i + _cats]).domain() != null)) {
         for (int j=_useAllFactorLevels ? 0 : 1; j < v.domain().length; ++j) {
-          if (getCategoricalIdFromInteraction(i,j) < 0)           continue;
-          res[k++]=_adaptedFrame._names[i] + "." + v.domain()[j];
+          if (getCategoricalIdFromInteraction(_cats + i,j) < 0)           continue;
+          res[k++]=_adaptedFrame._names[i + _cats] + "." + v.domain()[j];
         }
       }
- else       res[k++]=_adaptedFrame._names[i];
+ else       res[k++]=_adaptedFrame._names[i + _cats];
     }
   }
   _coefNames=res;
