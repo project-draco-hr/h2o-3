@@ -25,6 +25,7 @@ def generate_retrofit_proxies(endpoints_meta, all_schemas_map):
         pojo.append('import water.bindings.pojos.*;')
         pojo.append('import retrofit2.*;')
         pojo.append('import retrofit2.http.*;')
+        pojo.append('import java.util.Map;')
         pojo.append('')
         pojo.append((('public interface ' + entity) + ' {'))
         first = True
@@ -49,23 +50,43 @@ def generate_retrofit_proxies(endpoints_meta, all_schemas_map):
                     raise Exception(('Expected 3 parts to this path (something like /3/ModelBuilders/glm/parameters): ' + path))
                 algo = pieces[3]
                 method = ((method + '_') + algo)
+            parms = ''
             if (http_method == 'POST'):
-                parms = ((input_schema_name + ' ') + 'parms')
+                is_post = True
             else:
-                parms = ''
-                path_parm_names = meta['path_params']
-                input_schema = all_schemas_map[input_schema_name]
-                first_parm = True
-                for parm in path_parm_names:
-                    fields = [field for field in input_schema['fields'] if (field['name'] == parm)]
-                    if (len(fields) != 1):
-                        print ((('Failed to find parameter: ' + parm) + ' for endpoint: ') + repr(meta))
-                    field = fields[0]
-                    parm_type = (field['schema_name'] if field['is_schema'] else field['type'])
-                    if (parm_type in java_type_map):
-                        parm_type = java_type_map[parm_type]
+                is_post = False
+            path_parm_names = meta['path_params']
+            input_schema = all_schemas_map[input_schema_name]
+            indent = (' ' * len('    Call<{output_schema_name}> {method}('.format(output_schema_name=output_schema_name, method=method)))
+            first_parm = True
+            for parm in path_parm_names:
+                fields = [field for field in input_schema['fields'] if (field['name'] == parm)]
+                if (len(fields) != 1):
+                    print ((('Failed to find parameter: ' + parm) + ' for endpoint: ') + repr(meta))
+                field = fields[0]
+                if (field['direction'] == 'OUTPUT'):
+                    continue
+                parm_type = cons_java_type(entity, field['name'], field['type'], field['schema_name'])
+                if (not first_parm):
+                    parms += ',\n'
+                    parms += indent
+                parms += '@Query("{parm}") '.format(parm=parm)
+                parms += parm_type
+                parms += ' '
+                parms += parm
+                first_parm = False
+            if is_post:
+                for field in input_schema['fields']:
+                    if (field['direction'] == 'OUTPUT'):
+                        continue
+                    if (field['name'] in path_parm_names):
+                        continue
+                    parm_type = cons_java_type(entity, field['name'], field['type'], field['schema_name'])
+                    parm = field['name']
                     if (not first_parm):
-                        parms += ', '
+                        parms += ',\n'
+                        parms += indent
+                    parms += '@Field("{parm}") '.format(parm=parm)
                     parms += parm_type
                     parms += ' '
                     parms += parm
@@ -78,7 +99,7 @@ def generate_retrofit_proxies(endpoints_meta, all_schemas_map):
             if (not first):
                 pojo.append('')
             if (http_method == 'POST'):
-                pojo.append('    @Headers("Content-Type: application/x-www-form-urlencoded; charset=UTF-8")')
+                pojo.append('    @FormUrlEncoded')
             pojo.append('    @{http_method}("{path}")'.format(http_method=http_method, path=retrofit_path))
             pojo.append('    Call<{output_schema_name}> {method}({parms});'.format(output_schema_name=output_schema_name, method=method, parms=parms))
             first = False

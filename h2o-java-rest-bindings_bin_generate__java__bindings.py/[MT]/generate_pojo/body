@@ -28,12 +28,7 @@ def generate_pojo(schema, pojo_name):
             continue
         if (type == 'Iced'):
             continue
-        if type.startswith('Map'):
-            java_type = type
-            java_type = java_type.replace('<string,', '<String,')
-            java_type = java_type.replace(',string>', ',String>')
-        else:
-            java_type = cons_java_type(pojo_name, name, type, schema_name)
+        java_type = cons_java_type(pojo_name, name, type, schema_name)
         if type.startswith('enum'):
             enum_name = field['schema_name']
             if (enum_name not in enums):
@@ -48,6 +43,9 @@ def generate_pojo(schema, pojo_name):
             pojo.append('    /** {help} */'.format(help=help))
             pojo.append('    public {type} {name};'.format(type=java_type, name=name))
         first = False
+    pojo.append('')
+    pojo.append('    /** Return the contents of this object as a JSON String. */')
+    pojo.append('    @Override')
     pojo.append('    public String toString() {')
     pojo.append('        return new Gson().toJson(this);')
     pojo.append('    }')

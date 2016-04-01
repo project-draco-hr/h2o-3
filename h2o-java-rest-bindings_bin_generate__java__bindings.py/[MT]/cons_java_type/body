@@ -7,6 +7,11 @@ def cons_java_type(pojo_name, name, h2o_type, schema_name):
         simple_type = schema_name
         idx = h2o_type.find('[]')
         brackets = ('' if (idx is (-1)) else h2o_type[idx:])
+    if h2o_type.startswith('Map'):
+        java_type = h2o_type
+        java_type = java_type.replace('<string,', '<String,')
+        java_type = java_type.replace(',string>', ',String>')
+        return java_type
     if (simple_type == 'string'):
         return (simple_type.capitalize() + brackets)
     if h2o_type.startswith('Key<'):
