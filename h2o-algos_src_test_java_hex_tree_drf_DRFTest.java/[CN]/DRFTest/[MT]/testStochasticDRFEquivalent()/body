@@ -1,6 +1,6 @@
 {
   Frame tfr=null, vfr=null;
-  DRFModel gbm=null;
+  DRFModel drf=null;
   Scope.enter();
   try {
     tfr=parse_test_file("./smalldata/junit/cars.csv");
@@ -18,14 +18,14 @@
     parms._ntrees=5;
     parms._mtries=3;
     parms._sample_rate=0.5f;
-    gbm=new DRF(parms).trainModel().get();
-    ModelMetricsRegression mm=(ModelMetricsRegression)gbm._output._training_metrics;
+    drf=new DRF(parms).trainModel().get();
+    ModelMetricsRegression mm=(ModelMetricsRegression)drf._output._training_metrics;
     assertEquals(0.11870495410303755,mm.mse(),1e-4);
   }
   finally {
     if (tfr != null)     tfr.remove();
     if (vfr != null)     vfr.remove();
-    if (gbm != null)     gbm.delete();
+    if (drf != null)     drf.delete();
     Scope.exit();
   }
 }
