@@ -1,0 +1,29 @@
+{
+  DataInfo dinfo=null, scoreInfo=null;
+  Frame frA=null, fr=null, expanded=null;
+  Frame[] frSplits=null, expandSplits=null;
+  String[] interactions=new String[]{"CRSDepTime","Origin"};
+  String[] keepColumns=new String[]{"Year","Month","DayofMonth","DayOfWeek","CRSDepTime","CRSArrTime","UniqueCarrier","CRSElapsedTime","Origin","Dest","Distance","IsDepDelayed"};
+  boolean useAll=false;
+  boolean standardize=false;
+  boolean skipMissing=false;
+  try {
+    frA=parse_test_file(Key.make("a.hex"),"smalldata/airlines/allyears2k_headers.zip");
+    fr=frA.subframe(keepColumns);
+    expanded=GLMModel.GLMOutput.expand(fr,interactions,useAll,standardize,skipMissing);
+    long seed;
+    frSplits=ShuffleSplitFrame.shuffleSplitFrame(fr,new Key[]{Key.make(),Key.make()},new double[]{0.8,0.2},seed=new Random().nextLong());
+    expandSplits=ShuffleSplitFrame.shuffleSplitFrame(expanded,new Key[]{Key.make(),Key.make()},new double[]{0.8,0.2},seed);
+    checkSplits(frSplits,expandSplits,interactions,useAll,standardize,skipMissing);
+    dinfo=makeInfo(frSplits[0],interactions,useAll,standardize,skipMissing);
+    Model.adaptTestForTrain(dinfo._adaptedFrame.names(),null,null,null,"IsDepDelayed",dinfo._adaptedFrame.domains(),frSplits[1],Double.NaN,true,false,interactions);
+    scoreInfo=dinfo.scoringInfo(frSplits[1]);
+    checkFrame(scoreInfo,expandSplits[1],skipMissing);
+  }
+  finally {
+    cleanup(fr,frA,expanded);
+    cleanup(frSplits);
+    cleanup(expandSplits);
+    cleanup(dinfo,scoreInfo);
+  }
+}

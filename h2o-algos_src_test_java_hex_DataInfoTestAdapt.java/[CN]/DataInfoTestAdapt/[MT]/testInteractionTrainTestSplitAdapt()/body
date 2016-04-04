@@ -5,10 +5,11 @@
   String[] interactions=new String[]{"class","sepal_len"};
   boolean useAll=false;
   boolean standardize=false;
+  boolean skipMissing=true;
   try {
     fr=parse_test_file(Key.make("a.hex"),"smalldata/iris/iris_wheader.csv");
     fr.swap(3,4);
-    expanded=GLMModel.GLMOutput.expand(fr,interactions,useAll,standardize);
+    expanded=GLMModel.GLMOutput.expand(fr,interactions,useAll,standardize,skipMissing);
     long seed;
     frSplits=ShuffleSplitFrame.shuffleSplitFrame(fr,new Key[]{Key.make(),Key.make()},new double[]{0.8,0.2},seed=new Random().nextLong());
     expandSplits=ShuffleSplitFrame.shuffleSplitFrame(expanded,new Key[]{Key.make(),Key.make()},new double[]{0.8,0.2},seed);

@@ -1,0 +1,31 @@
+{
+  try {
+    Vec[] vecs=new Vec[di._adaptedFrame.numCols() + gold.numCols()];
+    System.arraycopy(di._adaptedFrame.vecs(),0,vecs,0,di._adaptedFrame.numCols());
+    System.arraycopy(gold.vecs(),0,vecs,di._adaptedFrame.numCols(),gold.numCols());
+    new MRTask(){
+      @Override public void map(      Chunk[] cs){
+        int off=di._adaptedFrame.numCols();
+        DataInfo.Row rows[]=di.extractSparseRows(cs);
+        for (int i=0; i < cs[0]._len; ++i) {
+          DataInfo.Row r=rows[i];
+          if (skipMissing && r.bad)           continue;
+          for (int j=0; j < di.fullN(); ++j) {
+            double goldValue=cs[off + j].atd(i);
+            double thisValue=r.get(j) - (di._normSub[j - di.numStart()] * di._normMul[j - di.numStart()]);
+            double diff=Math.abs(goldValue - thisValue);
+            if (diff > 1e-12) {
+              if (skipMissing && diff < 10)               System.out.println("row mismatch: " + i + " column= "+ j+ "; diff= "+ diff);
+ else               throw new RuntimeException("bonk");
+            }
+          }
+        }
+      }
+    }
+.doAll(vecs);
+  }
+  finally {
+    di.dropInteractions();
+    di.remove();
+  }
+}
