@@ -3,7 +3,10 @@
   double[] exps=new double[K + 1];
   for (int i=0; i < etas.length; ++i) {
     double w=ws[i];
-    if (w == 0)     continue;
+    if (w == 0) {
+      Arrays.fill(etas[i],0);
+      continue;
+    }
     int y=(int)ys[i];
     double logSumExp=computeMultinomialEtas(etas[i],exps);
     _likelihood-=w * (etas[i][y] - logSumExp);
