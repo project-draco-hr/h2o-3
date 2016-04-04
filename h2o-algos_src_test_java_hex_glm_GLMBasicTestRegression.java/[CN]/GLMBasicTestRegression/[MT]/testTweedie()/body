@@ -23,6 +23,7 @@
     parms._tweedie_variance_power=p;
     parms._tweedie_link_power=1 - p;
     for (    Solver s : GLMParameters.Solver.values()) {
+      if (s == Solver.COORDINATE_DESCENT_NAIVE)       continue;
       try {
         parms._solver=s;
         model=new GLM(parms).trainModel().get();
