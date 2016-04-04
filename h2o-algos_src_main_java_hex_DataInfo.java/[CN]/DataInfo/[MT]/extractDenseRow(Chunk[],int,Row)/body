@@ -18,7 +18,6 @@
   }
   row.nBins=nbins;
   final int n=_nums;
-  if (n == 6)   System.out.println();
   int numValsIdx=0;
   for (int i=0; i < n; i++) {
     if (isInteractionVec(_cats + i)) {
@@ -36,13 +35,8 @@
     }
  else {
       double d=chunks[_cats + i].atd(rid);
-      if (Double.isNaN(d))       d=_numMeans[i];
-      if (_normMul != null && _normSub != null) {
-        if (numValsIdx >= _normSub.length || numValsIdx >= _normMul.length) {
-          System.out.println();
-        }
-        d=(d - _normSub[numValsIdx]) * _normMul[numValsIdx];
-      }
+      if (Double.isNaN(d))       d=_numMeans[numValsIdx];
+      if (_normMul != null && _normSub != null)       d=(d - _normSub[numValsIdx]) * _normMul[numValsIdx];
       row.numVals[numValsIdx++]=d;
     }
   }
