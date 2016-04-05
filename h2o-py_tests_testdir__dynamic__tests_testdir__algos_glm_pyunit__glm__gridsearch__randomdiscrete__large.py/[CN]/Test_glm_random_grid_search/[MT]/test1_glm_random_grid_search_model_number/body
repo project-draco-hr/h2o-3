@@ -1,0 +1,18 @@
+def test1_glm_random_grid_search_model_number(self, metric_name):
+    '\n        This test is used to make sure the randomized gridsearch will generate all models specified in the\n        hyperparameters if no stopping condition is given in the search criterion.  We will compare the\n        performance between the randomized gridsearch and normal gridsearch to make sure they generate the same\n        number of models and their performances are similar.\n\n        :param metric_name: string to denote what grid search model should be sort by\n\n        :return: None\n        '
+    print('*******************************************************************************************')
+    print(('test1_glm_random_grid_search_model_number for GLM ' + self.family))
+    h2o.cluster_info()
+    search_criteria = {'strategy': 'RandomDiscrete', 'stopping_rounds': 0, 'seed': round(time.time()), }
+    print('GLM Binomial grid search_criteria: {0}'.format(search_criteria))
+    random_grid_model = H2OGridSearch(H2OGeneralizedLinearEstimator(family=self.family, nfolds=self.nfolds), hyper_params=self.hyper_params, search_criteria=search_criteria)
+    random_grid_model.train(x=self.x_indices, y=self.y_index, training_frame=self.training1_data)
+    if (not (len(random_grid_model) == self.possible_number_models)):
+        self.test_failed += 1
+        self.test_failed_array[self.test_num] = 1
+        print('test1_glm_random_grid_search_model_number for GLM: failed, number of models generatedpossible model number {0} and randomized gridsearch model number {1} are not equal.'.format(self.possible_number_models, len(random_grid_model)))
+    if (self.test_failed_array[self.test_num] == 0):
+        print('test1_glm_random_grid_search_model_number for GLM: passed!')
+    self.test_num += 1
+    sys.stdout.flush()
+    self.max_grid_runtime = pyunit_utils.find_grid_runtime(random_grid_model.models)
