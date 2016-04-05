@@ -2,7 +2,11 @@ def test1_glm_and_theory(self):
     '\n        This test is used to test the p-value/linear intercept weight calculation of our GLM\n        when family is set to Gaussian.  Since theoretical values are available, we will compare\n        our GLM output with the theoretical outputs.  This will provide assurance that our GLM\n        is implemented correctly.\n        '
     print('*******************************************************************************************')
     print('Test1: compares the linear regression weights/p-values computed from theory and H2O GLM.')
-    (self.test1_weight_theory, self.test1_p_values_theory, self.test1_mse_train_theory, self.test1_mse_test_theory) = self.theoretical_glm(self.training_data_file, self.test_data_file, False, False)
+    try:
+        (self.test1_weight_theory, self.test1_p_values_theory, self.test1_mse_train_theory, self.test1_mse_test_theory) = self.theoretical_glm(self.training_data_file, self.test_data_file, False, False)
+    except:
+        print('problems with lin-alg.  Got bad data set.')
+        sys.exit(0)
     model_h2o = H2OGeneralizedLinearEstimator(family=self.family, Lambda=0, compute_p_values=True, standardize=False)
     model_h2o.train(x=self.x_indices, y=self.y_index, training_frame=self.training_data)
     h2o_model_test_metrics = model_h2o.model_performance(test_data=self.test_data)

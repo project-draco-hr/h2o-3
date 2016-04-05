@@ -12,7 +12,7 @@ def extract_comparison_attributes_and_print_multinomial(model_h2o, h2o_model_tes
     failed_test_number += compare_two_arrays(h2o_weight, template_weight, ignored_eps, allowed_diff, compare_att_str[compare_index], h2o_att_str[compare_index], template_att_str[compare_index], att_str_fail[compare_index], att_str_success[compare_index], True, just_print[compare_index])
     compare_index += 1
     if ((not just_print[compare_index]) and (not can_be_better_than_template[compare_index])):
-        if (h2o_logloss_train < template_logloss_train):
+        if ((h2o_logloss_train < template_logloss_train) and (abs((h2o_logloss_train - template_logloss_train)) > 1e-05)):
             failed_test_number += 1
             compare_two_arrays([h2o_logloss_train], [template_logloss_train], ignored_eps, allowed_diff, compare_att_str[compare_index], h2o_att_str[compare_index], template_att_str[compare_index], att_str_fail[compare_index], att_str_success[compare_index], True, True)
         else:

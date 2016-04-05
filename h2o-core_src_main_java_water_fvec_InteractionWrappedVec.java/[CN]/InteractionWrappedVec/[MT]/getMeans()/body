@@ -1,0 +1,9 @@
+{
+  if (null != _v1Domain && null != _v2Domain) {
+    double[] res=new double[domain().length];
+    Arrays.fill(res,Double.NaN);
+    return res;
+  }
+ else   if (null == _v1Domain && null == _v2Domain)   return new double[]{super.mean()};
+  return new GetMeanTask(v1Domain() == null ? v2Domain().length : v1Domain().length).doAll(this)._d;
+}
