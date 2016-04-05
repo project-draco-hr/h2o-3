@@ -21,9 +21,16 @@
   int numValsIdx=0;
   for (int i=0; i < n; i++) {
     if (isInteractionVec(_cats + i)) {
-      int offset=getInteractionOffset(chunks,_cats + i,rid);
-      row.numVals[numValsIdx + offset]=chunks[_cats + i].atd(rid);
-      numValsIdx+=nextNumericIdx(i);
+      InteractionWrappedVec iwv=(InteractionWrappedVec)_adaptedFrame.vec(_cats + i);
+      iwv._useAllFactorLevels&=_useAllFactorLevels;
+      int interactionOffset=getInteractionOffset(chunks,_cats + i,rid);
+      for (int offset=0; offset < iwv.expandedLength(); ++offset) {
+        double d=0;
+        if (offset == interactionOffset)         d=chunks[_cats + i].atd(rid);
+        if (Double.isNaN(d))         d=iwv.mean();
+        if (_normMul != null && _normSub != null)         d=(d - _normSub[numValsIdx]) * _normMul[numValsIdx];
+        row.numVals[numValsIdx++]=d;
+      }
     }
  else {
       double d=chunks[_cats + i].atd(rid);

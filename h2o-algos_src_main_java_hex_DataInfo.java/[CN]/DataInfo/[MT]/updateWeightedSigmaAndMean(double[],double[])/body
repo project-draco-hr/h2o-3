@@ -1,10 +1,11 @@
 {
+  int sub=numNums() - _nums;
   if (_predictor_transform.isSigmaScaled()) {
-    if (sigmas.length != _normMul.length)     throw new IllegalArgumentException("Length of sigmas does not match number of scaled columns.");
-    for (int i=0; i < sigmas.length; ++i)     _normMul[i]=sigmas[i] != 0 ? 1.0 / sigmas[i] : 1;
+    if (sigmas.length + (sub) != _normMul.length)     throw new IllegalArgumentException("Length of sigmas does not match number of scaled columns.");
+    for (int i=0; i < _normMul.length; ++i)     _normMul[i]=i < sub ? _normMul[i] : (sigmas[i - sub] != 0 ? 1.0 / sigmas[i - sub] : 1);
   }
   if (_predictor_transform.isMeanAdjusted()) {
-    if (mean.length != _normSub.length)     throw new IllegalArgumentException("Length of means does not match number of scaled columns.");
-    System.arraycopy(mean,0,_normSub,0,mean.length);
+    if (mean.length + (sub) != _normSub.length)     throw new IllegalArgumentException("Length of means does not match number of scaled columns.");
+    for (int i=0; i < _normSub.length; ++i)     _normSub[i]=i < sub ? _normSub[i] : mean[i - sub];
   }
 }

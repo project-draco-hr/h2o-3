@@ -1,11 +1,14 @@
 {
-  char cpus=(char)Runtime.getRuntime().availableProcessors();
-  if (s == null)   return cpus;
+  if (s == null)   return;
   try {
-    Matcher m=Pattern.compile("Cpus_allowed:\\s+([A-Fa-f0-9,]+)").matcher(s);
-    return m.find() ? numSetBitsHex(m.group(1)) : cpus;
+    Pattern p=Pattern.compile("Cpus_allowed:\\s+([A-Fa-f0-9,]+)");
+    Matcher m=p.matcher(s);
+    boolean b=m.find();
+    if (!b) {
+      return;
+    }
+    _processCpusAllowed=numSetBitsHex(m.group(1));
   }
  catch (  Exception ignore) {
-    return cpus;
   }
 }

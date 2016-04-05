@@ -1,3 +1,9 @@
 {
-  return PROCESS_CPUS_ALLOWED;
+  if (!IS_OS_LINUX()) {
+    return Runtime.getRuntime().availableProcessors();
+  }
+  if (_processCpusAllowed < 0) {
+    return Runtime.getRuntime().availableProcessors();
+  }
+  return _processCpusAllowed;
 }

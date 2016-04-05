@@ -1,2 +1,95 @@
 {
+  AccuracyTestingSuite.summaryLog.println("Making DRF model parameters.");
+  DRFModel.DRFParameters drfParams=new DRFModel.DRFParameters();
+  String[] tokens=algoParameters.trim().split(";",-1);
+  for (int i=0; i < tokens.length; i++) {
+    String parameterName=tokens[i].split("=",-1)[0];
+switch (parameterName) {
+case "_distribution":
+      String distribution=tokens[i].split("=",-1)[1];
+switch (distribution) {
+case "AUTO":
+      drfParams._distribution=Distribution.Family.AUTO;
+    break;
+case "gaussian":
+  drfParams._distribution=Distribution.Family.gaussian;
+break;
+case "bernoulli":
+drfParams._distribution=Distribution.Family.bernoulli;
+break;
+case "multinomial":
+drfParams._distribution=Distribution.Family.multinomial;
+break;
+case "poisson":
+drfParams._distribution=Distribution.Family.poisson;
+break;
+case "gamma":
+drfParams._distribution=Distribution.Family.gamma;
+break;
+case "tweedie":
+drfParams._distribution=Distribution.Family.tweedie;
+break;
+default :
+throw new Exception(distribution + " distribution is not supported for gbm test cases");
+}
+break;
+case "_nfolds":
+drfParams._nfolds=Integer.parseInt(tokens[i]);
+break;
+case "_fold_column":
+drfParams._fold_column=tokens[i];
+break;
+case "_ignore_const_cols":
+drfParams._ignore_const_cols=true;
+break;
+case "_offset_column":
+drfParams._offset_column=tokens[i];
+break;
+case "_weights_column":
+drfParams._weights_column=tokens[i];
+break;
+case "_ntrees":
+drfParams._ntrees=Integer.parseInt(tokens[i]);
+break;
+case "_max_depth":
+drfParams._max_depth=Integer.parseInt(tokens[i]);
+break;
+case "_min_rows":
+drfParams._min_rows=Double.parseDouble(tokens[i]);
+break;
+case "_nbins":
+drfParams._nbins=Integer.parseInt(tokens[i]);
+break;
+case "_nbins_cats":
+drfParams._nbins_cats=Integer.parseInt(tokens[i]);
+break;
+case "_score_each_iteration":
+drfParams._score_each_iteration=true;
+break;
+case "_balance_classes":
+drfParams._balance_classes=true;
+break;
+case "_max_confusion_matrix_size":
+drfParams._max_confusion_matrix_size=Integer.parseInt(tokens[i]);
+break;
+case "_r2_stopping":
+drfParams._r2_stopping=Double.parseDouble(tokens[i]);
+break;
+case "_build_tree_one_node":
+drfParams._build_tree_one_node=true;
+break;
+case "_binomial_double_trees":
+drfParams._binomial_double_trees=true;
+break;
+case "_nbins_top_level":
+drfParams._nbins_top_level=Integer.parseInt(tokens[i]);
+break;
+default :
+throw new Exception(parameterName + " parameter is not supported for gbm test cases");
+}
+}
+drfParams._train=trainingDataSet.getFrame()._key;
+drfParams._valid=testingDataSet.getFrame()._key;
+drfParams._response_column=trainingDataSet.getFrame()._names[trainingDataSet.getResponseColumn()];
+return drfParams;
 }

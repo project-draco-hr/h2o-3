@@ -1,0 +1,49 @@
+{
+  super();
+  try {
+    f.setAccessible(true);
+    this.name=f.getName();
+    Object o=f.get(schema);
+    this.value=consValue(o);
+    boolean is_enum=Enum.class.isAssignableFrom(f.getType()) || (f.getType().isArray() && Enum.class.isAssignableFrom(f.getType().getComponentType()));
+    this.is_schema=Schema.class.isAssignableFrom(f.getType()) || (f.getType().isArray() && Schema.class.isAssignableFrom(f.getType().getComponentType()));
+    this.type=consType(schema,ReflectionUtils.findActualFieldClass(schema.getClass(),f),f.getName());
+    if (this.is_schema) {
+      Class<? extends Schema> schema_class=f.getType().isArray() ? (Class<? extends Schema>)f.getType().getComponentType() : ReflectionUtils.findActualFieldClass(schema.getClass(),f);
+      Class<? extends Schema> versioned_schema_class=Schema.schemaClass(schema.getSchemaVersion(),Schema.getImplClass(schema_class));
+      if (null != versioned_schema_class) {
+        this.schema_name=versioned_schema_class.getSimpleName();
+      }
+ else {
+        this.schema_name=schema_class.getSimpleName();
+      }
+    }
+ else     if (is_enum && !f.getType().isArray()) {
+      this.schema_name=f.getType().getSimpleName();
+    }
+ else     if (is_enum && f.getType().isArray()) {
+      this.schema_name=f.getType().getComponentType().getSimpleName();
+    }
+    this.is_inherited=(superclassFields.contains(f));
+    API annotation=f.getAnnotation(API.class);
+    if (null != annotation) {
+      String l=annotation.label();
+      this.help=annotation.help();
+      this.label=(null == l || l.isEmpty() ? f.getName() : l);
+      this.required=annotation.required();
+      this.level=annotation.level();
+      this.direction=annotation.direction();
+      this.is_gridable=annotation.gridable();
+      this.values=annotation.values();
+      this.json=annotation.json();
+      this.is_member_of_frames=annotation.is_member_of_frames();
+      this.is_mutually_exclusive_with=annotation.is_mutually_exclusive_with();
+      if (is_enum && (null == this.values || 0 == this.values.length)) {
+        throw H2O.fail("Didn't find values annotation for enum field: " + this.name);
+      }
+    }
+  }
+ catch (  Exception e) {
+    throw H2O.fail("Caught exception accessing field: " + f + " for schema object: "+ schema+ ": "+ e.toString());
+  }
+}
