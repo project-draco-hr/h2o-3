@@ -2,7 +2,11 @@ def test5_missing_values(self):
     '\n        Test parameter missing_values_handling="MeanImputation" with\n        only real value predictors.  The same data sets as before are used.  However, we\n        go into the predictor matrix and randomly decide to change a value to be\n        nan and create missing values.  Since no regularization is enabled in this case,\n        we are able to calculate a theoretical weight/p-values/MSEs where we can\n        compare our H2O models with.\n        '
     print('*******************************************************************************************')
     print('Test5: test the GLM with imputation of missing values with column averages.')
-    (weight_theory, p_values_theory, mse_train_theory, mse_test_theory) = self.theoretical_glm(self.training_data_file_nans, self.test_data_file_nans, False, False)
+    try:
+        (weight_theory, p_values_theory, mse_train_theory, mse_test_theory) = self.theoretical_glm(self.training_data_file_nans, self.test_data_file_nans, False, False)
+    except:
+        print('Bad dataset, lin-alg package problem.')
+        sys.exit(0)
     training_data = h2o.import_file(pyunit_utils.locate(self.training_data_file_nans))
     test_data = h2o.import_file(pyunit_utils.locate(self.test_data_file_nans))
     model_h2o = H2OGeneralizedLinearEstimator(family=self.family, Lambda=0, compute_p_values=True, missing_values_handling='MeanImputation', standardize=False)
