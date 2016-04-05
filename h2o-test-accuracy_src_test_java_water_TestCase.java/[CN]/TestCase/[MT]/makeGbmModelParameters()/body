@@ -1,2 +1,98 @@
 {
+  AccuracyTestingSuite.summaryLog.println("Making GBM model parameters.");
+  GBMModel.GBMParameters gbmParams=new GBMModel.GBMParameters();
+  String[] tokens=algoParameters.trim().split(";",-1);
+  for (int i=0; i < tokens.length; i++) {
+    String parameterName=tokens[i].split("=",-1)[0];
+switch (parameterName) {
+case "_distribution":
+      String distribution=tokens[i].split("=",-1)[1];
+switch (distribution) {
+case "AUTO":
+      gbmParams._distribution=Distribution.Family.AUTO;
+    break;
+case "gaussian":
+  gbmParams._distribution=Distribution.Family.gaussian;
+break;
+case "bernoulli":
+gbmParams._distribution=Distribution.Family.bernoulli;
+break;
+case "multinomial":
+gbmParams._distribution=Distribution.Family.multinomial;
+break;
+case "poisson":
+gbmParams._distribution=Distribution.Family.poisson;
+break;
+case "gamma":
+gbmParams._distribution=Distribution.Family.gamma;
+break;
+case "tweedie":
+gbmParams._distribution=Distribution.Family.tweedie;
+break;
+default :
+throw new Exception(distribution + " distribution is not supported for gbm test cases");
+}
+break;
+case "_nfolds":
+gbmParams._nfolds=Integer.parseInt(tokens[i]);
+break;
+case "_fold_column":
+gbmParams._fold_column=tokens[i];
+break;
+case "_ignore_const_cols":
+gbmParams._ignore_const_cols=true;
+break;
+case "_offset_column":
+gbmParams._offset_column=tokens[i];
+break;
+case "_weights_column":
+gbmParams._weights_column=tokens[i];
+break;
+case "_ntrees":
+gbmParams._ntrees=Integer.parseInt(tokens[i]);
+break;
+case "_max_depth":
+gbmParams._max_depth=Integer.parseInt(tokens[i]);
+break;
+case "_min_rows":
+gbmParams._min_rows=Double.parseDouble(tokens[i]);
+break;
+case "_nbins":
+gbmParams._nbins=Integer.parseInt(tokens[i]);
+break;
+case "_nbins_cats":
+gbmParams._nbins_cats=Integer.parseInt(tokens[i]);
+break;
+case "_learn_rate":
+gbmParams._learn_rate=Float.parseFloat(tokens[i]);
+break;
+case "_score_each_iteration":
+gbmParams._score_each_iteration=true;
+break;
+case "_balance_classes":
+gbmParams._balance_classes=true;
+break;
+case "_max_confusion_matrix_size":
+gbmParams._max_confusion_matrix_size=Integer.parseInt(tokens[i]);
+break;
+case "_r2_stopping":
+gbmParams._r2_stopping=Double.parseDouble(tokens[i]);
+break;
+case "_build_tree_one_node":
+gbmParams._build_tree_one_node=true;
+break;
+case "_sample_rate":
+gbmParams._sample_rate=Float.parseFloat(tokens[i]);
+break;
+case "_col_sample_rate":
+gbmParams._col_sample_rate=Float.parseFloat(tokens[i]);
+break;
+default :
+throw new Exception(parameterName + " parameter is not supported for gbm test cases");
+}
+}
+gbmParams._train=trainingDataSet.getFrame()._key;
+gbmParams._valid=testingDataSet.getFrame()._key;
+gbmParams._response_column=trainingDataSet.getFrame()._names[trainingDataSet.getResponseColumn()];
+return gbmParams;
 }
