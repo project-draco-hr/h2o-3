@@ -1,0 +1,25 @@
+def evaluate_early_stopping(metric_list, stop_round, tolerance, bigger_is_better):
+    '\n    This function mimics the early stopping function as implemented in ScoreKeeper.java.  Please see the Java file\n    comment to see the explanation of how the early stopping works.\n\n    :param metric_list: list containing the optimization metric under consideration for gridsearch model\n    :param stop_round:  integer, determine averaging length\n    :param tolerance:   real, tolerance to see if the grid search model has improved enough to keep going\n    :param bigger_is_better:    bool: True if metric is optimized as it gets bigger and vice versa\n    :return:    bool indicating if we should stop early and sorted metric_list\n    '
+    if bigger_is_better:
+        metric_list.sort()
+    else:
+        metric_list.sort(reverse=True)
+    metric_len = len(metric_list)
+    start_index = (metric_len - (2 * stop_round))
+    all_moving_values = []
+    for index in range((stop_round + 1)):
+        index_start = (start_index + index)
+        all_moving_values.append(sum(metric_list[index_start:(index_start + stop_round)]))
+    if (((min(all_moving_values) > 0) and (max(all_moving_values) > 0)) or ((min(all_moving_values) < 0) and (max(all_moving_values) < 0))):
+        reference_value = all_moving_values[0]
+        last_value = all_moving_values[(-1)]
+        if (((reference_value > 0) and (last_value > 0)) or ((reference_value < 0) and (last_value < 0))):
+            ratio = (last_value / reference_value)
+            if bigger_is_better:
+                return ((not (ratio > (1 + tolerance))), metric_list)
+            else:
+                return ((not (ratio < (1 - tolerance))), metric_list)
+        else:
+            return (False, metric_list)
+    else:
+        return (False, metric_list)

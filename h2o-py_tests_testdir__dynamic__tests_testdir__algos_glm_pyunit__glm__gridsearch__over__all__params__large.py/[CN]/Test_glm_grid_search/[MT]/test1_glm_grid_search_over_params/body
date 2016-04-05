@@ -1,0 +1,30 @@
+def test1_glm_grid_search_over_params(self):
+    '\n        This test is used to exercise the gridsearch and exercise all its parameters that are griddable.\n\n        Furthermore, for each model built by gridsearch, we will build an equivalent model manually with the\n        same parameters and compare the gridsearch model with our manually built model to make sure their\n        performances are close.\n        '
+    print('*******************************************************************************************')
+    print(('test1_glm_grid_search_over_params for GLM ' + self.family))
+    h2o.cluster_info()
+    grid_model = H2OGridSearch(H2OGeneralizedLinearEstimator(family=self.family, nfolds=self.nfolds), hyper_params=self.hyper_params)
+    grid_model.train(x=self.x_indices, y=self.y_index, training_frame=self.training1_data)
+    self.correct_model_number = len(grid_model)
+    if (not (self.correct_model_number == self.possible_number_models)):
+        self.test_failed += 1
+        self.test_failed_array[self.test_num] = 1
+        print('test1_glm_grid_search_over_params for GLM failed: number of models built by gridsearch does not equal to all possible combinations of hyper-parameters')
+    if (self.test_failed_array[self.test_num] == 0):
+        params_dict = {}
+        params_dict['family'] = self.family
+        params_dict['nfolds'] = self.nfolds
+        for each_model in grid_model:
+            params_list = pyunit_utils.extract_used_params(self.hyper_params.keys(), each_model.params, params_dict)
+            manual_model = H2OGeneralizedLinearEstimator(**params_list)
+            manual_model.train(x=self.x_indices, y=self.y_index, training_frame=self.training1_data)
+            test_grid_model_metrics = each_model.model_performance(test_data=self.training2_data)
+            test_manual_model_metrics = manual_model.model_performance(test_data=self.training2_data)
+            if (abs((test_grid_model_metrics.mse() - test_manual_model_metrics.mse())) > self.allowed_diff):
+                self.test_failed += 1
+                self.test_failed_array[self.test_num] += 1
+                print('test1_glm_grid_search_over_params for GLM failed: grid search model and manually built H2O model differ too much in test MSE!')
+                break
+    self.test_num += 1
+    if (self.test_failed == 0):
+        print('test1_glm_grid_search_over_params for GLM has passed!')
