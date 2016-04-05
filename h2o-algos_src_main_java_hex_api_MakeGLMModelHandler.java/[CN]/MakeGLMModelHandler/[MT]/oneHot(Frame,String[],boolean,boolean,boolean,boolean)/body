@@ -2,23 +2,23 @@
   final DataInfo dinfo=new DataInfo(fr,null,1,useAll,standardize ? TransformType.STANDARDIZE : TransformType.NONE,TransformType.NONE,skipMissing,false,false,false,false,false,interactions);
   Frame res;
   if (interactionsOnly) {
-    if (dinfo._interactionVecs == null)     throw new IllegalArgumentException("no interactions");
+    if (null == dinfo._interactionVecs)     throw new IllegalArgumentException("no interactions");
     int noutputs=0;
     final int[] colIds=new int[dinfo._interactionVecs.length];
+    final int[] offsetIds=new int[dinfo._interactionVecs.length];
     int idx=0;
     String[] coefNames=dinfo.coefNames();
-    for (    int i : dinfo._interactionVecs)     colIds[idx++]=(noutputs+=((InteractionWrappedVec)dinfo._adaptedFrame.vec(i)).expandedLength());
+    for (    int i : dinfo._interactionVecs)     noutputs+=(offsetIds[idx++]=((InteractionWrappedVec)dinfo._adaptedFrame.vec(i)).expandedLength());
     String[] names=new String[noutputs];
     int offset=idx=0;
-    final int[] offsetIds=new int[colIds.length];
+    int namesIdx=0;
     for (int i=0; i < dinfo._adaptedFrame.numCols(); ++i) {
       Vec v=dinfo._adaptedFrame.vec(i);
       if (v instanceof InteractionWrappedVec) {
-        int namesIdx=0;
-        offsetIds[idx]=offset;
-        while (namesIdx < colIds[idx])         names[namesIdx++]=coefNames[offset++];
+        colIds[idx]=offset;
+        for (int nid=0; nid < offsetIds[idx]; ++nid)         names[namesIdx++]=coefNames[offset++];
         idx++;
-        if (idx >= colIds.length)         break;
+        if (idx > dinfo._interactionVecs.length)         break;
       }
  else {
         if (v.isCategorical())         offset+=v.domain().length - (useAll ? 0 : 1);
@@ -32,9 +32,9 @@
           r=dinfo.extractDenseRow(cs,i,r);
           if (skipMissing && r.bad)           continue;
           int newChkIdx=0;
-          for (int idx=0; idx < offsetIds.length; ++idx) {
-            int startOffset=offsetIds[idx];
-            for (int start=startOffset; start < (startOffset + colIds[idx]); ++start)             ncs[newChkIdx++].addNum(r.get(start));
+          for (int idx=0; idx < colIds.length; ++idx) {
+            int startOffset=colIds[idx];
+            for (int start=startOffset; start < (startOffset + offsetIds[idx]); ++start)             ncs[newChkIdx++].addNum(r.get(start));
           }
         }
       }
@@ -54,7 +54,7 @@
         }
       }
     }
-.doAll(types,dinfo._adaptedFrame.vecs()).outputFrame(Key.make(),dinfo.coefNames(),null);
+.doAll(types,dinfo._adaptedFrame.vecs()).outputFrame(Key.make("OneHot" + Key.make().toString()),dinfo.coefNames(),null);
   }
   dinfo.dropInteractions();
   dinfo.remove();
