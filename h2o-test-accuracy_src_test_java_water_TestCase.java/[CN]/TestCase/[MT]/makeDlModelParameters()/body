@@ -4,16 +4,16 @@
   String[] tokens=algoParameters.trim().split(";",-1);
   for (int i=0; i < tokens.length; i++) {
     String parameterName=tokens[i].split("=",-1)[0];
+    String parameterValue=tokens[i].split("=",-1)[1];
 switch (parameterName) {
 case "_distribution":
-      String distribution=tokens[i].split("=",-1)[1];
-switch (distribution) {
+switch (parameterValue) {
 case "AUTO":
-      dlParams._distribution=Distribution.Family.AUTO;
-    break;
+        dlParams._distribution=Distribution.Family.AUTO;
+      break;
 case "gaussian":
-  dlParams._distribution=Distribution.Family.gaussian;
-break;
+    dlParams._distribution=Distribution.Family.gaussian;
+  break;
 case "bernoulli":
 dlParams._distribution=Distribution.Family.bernoulli;
 break;
@@ -30,12 +30,11 @@ case "tweedie":
 dlParams._distribution=Distribution.Family.tweedie;
 break;
 default :
-throw new Exception(distribution + " distribution is not supported for gbm test cases");
+throw new Exception(parameterValue + " distribution is not supported for gbm test cases");
 }
 break;
 case "_activation":
-String activation=tokens[i].split("=",-1)[1];
-switch (activation) {
+switch (parameterValue) {
 case "tanh":
 dlParams._activation=DeepLearningModel.DeepLearningParameters.Activation.Tanh;
 break;
@@ -55,12 +54,11 @@ case "maxoutwithdropout":
 dlParams._activation=DeepLearningModel.DeepLearningParameters.Activation.MaxoutWithDropout;
 break;
 default :
-throw new Exception(activation + " activation is not supported for gbm test cases");
+throw new Exception(parameterValue + " activation is not supported for gbm test cases");
 }
 break;
 case "_loss":
-String loss=tokens[i].split("=",-1)[1];
-switch (loss) {
+switch (parameterValue) {
 case "AUTO":
 dlParams._loss=DeepLearningModel.DeepLearningParameters.Loss.Automatic;
 ;
@@ -78,7 +76,7 @@ case "absolute":
 dlParams._loss=DeepLearningModel.DeepLearningParameters.Loss.Absolute;
 break;
 default :
-throw new Exception(loss + " loss is not supported for gbm test cases");
+throw new Exception(parameterValue + " loss is not supported for gbm test cases");
 }
 break;
 case "_hidden":
@@ -86,7 +84,7 @@ String[] hidden=tokens[i].trim().split(":",-1);
 dlParams._hidden=new int[]{Integer.parseInt(hidden[0]),Integer.parseInt(hidden[0])};
 break;
 case "_epochs":
-dlParams._epochs=Double.parseDouble(tokens[i]);
+dlParams._epochs=Double.parseDouble(parameterValue);
 break;
 case "_variable_importances":
 dlParams._variable_importances=true;
@@ -101,34 +99,34 @@ case "_balance_classes":
 dlParams._balance_classes=true;
 break;
 case "_max_confusion_matrix_size":
-dlParams._max_confusion_matrix_size=Integer.parseInt(tokens[i]);
+dlParams._max_confusion_matrix_size=Integer.parseInt(parameterValue);
 break;
 case "_use_all_factor_levels":
 dlParams._use_all_factor_levels=true;
 break;
 case "_train_samples_per_iteration":
-dlParams._train_samples_per_iteration=Long.parseLong(tokens[i]);
+dlParams._train_samples_per_iteration=Long.parseLong(parameterValue);
 break;
 case "_adaptive_rate":
 dlParams._adaptive_rate=true;
 break;
 case "_input_dropout_ratio":
-dlParams._input_dropout_ratio=Double.parseDouble(tokens[i]);
+dlParams._input_dropout_ratio=Double.parseDouble(parameterValue);
 break;
 case "_l1":
-dlParams._l1=Double.parseDouble(tokens[i]);
+dlParams._l1=Double.parseDouble(parameterValue);
 break;
 case "_l2":
-dlParams._l2=Double.parseDouble(tokens[i]);
+dlParams._l2=Double.parseDouble(parameterValue);
 break;
 case "_score_interval":
-dlParams._score_interval=Double.parseDouble(tokens[i]);
+dlParams._score_interval=Double.parseDouble(parameterValue);
 break;
 case "_score_training_samples":
-dlParams._score_training_samples=Long.parseLong(tokens[i]);
+dlParams._score_training_samples=Long.parseLong(parameterValue);
 break;
 case "_score_duty_cycle":
-dlParams._score_duty_cycle=Double.parseDouble(tokens[i]);
+dlParams._score_duty_cycle=Double.parseDouble(parameterValue);
 break;
 case "_replicate_training_data":
 dlParams._replicate_training_data=true;
@@ -137,22 +135,22 @@ case "_autoencoder":
 dlParams._autoencoder=true;
 break;
 case "_target_ratio_comm_to_comp":
-dlParams._target_ratio_comm_to_comp=Double.parseDouble(tokens[i]);
+dlParams._target_ratio_comm_to_comp=Double.parseDouble(parameterValue);
 break;
 case "_seed":
-dlParams._seed=Long.parseLong(tokens[i]);
+dlParams._seed=Long.parseLong(parameterValue);
 break;
 case "_rho":
-dlParams._rho=Double.parseDouble(tokens[i]);
+dlParams._rho=Double.parseDouble(parameterValue);
 break;
 case "_epsilon":
-dlParams._epsilon=Double.parseDouble(tokens[i]);
+dlParams._epsilon=Double.parseDouble(parameterValue);
 break;
 case "_max_w2":
-dlParams._max_w2=Float.parseFloat(tokens[i]);
+dlParams._max_w2=Float.parseFloat(parameterValue);
 break;
 case "_regression_stop":
-dlParams._regression_stop=Double.parseDouble(tokens[i]);
+dlParams._regression_stop=Double.parseDouble(parameterValue);
 break;
 case "_diagnostics":
 dlParams._diagnostics=true;
@@ -179,13 +177,13 @@ case "_col_major":
 dlParams._col_major=true;
 break;
 case "_average_activation":
-dlParams._average_activation=Double.parseDouble(tokens[i]);
+dlParams._average_activation=Double.parseDouble(parameterValue);
 break;
 case "_sparsity_beta":
-dlParams._sparsity_beta=Double.parseDouble(tokens[i]);
+dlParams._sparsity_beta=Double.parseDouble(parameterValue);
 break;
 case "_max_categorical_features":
-dlParams._max_categorical_features=Integer.parseInt(tokens[i]);
+dlParams._max_categorical_features=Integer.parseInt(parameterValue);
 break;
 case "_reproducible":
 dlParams._reproducible=true;
