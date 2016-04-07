@@ -1,0 +1,18 @@
+{
+  int numOff=_dinfo.numStart();
+  for (int cid=0; cid < _dinfo._nums; ++cid) {
+    double[] g=_gradient[numOff + cid];
+    double NA=_dinfo._numMeans[cid];
+    Chunk c=chks[cid + _dinfo._cats];
+    double scale=_dinfo._normMul == null ? 1 : _dinfo._normMul[cid];
+    if (c.isSparseZero() || c.isSparseNA()) {
+      int nVals=c.asSparseDoubles(vals,ids,NA);
+      for (int i=0; i < nVals; ++i)       ArrayUtils.wadd(g,etas[ids[i]],vals[i] * scale);
+    }
+ else {
+      double off=_dinfo._normSub == null ? 0 : _dinfo._normSub[cid];
+      c.getDoubles(vals,0,vals.length,NA);
+      for (int i=0; i < vals.length; ++i)       ArrayUtils.wadd(g,etas[i],(vals[i] - off) * scale);
+    }
+  }
+}

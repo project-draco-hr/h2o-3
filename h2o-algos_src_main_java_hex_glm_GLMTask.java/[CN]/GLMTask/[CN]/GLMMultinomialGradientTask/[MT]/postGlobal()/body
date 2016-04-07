@@ -1,13 +1,5 @@
 {
-  if (_sparse && _dinfo._normSub != null) {
-    int off=_dinfo.numStart();
-    final int P=_beta[0].length;
-    for (int c=0; c < _beta.length; ++c) {
-      double val=_gradient[(c + 1) * P - 1];
-      for (int i=0; i < _dinfo._nums; ++i)       _gradient[c * P + off + i]-=val * _dinfo._normSub[i] * _dinfo._normMul[i];
-    }
-  }
   ArrayUtils.mult(_gradient,_reg);
-  int P=_beta[0].length;
-  for (int c=0; c < _beta.length; ++c)   for (int j=0; j < P - 1; ++j)   _gradient[c * P + j]+=_currentLambda * _beta[c][j];
+  int P=_beta.length;
+  for (int c=0; c < P - 1; ++c)   for (int j=0; j < _beta[0].length; ++j)   _gradient[c][j]+=_currentLambda * _beta[c][j];
 }

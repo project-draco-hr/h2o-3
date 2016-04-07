@@ -54,7 +54,7 @@ if (_valid != null) _validDinfo=_dinfo.validDinfo(_valid);
 _state=new ComputationState(_job,_parms,_dinfo,null,nclasses());
 boolean skippingRows=(_parms._missing_values_handling == MissingValuesHandling.Skip && _train.hasNAs());
 if (hasWeightCol() || skippingRows) {
-boolean setWeights=skippingRows && _parms._lambda_search && _parms._alpha[0] > 0;
+boolean setWeights=skippingRows;
 if (setWeights) {
 Vec wc=_weights == null ? _dinfo._adaptedFrame.anyVec().makeCon(1) : _weights.makeCopy();
 _dinfo.setWeights(_generatedWeights="__glm_gen_weights",wc);
@@ -117,6 +117,7 @@ break;
 }
 _parms._lambda[_parms._lambda.length - 1]=_lambdaCVEstimate;
 }
+if (_parms._objective_epsilon == -1) _parms._objective_epsilon=_parms._lambda[0] == 0 ? 1e-6 : 1e-4;
 _model.clone2().delete_and_lock(_job._key);
 }
 }
