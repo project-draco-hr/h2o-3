@@ -1,5 +1,5 @@
 {
-  if (isUUID())   return _ms.get(idx) == C16Chunk._LO_NA && Double.doubleToRawLongBits(_ds[idx]) == C16Chunk._HI_NA;
   if (isString())   return _is[idx] == -1;
-  return (_ds == null) ? (_ms.get(idx) == Long.MAX_VALUE && _xs.get(idx) == Integer.MIN_VALUE) : Double.isNaN(_ds[idx]);
+  if (isUUID() || _ds == null)   return _missing != null && _missing.get(idx);
+  return Double.isNaN(_ds[idx]);
 }
