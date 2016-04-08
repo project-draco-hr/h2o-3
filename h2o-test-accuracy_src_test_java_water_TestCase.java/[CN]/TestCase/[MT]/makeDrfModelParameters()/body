@@ -4,16 +4,16 @@
   String[] tokens=algoParameters.trim().split(";",-1);
   for (int i=0; i < tokens.length; i++) {
     String parameterName=tokens[i].split("=",-1)[0];
+    String parameterValue=tokens[i].split("=",-1)[1];
 switch (parameterName) {
 case "_distribution":
-      String distribution=tokens[i].split("=",-1)[1];
-switch (distribution) {
+switch (parameterValue) {
 case "AUTO":
-      drfParams._distribution=Distribution.Family.AUTO;
-    break;
+        drfParams._distribution=Distribution.Family.AUTO;
+      break;
 case "gaussian":
-  drfParams._distribution=Distribution.Family.gaussian;
-break;
+    drfParams._distribution=Distribution.Family.gaussian;
+  break;
 case "bernoulli":
 drfParams._distribution=Distribution.Family.bernoulli;
 break;
@@ -30,11 +30,11 @@ case "tweedie":
 drfParams._distribution=Distribution.Family.tweedie;
 break;
 default :
-throw new Exception(distribution + " distribution is not supported for gbm test cases");
+throw new Exception(parameterValue + " distribution is not supported for gbm test cases");
 }
 break;
 case "_nfolds":
-drfParams._nfolds=Integer.parseInt(tokens[i]);
+drfParams._nfolds=Integer.parseInt(parameterValue);
 break;
 case "_fold_column":
 drfParams._fold_column=tokens[i];
@@ -49,19 +49,19 @@ case "_weights_column":
 drfParams._weights_column=tokens[i];
 break;
 case "_ntrees":
-drfParams._ntrees=Integer.parseInt(tokens[i]);
+drfParams._ntrees=Integer.parseInt(parameterValue);
 break;
 case "_max_depth":
-drfParams._max_depth=Integer.parseInt(tokens[i]);
+drfParams._max_depth=Integer.parseInt(parameterValue);
 break;
 case "_min_rows":
-drfParams._min_rows=Double.parseDouble(tokens[i]);
+drfParams._min_rows=Double.parseDouble(parameterValue);
 break;
 case "_nbins":
-drfParams._nbins=Integer.parseInt(tokens[i]);
+drfParams._nbins=Integer.parseInt(parameterValue);
 break;
 case "_nbins_cats":
-drfParams._nbins_cats=Integer.parseInt(tokens[i]);
+drfParams._nbins_cats=Integer.parseInt(parameterValue);
 break;
 case "_score_each_iteration":
 drfParams._score_each_iteration=true;
@@ -70,10 +70,10 @@ case "_balance_classes":
 drfParams._balance_classes=true;
 break;
 case "_max_confusion_matrix_size":
-drfParams._max_confusion_matrix_size=Integer.parseInt(tokens[i]);
+drfParams._max_confusion_matrix_size=Integer.parseInt(parameterValue);
 break;
 case "_r2_stopping":
-drfParams._r2_stopping=Double.parseDouble(tokens[i]);
+drfParams._r2_stopping=Double.parseDouble(parameterValue);
 break;
 case "_build_tree_one_node":
 drfParams._build_tree_one_node=true;
@@ -82,7 +82,7 @@ case "_binomial_double_trees":
 drfParams._binomial_double_trees=true;
 break;
 case "_nbins_top_level":
-drfParams._nbins_top_level=Integer.parseInt(tokens[i]);
+drfParams._nbins_top_level=Integer.parseInt(parameterValue);
 break;
 default :
 throw new Exception(parameterName + " parameter is not supported for gbm test cases");

@@ -4,16 +4,16 @@
   String[] tokens=algoParameters.trim().split(";",-1);
   for (int i=0; i < tokens.length; i++) {
     String parameterName=tokens[i].split("=",-1)[0];
-switch (parameterName) {
+    String parameterValue=tokens[i].split("=",-1)[1];
+switch (parameterValue) {
 case "_distribution":
-      String distribution=tokens[i].split("=",-1)[1];
-switch (distribution) {
+switch (parameterValue) {
 case "AUTO":
-      glmParams._distribution=Distribution.Family.AUTO;
-    break;
+        glmParams._distribution=Distribution.Family.AUTO;
+      break;
 case "gaussian":
-  glmParams._distribution=Distribution.Family.gaussian;
-break;
+    glmParams._distribution=Distribution.Family.gaussian;
+  break;
 case "bernoulli":
 glmParams._distribution=Distribution.Family.bernoulli;
 break;
@@ -30,12 +30,11 @@ case "tweedie":
 glmParams._distribution=Distribution.Family.tweedie;
 break;
 default :
-throw new Exception(distribution + " distribution is not supported for gbm test cases");
+throw new Exception(parameterValue + " distribution is not supported for gbm test cases");
 }
 break;
 case "_solver":
-String solver=tokens[i].split("=",-1)[1];
-switch (solver) {
+switch (parameterValue) {
 case "AUTO":
 glmParams._solver=GLMModel.GLMParameters.Solver.AUTO;
 break;
@@ -52,11 +51,11 @@ case "coordinate_descent":
 glmParams._solver=GLMModel.GLMParameters.Solver.COORDINATE_DESCENT;
 break;
 default :
-throw new Exception(solver + " solver is not supported for gbm test cases");
+throw new Exception(parameterValue + " solver is not supported for gbm test cases");
 }
 break;
 case "_nfolds":
-glmParams._nfolds=Integer.parseInt(tokens[i]);
+glmParams._nfolds=Integer.parseInt(parameterValue);
 break;
 case "_fold_column":
 glmParams._fold_column=tokens[i];
@@ -71,10 +70,10 @@ case "_weights_column":
 glmParams._weights_column=tokens[i];
 break;
 case "_alpha":
-glmParams._alpha=new double[]{Double.parseDouble(tokens[i])};
+glmParams._alpha=new double[]{Double.parseDouble(parameterValue)};
 break;
 case "_lambda":
-glmParams._lambda=new double[]{Double.parseDouble(tokens[i])};
+glmParams._lambda=new double[]{Double.parseDouble(parameterValue)};
 break;
 case "_lambda_search":
 glmParams._lambda_search=true;
@@ -89,10 +88,10 @@ case "_intercept":
 glmParams._intercept=true;
 break;
 case "_prior":
-glmParams._prior=Double.parseDouble(tokens[i]);
+glmParams._prior=Double.parseDouble(parameterValue);
 break;
 case "_max_active_predictors":
-glmParams._max_active_predictors=Integer.parseInt(tokens[i]);
+glmParams._max_active_predictors=Integer.parseInt(parameterValue);
 break;
 case "_beta_constraints":
 double lowerBound=Double.parseDouble(tokens[i].split("|")[0]);
