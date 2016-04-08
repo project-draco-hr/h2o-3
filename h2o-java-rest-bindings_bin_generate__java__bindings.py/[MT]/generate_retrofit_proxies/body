@@ -31,8 +31,16 @@ def generate_retrofit_proxies(endpoints_meta, all_schemas_map):
         first = True
         for meta in endpoints_by_entity[entity]:
             path = meta['url_pattern']
-            retrofit_path = var_pattern.sub('{\\1}', path)
+            if ((path == '/3/ModelMetrics/frames/(?<frame>.*)/models/(?<model>.*)') or (path == '/3/ModelMetrics/frames/(?<frame>.*)')):
+                continue
+            path_parm_names = meta['path_params']
+            retrofit_path = path
+            idx = 0
+            while re.search(var_pattern, retrofit_path):
+                retrofit_path = var_pattern.sub((('{' + path_parm_names[idx]) + '}'), retrofit_path, 1)
+                idx += 1
             retrofit_path = retrofit_path.replace('\\', '\\\\')
+            summary = meta['summary']
             http_method = meta['http_method']
             input_schema_name = meta['input_schema']
             output_schema_name = meta['output_schema']
@@ -55,7 +63,6 @@ def generate_retrofit_proxies(endpoints_meta, all_schemas_map):
                 is_post = True
             else:
                 is_post = False
-            path_parm_names = meta['path_params']
             input_schema = all_schemas_map[input_schema_name]
             indent = (' ' * len('    Call<{output_schema_name}> {method}('.format(output_schema_name=output_schema_name, method=method)))
             first_parm = True
@@ -67,10 +74,12 @@ def generate_retrofit_proxies(endpoints_meta, all_schemas_map):
                 if (field['direction'] == 'OUTPUT'):
                     continue
                 parm_type = cons_java_type(entity, field['name'], field['type'], field['schema_name'])
+                if parm_type.endswith('KeyV3'):
+                    parm_type = 'String'
                 if (not first_parm):
                     parms += ',\n'
                     parms += indent
-                parms += '@Query("{parm}") '.format(parm=parm)
+                parms += '@Path("{parm}") '.format(parm=parm)
                 parms += parm_type
                 parms += ' '
                 parms += parm
@@ -83,6 +92,8 @@ def generate_retrofit_proxies(endpoints_meta, all_schemas_map):
                         continue
                     parm_type = cons_java_type(entity, field['name'], field['type'], field['schema_name'])
                     parm = field['name']
+                    if parm_type.endswith('KeyV3'):
+                        parm_type = 'String'
                     if (not first_parm):
                         parms += ',\n'
                         parms += indent
@@ -98,6 +109,7 @@ def generate_retrofit_proxies(endpoints_meta, all_schemas_map):
                 signatures[signature] = signature
             if (not first):
                 pojo.append('')
+            pojo.append('    /** {summary} */'.format(summary=summary))
             if (http_method == 'POST'):
                 pojo.append('    @FormUrlEncoded')
             pojo.append('    @{http_method}("{path}")'.format(http_method=http_method, path=retrofit_path))

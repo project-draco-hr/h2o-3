@@ -1,13 +1,35 @@
 {
   if (_job != null && _job.stop_requested())   throw new Job.JobCancelledException();
-  if (_beta[0].length > 5000) {
-    Chunk response=chks[chks.length - 1];
-    Chunk weights=_dinfo._weights ? chks[_dinfo.weightChunkId()] : new C0DChunk(1,response._len);
-    chks=Arrays.copyOf(chks,chks.length - 1 - (_dinfo._weights ? 1 : 0));
-    doCols(chks,weights,response);
+  int numStart=_dinfo.numStart();
+  int K=_beta[0].length;
+  int P=_beta.length;
+  int M=chks[0]._len;
+  _gradient=new double[P][K];
+  double[][] etas=new double[M][K];
+  double[] offsets=new double[K];
+  for (int k=0; k < K; ++k)   offsets[k]=_beta[P - 1][k];
+  if (_dinfo._normSub != null) {
+    for (int i=0; i < _dinfo._nums; ++i)     if (chks[_dinfo._cats + i].isSparseZero())     ArrayUtils.wadd(offsets,_beta[numStart + i],-_dinfo._normSub[i] * _dinfo._normMul[i]);
   }
- else {
-    _gradient=new double[_beta.length * _beta[0].length];
-    doRows(chks);
+  for (int i=0; i < chks[0]._len; ++i)   System.arraycopy(offsets,0,etas[i],0,K);
+  Chunk response=chks[_dinfo.responseChunkId(0)];
+  double[] ws=MemoryManager.malloc8d(M);
+  if (_dinfo._weights)   ws=chks[_dinfo.weightChunkId()].getDoubles(ws,0,M);
+ else   Arrays.fill(ws,1);
+  chks=Arrays.copyOf(chks,chks.length - 1 - (_dinfo._weights ? 1 : 0));
+  double[] vals=MemoryManager.malloc8d(M);
+  int[] ids=MemoryManager.malloc4(M);
+  computeCategoricalEtas(chks,etas,vals,ids);
+  computeNumericEtas(chks,etas,vals,ids);
+  computeGradientMultipliers(etas,response.getDoubles(vals,0,M),ws);
+  computeCategoricalGrads(chks,etas,vals,ids);
+  computeNumericGrads(chks,etas,vals,ids);
+  double[] g=_gradient[P - 1];
+  for (int i=0; i < etas.length; ++i)   ArrayUtils.add(g,etas[i]);
+  if (_dinfo._normSub != null) {
+    double[] icpt=_gradient[P - 1];
+    for (int i=0; i < _dinfo._normSub.length; ++i) {
+      if (chks[_dinfo._cats + i].isSparseZero())       ArrayUtils.wadd(_gradient[numStart + i],icpt,-_dinfo._normSub[i] * _dinfo._normMul[i]);
+    }
   }
 }
