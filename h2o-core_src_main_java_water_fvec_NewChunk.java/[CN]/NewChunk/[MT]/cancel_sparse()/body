@@ -7,18 +7,20 @@
       _is=is;
     }
  else     if (_ds == null) {
-      int[] xs=MemoryManager.malloc4(_len);
-      long[] ls=MemoryManager.malloc8(_len);
+      Exponents xs=new Exponents(_len);
+      Mantissas ms=new Mantissas(_len);
       if (_sparseNA) {
-        Arrays.fill(xs,Integer.MIN_VALUE);
-        Arrays.fill(ls,Long.MAX_VALUE);
+        for (int i=0; i < _len; ++i) {
+          xs.addNA();
+          ms.addNA();
+        }
       }
       for (int i=0; i < _sparseLen; ++i) {
-        xs[_id[i]]=_xs[i];
-        ls[_id[i]]=_ls[i];
+        xs.set(_id[i],_xs.get(i));
+        ms.set(_id[i],_xs.get(i));
       }
       _xs=xs;
-      _ls=ls;
+      _ms=ms;
     }
  else {
       double[] ds=MemoryManager.malloc8d(_len);
