@@ -1,0 +1,25 @@
+{
+  DatumReader<GenericRecord> datumReader=new GenericDatumReader<GenericRecord>();
+  SeekableByteArrayInput sbai=new SeekableByteArrayInput(bits);
+  DataFileReader<GenericRecord> dataFileReader=null;
+  try {
+    dataFileReader=new DataFileReader<>(sbai,datumReader);
+    int headerLen=(int)dataFileReader.previousSync();
+    byte[] header=Arrays.copyOf(bits,headerLen);
+    if (dataFileReader.hasNext()) {
+      GenericRecord gr=dataFileReader.next();
+      return deriveParseSetup(header,gr,dataFileReader.getBlockCount(),dataFileReader.getBlockSize());
+    }
+ else {
+      throw new RuntimeException("FIXME: Empty file!");
+    }
+  }
+ catch (  IOException e) {
+    if (dataFileReader != null)     try {
+      dataFileReader.close();
+    }
+ catch (    IOException ignored) {
+    }
+  }
+  throw new RuntimeException("Cannot derive parser setup!");
+}

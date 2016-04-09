@@ -1,6 +1,6 @@
 {
   if (_jobKey.get().stop_requested())   return;
-  ParseSetup localSetup=new ParseSetup(_parseSetup);
+  ParseSetup localSetup=_parseSetup._parse_type == ParserType.AVRO ? new AvroParser.AvroParseSetup(_parseSetup,((AvroParser.AvroParseSetup)_parseSetup).header) : new ParseSetup(_parseSetup);
   ByteVec vec=getByteVec(key);
   final int chunkStartIdx=_fileChunkOffsets[_lo];
   Log.trace("Begin a map stage of a file parse with start index " + chunkStartIdx + ".");

@@ -1,4 +1,8 @@
 {
+  final ParseSetup setup=ParseSetup.guessSetup(keys,parseSetup);
+  if (setup._parse_type == ParserType.AVRO) {
+    setup._chunk_size=(int)((AvroParser.AvroParseSetup)setup).blockSize;
+  }
   HashSet<String> conflictingNames=setup.checkDupColumnNames();
   for (  String x : conflictingNames)   if (x != null && !x.equals(""))   throw new IllegalArgumentException("Found duplicate column name " + x);
   long totalParseSize=0;
