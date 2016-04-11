@@ -1,0 +1,27 @@
+{
+  Schema recordSchema=gr.getSchema();
+  List<Schema.Field> fields=recordSchema.getFields();
+  int supportedFieldCnt=0;
+  for (  Schema.Field f : fields)   if (isSupportedSchema(f.schema()))   supportedFieldCnt++;
+  String[] names=new String[supportedFieldCnt];
+  byte[] types=new byte[supportedFieldCnt];
+  String[] dataPreview=new String[supportedFieldCnt];
+  int i=0;
+  for (  Schema.Field f : fields) {
+    Schema schema=f.schema();
+    if (isSupportedSchema(schema)) {
+      names[i]=f.name();
+      types[i]=schemaToColumnType(schema);
+      dataPreview[i]=gr.get(f.name()) != null ? gr.get(f.name()).toString() : "null";
+      i++;
+    }
+ else {
+      Log.warn("Skipping field: " + f.name() + " because of unsupported type: "+ schema.getType()+ " schema: "+ schema);
+    }
+  }
+  AvroParseSetup ps=new AvroParseSetup(supportedFieldCnt,names,types,null,null,new String[][]{dataPreview});
+  ps.header=header;
+  ps.blockSize=blockSize;
+  ps.setChunkSize((int)blockSize);
+  return ps;
+}

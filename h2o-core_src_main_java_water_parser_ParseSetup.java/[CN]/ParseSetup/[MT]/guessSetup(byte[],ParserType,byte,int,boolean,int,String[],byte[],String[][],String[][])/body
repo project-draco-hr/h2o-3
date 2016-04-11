@@ -8,8 +8,21 @@ case XLS:
 return XlsParser.guessSetup(bits);
 case ARFF:
 return ARFFParser.guessSetup(bits,sep,singleQuotes,columnNames,naStrings);
-case AVRO:
-return AvroParser.guessSetup(bits);
+case OTHER:
+{
+Iterator<ParserProvider> it=ParserService.INSTANCE.getAllProviders().iterator();
+while (it.hasNext()) {
+try {
+  ParseSetup ps=it.next().guessSetup(bits);
+  if (ps != null) {
+    return ps;
+  }
+}
+ catch (Throwable ignored) {
+}
+}
+break;
+}
 case GUESS:
 for (ParserType pTypeGuess : guessFileTypeOrder) {
 try {
