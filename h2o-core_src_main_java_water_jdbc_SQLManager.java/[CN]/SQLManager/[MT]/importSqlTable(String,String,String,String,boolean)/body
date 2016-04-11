@@ -1,55 +1,46 @@
 {
-  final String url;
-  String d_sys=database_sys.toLowerCase();
-switch (d_sys) {
-case "mysql":
-    url=String.format("jdbc:mysql://%s:%s/%s?&useSSL=false",host,port,database);
-  break;
-default :
-throw new IllegalArgumentException(database_sys + " is not supported. Must be one of: MySQL.");
-}
-Connection conn=null;
-Statement stmt=null;
-ResultSet rs=null;
-int catcols=0, intcols=0, bincols=0, realcols=0, timecols=0, stringcols=0, numCol;
-final int maxCon;
-long numRow;
-final String[] columnNames;
-final int[] columnSQLTypes;
-final byte[] columnH2OTypes;
-try {
-conn=DriverManager.getConnection(url,username,password);
-stmt=conn.createStatement();
-rs=stmt.executeQuery("SELECT COUNT(1) FROM " + table);
-rs.next();
-numRow=rs.getInt(1);
-rs=stmt.executeQuery("SELECT @@max_connections");
-rs.next();
-maxCon=rs.getInt(1);
-rs=stmt.executeQuery("SELECT * FROM " + table + " LIMIT 1");
-ResultSetMetaData rsmd=rs.getMetaData();
-numCol=rsmd.getColumnCount();
-columnNames=new String[numCol];
-columnSQLTypes=new int[numCol];
-columnH2OTypes=new byte[numCol];
-for (int i=0; i < numCol; i++) {
-columnNames[i]=rsmd.getColumnName(i + 1);
-int sqlType=rsmd.getColumnType(i + 1);
-columnSQLTypes[i]=sqlType;
+  Connection conn=null;
+  Statement stmt=null;
+  ResultSet rs=null;
+  int catcols=0, intcols=0, bincols=0, realcols=0, timecols=0, stringcols=0, numCol;
+  final int maxCon;
+  long numRow;
+  final String[] columnNames;
+  final int[] columnSQLTypes;
+  final byte[] columnH2OTypes;
+  try {
+    conn=DriverManager.getConnection(connection_url,username,password);
+    stmt=conn.createStatement();
+    rs=stmt.executeQuery("SELECT COUNT(1) FROM " + table);
+    rs.next();
+    numRow=rs.getInt(1);
+    rs=stmt.executeQuery("SELECT @@max_connections");
+    rs.next();
+    maxCon=rs.getInt(1);
+    rs=stmt.executeQuery("SELECT * FROM " + table + " LIMIT 1");
+    ResultSetMetaData rsmd=rs.getMetaData();
+    numCol=rsmd.getColumnCount();
+    columnNames=new String[numCol];
+    columnSQLTypes=new int[numCol];
+    columnH2OTypes=new byte[numCol];
+    for (int i=0; i < numCol; i++) {
+      columnNames[i]=rsmd.getColumnName(i + 1);
+      int sqlType=rsmd.getColumnType(i + 1);
+      columnSQLTypes[i]=sqlType;
 switch (sqlType) {
 case Types.NUMERIC:
 case Types.REAL:
 case Types.DOUBLE:
 case Types.FLOAT:
 case Types.DECIMAL:
-  columnH2OTypes[i]=Vec.T_NUM;
-realcols+=1;
-break;
+        columnH2OTypes[i]=Vec.T_NUM;
+      realcols+=1;
+    break;
 case Types.INTEGER:
 case Types.TINYINT:
 case Types.SMALLINT:
 case Types.BIGINT:
-columnH2OTypes[i]=Vec.T_NUM;
+  columnH2OTypes[i]=Vec.T_NUM;
 intcols+=1;
 break;
 case Types.BIT:
@@ -79,7 +70,7 @@ columnH2OTypes[i]=Vec.T_BAD;
 }
 }
  catch (SQLException ex) {
-throw new RuntimeException("SQLException: " + ex.getMessage() + "\nFailed to connect and read from SQL database with url: "+ url);
+throw new RuntimeException("SQLException: " + ex.getMessage() + "\nFailed to connect and read from SQL database with connection_url: "+ connection_url);
 }
  finally {
 if (rs != null) {
@@ -114,7 +105,7 @@ if (optimize) {
 _v=makeCon(totSize,numRow);
 }
  else {
-double rows_per_chunk=FileVec.calcOptimalChunkSize(totSize,numCol,numCol * 4,Runtime.getRuntime().availableProcessors(),H2O.getCloudSize(),false);
+double rows_per_chunk=FileVec.calcOptimalChunkSize(totSize,numCol,numCol * 4,Runtime.getRuntime().availableProcessors(),H2O.getCloudSize(),false,false);
 _v=makeCon(0,numRow,(int)Math.ceil(Math.log1p(rows_per_chunk)),false);
 }
 Log.info("Number of chunks: " + _v.nChunks());
@@ -122,7 +113,7 @@ final Key destination_key=Key.make(table + "_sql_to_hex");
 final Job<Frame> j=new Job(destination_key,Frame.class.getName(),"Import SQL Table");
 H2O.H2OCountedCompleter work=new H2O.H2OCountedCompleter(){
 @Override public void compute2(){
-Frame fr=new SqlTableToH2OFrame(url,table,username,password,columnSQLTypes,maxCon,j).doAll(columnH2OTypes,_v).outputFrame(destination_key,columnNames,null);
+Frame fr=new SqlTableToH2OFrame(connection_url,table,username,password,columnSQLTypes,maxCon,_v.nChunks(),j).doAll(columnH2OTypes,_v).outputFrame(destination_key,columnNames,null);
 DKV.put(fr);
 _v.remove();
 tryComplete();

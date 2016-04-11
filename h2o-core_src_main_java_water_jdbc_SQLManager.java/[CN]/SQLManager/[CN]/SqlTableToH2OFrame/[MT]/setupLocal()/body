@@ -1,5 +1,6 @@
 {
-  int conPerNode=Math.min(Runtime.getRuntime().availableProcessors(),_maxCon / H2O.getCloudSize());
+  int conPerNode=(int)Math.min(Math.ceil((double)_nChunks / H2O.getCloudSize()),Runtime.getRuntime().availableProcessors());
+  conPerNode=Math.min(conPerNode,_maxCon / H2O.getCloudSize());
   Log.info("Database connections per node: " + conPerNode);
   sqlConn=new ArrayBlockingQueue<>(conPerNode);
   try {
