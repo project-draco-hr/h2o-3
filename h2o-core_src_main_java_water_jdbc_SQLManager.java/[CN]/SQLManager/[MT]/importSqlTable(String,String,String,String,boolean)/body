@@ -113,7 +113,7 @@ final Key destination_key=Key.make(table + "_sql_to_hex");
 final Job<Frame> j=new Job(destination_key,Frame.class.getName(),"Import SQL Table");
 H2O.H2OCountedCompleter work=new H2O.H2OCountedCompleter(){
 @Override public void compute2(){
-Frame fr=new SqlTableToH2OFrame(connection_url,table,username,password,columnSQLTypes,maxCon,j).doAll(columnH2OTypes,_v).outputFrame(destination_key,columnNames,null);
+Frame fr=new SqlTableToH2OFrame(connection_url,table,username,password,columnSQLTypes,maxCon,_v.nChunks(),j).doAll(columnH2OTypes,_v).outputFrame(destination_key,columnNames,null);
 DKV.put(fr);
 _v.remove();
 tryComplete();
