@@ -17,7 +17,7 @@
               if (maxLineLength > totalSize)               continue;
               if ((double)maxLineLength / numCols < 3)               continue;
               if ((double)maxLineLength / numCols > 100)               continue;
-              int chunkSize=FileVec.calcOptimalChunkSize((long)totalSize,numCols,maxLineLength,cores,cloudSize,oldheuristic == 1);
+              int chunkSize=FileVec.calcOptimalChunkSize((long)totalSize,numCols,maxLineLength,cores,cloudSize,oldheuristic == 1,true);
               int parseChunkCount=(int)Math.max(1,totalSize / chunkSize);
               int parseChunkCountPerNode=parseChunkCount / cloudSize;
               long totalChunks=(long)parseChunkCount * numCols;
@@ -26,20 +26,20 @@
               String msg="\n" + header + log+ "                  <- TOO ";
               if (chunkSize < 10 * maxLineLength) {
                 msg+="SMALL ";
-                FileVec.calcOptimalChunkSize((long)totalSize,numCols,maxLineLength,cores,cloudSize,oldheuristic == 1);
+                FileVec.calcOptimalChunkSize((long)totalSize,numCols,maxLineLength,cores,cloudSize,oldheuristic == 1,true);
                 toosmall[oldheuristic]++;
                 fail=true;
               }
               if (chunkSize >= Value.MAX) {
                 msg+="LARGE ";
-                FileVec.calcOptimalChunkSize((long)totalSize,numCols,maxLineLength,cores,cloudSize,oldheuristic == 1);
+                FileVec.calcOptimalChunkSize((long)totalSize,numCols,maxLineLength,cores,cloudSize,oldheuristic == 1,true);
                 toolarge[oldheuristic]++;
                 fail=true;
               }
               if (parseChunkCountPerNode < cores && oldheuristic == 0) {
                 if (numRows * numCols > 100000 * cloudSize && totalSize / cloudSize / numCols/ (4 * cores) > 1000) {
                   msg+="FEW ";
-                  FileVec.calcOptimalChunkSize((long)totalSize,numCols,maxLineLength,cores,cloudSize,oldheuristic == 1);
+                  FileVec.calcOptimalChunkSize((long)totalSize,numCols,maxLineLength,cores,cloudSize,oldheuristic == 1,true);
                   toofew[oldheuristic]++;
                   fail=true;
                   Assert.assertTrue(numCols > 1e4);
@@ -48,7 +48,7 @@
               }
               if (parseChunkCountPerNode * numCols > (1 << 24)) {
                 msg+="MANY ";
-                FileVec.calcOptimalChunkSize((long)totalSize,numCols,maxLineLength,cores,cloudSize,oldheuristic == 1);
+                FileVec.calcOptimalChunkSize((long)totalSize,numCols,maxLineLength,cores,cloudSize,oldheuristic == 1,true);
                 toomany[oldheuristic]++;
                 fail=true;
                 Assert.assertTrue(totalSize / cloudSize / cores > 1e9);

@@ -1,0 +1,15 @@
+{
+  int conPerNode=(int)Math.min(Math.ceil((double)_nChunks / H2O.getCloudSize()),Runtime.getRuntime().availableProcessors());
+  conPerNode=Math.min(conPerNode,_maxCon / H2O.getCloudSize());
+  Log.info("Database connections per node: " + conPerNode);
+  sqlConn=new ArrayBlockingQueue<>(conPerNode);
+  try {
+    for (int i=0; i < conPerNode; i++) {
+      Connection conn=DriverManager.getConnection(_url,_user,_password);
+      sqlConn.add(conn);
+    }
+  }
+ catch (  SQLException ex) {
+    throw new RuntimeException("SQLException: " + ex.getMessage() + "\nFailed to connect to SQL database with url: "+ _url);
+  }
+}

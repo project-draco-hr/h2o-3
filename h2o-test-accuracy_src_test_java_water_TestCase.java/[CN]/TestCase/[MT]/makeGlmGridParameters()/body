@@ -1,0 +1,21 @@
+{
+  AccuracyTestingSuite.summaryLog.println("Making GLM grid parameters.");
+  String[] tokens=gridParameters.trim().split(";",-1);
+  HashMap<String,Object[]> glmHyperParms=new HashMap<String,Object[]>();
+  for (int i=0; i < tokens.length; i++) {
+    if (tokens[i].equals(""))     return glmHyperParms;
+    String gridParameterName=tokens[i].split("=",-1)[0];
+    String[] gridParameterValues=tokens[i].split("=",-1)[1].split("\\|",-1);
+switch (gridParameterName) {
+case "_alpha":
+      glmHyperParms.put("_alpha",stringArrayToDoubleAA(gridParameterValues));
+    break;
+case "_lambda":
+  glmHyperParms.put("_lambda",stringArrayToDoubleAA(gridParameterValues));
+break;
+default :
+throw new Exception(gridParameterName + " grid parameter is not supported for glm test cases");
+}
+}
+return glmHyperParms;
+}

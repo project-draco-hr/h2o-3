@@ -1,0 +1,7 @@
+def import_sql_table(connection_url, table, username, password, optimize=None):
+    'Import SQL table to H2OFrame in memory.\n  \n  Parameters\n  ----------\n    connection_url : str\n      URL of the SQL database connection as specified by the Java Database Connectivity (JDBC) Driver.\n      For example, "jdbc:mysql://localhost:3306/menagerie?&useSSL=false"\n      \n    table : str\n      Name of SQL table\n      \n    username : str\n      Username of SQL server\n      \n    password : str\n      Password of SQL server\n      \n    optimize : bool, default is True\n      Optimize import of SQL table for faster imports. Experimental.  \n      \n  Returns\n  -------\n    H2OFrame containing data of specified SQL table\n'
+    p = {}
+    p.update({k: v for (k, v) in locals().items() if (k is not 'p')})
+    p['_rest_version'] = 99
+    j = H2OJob(H2OConnection.post_json(url_suffix='ImportSQLTable', **p), 'Import SQL Table').poll()
+    return get_frame(j.dest_key)

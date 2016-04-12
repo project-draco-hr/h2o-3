@@ -1,0 +1,53 @@
+{
+  AccuracyTestingSuite.summaryLog.println("Making DRF grid parameters.");
+  String[] tokens=gridParameters.trim().split(";",-1);
+  HashMap<String,Object[]> drfHyperParms=new HashMap<String,Object[]>();
+  for (int i=0; i < tokens.length; i++) {
+    String gridParameterName=tokens[i].split("=",-1)[0];
+    String[] gridParameterValues=tokens[i].split("=",-1)[1].split("\\|",-1);
+switch (gridParameterName) {
+case "_ntrees":
+      drfHyperParms.put("_ntrees",stringArrayToIntegerArray(gridParameterValues));
+    break;
+case "_max_depth":
+  drfHyperParms.put("_max_depth",stringArrayToIntegerArray(gridParameterValues));
+break;
+case "_min_rows":
+drfHyperParms.put("_min_rows",stringArrayToDoubleArray(gridParameterValues));
+break;
+case "_nbins":
+drfHyperParms.put("_nbins",stringArrayToIntegerArray(gridParameterValues));
+break;
+case "_nbins_cats":
+drfHyperParms.put("_nbins_cats",stringArrayToIntegerArray(gridParameterValues));
+break;
+case "_balance_classes":
+drfHyperParms.put("_balance_classes",stringArrayToBooleanArray(gridParameterValues));
+break;
+case "_r2_stopping":
+drfHyperParms.put("_r2_stopping",stringArrayToDoubleArray(gridParameterValues));
+break;
+case "_build_tree_one_node":
+drfHyperParms.put("_build_tree_one_node",stringArrayToBooleanArray(gridParameterValues));
+break;
+case "_mtries":
+drfHyperParms.put("_mtries",stringArrayToIntegerArray(gridParameterValues));
+break;
+case "_sample_rate":
+drfHyperParms.put("_sample_rate",stringArrayToFloatArray(gridParameterValues));
+break;
+case "_binomial_double_trees":
+drfHyperParms.put("_binomial_double_trees",stringArrayToBooleanArray(gridParameterValues));
+break;
+case "_col_sample_rate_per_tree":
+drfHyperParms.put("_col_sample_rate_per_tree",stringArrayToFloatArray(gridParameterValues));
+break;
+case "_min_split_improvement":
+drfHyperParms.put("_min_split_improvement",stringArrayToDoubleArray(gridParameterValues));
+break;
+default :
+throw new Exception(gridParameterName + " grid parameter is not supported for drf test cases");
+}
+}
+return drfHyperParms;
+}
