@@ -2,11 +2,10 @@
   Connection conn=null;
   Statement stmt=null;
   ResultSet rs=null;
-  int catcols=0, intcols=0, bincols=0, realcols=0, timecols=0, stringcols=0, numCol;
-  final int maxCon;
+  int catcols=0, intcols=0, bincols=0, realcols=0, timecols=0, stringcols=0;
+  final int numCol, maxCon;
   long numRow;
   final String[] columnNames;
-  final int[] columnSQLTypes;
   final byte[] columnH2OTypes;
   try {
     conn=DriverManager.getConnection(connection_url,username,password);
@@ -17,17 +16,15 @@
     rs=stmt.executeQuery("SELECT @@max_connections");
     rs.next();
     maxCon=rs.getInt(1);
-    rs=stmt.executeQuery("SELECT * FROM " + table + " LIMIT 1");
+    rs=stmt.executeQuery("SELECT " + columns + " FROM "+ table+ " LIMIT 0");
     ResultSetMetaData rsmd=rs.getMetaData();
     numCol=rsmd.getColumnCount();
     columnNames=new String[numCol];
-    columnSQLTypes=new int[numCol];
     columnH2OTypes=new byte[numCol];
+    rs.next();
     for (int i=0; i < numCol; i++) {
       columnNames[i]=rsmd.getColumnName(i + 1);
-      int sqlType=rsmd.getColumnType(i + 1);
-      columnSQLTypes[i]=sqlType;
-switch (sqlType) {
+switch (rsmd.getColumnType(i + 1)) {
 case Types.NUMERIC:
 case Types.REAL:
 case Types.DOUBLE:
@@ -113,9 +110,10 @@ final Key destination_key=Key.make(table + "_sql_to_hex");
 final Job<Frame> j=new Job(destination_key,Frame.class.getName(),"Import SQL Table");
 H2O.H2OCountedCompleter work=new H2O.H2OCountedCompleter(){
 @Override public void compute2(){
-Frame fr=new SqlTableToH2OFrame(connection_url,table,username,password,columnSQLTypes,maxCon,_v.nChunks(),j).doAll(columnH2OTypes,_v).outputFrame(destination_key,columnNames,null);
+Frame fr=new SqlTableToH2OFrame(connection_url,table,username,password,columns,numCol,maxCon,_v.nChunks(),j).doAll(columnH2OTypes,_v).outputFrame(destination_key,columnNames,null);
 DKV.put(fr);
 _v.remove();
+ParseDataset.logParseResults(fr);
 tryComplete();
 }
 }
