@@ -1,4 +1,4 @@
-def generate_pojo(schema, pojo_name):
+def generate_pojo(schema, pojo_name, model_builders_map):
     global args
     global enums
     if args.verbose:
@@ -18,6 +18,13 @@ def generate_pojo(schema, pojo_name):
     if ('Iced' == superclass):
         superclass = 'Object'
     pojo.append(((('public class ' + pojo_name) + ' extends {superclass} '.format(superclass=superclass)) + '{'))
+    is_model_builder = False
+    is_model_parameters = False
+    for field in schema['fields']:
+        if ('can_build' == field['name']):
+            is_model_builder = True
+        if (('model_id' == field['name']) and ('Destination id for this model; auto-generated if not specified' == field['help'])):
+            is_model_parameters = True
     first = True
     for field in schema['fields']:
         help = field['help']
@@ -35,6 +42,15 @@ def generate_pojo(schema, pojo_name):
                 enums[enum_name] = field['values']
         if (not first):
             pojo.append('')
+        if (is_model_builder and ('parameters' == field['name'])):
+            if ('ModelBuilderSchema' == pojo_name):
+                pojo.append('    /** {help} */'.format(help=help))
+                pojo.append('    public ModelParameterSchemaV3[] parameters;')
+            else:
+                pojo.append('    /* INHERITED: {help} '.format(help=help))
+                pojo.append('    public ModelParameterSchemaV3[] parameters;')
+                pojo.append('     */')
+            continue
         if field['is_inherited']:
             pojo.append('    /* INHERITED: {help} '.format(help=help))
             pojo.append('     * public {type} {name};'.format(type=java_type, name=name))
