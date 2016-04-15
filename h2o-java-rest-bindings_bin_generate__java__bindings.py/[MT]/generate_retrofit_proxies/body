@@ -20,6 +20,7 @@ def generate_retrofit_proxies(endpoints_meta, all_schemas_map):
     for entity in endpoints_by_entity:
         pojo = []
         signatures = {}
+        inner_class = []
         pojo.append('package water.bindings.proxies.retrofit;')
         pojo.append('')
         pojo.append('import water.bindings.pojos.*;')
@@ -29,6 +30,7 @@ def generate_retrofit_proxies(endpoints_meta, all_schemas_map):
         pojo.append('')
         pojo.append((('public interface ' + entity) + ' {'))
         first = True
+        found_key_array_parameter = False
         for meta in endpoints_by_entity[entity]:
             path = meta['url_pattern']
             if ((path == '/3/ModelMetrics/frames/(?<frame>.*)/models/(?<model>.*)') or (path == '/3/ModelMetrics/frames/(?<frame>.*)')):
@@ -46,6 +48,7 @@ def generate_retrofit_proxies(endpoints_meta, all_schemas_map):
             output_schema_name = meta['output_schema']
             handler_method = meta['handler_method']
             method = handler_method
+            algo = None
             if (((entity == 'Grid') or (entity == 'ModelBuilders')) and (method == 'train')):
                 pieces = path.split('/')
                 if (len(pieces) != 4):
@@ -59,13 +62,15 @@ def generate_retrofit_proxies(endpoints_meta, all_schemas_map):
                 algo = pieces[3]
                 method = ((method + '_') + algo)
             input_schema = all_schemas_map[input_schema_name]
-            if ((entity == 'ModelBuilders') and (method.startswith('train') or method.startswith('validate_parameters'))):
+            if (((entity == 'Grid') or (entity == 'ModelBuilders')) and (method.startswith('train') or method.startswith('validate_parameters'))):
                 for builder_field in input_schema['fields']:
                     if (builder_field['name'] == 'parameters'):
                         input_schema_name = builder_field['schema_name']
                         input_schema = all_schemas_map[input_schema_name]
                         break
             parms = ''
+            parm_names = []
+            parm_types = []
             if (http_method == 'POST'):
                 is_post = True
             else:
@@ -101,6 +106,8 @@ def generate_retrofit_proxies(endpoints_meta, all_schemas_map):
                         continue
                     parm_type = cons_java_type(entity, field['name'], field['type'], field['schema_name'])
                     parm = field['name']
+                    parm_names.append(parm)
+                    parm_types.append(parm_type)
                     if parm_type.endswith('KeyV3'):
                         parm_type = 'String'
                     if parm_type.endswith('KeyV3[]'):
@@ -127,7 +134,42 @@ def generate_retrofit_proxies(endpoints_meta, all_schemas_map):
                 pojo.append('    @FormUrlEncoded')
             pojo.append('    @{http_method}("{path}")'.format(http_method=http_method, path=retrofit_path))
             pojo.append('    Call<{output_schema_name}> {method}({parms});'.format(output_schema_name=output_schema_name, method=method, parms=parms))
+            if ((algo is not None) and (entity == 'ModelBuilders')):
+                print input_schema_name
+                inner_class.append('    /** {summary} */'.format(summary=summary))
+                inner_class.append(('    public static Call<{output_schema_name}> {method}(ModelBuilders modelBuildersService, {input_schema_name} parameters) '.format(input_schema_name=input_schema_name, output_schema_name=output_schema_name, method=method, parms=parms) + ' {'))
+                the_list = ''
+                for parm_num in range(0, len(parm_names)):
+                    if (parm_num > 0):
+                        the_list += ', '
+                    if parm_types[parm_num].endswith('KeyV3'):
+                        the_list += '(parameters.{parm} == null ? null : parameters.{parm}.name)'.format(parm=parm_names[parm_num])
+                    elif parm_types[parm_num].endswith('KeyV3[]'):
+                        found_key_array_parameter = True
+                        the_list += '(parameters.{parm} == null ? null : key_array_to_string_array(parameters.{parm}))'.format(parm=parm_names[parm_num])
+                    elif parm_types[parm_num].startswith('ColSpecifier'):
+                        the_list += '(parameters.{parm} == null ? null : parameters.{parm}.column_name)'.format(parm=parm_names[parm_num])
+                    else:
+                        the_list += 'parameters.{parm}'.format(parm=parm_names[parm_num])
+                    the_list_first = False
+                inner_class.append('        return modelBuildersService.{method}({the_list});'.format(method=method, the_list=the_list))
+                inner_class.append('    }')
             first = False
+        if found_key_array_parameter:
+            inner_class.append('    /** Return an array of Strings for an array of keys. */')
+            inner_class.append('    public static String[] key_array_to_string_array(KeyV3[] keys) {')
+            inner_class.append('        if (null == keys) return null;')
+            inner_class.append('        String[] ids = new String[keys.length];')
+            inner_class.append('        int i = 0;')
+            inner_class.append('        for (KeyV3 key : keys) ids[i++] = key.name;')
+            inner_class.append('        return ids;')
+            inner_class.append('    }')
+        if (len(inner_class) > 0):
+            pojo.append('')
+            pojo.append('    public static class Helper {')
+            for line in inner_class:
+                pojo.append(line)
+            pojo.append('    }')
         pojo.append('}')
         pojos[entity] = pojo
     return pojos
