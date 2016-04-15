@@ -44,4 +44,22 @@
   c=nc.compress();
   assertEquals(1546,c._len);
   for (int j=0; j < c._len - 1; ++j)   assertEquals(rvals[j],c.atd(j),0);
+  nc=new NewChunk(null,0,false);
+  rvals=new double[2 * 1024];
+  Arrays.fill(rvals,Double.NaN);
+  nc.addNum(rvals[0]=Math.PI);
+  nc.addNum(rvals[1]=Double.MAX_VALUE);
+  nc.addNum(rvals[2]=Double.MIN_VALUE);
+  nc.addNAs(5);
+  nc.addNum(rvals[2 + 1 + 5]=Math.E);
+  nc.addNAs(512);
+  off=nc._len;
+  assertTrue(nc.isSparseNA());
+  for (int j=0; j < 1024; ++j)   nc.addNum(rvals[off + j]=rnd.nextDouble());
+  assertTrue(!nc.isSparseNA());
+  nc.addNA();
+  c=nc.compress();
+  assertEquals(1546,c._len);
+  for (int j=0; j < c._len - 1; ++j)   if (Double.isNaN(rvals[j]))   assertTrue(c.isNA(j));
+ else   assertEquals(rvals[j],c.atd(j),0);
 }
