@@ -1,0 +1,38 @@
+{
+  Random rng=new Random(0xDECAF);
+  int count=0;
+  while (count++ < 100) {
+    final boolean moreIsBetter=rng.nextBoolean();
+    Double[] Dvalues;
+    double tol;
+    if (true) {
+      int N=5 + rng.nextInt(10);
+      tol=rng.nextDouble() * 0.1;
+      Dvalues=new Double[N];
+      for (int i=0; i < N; ++i)       Dvalues[i]=10 + rng.nextDouble();
+    }
+ else {
+      tol=0;
+      Dvalues=new Double[]{0.91,0.92,0.95,0.94,0.93};
+    }
+    Arrays.sort(Dvalues,new Comparator<Double>(){
+      @Override public int compare(      Double o1,      Double o2){
+        int val=o1.doubleValue() < o2.doubleValue() ? 1 : o1.doubleValue() == o2.doubleValue() ? 0 : -1;
+        if (moreIsBetter)         val=-val;
+        return val;
+      }
+    }
+);
+    double[] values=new double[Dvalues.length];
+    for (int i=0; i < values.length; ++i)     values[i]=Dvalues[i].doubleValue();
+    Log.info("Sorted values (leaderboard) - rightmost is best: " + Arrays.toString(values));
+    for (int k=1; k < values.length; ++k) {
+      Log.info("Testing k=" + k);
+      ScoreKeeper.StoppingMetric metric=moreIsBetter ? ScoreKeeper.StoppingMetric.AUC : ScoreKeeper.StoppingMetric.logloss;
+      ScoreKeeper[] sk=fillScoreKeeperArray(values,moreIsBetter);
+      boolean c=stopEarly(values,k,tol,moreIsBetter,true);
+      boolean d=ScoreKeeper.stopEarly(sk,k,true,metric,tol,"JUnit's",true);
+      Assert.assertTrue("For k=" + k + ", JUnit: "+ c+ ", ScoreKeeper: "+ d,c == d);
+    }
+  }
+}
