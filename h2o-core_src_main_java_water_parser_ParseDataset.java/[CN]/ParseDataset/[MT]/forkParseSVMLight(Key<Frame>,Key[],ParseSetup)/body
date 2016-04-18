@@ -1,0 +1,29 @@
+{
+  int nchunks=0;
+  Vec v=null;
+  for (int i=0; i < keys.length; ++i) {
+    Iced ice=DKV.getGet(keys[i]);
+    if (ice instanceof FileVec) {
+      if (i == 0)       v=((FileVec)ice);
+      ((FileVec)ice).setChunkSize(setup._chunk_size);
+      nchunks+=((FileVec)ice).nChunks();
+      Log.info("Parse chunk size " + setup._chunk_size);
+    }
+ else     if (ice instanceof Frame && ((Frame)ice).vec(0) instanceof FileVec) {
+      if (i == 0)       v=((Frame)ice).vec(0);
+      ((FileVec)((Frame)ice).vec(0)).setChunkSize((Frame)ice,setup._chunk_size);
+      nchunks+=(((Frame)ice).vec(0)).nChunks();
+      Log.info("Parse chunk size " + setup._chunk_size);
+    }
+  }
+  final VectorGroup vg=v.group();
+  final ParseDataset pds=new ParseDataset(dest);
+  new Frame(pds._job._result,new String[0],new Vec[0]).delete_and_lock(pds._job);
+  return pds._job.start(new H2OCountedCompleter(){
+    @Override public void compute2(){
+      ParseDataset.parseAllKeys(pds,keys,setup,true);
+      tryComplete();
+    }
+  }
+,nchunks);
+}

@@ -1,2 +1,19 @@
 {
+  if (_ds == null && _ms != null) {
+    _xs=null;
+    _ms.switchToLongs();
+    _ds=MemoryManager.malloc8d(_sparseLen);
+    Arrays.fill(_ms._vals8,C16Chunk._LO_NA);
+    Arrays.fill(_ds,Double.longBitsToDouble(C16Chunk._HI_NA));
+  }
+  if (_ms != null && _sparseLen > 0) {
+    _ds=MemoryManager.arrayCopyOf(_ds,_sparseLen * 2);
+    _ms.resize(_sparseLen * 2);
+  }
+ else {
+    _ms=new Mantissas(4);
+    _xs=null;
+    _ms.switchToLongs();
+    _ds=new double[4];
+  }
 }

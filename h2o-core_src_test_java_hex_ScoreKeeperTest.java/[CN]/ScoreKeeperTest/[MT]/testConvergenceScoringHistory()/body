@@ -1,0 +1,25 @@
+{
+  Random rng=new Random(0xC0FFEE);
+  int count=0;
+  while (count++ < 100) {
+    boolean moreIsBetter=rng.nextBoolean();
+    ScoreKeeper.StoppingMetric metric=moreIsBetter ? ScoreKeeper.StoppingMetric.AUC : ScoreKeeper.StoppingMetric.logloss;
+    double tol=rng.nextFloat() * 1e-1;
+    int N=5 + rng.nextInt(10);
+    double[] values=new double[N];
+    for (int i=0; i < N; ++i) {
+      values[i]=(moreIsBetter ? 10 + (double)i / N : 10 - (double)i / N) + rng.nextGaussian() * 0.33;
+    }
+    ScoreKeeper[] sk=fillScoreKeeperArray(values,moreIsBetter);
+    Log.info();
+    Log.info("series: " + Arrays.toString(values));
+    Log.info("moreIsBetter: " + moreIsBetter);
+    Log.info("relative tolerance: " + tol);
+    for (int k=values.length - 1; k > 0; k--) {
+      boolean c=stopEarly(values,k,tol,moreIsBetter,false);
+      boolean d=ScoreKeeper.stopEarly(sk,k,true,metric,tol,"JUnit's",false);
+      if (c || d)       Log.info("Stopped for k=" + k);
+      Assert.assertTrue("For k=" + k + ", JUnit: "+ c+ ", ScoreKeeper: "+ d,c == d);
+    }
+  }
+}
