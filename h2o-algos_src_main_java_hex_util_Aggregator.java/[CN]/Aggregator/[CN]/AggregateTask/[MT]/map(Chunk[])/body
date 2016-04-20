@@ -1,0 +1,84 @@
+{
+  List<double[]> exemplars=new ArrayList<>();
+  List<Long> counts=new ArrayList<>();
+  List<List<Long>> memberIndices=new ArrayList<>();
+  final int nCols=chks.length;
+  DataInfo.Row row=_dataInfo.newDenseRow();
+  for (int r=0; r < chks[0]._len; ++r) {
+    row=_dataInfo.extractDenseRow(chks,r,row);
+    double[] data=Arrays.copyOf(row.numVals,row.numVals.length);
+    if (r == 0) {
+      exemplars.add(data);
+      counts.add(1L);
+      if (_keepMemberIndices) {
+        memberIndices.add(new ArrayList<Long>());
+        memberIndices.get(0).add(0L);
+      }
+    }
+ else {
+      Long rowIndex=chks[0].start() + r;
+      double distanceToNearestExemplar=Double.POSITIVE_INFINITY;
+      Iterator<double[]> it=exemplars.iterator();
+      int closestExemplarIndex=0;
+      int index=0;
+      while (it.hasNext()) {
+        double[] e=it.next();
+        double d=squaredEuclideanDistance(e,data,nCols);
+        if (d < distanceToNearestExemplar) {
+          distanceToNearestExemplar=d;
+          closestExemplarIndex=index;
+        }
+        if (distanceToNearestExemplar < _delta)         break;
+        index++;
+      }
+      if (distanceToNearestExemplar < _delta) {
+        Long count=counts.get(closestExemplarIndex);
+        counts.set(closestExemplarIndex,count + 1);
+        if (_keepMemberIndices) {
+          memberIndices.get(closestExemplarIndex).add(rowIndex);
+        }
+      }
+ else {
+        exemplars.add(data);
+        counts.add(1L);
+        if (_keepMemberIndices) {
+          ArrayList<Long> member=new ArrayList<>();
+          member.add(rowIndex);
+          memberIndices.add(member);
+        }
+      }
+    }
+    Object[] exemplarArray=exemplars.toArray();
+    _exemplars=new double[exemplars.size()][];
+    for (int i=0; i < exemplars.size(); i++) {
+      _exemplars[i]=(double[])exemplarArray[i];
+    }
+    Object[] countsArray=counts.toArray();
+    _counts=new long[counts.size()];
+    for (int i=0; i < counts.size(); i++) {
+      _counts[i]=(Long)countsArray[i];
+    }
+    if (_keepMemberIndices) {
+      _memberIndices=new long[_exemplars.length][];
+      for (int i=0; i < _exemplars.length; i++) {
+        _memberIndices[i]=new long[memberIndices.get(i).size()];
+        for (int j=0; j < _memberIndices[i].length; ++j) {
+          _memberIndices[i][j]=memberIndices.get(i).get(j);
+        }
+      }
+    }
+  }
+  assert(_exemplars.length <= chks[0].len());
+  assert(_counts.length == _exemplars.length);
+  if (_keepMemberIndices) {
+    assert(_memberIndices.length == _exemplars.length);
+  }
+  long sum=0;
+  for (int i=0; i < _counts.length; ++i) {
+    if (_keepMemberIndices) {
+      assert(_counts[i] == _memberIndices[i].length);
+    }
+    sum+=_counts[i];
+  }
+  assert(sum <= chks[0].len());
+}

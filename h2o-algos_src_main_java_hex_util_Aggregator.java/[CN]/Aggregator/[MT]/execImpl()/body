@@ -1,0 +1,13 @@
+{
+  if (_input_frame == null)   throw new H2OIllegalArgumentException("Dataset not found");
+  DataInfo di=new DataInfo(_input_frame,null,true,DataInfo.TransformType.NORMALIZE,false,false,false);
+  DKV.put(di);
+  _diKey=di._key;
+  final double radius=_radius_scale * .1 / Math.pow(Math.log(_input_frame.numRows()),1.0 / _input_frame.numCols());
+  AggregateTask aggTask=new AggregateTask(di._key,radius,_keep_member_indices).doAll(di._adaptedFrame);
+  _exemplars=aggTask._exemplars;
+  _counts=aggTask._counts;
+  _member_indices=aggTask._memberIndices;
+  if (_output_frame_key != null)   _output_frame=createFrameFromRawValues(_output_frame_key,di._adaptedFrame.names(),_exemplars,_counts);
+  return this;
+}

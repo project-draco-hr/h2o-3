@@ -1,0 +1,14 @@
+{
+  Frame frame=parse_test_file("smalldata/covtype/covtype.20k.data");
+  Key<Frame> output=Key.make();
+  Aggregator agg=new Aggregator(frame,output,5.0,true).execImpl();
+  Key<Frame> memberKey=Key.make();
+  Frame members=agg.getMembersForExemplar(memberKey,8);
+  assert(members.numRows() == agg._counts[8]);
+  Log.info(members);
+  output.remove();
+  Log.info("Number of exemplars: " + agg._exemplars.length);
+  frame.delete();
+  agg.remove();
+  members.delete();
+}

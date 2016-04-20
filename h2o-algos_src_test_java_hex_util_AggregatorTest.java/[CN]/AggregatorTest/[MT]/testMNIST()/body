@@ -1,0 +1,10 @@
+{
+  Frame frame=parse_test_file("bigdata/laptop/mnist/train.csv");
+  Key<Frame> output=Key.make();
+  Aggregator agg=new Aggregator(frame,output,100,false).execImpl();
+  frame.delete();
+  Log.info("Exemplars: " + output.get().toString());
+  output.remove();
+  Log.info("Number of exemplars: " + agg._exemplars.length);
+  agg.remove();
+}

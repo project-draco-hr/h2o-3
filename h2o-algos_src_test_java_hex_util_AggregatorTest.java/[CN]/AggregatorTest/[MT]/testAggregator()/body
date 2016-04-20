@@ -1,0 +1,15 @@
+{
+  CreateFrame cf=new CreateFrame();
+  cf.rows=100000;
+  cf.cols=2;
+  cf.categorical_fraction=0.1;
+  cf.integer_fraction=0.3;
+  cf.real_range=100;
+  cf.integer_range=100;
+  cf.seed=1234;
+  Frame frame=cf.execImpl().get();
+  Aggregator agg=new Aggregator(frame,null,1.0,false).execImpl();
+  frame.delete();
+  Log.info("Number of exemplars: " + agg._exemplars.length);
+  agg.remove();
+}
