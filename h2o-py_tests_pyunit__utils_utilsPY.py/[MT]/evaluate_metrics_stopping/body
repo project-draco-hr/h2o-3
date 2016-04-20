@@ -1,23 +1,20 @@
 def evaluate_metrics_stopping(model_list, metric_name, bigger_is_better, search_criteria, possible_model_number):
     '\n    This function given a list of dict that contains the value of metric_name will manually go through the\n    early stopping condition and see if the randomized grid search will give us the correct number of models\n    generated.  Note that you cannot assume the model_list is in the order of when a model is built.  It actually\n    already come sorted which we do not want....\n\n    :param model_list: list of models built sequentially that contains metric of interest among other fields\n    :param metric_name: string representing name of metric that we want to based our stopping condition on\n    :param bigger_is_better: bool indicating if the metric is optimized by getting bigger if True and vice versa\n    :param search_criteria: dict structure containing the search criteria for randomized gridsearch\n    :param possible_model_number: integer, represent the absolute possible number of models built based on the\n    hyper-parameter size\n\n    :return: bool indicating if the early topping condition is justified\n    '
-    if (('stopping_tolerance' in search_criteria) and ('stopping_rounds' in search_criteria)):
-        tolerance = search_criteria['stopping_tolerance']
-        stop_round = search_criteria['stopping_rounds']
-        min_list_len = (2 * stop_round)
-        metric_list = []
-        stop_now = False
-        metric_list_time_ordered = sort_model_by_time(model_list, metric_name)
-        for metric_value in metric_list_time_ordered:
-            metric_list.append(metric_value)
-            if (len(metric_list) > min_list_len):
-                (stop_now, metric_list) = evaluate_early_stopping(metric_list, stop_round, tolerance, bigger_is_better)
-            if stop_now:
-                if (len(metric_list) < len(model_list)):
-                    return False
-                else:
-                    return True
-    else:
-        print('Error: stopping_tolerance and stopping_rounds must be found in your search_criteria.')
+    tolerance = search_criteria['stopping_tolerance']
+    stop_round = search_criteria['stopping_rounds']
+    min_list_len = (2 * stop_round)
+    metric_list = []
+    stop_now = False
+    metric_list_time_ordered = sort_model_by_time(model_list, metric_name)
+    for metric_value in metric_list_time_ordered:
+        metric_list.append(metric_value)
+        if (len(metric_list) > min_list_len):
+            stop_now = evaluate_early_stopping(metric_list, stop_round, tolerance, bigger_is_better)
+        if stop_now:
+            if (len(metric_list) < len(model_list)):
+                return False
+            else:
+                return True
     if (len(metric_list) == possible_model_number):
         return True
     else:

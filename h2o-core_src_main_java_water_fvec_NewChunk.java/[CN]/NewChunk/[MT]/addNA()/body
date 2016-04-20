@@ -1,6 +1,30 @@
 {
-  if (isUUID())   addUUID(C16Chunk._LO_NA,C16Chunk._HI_NA);
- else   if (isString())   addStr(null);
- else   if (_ds != null)   addNum(Double.NaN);
- else   append2(Long.MAX_VALUE,Integer.MIN_VALUE);
+  if (!_sparseNA) {
+    if (isString()) {
+      addStr(null);
+      return;
+    }
+ else     if (isUUID()) {
+      if (_ms == null || _ds == null || _sparseLen >= _ms.len())       append2slowUUID();
+      if (_missing == null)       _missing=new BitSet();
+      _missing.set(_sparseLen);
+      if (_id != null)       _id[_sparseLen]=_len;
+      _ds[_sparseLen]=Double.NaN;
+      ++_sparseLen;
+    }
+ else     if (_ds != null) {
+      addNum(Double.NaN);
+      return;
+    }
+ else {
+      if (!_sparseNA && _sparseLen == _ms.len())       append2slow();
+      if (!_sparseNA) {
+        if (_missing == null)         _missing=new BitSet();
+        _missing.set(_sparseLen);
+        if (_id != null)         _id[_sparseLen]=_len;
+        ++_sparseLen;
+      }
+    }
+  }
+  ++_len;
 }

@@ -7,6 +7,8 @@ def generate_response_glm(weight, x_mat, noise_std, family_type, class_method='p
     if (('multinomial' in family_type.lower()) or ('binomial' in family_type.lower())):
         temp_mat = np.exp(response_y)
         if ('binomial' in family_type.lower()):
-            temp_mat = np.concatenate(((1 - temp_mat), temp_mat), axis=1)
+            ntemp_mat = (temp_mat + 1)
+            btemp_mat = (temp_mat / ntemp_mat)
+            temp_mat = np.concatenate(((1 - btemp_mat), btemp_mat), axis=1)
         response_y = derive_discrete_response(temp_mat, class_method, class_margin)
     return response_y

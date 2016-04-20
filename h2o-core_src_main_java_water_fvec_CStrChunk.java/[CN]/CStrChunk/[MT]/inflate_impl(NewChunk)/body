@@ -1,8 +1,8 @@
 {
   nc.set_sparseLen(nc.set_len(_len));
   nc._isAllASCII=_isAllASCII;
-  nc._is=MemoryManager.malloc4(_len);
-  for (int i=0; i < _len; i++)   nc._is[i]=UnsafeUtils.get4(_mem,(i << 2) + _OFF);
+  int[] ids=nc.alloc_str_indices(_len);
+  for (int i=0; i < _len; i++)   ids[i]=UnsafeUtils.get4(_mem,(i << 2) + _OFF);
   nc._sslen=_mem.length - _valstart;
   nc._ss=MemoryManager.malloc1(nc._sslen);
   System.arraycopy(_mem,_valstart,nc._ss,0,nc._sslen);

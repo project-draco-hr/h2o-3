@@ -1,0 +1,34 @@
+def test3_duplicated_parameter_specification(self):
+    '\n        This function will randomly choose a parameter in hyper_parameters and specify it as a parameter in the\n        model.  Depending on the random error_number generated, the following is being done to the model parameter\n        and hyper-parameter:\n\n        error_number = 0: set model parameter to be  a value in the hyper-parameter value list, should\n        generate error;\n        error_number = 1: set model parameter to be default value, should not generate error in this case;\n        error_number = 2: make sure model parameter is not set to default and choose a value not in the\n        hyper-parameter value list.\n\n        :return: None\n        '
+    print('*******************************************************************************************')
+    print(('test3_duplicated_parameter_specification for GLM ' + self.family))
+    error_number = np.random.random_integers(0, 2, 1)
+    (params_dict, error_hyper_params) = pyunit_utils.generate_redundant_parameters(self.hyper_params, self.gridable_parameters, self.gridable_defaults, error_number[0])
+    params_dict['family'] = self.family
+    params_dict['nfolds'] = self.nfolds
+    print('Your hyper-parameter dict is: ')
+    print(error_hyper_params)
+    print('Your model parameters are: ')
+    print(params_dict)
+    try:
+        if ('max_runtime_secs' in list(params_dict)):
+            max_runtime_secs = params_dict['max_runtime_secs']
+            del params_dict['max_runtime_secs']
+            grid_model = H2OGridSearch(H2OGeneralizedLinearEstimator(**params_dict), hyper_params=error_hyper_params)
+            grid_model.train(x=self.x_indices, y=self.y_index, training_frame=self.training1_data, max_runtime_secs=max_runtime_secs)
+        else:
+            grid_model = H2OGridSearch(H2OGeneralizedLinearEstimator(**params_dict), hyper_params=error_hyper_params)
+            grid_model.train(x=self.x_indices, y=self.y_index, training_frame=self.training1_data)
+        if (not (error_number[0] == 1)):
+            self.test_failed += 1
+            self.test_failed_array[self.test_num] = 1
+            print('test3_duplicated_parameter_specification failed: Java error exception should have been thrown but did not!')
+        else:
+            print('test3_duplicated_parameter_specification passed: Java error exception should not have been thrown and did not!')
+    except:
+        if (error_number[0] == 1):
+            self.test_failed += 1
+            self.test_failed_array[self.test_num] = 1
+            print('test3_duplicated_parameter_specification failed: Java error exception should not have been thrown! ')
+        else:
+            print('test3_duplicated_parameter_specification passed: Java error exception should have been thrown and did.')

@@ -1,0 +1,43 @@
+{
+  long old;
+  if (_vals1 != null) {
+    byte b=(byte)l;
+    if (b == l) {
+      old=_vals1[idx];
+      _vals1[idx]=b;
+    }
+ else {
+      int i=(int)l;
+      if (i == l) {
+        switchToInts();
+        old=_vals4[idx];
+        _vals4[idx]=i;
+      }
+ else {
+        switchToLongs();
+        old=_vals8[idx];
+        _vals8[idx]=l;
+      }
+    }
+  }
+ else   if (_vals4 != null) {
+    int i=(int)l;
+    if (i != l) {
+      switchToLongs();
+      old=_vals8[idx];
+      _vals8[idx]=l;
+    }
+ else {
+      old=_vals4[idx];
+      _vals4[idx]=i;
+    }
+  }
+ else {
+    old=_vals8[idx];
+    _vals8[idx]=l;
+  }
+  if (old != l) {
+    if (old == 0)     ++_nzs;
+ else     if (l == 0)     --_nzs;
+  }
+}

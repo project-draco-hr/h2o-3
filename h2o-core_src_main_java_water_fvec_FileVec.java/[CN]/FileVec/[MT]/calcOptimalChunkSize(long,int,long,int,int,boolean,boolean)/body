@@ -22,12 +22,12 @@
     int perNodeChunkCountLimit=1 << 21;
     int minParseChunkSize=1 << 12;
     int maxParseChunkSize=Value.MAX - 1;
-    long chunkSize=Math.max((localParseSize / (cores * 4)),minParseChunkSize);
+    long chunkSize=Math.max((localParseSize / (4 * cores)) + 1,minParseChunkSize);
+    if (chunkSize > 1024 * 1024)     chunkSize=(chunkSize & 0xFFFFFE00) + 512;
     if (totalSize <= 1 << 16) {
       chunkSize=Math.max(DFLT_CHUNK_SIZE,(int)(minNumberRows * maxLineLength));
     }
  else {
-      chunkSize=1L << MathUtils.log2(chunkSize);
       if (chunkSize < DFLT_CHUNK_SIZE && (localParseSize / chunkSize) * numCols < perNodeChunkCountLimit) {
         chunkSize=Math.max((int)chunkSize,(int)(minNumberRows * maxLineLength));
       }

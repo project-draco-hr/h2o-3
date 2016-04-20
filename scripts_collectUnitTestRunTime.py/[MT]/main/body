@@ -1,0 +1,14 @@
+def main(argv):
+    '\n    Main program.  Take user input, parse it and call other functions to execute the commands\n    and extract run summary and store run result in json file\n\n    @return: none\n    '
+    global g_test_root_dir
+    global g_temp_filename
+    if (len(argv) < 3):
+        print "invoke this script as python collectUnitTestRunTime.py 10 'python run.py_path/run.py --wipe --test dir_to_test/test1,python run.py_path/run.py --wipe --test dir_to_test2/test2,...' True\n"
+        sys.exit(1)
+    else:
+        repeat_number = int(argv[1])
+        command_lists = argv[2]
+        is_new_run = bool(argv[3])
+        for command in command_lists.split(','):
+            result_dict = run_commands(command, repeat_number, g_temp_filename)
+            write_result_summary(result_dict, g_test_root_dir, is_new_run)
