@@ -1,3 +1,6 @@
 {
-  return getMembersForExemplar(destination_key,exemplarIdx);
+  DataInfo di=DKV.getGet(_diKey);
+  Vec[] vecs=Arrays.copyOf(di._adaptedFrame.vecs(),di._adaptedFrame.numCols() + 1);
+  vecs[vecs.length - 1]=_exemplar_assignment;
+  return new RowSelect(exemplarIdx,_diKey).doAll(_output.nfeatures(),Vec.T_NUM,new Frame(vecs)).outputFrame(destination_key,di._adaptedFrame.names(),null);
 }

@@ -1,18 +1,17 @@
 {
   if (mrt == null || mrt._exemplars == null)   return;
-  double[][] exemplars=mrt._exemplars;
+  Exemplar[] exemplars=mrt._exemplars;
   long[] counts=mrt._counts;
-  long[][] memberIndices=mrt._memberIndices;
   long localCounts=0;
   for (  long c : _counts)   localCounts+=c;
   long remoteCounts=0;
   for (  long c : counts)   remoteCounts+=c;
   for (int r=0; r < exemplars.length; ++r) {
-    double[] data=exemplars[r];
+    double[] data=exemplars[r].data;
     double distanceToNearestExemplar=Double.POSITIVE_INFINITY;
     int closestExemplarIndex=0;
     for (int it=0; it < _exemplars.length; ++it) {
-      double[] e=_exemplars[it];
+      double[] e=_exemplars[it].data;
       double d=squaredEuclideanDistance(e,data,data.length);
       if (d < distanceToNearestExemplar) {
         distanceToNearestExemplar=d;
@@ -22,16 +21,10 @@
     }
     if (distanceToNearestExemplar < _delta) {
       _counts[closestExemplarIndex]+=counts[r];
-      if (_keepMemberIndices) {
-        long[] newIndices=new long[_memberIndices[closestExemplarIndex].length + memberIndices[r].length];
-        System.arraycopy(_memberIndices[closestExemplarIndex],0,newIndices,0,_memberIndices[closestExemplarIndex].length);
-        System.arraycopy(memberIndices[r],0,newIndices,_memberIndices[closestExemplarIndex].length,memberIndices[r].length);
-        _memberIndices[closestExemplarIndex]=newIndices;
-      }
+      _fr.vecs()[_fr.vecs().length - 1].set(exemplars[r].gid,_exemplars[closestExemplarIndex].gid);
     }
  else {
-      double[][] newExemplars=new double[_exemplars.length + 1][_exemplars[0].length];
-      for (int i=0; i < _exemplars.length; ++i)       newExemplars[i]=_exemplars[i];
+      Exemplar[] newExemplars=Arrays.copyOf(_exemplars,_exemplars.length + 1);
       newExemplars[_exemplars.length]=exemplars[r];
       _exemplars=newExemplars;
       exemplars[r]=null;
@@ -39,29 +32,17 @@
       System.arraycopy(_counts,0,newCounts,0,_counts.length);
       newCounts[newCounts.length - 1]=counts[r];
       _counts=newCounts;
-      if (_keepMemberIndices) {
-        long[][] newMemberIndices=new long[_memberIndices.length + 1][];
-        for (int i=0; i < _memberIndices.length; ++i)         newMemberIndices[i]=_memberIndices[i];
-        newMemberIndices[_memberIndices.length]=memberIndices[r];
-        _memberIndices=newMemberIndices;
-        memberIndices[r]=null;
-      }
     }
   }
   mrt._exemplars=null;
   mrt._counts=null;
-  mrt._memberIndices=null;
   assert(_exemplars.length <= localCounts + remoteCounts);
   assert(_counts.length == _exemplars.length);
-  if (_keepMemberIndices) {
-    assert(_memberIndices.length == _exemplars.length);
-  }
   long sum=0;
   for (int i=0; i < _counts.length; ++i) {
-    if (_keepMemberIndices) {
-      assert(_counts[i] == _memberIndices[i].length);
-    }
     sum+=_counts[i];
   }
   assert(sum == localCounts + remoteCounts);
+  assert(_exemplars != null);
+  assert(_counts != null);
 }
