@@ -1,8 +1,11 @@
 {
   Frame frame=parse_test_file("smalldata/covtype/covtype.20k.data");
-  double radiusScale=3;
-  Key<Frame> output=Key.make();
-  Aggregator agg=new Aggregator(frame,output,radiusScale,false).execImpl();
+  AggregatorModel.AggregatorParameters parms=new AggregatorModel.AggregatorParameters();
+  parms._train=frame._key;
+  parms._keep_member_indices=false;
+  parms._radius_scale=3.0;
+  AggregatorModel agg=new Aggregator(parms).trainModel().get();
+  Frame output=agg._output._output_frame.get();
   Log.info("Number of exemplars: " + agg._exemplars.length);
   output.remove();
   agg.remove();
@@ -12,10 +15,15 @@
     H2O.submitTask(rb);
     rb.join();
     Frame rebalanced=DKV.get(key).get();
-    Aggregator agg2=new Aggregator(rebalanced,output,radiusScale,false).execImpl();
+    parms=new AggregatorModel.AggregatorParameters();
+    parms._train=frame._key;
+    parms._keep_member_indices=false;
+    parms._radius_scale=3.0;
+    AggregatorModel agg2=new Aggregator(parms).trainModel().get();
     Log.info("Number of exemplars for " + i + " chunks: "+ agg2._exemplars.length);
     rebalanced.delete();
     Assert.assertTrue(Math.abs(agg._exemplars.length - agg2._exemplars.length) < agg._exemplars.length * 0.2);
+    output=agg2._output._output_frame.get();
     output.remove();
     agg2.remove();
   }

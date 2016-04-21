@@ -1,9 +1,13 @@
 {
   Frame frame=parse_test_file("smalldata/covtype/covtype.20k.data");
-  Key<Frame> output=Key.make();
-  Aggregator agg=new Aggregator(frame,output,5.0,false).execImpl();
+  AggregatorModel.AggregatorParameters parms=new AggregatorModel.AggregatorParameters();
+  parms._train=frame._key;
+  parms._keep_member_indices=false;
+  parms._radius_scale=5.0;
+  AggregatorModel agg=new Aggregator(parms).trainModel().get();
   frame.delete();
-  Log.info("Exemplars: " + output.get().toString());
+  Frame output=agg._output._output_frame.get();
+  Log.info("Exemplars: " + output.toString());
   output.remove();
   Log.info("Number of exemplars: " + agg._exemplars.length);
   agg.remove();

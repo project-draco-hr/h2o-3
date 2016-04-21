@@ -1,0 +1,23 @@
+{
+  long[] memberindices=_member_indices[whichExemplar];
+  Set<Key> chunksFetched=new TreeSet<>();
+  DataInfo di=DKV.getGet(_diKey);
+  DataInfo.Row row=di.newDenseRow();
+  int nrows=memberindices.length;
+  int ncols=row.numVals.length;
+  double[][] res=new double[nrows][ncols];
+  int count=0;
+  for (  long r : memberindices) {
+    row=di.extractDenseRow(di._adaptedFrame.vecs(),r,row);
+    res[count++]=Arrays.copyOf(row.numVals,row.numVals.length);
+    Vec v=di._adaptedFrame.vecs()[0];
+    chunksFetched.add(v.chunkKey(v.elem2ChunkIdx(r)));
+  }
+  for (  Key ck : chunksFetched) {
+    Value v=DKV.get(ck);
+    if (!ck.home()) {
+      v.freeMem();
+    }
+  }
+  return res;
+}

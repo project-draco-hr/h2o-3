@@ -8,8 +8,14 @@
   cf.integer_range=100;
   cf.seed=1234;
   Frame frame=cf.execImpl().get();
-  Aggregator agg=new Aggregator(frame,null,1.0,false).execImpl();
+  AggregatorModel.AggregatorParameters parms=new AggregatorModel.AggregatorParameters();
+  parms._train=frame._key;
+  parms._keep_member_indices=false;
+  parms._radius_scale=1.0;
+  AggregatorModel agg=new Aggregator(parms).trainModel().get();
+  Frame output=agg._output._output_frame.get();
   frame.delete();
   Log.info("Number of exemplars: " + agg._exemplars.length);
+  output.remove();
   agg.remove();
 }

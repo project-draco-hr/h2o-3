@@ -1,0 +1,36 @@
+{
+  AggregatorModel model=null;
+  DataInfo dinfo=null;
+  try {
+    Scope.enter();
+    init(true);
+    _parms.read_lock_frames(_job);
+    if (error_count() > 0)     throw new IllegalArgumentException("Found validation errors: " + validationErrors());
+    model=new AggregatorModel(dest(),_parms,new AggregatorModel.AggregatorOutput(Aggregator.this));
+    model.delete_and_lock(_job);
+    _job.update(1,"Preprocessing data.");
+    DataInfo di=new DataInfo(_train,null,true,_parms._transform,false,false,false);
+    DKV.put(di);
+    model._diKey=di._key;
+    final double radius=_parms._radius_scale * .1 / Math.pow(Math.log(di._adaptedFrame.numRows()),1.0 / di._adaptedFrame.numCols());
+    _job.update(1,"Starting aggregation.");
+    AggregateTask aggTask=new AggregateTask(di._key,radius,_parms._keep_member_indices).doAll(di._adaptedFrame);
+    model._exemplars=aggTask._exemplars;
+    model._counts=aggTask._counts;
+    model._member_indices=aggTask._memberIndices;
+    _job.update(1,"Creating output frame.");
+    model._output._output_frame=AggregatorModel.createFrameFromRawValues(Key.<Frame>make("aggregated_" + _parms._train.toString() + "_by_"+ model._key.toString()),di._adaptedFrame.names(),model._exemplars,model._counts)._key;
+    Key<Vec>[] keep=new Key[(model._output._output_frame.get()).vecs().length];
+    for (int i=0; i < keep.length; ++i)     keep[i]=model._output._output_frame.get().vec(i)._key;
+    Scope.untrack(keep);
+    _job.update(1,"Done.");
+    model.update(_job);
+  }
+  finally {
+    _parms.read_unlock_frames(_job);
+    if (model != null)     model.unlock(_job);
+    if (dinfo != null)     dinfo.remove();
+    Scope.exit();
+  }
+  tryComplete();
+}
