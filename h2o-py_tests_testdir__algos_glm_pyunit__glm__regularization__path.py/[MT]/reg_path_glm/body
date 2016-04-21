@@ -1,0 +1,22 @@
+def reg_path_glm():
+    d = h2o.import_file(path=pyunit_utils.locate('smalldata/logreg/prostate.csv'))
+    m = glm(family='binomial', lambda_search=True, solver='COORDINATE_DESCENT')
+    m.train(training_frame=d, x=range(2, 9), y=1)
+    r = glm.getGLMRegularizationPath(m)
+    assert (len(r['lambdas']) == 100)
+    for l in range(0, len(r['lambdas'])):
+        m = glm(family='binomial', lambda_search=False, Lambda=r['lambdas'][l], solver='COORDINATE_DESCENT')
+        m.train(training_frame=d, x=range(2, 9), y=1)
+        cs = r['coefficients'][l]
+        cs_norm = r['coefficients_std'][l]
+        print cs
+        print m.coef()
+        diff = 0
+        diff2 = 0
+        for n in cs.keys():
+            diff = max(diff, abs((cs[n] - m.coef()[n])))
+            diff2 = max(diff2, abs((cs_norm[n] - m.coef_norm()[n])))
+        print diff
+        print diff2
+        assert (diff < 0.001)
+        assert (diff2 < 0.001)
