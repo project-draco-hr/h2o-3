@@ -11,8 +11,8 @@ def gen_grid_search(model_params, hyper_params, exclude_parameters, gridable_par
             true_gridable_defaults.append(gridable_defaults[count_index])
             if (para_name not in hyper_params.keys()):
                 if ('int' in gridable_types[count_index]):
-                    hyper_params[para_name] = list(set(np.random.random_integers(min_int_val, max_int_val, max_int_number)))
-                elif ('double' in gridable_types[count_index]):
+                    hyper_params[para_name] = list(set([random.randint(min_int_val, max_int_val) for p in range(0, max_int_number)]))
+                elif (('double' in gridable_types[count_index]) or ('float' in gridable_types[count_index])):
                     hyper_params[para_name] = fix_float_precision(list(np.random.uniform(min_real_val, max_real_val, max_real_number)), quantize_level=quantize_level)
         count_index += 1
     return (hyper_params, true_gridable_parameters, true_gridable_types, true_gridable_defaults)
