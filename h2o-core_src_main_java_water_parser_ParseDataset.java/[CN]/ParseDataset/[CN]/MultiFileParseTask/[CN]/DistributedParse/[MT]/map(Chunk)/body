@@ -6,20 +6,18 @@
   FVecParseReader din=new FVecParseReader(in);
   FVecParseWriter dout;
   Parser p=_setup.parser(_jobKey);
-switch (_setup._parse_type) {
-case ARFF:
-case CSV:
+switch (_setup._parse_type.name()) {
+case "ARFF":
+case "CSV":
     Categorical[] categoricals=categoricals(_cKey,_setup._number_columns);
   dout=new FVecParseWriter(_vg,_startChunkIdx + in.cidx(),categoricals,_setup._column_types,_setup._chunk_size,avs);
 break;
-case SVMLight:
+case "SVMLight":
 dout=new SVMLightFVecParseWriter(_vg,_vecIdStart,in.cidx() + _startChunkIdx,_setup._chunk_size,avs);
 break;
-case OTHER:
+default :
 dout=new FVecParseWriter(_vg,in.cidx() + _startChunkIdx,null,_setup._column_types,_setup._chunk_size,avs);
 break;
-default :
-throw H2O.unimpl();
 }
 p.parseChunk(in.cidx(),din,dout);
 (_dout=dout).close(_fs);

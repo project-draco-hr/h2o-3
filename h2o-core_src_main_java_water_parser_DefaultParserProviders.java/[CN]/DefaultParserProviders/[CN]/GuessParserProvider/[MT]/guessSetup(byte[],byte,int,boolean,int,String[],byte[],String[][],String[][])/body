@@ -1,0 +1,15 @@
+{
+  List<ParserProvider> pps=ParserService.INSTANCE.getAllProviders(true);
+  for (  ParserProvider pp : pps) {
+    if (pp == this || pp.info().equals(GUESS_INFO))     continue;
+    try {
+      ParseSetup ps=pp.guessSetup(bits,sep,ncols,singleQuotes,checkHeader,columnNames,columnTypes,domains,naStrings);
+      if (ps != null) {
+        return ps;
+      }
+    }
+ catch (    Throwable ignore) {
+    }
+  }
+  throw new ParseDataset.H2OParseException("Cannot determine file type.");
+}
