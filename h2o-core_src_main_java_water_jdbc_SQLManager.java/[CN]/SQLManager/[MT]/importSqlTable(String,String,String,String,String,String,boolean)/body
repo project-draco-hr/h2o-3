@@ -2,21 +2,34 @@
   Connection conn=null;
   Statement stmt=null;
   ResultSet rs=null;
+  String db_sys=connection_url.split(":",3)[1];
+  final boolean needFetchClause=db_sys.equals("oracle") || db_sys.equals("sqlserver");
   int catcols=0, intcols=0, bincols=0, realcols=0, timecols=0, stringcols=0;
-  final int numCol, maxCon;
-  long numRow;
+  final int numCol;
+  long numRow=0;
   final String[] columnNames;
   final byte[] columnH2OTypes;
   try {
     conn=DriverManager.getConnection(connection_url,username,password);
     stmt=conn.createStatement();
-    rs=stmt.executeQuery("SELECT COUNT(1) FROM " + table);
-    rs.next();
-    numRow=rs.getInt(1);
-    rs=stmt.executeQuery("SELECT @@max_connections");
-    rs.next();
-    maxCon=rs.getInt(1);
-    rs=stmt.executeQuery("SELECT " + columns + " FROM "+ table+ " LIMIT 0");
+    stmt.setFetchSize(1);
+    if (table.equals("")) {
+      if (!select_query.toLowerCase().startsWith("select")) {
+        throw new IllegalArgumentException("The select_query must start with `SELECT`, but instead is: " + select_query);
+      }
+      table=SQLManager.TEMP_TABLE_NAME;
+      numRow=stmt.executeUpdate("CREATE TABLE " + table + " AS "+ select_query);
+    }
+ else     if (table.equals(SQLManager.TEMP_TABLE_NAME)) {
+      throw new IllegalArgumentException("The specified table cannot be named: " + SQLManager.TEMP_TABLE_NAME);
+    }
+    if (numRow <= 0) {
+      rs=stmt.executeQuery("SELECT COUNT(1) FROM " + table);
+      rs.next();
+      numRow=rs.getLong(1);
+    }
+    if (needFetchClause)     rs=stmt.executeQuery("SELECT " + columns + " FROM "+ table+ " FETCH NEXT 1 ROWS ONLY");
+ else     rs=stmt.executeQuery("SELECT " + columns + " FROM "+ table+ " LIMIT 1");
     ResultSetMetaData rsmd=rs.getMetaData();
     numCol=rsmd.getColumnCount();
     columnNames=new String[numCol];
@@ -108,12 +121,14 @@ _v=makeCon(0,numRow,(int)Math.ceil(Math.log1p(rows_per_chunk)),false);
 Log.info("Number of chunks: " + _v.nChunks());
 final Key destination_key=Key.make(table + "_sql_to_hex");
 final Job<Frame> j=new Job(destination_key,Frame.class.getName(),"Import SQL Table");
+final String finalTable=table;
 H2O.H2OCountedCompleter work=new H2O.H2OCountedCompleter(){
 @Override public void compute2(){
-Frame fr=new SqlTableToH2OFrame(connection_url,table,username,password,columns,numCol,maxCon,_v.nChunks(),j).doAll(columnH2OTypes,_v).outputFrame(destination_key,columnNames,null);
+Frame fr=new SqlTableToH2OFrame(connection_url,finalTable,needFetchClause,username,password,columns,numCol,_v.nChunks(),j).doAll(columnH2OTypes,_v).outputFrame(destination_key,columnNames,null);
 DKV.put(fr);
 _v.remove();
 ParseDataset.logParseResults(fr);
+if (finalTable.equals(SQLManager.TEMP_TABLE_NAME)) dropTempTable(connection_url,username,password);
 tryComplete();
 }
 }
