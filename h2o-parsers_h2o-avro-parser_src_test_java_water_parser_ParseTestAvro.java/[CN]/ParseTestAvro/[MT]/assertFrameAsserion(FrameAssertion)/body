@@ -1,0 +1,14 @@
+{
+  int[] dim=frameAssertion.dim;
+  Frame frame=null;
+  try {
+    frame=frameAssertion.prepare();
+    assertEquals("Frame has to have expected number of columns",dim[0],frame.numCols());
+    assertEquals("Frame has to have expected number of rows",dim[1],frame.numRows());
+    frameAssertion.check(frame);
+  }
+  finally {
+    frameAssertion.done(frame);
+    if (frame != null)     frame.delete();
+  }
+}

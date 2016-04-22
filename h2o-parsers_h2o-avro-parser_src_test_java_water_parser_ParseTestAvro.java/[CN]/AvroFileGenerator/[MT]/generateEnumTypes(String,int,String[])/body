@@ -1,0 +1,23 @@
+{
+  File parentDir=Files.createTempDir();
+  File f=new File(parentDir,filename);
+  DatumWriter<GenericRecord> w=new GenericDatumWriter<GenericRecord>();
+  DataFileWriter<GenericRecord> dw=new DataFileWriter<GenericRecord>(w);
+  Schema enumSchema=SchemaBuilder.enumeration("CEnum").symbols(categories);
+  Schema schema=SchemaBuilder.builder().record("test_enum_types").fields().name("CEnum").type(enumSchema).noDefault().endRecord();
+  System.out.println(schema);
+  int numOfCategories=categories.length;
+  try {
+    dw.create(schema,f);
+    for (int i=0; i < nrows; i++) {
+      GenericRecord gr=new GenericData.Record(schema);
+      gr.put("CEnum",new GenericData.EnumSymbol(enumSchema,categories[i % numOfCategories]));
+      dw.append(gr);
+    }
+    return f;
+  }
+  finally {
+    dw.close();
+    ;
+  }
+}

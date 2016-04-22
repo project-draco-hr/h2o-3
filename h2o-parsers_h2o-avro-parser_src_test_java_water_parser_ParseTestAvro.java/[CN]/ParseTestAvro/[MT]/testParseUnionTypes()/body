@@ -1,0 +1,29 @@
+{
+  FrameAssertion[] assertions=new FrameAssertion[]{new GenFrameAssertion("unionTypes.avro",TestUtil.ari(7,101)){
+    @Override protected File prepareFile() throws IOException {
+      return AvroFileGenerator.generateUnionTypes(file,nrows());
+    }
+    @Override void check(    Frame f){
+      assertArrayEquals("Column names need to match!",ar("CUString","CUBytes","CUInt","CULong","CUFloat","CUDouble","CUBoolean"),f.names());
+      assertArrayEquals("Column types need to match!",ar(Vec.T_STR,Vec.T_STR,Vec.T_NUM,Vec.T_NUM,Vec.T_NUM,Vec.T_NUM,Vec.T_NUM),f.types());
+      int nrows=nrows();
+      BufferedString bs=new BufferedString();
+      for (int col=0; col < ncols(); col++) {
+        assertTrue("NA should be in first row and col " + col,f.vec(col).isNA(0));
+      }
+      for (int row=1; row < nrows; row++) {
+        assertEquals("Value in column CString",String.valueOf(row),f.vec(0).atStr(bs,row).bytesToString());
+        assertEquals("Value in column CBytes",String.valueOf(row),f.vec(1).atStr(bs,row).bytesToString());
+        assertEquals("Value in column CInt",row,f.vec(2).at8(row));
+        assertEquals("Value in column CLong",row,f.vec(3).at8(row));
+        assertEquals("Value in column CFloat",row,f.vec(4).at(row),EPSILON);
+        assertEquals("Value in column CDouble",row,f.vec(5).at(row),EPSILON);
+        assertEquals("Value in column CBoolean",(row & 1) == 1,(((int)f.vec(5).at(row)) & 1) == 1);
+      }
+    }
+  }
+};
+  for (int i=0; i < assertions.length; ++i) {
+    assertFrameAsserion(assertions[i]);
+  }
+}
