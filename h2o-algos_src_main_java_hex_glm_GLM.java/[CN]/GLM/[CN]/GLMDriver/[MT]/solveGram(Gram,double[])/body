@@ -34,7 +34,8 @@
     }
  else {
       xy=MemoryManager.malloc8d(xy.length);
-      (_lslvr=new ADMM.L1Solver(1e-4,10000)).solve(slvr,xy,_state.l1pen(),_parms._intercept,_state.activeBC()._betaLB,_state.activeBC()._betaUB);
+      if (_state._u == null)       _state._u=MemoryManager.malloc8d(xy.length);
+      (_lslvr=new ADMM.L1Solver(1e-4,10000,_state._u)).solve(slvr,xy,_state.l1pen(),_parms._intercept,_state.activeBC()._betaLB,_state.activeBC()._betaUB);
     }
   }
   return _parms._intercept ? xy : Arrays.copyOf(xy,xy.length + 1);
