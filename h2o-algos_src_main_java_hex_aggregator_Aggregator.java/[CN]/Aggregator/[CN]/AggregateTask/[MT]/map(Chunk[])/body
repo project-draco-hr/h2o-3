@@ -4,12 +4,13 @@
   List<Long> counts=new ArrayList<>();
   Chunk[] dataChks=Arrays.copyOf(chks,chks.length - 1);
   Chunk assignmentChk=chks[chks.length - 1];
-  final int nCols=dataChks.length;
-  DataInfo.Row row=_dataInfo.newDenseRow();
+  DataInfo di=((DataInfo)_dataInfoKey.get());
+  DataInfo.Row row=di.newDenseRow();
+  final int nCols=row.nNums;
   for (int r=0; r < chks[0]._len; ++r) {
     long rowIndex=chks[0].start() + r;
-    row=_dataInfo.extractDenseRow(dataChks,r,row);
-    double[] data=Arrays.copyOf(row.numVals,row.numVals.length);
+    row=di.extractDenseRow(dataChks,r,row);
+    double[] data=Arrays.copyOf(row.numVals,nCols);
     if (r == 0) {
       Exemplar ex=new Exemplar(data,rowIndex);
       exemplars.add(ex);

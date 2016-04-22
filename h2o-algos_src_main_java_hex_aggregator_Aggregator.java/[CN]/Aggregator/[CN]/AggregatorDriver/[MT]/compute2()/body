@@ -45,7 +45,8 @@
       }
     }
     _job.update(1,"Creating output frame.");
-    model._output._output_frame=AggregatorModel.createFrameFromRawValues(Key.<Frame>make("aggregated_" + _parms._train.toString() + "_by_"+ model._key.toString()),di._adaptedFrame.names(),model._exemplars,model._counts)._key;
+    model._output._output_frame=Key.make("aggregated_" + _parms._train.toString() + "_by_"+ model._key);
+    model.createFrameOfExemplars(model._output._output_frame);
     Key<Vec>[] keep=new Key[(model._output._output_frame.get()).vecs().length];
     for (int i=0; i < keep.length; ++i)     keep[i]=model._output._output_frame.get().vec(i)._key;
     Scope.untrack(keep);

@@ -1,6 +1,17 @@
 {
-  DataInfo di=DKV.getGet(_diKey);
-  Vec[] vecs=Arrays.copyOf(di._adaptedFrame.vecs(),di._adaptedFrame.numCols() + 1);
-  vecs[vecs.length - 1]=(Vec)_exemplar_assignment_vec_key.get();
-  return new RowSelect(_exemplars[exemplarIdx].gid,_diKey).doAll(_output.nfeatures(),Vec.T_NUM,new Frame(vecs)).outputFrame(destination_key,di._adaptedFrame.names(),null);
+  Vec booleanCol=new MRTask(){
+    @Override public void map(    Chunk c,    NewChunk nc){
+      for (int i=0; i < c._len; ++i)       nc.addNum(c.at8(i) == _exemplars[exemplarIdx].gid ? 1 : 0,0);
+    }
+  }
+.doAll(Vec.T_NUM,new Frame(new Vec[]{(Vec)_exemplar_assignment_vec_key.get()})).outputFrame().anyVec();
+  Frame orig=_parms.train();
+  Vec[] vecs=Arrays.copyOf(orig.vecs(),orig.vecs().length + 1);
+  vecs[vecs.length - 1]=booleanCol;
+  Frame ff=new Frame(orig.names(),orig.vecs());
+  ff.add("predicate",booleanCol);
+  Frame res=new Frame.DeepSelect().doAll(orig.types(),ff).outputFrame(destination_key,orig.names(),orig.domains());
+  assert(res.numRows() == _counts[exemplarIdx]);
+  booleanCol.remove();
+  return res;
 }
