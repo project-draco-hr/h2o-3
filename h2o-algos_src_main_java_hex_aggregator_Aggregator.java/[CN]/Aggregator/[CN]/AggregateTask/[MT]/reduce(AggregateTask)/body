@@ -1,5 +1,5 @@
 {
-  if (mrt == null || mrt._exemplars == null)   return;
+  for (int i=0; i < mrt._mapping.len; ++i)   _mapping.set(mrt._mapping.pairSet[i].first,mrt._mapping.pairSet[i].second);
   Exemplar[] exemplars=mrt._exemplars;
   long[] counts=mrt._counts;
   long localCounts=0;
@@ -21,17 +21,15 @@
     }
     if (distanceToNearestExemplar < _delta) {
       _counts[closestExemplarIndex]+=counts[r];
-      Vec.Writer vw=_fr.vecs()[_fr.vecs().length - 1].open();
-      vw.set(exemplars[r].gid,_exemplars[closestExemplarIndex].gid);
+      _mapping.set(exemplars[r].gid,_exemplars[closestExemplarIndex].gid);
     }
  else {
       Exemplar[] newExemplars=Arrays.copyOf(_exemplars,_exemplars.length + 1);
       newExemplars[_exemplars.length]=exemplars[r];
       _exemplars=newExemplars;
       exemplars[r]=null;
-      long[] newCounts=new long[_counts.length + 1];
-      System.arraycopy(_counts,0,newCounts,0,_counts.length);
-      newCounts[newCounts.length - 1]=counts[r];
+      long[] newCounts=Arrays.copyOf(_counts,_counts.length + 1);
+      newCounts[_counts.length]=counts[r];
       _counts=newCounts;
     }
   }

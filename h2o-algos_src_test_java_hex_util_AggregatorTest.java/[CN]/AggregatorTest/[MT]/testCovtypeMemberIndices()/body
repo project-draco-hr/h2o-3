@@ -5,14 +5,16 @@
   parms._keep_member_indices=true;
   parms._radius_scale=5.0;
   AggregatorModel agg=new Aggregator(parms).trainModel().get();
+  Log.info("Number of exemplars: " + agg._exemplars.length);
   Key<Frame> memberKey=Key.make();
-  Frame members=agg.scoreExemplarMembers(memberKey,8);
-  assert(members.numRows() == agg._counts[8]);
-  Log.info(members);
+  for (int i=0; i < agg._exemplars.length; ++i) {
+    Frame members=agg.scoreExemplarMembers(memberKey,i);
+    assert(members.numRows() == agg._counts[i]);
+    members.delete();
+  }
   Frame output=agg._output._output_frame.get();
   output.remove();
   Log.info("Number of exemplars: " + agg._exemplars.length);
   frame.delete();
   agg.remove();
-  members.delete();
 }

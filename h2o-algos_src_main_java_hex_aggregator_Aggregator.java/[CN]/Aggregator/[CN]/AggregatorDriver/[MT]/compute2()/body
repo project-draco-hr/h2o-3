@@ -14,17 +14,42 @@
     model._diKey=di._key;
     final double radius=_parms._radius_scale * .1 / Math.pow(Math.log(di._adaptedFrame.numRows()),1.0 / di._adaptedFrame.numCols());
     Vec[] vecs=Arrays.copyOf(di._adaptedFrame.vecs(),di._adaptedFrame.vecs().length + 1);
-    vecs[vecs.length - 1]=di._adaptedFrame.anyVec().makeZero();
+    Vec assignment=vecs[vecs.length - 1]=di._adaptedFrame.anyVec().makeZero();
     _job.update(1,"Starting aggregation.");
     AggregateTask aggTask=new AggregateTask(di._key,radius).doAll(vecs);
+    new RenumberTask(aggTask._mapping).doAll(assignment);
     model._exemplars=aggTask._exemplars;
     model._counts=aggTask._counts;
-    model._exemplar_assignment=vecs[vecs.length - 1];
+    model._exemplar_assignment_vec_key=assignment._key;
+    if (false) {
+      long sum=0;
+      for (      long l : model._counts)       sum+=l;
+      assert(sum == di._adaptedFrame.numRows());
+      final long[] exemplarGIDs=new long[model._counts.length];
+      for (int i=0; i < model._exemplars.length; ++i)       exemplarGIDs[i]=model._exemplars[i].gid;
+      long[] counts=new long[model._exemplars.length];
+      for (int i=0; i < di._adaptedFrame.numRows(); ++i) {
+        long ass=assignment.at8(i);
+        for (int j=0; j < exemplarGIDs.length; ++j) {
+          if (exemplarGIDs[j] == ass) {
+            counts[j]++;
+            break;
+          }
+        }
+      }
+      sum=0;
+      for (      long l : counts)       sum+=l;
+      assert(sum == di._adaptedFrame.numRows());
+      for (int i=0; i < counts.length; ++i) {
+        assert(counts[i] == model._counts[i]);
+      }
+    }
     _job.update(1,"Creating output frame.");
     model._output._output_frame=AggregatorModel.createFrameFromRawValues(Key.<Frame>make("aggregated_" + _parms._train.toString() + "_by_"+ model._key.toString()),di._adaptedFrame.names(),model._exemplars,model._counts)._key;
     Key<Vec>[] keep=new Key[(model._output._output_frame.get()).vecs().length];
     for (int i=0; i < keep.length; ++i)     keep[i]=model._output._output_frame.get().vec(i)._key;
     Scope.untrack(keep);
+    Scope.untrack(new Key[]{model._exemplar_assignment_vec_key,model._diKey});
     _job.update(1,"Done.");
     model.update(_job);
   }
