@@ -1,0 +1,47 @@
+def test_gbm_grid_search_over_params(self):
+    '\n        test_gbm_grid_search_over_params: test for condition 1 and performs the following:\n        a. grab all truely griddable parameters and randomly or manually set the parameter values.\n        b. Next, build H2O GLM models using grid search.  Count and make sure models\n           are only built for hyper-parameters set to legal values.  No model is built for bad hyper-parameters\n           values.  We should instead get a warning/error message printed out.\n        c. For each model built using grid search, we will extract the parameters used in building\n           that model and manually build a H2O GLM model.  MSEs are calculated from a test set\n           to compare the performance of grid search model and our manually built model.  If their MSEs\n           are close, declare test success.  Otherwise, declare test failure.\n        d. we will check and make sure the models are built within the max_runtime_secs time limit that was set\n           for it as well.  If max_runtime_secs was exceeded, declare test failure as well.\n        '
+    print('*******************************************************************************************')
+    print(('test_gbm_grid_search_over_params for GLM ' + self.family))
+    h2o.cluster_info()
+    try:
+        print('Hyper-parameters used here is {0}'.format(self.final_hyper_params))
+        grid_model = H2OGridSearch(H2OGradientBoostingEstimator(nfolds=self.nfolds), hyper_params=self.final_hyper_params)
+        grid_model.train(x=self.x_indices, y=self.y_index, training_frame=self.training1_data)
+        self.correct_model_number = len(grid_model)
+        total_gridsearch_runtime = pyunit_utils.find_grid_runtime(grid_model)
+        params_dict = dict()
+        params_dict['family'] = self.family
+        params_dict['nfolds'] = self.nfolds
+        total_run_time_limits = 0.0
+        true_run_time_limits = 0.0
+        manual_run_runtime = 0.0
+        for each_model in grid_model:
+            params_list = pyunit_utils.extract_used_params(self.final_hyper_params.keys(), each_model.params, params_dict)
+            if ('max_runtime_secs' in params_list):
+                max_runtime = params_list['max_runtime_secs']
+                del params_list['max_runtime_secs']
+            else:
+                max_runtime = 0
+            manual_model = H2OGeneralizedLinearEstimator(**params_list)
+            manual_model.train(x=self.x_indices, y=self.y_index, training_frame=self.training1_data, max_runtime_secs=max_runtime)
+            model_runtime = pyunit_utils.find_grid_runtime([manual_model])
+            manual_run_runtime += model_runtime
+            summary_list = manual_model._model_json['output']['model_summary']
+            iteration_num = summary_list.cell_values[0][summary_list.col_header.index('number_of_iterations')]
+            if (max_runtime > 0):
+                if ((max_runtime < self.min_runtime_per_tree) or (iteration_num <= 1)):
+                    total_run_time_limits += model_runtime
+                else:
+                    total_run_time_limits += max_runtime
+            true_run_time_limits += max_runtime
+            test_grid_model_metrics = each_model.model_performance(test_data=self.training2_data)
+            test_manual_model_metrics = manual_model.model_performance(test_data=self.training2_data)
+            if (abs((test_grid_model_metrics.mse() - test_manual_model_metrics.mse())) > self.allowed_diff):
+                self.test_failed += 1
+                self.test_failed_array[self.test_num] += 1
+                print('test_gbm_grid_search_over_params for GLM failed: grid search model and manually built H2O model differ too much in test MSE!')
+                break
+        total_run_time_limits = (max(total_run_time_limits, true_run_time_limits) * (1 + self.extra_time_fraction))
+    except:
+        if (self.possible_number_models > 0):
+            print('test_gbm_grid_search_over_params for GLM failed: exception was thrown for no reason.')
