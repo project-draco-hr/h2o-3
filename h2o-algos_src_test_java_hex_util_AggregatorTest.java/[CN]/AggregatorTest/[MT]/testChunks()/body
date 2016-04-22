@@ -2,7 +2,6 @@
   Frame frame=parse_test_file("smalldata/covtype/covtype.20k.data");
   AggregatorModel.AggregatorParameters parms=new AggregatorModel.AggregatorParameters();
   parms._train=frame._key;
-  parms._keep_member_indices=false;
   parms._radius_scale=3.0;
   AggregatorModel agg=new Aggregator(parms).trainModel().get();
   Frame output=agg._output._output_frame.get();
@@ -17,7 +16,6 @@
     Frame rebalanced=DKV.get(key).get();
     parms=new AggregatorModel.AggregatorParameters();
     parms._train=frame._key;
-    parms._keep_member_indices=false;
     parms._radius_scale=3.0;
     AggregatorModel agg2=new Aggregator(parms).trainModel().get();
     Log.info("Number of exemplars for " + i + " chunks: "+ agg2._exemplars.length);
