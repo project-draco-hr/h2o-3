@@ -10,14 +10,14 @@
   for (  Exemplar e : _exemplars)   myExemplars.add(e);
   for (int r=0; r < exemplars.length; ++r) {
     double[] data=exemplars[r].data;
-    double distanceToNearestExemplar=Double.POSITIVE_INFINITY;
+    double distanceToNearestExemplar=Double.MAX_VALUE;
     int closestExemplarIndex=0;
     Iterator<Exemplar> it=myExemplars.iterator();
     int itIdx=0;
     while (it.hasNext()) {
       Exemplar ex=it.next();
       double[] e=ex.data;
-      double d=squaredEuclideanDistance(e,data,data.length);
+      double d=squaredEuclideanDistance(e,data,data.length,distanceToNearestExemplar);
       if (d < distanceToNearestExemplar) {
         distanceToNearestExemplar=d;
         closestExemplarIndex=itIdx;

@@ -18,14 +18,14 @@
       assignmentChk.set(r,ex.gid);
     }
  else {
-      double distanceToNearestExemplar=Double.POSITIVE_INFINITY;
+      double distanceToNearestExemplar=Double.MAX_VALUE;
       Iterator<Exemplar> it=exemplars.iterator();
       int closestExemplarIndex=0;
       int index=0;
       long gid=-1;
       while (it.hasNext()) {
         Exemplar e=it.next();
-        double d=squaredEuclideanDistance(e.data,data,nCols);
+        double d=squaredEuclideanDistance(e.data,data,nCols,distanceToNearestExemplar);
         if (d < distanceToNearestExemplar) {
           distanceToNearestExemplar=d;
           closestExemplarIndex=index;
