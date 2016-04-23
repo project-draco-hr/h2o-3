@@ -4,6 +4,7 @@
   parms._train=frame._key;
   parms._radius_scale=3.0;
   AggregatorModel agg=new Aggregator(parms).trainModel().get();
+  agg.checkConsistency();
   Frame output=agg._output._output_frame.get();
   Log.info("Number of exemplars: " + agg._exemplars.length);
   Assert.assertTrue(agg._exemplars.length == 1993);
@@ -19,6 +20,7 @@
     parms._train=frame._key;
     parms._radius_scale=3.0;
     AggregatorModel agg2=new Aggregator(parms).trainModel().get();
+    agg2.checkConsistency();
     Log.info("Number of exemplars for " + i + " chunks: "+ agg2._exemplars.length);
     rebalanced.delete();
     Assert.assertTrue(Math.abs(agg._exemplars.length - agg2._exemplars.length) == 0);
