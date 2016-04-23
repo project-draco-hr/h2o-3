@@ -1,10 +1,10 @@
 {
-  boolean is_enum=Enum.class.isAssignableFrom(clz);
+  boolean is_enum=isEnum(clz,null) || isFakeEnum(clz,annotation);
   boolean is_array=clz.isArray();
   if (is_enum)   return "enum";
   if (String.class.isAssignableFrom(clz))   return "string";
   if (clz.equals(Boolean.TYPE) || clz.equals(Byte.TYPE) || clz.equals(Short.TYPE)|| clz.equals(Integer.TYPE)|| clz.equals(Long.TYPE)|| clz.equals(Float.TYPE)|| clz.equals(Double.TYPE))   return clz.toString();
-  if (is_array)   return consType(schema,clz.getComponentType(),field_name) + "[]";
+  if (is_array)   return consType(schema,clz.getComponentType(),field_name,annotation) + "[]";
   if (Map.class.isAssignableFrom(clz)) {
     if (IcedHashMapBase.class.isAssignableFrom(clz)) {
       String type0=ReflectionUtils.findActualClassParameter(clz,0).getSimpleName();
