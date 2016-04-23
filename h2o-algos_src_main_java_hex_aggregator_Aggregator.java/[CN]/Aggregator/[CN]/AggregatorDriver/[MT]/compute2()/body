@@ -14,8 +14,8 @@
     final double radius=_parms._radius_scale * .1 / Math.pow(Math.log(orig.numRows()),1.0 / orig.numCols());
     Vec[] vecs=Arrays.copyOf(orig.vecs(),orig.vecs().length + 1);
     Vec assignment=vecs[vecs.length - 1]=orig.anyVec().makeZero();
-    _job.update(1,"Starting aggregation.");
-    AggregateTask aggTask=new AggregateTask(di._key,radius).doAll(vecs);
+    _job.update(1,"Aggregating.");
+    AggregateTask aggTask=new AggregateTask(di._key,radius,_job._key).doAll(vecs);
     _job.update(1,"Aggregating exemplar assignments.");
     new RenumberTask(aggTask._mapping).doAll(assignment);
     model._exemplars=aggTask._exemplars;
