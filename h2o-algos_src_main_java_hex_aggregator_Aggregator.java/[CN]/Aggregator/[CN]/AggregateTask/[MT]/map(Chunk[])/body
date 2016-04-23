@@ -5,6 +5,7 @@
   Chunk[] dataChks=Arrays.copyOf(chks,chks.length - 1);
   Chunk assignmentChk=chks[chks.length - 1];
   DataInfo di=((DataInfo)_dataInfoKey.get());
+  assert(di != null);
   DataInfo.Row row=di.newDenseRow();
   final int nCols=row.nNums;
   for (int r=0; r < chks[0]._len; ++r) {
@@ -56,8 +57,6 @@
   assert(_exemplars.length <= chks[0].len());
   assert(_counts.length == _exemplars.length);
   long sum=0;
-  for (int i=0; i < _counts.length; ++i) {
-    sum+=_counts[i];
-  }
+  for (  long c : _counts)   sum+=c;
   assert(sum <= chks[0].len());
 }

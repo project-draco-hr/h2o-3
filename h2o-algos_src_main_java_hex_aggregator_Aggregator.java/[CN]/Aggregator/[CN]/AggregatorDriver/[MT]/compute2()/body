@@ -1,41 +1,36 @@
 {
   AggregatorModel model=null;
-  DataInfo dinfo=null;
+  DataInfo di=null;
   try {
-    Scope.enter();
     init(true);
     _parms.read_lock_frames(_job);
     if (error_count() > 0)     throw new IllegalArgumentException("Found validation errors: " + validationErrors());
     model=new AggregatorModel(dest(),_parms,new AggregatorModel.AggregatorOutput(Aggregator.this));
     model.delete_and_lock(_job);
+    Frame orig=train();
     _job.update(1,"Preprocessing data.");
-    DataInfo di=new DataInfo(_train,null,true,_parms._transform,false,false,false);
+    di=new DataInfo(orig,null,true,_parms._transform,false,false,false);
     DKV.put(di);
-    model._diKey=di._key;
-    final double radius=_parms._radius_scale * .1 / Math.pow(Math.log(di._adaptedFrame.numRows()),1.0 / di._adaptedFrame.numCols());
-    Vec[] vecs=Arrays.copyOf(di._adaptedFrame.vecs(),di._adaptedFrame.vecs().length + 1);
-    Vec assignment=vecs[vecs.length - 1]=di._adaptedFrame.anyVec().makeZero();
+    final double radius=_parms._radius_scale * .1 / Math.pow(Math.log(orig.numRows()),1.0 / orig.numCols());
+    Vec[] vecs=Arrays.copyOf(orig.vecs(),orig.vecs().length + 1);
+    Vec assignment=vecs[vecs.length - 1]=orig.anyVec().makeZero();
     _job.update(1,"Starting aggregation.");
     AggregateTask aggTask=new AggregateTask(di._key,radius).doAll(vecs);
+    _job.update(1,"Aggregating exemplar assignments.");
     new RenumberTask(aggTask._mapping).doAll(assignment);
     model._exemplars=aggTask._exemplars;
     model._counts=aggTask._counts;
     model._exemplar_assignment_vec_key=assignment._key;
-    _job.update(1,"Creating output frame.");
     model._output._output_frame=Key.make("aggregated_" + _parms._train.toString() + "_by_"+ model._key);
+    _job.update(1,"Creating output frame.");
     model.createFrameOfExemplars(model._output._output_frame);
-    Key<Vec>[] keep=new Key[(model._output._output_frame.get()).vecs().length];
-    for (int i=0; i < keep.length; ++i)     keep[i]=model._output._output_frame.get().vec(i)._key;
-    Scope.untrack(keep);
-    Scope.untrack(new Key[]{model._exemplar_assignment_vec_key,model._diKey});
     _job.update(1,"Done.");
     model.update(_job);
   }
   finally {
     _parms.read_unlock_frames(_job);
     if (model != null)     model.unlock(_job);
-    if (dinfo != null)     dinfo.remove();
-    Scope.exit();
+    if (di != null)     di.remove();
   }
   tryComplete();
 }

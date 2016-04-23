@@ -6,8 +6,8 @@
   for (  long c : _counts)   localCounts+=c;
   long remoteCounts=0;
   for (  long c : counts)   remoteCounts+=c;
-  List<Exemplar> myExemplars=new ArrayList();
-  for (  Exemplar e : _exemplars)   myExemplars.add(e);
+  ArrayList<Exemplar> myExemplars=new ArrayList();
+  myExemplars.addAll(Arrays.asList(_exemplars));
   for (int r=0; r < exemplars.length; ++r) {
     double[] data=exemplars[r].data;
     double distanceToNearestExemplar=Double.MAX_VALUE;
@@ -42,10 +42,6 @@
   assert(_exemplars.length <= localCounts + remoteCounts);
   assert(_counts.length == _exemplars.length);
   long sum=0;
-  for (int i=0; i < _counts.length; ++i) {
-    sum+=_counts[i];
-  }
+  for (  long c : _counts)   sum+=c;
   assert(sum == localCounts + remoteCounts);
-  assert(_exemplars != null);
-  assert(_counts != null);
 }
