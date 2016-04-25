@@ -1,0 +1,47 @@
+{
+  GsonBuilder builder=new GsonBuilder();
+  builder.registerTypeAdapter(KeyV3.class,new KeySerializer());
+  Gson gson=builder.create();
+  Retrofit retrofit=new Retrofit.Builder().baseUrl("http://localhost:54321/").addConverterFactory(GsonConverterFactory.create(gson)).build();
+  ImportFiles importService=retrofit.create(ImportFiles.class);
+  ParseSetup parseSetupService=retrofit.create(ParseSetup.class);
+  Parse parseService=retrofit.create(Parse.class);
+  Frames framesService=retrofit.create(Frames.class);
+  Models modelsService=retrofit.create(Models.class);
+  ModelBuilders modelBuildersService=retrofit.create(ModelBuilders.class);
+  Predictions predictionsService=retrofit.create(Predictions.class);
+  JobV3 job=null;
+  try {
+    ImportFilesV3 importBody=importService.importFiles("http://s3.amazonaws.com/h2o-public-test-data/smalldata/flow_examples/arrhythmia.csv.gz",null).execute().body();
+    System.out.println("import: " + importBody);
+    ParseSetupV3 parseSetupBody=parseSetupService.guessSetup(importBody.destination_frames,ParserParserType.GUESS,(byte)',',false,-1,null,null,null,null,0,0,0,null).execute().body();
+    System.out.println("parseSetupBody: " + parseSetupBody);
+    List<String> source_frames=new ArrayList<>();
+    for (    FrameKeyV3 frame : parseSetupBody.source_frames)     source_frames.add(frame.name);
+    ParseV3 parseBody=parseService.parse("arrhythmia.hex",source_frames.toArray(new String[0]),parseSetupBody.parse_type,parseSetupBody.separator,parseSetupBody.single_quotes,parseSetupBody.check_header,parseSetupBody.number_columns,parseSetupBody.column_names,parseSetupBody.column_types,null,parseSetupBody.na_strings,parseSetupBody.chunk_size,true,true,null).execute().body();
+    System.out.println("parseBody: " + parseBody);
+    GBMParametersV3 gbm_parms=new GBMParametersV3();
+    FrameKeyV3 training_frame=new FrameKeyV3();
+    training_frame.name="arrhythmia.hex";
+    gbm_parms.training_frame=training_frame;
+    ColSpecifierV3 response_column=new ColSpecifierV3();
+    response_column.column_name="C1";
+    gbm_parms.response_column=response_column;
+    System.out.println("About to train GBM. . .");
+    GBMV3 gbmBody=(GBMV3)ModelBuilders.Helper.train_gbm(modelBuildersService,gbm_parms).execute().body();
+    System.out.println("gbmBody: " + gbmBody);
+    job=gbmBody.job;
+    if (null == job || null == job.key)     throw new RuntimeException("train_gbm returned a bad Job: " + job);
+    job=poll(retrofit,job.key.name);
+    System.out.println("GBM build done.");
+    KeyV3 model_key=job.dest;
+    ModelsV3 models=modelsService.fetch(model_key.name).execute().body();
+    System.out.println("models: " + models);
+    System.out.println("new GBM model: " + models.models[0]);
+    ModelMetricsListSchemaV3 predictions=predictionsService.predict(model_key.name,training_frame.name,"predictions",false,false,-1,false,false,false,false,-1,null).execute().body();
+    System.out.println("predictions: " + predictions);
+  }
+ catch (  IOException e) {
+    System.err.println("Caught exception: " + e);
+  }
+}
