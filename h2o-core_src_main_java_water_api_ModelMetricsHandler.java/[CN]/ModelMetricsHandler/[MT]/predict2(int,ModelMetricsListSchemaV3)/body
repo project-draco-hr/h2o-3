@@ -7,7 +7,14 @@
   if (s.deep_features_hidden_layer > 0) {
     if (null == parms._predictions_name)     parms._predictions_name="deep_features" + Key.make().toString().substring(0,5) + "_"+ parms._model._key.toString()+ "_on_"+ parms._frame._key.toString();
   }
- else   if (null == parms._predictions_name)   parms._predictions_name="predictions" + Key.make().toString().substring(0,5) + "_"+ parms._model._key.toString()+ "_on_"+ parms._frame._key.toString();
+ else   if (null == parms._predictions_name) {
+    if (parms._exemplar_index >= 0) {
+      parms._predictions_name="members_" + parms._model._key.toString() + "_for_exemplar_"+ parms._exemplar_index;
+    }
+ else {
+      parms._predictions_name="predictions" + Key.make().toString().substring(0,5) + "_"+ parms._model._key.toString()+ "_on_"+ parms._frame._key.toString();
+    }
+  }
   final Job<Frame> j=new Job(Key.make(parms._predictions_name),Frame.class.getName(),"prediction");
   H2O.H2OCountedCompleter work=new H2O.H2OCountedCompleter(){
     @Override public void compute2(){

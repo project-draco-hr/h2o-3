@@ -4,10 +4,13 @@
   Statement stmt=null;
   ResultSet rs=null;
   Chunk c0=cs[0];
-  String sqlText="SELECT " + _columns + " FROM "+ _table+ " LIMIT "+ c0._len+ " OFFSET "+ c0.start();
+  String sqlText="SELECT " + _columns + " FROM "+ _table;
+  if (_needFetchClause)   sqlText+=" OFFSET " + c0.start() + " ROWS FETCH NEXT "+ c0._len+ " ROWS ONLY";
+ else   sqlText+=" LIMIT " + c0._len + " OFFSET "+ c0.start();
   try {
     conn=sqlConn.take();
     stmt=conn.createStatement();
+    stmt.setFetchSize(c0._len);
     rs=stmt.executeQuery(sqlText);
     while (rs.next()) {
       for (int i=0; i < _numCol; i++) {
@@ -32,6 +35,7 @@ ncs[i].addNum((long)(short)res,0);
 break;
 case "Byte":
 ncs[i].addNum((long)(byte)res,0);
+break;
 case "BigDecimal":
 ncs[i].addNum(((BigDecimal)res).doubleValue());
 break;

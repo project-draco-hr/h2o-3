@@ -1,0 +1,36 @@
+{
+  AggregatorModel model=null;
+  DataInfo di=null;
+  try {
+    init(true);
+    _parms.read_lock_frames(_job);
+    if (error_count() > 0)     throw new IllegalArgumentException("Found validation errors: " + validationErrors());
+    model=new AggregatorModel(dest(),_parms,new AggregatorModel.AggregatorOutput(Aggregator.this));
+    model.delete_and_lock(_job);
+    Frame orig=train();
+    _job.update(1,"Preprocessing data.");
+    di=new DataInfo(orig,null,true,_parms._transform,false,false,false);
+    DKV.put(di);
+    final double radius=_parms._radius_scale * .1 / Math.pow(Math.log(orig.numRows()),1.0 / orig.numCols());
+    Vec[] vecs=Arrays.copyOf(orig.vecs(),orig.vecs().length + 1);
+    Vec assignment=vecs[vecs.length - 1]=orig.anyVec().makeZero();
+    _job.update(1,"Aggregating.");
+    AggregateTask aggTask=new AggregateTask(di._key,radius,_job._key).doAll(vecs);
+    _job.update(1,"Aggregating exemplar assignments.");
+    new RenumberTask(aggTask._mapping).doAll(assignment);
+    model._exemplars=aggTask._exemplars;
+    model._counts=aggTask._counts;
+    model._exemplar_assignment_vec_key=assignment._key;
+    model._output._output_frame=Key.make("aggregated_" + _parms._train.toString() + "_by_"+ model._key);
+    _job.update(1,"Creating output frame.");
+    model.createFrameOfExemplars(model._output._output_frame);
+    _job.update(1,"Done.");
+    model.update(_job);
+  }
+  finally {
+    _parms.read_unlock_frames(_job);
+    if (model != null)     model.unlock(_job);
+    if (di != null)     di.remove();
+  }
+  tryComplete();
+}
