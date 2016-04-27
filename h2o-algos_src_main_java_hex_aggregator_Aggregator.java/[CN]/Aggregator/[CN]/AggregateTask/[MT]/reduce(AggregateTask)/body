@@ -1,0 +1,48 @@
+{
+  for (int i=0; i < mrt._mapping.len; ++i)   _mapping.set(mrt._mapping.pairSet[i].first,mrt._mapping.pairSet[i].second);
+  Exemplar[] exemplars=mrt._exemplars;
+  long[] counts=mrt._counts;
+  long localCounts=0;
+  for (  long c : _counts)   localCounts+=c;
+  long remoteCounts=0;
+  for (  long c : counts)   remoteCounts+=c;
+  ArrayList<Exemplar> myExemplars=new ArrayList();
+  myExemplars.addAll(Arrays.asList(_exemplars));
+  for (int r=0; r < exemplars.length; ++r) {
+    double[] data=exemplars[r].data;
+    double distanceToNearestExemplar=Double.MAX_VALUE;
+    int closestExemplarIndex=0;
+    Iterator<Exemplar> it=myExemplars.iterator();
+    int itIdx=0;
+    while (it.hasNext()) {
+      Exemplar ex=it.next();
+      double[] e=ex.data;
+      double d=squaredEuclideanDistance(e,data,data.length,distanceToNearestExemplar);
+      if (d < distanceToNearestExemplar) {
+        distanceToNearestExemplar=d;
+        closestExemplarIndex=itIdx;
+      }
+      if (distanceToNearestExemplar < _delta)       break;
+      itIdx++;
+    }
+    if (distanceToNearestExemplar < _delta) {
+      _counts[closestExemplarIndex]+=counts[r];
+      _mapping.set(exemplars[r].gid,_exemplars[closestExemplarIndex].gid);
+    }
+ else {
+      myExemplars.add(exemplars[r].deepClone());
+      long[] newCounts=Arrays.copyOf(_counts,_counts.length + 1);
+      newCounts[_counts.length]=counts[r];
+      _counts=newCounts;
+    }
+  }
+  _exemplars=myExemplars.toArray(new Exemplar[0]);
+  mrt._exemplars=null;
+  mrt._counts=null;
+  assert(_exemplars.length <= localCounts + remoteCounts);
+  assert(_counts.length == _exemplars.length);
+  long sum=0;
+  for (  long c : _counts)   sum+=c;
+  assert(sum == localCounts + remoteCounts);
+  ((Job)_jobKey.get()).update(1,"Aggregating.");
+}

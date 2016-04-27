@@ -1,7 +1,8 @@
 {
+  List<Field> superclassFields=Arrays.asList(Weaver.getWovenFields(schema.getClass().getSuperclass()));
   List<FieldMetadata> fields=new ArrayList<>();
   for (  Field field : Weaver.getWovenFields(schema.getClass())) {
-    FieldMetadata fmd=FieldMetadata.createIfApiAnnotation(schema,field);
+    FieldMetadata fmd=FieldMetadata.createIfApiAnnotation(schema,field,superclassFields);
     if (null != fmd)     fields.add(fmd);
   }
   return fields;

@@ -1,0 +1,17 @@
+{
+  double l=0;
+  for (int i=0; i < es.length; ++i) {
+    if (Double.isNaN(ys[i]) || ws[i] == 0) {
+      es[i]=0;
+    }
+ else {
+      double eta=es[i];
+      double mu=Math.exp(eta);
+      double yr=ys[i];
+      double diff=mu - yr;
+      l+=ws[i] * (yr == 0 ? mu : yr * Math.log(yr / mu) + diff);
+      es[i]=ws[i] * diff;
+    }
+  }
+  _likelihood=2 * l;
+}

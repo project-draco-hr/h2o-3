@@ -1,0 +1,13 @@
+{
+  try {
+    return runOnPreview(bits,new AvroPreviewProcessor<ParseSetup>(){
+      @Override public ParseSetup process(      byte[] header,      GenericRecord gr,      long blockCount,      long blockSize){
+        return deriveParseSetup(header,gr,blockCount,blockSize);
+      }
+    }
+);
+  }
+ catch (  IOException e) {
+    throw new RuntimeException("Avro format was not recognized",e);
+  }
+}

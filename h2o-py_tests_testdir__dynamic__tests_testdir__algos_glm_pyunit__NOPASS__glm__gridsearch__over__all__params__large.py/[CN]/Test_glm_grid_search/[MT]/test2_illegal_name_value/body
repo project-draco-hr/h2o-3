@@ -1,0 +1,32 @@
+def test2_illegal_name_value(self):
+    '\n        test2_illegal_name_value: test for condition 1 and 2.  Randomly go into the hyper_parameters that we\n        have specified, either\n        a. randomly alter the name of a hyper-parameter name (fatal, exception will be thrown)\n        b. randomly choose a hyper-parameter and remove all elements in its list (fatal)\n        c. add randomly generated new hyper-parameter names with random list (fatal)\n        d: randomly choose a hyper-parameter and insert an illegal type into it (non fatal, model built with\n           legal hyper-parameters settings only and error messages printed out for illegal hyper-parameters\n           settings)\n\n        The following error conditions will be created depending on the error_number generated:\n\n        error_number = 0: randomly alter the name of a hyper-parameter name;\n        error_number = 1: randomly choose a hyper-parameter and remove all elements in its list\n        error_number = 2: add randomly generated new hyper-parameter names with random list\n        error_number = 3: randomly choose a hyper-parameter and insert an illegal type into it\n\n        :return: None\n        '
+    print('*******************************************************************************************')
+    print(('test2_illegal_name_value for GLM ' + self.family))
+    h2o.cluster_info()
+    error_number = np.random.random_integers(0, 3, 1)
+    print('Test 2 error_number is {0}'.format(error_number[0]))
+    error_hyper_params = pyunit_utils.insert_error_grid_search(self.hyper_params, self.gridable_parameters, self.gridable_types, error_number[0])
+    print('test2_illegal_name_value: the bad hyper-parameters are: ')
+    print(error_hyper_params)
+    try:
+        grid_model = H2OGridSearch(H2OGeneralizedLinearEstimator(family=self.family, nfolds=self.nfolds), hyper_params=error_hyper_params)
+        grid_model.train(x=self.x_indices, y=self.y_index, training_frame=self.training1_data)
+        if (error_number[0] > 2):
+            if (not (len(grid_model) == self.true_correct_model_number)):
+                self.test_failed += 1
+                self.test_failed_array[self.test_num] = 1
+                print('test2_illegal_name_value failed. Number of model generated is incorrect.')
+            else:
+                print('test2_illegal_name_value passed.')
+        else:
+            self.test_failed += 1
+            self.test_failed_array[self.test_num] = 1
+            print('test2_illegal_name_value failed: exception should have been thrown for illegalparameter name or empty hyper-parameter parameter list but did not!')
+    except:
+        if ((error_number[0] <= 2) and (error_number[0] >= 0)):
+            print('test2_illegal_name_value passed: exception is thrown for illegal parameter name or emptyhyper-parameter parameter list.')
+        else:
+            self.test_failed += 1
+            self.test_failed_array[self.test_num] = 1
+            print('test2_illegal_name_value failed: exception should not have been thrown but did!')
+    self.test_num += 1

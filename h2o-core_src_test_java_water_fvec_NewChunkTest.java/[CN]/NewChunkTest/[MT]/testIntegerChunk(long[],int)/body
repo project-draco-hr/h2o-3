@@ -1,0 +1,74 @@
+{
+  Vec v=Vec.makeCon(0,0);
+  Chunk c;
+  NewChunkTestCpy nc=new NewChunkTestCpy(v,4);
+  for (int i=0; i < values.length; ++i)   nc.addNum(values[i],0);
+  assertEquals(mantissaSize,nc.mantissaSize());
+  assertEquals(0,nc.exponentSize());
+  assertEquals(0,nc.missingSize());
+  for (int i=0; i < values.length; ++i)   assertEquals(values[i],nc.at8_impl(i));
+  for (int i=0; i < values.length; i+=5)   nc.setNA_impl(i);
+  c=nc.compress();
+  for (int i=0; i < values.length; ++i) {
+    if (i % 5 == 0)     assertTrue(c.isNA(i));
+ else     assertEquals(values[i],c.at8_impl(i));
+  }
+  nc=new NewChunkTestCpy(v,4);
+  for (int i=0; i < values.length; ++i)   nc.addNum(values[i],-1);
+  for (int i=0; i < values.length; i+=5)   nc.setNA_impl(i);
+  assertEquals(1,nc.exponentSize());
+  c=nc.compress();
+  for (int i=0; i < values.length; ++i) {
+    if (i % 5 == 0)     assertTrue(c.isNA(i));
+ else     assertEquals(values[i] * 0.1,c.atd(i),1e-10);
+  }
+  nc=new NewChunkTestCpy(v,4);
+  for (int i=0; i < values.length; ++i)   nc.addNum(values[i],0);
+  for (int i=0; i < values.length; i+=5)   nc.setNA_impl(i);
+  nc.addNum(Math.PI);
+  c=nc.compress();
+  for (int i=0; i < values.length; ++i) {
+    if (i % 5 == 0)     assertTrue(c.isNA(i));
+ else     assertEquals(values[i],c.at8_impl(i));
+  }
+  assertEquals(Math.PI,c.atd(values.length),0);
+  nc=new NewChunkTestCpy(v,4);
+  for (int i=0; i < values.length; ++i)   nc.addNum(values[i],0);
+  nc.addNA();
+  nc.setNA_impl(0);
+  int nzs=0;
+  for (int i=1; i < values.length; i++) {
+    if (i % 10 != 0) {
+      nc.set_impl(i,0);
+      nzs++;
+    }
+  }
+  int x=(nzs * 8 + 1) - nc.len();
+  if (x > 0)   nc.addZeros(x);
+  c=nc.compress();
+  assertTrue(c.isSparseZero());
+  assertTrue(c.isNA(0));
+  assertTrue(c.isNA(values.length));
+  for (int i=10; i < values.length; i++)   if (i % 10 == 0)   assertEquals(values[i],c.atd(i),0);
+ else   assertEquals(0,c.atd(i),0);
+  nc=new NewChunkTestCpy(v,4);
+  for (int i=0; i < values.length; ++i)   nc.addNum(values[i],0);
+  nc.addNA();
+  nc.setNA_impl(0);
+  nzs=0;
+  for (int i=1; i < values.length; i++) {
+    if (i % 10 != 0) {
+      nc.setNA_impl(i);
+      nzs++;
+    }
+  }
+  x=(nzs * 8 + 1) - nc.len();
+  if (x > 0)   nc.addNAs(x);
+  c=nc.compress();
+  assertTrue(c.isSparseNA());
+  assertTrue(c.isNA(0));
+  assertTrue(c.isNA(values.length));
+  for (int i=10; i < values.length; i++)   if (i % 10 == 0)   assertEquals(values[i],c.atd(i),0);
+ else   assertTrue(c.isNA(i));
+  v.remove();
+}

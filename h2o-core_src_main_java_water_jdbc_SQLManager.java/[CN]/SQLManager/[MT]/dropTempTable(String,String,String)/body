@@ -1,0 +1,31 @@
+{
+  Connection conn=null;
+  Statement stmt=null;
+  String drop_table_query="DROP TABLE " + SQLManager.TEMP_TABLE_NAME;
+  try {
+    conn=DriverManager.getConnection(connection_url,username,password);
+    stmt=conn.createStatement();
+    stmt.executeUpdate(drop_table_query);
+  }
+ catch (  SQLException ex) {
+    throw new RuntimeException("SQLException: " + ex.getMessage() + "\nFailed to execute SQL query: "+ drop_table_query);
+  }
+ finally {
+    if (stmt != null) {
+      try {
+        stmt.close();
+      }
+ catch (      SQLException sqlEx) {
+      }
+      stmt=null;
+    }
+    if (conn != null) {
+      try {
+        conn.close();
+      }
+ catch (      SQLException sqlEx) {
+      }
+      conn=null;
+    }
+  }
+}

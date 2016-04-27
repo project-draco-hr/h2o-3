@@ -1,0 +1,20 @@
+{
+  Frame frame=parse_test_file("smalldata/covtype/covtype.20k.data");
+  AggregatorModel.AggregatorParameters parms=new AggregatorModel.AggregatorParameters();
+  parms._train=frame._key;
+  parms._radius_scale=5.0;
+  AggregatorModel agg=new Aggregator(parms).trainModel().get();
+  agg.checkConsistency();
+  Log.info("Number of exemplars: " + agg._exemplars.length);
+  Key<Frame> memberKey=Key.make();
+  for (int i=0; i < agg._exemplars.length; ++i) {
+    Frame members=agg.scoreExemplarMembers(memberKey,i);
+    assert(members.numRows() == agg._counts[i]);
+    members.delete();
+  }
+  Frame output=agg._output._output_frame.get();
+  output.remove();
+  Log.info("Number of exemplars: " + agg._exemplars.length);
+  frame.delete();
+  agg.remove();
+}

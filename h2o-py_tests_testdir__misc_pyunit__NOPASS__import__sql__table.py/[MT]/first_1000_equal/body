@@ -1,0 +1,12 @@
+def first_1000_equal(sql, csv):
+    if ((len(sql) != len(csv)) or (len(sql[0]) != len(csv[0]))):
+        return False
+    for i in range(1000):
+        for j in range(len(sql[i])):
+            if ((sql[i][j] != csv[i][j]) and ('{0:.4f}'.format(float(sql[i][j])) != '{0:.4f}'.format(float(csv[i][j])))):
+                print ('Different values between sql import and csv import: ', sql[i][j], csv[i][j])
+                print ('Sql imported row: ', sql[i])
+                print ('Csv imported row: ', csv[i])
+                print ('Row number: ', i, 'Column number; ', j)
+                return False
+    return True

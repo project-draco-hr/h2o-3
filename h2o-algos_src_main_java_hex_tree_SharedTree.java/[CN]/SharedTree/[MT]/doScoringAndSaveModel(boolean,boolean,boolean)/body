@@ -28,7 +28,7 @@
       Score scv=new Score(this,false,false,vresponse()._key,_model._output.getModelCategory(),computeGainsLift).doAll(valid(),build_tree_one_node);
       ModelMetrics mmv=scv.makeModelMetrics(_model,_parms.valid());
       out._validation_metrics=mmv;
-      out._scored_valid[out._ntrees].fillFrom(mmv);
+      if (_model._output._ntrees > 0 || scoreZeroTrees())       out._scored_valid[out._ntrees].fillFrom(mmv);
     }
     out._model_summary=createModelSummaryTable(out);
     out._scoring_history=createScoringHistoryTable(out);

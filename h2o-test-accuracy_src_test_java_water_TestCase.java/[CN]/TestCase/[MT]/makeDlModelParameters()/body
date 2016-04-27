@@ -1,2 +1,205 @@
 {
+  AccuracyTestingSuite.summaryLog.println("Making DL model parameters.");
+  DeepLearningModel.DeepLearningParameters dlParams=new DeepLearningModel.DeepLearningParameters();
+  String[] tokens=algoParameters.trim().split(";",-1);
+  for (int i=0; i < tokens.length; i++) {
+    String parameterName=tokens[i].split("=",-1)[0];
+    String parameterValue=tokens[i].split("=",-1)[1];
+switch (parameterName) {
+case "_distribution":
+switch (parameterValue) {
+case "AUTO":
+        dlParams._distribution=Distribution.Family.AUTO;
+      break;
+case "gaussian":
+    dlParams._distribution=Distribution.Family.gaussian;
+  break;
+case "bernoulli":
+dlParams._distribution=Distribution.Family.bernoulli;
+break;
+case "multinomial":
+dlParams._distribution=Distribution.Family.multinomial;
+break;
+case "poisson":
+dlParams._distribution=Distribution.Family.poisson;
+break;
+case "gamma":
+dlParams._distribution=Distribution.Family.gamma;
+break;
+case "tweedie":
+dlParams._distribution=Distribution.Family.tweedie;
+break;
+default :
+throw new Exception(parameterValue + " distribution is not supported for gbm test cases");
+}
+break;
+case "_activation":
+switch (parameterValue) {
+case "tanh":
+dlParams._activation=DeepLearningModel.DeepLearningParameters.Activation.Tanh;
+break;
+case "tanhwithdropout":
+dlParams._activation=DeepLearningModel.DeepLearningParameters.Activation.TanhWithDropout;
+break;
+case "rectifier":
+dlParams._activation=DeepLearningModel.DeepLearningParameters.Activation.Rectifier;
+break;
+case "rectifierwithdropout":
+dlParams._activation=DeepLearningModel.DeepLearningParameters.Activation.RectifierWithDropout;
+break;
+case "maxout":
+dlParams._activation=DeepLearningModel.DeepLearningParameters.Activation.Maxout;
+break;
+case "maxoutwithdropout":
+dlParams._activation=DeepLearningModel.DeepLearningParameters.Activation.MaxoutWithDropout;
+break;
+default :
+throw new Exception(parameterValue + " activation is not supported for gbm test cases");
+}
+break;
+case "_loss":
+switch (parameterValue) {
+case "AUTO":
+dlParams._loss=DeepLearningModel.DeepLearningParameters.Loss.Automatic;
+;
+break;
+case "crossentropy":
+dlParams._loss=DeepLearningModel.DeepLearningParameters.Loss.CrossEntropy;
+break;
+case "quadratic":
+dlParams._loss=DeepLearningModel.DeepLearningParameters.Loss.Quadratic;
+break;
+case "huber":
+dlParams._loss=DeepLearningModel.DeepLearningParameters.Loss.Huber;
+break;
+case "absolute":
+dlParams._loss=DeepLearningModel.DeepLearningParameters.Loss.Absolute;
+break;
+default :
+throw new Exception(parameterValue + " loss is not supported for gbm test cases");
+}
+break;
+case "_nfolds":
+dlParams._nfolds=Integer.parseInt(parameterValue);
+break;
+case "_hidden":
+String[] hidden=tokens[i].trim().split(":",-1);
+dlParams._hidden=stringArrayTointArray(hidden);
+break;
+case "_epochs":
+dlParams._epochs=Double.parseDouble(parameterValue);
+break;
+case "_variable_importances":
+dlParams._variable_importances=true;
+break;
+case "_fold_column":
+dlParams._fold_column=tokens[i];
+break;
+case "_weights_column":
+dlParams._weights_column=tokens[i];
+break;
+case "_balance_classes":
+dlParams._balance_classes=true;
+break;
+case "_max_confusion_matrix_size":
+dlParams._max_confusion_matrix_size=Integer.parseInt(parameterValue);
+break;
+case "_use_all_factor_levels":
+dlParams._use_all_factor_levels=true;
+break;
+case "_train_samples_per_iteration":
+dlParams._train_samples_per_iteration=Long.parseLong(parameterValue);
+break;
+case "_adaptive_rate":
+dlParams._adaptive_rate=true;
+break;
+case "_input_dropout_ratio":
+dlParams._input_dropout_ratio=Double.parseDouble(parameterValue);
+break;
+case "_l1":
+dlParams._l1=Double.parseDouble(parameterValue);
+break;
+case "_l2":
+dlParams._l2=Double.parseDouble(parameterValue);
+break;
+case "_score_interval":
+dlParams._score_interval=Double.parseDouble(parameterValue);
+break;
+case "_score_training_samples":
+dlParams._score_training_samples=Long.parseLong(parameterValue);
+break;
+case "_score_duty_cycle":
+dlParams._score_duty_cycle=Double.parseDouble(parameterValue);
+break;
+case "_replicate_training_data":
+dlParams._replicate_training_data=true;
+break;
+case "_autoencoder":
+dlParams._autoencoder=true;
+break;
+case "_target_ratio_comm_to_comp":
+dlParams._target_ratio_comm_to_comp=Double.parseDouble(parameterValue);
+break;
+case "_seed":
+dlParams._seed=Long.parseLong(parameterValue);
+break;
+case "_rho":
+dlParams._rho=Double.parseDouble(parameterValue);
+break;
+case "_epsilon":
+dlParams._epsilon=Double.parseDouble(parameterValue);
+break;
+case "_max_w2":
+dlParams._max_w2=Float.parseFloat(parameterValue);
+break;
+case "_regression_stop":
+dlParams._regression_stop=Double.parseDouble(parameterValue);
+break;
+case "_diagnostics":
+dlParams._diagnostics=true;
+break;
+case "_fast_mode":
+dlParams._fast_mode=true;
+break;
+case "_force_load_balance":
+dlParams._force_load_balance=true;
+break;
+case "_single_node_mode":
+dlParams._single_node_mode=true;
+break;
+case "_shuffle_training_data":
+dlParams._shuffle_training_data=true;
+break;
+case "_quiet_mode":
+dlParams._quiet_mode=true;
+break;
+case "_sparse":
+dlParams._sparse=true;
+break;
+case "_col_major":
+dlParams._col_major=true;
+break;
+case "_average_activation":
+dlParams._average_activation=Double.parseDouble(parameterValue);
+break;
+case "_sparsity_beta":
+dlParams._sparsity_beta=Double.parseDouble(parameterValue);
+break;
+case "_max_categorical_features":
+dlParams._max_categorical_features=Integer.parseInt(parameterValue);
+break;
+case "_reproducible":
+dlParams._reproducible=true;
+break;
+case "_export_weights_and_biases":
+dlParams._export_weights_and_biases=true;
+break;
+default :
+throw new Exception(parameterName + " parameter is not supported for dl test cases");
+}
+}
+dlParams._train=trainingDataSet.getFrame()._key;
+dlParams._valid=testingDataSet.getFrame()._key;
+dlParams._response_column=trainingDataSet.getFrame()._names[trainingDataSet.getResponseColumn()];
+return dlParams;
 }

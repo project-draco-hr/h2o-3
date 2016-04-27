@@ -1,0 +1,8 @@
+{
+  Key[] fkeys=new Key[parse.source_frames.length];
+  for (int i=0; i < fkeys.length; ++i)   fkeys[i]=parse.source_frames[i].key();
+  Key destKey=parse.destination_frame == null ? null : parse.destination_frame.key();
+  if (destKey == null)   destKey=Key.make(ParseSetup.createHexName(parse.source_frames[0].toString()));
+  ParseSetup setup=ParseSetup.guessSetup(fkeys,ParseSetup.makeSVMLightSetup());
+  return new JobV3().fillFromImpl(ParseDataset.forkParseSVMLight(destKey,fkeys,setup));
+}

@@ -1,0 +1,16 @@
+{
+  Frame fr=parse_test_file(Key.make("a.hex"),"smalldata/airlines/allyears2k_headers.zip");
+  Model.InteractionPair[] ips=Model.InteractionPair.generatePairwiseInteractionsFromList(8,16,2);
+  DataInfo di=null;
+  try {
+    di=new DataInfo(fr.clone(),null,1,false,DataInfo.TransformType.STANDARDIZE,DataInfo.TransformType.NONE,true,false,false,false,false,false,new String[]{fr.name(8),fr.name(16),fr.name(2)});
+    checker(di,true);
+  }
+  finally {
+    fr.delete();
+    if (di != null) {
+      di.dropInteractions();
+      di.remove();
+    }
+  }
+}
