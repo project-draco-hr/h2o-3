@@ -1,0 +1,14 @@
+import sys
+import os
+import json
+import subprocess
+import time
+import numpy as np
+"\nThis script is written to run Runit or Pyunit tests repeatedly for N times in order to\ncollect run time especially for tests running with randomly generated datasets\nand parameter values.  You should invoke this script using the following commands:\n\npython findLongUnitTestRunTime.py 10 'python run.py_path/run.py --wipe --test dir_to_test/test1,\npython run.py_path/run.py --wipe --test dir_to_test2/test2,...' True\n\nThe above command will run all the commands in the list 10 times and collect the run time printed out\nby the run.  Make sure there is no space between each command.  They are only\n separated by comma.\n\nIt will collect the unit test run time and will stop the operation if the test takes too long to run.\nIt will basically save all the data used to train the unit tests and only wipe them if they run shorter\nthan a time limit that we set.  It will move onto the next test in the list if it does find a long running\ntest.\n"
+g_test_root_dir = os.path.dirname(os.path.realpath(__file__))
+g_temp_filename = os.path.join(g_test_root_dir, 'tempText')
+g_test_result_start = 'PASS'
+g_max_runtime_secs = 4000
+g_finished_this_unit_test = False
+if (__name__ == '__main__'):
+    main(sys.argv)
