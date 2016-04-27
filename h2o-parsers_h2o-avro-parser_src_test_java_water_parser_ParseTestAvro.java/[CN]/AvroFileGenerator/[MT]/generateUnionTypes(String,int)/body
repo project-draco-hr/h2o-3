@@ -1,0 +1,26 @@
+{
+  File parentDir=Files.createTempDir();
+  File f=new File(parentDir,filename);
+  DatumWriter<GenericRecord> w=new GenericDatumWriter<GenericRecord>();
+  DataFileWriter<GenericRecord> dw=new DataFileWriter<GenericRecord>(w);
+  Schema schema=SchemaBuilder.builder().record("test_union_types").fields().name("CUString").type().optional().stringType().name("CUBytes").type().optional().bytesType().name("CUInt").type().optional().intType().name("CULong").type().optional().longType().name("CUFloat").type().optional().floatType().name("CUDouble").type().optional().doubleType().name("CUBoolean").type().optional().booleanType().endRecord();
+  try {
+    dw.create(schema,f);
+    for (int i=0; i < nrows; i++) {
+      GenericRecord gr=new GenericData.Record(schema);
+      gr.put("CUString",i == 0 ? null : String.valueOf(i));
+      gr.put("CUBytes",i == 0 ? null : ByteBuffer.wrap(String.valueOf(i).getBytes()));
+      gr.put("CUInt",i == 0 ? null : i);
+      gr.put("CULong",i == 0 ? null : Long.valueOf(i));
+      gr.put("CUFloat",i == 0 ? null : Float.valueOf(i));
+      gr.put("CUDouble",i == 0 ? null : Double.valueOf(i));
+      gr.put("CUBoolean",i == 0 ? null : (i & 1) == 1);
+      dw.append(gr);
+    }
+    return f;
+  }
+  finally {
+    dw.close();
+    ;
+  }
+}

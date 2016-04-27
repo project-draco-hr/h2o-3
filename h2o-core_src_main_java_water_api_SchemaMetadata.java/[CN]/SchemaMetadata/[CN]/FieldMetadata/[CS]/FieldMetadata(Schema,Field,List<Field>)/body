@@ -2,12 +2,14 @@
   super();
   try {
     f.setAccessible(true);
+    API annotation=f.getAnnotation(API.class);
     this.name=f.getName();
     Object o=f.get(schema);
     this.value=consValue(o);
-    boolean is_enum=Enum.class.isAssignableFrom(f.getType()) || (f.getType().isArray() && Enum.class.isAssignableFrom(f.getType().getComponentType()));
+    boolean is_enum=isEnum(f.getType(),annotation) || (f.getType().isArray() && isEnum(f.getType().getComponentType(),annotation));
+    boolean is_fake_enum=isFakeEnum(f.getType(),annotation) || (f.getType().isArray() && isFakeEnum(f.getType().getComponentType(),annotation));
     this.is_schema=Schema.class.isAssignableFrom(f.getType()) || (f.getType().isArray() && Schema.class.isAssignableFrom(f.getType().getComponentType()));
-    this.type=consType(schema,ReflectionUtils.findActualFieldClass(schema.getClass(),f),f.getName());
+    this.type=consType(schema,ReflectionUtils.findActualFieldClass(schema.getClass(),f),f.getName(),annotation);
     if (this.is_schema) {
       Class<? extends Schema> schema_class=f.getType().isArray() ? (Class<? extends Schema>)f.getType().getComponentType() : ReflectionUtils.findActualFieldClass(schema.getClass(),f);
       Class<? extends Schema> versioned_schema_class=Schema.schemaClass(schema.getSchemaVersion(),Schema.getImplClass(schema_class));
@@ -18,26 +20,13 @@
         this.schema_name=schema_class.getSimpleName();
       }
     }
- else     if (is_enum && !f.getType().isArray()) {
-      this.schema_name=f.getType().getCanonicalName();
-      this.schema_name=this.schema_name.substring(this.schema_name.indexOf(".") + 1);
-      char[] array=this.schema_name.toCharArray();
-      array[0]=Character.toUpperCase(array[0]);
-      this.schema_name=new String(array);
-      this.schema_name=this.schema_name.replace(".","");
-      this.schema_name=this.schema_name.replace("$","");
+ else     if ((is_enum || is_fake_enum) && !f.getType().isArray()) {
+      this.schema_name=getEnumSchemaName(is_enum ? f.getType() : annotation.valuesProvider());
     }
- else     if (is_enum && f.getType().isArray()) {
-      this.schema_name=f.getType().getComponentType().getCanonicalName();
-      this.schema_name=this.schema_name.substring(this.schema_name.indexOf(".") + 1);
-      char[] array=this.schema_name.toCharArray();
-      array[0]=Character.toUpperCase(array[0]);
-      this.schema_name=new String(array);
-      this.schema_name=this.schema_name.replace(".","");
-      this.schema_name=this.schema_name.replace("$","");
+ else     if ((is_enum || is_fake_enum) && f.getType().isArray()) {
+      this.schema_name=getEnumSchemaName(is_enum ? f.getType().getComponentType() : annotation.valuesProvider());
     }
     this.is_inherited=(superclassFields.contains(f));
-    API annotation=f.getAnnotation(API.class);
     if (null != annotation) {
       String l=annotation.label();
       this.help=annotation.help();
@@ -46,7 +35,7 @@
       this.level=annotation.level();
       this.direction=annotation.direction();
       this.is_gridable=annotation.gridable();
-      this.values=annotation.values();
+      this.values=annotation.valuesProvider() == ValuesProvider.NULL ? annotation.values() : getValues(annotation.valuesProvider());
       this.json=annotation.json();
       this.is_member_of_frames=annotation.is_member_of_frames();
       this.is_mutually_exclusive_with=annotation.is_mutually_exclusive_with();

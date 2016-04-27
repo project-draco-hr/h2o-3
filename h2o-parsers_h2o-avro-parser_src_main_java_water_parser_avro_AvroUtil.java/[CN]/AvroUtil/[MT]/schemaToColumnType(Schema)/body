@@ -1,0 +1,32 @@
+{
+  Schema.Type typ=s.getType();
+switch (typ) {
+case BOOLEAN:
+case INT:
+case LONG:
+case FLOAT:
+case DOUBLE:
+    return Vec.T_NUM;
+case ENUM:
+  return Vec.T_CAT;
+case STRING:
+return Vec.T_STR;
+case NULL:
+return Vec.T_BAD;
+case BYTES:
+return Vec.T_STR;
+case UNION:
+List<Schema> unionSchemas=s.getTypes();
+if (unionSchemas.size() == 1) {
+return schemaToColumnType(unionSchemas.get(0));
+}
+ else if (unionSchemas.size() == 2) {
+Schema s1=unionSchemas.get(0);
+Schema s2=unionSchemas.get(1);
+if (s1.getType().equals(Schema.Type.NULL)) return schemaToColumnType(s2);
+ else if (s2.getType().equals(Schema.Type.NULL)) return schemaToColumnType(s1);
+}
+default :
+throw new IllegalArgumentException("Unsupported Avro schema type: " + s);
+}
+}

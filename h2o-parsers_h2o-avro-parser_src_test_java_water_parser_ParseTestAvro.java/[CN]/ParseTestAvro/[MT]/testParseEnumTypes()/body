@@ -1,0 +1,26 @@
+{
+  FrameAssertion[] assertions=new FrameAssertion[]{new GenFrameAssertion("enumTypes.avro",TestUtil.ari(2,100)){
+    String[][] categories=AvroFileGenerator.generateSymbols(ar("CAT_A_","CAT_B_"),ari(7,13));
+    @Override protected File prepareFile() throws IOException {
+      return AvroFileGenerator.generateEnumTypes(file,nrows(),categories);
+    }
+    @Override void check(    Frame f){
+      assertArrayEquals("Column names need to match!",ar("CEnum","CUEnum"),f.names());
+      assertArrayEquals("Column types need to match!",ar(Vec.T_CAT,Vec.T_CAT),f.types());
+      assertArrayEquals("Category names need to match in CEnum!",categories[0],f.vec("CEnum").domain());
+      assertArrayEquals("Category names need to match in CUEnum!",categories[1],f.vec("CUEnum").domain());
+      int numOfCategories1=categories[0].length;
+      int numOfCategories2=categories[1].length;
+      int nrows=nrows();
+      for (int row=0; row < nrows; row++) {
+        assertEquals("Value in column CEnum",row % numOfCategories1,(int)f.vec("CEnum").at(row));
+        if (row % (numOfCategories2 + 1) == 0)         assertTrue("NA should be in row " + row + " and col CUEnum",f.vec("CUEnum").isNA(row));
+ else         assertEquals("Value in column CUEnum",row % numOfCategories2,(int)f.vec("CUEnum").at(row));
+      }
+    }
+  }
+};
+  for (int i=0; i < assertions.length; ++i) {
+    assertFrameAsserion(assertions[i]);
+  }
+}

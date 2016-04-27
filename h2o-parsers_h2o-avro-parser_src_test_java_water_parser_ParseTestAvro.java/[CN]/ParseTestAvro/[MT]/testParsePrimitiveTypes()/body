@@ -1,0 +1,27 @@
+{
+  FrameAssertion[] assertions=new FrameAssertion[]{new GenFrameAssertion("supportedPrimTypes.avro",TestUtil.ari(8,100)){
+    @Override protected File prepareFile() throws IOException {
+      return AvroFileGenerator.generatePrimitiveTypes(file,nrows());
+    }
+    @Override void check(    Frame f){
+      assertArrayEquals("Column names need to match!",ar("CString","CBytes","CInt","CLong","CFloat","CDouble","CBoolean","CNull"),f.names());
+      assertArrayEquals("Column types need to match!",ar(Vec.T_STR,Vec.T_STR,Vec.T_NUM,Vec.T_NUM,Vec.T_NUM,Vec.T_NUM,Vec.T_NUM,Vec.T_BAD),f.types());
+      int nrows=nrows();
+      BufferedString bs=new BufferedString();
+      for (int row=0; row < nrows; row++) {
+        assertEquals("Value in column CString",String.valueOf(row),f.vec(0).atStr(bs,row).bytesToString());
+        assertEquals("Value in column CBytes",String.valueOf(row),f.vec(1).atStr(bs,row).bytesToString());
+        assertEquals("Value in column CInt",row,f.vec(2).at8(row));
+        assertEquals("Value in column CLong",row,f.vec(3).at8(row));
+        assertEquals("Value in column CFloat",row,f.vec(4).at(row),EPSILON);
+        assertEquals("Value in column CDouble",row,f.vec(5).at(row),EPSILON);
+        assertEquals("Value in column CBoolean",(row & 1) == 1,(((int)f.vec(5).at(row)) & 1) == 1);
+        assertTrue("Value in column CNull",f.vec(7).isNA(row));
+      }
+    }
+  }
+};
+  for (int i=0; i < assertions.length; ++i) {
+    assertFrameAsserion(assertions[i]);
+  }
+}
