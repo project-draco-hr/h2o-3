@@ -2,6 +2,8 @@ def get_hyperparams(self, id, display=True):
     '\n    Get the hyperparameters of a model explored by grid search.\n    \n    Parameters\n    ----------    \n    id: str\n      The model id of the model with hyperparameters of interest.\n    display: boolean \n      Flag to indicate whether to display the hyperparameter names.\n      \n    Returns\n    -------\n      A list of the hyperparameters for the specified model.\n    '
     idx = (id if isinstance(id, int) else self.model_ids.index(id))
     model = self[idx]
+    if model._is_xvalidated:
+        model = h2o.get_model(model._xval_keys[0])
     res = [(model.params[h]['actual'][0] if isinstance(model.params[h]['actual'], list) else model.params[h]['actual']) for h in self.hyper_params]
     if display:
         print((('Hyperparameters: [' + ', '.join(list(self.hyper_params.keys()))) + ']'))
