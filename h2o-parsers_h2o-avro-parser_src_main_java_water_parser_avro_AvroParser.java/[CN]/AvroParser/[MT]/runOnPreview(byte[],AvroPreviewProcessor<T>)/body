@@ -1,0 +1,24 @@
+{
+  DatumReader<GenericRecord> datumReader=new GenericDatumReader<GenericRecord>();
+  SeekableByteArrayInput sbai=new SeekableByteArrayInput(bits);
+  DataFileReader<GenericRecord> dataFileReader=null;
+  try {
+    dataFileReader=new DataFileReader<>(sbai,datumReader);
+    int headerLen=(int)dataFileReader.previousSync();
+    byte[] header=Arrays.copyOf(bits,headerLen);
+    if (dataFileReader.hasNext()) {
+      GenericRecord gr=dataFileReader.next();
+      return processor.process(header,gr,dataFileReader.getBlockCount(),dataFileReader.getBlockSize());
+    }
+ else {
+      throw new RuntimeException("Empty Avro file - cannot run preview! ");
+    }
+  }
+  finally {
+    try {
+      dataFileReader.close();
+    }
+ catch (    IOException safeToIgnore) {
+    }
+  }
+}
