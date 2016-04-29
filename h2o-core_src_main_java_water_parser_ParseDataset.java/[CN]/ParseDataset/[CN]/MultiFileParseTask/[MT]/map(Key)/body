@@ -1,6 +1,6 @@
 {
   if (_jobKey.get().stop_requested())   return;
-  ParseSetup localSetup=new ParseSetup(_parseSetup);
+  ParseSetup localSetup=(ParseSetup)_parseSetup.clone();
   ByteVec vec=getByteVec(key);
   final int chunkStartIdx=_fileChunkOffsets[_lo];
   Log.trace("Begin a map stage of a file parse with start index " + chunkStartIdx + ".");
@@ -10,16 +10,14 @@
   try {
 switch (cpr) {
 case NONE:
-      if (_parseSetup._parse_type._parallelParseSupported) {
-        DistributedParse dp=new DistributedParse(_vg,localSetup,_vecIdStart,chunkStartIdx,this,key,vec.nChunks());
-        addToPendingCount(1);
-        dp.setCompleter(this);
-        dp.dfork(vec);
+      if (_parseSetup._parse_type.isParallelParseSupported) {
+        new DistributedParse(_vg,localSetup,_vecIdStart,chunkStartIdx,this,key,vec.nChunks()).doAll(vec);
         for (int i=0; i < vec.nChunks(); ++i)         _chunk2ParseNodeMap[chunkStartIdx + i]=vec.chunkKey(i).home_node().index();
       }
  else {
         InputStream bvs=vec.openStream(_jobKey);
         _dout[_lo]=streamParse(bvs,localSetup,makeDout(localSetup,chunkStartIdx,vec.nChunks()),bvs);
+        _errors=_dout[_lo].removeErrors();
         chunksAreLocal(vec,chunkStartIdx,key);
       }
     break;
@@ -29,6 +27,7 @@ case ZIP:
     ZipInputStream zis=new ZipInputStream(bvs);
     ZipEntry ze=zis.getNextEntry();
     if (ze != null && !ze.isDirectory())     _dout[_lo]=streamParse(zis,localSetup,makeDout(localSetup,chunkStartIdx,vec.nChunks()),bvs);
+    _errors=_dout[_lo].removeErrors();
     ZipEntry ze2=zis.getNextEntry();
     if (ze2 != null && !ze.isDirectory()) {
       Log.warn("Only single file zip archives are currently supported, only file: " + ze.getName() + " has been parsed.  Remaining files have been ignored.");
@@ -41,6 +40,7 @@ case GZIP:
 {
   InputStream bvs=vec.openStream(_jobKey);
   _dout[_lo]=streamParse(new GZIPInputStream(bvs),localSetup,makeDout(localSetup,chunkStartIdx,vec.nChunks()),bvs);
+  _errors=_dout[_lo].removeErrors();
   chunksAreLocal(vec,chunkStartIdx,key);
   break;
 }

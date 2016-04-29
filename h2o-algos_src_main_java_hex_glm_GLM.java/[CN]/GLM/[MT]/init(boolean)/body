@@ -39,8 +39,7 @@ _t0=System.currentTimeMillis();
 if (_parms._lambda_search || !_parms._intercept || _parms._lambda == null || _parms._lambda[0] > 0) _parms._use_all_factor_levels=true;
 if (_parms._max_active_predictors == -1) _parms._max_active_predictors=_parms._solver == Solver.IRLSM ? 7000 : 100000000;
 if (_parms._link == Link.family_default) _parms._link=_parms._family.defaultLink;
-_dinfo=new DataInfo(_train.clone(),_valid,1,_parms._use_all_factor_levels || _parms._lambda_search,_parms._standardize ? DataInfo.TransformType.STANDARDIZE : DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,_parms._missing_values_handling == MissingValuesHandling.Skip,false,_parms._missing_values_handling == MissingValuesHandling.MeanImputation,hasWeightCol(),hasOffsetCol(),hasFoldCol());
-checkMemoryFootPrint(_dinfo);
+_dinfo=new DataInfo(_train.clone(),_valid,1,_parms._use_all_factor_levels || _parms._lambda_search,_parms._standardize ? DataInfo.TransformType.STANDARDIZE : DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,_parms._missing_values_handling == MissingValuesHandling.Skip,false,_parms._missing_values_handling == MissingValuesHandling.MeanImputation,hasWeightCol(),hasOffsetCol(),hasFoldCol(),_parms._interactions);
 if (_parms._max_iterations == -1) {
 int numclasses=_parms._family == Family.multinomial ? nclasses() : 1;
 if (_parms._solver == Solver.IRLSM) {
@@ -52,10 +51,10 @@ if (_parms._lambda_search) _parms._max_iterations=_parms._nlambdas * 100 * numcl
 }
 }
 if (_valid != null) _validDinfo=_dinfo.validDinfo(_valid);
-_state=new ComputationState(_job._key,_parms,_dinfo,null,nclasses());
+_state=new ComputationState(_job,_parms,_dinfo,null,nclasses());
 boolean skippingRows=(_parms._missing_values_handling == MissingValuesHandling.Skip && _train.hasNAs());
-if (true || hasWeightCol() || _train.hasNAs()) {
-boolean setWeights=skippingRows && _parms._lambda_search && _parms._alpha[0] > 0;
+if (hasWeightCol() || skippingRows) {
+boolean setWeights=skippingRows;
 if (setWeights) {
 Vec wc=_weights == null ? _dinfo._adaptedFrame.anyVec().makeCon(1) : _weights.makeCopy();
 _dinfo.setWeights(_generatedWeights="__glm_gen_weights",wc);
@@ -65,7 +64,7 @@ if (ymt._wsum == 0) throw new IllegalArgumentException("No rows left in the data
 Log.info(LogMsg("using " + ymt._nobs + " nobs out of "+ _dinfo._adaptedFrame.numRows()+ " total"));
 _nobs=ymt._nobs;
 if (_parms._obj_reg == -1) _parms._obj_reg=1.0 / ymt._wsum;
-_dinfo.updateWeightedSigmaAndMean(ymt._basicStats.sigma(),ymt._basicStats.mean());
+if (!_parms._stdOverride) _dinfo.updateWeightedSigmaAndMean(ymt.predictorSDs(),ymt.predictorMeans());
 _state._ymu=_parms._intercept ? ymt._yMu : new double[]{_parms.linkInv(0)};
 }
  else {
@@ -81,7 +80,7 @@ BetaConstraint bc=(_parms._beta_constraints != null) ? new BetaConstraint(_parms
 if ((bc.hasBounds() || bc.hasProximalPenalty()) && _parms._compute_p_values) error("_compute_p_values","P-values can not be computed for constrained problems");
 _state.setBC(bc);
 if (hasOffsetCol() && _parms._intercept) {
-GLMGradientSolver gslvr=new GLMGradientSolver(_job._key,_parms,_dinfo.filterExpandedColumns(new int[0]),0,_state.activeBC());
+GLMGradientSolver gslvr=new GLMGradientSolver(_job,_parms,_dinfo.filterExpandedColumns(new int[0]),0,_state.activeBC());
 double[] x=new L_BFGS().solve(gslvr,new double[]{-_offset.mean()}).coefs;
 x[0]=_parms.linkInv(x[0]);
 _state._ymu=x;
@@ -97,7 +96,7 @@ String[] warns=_model.adaptTestForTrain(_valid,true,true);
 for (String s : warns) warn("_validation_frame",s);
 if (_parms._lambda_min_ratio == -1) _parms._lambda_min_ratio=(_nobs >> 4) > _dinfo.fullN() ? 1e-4 : 1e-2;
 double[] beta=getNullBeta();
-GLMGradientInfo ginfo=new GLMGradientSolver(_job._key,_parms,_dinfo,0,_state.activeBC()).getGradient(beta);
+GLMGradientInfo ginfo=new GLMGradientSolver(_job,_parms,_dinfo,0,_state.activeBC()).getGradient(beta);
 _state.updateState(beta,ginfo);
 if (_parms._lambda == null) {
 _lmax=lmax(ginfo._gradient);
@@ -111,6 +110,14 @@ for (int i=1; i < _parms._nlambdas; ++i) _parms._lambda[i]=(l*=dec);
 }
  else _parms._lambda=new double[]{10 * _parms._lambda_min_ratio * _lmax};
 }
+if (!Double.isNaN(_lambdaCVEstimate)) {
+for (int i=0; i < _parms._lambda.length; ++i) if (_parms._lambda[i] < _lambdaCVEstimate) {
+_parms._lambda=Arrays.copyOf(_parms._lambda,i + 1);
+break;
+}
+_parms._lambda[_parms._lambda.length - 1]=_lambdaCVEstimate;
+}
+if (_parms._objective_epsilon == -1) _parms._objective_epsilon=_parms._lambda[0] == 0 ? 1e-6 : 1e-4;
 _model.clone2().delete_and_lock(_job._key);
 }
 }

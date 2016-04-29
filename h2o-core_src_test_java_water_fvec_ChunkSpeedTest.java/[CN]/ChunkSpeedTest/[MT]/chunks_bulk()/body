@@ -1,0 +1,17 @@
+{
+  long start=0;
+  double sum=0;
+  for (int r=0; r < rep; ++r) {
+    if (r == rep / 10)     start=System.currentTimeMillis();
+    sum+=loop_bulk();
+  }
+  long done=System.currentTimeMillis();
+  Log.info("Sum: " + sum);
+  long siz=0;
+  for (int j=0; j < cols; ++j) {
+    siz+=chunks[j].byteSize();
+  }
+  Log.info("Data size: " + PrettyPrint.bytes(siz));
+  Log.info("Time for METHODS chunks getDoubles(): " + PrettyPrint.msecs(done - start,true));
+  Log.info("");
+}

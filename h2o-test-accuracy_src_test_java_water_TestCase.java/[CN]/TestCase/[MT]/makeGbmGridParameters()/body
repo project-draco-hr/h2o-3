@@ -1,0 +1,47 @@
+{
+  AccuracyTestingSuite.summaryLog.println("Making GBM grid parameters.");
+  String[] tokens=gridParameters.trim().split(";",-1);
+  HashMap<String,Object[]> gbmHyperParms=new HashMap<String,Object[]>();
+  for (int i=0; i < tokens.length; i++) {
+    String gridParameterName=tokens[i].split("=",-1)[0];
+    String[] gridParameterValues=tokens[i].split("=",-1)[1].split("\\|",-1);
+switch (gridParameterName) {
+case "_ntrees":
+      gbmHyperParms.put("_ntrees",stringArrayToIntegerArray(gridParameterValues));
+    break;
+case "_max_depth":
+  gbmHyperParms.put("_max_depth",stringArrayToIntegerArray(gridParameterValues));
+break;
+case "_min_rows":
+gbmHyperParms.put("_min_rows",stringArrayToDoubleArray(gridParameterValues));
+break;
+case "_nbins":
+gbmHyperParms.put("_nbins",stringArrayToIntegerArray(gridParameterValues));
+break;
+case "_nbins_cats":
+gbmHyperParms.put("_nbins_cats",stringArrayToIntegerArray(gridParameterValues));
+break;
+case "_learn_rate":
+gbmHyperParms.put("_learn_rate",stringArrayToFloatArray(gridParameterValues));
+break;
+case "_balance_classes":
+gbmHyperParms.put("_balance_classes",stringArrayToBooleanArray(gridParameterValues));
+break;
+case "_r2_stopping":
+gbmHyperParms.put("_r2_stopping",stringArrayToDoubleArray(gridParameterValues));
+break;
+case "_build_tree_one_node":
+gbmHyperParms.put("_build_tree_one_node",stringArrayToBooleanArray(gridParameterValues));
+break;
+case "_sample_rate":
+gbmHyperParms.put("_sample_rate",stringArrayToFloatArray(gridParameterValues));
+break;
+case "_col_sample_rate":
+gbmHyperParms.put("_col_sample_rate",stringArrayToFloatArray(gridParameterValues));
+break;
+default :
+throw new Exception(gridParameterName + " grid parameter is not supported for gbm test cases");
+}
+}
+return gbmHyperParms;
+}

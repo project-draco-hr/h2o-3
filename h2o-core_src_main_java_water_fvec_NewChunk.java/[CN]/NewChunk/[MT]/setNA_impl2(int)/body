@@ -1,12 +1,15 @@
 {
-  if (isNA2(i))   return true;
-  if (_ls != null) {
-    _ls[i]=Long.MAX_VALUE;
-    _xs[i]=Integer.MIN_VALUE;
-  }
-  if (_ds != null) {
+  if (!isUUID() && _ds != null) {
     _ds[i]=Double.NaN;
+    return true;
   }
+  if (isString()) {
+    _is[i]=-1;
+    return true;
+  }
+  if (_missing == null)   _missing=new BitSet();
+  _missing.set(i);
+  _ms.set(i,0);
   _naCnt=-1;
   return true;
 }

@@ -1,0 +1,18 @@
+def insert_error_grid_search(hyper_params, gridable_parameters, gridable_types, error_number):
+    '\n    This function will randomly introduce errors into a copy of hyper_params.  Depending on the random number\n    error_number generated, the following errors can be introduced:\n\n    error_number = 0: randomly alter the name of a hyper-parameter name;\n    error_number = 1: randomly choose a hyper-parameter and remove all elements in its list\n    error_number = 2: add randomly generated new hyper-parameter names with random list\n    error_number other: randomly choose a hyper-parameter and insert an illegal type into it\n\n    :param hyper_params: dict containing all legal hyper-parameters for our grid search\n    :param gridable_parameters: name of griddable parameters (some may not be griddable)\n    :param gridable_types: type of griddable parameters\n    :param error_number: integer representing which errors to introduce into the gridsearch hyper-parameters\n\n    :return: new dict with errors in either parameter names or parameter values\n    '
+    error_hyper_params = copy.deepcopy(hyper_params)
+    param_index = random.randint(0, (len(hyper_params) - 1))
+    param_name = list(hyper_params)[param_index]
+    param_type = gridable_types[gridable_parameters.index(param_name)]
+    if (error_number == 0):
+        new_name = (param_name + param_name)
+        error_hyper_params[new_name] = error_hyper_params[param_name]
+        del error_hyper_params[param_name]
+    elif (error_number == 1):
+        error_hyper_params[param_name] = []
+    elif (error_number == 2):
+        new_param = generate_random_words(random.randint(20, 100))
+        error_hyper_params[new_param] = error_hyper_params[param_name]
+    else:
+        error_hyper_params = insert_bad_value(error_hyper_params, param_name, param_type)
+    return error_hyper_params

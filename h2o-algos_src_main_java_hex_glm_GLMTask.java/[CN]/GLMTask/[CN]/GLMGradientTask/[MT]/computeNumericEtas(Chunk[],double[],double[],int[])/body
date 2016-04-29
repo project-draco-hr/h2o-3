@@ -1,0 +1,18 @@
+{
+  int numOff=_dinfo.numStart();
+  for (int cid=0; cid < _dinfo._nums; ++cid) {
+    double scale=_dinfo._normMul != null ? _dinfo._normMul[cid] : 1;
+    double NA=_dinfo._numMeans[cid];
+    Chunk c=chks[cid + _dinfo._cats];
+    double b=scale * _beta[numOff + cid];
+    if (c.isSparseZero() || c.isSparseNA()) {
+      int nvals=c.asSparseDoubles(vals,ids,NA);
+      for (int i=0; i < nvals; ++i)       etas[ids[i]]+=vals[i] * b;
+    }
+ else {
+      c.getDoubles(vals,0,vals.length,NA);
+      double off=_dinfo._normSub != null ? _dinfo._normSub[cid] : 0;
+      for (int i=0; i < vals.length; ++i)       etas[i]+=(vals[i] - off) * b;
+    }
+  }
+}

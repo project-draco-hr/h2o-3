@@ -4,6 +4,7 @@
   PojoUtils.copyProperties(this,job,PojoUtils.FieldNaming.CONSISTENT);
   key=new JobKeyV3(job._key);
   description=job._description;
+  warnings=job.warns();
   progress=job.progress();
   progress_msg=job.progress_msg();
   if (job.isRunning())   if (job.stop_requested())   status="CANCEL_PENDING";
@@ -20,6 +21,7 @@
     stacktrace=sw.toString();
   }
   msec=job.msec();
+  ready_for_view=job.readyForView();
   Keyed dest_type=(Keyed)TypeMap.theFreezable(job._typeid);
   dest=job._result == null ? null : KeyV3.make(dest_type.makeSchema(),job._result);
   return this;

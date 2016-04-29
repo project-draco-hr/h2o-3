@@ -1,0 +1,24 @@
+def derive_discrete_response(prob_mat, class_method, class_margin):
+    "\n    This function is written to generate the final class response given the probabilities (Prob(y=k)).  There are\n    two methods that we use and is specified by the class_method.  If class_method is set to 'probability',\n    response y is generated randomly according to the class probabilities calculated.  If set to 'threshold',\n    response y is set to the class with the maximum class probability if the maximum class probability exceeds the\n    second highest class probability by the value set in margin.  If the maximum class probability fails to be\n    greater by margin than the second highest class probability, the data sample will be discarded later by\n    marking the final response as -1.\n\n    :param prob_mat: probability matrix specifying the probability that y=k where k is a class\n    :param class_method: string set to 'probability' or 'threshold'\n    :param class_margin: if class_method='threshold', class_margin is the margin used to determine if a response is to\n    be kept or discarded.\n\n    :return: response vector representing class of y or -1 if an data sample is to be discarded.\n    "
+    (num_sample, num_class) = prob_mat.shape
+    prob_mat = normalize_matrix(prob_mat)
+    discrete_y = np.zeros((num_sample, 1), dtype=np.int)
+    if ('probability' in class_method.lower()):
+        prob_mat = np.cumsum(prob_mat, axis=1)
+        random_v = np.random.uniform(0, 1, [num_sample, 1])
+        class_bool = (random_v < prob_mat)
+        for indR in range(num_sample):
+            for indC in range(num_class):
+                if class_bool[(indR, indC)]:
+                    discrete_y[(indR, 0)] = indC
+                    break
+    elif ('threshold' in class_method.lower()):
+        discrete_y = np.argmax(prob_mat, axis=1)
+        temp_mat = np.diff(np.sort(prob_mat, axis=1), axis=1)
+        mat_diff = temp_mat[:, (num_class - 2)]
+        mat_bool = (mat_diff < class_margin)
+        discrete_y[mat_bool] = (-1)
+    else:
+        print('class_method should be set to "probability" or "threshold" only!')
+        sys.exit(1)
+    return discrete_y

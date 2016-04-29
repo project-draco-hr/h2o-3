@@ -1,0 +1,25 @@
+{
+  int ncoly=cs.length;
+  _ysum=new double[ncoly];
+  double[] yvals=new double[ncoly];
+  double yval;
+  boolean add;
+  int len=cs[0]._len;
+  for (int row=0; row < len; row++) {
+    add=true;
+    Arrays.fill(yvals,0);
+    for (int y=0; y < ncoly; y++) {
+      final Chunk cy=cs[y];
+      yval=cy.atd(row);
+      if (Double.isNaN(yval)) {
+        _NACount++;
+        add=false;
+        break;
+      }
+      yvals[y]=yval;
+    }
+    if (add) {
+      ArrayUtils.add(_ysum,yvals);
+    }
+  }
+}

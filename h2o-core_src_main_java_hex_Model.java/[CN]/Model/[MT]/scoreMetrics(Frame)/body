@@ -1,20 +1,6 @@
 {
   final boolean computeMetrics=(!isSupervised() || adaptFrm.find(_output.responseName()) != -1);
-  final int nc=_output.nclasses();
-  final int ncols=nc == 1 ? 1 : nc + 1;
-  String[] names=new String[ncols];
-  String[][] domains=new String[ncols][];
-  names[0]="predict";
-  for (int i=1; i < names.length; ++i) {
-    names[i]=_output.classNames()[i - 1];
-    try {
-      Integer.valueOf(names[i]);
-      names[i]="p" + names[i];
-    }
- catch (    Throwable t) {
-    }
-  }
-  domains[0]=nc == 1 ? null : !computeMetrics ? _output._domains[_output._domains.length - 1] : adaptFrm.lastVec().domain();
-  BigScore bs=new BigScore(domains[0],ncols,adaptFrm.means(),_output.hasWeights() && adaptFrm.find(_output.weightsName()) >= 0,computeMetrics,false,null).doAll(adaptFrm);
+  String[] domain=!computeMetrics ? _output._domains[_output._domains.length - 1] : adaptFrm.lastVec().domain();
+  BigScore bs=new BigScore(domain,0,adaptFrm.means(),_output.hasWeights() && adaptFrm.find(_output.weightsName()) >= 0,computeMetrics,false,null).doAll(adaptFrm);
   return bs._mb;
 }

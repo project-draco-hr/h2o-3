@@ -1,0 +1,11 @@
+def prepare_data_sklearn_multinomial(training_data_xy):
+    '\n    Sklearn model requires that the input matrix should contain a column of ones in order for\n    it to generate the intercept term.  In addition, it wants the response vector to be in a\n    certain format as well.\n\n    :param training_data_xy: matrix containing both the predictors and response column\n\n    :return: tuple containing the predictor columns with a column of ones as the first column and\n    the response vector in the format that Sklearn wants.\n    '
+    (num_row, num_col) = training_data_xy.shape
+    y_ind = (num_col - 1)
+    training_data_xy[y_ind] = training_data_xy[y_ind].astype(int)
+    response_y = training_data_xy[:, y_ind]
+    response_y = np.ravel(response_y)
+    training_data = training_data_xy[:, range(0, y_ind)]
+    temp_ones = np.asmatrix(np.ones(num_row)).transpose()
+    x_mat = np.concatenate((temp_ones, training_data), axis=1)
+    return (response_y, x_mat)

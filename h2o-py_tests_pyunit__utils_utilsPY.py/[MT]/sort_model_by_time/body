@@ -1,0 +1,8 @@
+def sort_model_by_time(model_list, metric_name):
+    '\n    This function is written to sort the metrics that we care in the order of when the model was built.  The\n    oldest model metric will be the first element.\n\n    :param model_list: list of models built sequentially that contains metric of interest among other fields\n    :param metric_name: string representing name of metric that we want to based our stopping condition on\n    :return: model_metric_list sorted by time\n    '
+    model_num = len(model_list)
+    model_metric_list = ([None] * model_num)
+    for index in range(model_num):
+        model_index = int(model_list[index]._id.split('_')[(-1)])
+        model_metric_list[model_index] = model_list[index]._model_json['output']['cross_validation_metrics']._metric_json[metric_name]
+    return model_metric_list

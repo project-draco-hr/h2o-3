@@ -10,7 +10,7 @@
   ArrayList<String> header=new ArrayList<>();
   offset=readArffHeader(offset,header,bits,singleQuotes);
   if (offset < bits.length && !CsvParser.isEOL(bits[offset]))   haveData=true;
-  if (header.size() == 0)   throw new H2OParseException("No data!");
+  if (header.size() == 0)   throw new ParseDataset.H2OParseException("No data!");
   headerlines=header.toArray(headerlines);
   final int nlines=headerlines.length;
   int ncols=nlines;
@@ -35,7 +35,7 @@
         if (!str.isEmpty())         datablock.add(str);
       }
     }
-    if (datablock.size() == 0)     throw new H2OParseException("Unexpected line.");
+    if (datablock.size() == 0)     throw new ParseDataset.H2OParseException("Unexpected line.");
     datalines=datablock.toArray(datalines);
     int nlines2=Math.min(10,datalines.length);
     data=new String[nlines2][];
@@ -43,7 +43,7 @@
       if (sep == GUESS_SEP) {
         if (datalines[0].split(",").length > 2)         sep=(byte)',';
  else         if (datalines[0].split(" ").length > 2)         sep=' ';
- else         throw new H2OParseException("Failed to detect separator.");
+ else         throw new ParseDataset.H2OParseException("Failed to detect separator.");
       }
       data[0]=determineTokens(datalines[0],sep,singleQuotes);
       ncols=(ncols > 0) ? ncols : data[0].length;
@@ -63,5 +63,5 @@
       }
     }
   }
-  return new ParseSetup(ParserType.ARFF,sep,singleQuotes,ParseSetup.NO_HEADER,ncols,labels,ctypes,domains,naStrings,data);
+  return new ParseSetup(ARFF_INFO,sep,singleQuotes,ParseSetup.NO_HEADER,ncols,labels,ctypes,domains,naStrings,data);
 }

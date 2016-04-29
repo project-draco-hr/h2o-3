@@ -1,4 +1,4 @@
-import sys, pprint, argparse, errno, re
+import sys, pprint, argparse, errno, re, string
 sys.path.insert(1, '../../py')
 import h2o
 import os
@@ -8,7 +8,7 @@ parser.add_argument('--verbose', '-v', help='verbose output', action='store_true
 parser.add_argument('--usecloud', help='ip:port to attach to', default='')
 parser.add_argument('--host', help='hostname to attach to', default='localhost')
 parser.add_argument('--port', help='port to attach to', type=int, default=54321)
-parser.add_argument('--dest', help='destination directory', default=(here + '/../build/src-gen/main/java'))
+parser.add_argument('--dest', help='destination directory', default=(here + '/../src-gen/main/java'))
 args = parser.parse_args()
 h2o.H2O.verbose = (True if args.verbose else False)
 pp = pprint.PrettyPrinter(indent=4)
@@ -19,6 +19,7 @@ if (len(args.usecloud) > 0):
 h2o.H2O.verboseprint('connecting to: ', args.host, ':', args.port)
 a_node = h2o.H2O(args.host, args.port)
 print 'creating the Java bindings in {}. . .'.format(args.dest)
+model_builders_map = a_node.model_builders()['model_builders']
 enums = {}
 all_schemas = a_node.schemas()['schemas']
 all_schemas_map = {}
@@ -36,7 +37,7 @@ for schema in all_schemas:
         if (exception.errno != errno.EEXIST):
             raise
     with open(save_full, 'w') as the_file:
-        for line in generate_pojo(schema, pojo_name):
+        for line in generate_pojo(schema, pojo_name, model_builders_map):
             the_file.write(('%s\n' % line))
 for (name, values) in enums.items():
     pojo_name = name
@@ -59,3 +60,15 @@ endpoints_meta = []
 for num in range(len(endpoints)):
     meta = a_node.endpoint_by_number(num)['routes'][0]
     endpoints_meta.append(meta)
+retrofitProxies = generate_retrofit_proxies(endpoints_meta, all_schemas_map)
+for (entity, proxy) in retrofitProxies.items():
+    save_full = ((((args.dest + os.sep) + 'water/bindings/proxies/retrofit/') + entity) + '.java')
+    save_dir = os.path.dirname(save_full)
+    try:
+        os.makedirs(save_dir)
+    except OSError as exception:
+        if (exception.errno != errno.EEXIST):
+            raise
+    with open(save_full, 'w') as the_file:
+        for line in proxy:
+            the_file.write(('%s\n' % line))

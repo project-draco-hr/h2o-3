@@ -1,0 +1,11 @@
+def get_gridables(params_in_json):
+    '\n    This function is written to walk through all parameters of a model and grab the parameters, its type  and\n    its default values as three lists of all the gridable parameters.\n\n    :param params_in_json: a list of parameters associated with a H2O model.  Each list is a dict containing fields\n    of interest like name, type, gridable, default values, ....\n\n    :return: three lists: gridable_params, gridable_types and gridable_defaults containing the names of the parameter,\n    its associated type like int, float, unicode, bool and default parameter values\n    '
+    gridable_parameters = []
+    gridable_types = []
+    gridable_defaults = []
+    for each_param in params_in_json:
+        if each_param['gridable']:
+            gridable_parameters.append(str(each_param['name']))
+            gridable_types.append(each_param['type'])
+            gridable_defaults.append(each_param['default_value'])
+    return (gridable_parameters, gridable_types, gridable_defaults)

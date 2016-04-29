@@ -1,0 +1,16 @@
+{
+  double l=0;
+  for (int i=0; i < es.length; ++i) {
+    if (Double.isNaN(ys[i]) || ws[i] == 0) {
+      es[i]=0;
+    }
+ else {
+      double mu=_glmf.linkInv(es[i]);
+      l+=ws[i] * _glmf.likelihood(ys[i],mu);
+      double var=_glmf.variance(mu);
+      if (var < 1e-6)       var=1e-6;
+      es[i]=ws[i] * (mu - ys[i]) / (var * _glmf.linkDeriv(mu));
+    }
+  }
+  _likelihood=l;
+}

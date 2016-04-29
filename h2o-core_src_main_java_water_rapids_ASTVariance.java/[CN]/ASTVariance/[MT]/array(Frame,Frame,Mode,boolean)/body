@@ -4,25 +4,27 @@
   Vec[] vecys=fry.vecs();
   int ncoly=vecys.length;
   if (mode.equals(Mode.Everything) || mode.equals(Mode.AllObs)) {
-    CoVarTaskEverything[] cvts=new CoVarTaskEverything[ncoly];
+    if (mode.equals(Mode.AllObs)) {
+      for (      Vec v : vecxs)       if (v.naCnt() != 0)       throw new IllegalArgumentException("Mode is 'all.obs' but NAs are present");
+      if (!symmetric)       for (      Vec v : vecys)       if (v.naCnt() != 0)       throw new IllegalArgumentException("Mode is 'all.obs' but NAs are present");
+    }
+    CoVarTaskEverything[] cvs=new CoVarTaskEverything[ncoly];
+    double[] xmeans=new double[ncolx];
+    for (int x=0; x < ncoly; x++)     xmeans[x]=vecxs[x].mean();
     if (symmetric) {
+      if (ncoly == 1)       return new ValNum(vecys[0].naCnt() == 0 ? vecys[0].sigma() * vecys[0].sigma() : Double.NaN);
       int[] idx=new int[ncoly];
-      for (int y=0; y < ncoly; y++)       idx[y]=y;
+      for (int y=1; y < ncoly; y++)       idx[y]=y;
       int[] first_index=new int[]{0};
-      Frame reduced_fr=new Frame(frx);
-      for (int y=0; y < ncoly; y++) {
-        cvts[y]=new CoVarTaskEverything().dfork(new Frame(vecys[y]).add(reduced_fr));
+      Frame reduced_fr;
+      for (int y=0; y < ncoly - 1; y++) {
         idx=ArrayUtils.removeIds(idx,first_index);
         reduced_fr=new Frame(frx.vecs(idx));
+        cvs[y]=new CoVarTaskEverything(vecys[y].mean(),xmeans).dfork(new Frame(vecys[y]).add(reduced_fr));
       }
       double[][] res_array=new double[ncoly][ncoly];
-      for (int y=0; y < ncoly; y++) {
-        double[] res_array_y=res_array[y];
-        CoVarTaskEverything cvtx=cvts[y].getResult();
-        if (mode.equals(Mode.AllObs))         for (        double ss : cvtx._ss)         if (Double.isNaN(ss))         throw new IllegalArgumentException("Mode is 'all.obs' but NAs are present");
-        double[] res=ArrayUtils.div(ArrayUtils.subtract(cvtx._ss,ArrayUtils.mult(cvtx._xsum,ArrayUtils.div(cvtx._ysum,frx.numRows()))),frx.numRows() - 1);
-        System.arraycopy(res,0,res_array_y,y,ncoly - y);
-      }
+      for (int y=0; y < ncoly; y++)       res_array[y][y]=vecys[y].naCnt() == 0 ? vecys[y].sigma() * vecys[y].sigma() : Double.NaN;
+      for (int y=0; y < ncoly - 1; y++)       System.arraycopy(ArrayUtils.div(cvs[y].getResult()._covs,(fry.numRows() - 1)),0,res_array[y],y + 1,ncoly - y - 1);
       for (int y=0; y < ncoly - 1; y++) {
         for (int x=y + 1; x < ncoly; x++) {
           res_array[x][y]=res_array[y][x];
@@ -35,49 +37,25 @@
       }
       return new ValFrame(new Frame(fry._names,res));
     }
-    for (int y=0; y < ncoly; y++)     cvts[y]=new CoVarTaskEverything().dfork(new Frame(vecys[y]).add(frx));
+    for (int y=0; y < ncoly; y++)     cvs[y]=new CoVarTaskEverything(vecys[y].mean(),xmeans).dfork(new Frame(vecys[y]).add(frx));
     if (ncolx == 1 && ncoly == 1) {
-      CoVarTaskEverything res=cvts[0].getResult();
-      if (mode.equals(Mode.AllObs) && Double.isNaN(res._ss[0]))       throw new IllegalArgumentException("Mode is 'all.obs' but NAs are present");
-      return new ValNum((res._ss[0] - res._xsum[0] * res._ysum[0] / (frx.numRows())) / (frx.numRows() - 1));
+      return new ValNum(cvs[0].getResult()._covs[0] / (fry.numRows() - 1));
     }
     Vec[] res=new Vec[ncoly];
     Key<Vec>[] keys=Vec.VectorGroup.VG_LEN1.addVecs(ncoly);
-    for (int y=0; y < ncoly; y++) {
-      CoVarTaskEverything cvtx=cvts[y].getResult();
-      if (mode.equals(Mode.AllObs))       for (      double ss : cvtx._ss)       if (Double.isNaN(ss))       throw new IllegalArgumentException("Mode is 'all.obs' but NAs are present");
-      res[y]=Vec.makeVec(ArrayUtils.div(ArrayUtils.subtract(cvtx._ss,ArrayUtils.mult(cvtx._xsum,ArrayUtils.div(cvtx._ysum,frx.numRows()))),frx.numRows() - 1),keys[y]);
-    }
-    return new ValFrame(new Frame(fry._names,res));
-  }
-  if (mode.equals(Mode.CompleteObs)) {
-    CoVarTaskComplete cvs=new CoVarTaskComplete(ncolx,ncoly).doAll(new Frame(fry).add(frx));
-    if (ncolx == 1 && ncoly == 1)     return new ValNum((cvs._ss[0][0] - cvs._xsum[0] * cvs._ysum[0] / (frx.numRows() - cvs._NACount)) / (frx.numRows() - cvs._NACount - 1));
-    Vec[] res=new Vec[ncoly];
-    Key<Vec>[] keys=Vec.VectorGroup.VG_LEN1.addVecs(ncoly);
-    for (int y=0; y < ncoly; y++) {
-      res[y]=Vec.makeVec(ArrayUtils.div(ArrayUtils.subtract(cvs._ss[y],ArrayUtils.mult(cvs._xsum.clone(),(cvs._ysum[y] / (frx.numRows() - cvs._NACount)))),(frx.numRows() - 1 - cvs._NACount)),keys[y]);
-    }
+    for (int y=0; y < ncoly; y++)     res[y]=Vec.makeVec(ArrayUtils.div(cvs[y].getResult()._covs,(fry.numRows() - 1)),keys[y]);
     return new ValFrame(new Frame(fry._names,res));
   }
  else {
-    CoVarTaskPairwise[] cvts=new CoVarTaskPairwise[ncoly];
     if (symmetric) {
-      int[] idx=new int[ncoly];
-      for (int y=0; y < ncoly; y++)       idx[y]=y;
-      int[] first_index=new int[]{0};
-      Frame reduced_fr=new Frame(frx);
-      for (int y=0; y < ncoly; y++) {
-        cvts[y]=new CoVarTaskPairwise().dfork(new Frame(vecys[y]).add(reduced_fr));
-        idx=ArrayUtils.removeIds(idx,first_index);
-        reduced_fr=new Frame(frx.vecs(idx));
-      }
+      if (ncoly == 1)       return new ValNum(vecys[0].sigma() * vecys[0].sigma());
+      CoVarTaskCompleteObsMeanSym taskCompleteObsMeanSym=new CoVarTaskCompleteObsMeanSym().doAll(fry);
+      long NACount=taskCompleteObsMeanSym._NACount;
+      double[] ymeans=ArrayUtils.div(taskCompleteObsMeanSym._ysum,fry.numRows() - NACount);
+      CoVarTaskCompleteObsSym cvs=new CoVarTaskCompleteObsSym(ymeans).doAll(new Frame(fry));
       double[][] res_array=new double[ncoly][ncoly];
       for (int y=0; y < ncoly; y++) {
-        double[] res_array_y=res_array[y];
-        CoVarTaskPairwise cvtx=cvts[y].getResult();
-        double[] res=ArrayUtils.div(ArrayUtils.subtract(cvtx._ss,ArrayUtils.mult(cvtx._xsum,ArrayUtils.div(cvtx._ysum,ArrayUtils.subtract(frx.numRows(),cvtx._NACount.clone())))),ArrayUtils.subtract(frx.numRows() - 1,cvtx._NACount.clone()));
-        System.arraycopy(res,0,res_array_y,y,ncoly - y);
+        System.arraycopy(ArrayUtils.div(cvs._covs[y],(fry.numRows() - 1 - NACount)),y,res_array[y],y,ncoly - y);
       }
       for (int y=0; y < ncoly - 1; y++) {
         for (int x=y + 1; x < ncoly; x++) {
@@ -91,17 +69,17 @@
       }
       return new ValFrame(new Frame(fry._names,res));
     }
-    for (int y=0; y < ncoly; y++)     cvts[y]=new CoVarTaskPairwise().dfork(new Frame(vecys[y]).add(frx));
+    CoVarTaskCompleteObsMean taskCompleteObsMean=new CoVarTaskCompleteObsMean(ncoly,ncolx).doAll(new Frame(fry).add(frx));
+    long NACount=taskCompleteObsMean._NACount;
+    double[] ymeans=ArrayUtils.div(taskCompleteObsMean._ysum,fry.numRows() - NACount);
+    double[] xmeans=ArrayUtils.div(taskCompleteObsMean._xsum,fry.numRows() - NACount);
+    CoVarTaskCompleteObs cvs=new CoVarTaskCompleteObs(ymeans,xmeans).doAll(new Frame(fry).add(frx));
     if (ncolx == 1 && ncoly == 1) {
-      CoVarTaskPairwise res=cvts[0].getResult();
-      return new ValNum((res._ss[0] - res._xsum[0] * res._ysum[0] / (frx.numRows() - res._NACount[0])) / (frx.numRows() - 1 - res._NACount[0]));
+      return new ValNum(cvs._covs[0][0] / (fry.numRows() - 1 - NACount));
     }
     Vec[] res=new Vec[ncoly];
     Key<Vec>[] keys=Vec.VectorGroup.VG_LEN1.addVecs(ncoly);
-    for (int y=0; y < ncoly; y++) {
-      CoVarTaskPairwise cvtx=cvts[y].getResult();
-      res[y]=Vec.makeVec(ArrayUtils.div(ArrayUtils.subtract(cvtx._ss,ArrayUtils.mult(cvtx._xsum,ArrayUtils.div(cvtx._ysum,ArrayUtils.subtract(frx.numRows(),cvtx._NACount.clone())))),ArrayUtils.subtract(frx.numRows() - 1,cvtx._NACount.clone())),keys[y]);
-    }
+    for (int y=0; y < ncoly; y++)     res[y]=Vec.makeVec(ArrayUtils.div(cvs._covs[y],(fry.numRows() - 1 - NACount)),keys[y]);
     return new ValFrame(new Frame(fry._names,res));
   }
 }

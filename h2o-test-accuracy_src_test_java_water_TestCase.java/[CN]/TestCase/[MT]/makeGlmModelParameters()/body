@@ -1,2 +1,106 @@
 {
+  AccuracyTestingSuite.summaryLog.println("Making GLM model parameters.");
+  GLMModel.GLMParameters glmParams=new GLMModel.GLMParameters();
+  String[] tokens=algoParameters.trim().split(";",-1);
+  for (int i=0; i < tokens.length; i++) {
+    String parameterName=tokens[i].split("=",-1)[0];
+    String parameterValue=tokens[i].split("=",-1)[1];
+switch (parameterName) {
+case "_family":
+switch (parameterValue) {
+case "gaussian":
+        glmParams._family=GLMModel.GLMParameters.Family.gaussian;
+      break;
+case "binomial":
+    glmParams._family=GLMModel.GLMParameters.Family.binomial;
+  break;
+case "multinomial":
+glmParams._family=GLMModel.GLMParameters.Family.multinomial;
+break;
+case "poisson":
+glmParams._family=GLMModel.GLMParameters.Family.poisson;
+break;
+case "gamma":
+glmParams._family=GLMModel.GLMParameters.Family.gamma;
+break;
+case "tweedie":
+glmParams._family=GLMModel.GLMParameters.Family.tweedie;
+break;
+default :
+throw new Exception(parameterValue + " family is not supported for gbm test cases");
+}
+break;
+case "_solver":
+switch (parameterValue) {
+case "AUTO":
+glmParams._solver=GLMModel.GLMParameters.Solver.AUTO;
+break;
+case "irlsm":
+glmParams._solver=GLMModel.GLMParameters.Solver.IRLSM;
+break;
+case "lbfgs":
+glmParams._solver=GLMModel.GLMParameters.Solver.L_BFGS;
+break;
+case "coordinate_descent_naive":
+glmParams._solver=GLMModel.GLMParameters.Solver.COORDINATE_DESCENT_NAIVE;
+break;
+case "coordinate_descent":
+glmParams._solver=GLMModel.GLMParameters.Solver.COORDINATE_DESCENT;
+break;
+default :
+throw new Exception(parameterValue + " solver is not supported for gbm test cases");
+}
+break;
+case "_nfolds":
+glmParams._nfolds=Integer.parseInt(parameterValue);
+break;
+case "_fold_column":
+glmParams._fold_column=tokens[i];
+break;
+case "_ignore_const_cols":
+glmParams._ignore_const_cols=true;
+break;
+case "_offset_column":
+glmParams._offset_column=tokens[i];
+break;
+case "_weights_column":
+glmParams._weights_column=tokens[i];
+break;
+case "_alpha":
+glmParams._alpha=new double[]{Double.parseDouble(parameterValue)};
+break;
+case "_lambda":
+glmParams._lambda=new double[]{Double.parseDouble(parameterValue)};
+break;
+case "_lambda_search":
+glmParams._lambda_search=true;
+break;
+case "_standardize":
+glmParams._standardize=true;
+break;
+case "_non_negative":
+glmParams._non_negative=true;
+break;
+case "_intercept":
+glmParams._intercept=true;
+break;
+case "_prior":
+glmParams._prior=Double.parseDouble(parameterValue);
+break;
+case "_max_active_predictors":
+glmParams._max_active_predictors=Integer.parseInt(parameterValue);
+break;
+case "_beta_constraints":
+double lowerBound=Double.parseDouble(tokens[i].split("|")[0]);
+double upperBound=Double.parseDouble(tokens[i].split("|")[1]);
+glmParams._beta_constraints=makeBetaConstraints(lowerBound,upperBound);
+break;
+default :
+throw new Exception(parameterName + " parameter is not supported for glm test cases");
+}
+}
+glmParams._train=trainingDataSet.getFrame()._key;
+glmParams._valid=testingDataSet.getFrame()._key;
+glmParams._response_column=trainingDataSet.getFrame()._names[trainingDataSet.getResponseColumn()];
+return glmParams;
 }

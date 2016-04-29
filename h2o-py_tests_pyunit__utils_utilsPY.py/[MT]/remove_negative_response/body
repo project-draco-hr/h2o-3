@@ -1,0 +1,6 @@
+def remove_negative_response(x_mat, response_y):
+    "\n    Recall that when the user chooses to generate a data set for multinomial or binomial using the 'threshold' method,\n    response y is set to the class with the maximum class probability if the maximum class probability\n    exceeds the second highest class probability by the value set in margin.  If the maximum class probability fails\n    to be greater by margin than the second highest class probability, the data sample is discarded.  However, when we\n    generate the data set, we keep all samples.  For data sample with maximum class probability that fails to be\n    greater by margin than the second highest class probability, the response is set to be -1.  This function will\n    remove all data samples (predictors and responses) with response set to -1.\n\n    :param x_mat: predictor matrix containing all predictor values\n    :param response_y: response that can be negative if that data sample is to be removed\n\n    :return: tuple containing x_mat, response_y with negative data samples removed.\n    "
+    y_response_negative = np.where((response_y < 0))
+    x_mat = np.delete(x_mat, y_response_negative[0].transpose(), axis=0)
+    response_y = response_y[(response_y >= 0)]
+    return (x_mat, response_y.transpose())

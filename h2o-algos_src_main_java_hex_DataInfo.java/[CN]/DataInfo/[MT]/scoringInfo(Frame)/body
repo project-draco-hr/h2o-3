@@ -1,0 +1,25 @@
+{
+  DataInfo res=deep_clone();
+  res._normMul=null;
+  res._normRespSub=null;
+  res._normRespMul=null;
+  res._normRespSub=null;
+  res._predictor_transform=TransformType.NONE;
+  res._response_transform=TransformType.NONE;
+  res._adaptedFrame=adaptFrame;
+  res._weights=_weights && adaptFrame.find(_adaptedFrame.name(weightChunkId())) != -1;
+  res._offset=_offset && adaptFrame.find(_adaptedFrame.name(offsetChunkId())) != -1;
+  res._fold=_fold && adaptFrame.find(_adaptedFrame.name(foldChunkId())) != -1;
+  res._responses=0;
+  int resId=adaptFrame.find((_adaptedFrame.name(responseChunkId(0))));
+  if (resId != -1 && adaptFrame.vec(resId).naCnt() != adaptFrame.numRows())   res._responses=1;
+  res._valid=true;
+  res._interactions=_interactions;
+  res._interactionColumns=_interactionColumns;
+  for (  Vec v : res._adaptedFrame.vecs())   if (v instanceof InteractionWrappedVec) {
+    ((InteractionWrappedVec)v)._useAllFactorLevels=_useAllFactorLevels;
+    ((InteractionWrappedVec)v)._skipMissing=_skipMissing;
+    DKV.put(v);
+  }
+  return res;
+}

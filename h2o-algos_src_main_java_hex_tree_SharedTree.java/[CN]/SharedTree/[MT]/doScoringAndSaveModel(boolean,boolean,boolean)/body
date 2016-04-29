@@ -18,7 +18,7 @@
     final boolean printout=(_parms._score_each_iteration || finalScoring || sinceLastScore > _parms._score_interval);
     final boolean computeGainsLift=true;
     _job.update(0,"Scoring the model.");
-    Score sc=new Score(this,true,oob,response()._key,_model._output.getModelCategory(),computeGainsLift).doAll(train(),build_tree_one_node);
+    Score sc=new Score(this,_model._output._ntrees > 0,oob,response()._key,_model._output.getModelCategory(),computeGainsLift).doAll(train(),build_tree_one_node);
     ModelMetrics mm=sc.makeModelMetrics(_model,_parms.train());
     out._training_metrics=mm;
     training_r2=((ModelMetricsSupervised)mm).r2();
@@ -28,7 +28,7 @@
       Score scv=new Score(this,false,false,vresponse()._key,_model._output.getModelCategory(),computeGainsLift).doAll(valid(),build_tree_one_node);
       ModelMetrics mmv=scv.makeModelMetrics(_model,_parms.valid());
       out._validation_metrics=mmv;
-      out._scored_valid[out._ntrees].fillFrom(mmv);
+      if (_model._output._ntrees > 0 || scoreZeroTrees())       out._scored_valid[out._ntrees].fillFrom(mmv);
     }
     out._model_summary=createModelSummaryTable(out);
     out._scoring_history=createScoringHistoryTable(out);

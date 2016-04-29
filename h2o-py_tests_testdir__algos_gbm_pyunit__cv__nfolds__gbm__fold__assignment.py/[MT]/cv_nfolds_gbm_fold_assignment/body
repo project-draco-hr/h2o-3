@@ -1,0 +1,12 @@
+def cv_nfolds_gbm_fold_assignment():
+    prostate = h2o.import_file(path=pyunit_utils.locate('smalldata/logreg/prostate.csv'))
+    prostate[1] = prostate[1].asfactor()
+    prostate.summary()
+    prostate_gbm = H2OGradientBoostingEstimator(nfolds=5, distribution='bernoulli', keep_cross_validation_predictions=True, keep_cross_validation_fold_assignment=True)
+    prostate_gbm.train(x=list(range(2, 9)), y=1, training_frame=prostate)
+    prostate_gbm.cross_validation_fold_assignment().describe()
+    prostate_gbm.cross_validation_holdout_predictions().describe()
+    for m in prostate_gbm.cross_validation_predictions():
+        m.describe()
+    for m in prostate_gbm.cross_validation_models():
+        m.show()

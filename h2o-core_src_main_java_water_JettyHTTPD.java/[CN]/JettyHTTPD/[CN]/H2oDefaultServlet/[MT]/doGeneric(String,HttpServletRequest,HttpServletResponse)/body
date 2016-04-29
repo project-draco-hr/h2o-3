@@ -15,8 +15,20 @@
     for (    Map.Entry<String,String[]> entry : parameterMap.entrySet()) {
       String key=entry.getKey();
       String[] values=entry.getValue();
-      for (      String value : values) {
-        parms.put(key,value);
+      if (values.length == 1) {
+        parms.put(key,values[0]);
+      }
+ else       if (values.length > 1) {
+        StringBuilder sb=new StringBuilder();
+        sb.append("[");
+        boolean first=true;
+        for (        String value : values) {
+          if (!first)           sb.append(",");
+          sb.append("\"").append(value).append("\"");
+          first=false;
+        }
+        sb.append("]");
+        parms.put(key,sb.toString());
       }
     }
     NanoHTTPD.Response resp=water.api.RequestServer.SERVER.serve(uri,method,headers,parms);

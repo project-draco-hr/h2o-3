@@ -1,5 +1,6 @@
 {
-  ParseSetup setup=new ParseSetup(parse.parse_type,parse.separator,parse.single_quotes,parse.check_header,parse.number_columns,delNulls(parse.column_names),ParseSetup.strToColumnTypes(parse.column_types),parse.domains,parse.na_strings,null,parse.chunk_size);
+  ParserInfo parserInfo=ParserService.INSTANCE.getByName(parse.parse_type).info();
+  ParseSetup setup=new ParseSetup(parserInfo,parse.separator,parse.single_quotes,parse.check_header,parse.number_columns,delNulls(parse.column_names),ParseSetup.strToColumnTypes(parse.column_types),parse.domains,parse.na_strings,null,new ParseWriter.ParseErr[0],parse.chunk_size);
   if (parse.source_frames == null)   throw new H2OIllegalArgumentException("Data for Frame '" + parse.destination_frame.name + "' is not available. Please check that the path is valid (for all H2O nodes).'");
   Key[] srcs=new Key[parse.source_frames.length];
   for (int i=0; i < parse.source_frames.length; i++)   srcs[i]=parse.source_frames[i].key();

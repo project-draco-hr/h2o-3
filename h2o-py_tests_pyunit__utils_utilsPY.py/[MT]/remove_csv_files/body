@@ -1,0 +1,14 @@
+def remove_csv_files(dir_path, suffix='.csv', action='remove', new_dir_path=''):
+    "\n    Given a directory, this function will gather all function ending with string specified\n    in suffix.  Next, it is going to delete those files if action is set to 'remove'.  If\n    action is set to 'copy', a new_dir_path must be specified where the files ending with suffix\n    will be moved to this new directory instead.\n\n    :param dir_path: string representing full path to directory of interest\n    :param suffix: string representing suffix of filename that are to be found and deleted\n    :param action: string, optional, denote the action to perform on files, 'remove' or 'move'\n    :param new_dir_path: string, optional, representing full path to new directory\n\n    :return: None\n    "
+    filenames = os.listdir(dir_path)
+    to_remove = [filename for filename in filenames if filename.endswith(suffix)]
+    for fn in to_remove:
+        temp_fn = os.path.join(dir_path, fn)
+        if os.path.isfile(temp_fn):
+            if ('remove' in action):
+                remove_files(temp_fn)
+            elif ('copy' in action):
+                move_files(new_dir_path, temp_fn, fn, action=action)
+            else:
+                print("action string can only be 'remove' or 'copy.")
+                sys.exit(1)

@@ -11,11 +11,16 @@
     parms._train=train._key;
     parms._response_column="DSDist";
     parms._distribution=Distribution.Family.laplace;
+    parms._sample_rate=0.6f;
+    parms._col_sample_rate=0.8f;
+    parms._col_sample_rate_per_tree=0.8f;
+    parms._seed=1234;
     GBM job=new GBM(parms);
     gbm=job.trainModel().get();
     pred=parse_test_file("smalldata/gbm_test/ecology_eval.csv");
     res=gbm.score(pred);
     Assert.assertTrue(gbm.testJavaScoring(pred,res,1e-15));
+    Assert.assertTrue(Math.abs(((ModelMetricsRegression)gbm._output._training_metrics)._mean_residual_deviance - 22.89111) < 1e-4);
   }
   finally {
     parms._train.remove();

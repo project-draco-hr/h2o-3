@@ -1,0 +1,11 @@
+{
+  ParserService ps=ParserService.INSTANCE;
+  List<ParserProvider> providers=ps.getAllProviders(true);
+  int lastPrio=Integer.MIN_VALUE;
+  int idx=0;
+  for (  ParserProvider provider : providers) {
+    Assert.assertEquals("Name of registered core parser providers has to match!",CORE_PROVIDER_NAMES[idx++],provider.info().name());
+    Assert.assertTrue("#getAllProviders call should returned sorted providers based on priorities",lastPrio < provider.info().priority());
+    lastPrio=provider.info().priority();
+  }
+}

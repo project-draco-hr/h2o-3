@@ -1,0 +1,28 @@
+def write_result_summary(result_dict, directory_path, is_new_run):
+    '\n    This function will summarize the run time in secs and store the run result in a json file.\n    In addition, if is_new_run = False, results will be read from an old json file.  The final\n    result summary will be a combination of the old run and new run.\n\n    :param result_dict: python dict, contains all run time results\n    :param directory_path: string containing the directory path where we are going to\n    store the run result json file\n    :param is_new_run: bool, denoting whether this is a fresh run if True and vice versa\n\n    :return: None\n    '
+    dict_keys = list(result_dict)
+    if ('test_name' in dict_keys):
+        json_file = os.path.join(directory_path, (result_dict['test_name'] + '.json'))
+        run_time = []
+        if (os.path.exists(json_file) and (not is_new_run)):
+            with open(json_file, 'r') as test_file:
+                temp_dict = json.load(test_file)
+                run_time = temp_dict['run_time_secs']
+        if ('run_time_secs' in dict_keys):
+            if (len(run_time) > 0):
+                run_time.extend(result_dict['run_time_secs'])
+            else:
+                run_time = result_dict['run_time_secs']
+            if (len(run_time) > 0):
+                result_dict['max_run_time_secs'] = max(run_time)
+                result_dict['min_run_time_secs'] = min(run_time)
+                result_dict['mean_run_time_secs'] = np.mean(run_time)
+                result_dict['run_time_std'] = np.std(run_time)
+                result_dict['total_number_of_runs'] = len(run_time)
+                with open(json_file, 'a') as test_file:
+                    json.dump(result_dict, test_file)
+                print 'Run result summary: \n {0}'.format(result_dict)
+        else:
+            print 'Your result summary dictionary does not contain run time data!\n'
+    else:
+        print 'Cannot find your test name.  Nothing is done.\n'

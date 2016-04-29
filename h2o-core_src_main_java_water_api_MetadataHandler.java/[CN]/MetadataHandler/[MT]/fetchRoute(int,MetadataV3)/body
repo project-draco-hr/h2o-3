@@ -21,14 +21,14 @@
     String inputSchemaName=schemaDir + algoName + "V"+ version2;
     sinput=(Schema)TypeMap.theFreezable(TypeMap.onIce(inputSchemaName));
     sinput.init_meta();
-    String outputSchemaName=schemaDir + algoName + "ModelV"+ version2+ "$"+ algoName+ "ModelOutputV"+ version2;
-    soutput=(Schema)TypeMap.theFreezable(TypeMap.onIce(outputSchemaName));
-    soutput.init_meta();
+    soutput=sinput;
   }
  else {
     sinput=Schema.newInstance(Handler.getHandlerMethodInputSchema(route._handler_method));
     soutput=Schema.newInstance(Handler.getHandlerMethodOutputSchema(route._handler_method));
   }
+  docs.routes[0].input_schema=sinput.getClass().getSimpleName();
+  docs.routes[0].output_schema=soutput.getClass().getSimpleName();
   docs.routes[0].markdown=route.markdown(sinput,soutput).toString();
   return docs;
 }

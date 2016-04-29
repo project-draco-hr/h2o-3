@@ -2,7 +2,7 @@
   DTree.Split best=new DTree.Split(-1,-1,null,(byte)0,Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE,0L,0L,0,0);
   if (hs == null)   return best;
   final int maxCols=u._scoreCols == null ? hs.length : u._scoreCols.length;
-  FindSplits[] findSplits=new FindSplits[maxCols];
+  List<FindSplits> findSplits=new ArrayList<>();
   long nbinsSum=0;
   for (int i=0; i < maxCols; i++) {
     int col=u._scoreCols == null ? i : u._scoreCols[i];
@@ -13,14 +13,13 @@
   for (int i=0; i < maxCols; i++) {
     int col=u._scoreCols == null ? i : u._scoreCols[i];
     if (hs[col] == null || hs[col].nbins() <= 1)     continue;
-    findSplits[i]=new FindSplits(hs,col,u._nid);
-    if (isSmall)     findSplits[i].compute2();
- else     H2O.submitTask(findSplits[i]);
+    FindSplits fs=new FindSplits(hs,col,u._nid);
+    findSplits.add(fs);
+    if (isSmall)     fs.compute();
   }
-  for (int i=0; i < maxCols; i++) {
-    if (findSplits[i] == null)     continue;
-    findSplits[i].join();
-    DTree.Split s=findSplits[i]._s;
+  if (!isSmall)   jsr166y.ForkJoinTask.invokeAll(findSplits);
+  for (  FindSplits fs : findSplits) {
+    DTree.Split s=fs._s;
     if (s == null)     continue;
     if (s.se() < best.se())     best=s;
   }

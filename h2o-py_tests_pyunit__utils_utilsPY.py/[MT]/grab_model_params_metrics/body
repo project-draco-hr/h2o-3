@@ -1,0 +1,20 @@
+def grab_model_params_metrics(model_h2o, h2o_model_test_metrics, family_type):
+    "\n    This function will extract and return the various metrics from a H2O GLM model and the corresponding H2O model\n    test metrics.\n\n    :param model_h2o: GLM H2O model\n    :param h2o_model_test_metrics: performance on test data set from H2O GLM model\n    :param family_type: string representing 'gaussian', 'binomial' or 'multinomial'\n\n    :return: tuple containing weight, logloss/confusion matrix/prediction accuracy calculated from training data set\n    and test data set respectively\n    "
+    h2o_weight = get_train_glm_params(model_h2o, 'weights', family_type=family_type)
+    h2o_logloss_train = model_h2o.logloss()
+    h2o_confusion_matrix_train = get_train_glm_params(model_h2o, 'confusion_matrix', family_type=family_type)
+    last_index = (len(h2o_confusion_matrix_train.cell_values) - 1)
+    h2o_logloss_test = h2o_model_test_metrics.logloss()
+    if ('multinomial' in family_type.lower()):
+        h2o_confusion_matrix_test = h2o_model_test_metrics.confusion_matrix()
+        h2o_accuracy_train = (1 - h2o_confusion_matrix_train.cell_values[last_index][last_index])
+        h2o_accuracy_test = (1 - h2o_confusion_matrix_test.cell_values[last_index][last_index])
+    elif ('binomial' in family_type.lower()):
+        h2o_confusion_matrix_test = h2o_model_test_metrics.confusion_matrix().table
+        real_last_index = (last_index + 1)
+        h2o_accuracy_train = (1 - float(h2o_confusion_matrix_train.cell_values[last_index][real_last_index]))
+        h2o_accuracy_test = (1 - float(h2o_confusion_matrix_test.cell_values[last_index][real_last_index]))
+    else:
+        print("Only 'multinomial' and 'binomial' distribution families are supported for grab_model_params_metrics function!")
+        sys.exit(1)
+    return (h2o_weight, h2o_logloss_train, h2o_confusion_matrix_train, h2o_accuracy_train, h2o_logloss_test, h2o_confusion_matrix_test, h2o_accuracy_test)

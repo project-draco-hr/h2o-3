@@ -1,6 +1,16 @@
 {
   super.postGlobal();
   _outerMFPT._dout[_outerMFPT._lo]=_dout;
+  if (_dout.hasErrors()) {
+    ParseWriter.ParseErr[] errs=_dout.removeErrors();
+    Arrays.sort(errs,new Comparator<ParseWriter.ParseErr>(){
+      @Override public int compare(      ParseWriter.ParseErr o1,      ParseWriter.ParseErr o2){
+        return (int)(o1._byteOffset - o2._byteOffset);
+      }
+    }
+);
+    _outerMFPT._errors=errs;
+  }
   _dout=null;
   Value val=DKV.get(_srckey);
   if (val == null)   return;

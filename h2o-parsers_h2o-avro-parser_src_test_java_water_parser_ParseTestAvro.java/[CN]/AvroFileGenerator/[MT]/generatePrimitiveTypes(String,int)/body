@@ -1,0 +1,26 @@
+{
+  File parentDir=Files.createTempDir();
+  File f=new File(parentDir,filename);
+  DatumWriter<GenericRecord> w=new GenericDatumWriter<GenericRecord>();
+  DataFileWriter<GenericRecord> dw=new DataFileWriter<GenericRecord>(w);
+  Schema schema=SchemaBuilder.builder().record("test_primitive_types").fields().name("CString").type("string").noDefault().name("CBytes").type("bytes").noDefault().name("CInt").type("int").noDefault().name("CLong").type("long").noDefault().name("CFloat").type("float").noDefault().name("CDouble").type("double").noDefault().name("CBoolean").type("boolean").noDefault().name("CNull").type("null").noDefault().endRecord();
+  try {
+    dw.create(schema,f);
+    for (int i=0; i < nrows; i++) {
+      GenericRecord gr=new GenericData.Record(schema);
+      gr.put("CString",String.valueOf(i));
+      gr.put("CBytes",ByteBuffer.wrap(String.valueOf(i).getBytes()));
+      gr.put("CInt",i);
+      gr.put("CLong",Long.valueOf(i));
+      gr.put("CFloat",Float.valueOf(i));
+      gr.put("CDouble",Double.valueOf(i));
+      gr.put("CBoolean",(i & 1) == 1);
+      gr.put("CNull",null);
+      dw.append(gr);
+    }
+    return f;
+  }
+  finally {
+    dw.close();
+  }
+}

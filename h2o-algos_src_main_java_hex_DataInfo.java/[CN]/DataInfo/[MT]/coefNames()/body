@@ -5,15 +5,36 @@
   String[] res=new String[n];
   final Vec[] vecs=_adaptedFrame.vecs();
   for (int i=0; i < _cats; ++i) {
-    for (int j=_useAllFactorLevels ? 0 : 1; j < vecs[i].domain().length; ++j) {
+    for (int j=(_useAllFactorLevels || vecs[i] instanceof InteractionWrappedVec) ? 0 : 1; j < vecs[i].domain().length; ++j) {
       int jj=getCategoricalId(i,j);
       if (jj < 0)       continue;
       res[k++]=_adaptedFrame._names[i] + "." + vecs[i].domain()[j];
     }
     if (_catMissing[i] && getCategoricalId(i,_catModes[i]) >= 0)     res[k++]=_adaptedFrame._names[i] + ".missing(NA)";
+    if (vecs[i] instanceof InteractionWrappedVec) {
+      InteractionWrappedVec iwv=(InteractionWrappedVec)vecs[i];
+      if (null != iwv.missingDomains()) {
+        for (        String s : iwv.missingDomains())         res[k++]=s + ".missing(NA)";
+      }
+    }
   }
-  final int nums=n - k;
-  System.arraycopy(_adaptedFrame._names,_cats,res,k,nums);
+  if (_interactions == null) {
+    final int nums=n - k;
+    System.arraycopy(_adaptedFrame._names,_cats,res,k,nums);
+  }
+ else {
+    for (int i=0; i <= _nums; i++) {
+      InteractionWrappedVec v;
+      if (i + _cats >= n || k >= n)       break;
+      if (vecs[i + _cats] instanceof InteractionWrappedVec && ((v=(InteractionWrappedVec)vecs[i + _cats]).domain() != null)) {
+        for (int j=_useAllFactorLevels ? 0 : 1; j < v.domain().length; ++j) {
+          if (getCategoricalIdFromInteraction(_cats + i,j) < 0)           continue;
+          res[k++]=_adaptedFrame._names[i + _cats] + "." + v.domain()[j];
+        }
+      }
+ else       res[k++]=_adaptedFrame._names[i + _cats];
+    }
+  }
   _coefNames=res;
   return res;
 }

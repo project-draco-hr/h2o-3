@@ -1,0 +1,11 @@
+{
+  System.out.println("col|dense|sparse|sparseScaled");
+  double sparseScaled;
+  String line;
+  for (int i=0; i < di.fullN(); ++i) {
+    sparseScaled=sparseRow.get(i);
+    if (i >= di.numStart())     sparseScaled-=(di._normSub[i - di.numStart()] * di._normMul[i - di.numStart()]);
+    line=i + "|" + denseRow.get(i)+ "|"+ sparseRow.get(i)+ "|"+ sparseScaled;
+    if (Math.abs(denseRow.get(i) - sparseScaled) > 1e-14)     System.out.println(">" + line + "<");
+  }
+}

@@ -3,8 +3,29 @@ def _upload_python_object(self, python_obj, destination_frame='', header=((-1), 
         (col_header, data_to_write) = _handle_python_lists(python_obj)
     elif isinstance(python_obj, (dict, collections.OrderedDict)):
         (col_header, data_to_write) = _handle_python_dicts(python_obj)
+    elif (can_use_numpy() and can_use_pandas()):
+        import numpy
+        import pandas
+        if isinstance(python_obj, numpy.ndarray):
+            (col_header, data_to_write) = _handle_numpy_array(python_obj)
+        elif isinstance(python_obj, pandas.DataFrame):
+            (col_header, data_to_write) = _handle_pandas_data_frame(python_obj)
+        else:
+            raise ValueError(('`python_obj` must be a tuple, list, dict, collections.OrderedDict, numpy.ndarray, or pandas.DataFrame. Got: ' + str(type(python_obj))))
+    elif can_use_numpy():
+        import numpy
+        if isinstance(python_obj, numpy.ndarray):
+            (col_header, data_to_write) = _handle_numpy_array(python_obj)
+        else:
+            raise ValueError(('`python_obj` must be a tuple, list, dict, collections.OrderedDict, numpy.ndarray, or pandas.DataFrame. Got: ' + str(type(python_obj))))
+    elif can_use_pandas():
+        import pandas
+        if isinstance(python_obj, pandas.DataFrame):
+            (col_header, data_to_write) = _handle_pandas_data_frame(python_obj)
+        else:
+            raise ValueError(('`python_obj` must be a tuple, list, dict, collections.OrderedDict, numpy.ndarray, or pandas.DataFrame. Got: ' + str(type(python_obj))))
     else:
-        raise ValueError(('`python_obj` must be a tuple, list, dict, collections.OrderedDict. Got: ' + str(type(python_obj))))
+        raise ValueError(('`python_obj` must be a tuple, list, dict, collections.OrderedDict, numpy.ndarray, or pandas.DataFrame. Got: ' + str(type(python_obj))))
     if ((col_header is None) or (data_to_write is None)):
         raise ValueError('No data to write')
     (tmp_handle, tmp_path) = tempfile.mkstemp(suffix='.csv')

@@ -1,0 +1,26 @@
+def tear_down(self):
+    '\n        This function performs teardown after the dynamic test is completed.  If all tests\n        passed, it will delete all data sets generated since they can be quite large.  It\n        will move the training/validation/test data sets into a Rsandbox directory so that\n        we can re-run the failed tests later.\n        '
+    if self.test_failed:
+        self.sandbox_dir = pyunit_utils.make_Rsandbox_dir(self.current_dir, self.testName, True)
+        if sum(self.test_failed_array[0:4]):
+            pyunit_utils.move_files(self.sandbox_dir, self.training_data_file, self.training_filename)
+            pyunit_utils.move_files(self.sandbox_dir, self.validation_data_file, self.validation_filename)
+            pyunit_utils.move_files(self.sandbox_dir, self.test_data_file, self.test_filename)
+        if sum(self.test_failed_array[0:6]):
+            pyunit_utils.move_files(self.sandbox_dir, self.weight_data_file, self.weight_filename)
+        if self.test_failed_array[5]:
+            pyunit_utils.move_files(self.sandbox_dir, self.training_data_file, self.training_filename)
+            pyunit_utils.move_files(self.sandbox_dir, self.test_data_file, self.test_filename)
+            pyunit_utils.move_files(self.sandbox_dir, self.training_data_file_nans, self.training_filename_nans)
+            pyunit_utils.move_files(self.sandbox_dir, self.test_data_file_nans, self.test_filename_nans)
+        if self.test_failed_array[6]:
+            pyunit_utils.move_files(self.sandbox_dir, self.training_data_file_enum_nans, self.training_filename_enum_nans)
+            pyunit_utils.move_files(self.sandbox_dir, self.test_data_file_enum_nans, self.test_filename_enum_nans)
+            pyunit_utils.move_files(self.sandbox_dir, self.weight_data_file_enum, self.weight_filename_enum)
+        if self.test_failed_array[7]:
+            pyunit_utils.move_files(self.sandbox_dir, self.training_data_file_enum_nans_true_one_hot, self.training_filename_enum_nans_true_one_hot)
+            pyunit_utils.move_files(self.sandbox_dir, self.validation_data_file_enum_nans_true_one_hot, self.validation_filename_enum_nans_true_one_hot)
+            pyunit_utils.move_files(self.sandbox_dir, self.test_data_file_enum_nans_true_one_hot, self.test_filename_enum_nans_true_one_hot)
+            pyunit_utils.move_files(self.sandbox_dir, self.weight_data_file_enum, self.weight_filename_enum)
+    else:
+        pyunit_utils.make_Rsandbox_dir(self.current_dir, self.testName, False)

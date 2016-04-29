@@ -1,0 +1,15 @@
+def one_hot_encoding(enum_level):
+    '\n    Generate the one_hot_encoding matrix given the number of enum_level.\n\n    :param enum_level: generate the actual one-hot encoding matrix\n\n    :return: numpy array for the enum_level specified.  Note, enum_level <= 6\n    '
+    if (enum_level >= 2):
+        base_array = np.array([[0, 1], [1, 0]])
+        for enum_index in range(3, (enum_level + 1)):
+            (num_row, num_col) = base_array.shape
+            col_zeros = np.asmatrix(np.zeros(num_row)).transpose()
+            base_array = np.concatenate((col_zeros, base_array), axis=1)
+            row_zeros = np.asmatrix(np.zeros((num_row + 1)))
+            row_zeros[(0, 0)] = 1
+            base_array = np.concatenate((base_array, row_zeros), axis=0)
+        return base_array
+    else:
+        print('enum_level must be >= 2.')
+        sys.exit(1)

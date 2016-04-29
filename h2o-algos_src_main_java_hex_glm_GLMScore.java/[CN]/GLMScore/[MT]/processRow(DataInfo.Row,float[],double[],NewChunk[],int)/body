@@ -1,0 +1,14 @@
+{
+  if (_dinfo._responses != 0)   res[0]=(float)r.response[0];
+  if (r.bad) {
+    Arrays.fill(ps,Double.NaN);
+  }
+ else   if (r.weight == 0) {
+    Arrays.fill(ps,0);
+  }
+ else {
+    _m.scoreRow(r,r.offset,ps);
+    if (_computeMetrics)     _mb.perRow(ps,res,r.weight,r.offset,_m);
+  }
+  if (_generatePredictions)   for (int c=0; c < ncols; c++)   preds[c].addNum(ps[c]);
+}

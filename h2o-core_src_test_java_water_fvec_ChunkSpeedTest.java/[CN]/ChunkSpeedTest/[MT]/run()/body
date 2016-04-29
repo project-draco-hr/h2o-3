@@ -5,13 +5,16 @@
     }
   }
   for (int j=0; j < cols; ++j) {
-    chunks[j]=(Chunk)new NewChunk(raw[j]).compress();
+    chunks[j]=new NewChunk(raw[j]).compress();
     Log.info("Column " + j + " compressed into: "+ chunks[j].getClass().toString());
   }
   Log.info("COLS: " + cols);
   Log.info("ROWS: " + rows);
   Log.info("REPS: " + rep);
   int ll=5;
-  for (int i=0; i < ll; ++i)   rollups(false);
-  for (int i=0; i < ll; ++i)   rollups(true);
+  for (int i=0; i < ll; ++i)   raw();
+  for (int i=0; i < ll; ++i)   chunks();
+  for (int i=0; i < ll; ++i)   chunks_bulk();
+  for (int i=0; i < ll; ++i)   chunks_part();
+  for (int i=0; i < ll; ++i)   chunksInline();
 }
