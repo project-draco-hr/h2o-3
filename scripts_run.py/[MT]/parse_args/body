@@ -27,6 +27,8 @@ def parse_args(argv):
     global g_path_to_h2o_jar
     global g_path_to_tar
     global g_path_to_whl
+    global g_jacoco_include
+    global g_jacoco_options
     global g_produce_unit_reports
     global g_phantomjs_to
     global g_phantomjs_packs
@@ -168,6 +170,14 @@ def parse_args(argv):
             g_no_run = True
         elif (s == '--noxunit'):
             g_produce_unit_reports = False
+        elif (s == '--jacoco'):
+            g_jacoco_include = True
+            if ((i + 1) < len(argv)):
+                s = argv[(i + 1)]
+                m = re.match('(?P<includes>([^:,]+(,[^:,]+)*)?):(?P<excludes>([^:,]+(,[^:,]+)*)?)$', s)
+                if (m is not None):
+                    g_jacoco_options[0] = m.group('includes')
+                    g_jacoco_options[1] = m.group('excludes')
         elif ((s == '-h') or (s == '--h') or (s == '-help') or (s == '--help')):
             usage()
         elif (s == '--rPkgVerChk'):
