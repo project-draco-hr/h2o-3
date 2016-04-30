@@ -9,10 +9,14 @@
       parseFailed("File does not exist: " + ARGS.login_conf);
     }
   }
-  if (ARGS.hash_login && ARGS.ldap_login) {
-    parseFailed("Can only specify one of -hash_login and -ldap_login");
+  int login_arg_count=0;
+  for (  Boolean b : new ArrayList<Boolean>(Arrays.asList(ARGS.hash_login,ARGS.ldap_login,ARGS.kerberos_login))) {
+    if (b)     login_arg_count++;
   }
-  if (ARGS.hash_login || ARGS.ldap_login) {
+  if (login_arg_count > 1) {
+    parseFailed("Can only specify one of -hash_login, -ldap_login, and -kerberos_login");
+  }
+  if (ARGS.hash_login || ARGS.ldap_login || ARGS.kerberos_login) {
     if (H2O.ARGS.login_conf == null) {
       parseFailed("Must specify -login_conf argument");
     }
