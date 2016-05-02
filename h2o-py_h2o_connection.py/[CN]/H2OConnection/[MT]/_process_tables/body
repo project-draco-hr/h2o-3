@@ -1,0 +1,24 @@
+@staticmethod
+def _process_tables(x=None):
+    if x:
+        if isinstance(x, dict):
+            has_meta = ('__meta' in x)
+            has_schema_type = (has_meta and ('schema_type' in x['__meta']))
+            have_table = (has_schema_type and (x['__meta']['schema_type'] == 'TwoDimTable'))
+            if have_table:
+                col_formats = [c['format'] for c in x['columns']]
+                table_header = x['name']
+                table_descr = x['description']
+                col_types = [c['type'] for c in x['columns']]
+                col_headers = [c['name'] for c in x['columns']]
+                row_headers = ['' for i in range(len(col_headers))]
+                cell_values = x['data']
+                tbl = H2OTwoDimTable(row_header=row_headers, col_header=col_headers, col_types=col_types, table_header=table_header, raw_cell_values=cell_values, col_formats=col_formats, table_description=table_descr)
+                x = tbl
+            else:
+                for k in x:
+                    x[k] = H2OConnection._process_tables(x[k])
+        if isinstance(x, list):
+            for it in range(len(x)):
+                x[it] = H2OConnection._process_tables(x[it])
+    return x
