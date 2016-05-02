@@ -1,0 +1,98 @@
+def __init__(self, ip, port, start_h2o, enable_assertions, license, nthreads, max_mem_size, min_mem_size, ice_root, strict_version_check, proxy, https, insecure, username, password, force_connect, max_mem_size_GB, min_mem_size_GB, proxies, size):
+    '\n    Instantiate the package handle to the H2O cluster.\n    :param ip: An IP address, default is "localhost"\n    :param port: A port, default is 54321\n    :param start_h2o: A boolean dictating whether this module should start the H2O jvm.\n    :param enable_assertions: If start_h2o, pass `-ea` as a VM option.\n    :param license: If not None, is a path to a license file.\n    :param nthreads: Number of threads in the thread pool. This relates very closely to the number of CPUs used. \n    -1 means use all CPUs on the host. A positive integer specifies the number of CPUs directly. This value is only used when Python starts H2O.\n    :param max_mem_size: Maximum heap size (jvm option Xmx) in gigabytes.\n    :param min_mem_size: Minimum heap size (jvm option Xms) in gigabytes.\n    :param ice_root: A temporary directory (default location is determined by tempfile.mkdtemp()) to hold H2O log files.\n    :param strict_version_check: Setting this to False is unsupported and should only be done when advised by technical support.\n    :param proxy: A dictionary with keys \'ftp\', \'http\', \'https\' and values that correspond to a proxy path.\n    :param https: Set this to True to use https instead of http.\n    :param insecure: Set this to True to disable SSL certificate checking.\n    :param username: Username to login with.\n    :param password: Password to login with.\n    :param force_connect: Set this to True to attempt to establish a connection even if the cluster reports as unhealthy\n    :param max_mem_size_GB: DEPRECATED. Use max_mem_size.\n    :param min_mem_size_GB: DEPRECATED. Use min_mem_size.\n    :param proxies: DEPRECATED. Use proxy.\n    :param size: DEPRECATED.\n    :return: None\n    '
+    port = as_int(port)
+    if (not (isinstance(port, int) and (0 <= port <= sys.maxsize))):
+        raise ValueError(('Port out of range, ' + port))
+    if (https != insecure):
+        raise ValueError('`https` and `insecure` must both be True to enable HTTPS')
+    if (max_mem_size_GB is not None):
+        warnings.warn('`max_mem_size_GB` is deprecated. Use `max_mem_size` instead.', category=DeprecationWarning)
+        max_mem_size = max_mem_size_GB
+    if (min_mem_size_GB is not None):
+        warnings.warn('`min_mem_size_GB` is deprecated. Use `min_mem_size` instead.', category=DeprecationWarning)
+        min_mem_size = min_mem_size_GB
+    if (proxies is not None):
+        warnings.warn('`proxies` is deprecated. Use `proxy` instead.', category=DeprecationWarning)
+        proxy = proxies
+    if (size is not None):
+        warnings.warn('`size` is deprecated.', category=DeprecationWarning)
+    global __H2OCONN__
+    self._cld = None
+    self._ip = ip
+    self._port = port
+    self._proxy = proxy
+    self._https = https
+    self._insecure = insecure
+    self._username = username
+    self._password = password
+    self.force_connect = force_connect
+    self._session_id = None
+    self._rest_version = __H2O_REST_API_VERSION__
+    self._child = (getattr(__H2OCONN__, '_child') if hasattr(__H2OCONN__, '_child') else None)
+    __H2OCONN__ = self
+    for (name, value) in os.environ.items():
+        if ((name.lower()[(-6):] == '_proxy') and value):
+            warnings.warn((((('Proxy environment variable `' + name) + '` with value `') + value) + '` found. This may interfere with your H2O Connection.'))
+    jarpaths = H2OConnection.jar_paths()
+    if os.path.exists(jarpaths[0]):
+        jar_path = jarpaths[0]
+    elif os.path.exists(jarpaths[1]):
+        jar_path = jarpaths[1]
+    elif os.path.exists(jarpaths[2]):
+        jar_path = jarpaths[2]
+    elif os.path.exists(jarpaths[3]):
+        jar_path = jarpaths[3]
+    elif os.path.exists(jarpaths[4]):
+        jar_path = jarpaths[4]
+    else:
+        jar_path = jarpaths[5]
+    try:
+        cld = self._connect()
+    except:
+        if (not start_h2o):
+            raise ValueError('Cannot connect to H2O server. Please check that H2O is running at {}'.format(H2OConnection.make_url('')))
+        print()
+        print()
+        print((((('No instance found at ip and port: ' + ip) + ':') + str(port)) + '. Trying to start local jar...'))
+        print()
+        print()
+        path_to_jar = os.path.exists(jar_path)
+        if path_to_jar:
+            if (not ice_root):
+                ice_root = tempfile.mkdtemp()
+            cld = self._start_local_h2o_jar(max_mem_size, min_mem_size, enable_assertions, license, ice_root, jar_path, nthreads)
+        else:
+            print('No jar file found. Could not start local instance.')
+            print('Jar Paths searched: ')
+            for jp in jarpaths:
+                print(('\t' + jp))
+            print()
+            raise
+    __H2OCONN__._cld = cld
+    if (strict_version_check and (os.environ.get('H2O_DISABLE_STRICT_VERSION_CHECK') is None)):
+        ver_h2o = cld['version']
+        from .__init__ import __version__
+        ver_pkg = ('UNKNOWN' if (__version__ == 'SUBST_PROJECT_VERSION') else __version__)
+        if (ver_h2o != ver_pkg):
+            try:
+                branch_name_h2o = cld['branch_name']
+            except KeyError:
+                branch_name_h2o = None
+            else:
+                branch_name_h2o = cld['branch_name']
+            try:
+                build_number_h2o = cld['build_number']
+            except KeyError:
+                build_number_h2o = None
+            else:
+                build_number_h2o = cld['build_number']
+            if (build_number_h2o is None):
+                raise EnvironmentError('Version mismatch. H2O is version {0}, but the h2o-python package is version {1}. Upgrade H2O and h2o-Python to latest stable version - http://h2o-release.s3.amazonaws.com/h2o/latest_stable.html'.format(ver_h2o, str(ver_pkg)))
+            elif (build_number_h2o == 'unknown'):
+                raise EnvironmentError('Version mismatch. H2O is version {0}, but the h2o-python package is version {1}. Upgrade H2O and h2o-Python to latest stable version - http://h2o-release.s3.amazonaws.com/h2o/latest_stable.html'.format(ver_h2o, str(ver_pkg)))
+            elif (build_number_h2o == '99999'):
+                raise EnvironmentError('Version mismatch. H2O is version {0}, but the h2o-python package is version {1}. This is a developer build, please contact your developer.'.format(ver_h2o, str(ver_pkg)))
+            else:
+                raise EnvironmentError('Version mismatch. H2O is version {0}, but the h2o-python package is version {1}. Install the matching h2o-Python version from - http://h2o-release.s3.amazonaws.com/h2o/{2}/{3}/index.html.'.format(ver_h2o, str(ver_pkg), branch_name_h2o, build_number_h2o))
+    self._session_id = H2OConnection.get_json(url_suffix='InitID')['session_key']
+    H2OConnection._cluster_info()
