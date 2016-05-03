@@ -1,16 +1,18 @@
 {
   self_cancel1();
-  if (_nleft != null)   try {
-    _nleft.get();
+  RPC<T> nl=_nleft;
+  if (nl != null)   try {
+    nl.get();
   }
  catch (  Throwable ignore) {
   }
   _nleft=null;
-  if (_nrite != null)   try {
-    _nrite.get();
+  RPC<T> nr=_nrite;
+  if (nr != null)   try {
+    nr.get();
   }
  catch (  Throwable ignore) {
   }
   _nrite=null;
-  return super.onExceptionalCompletion(ex,caller);
+  return true;
 }
