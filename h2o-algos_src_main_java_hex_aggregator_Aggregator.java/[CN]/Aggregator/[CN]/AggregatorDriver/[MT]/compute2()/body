@@ -19,7 +19,8 @@
     _job.update(1,"Aggregating exemplar assignments.");
     new RenumberTask(aggTask._mapping).doAll(assignment);
     model._exemplars=aggTask._exemplars;
-    model._counts=aggTask._counts;
+    model._counts=new long[aggTask._exemplars.length];
+    for (int i=0; i < aggTask._exemplars.length; ++i)     model._counts[i]=aggTask._exemplars[i]._cnt;
     model._exemplar_assignment_vec_key=assignment._key;
     model._output._output_frame=Key.make("aggregated_" + _parms._train.toString() + "_by_"+ model._key);
     _job.update(1,"Creating output frame.");
