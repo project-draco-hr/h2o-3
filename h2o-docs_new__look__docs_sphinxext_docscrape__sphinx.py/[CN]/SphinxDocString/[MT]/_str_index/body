@@ -1,0 +1,14 @@
+def _str_index(self):
+    idx = self['index']
+    out = []
+    if (len(idx) == 0):
+        return out
+    out += [('.. index:: %s' % idx.get('default', ''))]
+    for (section, references) in idx.iteritems():
+        if (section == 'default'):
+            continue
+        elif (section == 'refguide'):
+            out += [('   single: %s' % ', '.join(references))]
+        else:
+            out += [('   %s: %s' % (section, ','.join(references)))]
+    return out

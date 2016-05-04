@@ -1,0 +1,6 @@
+def set_package_name(self, package_name):
+    " Set package_name\n\n        >>> docwriter = ApiDocWriter('sphinx')\n        >>> import sphinx\n        >>> docwriter.root_path == sphinx.__path__[0]\n        True\n        >>> docwriter.package_name = 'docutils'\n        >>> import docutils\n        >>> docwriter.root_path == docutils.__path__[0]\n        True\n        "
+    self._package_name = package_name
+    self.root_module = __import__(package_name)
+    self.root_path = self.root_module.__path__[0]
+    self.written_modules = None

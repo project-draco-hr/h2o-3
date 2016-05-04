@@ -1,0 +1,45 @@
+def _parse_see_also(self, content):
+    '\n        func_name : Descriptive text\n            continued text\n        another_func_name : Descriptive text\n        func_name1, func_name2, :meth:`func_name`, func_name3\n\n        '
+    items = []
+
+    def parse_item_name(text):
+        "Match ':role:`name`' or 'name'"
+        m = self._name_rgx.match(text)
+        if m:
+            g = m.groups()
+            if (g[1] is None):
+                return (g[3], None)
+            else:
+                return (g[2], g[1])
+        raise ValueError(('%s is not a item name' % text))
+
+    def push_item(name, rest):
+        if (not name):
+            return
+        (name, role) = parse_item_name(name)
+        items.append((name, list(rest), role))
+        del rest[:]
+    current_func = None
+    rest = []
+    for line in content:
+        if (not line.strip()):
+            continue
+        m = self._name_rgx.match(line)
+        if (m and line[m.end():].strip().startswith(':')):
+            push_item(current_func, rest)
+            (current_func, line) = (line[:m.end()], line[m.end():])
+            rest = [line.split(':', 1)[1].strip()]
+            if (not rest[0]):
+                rest = []
+        elif (not line.startswith(' ')):
+            push_item(current_func, rest)
+            current_func = None
+            if (',' in line):
+                for func in line.split(','):
+                    push_item(func, [])
+            elif line.strip():
+                current_func = line
+        elif (current_func is not None):
+            rest.append(line.strip())
+    push_item(current_func, rest)
+    return items

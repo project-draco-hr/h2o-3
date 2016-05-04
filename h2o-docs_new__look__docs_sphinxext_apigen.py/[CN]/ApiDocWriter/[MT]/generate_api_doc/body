@@ -1,0 +1,38 @@
+def generate_api_doc(self, uri):
+    "Make autodoc documentation template string for a module\n\n        Parameters\n        ----------\n        uri : string\n            python location of module - e.g 'sphinx.builder'\n\n        Returns\n        -------\n        S : string\n            Contents of API doc\n        "
+    (functions, classes) = self._parse_module(uri)
+    if ((not len(functions)) and (not len(classes))):
+        print 'WARNING: Empty -', uri
+        return ''
+    uri_short = re.sub(('^%s\\.' % self.package_name), '', uri)
+    ad = '.. AUTO-GENERATED FILE -- DO NOT EDIT!\n\n'
+    chap_title = uri_short
+    ad += (((chap_title + '\n') + (self.rst_section_levels[1] * len(chap_title))) + '\n\n')
+    if ('.' in uri):
+        title = (('Module: :mod:`' + uri_short) + '`')
+    else:
+        title = ((':mod:`' + uri_short) + '`')
+    ad += ((title + '\n') + (self.rst_section_levels[2] * len(title)))
+    if len(classes):
+        ad += ('\nInheritance diagram for ``%s``:\n\n' % uri)
+        ad += ('.. inheritance-diagram:: %s \n' % uri)
+        ad += '   :parts: 3\n'
+    ad += (('\n.. automodule:: ' + uri) + '\n')
+    ad += (('\n.. currentmodule:: ' + uri) + '\n')
+    multi_class = (len(classes) > 1)
+    multi_fx = (len(functions) > 1)
+    if multi_class:
+        ad += (((('\n' + 'Classes') + '\n') + (self.rst_section_levels[2] * 7)) + '\n')
+    elif (len(classes) and multi_fx):
+        ad += (((('\n' + 'Class') + '\n') + (self.rst_section_levels[2] * 5)) + '\n')
+    for c in classes:
+        ad += (((('\n:class:`' + c) + '`\n') + (self.rst_section_levels[(multi_class + 2)] * (len(c) + 9))) + '\n\n')
+        ad += (('\n.. autoclass:: ' + c) + '\n')
+        ad += '  :members:\n  :undoc-members:\n  :show-inheritance:\n  :inherited-members:\n\n  .. automethod:: __init__\n'
+    if multi_fx:
+        ad += (((('\n' + 'Functions') + '\n') + (self.rst_section_levels[2] * 9)) + '\n\n')
+    elif (len(functions) and multi_class):
+        ad += (((('\n' + 'Function') + '\n') + (self.rst_section_levels[2] * 8)) + '\n\n')
+    for f in functions:
+        ad += (((('\n.. autofunction:: ' + uri) + '.') + f) + '\n\n')
+    return ad

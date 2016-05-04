@@ -1,0 +1,18 @@
+def get_doc_object(obj, what=None, doc=None):
+    if (what is None):
+        if inspect.isclass(obj):
+            what = 'class'
+        elif inspect.ismodule(obj):
+            what = 'module'
+        elif callable(obj):
+            what = 'function'
+        else:
+            what = 'object'
+    if (what == 'class'):
+        return SphinxClassDoc(obj, '', func_doc=SphinxFunctionDoc, doc=doc)
+    elif (what in ('function', 'method')):
+        return SphinxFunctionDoc(obj, '', doc=doc)
+    else:
+        if (doc is None):
+            doc = pydoc.getdoc(obj)
+        return SphinxDocString(doc)

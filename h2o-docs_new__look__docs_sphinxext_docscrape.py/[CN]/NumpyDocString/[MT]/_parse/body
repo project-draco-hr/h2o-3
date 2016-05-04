@@ -1,0 +1,14 @@
+def _parse(self):
+    self._doc.reset()
+    self._parse_summary()
+    for (section, content) in self._read_sections():
+        if (not section.startswith('..')):
+            section = ' '.join([s.capitalize() for s in section.split(' ')])
+        if (section in ('Parameters', 'Attributes', 'Methods', 'Returns', 'Raises', 'Warns')):
+            self[section] = self._parse_param_list(content)
+        elif section.startswith('.. index::'):
+            self['index'] = self._parse_index(section, content)
+        elif (section == 'See Also'):
+            self['See Also'] = self._parse_see_also(content)
+        else:
+            self[section] = content

@@ -1,0 +1,11 @@
+def _str_param_list(self, name):
+    out = []
+    if self[name]:
+        out += self._str_field_list(name)
+        out += ['']
+        for (param, param_type, desc) in self[name]:
+            out += self._str_indent([('**%s** : %s' % (param.strip(), param_type))])
+            out += ['']
+            out += self._str_indent(desc, 8)
+            out += ['']
+    return out

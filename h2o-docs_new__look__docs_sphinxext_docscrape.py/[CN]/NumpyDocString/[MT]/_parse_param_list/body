@@ -1,0 +1,13 @@
+def _parse_param_list(self, content):
+    r = Reader(content)
+    params = []
+    while (not r.eof()):
+        header = r.read().strip()
+        if (' : ' in header):
+            (arg_name, arg_type) = header.split(' : ')[:2]
+        else:
+            (arg_name, arg_type) = (header, '')
+        desc = r.read_to_next_unindented_line()
+        desc = dedent_lines(desc)
+        params.append((arg_name, arg_type, desc))
+    return params

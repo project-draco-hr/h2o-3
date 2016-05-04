@@ -1,0 +1,9 @@
+def _is_at_section(self):
+    self._doc.seek_next_non_empty_line()
+    if self._doc.eof():
+        return False
+    l1 = self._doc.peek().strip()
+    if l1.startswith('.. index::'):
+        return True
+    l2 = self._doc.peek(1).strip()
+    return (l2.startswith(('-' * len(l1))) or l2.startswith(('=' * len(l1))))

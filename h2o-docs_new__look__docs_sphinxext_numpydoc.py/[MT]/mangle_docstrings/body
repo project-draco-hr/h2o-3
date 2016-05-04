@@ -1,0 +1,30 @@
+def mangle_docstrings(app, what, name, obj, options, lines, reference_offset=[0]):
+    if (what == 'module'):
+        title_re = re.compile('^\\s*[#*=]{4,}\\n[a-z0-9 -]+\\n[#*=]{4,}\\s*', (re.I | re.S))
+        lines[:] = title_re.sub('', '\n'.join(lines)).split('\n')
+    else:
+        doc = get_doc_object(obj, what, '\n'.join(lines))
+        lines[:] = str(doc).split('\n')
+    if (app.config.numpydoc_edit_link and hasattr(obj, '__name__') and obj.__name__):
+        if hasattr(obj, '__module__'):
+            v = dict(full_name=('%s.%s' % (obj.__module__, obj.__name__)))
+        else:
+            v = dict(full_name=obj.__name__)
+        lines += ['', '.. htmlonly::', '']
+        lines += [('    %s' % x) for x in (app.config.numpydoc_edit_link % v).split('\n')]
+    references = []
+    for l in lines:
+        l = l.strip()
+        if l.startswith('.. ['):
+            try:
+                references.append(int(l[len('.. ['):l.index(']')]))
+            except ValueError:
+                print ('WARNING: invalid reference in %s docstring' % name)
+    references.sort()
+    if references:
+        for (i, line) in enumerate(lines):
+            for r in references:
+                new_r = (reference_offset[0] + r)
+                lines[i] = lines[i].replace(('[%d]_' % r), ('[%d]_' % new_r))
+                lines[i] = lines[i].replace(('.. [%d]' % r), ('.. [%d]' % new_r))
+    reference_offset[0] += len(references)

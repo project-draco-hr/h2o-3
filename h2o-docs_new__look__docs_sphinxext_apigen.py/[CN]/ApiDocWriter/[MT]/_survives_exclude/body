@@ -1,0 +1,19 @@
+def _survives_exclude(self, matchstr, match_type):
+    " Returns True if *matchstr* does not match patterns\n\n        ``self.package_name`` removed from front of string if present\n\n        Examples\n        --------\n        >>> dw = ApiDocWriter('sphinx')\n        >>> dw._survives_exclude('sphinx.okpkg', 'package')\n        True\n        >>> dw.package_skip_patterns.append('^\\.badpkg$')\n        >>> dw._survives_exclude('sphinx.badpkg', 'package')\n        False\n        >>> dw._survives_exclude('sphinx.badpkg', 'module')\n        True\n        >>> dw._survives_exclude('sphinx.badmod', 'module')\n        True\n        >>> dw.module_skip_patterns.append('^\\.badmod$')\n        >>> dw._survives_exclude('sphinx.badmod', 'module')\n        False\n        "
+    if (match_type == 'module'):
+        patterns = self.module_skip_patterns
+    elif (match_type == 'package'):
+        patterns = self.package_skip_patterns
+    else:
+        raise ValueError(('Cannot interpret match type "%s"' % match_type))
+    L = len(self.package_name)
+    if (matchstr[:L] == self.package_name):
+        matchstr = matchstr[L:]
+    for pat in patterns:
+        try:
+            pat.search
+        except AttributeError:
+            pat = re.compile(pat)
+        if pat.search(matchstr):
+            return False
+    return True

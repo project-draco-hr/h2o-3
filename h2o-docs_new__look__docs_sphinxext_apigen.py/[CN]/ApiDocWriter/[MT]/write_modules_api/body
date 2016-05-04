@@ -1,0 +1,12 @@
+def write_modules_api(self, modules, outdir):
+    written_modules = []
+    for m in modules:
+        api_str = self.generate_api_doc(m)
+        if (not api_str):
+            continue
+        outfile = os.path.join(outdir, (m + self.rst_extension))
+        fileobj = open(outfile, 'wt')
+        fileobj.write(api_str)
+        fileobj.close()
+        written_modules.append(m)
+    self.written_modules = written_modules

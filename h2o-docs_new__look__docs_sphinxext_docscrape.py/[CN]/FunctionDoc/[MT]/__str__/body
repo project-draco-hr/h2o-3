@@ -1,0 +1,11 @@
+def __str__(self):
+    out = ''
+    (func, func_name) = self.get_func()
+    signature = self['Signature'].replace('*', '\\*')
+    roles = {'func': 'function', 'meth': 'method', }
+    if self._role:
+        if (not roles.has_key(self._role)):
+            print ('Warning: invalid role %s' % self._role)
+        out += ('.. %s:: %s\n    \n\n' % (roles.get(self._role, ''), func_name))
+    out += super(FunctionDoc, self).__str__(func_role=self._role)
+    return out

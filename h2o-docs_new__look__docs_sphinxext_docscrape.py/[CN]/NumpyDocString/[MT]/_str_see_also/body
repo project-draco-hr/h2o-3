@@ -1,0 +1,25 @@
+def _str_see_also(self, func_role):
+    if (not self['See Also']):
+        return []
+    out = []
+    out += self._str_header('See Also')
+    last_had_desc = True
+    for (func, desc, role) in self['See Also']:
+        if role:
+            link = (':%s:`%s`' % (role, func))
+        elif func_role:
+            link = (':%s:`%s`' % (func_role, func))
+        else:
+            link = ('`%s`_' % func)
+        if (desc or last_had_desc):
+            out += ['']
+            out += [link]
+        else:
+            out[(-1)] += (', %s' % link)
+        if desc:
+            out += self._str_indent([' '.join(desc)])
+            last_had_desc = True
+        else:
+            last_had_desc = False
+    out += ['']
+    return out

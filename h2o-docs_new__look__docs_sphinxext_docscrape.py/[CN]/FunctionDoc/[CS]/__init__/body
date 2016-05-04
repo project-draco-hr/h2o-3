@@ -1,0 +1,21 @@
+def __init__(self, func, role='func', doc=None):
+    self._f = func
+    self._role = role
+    if (doc is None):
+        doc = (inspect.getdoc(func) or '')
+    try:
+        NumpyDocString.__init__(self, doc)
+    except ValueError as e:
+        print ('*' * 78)
+        print ("ERROR: '%s' while parsing `%s`" % (e, self._f))
+        print ('*' * 78)
+    if (not self['Signature']):
+        (func, func_name) = self.get_func()
+        try:
+            argspec = inspect.getargspec(func)
+            argspec = inspect.formatargspec(*argspec)
+            argspec = argspec.replace('*', '\\*')
+            signature = ('%s%s' % (func_name, argspec))
+        except TypeError as e:
+            signature = ('%s()' % func_name)
+        self['Signature'] = signature

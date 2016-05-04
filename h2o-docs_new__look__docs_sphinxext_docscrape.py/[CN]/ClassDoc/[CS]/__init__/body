@@ -1,0 +1,12 @@
+def __init__(self, cls, modulename='', func_doc=FunctionDoc, doc=None):
+    if (not inspect.isclass(cls)):
+        raise ValueError(('Initialise using a class. Got %r' % cls))
+    self._cls = cls
+    if (modulename and (not modulename.endswith('.'))):
+        modulename += '.'
+    self._mod = modulename
+    self._name = cls.__name__
+    self._func_doc = func_doc
+    if (doc is None):
+        doc = pydoc.getdoc(cls)
+    NumpyDocString.__init__(self, doc)

@@ -1,0 +1,14 @@
+def _uri2path(self, uri):
+    " Convert uri to absolute filepath\n\n        Parameters\n        ----------\n        uri : string\n            URI of python module to return path for\n\n        Returns\n        -------\n        path : None or string\n            Returns None if there is no valid path for this URI\n            Otherwise returns absolute file system path for URI\n\n        Examples\n        --------\n        >>> docwriter = ApiDocWriter('sphinx')\n        >>> import sphinx\n        >>> modpath = sphinx.__path__[0]\n        >>> res = docwriter._uri2path('sphinx.builder')\n        >>> res == os.path.join(modpath, 'builder.py')\n        True\n        >>> res = docwriter._uri2path('sphinx')\n        >>> res == os.path.join(modpath, '__init__.py')\n        True\n        >>> docwriter._uri2path('sphinx.does_not_exist')\n\n        "
+    if (uri == self.package_name):
+        return os.path.join(self.root_path, '__init__.py')
+    path = uri.replace('.', os.path.sep)
+    path = path.replace((self.package_name + os.path.sep), '')
+    path = os.path.join(self.root_path, path)
+    if os.path.exists((path + '.py')):
+        path += '.py'
+    elif os.path.exists(os.path.join(path, '__init__.py')):
+        path = os.path.join(path, '__init__.py')
+    else:
+        return None
+    return path
