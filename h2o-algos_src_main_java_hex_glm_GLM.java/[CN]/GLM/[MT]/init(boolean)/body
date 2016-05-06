@@ -59,11 +59,12 @@ if (setWeights) {
 Vec wc=_weights == null ? _dinfo._adaptedFrame.anyVec().makeCon(1) : _weights.makeCopy();
 _dinfo.setWeights(_generatedWeights="__glm_gen_weights",wc);
 }
-YMUTask ymt=new YMUTask(_dinfo,_parms._family == Family.multinomial ? nclasses() : 1,!_parms._stdOverride,setWeights,skippingRows,true).doAll(_dinfo._adaptedFrame);
-if (ymt._wsum == 0) throw new IllegalArgumentException("No rows left in the dataset after filtering out rows with missing values. Ignore columns with many NAs or impute your missing values prior to calling glm.");
-Log.info(LogMsg("using " + ymt._nobs + " nobs out of "+ _dinfo._adaptedFrame.numRows()+ " total"));
-_nobs=ymt._nobs;
-if (_parms._obj_reg == -1) _parms._obj_reg=1.0 / ymt._wsum;
+int[] coffsets=null;
+YMUTask ymt=new YMUTask(_dinfo,_parms._family == Family.multinomial ? nclasses() : 1,setWeights,skippingRows,true).doAll(_dinfo._adaptedFrame);
+if (ymt.wsum() == 0) throw new IllegalArgumentException("No rows left in the dataset after filtering out rows with missing values. Ignore columns with many NAs or impute your missing values prior to calling glm.");
+Log.info(LogMsg("using " + ymt.nobs() + " nobs out of "+ _dinfo._adaptedFrame.numRows()+ " total"));
+_nobs=ymt.nobs();
+if (_parms._obj_reg == -1) _parms._obj_reg=1.0 / ymt.wsum();
 if (!_parms._stdOverride) _dinfo.updateWeightedSigmaAndMean(ymt.predictorSDs(),ymt.predictorMeans());
 _state._ymu=_parms._intercept ? ymt._yMu : new double[]{_parms.linkInv(0)};
 }
