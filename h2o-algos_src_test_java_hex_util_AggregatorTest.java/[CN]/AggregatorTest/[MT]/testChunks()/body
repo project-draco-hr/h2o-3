@@ -3,7 +3,9 @@
   AggregatorModel.AggregatorParameters parms=new AggregatorModel.AggregatorParameters();
   parms._train=frame._key;
   parms._radius_scale=3.0;
+  long start=System.currentTimeMillis();
   AggregatorModel agg=new Aggregator(parms).trainModel().get();
+  System.out.println("AggregatorModel finished in: " + (System.currentTimeMillis() - start) / 1000. + " seconds");
   agg.checkConsistency();
   Frame output=agg._output._output_frame.get();
   Log.info("Number of exemplars: " + agg._exemplars.length);
@@ -18,7 +20,9 @@
     parms=new AggregatorModel.AggregatorParameters();
     parms._train=frame._key;
     parms._radius_scale=3.0;
+    start=System.currentTimeMillis();
     AggregatorModel agg2=new Aggregator(parms).trainModel().get();
+    System.out.println("AggregatorModel finished in: " + (System.currentTimeMillis() - start) / 1000. + " seconds");
     agg2.checkConsistency();
     Log.info("Number of exemplars for " + i + " chunks: "+ agg2._exemplars.length);
     rebalanced.delete();

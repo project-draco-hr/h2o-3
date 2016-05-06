@@ -1,6 +1,12 @@
 {
   validateModelCategory(c);
-  double[] preds=new double[m.getPredsSize()];
+  double[] preds=null;
+  if (c == ModelCategory.DimReduction) {
+    preds=new double[m.nclasses()];
+  }
+ else {
+    preds=new double[m.getPredsSize()];
+  }
   preds=predict(data,preds);
   return preds;
 }
