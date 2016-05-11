@@ -5,19 +5,21 @@
     return;
   }
   final Categorical[] parseCatMaps=MultiFileParseTask._categoricals.get(_parseCatMapsKey);
-  int[][] _nodeOrdMaps=new int[_eColCnt][];
-  int catColIdx=0;
-  for (int colIdx=0; colIdx < parseCatMaps.length; colIdx++) {
+  int[][] _nodeOrdMaps=new int[_ecol.length][];
+  for (int eColIdx=0; eColIdx < _ecol.length; eColIdx++) {
+    int colIdx=_ecol[eColIdx];
     if (parseCatMaps[colIdx].size() != 0) {
-      _nodeOrdMaps[catColIdx]=MemoryManager.malloc4(parseCatMaps[colIdx].maxId() + 1);
-      Arrays.fill(_nodeOrdMaps[catColIdx],-1);
+      _nodeOrdMaps[eColIdx]=MemoryManager.malloc4(parseCatMaps[colIdx].maxId() + 1);
+      Arrays.fill(_nodeOrdMaps[eColIdx],-1);
       final BufferedString[] unifiedDomain=BufferedString.toBufferedString(_fr.vec(colIdx).domain());
       for (int i=0; i < unifiedDomain.length; i++) {
         if (parseCatMaps[colIdx].containsKey(unifiedDomain[i])) {
-          _nodeOrdMaps[catColIdx][parseCatMaps[colIdx].getTokenId(unifiedDomain[i])]=i;
+          _nodeOrdMaps[eColIdx][parseCatMaps[colIdx].getTokenId(unifiedDomain[i])]=i;
         }
       }
-      catColIdx++;
+    }
+ else {
+      Log.debug("Column " + colIdx + " was marked as categorical but categorical map is empty!");
     }
   }
   DKV.put(Key.make(_parseCatMapsKey.toString() + "parseCatMapNode" + H2O.SELF.index()),new CategoricalUpdateMap(_nodeOrdMaps));

@@ -1,0 +1,8 @@
+def setup_data(self):
+    '\n        This function performs all initializations necessary:\n        1. generates all the random values for our dynamic tests like the Gaussian\n        noise std, column count and row count for training/test data sets.\n        2. generate the appropriate data sets.\n        '
+    self.sandbox_dir = pyunit_utils.make_Rsandbox_dir(self.current_dir, self.test_name, True)
+    self.training1_data = h2o.import_file(path=pyunit_utils.locate(self.training1_filename))
+    self.y_index = (self.training1_data.ncol - 1)
+    self.x_indices = list(range(self.y_index))
+    self.training1_data[self.y_index] = self.training1_data[self.y_index].round().asfactor()
+    pyunit_utils.remove_csv_files(self.current_dir, '.csv', action='copy', new_dir_path=self.sandbox_dir)
