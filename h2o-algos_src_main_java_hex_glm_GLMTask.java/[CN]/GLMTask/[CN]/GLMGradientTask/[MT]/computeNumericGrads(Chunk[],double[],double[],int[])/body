@@ -4,10 +4,17 @@
     double NA=_dinfo._numMeans[cid];
     Chunk c=chks[cid + _dinfo._cats];
     double scale=_dinfo._normMul == null ? 1 : _dinfo._normMul[cid];
-    if (c.isSparseZero() || c.isSparseNA()) {
+    if (c.isSparseZero()) {
       double g=0;
       int nVals=c.asSparseDoubles(vals,ids,NA);
       for (int i=0; i < nVals; ++i)       g+=vals[i] * scale * etas[ids[i]];
+      _gradient[numOff + cid]=g;
+    }
+ else     if (c.isSparseNA()) {
+      double off=_dinfo._normSub == null ? 0 : _dinfo._normSub[cid];
+      double g=0;
+      int nVals=c.asSparseDoubles(vals,ids,NA);
+      for (int i=0; i < nVals; ++i)       g+=(vals[i] - off) * scale * etas[ids[i]];
       _gradient[numOff + cid]=g;
     }
  else {

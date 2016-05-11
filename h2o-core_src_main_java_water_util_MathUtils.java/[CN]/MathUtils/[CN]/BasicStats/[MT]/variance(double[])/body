@@ -1,5 +1,7 @@
 {
-  double reg=_nobs / (_nobs - 1.0);
-  for (int i=0; i < res.length; ++i)   res[i]=reg * _m2[i] / _wsums[i];
+  for (int i=0; i < res.length; ++i) {
+    long nobs=_nobs - _naCnt[i];
+    res[i]=(nobs / (nobs - 1.0)) * _m2[i] / _wsums[i];
+  }
   return res;
 }

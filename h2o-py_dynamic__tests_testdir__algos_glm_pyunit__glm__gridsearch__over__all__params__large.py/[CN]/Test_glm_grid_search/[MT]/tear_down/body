@@ -1,0 +1,10 @@
+def tear_down(self):
+    '\n        This function performs teardown after the dynamic test is completed.  If all tests\n        passed, it will delete all data sets generated since they can be quite large.  It\n        will move the training/validation/test data sets into a Rsandbox directory so that\n        we can re-run the failed test.\n        '
+    if self.test_failed:
+        self.sandbox_dir = pyunit_utils.make_Rsandbox_dir(self.current_dir, self.test_name, True)
+        pyunit_utils.move_files(self.sandbox_dir, self.training1_data_file, self.training1_filename)
+        json_file = os.path.join(self.sandbox_dir, self.json_filename)
+        with open(json_file, 'wb') as test_file:
+            json.dump(self.hyper_params, test_file)
+    else:
+        pyunit_utils.make_Rsandbox_dir(self.current_dir, self.test_name, False)
