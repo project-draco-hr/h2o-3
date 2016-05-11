@@ -3,7 +3,9 @@
   AggregatorModel.AggregatorParameters parms=new AggregatorModel.AggregatorParameters();
   parms._train=frame._key;
   parms._radius_scale=100.0;
+  long start=System.currentTimeMillis();
   AggregatorModel agg=new Aggregator(parms).trainModel().get();
+  System.out.println("AggregatorModel finished in: " + (System.currentTimeMillis() - start) / 1000. + " seconds");
   agg.checkConsistency();
   frame.delete();
   Frame output=agg._output._output_frame.get();
