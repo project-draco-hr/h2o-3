@@ -1,0 +1,12 @@
+def test2_glm_lambda_search(self):
+    '\n        This test is used to test the lambda search.  Recall that lambda search enables efficient and\n        automatic search for the optimal value of the lambda parameter.  When lambda search is enabled,\n        GLM will first fit a model with maximum regularization and then keep decreasing it until\n        over fitting occurs.  The resulting model is based on the best lambda value.  According to Tomas,\n        set alpha = 0.5 and enable validation but not cross-validation.\n        '
+    print('*******************************************************************************************')
+    print('Test2: tests the lambda search.')
+    model_h2o_0p5 = H2OGeneralizedLinearEstimator(family=self.family, lambda_search=True, alpha=0.5, lambda_min_ratio=1e-20)
+    model_h2o_0p5.train(x=self.x_indices, y=self.y_index, training_frame=self.training_data, validation_frame=self.valid_data)
+    self.best_lambda = pyunit_utils.get_train_glm_params(model_h2o_0p5, 'best_lambda')
+    h2o_model_0p5_test_metrics = model_h2o_0p5.model_performance(test_data=self.test_data)
+    num_test_failed = self.test_failed
+    (_, _, _, _, _, _, self.test_failed) = pyunit_utils.extract_comparison_attributes_and_print(model_h2o_0p5, h2o_model_0p5_test_metrics, '\nTest2 Done!', False, False, False, self.test1_weight, None, self.test1_mse_train, self.test1_mse_test, 'Comparing intercept and weights ....', 'H2O lambda search intercept and weights: ', 'H2O test1 template intercept and weights: ', 'Intercept and weights are not equal!', 'Intercept and weights are close enough!', '', '', '', '', '', 'Comparing training MSEs ....', 'H2O lambda search training MSE: ', 'H2O Test1 template training MSE: ', 'Training MSEs are not equal!', 'Training MSEs are close enough!', 'Comparing test MSEs ....', 'H2O lambda search test MSE: ', 'H2O Test1 template test MSE: ', 'Test MSEs are not equal!', 'Test MSEs are close enough!', self.test_failed, self.ignored_eps, self.allowed_diff, self.noise_var, True)
+    self.test_failed_array[self.test_num] += pyunit_utils.show_test_results('test2_glm_lambda_search', num_test_failed, self.test_failed)
+    self.test_num += 1

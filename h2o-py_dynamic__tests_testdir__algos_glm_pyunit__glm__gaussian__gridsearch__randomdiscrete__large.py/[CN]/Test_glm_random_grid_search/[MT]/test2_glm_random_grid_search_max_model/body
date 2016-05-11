@@ -1,0 +1,28 @@
+def test2_glm_random_grid_search_max_model(self):
+    '\n        This test is used to test the stopping condition max_model_number in the randomized gridsearch.  The\n        max_models parameter is randomly generated.  If it is higher than the actual possible number of models\n        that can be generated with the current hyper-space parameters, randomized grid search should generate\n        all the models.  Otherwise, grid search shall return a model that equals to the max_model setting.\n        '
+    print('*******************************************************************************************')
+    print(('test2_glm_random_grid_search_max_model for GLM ' + self.family))
+    h2o.cluster_info()
+    self.max_model_number = random.randint(1, int((self.allowed_scaled_model_number * self.possible_number_models)))
+    search_criteria = {'strategy': 'RandomDiscrete', 'max_models': self.max_model_number, 'seed': round(time.time()), }
+    print('GLM Gaussian grid search_criteria: {0}'.format(search_criteria))
+    print('Possible number of models built is {0}'.format(self.possible_number_models))
+    grid_model = H2OGridSearch(H2OGeneralizedLinearEstimator(family=self.family, nfolds=self.nfolds), hyper_params=self.hyper_params, search_criteria=search_criteria)
+    grid_model.train(x=self.x_indices, y=self.y_index, training_frame=self.training1_data)
+    number_model_built = len(grid_model)
+    print('Maximum model limit is {0}.  Number of models built is {1}'.format(search_criteria['max_models'], number_model_built))
+    if (self.possible_number_models >= self.max_model_number):
+        if (not (number_model_built == self.max_model_number)):
+            print('test2_glm_random_grid_search_max_model: failed.  Number of model built {0} does not match stopping condition number{1}.'.format(number_model_built, self.max_model_number))
+            self.test_failed += 1
+            self.test_failed_array[self.test_num] = 1
+        else:
+            print('test2_glm_random_grid_search_max_model for GLM: passed.')
+    elif (not (number_model_built == self.possible_number_models)):
+        self.test_failed += 1
+        self.test_failed_array[self.test_num] = 1
+        print('test2_glm_random_grid_search_max_model: failed. Number of model built {0} does not equal to possible model number {1}.'.format(number_model_built, self.possible_number_models))
+    else:
+        print('test2_glm_random_grid_search_max_model for GLM: passed.')
+    self.test_num += 1
+    sys.stdout.flush()

@@ -1,0 +1,18 @@
+def test4_glm_random_grid_search_metric(self, metric_name, bigger_is_better):
+    '\n        This function will test the last stopping condition using metrics.\n\n        :param metric_name: metric we want to use to test the last stopping condition\n        :param bigger_is_better: higher metric value indicates better model performance\n\n        :return: None\n        '
+    print('*******************************************************************************************')
+    print(((('test4_glm_random_grid_search_metric using ' + metric_name) + ' for family ') + self.family))
+    h2o.cluster_info()
+    search_criteria = {'strategy': 'RandomDiscrete', 'stopping_metric': metric_name, 'stopping_tolerance': random.uniform(1e-08, self.max_tolerance), 'stopping_rounds': random.randint(1, self.max_stopping_rounds), 'seed': round(time.time()), }
+    print('GLM Gaussian grid search_criteria: {0}'.format(search_criteria))
+    self.hyper_params['max_runtime_secs'] = [0.3]
+    grid_model = H2OGridSearch(H2OGeneralizedLinearEstimator(family=self.family, nfolds=self.nfolds), hyper_params=self.hyper_params, search_criteria=search_criteria)
+    grid_model.train(x=self.x_indices, y=self.y_index, training_frame=self.training1_data)
+    stopped_correctly = pyunit_utils.evaluate_metrics_stopping(grid_model.models, metric_name, bigger_is_better, search_criteria, self.possible_number_models)
+    if stopped_correctly:
+        print((('test4_glm_random_grid_search_metric ' + metric_name) + ': passed. '))
+    else:
+        self.test_failed += 1
+        self.test_failed_array[self.test_num] = 1
+        print((('test4_glm_random_grid_search_metric ' + metric_name) + ': failed. '))
+    self.test_num += 1
