@@ -1,17 +1,4 @@
 {
   if (_predictorSDs != null)   return _predictorSDs;
-  if (!_basicStats.sparse())   return (_predictorSDs=_basicStats.sigma());
-  double[] means=_basicStats.mean();
-  double[] sigma=new double[means.length];
-  Frame fr=new Frame(_fr);
-  if (_responseId >= 0)   fr.remove(_responseId);
-  int wid=_weightId > _responseId ? _weightId - 1 : _weightId;
-  WeightedSDTask wsdt=new WeightedSDTask(wid,means).doAll(fr);
-  long nobs=_basicStats.nobs();
-  double wsum=_basicStats._wsum;
-  for (int i=0; i < wsdt._varSum.length; ++i) {
-    long zeros=nobs - _basicStats._nzCnt[i];
-    sigma[i]=Math.sqrt((wsdt._varSum[i] + means[i] * means[i] * zeros) / wsum * nobs / (double)(nobs - 1));
-  }
-  return (_predictorSDs=sigma);
+  return (_predictorSDs=_basicStats.sigma());
 }

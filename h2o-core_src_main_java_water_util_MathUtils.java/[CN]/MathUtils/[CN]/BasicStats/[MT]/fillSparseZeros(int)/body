@@ -1,0 +1,12 @@
+{
+  int zeros=(int)(_nobs - _nzCnt[i]);
+  if (zeros > 0) {
+    double muReg=1.0 / (_wsum - _nawsums[i]);
+    double zeromean=0;
+    double delta=_mean[i] - zeromean;
+    double zerowsum=_wsum - _wsums[i] - _nawsums[i];
+    _mean[i]*=_wsums[i] * muReg;
+    _m2[i]+=delta * delta * _wsums[i]* zerowsum* muReg;
+    _wsums[i]+=zerowsum;
+  }
+}
