@@ -1,17 +1,13 @@
 {
-  if (_nobs > 0 && ymt._nobs > 0) {
+  if (ymt._basicStats.nobs() > 0 && ymt._basicStats.nobs() > 0) {
     ArrayUtils.add(_yMu,ymt._yMu);
-    _nobs+=ymt._nobs;
-    _wsum+=ymt._wsum;
     if (_yMin > ymt._yMin)     _yMin=ymt._yMin;
     if (_yMax < ymt._yMax)     _yMax=ymt._yMax;
-    if (_computeWeightedSigma)     _basicStats.reduce(ymt._basicStats);
+    _basicStats.reduce(ymt._basicStats);
     if (_computeWeightedMeanSigmaResponse)     _basicStatsResponse.reduce(ymt._basicStatsResponse);
   }
- else   if (_nobs == 0) {
+ else   if (_basicStats.nobs() == 0) {
     _yMu=ymt._yMu;
-    _nobs=ymt._nobs;
-    _wsum=ymt._wsum;
     _yMin=ymt._yMin;
     _yMax=ymt._yMax;
     _basicStats=ymt._basicStats;

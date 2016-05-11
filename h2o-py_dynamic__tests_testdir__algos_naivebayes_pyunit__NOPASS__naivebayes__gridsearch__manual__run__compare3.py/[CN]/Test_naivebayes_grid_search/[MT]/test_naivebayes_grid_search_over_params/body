@@ -1,0 +1,25 @@
+def test_naivebayes_grid_search_over_params(self):
+    '\n        test_naivebayes_grid_search_over_params performs the following:\n        run gridsearch model and then build each model manually and see if we receive the same error messages.\n        '
+    print('*******************************************************************************************')
+    print('test_naivebayes_grid_search_over_params for naivebayes ')
+    h2o.cluster_info()
+    print('Hyper-parameters used here is {0}'.format(self.final_hyper_params))
+    params_dict = dict()
+    params_dict['nfolds'] = self.nfolds
+    params_list = dict()
+    params_list['fold_assignment'] = self.final_hyper_params['fold_assignment'][0]
+    params_list['max_runtime_secs'] = 10
+    params_list['max_runtime_secs'] = 0.001
+    params_list['laplace'] = self.final_hyper_params['laplace'][0]
+    print('Hyper-parameters used here is {0}\n'.format(params_list))
+    params_list.update(params_dict)
+    model_params = dict()
+    if ('max_runtime_secs' in params_list):
+        model_params['max_runtime_secs'] = params_list['max_runtime_secs']
+        max_runtime = params_list['max_runtime_secs']
+        del params_list['max_runtime_secs']
+    else:
+        max_runtime = 0
+    manual_model = H2ONaiveBayesEstimator(**params_list)
+    manual_model.train(x=self.x_indices, y=self.y_index, training_frame=self.training1_data, **model_params)
+    print('Done!')
