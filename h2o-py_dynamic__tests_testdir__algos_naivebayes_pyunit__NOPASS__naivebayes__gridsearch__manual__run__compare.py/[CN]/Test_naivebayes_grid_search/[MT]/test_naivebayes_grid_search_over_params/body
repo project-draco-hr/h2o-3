@@ -1,0 +1,34 @@
+def test_naivebayes_grid_search_over_params(self):
+    '\n        test_naivebayes_grid_search_over_params performs the following:\n        run gridsearch model and then build each model manually and see if we receive the same error messages.\n        '
+    print('*******************************************************************************************')
+    print('test_naivebayes_grid_search_over_params for naivebayes ')
+    h2o.cluster_info()
+    print('Hyper-parameters used here is {0}'.format(self.final_hyper_params))
+    grid_model = H2OGridSearch(H2ONaiveBayesEstimator(nfolds=self.nfolds), hyper_params=self.final_hyper_params)
+    grid_model.train(x=self.x_indices, y=self.y_index, training_frame=self.training1_data)
+    params_dict = dict()
+    params_dict['nfolds'] = self.nfolds
+    manual_model = ([None] * len(grid_model))
+    model_index = 0
+    for each_model in grid_model:
+        params_list = grid_model.get_hyperparams_dict(each_model._id)
+        params_list.update(params_dict)
+        model_params = dict()
+        if ('max_runtime_secs' in params_list):
+            model_params['max_runtime_secs'] = params_list['max_runtime_secs']
+            max_runtime = params_list['max_runtime_secs']
+            del params_list['max_runtime_secs']
+        else:
+            max_runtime = 0
+        if ('validation_frame' in params_list):
+            model_params['validation_frame'] = params_list['validation_frame']
+            del params_list['validation_frame']
+        if ('eps_prob' in params_list):
+            model_params['eps_prob'] = params_list['eps_prob']
+            del params_list['eps_prob']
+        if ('min_prob' in params_list):
+            model_params['min_prob'] = params_list['min_prob']
+            del params_list['min_prob']
+        manual_model[model_index] = H2ONaiveBayesEstimator(**params_list)
+        manual_model[model_index].train(x=self.x_indices, y=self.y_index, training_frame=self.training1_data, **model_params)
+        model_index += 1
