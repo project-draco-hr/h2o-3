@@ -7,16 +7,19 @@
     int counter=grid.getModelCount();
     while (it.hasNext(model)) {
       if (_job.stop_requested())       return;
-      double time_remaining_secs=it.time_remaining_secs();
       double max_runtime_secs=it.max_runtime_secs();
-      if (time_remaining_secs < 0) {
-        Log.info("Grid max_runtime_secs of " + mSformatter.format(max_runtime_secs) + "S has expired; stopping early.");
-        return;
+      double time_remaining_secs=Double.MAX_VALUE;
+      if (max_runtime_secs > 0) {
+        time_remaining_secs=it.time_remaining_secs();
+        if (time_remaining_secs < 0) {
+          Log.info("Grid max_runtime_secs of " + mSformatter.format(max_runtime_secs) + "S has expired; stopping early.");
+          return;
+        }
       }
       MP params;
       try {
         params=it.nextModelParameters(model);
-        if (max_runtime_secs < Double.MAX_VALUE) {
+        if (max_runtime_secs > 0) {
           Log.info("Grid time is limited to: " + max_runtime_secs + " for grid: "+ grid._key+ ". Remaining time is: "+ time_remaining_secs);
           double scale=params._nfolds > 0 ? params._nfolds + 1 : 1;
           if (params._max_runtime_secs == 0) {
