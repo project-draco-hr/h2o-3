@@ -19,10 +19,11 @@
   HyperSpaceWalker.HyperSpaceIterator<MP> it=_hyperSpaceWalker.iterator();
   long gridWork=0;
   if (gridSize > 0) {
-    while (it.hasNext(model)) {
+    int count=0;
+    while (it.hasNext(model) && (it.max_models() > 0 && count++ < it.max_models())) {
       try {
         Model.Parameters parms=it.nextModelParameters(model);
-        gridWork+=(parms._nfolds > 1 ? (parms._nfolds + 2) : 1) * parms.progressUnits();
+        gridWork+=(parms._nfolds > 0 ? (parms._nfolds + 1) : 1) * parms.progressUnits();
       }
  catch (      Throwable ex) {
       }
@@ -38,5 +39,5 @@
       tryComplete();
     }
   }
-,gridWork);
+,gridWork,it.max_runtime_secs());
 }

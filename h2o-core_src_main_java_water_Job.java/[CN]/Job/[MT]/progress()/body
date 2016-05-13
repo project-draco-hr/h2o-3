@@ -1,4 +1,6 @@
 {
   update_from_remote();
-  return _work == 0 ? 0f : Math.min(1,(float)_worked / _work);
+  float regularProgress=_work == 0 ? 0f : Math.min(1,(float)_worked / _work);
+  if (_max_runtime_msecs > 0)   return Math.min(1,Math.max(regularProgress,(float)msec() / _max_runtime_msecs));
+  return regularProgress;
 }
