@@ -4,8 +4,8 @@ def test_na_omits():
     hf_col_summary = h2o.H2OConnection.get_json((('Frames/' + urllib.parse.quote(hf.frame_id)) + '/summary'))['frames'][0]['columns']
     hf_col_summary = sum([e['missing_count'] for e in hf_col_summary])
     assert (hf_col_summary == 1)
-    hf.na_omit()
-    hf.summary()
-    hf_col_summary = h2o.H2OConnection.get_json((('Frames/' + urllib.parse.quote(hf.frame_id)) + '/summary'))['frames'][0]['columns']
-    hf_col_summary = sum([e['missing_count'] for e in hf_col_summary])
-    assert (hf_col_summary == 0)
+    hf_naomit = hf.na_omit()
+    hf_naomit.summary()
+    hf_naomit_col_summary = h2o.H2OConnection.get_json((('Frames/' + urllib.parse.quote(hf_naomit.frame_id)) + '/summary'))['frames'][0]['columns']
+    hf_naomit_col_summary = sum([e['missing_count'] for e in hf_naomit_col_summary])
+    assert (hf_naomit_col_summary == 0)
