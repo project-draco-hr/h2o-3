@@ -14,5 +14,5 @@ def setup_grid_params(self):
     time_scale = (self.max_runtime_scale * self.one_model_time)
     if ('max_runtime_secs' in list(self.hyper_params)):
         self.hyper_params['max_runtime_secs'] = [(time_scale * x) for x in self.hyper_params['max_runtime_secs']]
-    self.possible_number_models = pyunit_utils.count_models(self.hyper_params)
+    self.possible_number_models = ((pyunit_utils.count_models(self.hyper_params) * 3) / 4)
     pyunit_utils.write_hyper_parameters_json(self.current_dir, self.sandbox_dir, self.json_filename, self.hyper_params)
