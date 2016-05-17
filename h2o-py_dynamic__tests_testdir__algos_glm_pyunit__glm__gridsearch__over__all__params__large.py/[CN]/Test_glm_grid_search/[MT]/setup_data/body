@@ -13,6 +13,7 @@ def setup_data(self):
         self.training1_data = h2o.import_file(path=pyunit_utils.locate(self.training1_filename[0]))
         self.training2_data = h2o.import_file(path=pyunit_utils.locate(self.training2_filename[0]))
         self.scale_model = 0.75
+        self.hyper_params['fold_assignment'] = ['AUTO', 'Random', 'Modulo']
     self.y_index = (self.training1_data.ncol - 1)
     self.x_indices = list(range(self.y_index))
     if (('binomial' in self.family) or ('multinomial' in self.family)):
