@@ -1,4 +1,4 @@
-def _handle_python_lists(python_obj):
+def _handle_python_lists(python_obj, check_header):
     if _is_list_of_lists(python_obj):
         ncols = _check_lists_of_lists(python_obj)
     elif isinstance(python_obj, (list, tuple)):
@@ -7,6 +7,6 @@ def _handle_python_lists(python_obj):
     else:
         python_obj = [[python_obj]]
         ncols = 1
-    header = _gen_header(ncols)
+    header = (_gen_header(ncols) if (check_header != 1) else python_obj.pop(0))
     data_to_write = [dict(list(zip(header, row))) for row in python_obj]
     return (header, data_to_write)
