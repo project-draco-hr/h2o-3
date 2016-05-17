@@ -1,7 +1,11 @@
 {
   if (isCancelled() || _j != null && _j.stop_requested())   return;
-  if (_computeMetrics)   _mb=_m.makeMetricBuilder(_domain);
-  double[] ps=_mb._work;
+  double[] ps;
+  if (_computeMetrics) {
+    _mb=_m.makeMetricBuilder(_domain);
+    ps=_mb._work;
+  }
+ else   ps=new double[_m._output._nclasses + 1];
   float[] res=new float[1];
   final int nc=_m._output.nclasses();
   final int ncols=nc == 1 ? 1 : nc + 1;

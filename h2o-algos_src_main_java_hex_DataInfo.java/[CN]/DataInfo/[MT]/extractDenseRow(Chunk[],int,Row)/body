@@ -1,5 +1,5 @@
 {
-  row.bad=false;
+  row.predictors_bad=false;
   row.rid=rid + chunks[0].start();
   row.cid=rid;
   if (_weights)   row.weight=chunks[weightChunkId()].atd(rid);
@@ -7,7 +7,7 @@
   if (_skipMissing) {
     int N=_cats + _nums;
     for (int i=0; i < N; ++i)     if (chunks[i].isNA(rid)) {
-      row.bad=true;
+      row.predictors_bad=true;
       return row;
     }
   }
@@ -47,10 +47,6 @@
       throw new RuntimeException(t);
     }
     if (_normRespMul != null)     row.response[i]=(row.response[i] - _normRespSub[i]) * _normRespMul[i];
-    if (Double.isNaN(row.response[i])) {
-      row.bad=true;
-      return row;
-    }
   }
   if (_offset)   row.offset=chunks[offsetChunkId()].atd(rid);
   return row;

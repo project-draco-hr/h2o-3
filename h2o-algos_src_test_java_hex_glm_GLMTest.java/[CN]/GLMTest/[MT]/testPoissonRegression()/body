@@ -1,7 +1,6 @@
 {
   Key raw=Key.make("poisson_test_data_raw");
   Key parsed=Key.make("poisson_test_data_parsed");
-  Key modelKey=Key.make("poisson_test");
   GLMModel model=null;
   Frame fr=null, res=null;
   try {
@@ -14,8 +13,9 @@
     params._response_column=fr._names[1];
     params._lambda=new double[]{0};
     params._standardize=false;
-    model=new GLM(params,modelKey).trainModel().get();
+    model=new GLM(params,Key.make("poisson_test_1")).trainModel().get();
     for (    double c : model.beta())     assertEquals(Math.log(2),c,1e-2);
+    testScoring(model,fr);
     model.delete();
     fr.delete();
     FVecTest.makeByteVec(raw,"x,y\n1,0\n2,1\n3,2\n4,3\n5,1\n6,4\n7,9\n8,18\n9,23\n10,31\n11,20\n12,25\n13,37\n14,45\n150,7.193936e+16\n");
@@ -26,11 +26,10 @@
     params2._lambda=new double[]{0};
     params2._standardize=true;
     params2._beta_epsilon=1e-5;
-    model=new GLM(params2,modelKey).trainModel().get();
+    model=new GLM(params2,Key.make("poisson_test_2")).trainModel().get();
     assertEquals(0.3396,model.beta()[1],1e-1);
     assertEquals(0.2565,model.beta()[0],1e-1);
-    res=model.score(fr);
-    Assert.assertTrue(model.testJavaScoring(fr,res,1e-15));
+    testScoring(model,fr);
   }
   finally {
     if (fr != null)     fr.delete();
