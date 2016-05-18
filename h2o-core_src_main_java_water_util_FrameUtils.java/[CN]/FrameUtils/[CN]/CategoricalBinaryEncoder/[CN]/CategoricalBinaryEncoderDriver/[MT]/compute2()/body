@@ -1,0 +1,29 @@
+{
+  Vec[] frameVecs=_frame.vecs();
+  int numCategoricals=0;
+  for (  Vec v : frameVecs)   if (v.isCategorical())   numCategoricals++;
+  Frame categoricalFrame=new Frame();
+  Frame outputFrame=new Frame(_destKey);
+  int[] binaryCategorySizes=new int[numCategoricals];
+  int numOutputColumns=0;
+  for (int i=0, j=0; i < frameVecs.length; ++i) {
+    int numCategories=frameVecs[i].cardinality();
+    if (numCategories > 0) {
+      categoricalFrame.add(_frame.name(i),frameVecs[i]);
+      binaryCategorySizes[j]=1 + MathUtils.log2(numCategories - 1 + 1);
+      numOutputColumns+=binaryCategorySizes[j];
+      ++j;
+    }
+ else     outputFrame.add(_frame.name(i),frameVecs[i].makeCopy());
+  }
+  BinaryConverter mrtask=new BinaryConverter(binaryCategorySizes);
+  Frame binaryCols=mrtask.doAll(numOutputColumns,Vec.T_NUM,categoricalFrame).outputFrame();
+  for (int i=0, j=0; i < binaryCategorySizes.length; j+=binaryCategorySizes[i++]) {
+    for (int k=0; k < binaryCategorySizes[i]; ++k) {
+      binaryCols._names[j + k]=categoricalFrame.name(i) + ":" + k;
+    }
+  }
+  outputFrame.add(binaryCols);
+  DKV.put(outputFrame);
+  tryComplete();
+}
