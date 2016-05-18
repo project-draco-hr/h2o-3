@@ -3,7 +3,7 @@
     @Override public void generate(    JCodeSB out){
       JCodeGen.toClassWithArray(out,"public static","BETA",beta_internal());
       JCodeGen.toClassWithArray(out,"static","NUM_MEANS",_output._dinfo._numMeans,"Imputed numeric values");
-      JCodeGen.toClassWithArray(out,"static","CAT_MODES",_output._dinfo._catModes,"Imputed categorical values.");
+      JCodeGen.toClassWithArray(out,"static","CAT_MODES",_output._dinfo.catModes(),"Imputed categorical values.");
       JCodeGen.toStaticVar(out,"CATOFFS",dinfo()._catOffsets,"Categorical Offsets");
     }
   }
@@ -34,13 +34,13 @@
     body.ip("}").nl();
     final int noff=dinfo().numStart() - dinfo()._cats;
     body.ip("for(int i = ").p(dinfo()._cats).p("; i < b.length-1-").p(noff).p("; ++i)").nl();
-    body.ip("  eta += b[").p(noff).p("+i]*data[i];").nl();
+    body.ip("eta += b[").p(noff).p("+i]*data[i];").nl();
     body.ip("eta += b[b.length-1]; // reduce intercept").nl();
     if (_parms._family != Family.tweedie)     body.ip("double mu = hex.genmodel.GenModel.GLM_").p(_parms._link.toString()).p("Inv(eta");
  else     body.ip("double mu = hex.genmodel.GenModel.GLM_tweedieInv(eta," + _parms._tweedie_link_power);
     body.p(");").nl();
     if (_parms._family == Family.binomial) {
-      body.ip("preds[0] = (mu > ").p(defaultThreshold()).p(") ? 1 : 0").p("; // threshold given by ROC").nl();
+      body.ip("preds[0] = (mu >= ").p(defaultThreshold()).p(") ? 1 : 0").p("; // threshold given by ROC").nl();
       body.ip("preds[1] = 1.0 - mu; // class 0").nl();
       body.ip("preds[2] =       mu; // class 1").nl();
     }
