@@ -21,9 +21,10 @@
       parms._response_column=tfr.names()[resp];
       parms._learn_rate=0.05f;
       parms._histogram_type=histoType[i];
-      parms._ntrees=20;
+      parms._ntrees=10;
       parms._score_tree_interval=parms._ntrees;
       parms._max_depth=5;
+      parms._seed=0xDECAFF;
       GBM job=new GBM(parms);
       gbm=job.trainModel().get();
       loglosses[i]=gbm._output._scored_valid[gbm._output._scored_valid.length - 1]._logloss;
@@ -34,6 +35,7 @@
     }
     int idx=ArrayUtils.minIndex(loglosses);
     Log.info("Optimal randomization: " + histoType[idx]);
+    assertTrue(3 == idx);
   }
   finally {
     if (gbm != null)     gbm.delete();
