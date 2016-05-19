@@ -1,5 +1,7 @@
 {
   _state.updateState(beta,likelihood);
   if (!_parms._lambda_search)   updateProgress();
-  return !_job.stop_requested() && _state._iter++ < _parms._max_iterations && !_state.converged();
+  boolean converged=_state.converged();
+  if (converged)   Log.info(LogMsg(_state.convergenceMsg));
+  return !_job.stop_requested() && _state._iter++ < _parms._max_iterations && !converged;
 }
