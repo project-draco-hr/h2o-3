@@ -6,12 +6,8 @@
       types[i]=Vec.T_NUM;
       continue;
     }
-    if (_domains[i].size() == 1 && !_domains[i].containsKey("NA") && !_domains[i].containsKey("na") && !_domains[i].containsKey("Na") && _nstrings[i] >= nonemptyLines) {
-      types[i]=Vec.T_CAT;
-      continue;
-    }
-    if (_domains[i].size() == 1 && (_domains[i].containsKey("NA") || !_domains[i].containsKey("na") || !_domains[i].containsKey("Na")|| _nstrings[i] >= nonemptyLines)) {
-      types[i]=Vec.T_NUM;
+    if (_domains[i].size() == 1) {
+      types[i]=(_domains[i].containsKey("NA") || _domains[i].containsKey("na") || _domains[i].containsKey("Na")|| _nstrings[i] < nonemptyLines) ? Vec.T_NUM : Vec.T_CAT;
       continue;
     }
     if (_domains[i].size() <= 1 && (_nnums[i] + _nzeros[i]) > _ndates[i] + _nUUID[i]) {
