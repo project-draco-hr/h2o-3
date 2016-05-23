@@ -21,5 +21,11 @@ def reg_path_glm():
             diff2 = max(diff2, abs((cs_norm[n] - m.coef_norm()[n])))
         print diff
         print diff2
-        assert (diff < 0.001)
-        assert (diff2 < 0.001)
+        assert (diff < 0.01)
+        assert (diff2 < 0.01)
+        p = m.model_performance(d)
+        devm = (1 - (p.residual_deviance() / p.null_deviance()))
+        devn = r['explained_deviance_train'][l]
+        print devm
+        print devn
+        assert (abs((devm - devn)) < 0.0001)
