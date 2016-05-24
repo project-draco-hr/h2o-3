@@ -4,12 +4,14 @@
   hide("_max_after_balance_size","Not applicable since class balancing is not required for GLM.");
   hide("_class_sampling_factors","Not applicable since class balancing is not required for GLM.");
   _parms.validate(this);
-  if (_response != null) switch (_parms._family) {
+  if (_response != null) {
+    if (!isClassifier() && _response.isCategorical())     error("_response",H2O.technote(2,"Regression requires numeric response, got categorical."));
+switch (_parms._family) {
 case binomial:
-    if (!_response.isBinary() && _nclass != 2)     error("_family",H2O.technote(2,"Binomial requires the response to be a 2-class categorical or a binary column (0/1)"));
-  break;
+      if (!_response.isBinary() && _nclass != 2)       error("_family",H2O.technote(2,"Binomial requires the response to be a 2-class categorical or a binary column (0/1)"));
+    break;
 case multinomial:
-if (_nclass <= 2) error("_family",H2O.technote(2,"Multinomial requires a categorical response with at least 3 levels (for 2 class problem use family=binomial."));
+  if (_nclass <= 2)   error("_family",H2O.technote(2,"Multinomial requires a categorical response with at least 3 levels (for 2 class problem use family=binomial."));
 break;
 case poisson:
 if (_nclass != 1) error("_family","Poisson requires the response to be numeric.");
@@ -28,11 +30,13 @@ break;
 default :
 error("_family","Invalid distribution: " + _parms._distribution);
 }
+}
 if (expensive) {
 if (error_count() > 0) return;
+if (_parms._alpha == null) _parms._alpha=new double[]{_parms._solver == Solver.L_BFGS ? 0 : .5};
+if (_parms._lambda_search && _parms._nlambdas == -1) _parms._nlambdas=_parms._alpha[0] == 0 ? 30 : 100;
 _lsc=new LambdaSearchScoringHistory();
 _sc=new ScoringHistory();
-if (_parms._alpha == null) _parms._alpha=new double[]{_parms._solver == Solver.IRLSM || _parms._solver == Solver.COORDINATE_DESCENT_NAIVE ? .5 : 0};
 _train.bulkRollups();
 _sc=new ScoringHistory();
 _t0=System.currentTimeMillis();
@@ -42,13 +46,11 @@ if (_parms._link == Link.family_default) _parms._link=_parms._family.defaultLink
 _dinfo=new DataInfo(_train.clone(),_valid,1,_parms._use_all_factor_levels || _parms._lambda_search,_parms._standardize ? DataInfo.TransformType.STANDARDIZE : DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,_parms._missing_values_handling == MissingValuesHandling.Skip,false,_parms._missing_values_handling == MissingValuesHandling.MeanImputation,hasWeightCol(),hasOffsetCol(),hasFoldCol(),_parms._interactions);
 if (_parms._max_iterations == -1) {
 int numclasses=_parms._family == Family.multinomial ? nclasses() : 1;
-if (_parms._solver == Solver.IRLSM) {
-_parms._max_iterations=_parms._lambda_search ? numclasses * 10 * _parms._nlambdas : numclasses * 50;
+if (_parms._solver == Solver.L_BFGS) {
+_parms._max_iterations=_parms._lambda_search ? _parms._nlambdas * 100 * numclasses : numclasses * Math.max(20,_dinfo.fullN() >> 2);
+if (_parms._alpha[0] > 0) _parms._max_iterations*=10;
 }
- else {
-_parms._max_iterations=numclasses * Math.max(20,_dinfo.fullN() >> 2);
-if (_parms._lambda_search) _parms._max_iterations=_parms._nlambdas * 100 * numclasses;
-}
+ else _parms._max_iterations=_parms._lambda_search ? 10 * _parms._nlambdas : 50;
 }
 if (_valid != null) _validDinfo=_dinfo.validDinfo(_valid);
 _state=new ComputationState(_job,_parms,_dinfo,null,nclasses());
@@ -92,17 +94,20 @@ ArrayList<Vec> vecs=new ArrayList<>();
 if (_weights != null) vecs.add(_weights);
 if (_offset != null) vecs.add(_offset);
 vecs.add(_response);
-_model=new GLMModel(_result,_parms,GLM.this,_state._ymu,_dinfo._adaptedFrame.lastVec().sigma(),_lmax,_nobs);
-String[] warns=_model.adaptTestForTrain(_valid,true,true);
-for (String s : warns) warn("_validation_frame",s);
-if (_parms._lambda_min_ratio == -1) _parms._lambda_min_ratio=(_nobs >> 4) > _dinfo.fullN() ? 1e-4 : 1e-2;
 double[] beta=getNullBeta();
 GLMGradientInfo ginfo=new GLMGradientSolver(_job,_parms,_dinfo,0,_state.activeBC()).getGradient(beta);
+_lmax=lmax(ginfo._gradient);
+_state.setLambdaMax(_lmax);
+_model=new GLMModel(_result,_parms,GLM.this,_state._ymu,_dinfo._adaptedFrame.lastVec().sigma(),_lmax,_nobs);
+String[] warns=_model.adaptTestForTrain(_valid,true,true);
+for (String s : warns) _job.warn(s);
+if (_parms._lambda_min_ratio == -1) {
+_parms._lambda_min_ratio=(_nobs >> 4) > _dinfo.fullN() ? 1e-4 : 1e-2;
+if (_parms._alpha[0] == 0) _parms._lambda_min_ratio*=1e-2;
+}
 _state.updateState(beta,ginfo);
 if (_parms._lambda == null) {
-_lmax=lmax(ginfo._gradient);
 if (_parms._lambda_search) {
-if (_parms._nlambdas == -1) _parms._nlambdas=100;
 _parms._lambda=new double[_parms._nlambdas];
 double dec=Math.pow(_parms._lambda_min_ratio,1.0 / (_parms._nlambdas - 1));
 _parms._lambda[0]=_lmax;
@@ -118,7 +123,14 @@ break;
 }
 _parms._lambda[_parms._lambda.length - 1]=_lambdaCVEstimate;
 }
-if (_parms._objective_epsilon == -1) _parms._objective_epsilon=_parms._lambda[0] == 0 ? 1e-6 : 1e-4;
+if (_parms._objective_epsilon == -1) {
+if (_parms._lambda_search) _parms._objective_epsilon=1e-4;
+ else _parms._objective_epsilon=_parms._lambda[0] == 0 ? 1e-6 : 1e-4;
+}
+if (_parms._gradient_epsilon == -1) {
+_parms._gradient_epsilon=_parms._lambda[0] == 0 ? 1e-8 : 1e-6;
+if (_parms._lambda_search) _parms._gradient_epsilon*=1e-2;
+}
 _model.clone2().delete_and_lock(_job._key);
 }
 }

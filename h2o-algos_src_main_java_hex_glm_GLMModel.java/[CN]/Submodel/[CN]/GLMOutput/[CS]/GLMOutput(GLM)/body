@@ -1,11 +1,8 @@
 {
   super(glm);
-  _dinfo=glm._dinfo;
-  if (!glm.hasWeightCol()) {
-    _dinfo=(DataInfo)_dinfo.clone();
-    _dinfo._adaptedFrame=new Frame(_dinfo._adaptedFrame.names().clone(),_dinfo._adaptedFrame.vecs().clone());
-    _dinfo.dropWeights();
-  }
+  _dinfo=glm._dinfo.clone();
+  _dinfo._adaptedFrame=new Frame(glm._dinfo._adaptedFrame.names().clone(),glm._dinfo._adaptedFrame.vecs().clone());
+  if (!glm.hasWeightCol())   _dinfo.dropWeights();
   String[] cnames=glm._dinfo.coefNames();
   String[] names=_dinfo._adaptedFrame._names;
   String[][] domains=_dinfo._adaptedFrame.domains();

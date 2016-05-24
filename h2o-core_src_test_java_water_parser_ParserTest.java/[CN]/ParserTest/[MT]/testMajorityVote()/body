@@ -1,0 +1,11 @@
+{
+  String[] data=new String[]{"a 0\n","a 0\n","a 0\n","a 0\n","a 0\n","a 0\n","a 0\n","a 0\n","a 0\n","a 0\n","a 0\n","1 0\n","2 0\n","3 0\n"};
+  String[] dataset=getDataForSeparator(' ',data);
+  StringBuilder sb1=new StringBuilder();
+  for (  String ds : dataset)   sb1.append(ds).append("\n");
+  Key k1=makeByteVec(sb1.toString());
+  Key r1=Key.make("r1");
+  Frame fr=ParseDataset.parse(r1,k1);
+  Assert.assertTrue(fr.vec(0).get_type_str() == "Enum");
+  fr.delete();
+}
