@@ -1,17 +1,18 @@
 {
   int HH=0, mm=0, ss=0, SSS=0;
   HH=digit(HH,buf[i++]);
-  HH=digit(HH,buf[i++]);
+  HH=buf[i] >= '0' && buf[i] <= '9' ? digit(HH,buf[i++]) : HH;
   if (HH < 0 || HH > 23)   return Long.MIN_VALUE;
   if (buf[i] != ':' && buf[i] != '.')   return Long.MIN_VALUE;
   ++i;
   mm=digit(mm,buf[i++]);
-  mm=digit(mm,buf[i++]);
+  mm=buf[i] >= '0' && buf[i] <= '9' ? digit(mm,buf[i++]) : mm;
   if (mm < 0 || mm > 59)   return Long.MIN_VALUE;
+  if (i + 2 >= buf.length)   return Long.MIN_VALUE;
   if (buf[i] != ':' && buf[i] != '.')   return Long.MIN_VALUE;
   ++i;
   ss=digit(ss,buf[i++]);
-  ss=digit(ss,buf[i++]);
+  ss=buf[i] >= '0' && buf[i] <= '9' ? digit(ss,buf[i++]) : ss;
   if (ss < 0 || ss > 59)   return Long.MIN_VALUE;
   if (i < end && (buf[i] == ':' || buf[i] == '.')) {
     i++;
