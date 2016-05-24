@@ -1,6 +1,17 @@
 {
-  GLMGradientInfo gginfo=(GLMGradientInfo)ginfo;
-  _state.updateState(beta,gginfo);
-  if (!_parms._lambda_search)   updateProgress();
-  return !timeout() && !_job.stop_requested() && _state._iter++ < _parms._max_iterations && !_state.converged();
+  if (ginfo instanceof ProximalGradientInfo) {
+    ginfo=((ProximalGradientInfo)ginfo)._origGinfo;
+    GLMGradientInfo gginfo=(GLMGradientInfo)ginfo;
+    _state.updateState(beta,gginfo);
+    if (!_parms._lambda_search)     updateProgress(false);
+    return !timeout() && !_job.stop_requested() && _state._iter++ < _parms._max_iterations;
+  }
+ else {
+    GLMGradientInfo gginfo=(GLMGradientInfo)ginfo;
+    _state.updateState(beta,gginfo);
+    if (!_parms._lambda_search)     updateProgress(true);
+    boolean converged=_state.converged();
+    if (converged)     Log.info(LogMsg(_state.convergenceMsg));
+    return !timeout() && !_job.stop_requested() && _state._iter++ < _parms._max_iterations && !converged;
+  }
 }
