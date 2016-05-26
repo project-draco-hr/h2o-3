@@ -20,7 +20,10 @@
     if (_model._output._treeStats._max_depth == 0) {
       Log.warn("Nothing to split on: Check that response and distribution are meaningful (e.g., you are not using laplace/quantile regression with a binary response).");
     }
-    if (timeout())     break;
+    if (timeout()) {
+      _job.update(_parms._ntrees - tid - 1);
+      break;
+    }
     if (stop_requested())     throw new Job.JobCancelledException();
   }
   doScoringAndSaveModel(true,oob,_parms._build_tree_one_node);

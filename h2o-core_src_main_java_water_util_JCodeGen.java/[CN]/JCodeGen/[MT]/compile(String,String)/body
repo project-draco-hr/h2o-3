@@ -3,10 +3,10 @@
   JavaFileObject file=new JavaSourceFromString(class_name,java_text);
   JavacFileManager jfm=new JavacFileManager(COMPILER.getStandardFileManager(null,null,null));
   if (!COMPILER.getTask(null,jfm,null,null,null,Arrays.asList(file)).call())   throw H2O.fail("Internal POJO compilation failed.");
-  ClassLoader cl=Thread.currentThread().getContextClassLoader();
+  ClassLoader cl=new TestPojoCL(Thread.currentThread().getContextClassLoader());
   for (  Map.Entry<String,ByteArrayOutputStream> entry : jfm._buffers.entrySet()) {
     byte[] bits=entry.getValue().toByteArray();
     DEFINE_CLASS_METHOD.invoke(cl,entry.getKey(),bits,0,bits.length);
   }
-  return Class.forName(class_name);
+  return Class.forName(class_name,true,cl);
 }

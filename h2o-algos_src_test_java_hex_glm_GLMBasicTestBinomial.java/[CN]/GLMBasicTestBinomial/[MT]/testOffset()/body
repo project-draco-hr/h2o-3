@@ -39,7 +39,7 @@
       try {
         params._solver=s;
         System.out.println("SOLVER = " + s);
-        model=new GLM(params).trainModel().get();
+        model=new GLM(params,Key.make("testOffset_" + s)).trainModel().get();
         HashMap<String,Double> coefs=model.coefficients();
         System.out.println("coefs = " + coefs);
         boolean CD=(s == Solver.COORDINATE_DESCENT || s == Solver.COORDINATE_DESCENT_NAIVE);
@@ -78,6 +78,7 @@
         assertEquals(((ModelMetricsBinomialGLM)model._output._validation_metrics)._resDev,mmTest._resDev,1e-8);
         Vec.Reader preds=scoreTest.vec("p1").new Reader();
         for (int i=0; i < pred_test.length; ++i)         assertEquals(pred_test[i],preds.at(i),CD ? 1e-3 : 1e-6);
+        GLMTest.testScoring(model,fTrain);
       }
   finally {
         if (model != null)         model.delete();

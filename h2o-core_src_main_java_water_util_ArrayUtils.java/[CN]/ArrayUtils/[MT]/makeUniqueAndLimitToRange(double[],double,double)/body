@@ -1,0 +1,25 @@
+{
+  double last=splitPoints[0];
+  double[] uniqueValidPoints=new double[splitPoints.length + 2];
+  int count=0;
+  for (int i=0; i < splitPoints.length; ++i) {
+    double pos=splitPoints[i];
+    if (pos >= min && count == 0) {
+      uniqueValidPoints[count++]=min;
+      if (pos > min)       uniqueValidPoints[count++]=pos;
+      last=pos;
+      continue;
+    }
+ else     if (pos > maxEx) {
+      break;
+    }
+ else     if (pos > min && pos < maxEx && (i == 0 || pos != last)) {
+      uniqueValidPoints[count++]=pos;
+      last=pos;
+    }
+  }
+  if (count == 0) {
+    return new double[]{min};
+  }
+  return Arrays.copyOfRange(uniqueValidPoints,0,count);
+}

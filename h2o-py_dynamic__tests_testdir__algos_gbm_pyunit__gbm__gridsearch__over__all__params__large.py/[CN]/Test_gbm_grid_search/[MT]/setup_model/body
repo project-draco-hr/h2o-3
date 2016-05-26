@@ -20,4 +20,6 @@ def setup_model(self):
         self.final_hyper_params['max_runtime_secs'] = self.hyper_params['max_runtime_secs']
         len_good_time = len([x for x in self.hyper_params['max_runtime_secs'] if (x >= 0)])
         self.possible_number_models = (self.possible_number_models * len_good_time)
+    if ('fold_assignment' in list(self.final_hyper_params)):
+        self.possible_number_models = (self.possible_number_models * self.scale_model)
     pyunit_utils.write_hyper_parameters_json(self.current_dir, self.sandbox_dir, self.json_filename, self.final_hyper_params)

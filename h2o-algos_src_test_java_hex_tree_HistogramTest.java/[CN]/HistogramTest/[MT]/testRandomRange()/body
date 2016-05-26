@@ -1,0 +1,15 @@
+{
+  int nbins=13;
+  int nbins_cats=nbins;
+  byte isInt=0;
+  double min=1;
+  double maxEx=6.900000000000001;
+  long seed=1234;
+  SharedTreeModel.SharedTreeParameters.HistogramType histoType=SharedTreeModel.SharedTreeParameters.HistogramType.Random;
+  DHistogram hist=new DHistogram("myhisto",nbins,nbins_cats,isInt,min,maxEx,0,histoType,seed,null);
+  hist.init();
+  assert(hist.binAt(0) == min);
+  assert(hist.binAt(nbins - 1) < maxEx);
+  assert(hist.bin(min) == 0);
+  assert(hist.bin(maxEx - 1e-15) == nbins - 1);
+}

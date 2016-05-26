@@ -1,0 +1,44 @@
+{
+  int HH=0, mm=0, ss=0, SSS=0, ndots=0;
+  HH=digit(HH,buf[i++]);
+  HH=buf[i] >= '0' && buf[i] <= '9' ? digit(HH,buf[i++]) : HH;
+  if (HH < 0 || HH > 23)   return Long.MIN_VALUE;
+  if (buf[i] != ':' && buf[i] != '.')   return Long.MIN_VALUE;
+  if (buf[i] == '.')   ndots++;
+  ++i;
+  mm=digit(mm,buf[i++]);
+  mm=buf[i] >= '0' && buf[i] <= '9' ? digit(mm,buf[i++]) : mm;
+  if (mm < 0 || mm > 59)   return Long.MIN_VALUE;
+  if (i + 2 >= buf.length)   return Long.MIN_VALUE;
+  if (buf[i] != ':' && buf[i] != '.')   return Long.MIN_VALUE;
+  if (buf[i] == '.')   ndots++;
+  ++i;
+  ss=digit(ss,buf[i++]);
+  ss=buf[i] >= '0' && buf[i] <= '9' ? digit(ss,buf[i++]) : ss;
+  if (ss < 0 || ss > 59)   return Long.MIN_VALUE;
+  if (i < end && (buf[i] == ':' || buf[i] == '.')) {
+    if (buf[i] == '.')     ndots++;
+    i++;
+    if (i < end)     SSS=digit(SSS,buf[i++]);
+    if (i < end)     SSS=digit(SSS,buf[i++]);
+    if (i < end)     SSS=digit(SSS,buf[i++]);
+    if (SSS < 0 || SSS > 999)     return Long.MIN_VALUE;
+    if ((end - i) >= 6)     i+=6;
+  }
+  if (i < end && buf[i] == '"')   i++;
+  if (i == end) {
+    if (timeOnly && ndots == 3)     return Long.MIN_VALUE;
+    return new DateTime(yyyy,MM,dd,HH,mm,ss,getTimezone()).getMillis() + SSS;
+  }
+  if (buf[i] == ' ')   ++i;
+  if ((buf[i] == 'A' || buf[i] == 'P') && buf[i + 1] == 'M') {
+    if (HH < 1 || HH > 12)     return Long.MIN_VALUE;
+    if (buf[i] == 'P')     if (HH < 12)     HH+=12;
+ else     if (HH == 12)     HH=0;
+    i+=2;
+  }
+ else   return Long.MIN_VALUE;
+  if (i < end && buf[i] == '"')   i++;
+  if (i < end)   return Long.MIN_VALUE;
+  return new DateTime(yyyy,MM,dd,HH,mm,ss,getTimezone()).getMillis() + SSS;
+}
