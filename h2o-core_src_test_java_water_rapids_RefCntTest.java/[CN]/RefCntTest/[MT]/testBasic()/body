@@ -3,9 +3,9 @@
   Frame crimes=parse_test_file(Key.make("chicagoCrimes10k.hex"),"smalldata/chicago/chicagoCrimes10k.csv.zip");
   Vec.VectorGroup vg=crimes.anyVec().group();
   int key1=DKV.<Vec.VectorGroup>getGet(vg._key).len();
-  Assert.assertTrue(crimes.vec("Date").isString());
-  Exec.exec("(tmp= py_1 (:= chicagoCrimes10k.hex (as.Date (cols_py chicagoCrimes10k.hex \"Date\") \"%m/%d/%Y %I:%M:%S %p\") 2 []))",session);
-  Assert.assertTrue(crimes.vec("Date").isString());
+  Assert.assertTrue(crimes.vec("Date").isTime());
+  Exec.exec("(tmp= py_1 (:= chicagoCrimes10k.hex (+ (cols_py chicagoCrimes10k.hex \"Date\") 1) 2 []))",session);
+  Assert.assertTrue(crimes.vec("Date").isTime());
   Frame py_1=DKV.getGet(Key.make("py_1"));
   Assert.assertTrue(py_1.vec("Date").isNumeric());
   Assert.assertTrue(py_1.vec("Date").mean() > 1300000000L);
