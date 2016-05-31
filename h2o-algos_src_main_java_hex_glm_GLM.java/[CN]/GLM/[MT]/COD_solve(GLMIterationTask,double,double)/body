@@ -41,13 +41,14 @@
   }
   int iter1=0;
   int P=gt._xy.length - 1;
+  final BetaConstraint bc=_state.activeBC();
   DataInfo activeData=_state.activeData();
   while (iter1++ < 1000) {
     double bdiffPos=0;
     double bdiffNeg=0;
     for (int i=0; i < activeData._cats; ++i) {
       for (int j=activeData._catOffsets[i]; j < activeData._catOffsets[i + 1]; ++j) {
-        double b=ADMM.shrinkage(grads[j],l1pen) * diagInv[j];
+        double b=bc.applyBounds(ADMM.shrinkage(grads[j],l1pen) * diagInv[j],j);
         double bd=beta[j] - b;
         bdiffPos=bd > bdiffPos ? bd : bdiffPos;
         bdiffNeg=bd < bdiffNeg ? bd : bdiffNeg;
@@ -58,19 +59,21 @@
     }
     int numStart=activeData.numStart();
     for (int i=numStart; i < P; ++i) {
-      double b=ADMM.shrinkage(grads[i],l1pen) * diagInv[i];
+      double b=bc.applyBounds(ADMM.shrinkage(grads[i],l1pen) * diagInv[i],i);
       double bd=beta[i] - b;
       bdiffPos=bd > bdiffPos ? bd : bdiffPos;
       bdiffNeg=bd < bdiffNeg ? bd : bdiffNeg;
       doUpdateCD(grads,xx[i],bd,i,i + 1);
       beta[i]=b;
     }
-    double b=grads[P] * wsumInv;
-    double bd=beta[P] - b;
-    doUpdateCD(grads,xx[P],bd,P,P + 1);
-    bdiffPos=bd > bdiffPos ? bd : bdiffPos;
-    bdiffNeg=bd < bdiffNeg ? bd : bdiffNeg;
-    beta[P]=b;
+    if (_parms._intercept) {
+      double b=bc.applyBounds(grads[P] * wsumInv,P);
+      double bd=beta[P] - b;
+      doUpdateCD(grads,xx[P],bd,P,P + 1);
+      bdiffPos=bd > bdiffPos ? bd : bdiffPos;
+      bdiffNeg=bd < bdiffNeg ? bd : bdiffNeg;
+      beta[P]=b;
+    }
     if (-1e-4 < bdiffNeg && bdiffPos < 1e-4)     break;
   }
   return beta;
