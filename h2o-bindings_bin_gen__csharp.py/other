@@ -1,0 +1,12 @@
+import bindings as bi
+if (__name__ == '__main__'):
+    bi.init('C#', 'CSharp')
+    type_adapter = CSharpTypeTranslator()
+    for schema in bi.schemas():
+        name = schema['name']
+        bi.vprint(('Generating schema: ' + name))
+        bi.write_to_file(('h2o/%s.cs' % name), generate_schema(name, schema))
+    for (name, values) in bi.enums().iteritems():
+        bi.vprint(('Generating enum: ' + name))
+        bi.write_to_file(('h2o/%s.cs' % name), generate_enum(name, sorted(values)))
+    type_adapter.vprint_translation_map()

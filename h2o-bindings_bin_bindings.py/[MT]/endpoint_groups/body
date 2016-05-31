@@ -1,0 +1,10 @@
+def endpoint_groups():
+    '\n    Return endpoints, grouped by the class which handles them\n    '
+    classname_pattern = re.compile('/(?:\\d+|LATEST)/(\\w+)')
+    groups = defaultdict(list)
+    for e in endpoints():
+        mm = classname_pattern.match(e['url_pattern'])
+        assert mm, ('Cannot determine class name in URL ' + e['url_pattern'])
+        classname = mm.group(1)
+        groups[classname].append(e)
+    return groups

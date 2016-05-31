@@ -1,0 +1,43 @@
+def _request_or_exit(endpoint):
+    '\n    Internal function: retrieve and return json data from the provided endpoint, or die with an error message if the\n    URL cannot be retrieved.\n    '
+    if (endpoint[0] == '/'):
+        endpoint = endpoint[1:]
+    if (endpoint in requests_memo):
+        return requests_memo[endpoint]
+    if (not config['baseurl']):
+        print('Configuration not present. Did you forget to run init()?')
+        sys.exit(8)
+    url = (config['baseurl'] + endpoint)
+    try:
+        resp = requests.get(url)
+    except requests.exceptions.InvalidURL:
+        print(('Invalid url address of an H2O server: ' + config['baseurl']))
+        sys.exit(2)
+    except requests.ConnectionError:
+        print(('Cannot connect to the server ' + config['baseurl']))
+        print(('Please check that you have an H2O instance running, and its address is passed in ' + 'the --usecloud argument.'))
+        sys.exit(3)
+    except requests.Timeout:
+        print((('Request timeout when fetching ' + url) + '. Check your internet connection and try again.'))
+        sys.exit(4)
+    if (resp.status_code == 200):
+        try:
+            json = resp.json()
+        except ValueError:
+            print((('Invalid JSON response from ' + url) + ' :\n'))
+            print(resp.text)
+            sys.exit(5)
+        if (('__meta' not in json) or ('schema_type' not in json['__meta'])):
+            print((('Unexpected JSON returned from ' + url) + ':'))
+            pp(json)
+            sys.exit(6)
+        if (json['__meta']['schema_type'] == 'H2OError'):
+            print(('Server returned an error message for %s:' % url))
+            print(json['msg'])
+            pp(json)
+            sys.exit(7)
+        requests_memo[endpoint] = json
+        return json
+    else:
+        print(('[HTTP %d] Cannot retrieve %s' % (resp.status_code, url)))
+        sys.exit(1)

@@ -1,0 +1,34 @@
+def get_java_value(field):
+    value = field['value']
+    h2o_type = field['type']
+    java_type = translate_type(h2o_type, field['schema_name'])
+    if ((java_type == 'float') and (value == 'Infinity')):
+        return 'Float.POSITIVE_INFINITY'
+    if ((java_type == 'double') and (value == 'Infinity')):
+        return 'Double.POSITIVE_INFINITY'
+    if (java_type == 'long'):
+        return (str(value) + 'L')
+    if (java_type == 'float'):
+        return (str(value) + 'f')
+    if (java_type == 'boolean'):
+        return str(value).lower()
+    if ((java_type == 'String') and ((value == '') or (value is None))):
+        return '""'
+    if (java_type == 'String'):
+        return ('"%s"' % value)
+    if (value is None):
+        return 'null'
+    if h2o_type.startswith('enum'):
+        return ((field['schema_name'] + '.') + value)
+    if h2o_type.endswith('[][]'):
+        return 'null'
+    if h2o_type.endswith('[]'):
+        basetype = (field['schema_name'] if field['is_schema'] else h2o_type.partition('[')[0])
+        if (basetype == 'Iced'):
+            basetype = 'Object'
+        return ('new %s[]{%s}' % (basetype, str(value)[1:(-1)]))
+    if h2o_type.startswith('Map'):
+        return 'null'
+    if h2o_type.startswith('Key'):
+        return 'null'
+    return value
