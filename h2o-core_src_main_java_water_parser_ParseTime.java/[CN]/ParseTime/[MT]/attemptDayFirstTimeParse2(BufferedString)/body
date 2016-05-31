@@ -1,0 +1,33 @@
+{
+  final byte[] buf=str.getBuffer();
+  int i=str.getOffset();
+  final int end=i + str.length();
+  while (i < end && buf[i] == ' ')   i++;
+  if (i < end && buf[i] == '"')   i++;
+  if ((end - i) < 6)   return Long.MIN_VALUE;
+  int yyyy=0, MM=0, dd=0;
+  MM=digit(MM,buf[i++]);
+  if (isDigit(buf[i]))   MM=digit(MM,buf[i++]);
+  if (MM < 1 || MM > 12)   return Long.MIN_VALUE;
+  byte sep=buf[i++];
+  if (sep != '-' && sep != '/')   return Long.MIN_VALUE;
+  dd=digit(dd,buf[i++]);
+  if (isDigit(buf[i]))   dd=digit(dd,buf[i++]);
+  if (dd < 1 || dd > 31)   return Long.MIN_VALUE;
+  if (sep != buf[i++])   return Long.MIN_VALUE;
+  yyyy=digit(yyyy,buf[i++]);
+  yyyy=digit(yyyy,buf[i++]);
+  if (end - i >= 2 && isDigit(buf[i])) {
+    yyyy=digit(yyyy,buf[i++]);
+    yyyy=digit(yyyy,buf[i++]);
+  }
+ else {
+    if (yyyy >= 69)     yyyy+=1900;
+ else     yyyy+=2000;
+  }
+  while (i < end && buf[i] == ' ')   i++;
+  if (i < end && buf[i] == '"')   i++;
+  if (i == end)   return new DateTime(yyyy,MM,dd,0,0,0,getTimezone()).getMillis();
+  if (buf[i] == ':')   i++;
+  return parseTime(buf,i,end,yyyy,MM,dd,false);
+}
