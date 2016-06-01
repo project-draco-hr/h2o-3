@@ -25,9 +25,9 @@ def _start_local_h2o_jar(self, mmax, mmin, ea, license, ice, jar_path, nthreads)
         print()
     vm_opts = []
     if mmin:
-        vm_opts += ['-Xms{}g'.format(mmin)]
+        vm_opts += ['-Xms{}'.format(mmin)]
     if mmax:
-        vm_opts += ['-Xmx{}g'.format(mmax)]
+        vm_opts += ['-Xmx{}'.format(mmax)]
     if ea:
         vm_opts += ['-ea']
     h2o_opts = ['-verbose:gc', '-XX:+PrintGCDetails', '-XX:+PrintGCTimeStamps', '-jar', jar_path, '-name', ((('H2O_started_from_python_' + re.sub('[^A-Za-z0-9]', '_', ((os.getenv('USERNAME') if (sys.platform == 'win32') else os.getenv('USER')) or 'unknownUser'))) + '_') + ''.join(([choice(ascii_lowercase) for _ in range(3)] + [choice(digits) for _ in range(3)]))), '-ip', '127.0.0.1', '-port', '54321', '-ice_root', ice]
