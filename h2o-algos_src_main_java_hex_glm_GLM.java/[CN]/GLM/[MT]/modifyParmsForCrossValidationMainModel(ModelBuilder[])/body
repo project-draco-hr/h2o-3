@@ -9,8 +9,24 @@
       lambdaSE+=diff * diff;
     }
     lambdaSE=lambdaAvg / ((cvModelBuilders.length - 1) * Math.sqrt(cvModelBuilders.length));
-    _lambdaCVEstimate=lambdaAvg + lambdaSE;
-    _parms._early_stopping=false;
+    double lambdaCVEstimate=lambdaAvg + lambdaSE;
+    int j=_parms._lambda.length - 1;
+    while (j > 0 && _parms._lambda[j - 1] < lambdaCVEstimate)     j--;
+    _lambdaCVEstimate=_parms._lambda[j];
+    if (_parms._early_stopping)     _parms._lambda=Arrays.copyOf(_parms._lambda,j + 1);
+    _xval_test_deviances=new double[j + 1];
+    for (int i=0; i < cvModelBuilders.length; ++i) {
+      GLM g=(GLM)cvModelBuilders[i];
+      for (int k=0; k <= j; ++k) {
+        double l=_parms._lambda[k];
+        if (g._model._output.getSubmodel(l) == null)         g._driver.computeSubmodel(k,l);
+        _xval_test_deviances[k]+=g._model._output.getSubmodel(l).devianceTest;
+      }
+      g._model._output.setSubmodel(_lambdaCVEstimate);
+      DKV.put(g._model);
+    }
     Log.info("lambdaCV avg = " + lambdaAvg + ", standard error = "+ lambdaSE+ ", "+ "lambdaEstimate = "+ _lambdaCVEstimate);
   }
+  _parms._early_stopping=false;
+  _doInit=false;
 }

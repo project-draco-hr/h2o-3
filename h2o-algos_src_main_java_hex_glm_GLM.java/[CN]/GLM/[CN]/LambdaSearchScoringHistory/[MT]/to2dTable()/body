@@ -1,7 +1,13 @@
 {
-  String[] cnames=new String[]{"timestamp","duration","iteration","lambda","predictors","Explained Deviance (train)","Explained Deviance (test)"};
-  String[] ctypes=new String[]{"string","string","int","string","int","double","double"};
-  String[] cformats=new String[]{"%s","%s","%d","%s","%d","%.3f","%.3f"};
+  String[] cnames=new String[]{"timestamp","duration","iteration","lambda","predictors","Explained Deviance (train)"};
+  if (_lambdaDevTest != null)   cnames=ArrayUtils.append(cnames,"Explained Deviance (test)");
+  if (_lambdaDevXval != null)   cnames=ArrayUtils.append(cnames,"Explained Deviance (xval)");
+  String[] ctypes=new String[]{"string","string","int","string","int","double"};
+  if (_lambdaDevTest != null)   ctypes=ArrayUtils.append(ctypes,"double");
+  if (_lambdaDevXval != null)   ctypes=ArrayUtils.append(ctypes,"double");
+  String[] cformats=new String[]{"%s","%s","%d","%s","%d","%.3f"};
+  if (_lambdaDevTest != null)   cformats=ArrayUtils.append(cformats,"%.3f");
+  if (_lambdaDevXval != null)   cformats=ArrayUtils.append(cformats,"%.3f");
   TwoDimTable res=new TwoDimTable("Scoring History","",new String[_lambdaIters.size()],cnames,ctypes,cformats,"");
   int j=0;
   DateTimeFormatter fmt=DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
@@ -13,7 +19,8 @@
     res.set(i,col++,lambdaFormatter.format(_lambdas.get(i)));
     res.set(i,col++,_lambdaPredictors.get(i));
     res.set(i,col++,_lambdaDevTrain.get(i));
-    if (_lambdaDevTest.size() > i)     res.set(i,col++,_lambdaDevTest.get(i));
+    if (_lambdaDevTest != null && _lambdaDevTest.size() > i)     res.set(i,col++,_lambdaDevTest.get(i));
+    if (_lambdaDevXval != null && _lambdaDevXval.size() > i)     res.set(i,col++,_lambdaDevXval.get(i));
   }
   return res;
 }
