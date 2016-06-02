@@ -1,5 +1,5 @@
 def confusion_matrix(self, metrics=None, thresholds=None):
-    '\n    Get the confusion matrix for the specified metric\n\n    :param metrics: A string (or list of strings) in {"min_per_class_accuracy", "absolute_MCC", "tnr", "fnr", "fpr", "tpr", "precision", "accuracy", "f0point5", "f2", "f1"}\n    :param thresholds: A value (or list of values) between 0 and 1\n    :return: a list of ConfusionMatrix objects (if there are more than one to return), or a single ConfusionMatrix (if there is only one)\n    '
+    '\n    Get the confusion matrix for the specified metric\n\n    :param metrics: A string (or list of strings) in {"min_per_class_accuracy", "absolute_MCC", "tnr", "fnr", "fpr", "tpr", "precision", "accuracy", "f0point5", "f2", "f1","mean_per_class_accuracy"}\n    :param thresholds: A value (or list of values) between 0 and 1\n    :return: a list of ConfusionMatrix objects (if there are more than one to return), or a single ConfusionMatrix (if there is only one)\n    '
     if ((metrics is None) and (thresholds is None)):
         metrics = ['f1']
     if isinstance(metrics, list):
@@ -16,8 +16,8 @@ def confusion_matrix(self, metrics=None, thresholds=None):
         thresholds_list = [thresholds]
     if ((not all((isinstance(t, (int, float, int)) for t in thresholds_list))) or (not all((((t >= 0) or (t <= 1)) for t in thresholds_list)))):
         raise ValueError('All thresholds must be numbers between 0 and 1 (inclusive).')
-    if (not all(((m in ['min_per_class_accuracy', 'absolute_MCC', 'precision', 'recall', 'specificity', 'accuracy', 'f0point5', 'f2', 'f1']) for m in metrics_list))):
-        raise ValueError('The only allowable metrics are min_per_class_accuracy, absolute_MCC, precision, accuracy, f0point5, f2, f1')
+    if (not all(((m in ['min_per_class_accuracy', 'absolute_MCC', 'precision', 'recall', 'specificity', 'accuracy', 'f0point5', 'f2', 'f1', 'mean_per_class_accuracy']) for m in metrics_list))):
+        raise ValueError('The only allowable metrics are min_per_class_accuracy, absolute_MCC, precision, accuracy, f0point5, f2, f1, mean_per_class_accuracy')
     metrics_thresholds = [self.find_threshold_by_max_metric(m) for m in metrics_list]
     for mt in metrics_thresholds:
         thresholds_list.append(mt)
@@ -27,10 +27,10 @@ def confusion_matrix(self, metrics=None, thresholds=None):
     for t in thresholds_list:
         idx = self.find_idx_by_threshold(t)
         row = thresh2d.cell_values[idx]
-        tns = row[10]
-        fns = row[11]
-        fps = row[12]
-        tps = row[13]
+        tns = row[11]
+        fns = row[12]
+        fps = row[13]
+        tps = row[14]
         p = (tps + fns)
         n = (tns + fps)
         c0 = (n - fps)
