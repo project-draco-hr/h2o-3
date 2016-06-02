@@ -13,6 +13,7 @@ def pyunit_mean_per_class_error():
     mpce = gbm.mean_per_class_error([0.5, 0.8])
     assert (abs((mpce[0][1] - 0.004132231404958664)) < 1e-05)
     assert (abs((mpce[1][1] - 0.021390374331550777)) < 1e-05)
+    print gbm.model_performance(train).mean_per_class_error(thresholds=[0.3, 0.5])
     cars = h2o.import_file('/users/arno/h2o-3/smalldata/junit/cars_20mpg.csv')
     cars['cylinders'] = cars['cylinders'].asfactor()
     r = cars[0].runif(seed=1234)
@@ -29,3 +30,21 @@ def pyunit_mean_per_class_error():
     assert (abs((mpce - 0.207142857143)) < 1e-05)
     mpce = gbm.mean_per_class_error(xval=True)
     assert (abs((mpce - 0.350071715433)) < 1e-05)
+    gbm.stopping_rounds = 2
+    gbm.stopping_metric = 'mean_per_class_error'
+    gbm.ntrees = 10000
+    gbm.max_depth = 3
+    gbm.min_rows = 1
+    gbm.learn_rate = 0.01
+    gbm.score_tree_interval = 1
+    gbm.nfolds = None
+    gbm.fold_assignment = None
+    gbm.train(x=predictors, y=response_col, training_frame=train, validation_frame=valid)
+    print gbm
+    print gbm.scoring_history()
+    hyper_params_tune = {'max_depth': list(range(1, (10 + 1), 1)), 'sample_rate': [(x / 100.0) for x in range(20, 101)], 'col_sample_rate': [(x / 100.0) for x in range(20, 101)], 'col_sample_rate_per_tree': [(x / 100.0) for x in range(20, 101)], 'col_sample_rate_change_per_level': [(x / 100.0) for x in range(90, 111)], 'min_rows': [(2 ** x) for x in range(0, (int((math.log(train.nrow, 2) - 2)) + 1))], 'nbins': [(2 ** x) for x in range(4, 11)], 'nbins_cats': [(2 ** x) for x in range(4, 13)], 'min_split_improvement': [0, 1e-08, 1e-06, 0.0001], 'histogram_type': ['UniformAdaptive', 'QuantilesGlobal', 'RoundRobin'], }
+    search_criteria_tune = {'strategy': 'RandomDiscrete', 'max_runtime_secs': 600, 'max_models': 10, 'seed': 1234, 'stopping_rounds': 5, 'stopping_metric': 'mean_per_class_error', 'stopping_tolerance': 0.001, }
+    grid = H2OGridSearch(H2OGradientBoostingEstimator, hyper_params=hyper_params_tune, search_criteria=search_criteria_tune)
+    grid.train(x=predictors, y=response_col, training_frame=train, validation_frame=valid, distribution='multinomial', seed=1234, stopping_rounds=10, stopping_metric='mean_per_class_error', stopping_tolerance=0.001)
+    print grid
+    print grid.get_grid('mean_per_class_error')
