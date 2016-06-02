@@ -1,8 +1,7 @@
 {
-  GsonBuilder builder=new GsonBuilder();
-  builder.registerTypeAdapter(KeyV3.class,new KeySerializer());
-  Gson gson=builder.create();
-  Retrofit retrofit=new Retrofit.Builder().baseUrl("http://localhost:54321/").addConverterFactory(GsonConverterFactory.create(gson)).build();
+  Gson gson=new GsonBuilder().registerTypeAdapter(KeyV3.class,new KeySerializer()).create();
+  OkHttpClient client=new OkHttpClient.Builder().connectTimeout(60,TimeUnit.SECONDS).writeTimeout(60,TimeUnit.SECONDS).readTimeout(60,TimeUnit.SECONDS).build();
+  Retrofit retrofit=new Retrofit.Builder().client(client).baseUrl("http://localhost:54321/").addConverterFactory(GsonConverterFactory.create(gson)).build();
   ImportFiles importService=retrofit.create(ImportFiles.class);
   ParseSetup parseSetupService=retrofit.create(ParseSetup.class);
   Parse parseService=retrofit.create(Parse.class);
