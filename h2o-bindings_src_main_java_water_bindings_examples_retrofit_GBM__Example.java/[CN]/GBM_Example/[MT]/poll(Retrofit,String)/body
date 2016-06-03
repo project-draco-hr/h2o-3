@@ -1,19 +1,19 @@
 {
   Jobs jobsService=retrofit.create(Jobs.class);
-  Response<JobsV3> jobs_response=null;
+  Response<JobsV3> jobsResponse=null;
   int retries=3;
   JobsV3 jobs=null;
   do {
     try {
-      jobs_response=jobsService.fetch(job_id).execute();
+      jobsResponse=jobsService.fetch(jobId).execute();
     }
  catch (    IOException e) {
       System.err.println("Caught exception: " + e);
     }
-    if (jobs_response == null || !jobs_response.isSuccessful())     if (retries-- > 0)     continue;
- else     throw new RuntimeException("/3/Jobs/{job_id} failed 3 times.");
-    jobs=jobs_response.body();
-    if (null == jobs.jobs || jobs.jobs.length != 1)     throw new RuntimeException("Failed to find Job: " + job_id);
+    if (jobsResponse == null || !jobsResponse.isSuccessful())     if (retries-- > 0)     continue;
+ else     throw new RuntimeException("/3/Jobs/" + jobId + " failed 3 times.");
+    jobs=jobsResponse.body();
+    if (null == jobs.jobs || jobs.jobs.length != 1)     throw new RuntimeException("Failed to find Job: " + jobId);
     if (!"RUNNING".equals(jobs.jobs[0].status))     try {
       Thread.sleep(100);
     }

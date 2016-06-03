@@ -8,6 +8,7 @@ def generate_schema(class_name, schema):
             continue
         if field['is_inherited']:
             has_inherited = True
+            continue
         if field['type'].startswith('Map'):
             has_map = True
         if (field['name'] == 'can_build'):
@@ -22,7 +23,7 @@ def generate_schema(class_name, schema):
         java_type = translate_type(field['type'], field['schema_name'])
         java_value = get_java_value(field)
         if (is_model_builder and (field['name'] == 'parameters')):
-            fields.append(('parameters', 'null', 'ModelParameterSchemaV3', field['help'], field['is_inherited']))
+            fields.append(('parameters', 'null', 'ModelParameterSchemaV3[]', field['help'], field['is_inherited']))
         else:
             fields.append((field['name'], java_value, java_type, field['help'], field['is_inherited']))
     yield '/**'
@@ -32,6 +33,7 @@ def generate_schema(class_name, schema):
     yield 'package water.bindings.pojos;'
     yield ''
     yield 'import com.google.gson.Gson;'
+    yield 'import com.google.gson.annotations.*;'
     yield ('import java.util.Map;' if has_map else None)
     yield ''
     yield ''
@@ -40,10 +42,12 @@ def generate_schema(class_name, schema):
     for (name, value, ftype, fhelp, inherited) in fields:
         if inherited:
             continue
+        ccname = translate_name(name)
         yield '    /**'
         yield bi.wrap(fhelp, indent='     * ')
         yield '     */'
-        yield ('    public %s %s;' % (ftype, name))
+        yield (('    @SerializedName("%s")' % name) if (name != ccname) else None)
+        yield ('    public %s %s;' % (ftype, ccname))
         yield ''
     if has_inherited:
         yield ''
@@ -55,7 +59,7 @@ def generate_schema(class_name, schema):
             if (not inherited):
                 continue
             yield bi.wrap(fhelp, '    // ')
-            yield ('    public %s %s = %s;' % (ftype, name, value))
+            yield ('    public %s %s;' % (ftype, translate_name(name)))
             yield ''
         yield '    */'
         yield ''
@@ -66,7 +70,9 @@ def generate_schema(class_name, schema):
     for (name, value, _, _, _) in fields:
         if (name == 'parameters'):
             continue
-        yield ('        %s = %s;' % (name, value))
+        if (value == 'null'):
+            continue
+        yield ('        %s = %s;' % (translate_name(name), value))
     yield '    }'
     yield ''
     yield '    /**'
