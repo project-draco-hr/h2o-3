@@ -5,6 +5,7 @@ def cv_nfolds_gbm():
     prostate_gbm = H2OGradientBoostingEstimator(nfolds=5, distribution='bernoulli')
     prostate_gbm.train(x=list(range(2, 9)), y=1, training_frame=prostate)
     prostate_gbm.show()
+    print prostate_gbm.model_performance(xval=True)
     try:
         H2OGradientBoostingEstimator(nfolds=5, distribution='bernoulli').train(x=list(range(2, 9)), y=1, training_frame=prostate, validation_frame=prostate)
         assert True
