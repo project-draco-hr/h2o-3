@@ -1,12 +1,14 @@
-import bindings as bi
+from __future__ import unicode_literals
+from builtins import range
 from collections import OrderedDict
-thrift_reserved_words = set(['from', 'type', 'exception', 'lambda', 'required'])
-if (__name__ == '__main__'):
-    bi.init('Thrift', 'thrift')
+import bindings as bi
+thrift_reserved_words = set([u'from', u'type', u'exception', u'lambda', u'required'])
+if (__name__ == u'__main__'):
+    bi.init(u'Thrift', u'thrift')
     type_adapter = ThriftTypeTranslator()
     schemas_map = bi.schemas_map()
     ordered_schemas = OrderedDict()
-    for (name, schema) in schemas_map.iteritems():
+    for (name, schema) in schemas_map.items():
         add_schema_to_dependency_array(schema, ordered_schemas, schemas_map)
-    bi.write_to_file('water/bindings/structs/H2O.thrift', generate_thrift(ordered_schemas))
+    bi.write_to_file(u'water/bindings/structs/H2O.thrift', generate_thrift(ordered_schemas))
     type_adapter.vprint_translation_map()

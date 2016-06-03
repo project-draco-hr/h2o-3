@@ -1,14 +1,14 @@
 def add_schema_to_dependency_array(schema, ordered_schemas, schemas_map):
-    '\n    This is a helper function to order all schemas according to their usage. For example, if schema A uses schemas B\n    and C, then they should be reordered as {B, C, A}.\n      :param schema: schema object that we are processing right now\n      :param ordered_schemas: an OrderedDict of schemas that were already encountered. This is also the "output"\n        variable -- all schemas/enums that are needed will be recorded here in the correct order of their supposed\n        declaration.\n      :param schemas_map: dictionary(schemaname => schemaobject)\n    '
-    for field in schema['fields']:
-        field_schema_name = field['schema_name']
+    u'\n    This is a helper function to order all schemas according to their usage. For example, if schema A uses schemas B\n    and C, then they should be reordered as {B, C, A}.\n      :param schema: schema object that we are processing right now\n      :param ordered_schemas: an OrderedDict of schemas that were already encountered. This is also the "output"\n        variable -- all schemas/enums that are needed will be recorded here in the correct order of their supposed\n        declaration.\n      :param schemas_map: dictionary(schemaname => schemaobject)\n    '
+    for field in schema[u'fields']:
+        field_schema_name = field[u'schema_name']
         if (field_schema_name is None):
             continue
         if (field_schema_name in ordered_schemas):
             continue
-        if field['type'].startswith('enum'):
-            ordered_schemas[field_schema_name] = field['values']
+        if field[u'type'].startswith(u'enum'):
+            ordered_schemas[field_schema_name] = field[u'values']
         else:
             field_schema = schemas_map[field_schema_name]
             add_schema_to_dependency_array(field_schema, ordered_schemas, schemas_map)
-    ordered_schemas[schema['name']] = schema
+    ordered_schemas[schema[u'name']] = schema

@@ -1,0 +1,10 @@
+def rename_endpoint(route):
+    mm = classname_pattern.match(route[u'url_pattern'])
+    assert mm, (u'Cannot determine class name in URL ' + route[u'url_pattern'])
+    classname = mm.group(1)
+    method = route[u'handler_method']
+    qualname = ((classname + u'.') + method)
+    if (qualname in endpoints_map1):
+        return endpoints_map1
+    print((u'Cannot translate %s for endpoint %s' % (qualname, route[u'url_pattern'])))
+    return method

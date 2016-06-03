@@ -1,50 +1,50 @@
 def init(language, output_dir, clear_dir=True):
-    '\n    Entry point for the bindings module. It parses the command line arguments and verifies their\n    correctness.\n      :param language -- name of the target language (used to show the command-line description).\n      :param output_dir -- folder where the bindings files will be generated. If the folder does\n        not exist, it will be created. If it does exist, it will be cleared first. This folder is \n        relative to ../src-gen/main/.\n      :param clear_dir -- if True (default), the target folder will be cleared before any new \n        files created in it.\n    '
-    config['start_time'] = time.time()
-    print(('Generating %s bindings... ' % language), end='')
+    u'\n    Entry point for the bindings module. It parses the command line arguments and verifies their\n    correctness.\n      :param language -- name of the target language (used to show the command-line description).\n      :param output_dir -- folder where the bindings files will be generated. If the folder does\n        not exist, it will be created. If it does exist, it will be cleared first. This folder is\n        relative to ../src-gen/main/.\n      :param clear_dir -- if True (default), the target folder will be cleared before any new\n        files created in it.\n    '
+    config[u'start_time'] = time.time()
+    print((u'Generating %s bindings... ' % language), end=u'')
     sys.stdout.flush()
     this_module_dir = os.path.dirname(os.path.realpath(__file__))
-    default_output_dir = os.path.abspath(((this_module_dir + '/../src-gen/main/') + output_dir))
-    parser = argparse.ArgumentParser(description=('\n        Generate %s REST API bindings (with docs) and write them to the filesystem.  \n        Must attach to a running H2O instance to query the interface.' % language))
-    parser.add_argument('-v', '--verbose', help='Verbose output', action='store_true')
-    parser.add_argument('--usecloud', metavar='IP:PORT', default='localhost:54321', help='Address of an H2O server (defaults to localhost:54321)')
-    parser.add_argument('--dest', metavar='DIR', default=default_output_dir, help='Destination directory for generated bindings')
+    default_output_dir = os.path.abspath(((this_module_dir + u'/../src-gen/main/') + output_dir))
+    parser = argparse.ArgumentParser(description=(u'\n        Generate %s REST API bindings (with docs) and write them to the filesystem.\n        Must attach to a running H2O instance to query the interface.' % language))
+    parser.add_argument(u'-v', u'--verbose', help=u'Verbose output', action=u'store_true')
+    parser.add_argument(u'--usecloud', metavar=u'IP:PORT', default=u'localhost:54321', help=u'Address of an H2O server (defaults to localhost:54321)')
+    parser.add_argument(u'--dest', metavar=u'DIR', default=default_output_dir, help=u'Destination directory for generated bindings')
     args = parser.parse_args()
     base_url = args.usecloud
-    if (not (base_url.startswith('http://') or base_url.startswith('https://'))):
-        base_url = ('http://' + base_url)
-    if (not base_url.endswith('/')):
-        base_url += '/'
-    config['baseurl'] = base_url
-    config['verbose'] = args.verbose
-    config['destdir'] = os.path.abspath(args.dest)
-    vprint('\n\n')
+    if (not (base_url.startswith(u'http://') or base_url.startswith(u'https://'))):
+        base_url = (u'http://' + base_url)
+    if (not base_url.endswith(u'/')):
+        base_url += u'/'
+    config[u'baseurl'] = base_url
+    config[u'verbose'] = args.verbose
+    config[u'destdir'] = os.path.abspath(args.dest)
+    vprint(u'\n\n')
     try:
-        vprint(('Output directory = ' + config['destdir']))
-        os.makedirs(config['destdir'])
+        vprint((u'Output directory = ' + config[u'destdir']))
+        os.makedirs(config[u'destdir'])
     except OSError as e:
         if (e.errno != errno.EEXIST):
-            print(('Cannot create directory ' + config['destdir']))
-            print(('Error %d: %s' % (e.errno, e.strerror)))
+            print((u'Cannot create directory ' + config[u'destdir']))
+            print((u'Error %d: %s' % (e.errno, e.strerror)))
             sys.exit(6)
     if clear_dir:
         try:
-            vprint('Deleting contents of the output directory...')
-            for filename in os.listdir(config['destdir']):
-                filepath = os.path.join(config['destdir'], filename)
+            vprint(u'Deleting contents of the output directory...')
+            for filename in os.listdir(config[u'destdir']):
+                filepath = os.path.join(config[u'destdir'], filename)
                 if os.path.isdir(filepath):
                     shutil.rmtree(filepath)
                 else:
                     os.unlink(filepath)
         except Exception as e:
-            print(('Unable to remove file %s: %r' % (filepath, e)))
+            print((u'Unable to remove file %s: %r' % (filepath, e)))
             sys.exit(9)
-    json = _request_or_exit('LATEST/About')
-    l1 = max((len(e['name']) for e in json['entries']))
-    l2 = max((len(e['value']) for e in json['entries']))
-    ll = max((29 + len(config['baseurl'])), ((l1 + l2) + 2))
-    vprint(('-' * ll))
-    vprint((('Connected to an H2O instance ' + config['baseurl']) + '\n'))
-    for e in json['entries']:
-        vprint((((e['name'] + ':') + (' ' * ((1 + l1) - len(e['name'])))) + e['value']))
-    vprint(('-' * ll))
+    json = _request_or_exit(u'LATEST/About')
+    l1 = max((len(e[u'name']) for e in json[u'entries']))
+    l2 = max((len(e[u'value']) for e in json[u'entries']))
+    ll = max((29 + len(config[u'baseurl'])), ((l1 + l2) + 2))
+    vprint((u'-' * ll))
+    vprint(((u'Connected to an H2O instance ' + config[u'baseurl']) + u'\n'))
+    for e in json[u'entries']:
+        vprint((((e[u'name'] + u':') + (u' ' * ((1 + l1) - len(e[u'name'])))) + e[u'value']))
+    vprint((u'-' * ll))
