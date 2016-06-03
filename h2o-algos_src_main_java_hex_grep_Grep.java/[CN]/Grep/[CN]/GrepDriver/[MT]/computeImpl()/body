@@ -1,8 +1,6 @@
 {
   GrepModel model=null;
   try {
-    Scope.enter();
-    _parms.read_lock_frames(_job);
     init(true);
     model=new GrepModel(dest(),_parms,new GrepModel.GrepOutput(Grep.this));
     model.delete_and_lock(_job);
@@ -17,8 +15,5 @@
   }
   finally {
     if (model != null)     model.unlock(_job);
-    _parms.read_unlock_frames(_job);
-    Scope.exit(model == null ? null : model._key);
   }
-  tryComplete();
 }
