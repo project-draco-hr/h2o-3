@@ -15,6 +15,30 @@
     @Override public Iterator<TypeK> iterator(){
       return new SnapshotK();
     }
+    @Override public <T>T[] toArray(    T[] a){
+      Object[] kvs=raw_array();
+      int sz=size();
+      T[] r=a.length >= sz ? a : (T[])java.lang.reflect.Array.newInstance(a.getClass().getComponentType(),sz);
+      int j=0;
+      for (int i=0; i < len(kvs); i++) {
+        Object K=key(kvs,i);
+        Object V=Prime.unbox(val(kvs,i));
+        if (K != null && K != TOMBSTONE && V != null && V != TOMBSTONE) {
+          if (j >= r.length) {
+            int sz2=(int)Math.min(Integer.MAX_VALUE - 8,((long)j) << 1);
+            if (sz2 <= r.length)             throw new OutOfMemoryError("Required array size too large");
+            r=Arrays.copyOf(r,sz2);
+          }
+          r[j++]=(T)K;
+        }
+      }
+      if (j <= a.length) {
+        if (a != r)         System.arraycopy(r,0,a,0,j);
+        if (j < a.length)         r[j++]=null;
+        return a;
+      }
+      return Arrays.copyOf(r,j);
+    }
   }
 ;
 }
