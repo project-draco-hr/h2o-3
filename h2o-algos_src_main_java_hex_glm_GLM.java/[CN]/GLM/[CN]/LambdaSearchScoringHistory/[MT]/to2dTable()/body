@@ -1,13 +1,13 @@
 {
-  String[] cnames=new String[]{"timestamp","duration","iteration","lambda","predictors","Explained Deviance (train)"};
-  if (_lambdaDevTest != null)   cnames=ArrayUtils.append(cnames,"Explained Deviance (test)");
-  if (_lambdaDevXval != null)   cnames=ArrayUtils.append(cnames,"Explained Deviance (xval)");
+  String[] cnames=new String[]{"timestamp","duration","iteration","lambda","predictors","deviance_train"};
+  if (_lambdaDevTest != null)   cnames=ArrayUtils.append(cnames,"Deviance_Test");
+  if (_lambdaDevXval != null)   cnames=ArrayUtils.append(cnames,new String[]{"deviance_xval","deviance_se"});
   String[] ctypes=new String[]{"string","string","int","string","int","double"};
   if (_lambdaDevTest != null)   ctypes=ArrayUtils.append(ctypes,"double");
-  if (_lambdaDevXval != null)   ctypes=ArrayUtils.append(ctypes,"double");
+  if (_lambdaDevXval != null)   ctypes=ArrayUtils.append(ctypes,new String[]{"double","double"});
   String[] cformats=new String[]{"%s","%s","%d","%s","%d","%.3f"};
   if (_lambdaDevTest != null)   cformats=ArrayUtils.append(cformats,"%.3f");
-  if (_lambdaDevXval != null)   cformats=ArrayUtils.append(cformats,"%.3f");
+  if (_lambdaDevXval != null)   cformats=ArrayUtils.append(cformats,new String[]{"%.3f","%.3f"});
   TwoDimTable res=new TwoDimTable("Scoring History","",new String[_lambdaIters.size()],cnames,ctypes,cformats,"");
   int j=0;
   DateTimeFormatter fmt=DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
@@ -20,7 +20,10 @@
     res.set(i,col++,_lambdaPredictors.get(i));
     res.set(i,col++,_lambdaDevTrain.get(i));
     if (_lambdaDevTest != null && _lambdaDevTest.size() > i)     res.set(i,col++,_lambdaDevTest.get(i));
-    if (_lambdaDevXval != null && _lambdaDevXval.size() > i)     res.set(i,col++,_lambdaDevXval.get(i));
+    if (_lambdaDevXval != null && _lambdaDevXval.size() > i) {
+      res.set(i,col++,_lambdaDevXval.get(i));
+      res.set(i,col++,_lambdaDevXvalSE.get(i));
+    }
   }
   return res;
 }

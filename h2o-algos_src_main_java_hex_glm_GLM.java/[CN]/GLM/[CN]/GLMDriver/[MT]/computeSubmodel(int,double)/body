@@ -10,14 +10,15 @@
  while (!_state.checkKKTs());
   Log.info(LogMsg("solution has " + ArrayUtils.countNonzeros(_state.beta()) + " nonzeros"));
   if (_parms._lambda_search) {
-    double trainDev=_state.deviance();
-    double testDev=-1;
+    double trainDev=_state.deviance() / _nobs;
+    double testDev=Double.NaN;
     if (_validDinfo != null) {
-      testDev=_parms._family == Family.multinomial ? new GLMResDevTaskMultinomial(_job._key,_validDinfo,_dinfo.denormalizeBeta(_state.beta()),_nclass).doAll(_validDinfo._adaptedFrame)._likelihood * 2 : new GLMResDevTask(_job._key,_validDinfo,_parms,_dinfo.denormalizeBeta(_state.beta())).doAll(_validDinfo._adaptedFrame)._resDev;
+      testDev=_parms._family == Family.multinomial ? new GLMResDevTaskMultinomial(_job._key,_validDinfo,_dinfo.denormalizeBeta(_state.beta()),_nclass).doAll(_validDinfo._adaptedFrame).avgDev() : new GLMResDevTask(_job._key,_validDinfo,_parms,_dinfo.denormalizeBeta(_state.beta())).doAll(_validDinfo._adaptedFrame).avgDev();
     }
     Log.info(LogMsg("train deviance = " + trainDev + ", test deviance = "+ testDev));
     double xvalDev=_xval_test_deviances == null ? -1 : _xval_test_deviances[i];
-    _lsc.addLambdaScore(_state._iter,ArrayUtils.countNonzeros(_state.beta()),_state.lambda(),1 - trainDev / _nullDevTrain,1.0 - testDev / _nullDevTest,xvalDev == -1 ? -1 : 1.0 - xvalDev / _nullDevTrain);
+    double xvalDevSE=_xval_test_sd == null ? -1 : _xval_test_sd[i];
+    _lsc.addLambdaScore(_state._iter,ArrayUtils.countNonzeros(_state.beta()),_state.lambda(),trainDev,testDev,xvalDev,xvalDevSE);
     _model.update(_state.beta(),trainDev,testDev,_state._iter);
   }
  else   _model.update(_state.beta(),-1,-1,_state._iter);

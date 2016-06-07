@@ -1,33 +1,45 @@
 {
   if (_parms._lambda_search) {
-    double lambdaAvg=0;
-    double lambdaSE=0;
-    for (int i=0; i < cvModelBuilders.length; ++i)     lambdaAvg+=((GLM)cvModelBuilders[i])._model._output.bestSubmodel().lambda_value;
-    lambdaAvg/=cvModelBuilders.length;
-    for (int i=0; i < cvModelBuilders.length; ++i) {
-      double diff=lambdaAvg - ((GLM)cvModelBuilders[i])._model._output.bestSubmodel().lambda_value;
-      lambdaSE+=diff * diff;
-    }
-    lambdaSE=lambdaAvg / ((cvModelBuilders.length - 1) * Math.sqrt(cvModelBuilders.length));
-    double lambdaCVEstimate=lambdaAvg + lambdaSE;
-    int j=_parms._lambda.length - 1;
-    while (j > 0 && _parms._lambda[j - 1] < lambdaCVEstimate)     j--;
-    _lambdaCVEstimate=_parms._lambda[j];
-    _model._output._lambda_1se=j;
-    if (_parms._early_stopping)     _parms._lambda=Arrays.copyOf(_parms._lambda,j + 1);
-    _xval_test_deviances=new double[j + 1];
-    for (int i=0; i < cvModelBuilders.length; ++i) {
-      GLM g=(GLM)cvModelBuilders[i];
-      for (int k=0; k <= j; ++k) {
-        double l=_parms._lambda[k];
-        if (g._model._output.getSubmodel(l) == null)         g._driver.computeSubmodel(k,l);
-        _xval_test_deviances[k]+=g._model._output.getSubmodel(l).devianceTest;
+    _xval_test_deviances=new double[_parms._lambda.length];
+    _xval_test_sd=new double[_parms._lambda.length];
+    double bestTestDev=Double.POSITIVE_INFINITY;
+    double bestTestDevSD=0;
+    int lidx=0;
+    for (; lidx < _parms._lambda.length; ++lidx) {
+      double testDev=0;
+      for (int i=0; i < cvModelBuilders.length; ++i) {
+        GLM g=(GLM)cvModelBuilders[i];
+        double x=_parms._lambda[lidx];
+        if (g._model._output.getSubmodel(x) == null)         g._driver.computeSubmodel(lidx,x);
+        testDev+=g._model._output.getSubmodel(x).devianceTest;
       }
-      g._model._output.setSubmodel(_lambdaCVEstimate);
-      DKV.put(g._model);
+      double testDevAvg=testDev / cvModelBuilders.length;
+      double testDevSE=0;
+      for (int i=0; i < cvModelBuilders.length; ++i) {
+        GLM g=(GLM)cvModelBuilders[i];
+        double x=_parms._lambda[lidx];
+        if (g._model._output.getSubmodel(x) == null)         g._driver.computeSubmodel(lidx,x);
+        double diff=testDevAvg - (g._model._output.getSubmodel(x).devianceTest);
+        testDevSE+=diff * diff;
+      }
+      _xval_test_sd[lidx]=Math.sqrt(testDevSE / ((cvModelBuilders.length - 1) * cvModelBuilders.length));
+      _xval_test_deviances[lidx]=testDevAvg;
+      if (bestTestDev < testDevAvg) {
+        _parms._lambda=Arrays.copyOf(_parms._lambda,lidx);
+        _xval_test_deviances=Arrays.copyOf(_xval_test_deviances,lidx + 1);
+        _xval_test_sd=Arrays.copyOf(_xval_test_sd,lidx + 1);
+        break;
+      }
+      if (testDevAvg < bestTestDev)       bestTestDev=testDevAvg;
     }
-    Log.info("lambdaCV avg = " + lambdaAvg + ", standard error = "+ lambdaSE+ ", "+ "lambdaEstimate = "+ _lambdaCVEstimate);
+    int bestId=ArrayUtils.minIndex(_xval_test_deviances);
+    double bestDev=_xval_test_deviances[bestId];
+    double bestDev1se=bestDev + _xval_test_sd[bestId];
+    int bestId1se=bestId;
+    while (bestId1se > 0 && _xval_test_deviances[bestId1se - 1] <= bestDev1se)     --bestId1se;
+    _lambdaCVEstimate=_parms._lambda[bestId];
+    _model._output._lambda_1se=bestId1se;
+    _model._output._best_lambda_idx=bestId;
   }
-  _parms._early_stopping=false;
   _doInit=false;
 }
