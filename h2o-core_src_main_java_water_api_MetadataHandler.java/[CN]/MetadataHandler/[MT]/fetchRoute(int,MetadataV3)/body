@@ -11,6 +11,7 @@
     }
     docs.routes=new RouteBase[]{(RouteBase)Schema.schema(version,Route.class).fillFromImpl(route)};
   }
+  if (route == null)   return null;
   Schema sinput, soutput;
   if (route._handler_class.equals(water.api.ModelBuilderHandler.class) || route._handler_class.equals(water.api.GridSearchHandler.class)) {
     String ss[]=route._url_pattern_raw.split("/");
@@ -20,9 +21,9 @@
     int version2=Integer.valueOf(ss[1]);
     try {
       String inputSchemaName=schemaDir + algoName + "V"+ version2;
-      sinput=(Schema)TypeMap.theFreezable(TypeMap.onIce(inputSchemaName));
+      sinput=(Schema)TypeMap.getTheFreezableOrThrow(TypeMap.onIce(inputSchemaName));
     }
- catch (    java.lang.RuntimeException e) {
+ catch (    java.lang.ClassNotFoundException e) {
       sinput=(Schema)TypeMap.theFreezable(TypeMap.onIce(schemaDir + algoName + "V3"));
     }
     sinput.init_meta();
