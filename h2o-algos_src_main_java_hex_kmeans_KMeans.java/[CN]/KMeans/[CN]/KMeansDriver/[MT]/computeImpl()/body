@@ -1,0 +1,39 @@
+{
+  KMeansModel model=null;
+  try {
+    init(true);
+    if (error_count() > 0)     throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(KMeans.this);
+    model=new KMeansModel(dest(),_parms,new KMeansModel.KMeansOutput(KMeans.this));
+    model.delete_and_lock(_job);
+    final Vec vecs[]=_train.vecs();
+    final double[] means=_train.means();
+    final double[] mults=_parms._standardize ? _train.mults() : null;
+    final int[] impute_cat=new int[vecs.length];
+    for (int i=0; i < vecs.length; i++)     impute_cat[i]=vecs[i].isNumeric() ? -1 : DataInfo.imputeCat(vecs[i]);
+    model._output._normSub=means;
+    model._output._normMul=mults;
+    double[][] centers=initial_centers(model,vecs,means,mults,impute_cat);
+    if (centers == null)     return;
+    double[][] oldCenters=null;
+    model._output._iterations=0;
+    while (!isDone(model,centers,oldCenters)) {
+      Lloyds task=new Lloyds(centers,means,mults,impute_cat,_isCats,_parms._k,hasWeightCol()).doAll(vecs);
+      max_cats(task._cMeans,task._cats,_isCats);
+      if (cleanupBadClusters(task,vecs,centers,means,mults,impute_cat))       continue;
+      oldCenters=centers;
+      centers=computeStatsFillModel(task,model,vecs,means,mults,impute_cat);
+      model.update(_job);
+      _job.update(1);
+      if (model._parms._score_each_iteration)       Log.info(model._output._model_summary);
+    }
+    Log.info(model._output._model_summary);
+    if (_valid != null) {
+      model.score(_parms.valid()).delete();
+      model._output._validation_metrics=ModelMetrics.getFromDKV(model,_parms.valid());
+      model.update(_job);
+    }
+  }
+  finally {
+    if (model != null)     model.unlock(_job);
+  }
+}

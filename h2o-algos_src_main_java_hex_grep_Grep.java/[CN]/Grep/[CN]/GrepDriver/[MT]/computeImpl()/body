@@ -1,0 +1,19 @@
+{
+  GrepModel model=null;
+  try {
+    init(true);
+    model=new GrepModel(dest(),_parms,new GrepModel.GrepOutput(Grep.this));
+    model.delete_and_lock(_job);
+    GrepGrep gg=new GrepGrep(_parms._regex).doAll(train().vecs()[0]);
+    model._output._matches=Arrays.copyOf(gg._matches,gg._cnt);
+    model._output._offsets=Arrays.copyOf(gg._offsets,gg._cnt);
+    StringBuilder sb=new StringBuilder();
+    sb.append("Grep: ").append("\n");
+    sb.append(Arrays.toString(model._output._matches)).append("\n");
+    sb.append(Arrays.toString(model._output._offsets)).append("\n");
+    Log.info(sb);
+  }
+  finally {
+    if (model != null)     model.unlock(_job);
+  }
+}

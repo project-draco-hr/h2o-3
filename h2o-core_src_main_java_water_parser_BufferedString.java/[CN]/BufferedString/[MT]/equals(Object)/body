@@ -1,14 +1,15 @@
 {
   if (o instanceof BufferedString) {
     BufferedString str=(BufferedString)o;
-    if (str.length() != _len)     return false;
-    for (int i=0; i < _len; ++i)     if (getBuffer()[getOffset() + i] != str.getBuffer()[str.getOffset() + i])     return false;
+    if (str._hash != _hash && _hash != 0)     return false;
+    if (str._len != _len)     return false;
+    for (int i=0; i < _len; ++i)     if (_buf[_off + i] != str._buf[str._off + i])     return false;
     return true;
   }
  else   if (o instanceof String) {
     String str=(String)o;
-    if (str.length() != length())     return false;
-    for (int i=0; i < length(); ++i)     if (getBuffer()[getOffset() + i] != str.charAt(i))     return false;
+    if (str.length() != _len)     return false;
+    for (int i=0; i < _len; ++i)     if (_buf[_off + i] != str.charAt(i))     return false;
     return true;
   }
   return false;

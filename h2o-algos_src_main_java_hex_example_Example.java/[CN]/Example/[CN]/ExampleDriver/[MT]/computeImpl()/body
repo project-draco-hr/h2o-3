@@ -1,0 +1,21 @@
+{
+  ExampleModel model=null;
+  try {
+    init(true);
+    model=new ExampleModel(_job._result,_parms,new ExampleModel.ExampleOutput(Example.this));
+    model.delete_and_lock(_job);
+    for (; model._output._iterations < _parms._max_iterations; model._output._iterations++) {
+      if (stop_requested())       break;
+      double[] maxs=new Max().doAll(_parms.train())._maxs;
+      model._output._maxs=maxs;
+      model.update(_job);
+      _job.update(1);
+      StringBuilder sb=new StringBuilder();
+      sb.append("Example: iter: ").append(model._output._iterations);
+      Log.info(sb);
+    }
+  }
+  finally {
+    if (model != null)     model.unlock(_job);
+  }
+}
