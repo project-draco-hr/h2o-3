@@ -1,12 +1,10 @@
 {
-  assert(_nclass == 1);
-  final DTree tree=ktrees[0];
   assert(tree != null);
-  for (int i=0; i < tree._len - leafs[0]; i++) {
-    final LeafNode node=((LeafNode)tree.node(leafs[0] + i));
+  for (int i=0; i < tree._len - firstLeafIndex; i++) {
+    final LeafNode node=((LeafNode)tree.node(firstLeafIndex + i));
     int nidx=node.nid();
-    float nodeMin=minMax._mins[nidx - leafs[0]];
-    float nodeMax=minMax._maxs[nidx - leafs[0]];
+    float nodeMin=minMax._mins[nidx - firstLeafIndex];
+    float nodeMax=minMax._maxs[nidx - firstLeafIndex];
     double val=node._pred;
     if (dist == Distribution.Family.gamma || dist == Distribution.Family.tweedie)     val+=nodeMax;
     if (val > MAX_LOG_TRUNC) {
