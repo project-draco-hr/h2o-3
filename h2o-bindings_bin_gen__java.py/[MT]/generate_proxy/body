@@ -1,7 +1,6 @@
-def generate_proxy(classname, endpoints, schemas_map):
-    u'\n    Retrofit interfaces look like this:\n        public interface GitHubService {\n            @GET("/users/{user}/repos")\n            Call<List<Repo>> listRepos(@Path("user") String user);\n        }\n      :param classname: name of the class\n      :param endpoints: list of endpoints served by this class\n      :param schemas_map: dictionary schema_name => schema_info\n    '
-    var_pattern = re.compile(u'\\(\\?<(\\w+)>.*?\\)')
-    methods = set()
+def generate_proxy(classname, endpoints):
+    u'\n    Retrofit interfaces look like this:\n        public interface GitHubService {\n            @GET("/users/{user}/repos")\n            Call<List<Repo>> listRepos(@Path("user") String user);\n        }\n      :param classname: name of the class\n      :param endpoints: list of endpoints served by this class\n    '
+    var_pattern = re.compile(u'\\{(\\w+)\\}')
     helper_class = []
     found_key_array_parameter = False
     yield u'/**'
@@ -16,111 +15,52 @@ def generate_proxy(classname, endpoints, schemas_map):
     yield u'import java.util.Map;'
     yield u''
     yield ((u'public interface ' + classname) + u' {')
+    yield u''
     for e in endpoints:
-        path = e[u'url_pattern']
-        path_params = e[u'path_params']
-        summary = e[u'summary']
-        http_method = e[u'http_method']
-        input_schema_name = e[u'input_schema']
-        output_schema_name = e[u'output_schema']
         method = e[u'handler_method']
-        input_schema = schemas_map[input_schema_name]
-        is_post = (http_method == u'POST')
-        if (path == u'/3/ModelMetrics/frames/(?<frame>.*)/models/(?<model>.*)'):
-            continue
-        if (path == u'/3/ModelMetrics/frames/(?<frame>.*)'):
-            continue
-        assert (u'\\' not in path), (u'Your path contains backslashes. Seriously? ' + path)
-
-        def translator(m):
-            name = path_params[translator.i]
-            assert (name.replace(u'_', u'') == m.group(1)), (u'Unexpected name %s for param <%s>' % (name, m.group(1)))
-            translator.i += 1
-            return (u'{%s}' % name)
-        translator.i = 0
-        retrofit_path = var_pattern.sub(translator, path)
-        algo = None
-        if ((classname, method) in [(u'Grid', u'train'), (u'ModelBuilders', u'train'), (u'ModelBuilders', u'validate_parameters')]):
-            pieces = path.split(u'/')
-            assert (len(pieces) >= 4), (u'Expected to see algo name in the path: ' + path)
-            algo = pieces[3]
-            method = (method + algo.capitalize())
-            for field in input_schema[u'fields']:
-                if (field[u'name'] == u'parameters'):
-                    input_schema_name = field[u'schema_name']
-                    input_schema = schemas_map[input_schema_name]
-                    break
         param_strs = []
-        param_infos = []
-        j = 1
-        for parm in path_params:
-            fields = [field for field in input_schema[u'fields'] if (field[u'name'] == parm)]
-            assert (len(fields) == 1), (u'Failed to find parameter: %s for endpoint: %r' % (parm, e))
-            field = fields[0]
-            if (field[u'direction'] == u'OUTPUT'):
-                continue
+        for field in e[u'input_params']:
+            fname = field[u'name']
+            ftype = (u'Path' if field[u'is_path_param'] else u'Field')
             ptype = translate_type(field[u'type'], field[u'schema_name'])
-            if ptype.endswith(u'KeyV3'):
+            if (ptype.endswith(u'KeyV3') or (ptype == u'ColSpecifierV3')):
                 ptype = u'String'
             if ptype.endswith(u'KeyV3[]'):
                 ptype = u'String[]'
-            if (ptype == u'ColSpecifierV3'):
-                ptype = u'String'
-            param_strs.append(u'@Path("{parm}") {ptype} v{j}'.format(**locals()))
-            j += 1
-        for field in input_schema[u'fields']:
-            if (not is_post):
-                break
-            if (field[u'direction'] == u'OUTPUT'):
-                continue
-            if (field[u'name'] in path_params):
-                continue
-            parm = field[u'name']
-            ptype = translate_type(field[u'type'], field[u'schema_name'])
-            param_infos.append((parm, ptype))
-            if ptype.endswith(u'KeyV3'):
-                ptype = u'String'
-            if ptype.endswith(u'KeyV3[]'):
-                ptype = u'String[]'
-            if (ptype == u'ColSpecifierV3'):
-                ptype = u'String'
-            param_strs.append(u'@Field("{parm}") {ptype} v{j}'.format(**locals()))
-            j += 1
-        method_with_args = (method, tuple(param_strs))
-        assert (method_with_args not in methods), (((u'ERROR: duplicate method in classname ' + classname) + u': ') + method)
-        methods.add(method_with_args)
+            param_strs.append(u'@{ftype}("{fname}") {ptype} {fname}'.format(**locals()))
         yield u'  /** '
-        yield bi.wrap(summary, indent=u'   * ')
+        yield bi.wrap(e[u'summary'], indent=u'   * ')
         yield u'   */'
-        yield (u'  @FormUrlEncoded' if is_post else None)
-        yield (u'  @%(method)s("%(path)s")' % {u'method': http_method, u'path': retrofit_path, })
+        yield (u'  @FormUrlEncoded' if (e[u'http_method'] == u'POST') else None)
+        yield u'  @{method}("{path}")'.format(method=e[u'http_method'], path=e[u'url_pattern'])
         if (len(param_strs) <= 1):
             args = (param_strs[0] if param_strs else u'')
-            yield u'  Call<{schema}> {method}({args});'.format(schema=output_schema_name, method=method, args=args)
+            yield u'  Call<{schema}> {method}({args});'.format(schema=e[u'output_schema'], method=method, args=args)
         else:
-            yield u'  Call<{schema}> {method}('.format(schema=output_schema_name, method=method)
+            yield u'  Call<{schema}> {method}('.format(schema=e[u'output_schema'], method=method)
             for arg in param_strs:
                 yield ((u'    ' + arg) + (u'' if (arg == param_strs[(-1)]) else u','))
             yield u'  );'
         yield u''
-        if algo:
+        if (u'algo' in e):
             helper_class.append(u'    /**')
-            helper_class.append(bi.wrap(summary, indent=u'     * '))
+            helper_class.append(bi.wrap(e[u'summary'], indent=u'     * '))
             helper_class.append(u'     */')
-            helper_class.append(u'    public static Call<{oschema}> {method}({outer_class} z, {ischema} p) {{'.format(ischema=input_schema_name, oschema=output_schema_name, method=method, outer_class=classname))
+            helper_class.append(u'    public static Call<{oschema}> {method}({outer_class} z, {ischema} p) {{'.format(ischema=e[u'input_schema'], oschema=e[u'output_schema'], method=method, outer_class=classname))
             helper_class.append(u'      return z.{method}('.format(method=method))
-            for (pname, ptype) in param_infos:
-                ccname = translate_name(pname)
+            for field in e[u'input_params']:
+                ptype = translate_type(field[u'type'], field[u'schema_name'])
+                pname = translate_name(field[u'name'])
                 if ptype.endswith(u'KeyV3'):
-                    s = u'(p.{parm} == null? null : p.{parm}.name)'.format(parm=ccname)
+                    s = u'(p.{parm} == null? null : p.{parm}.name)'.format(parm=pname)
                 elif ptype.endswith(u'KeyV3[]'):
                     found_key_array_parameter = True
-                    s = u'(p.{parm} == null? null : keyArrayToStringArray(p.{parm}))'.format(parm=ccname)
+                    s = u'(p.{parm} == null? null : keyArrayToStringArray(p.{parm}))'.format(parm=pname)
                 elif ptype.startswith(u'ColSpecifier'):
-                    s = u'(p.{parm} == null? null : p.{parm}.columnName)'.format(parm=ccname)
+                    s = u'(p.{parm} == null? null : p.{parm}.columnName)'.format(parm=pname)
                 else:
-                    s = (u'p.' + ccname)
-                if (pname != param_infos[(-1)][0]):
+                    s = (u'p.' + pname)
+                if (field != e[u'input_params'][(-1)]):
                     s += u','
                 helper_class.append((u'        ' + s))
             helper_class.append(u'      );')

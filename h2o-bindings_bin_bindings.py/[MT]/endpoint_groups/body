@@ -2,8 +2,5 @@ def endpoint_groups():
     u'\n    Return endpoints, grouped by the class which handles them\n    '
     groups = defaultdict(list)
     for e in endpoints():
-        mm = classname_pattern.match(e[u'url_pattern'])
-        assert mm, (u'Cannot determine class name in URL ' + e[u'url_pattern'])
-        classname = mm.group(1)
-        groups[classname].append(e)
+        groups[e[u'class_name']].append(e)
     return groups
