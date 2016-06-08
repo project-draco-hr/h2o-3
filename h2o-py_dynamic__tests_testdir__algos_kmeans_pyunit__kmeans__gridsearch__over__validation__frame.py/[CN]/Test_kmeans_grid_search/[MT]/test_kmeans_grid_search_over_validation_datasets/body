@@ -1,0 +1,15 @@
+def test_kmeans_grid_search_over_validation_datasets(self):
+    '\n        test_kmeans_grid_search_over_validation_datasets performs the following:\n        a. build H2O kmeans models using grid search.\n        b. For each model built using grid search, print out the total_sum_squares errors.\n        c. If an exception was thrown, mark the test as failed.\n        '
+    print('*******************************************************************************************')
+    print('test_kmeans_grid_search_over_validation_datasets for kmeans ')
+    h2o.cluster_info()
+    print('Hyper-parameters used here is {0}'.format(self.hyper_params))
+    grid_model = H2OGridSearch(H2OKMeansEstimator(), hyper_params=self.hyper_params)
+    grid_model.train(x=self.x_indices, training_frame=self.training1_data)
+    for each_model in grid_model:
+        summary_list = each_model._model_json['output']['validation_metrics']
+        if ((summary_list is not None) and (summary_list._metric_json is not None)):
+            grid_model_metrics = summary_list._metric_json['totss']
+            print('total sum of squares of a model is: {0}'.format(grid_model_metrics))
+        else:
+            print('model._model_json["output"]["validation_metrics"] of a model is None for some reason....')
