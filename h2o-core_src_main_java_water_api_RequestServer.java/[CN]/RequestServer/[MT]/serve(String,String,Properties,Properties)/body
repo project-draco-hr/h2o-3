@@ -67,8 +67,7 @@ return wrap(s,type);
  catch (H2OFailException e) {
 H2OError error=e.toH2OError(uri);
 Log.fatal("Caught exception (fatal to the cluster): " + error.toString());
-H2O.fail(wrap(new H2OErrorV3().fillFromImpl(error),type).toString());
-return null;
+throw H2O.fail(wrap(new H2OErrorV3().fillFromImpl(error),type).toString());
 }
 catch (H2OModelBuilderIllegalArgumentException e) {
 H2OModelBuilderError error=e.toH2OError(uri);
