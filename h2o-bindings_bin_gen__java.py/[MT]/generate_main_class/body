@@ -31,33 +31,60 @@ def generate_main_class(endpoints, schemas_map):
     yield u'  }'
     yield u''
     for route in endpoints:
-        newname = route[u'api_name']
+        apiname = route[u'api_name']
         class_name = route[u'class_name']
-        input_schema_name = route[u'input_schema']
-        output_schema_name = route[u'output_schema']
-        input_schema = schemas_map[input_schema_name]
-        input_fields = [field for field in input_schema[u'fields'] if (field[u'direction'] != u'OUTPUT')]
-        good_input_fields = [field for field in input_fields if (field[u'name'] != u'_exclude_fields')]
+        outtype = route[u'output_schema']
+        input_fields = route[u'input_params']
+        required_fields = [field for field in input_fields if field[u'required']]
+        input_fields_wo_excluded = [field for field in input_fields if (field[u'name'] != u'_exclude_fields')]
         yield u'  /**'
         yield bi.wrap(route[u'summary'], indent=u'   * ')
         yield u'   */'
-        if (len(good_input_fields) == 0):
-            yield u'  public {type} {method}() throws IOException {{'.format(type=output_schema_name, method=newname)
-            yield u'    return {method}("");'.format(method=newname)
+        li = len(input_fields)
+        le = len(input_fields_wo_excluded)
+        lr = len(required_fields)
+        assert (lr <= 3), (u'Too many required fields in method ' + apiName)
+        if (lr == li):
+            input_fields = None
+            input_fields_wo_excluded = None
+        elif ((le == li) or (le == lr) or (li >= 4)):
+            input_fields_wo_excluded = None
+        for fields in [required_fields, input_fields_wo_excluded, input_fields]:
+            if (fields is None):
+                continue
+            use_schema_param = (len(fields) >= 4)
+            value_field_strs = []
+            typed_field_strs = []
+            for field in fields:
+                ftype = translate_type(field[u'type'], field[u'schema_name'])
+                fname = translate_name(field[u'name'])
+                typed_field_strs.append((u'%s %s' % (ftype, fname)))
+                if use_schema_param:
+                    fname = (u'params.' + fname)
+                if ftype.endswith(u'KeyV3'):
+                    s = (u'keyToString(%s)' % fname)
+                elif ftype.endswith(u'KeyV3[]'):
+                    s = (u'keyArrayToStringArray(%s)' % fname)
+                elif ftype.startswith(u'ColSpecifier'):
+                    s = (u'colToString(%s)' % fname)
+                else:
+                    s = fname
+                value_field_strs.append(s)
+            if use_schema_param:
+                args = (route[u'input_schema'] + u' params')
+                values = ((u'\n      ' + u',\n      '.join(value_field_strs)) + u'\n    ')
+            else:
+                args = u', '.join(typed_field_strs)
+                values = u', '.join(value_field_strs)
+                if (fields == input_fields_wo_excluded):
+                    values += u', ""'
+            yield u'  public {type} {method}({args}) throws IOException {{'.format(type=outtype, method=apiname, args=args)
+            yield u'    {clazz} s = getService({clazz}.class);'.format(clazz=class_name)
+            yield u'    return s.{method}({values}).execute().body();'.format(method=route[u'handler_method'], values=values)
             yield u'  }'
-            yield u'  public {type} {method}(String[] excluded_fields) throws IOException {{'.format(type=output_schema_name, method=newname)
-            yield u'    return {method}(String.join(",", excluded_fields));'.format(method=newname)
-            yield u'  }'
-            yield u'  public {type} {method}(String excluded_fields) throws IOException {{'.format(type=output_schema_name, method=newname)
-            yield u'    {clazz} s = getRetrofit().create({clazz}.class);'.format(clazz=class_name)
-            yield u'    return s.{method}(excluded_fields).execute().body();'.format(method=route[u'handler_method'])
-            yield u'  }'
-            yield u''
-        else:
-            yield (u'  // %s -> %d fields: %s' % (newname, len(input_fields), [f[u'name'] for f in input_fields]))
-            yield u''
+        yield u''
     yield u''
-    yield u'  //--------- PRIVATE ----------------------------------------------------------'
+    yield (u'  //--------- PRIVATE ' + (u'-' * 98))
     yield u''
     yield u'  private Retrofit retrofit;'
     yield u'  private String url = "http://localhost/54321/";'
@@ -66,6 +93,7 @@ def generate_main_class(endpoints, schemas_map):
     yield u'  private void initializeRetrofit() {'
     yield u'    Gson gson = new GsonBuilder()'
     yield u'      .registerTypeAdapter(KeyV3.class, new KeySerializer())'
+    yield u'      .registerTypeAdapter(ColSpecifierV3.class, new ColSerializer())'
     yield u'      .create();'
     yield u''
     yield u'    OkHttpClient client = new OkHttpClient.Builder()'
@@ -86,6 +114,10 @@ def generate_main_class(endpoints, schemas_map):
     yield u'    return retrofit;'
     yield u'  }'
     yield u''
+    yield u'  private <T> T getService(Class<T> clazz) {'
+    yield u'    return getRetrofit().create(clazz);'
+    yield u'  }'
+    yield u''
     yield u''
     yield u'  /**'
     yield u'   * Keys get sent as Strings and returned as objects also containing the type and URL,'
@@ -96,4 +128,35 @@ def generate_main_class(endpoints, schemas_map):
     yield u'      return new JsonPrimitive(key.name);'
     yield u'    }'
     yield u'  }'
+    yield u'  private static class ColSerializer implements JsonSerializer<ColSpecifierV3> {'
+    yield u'    public JsonElement serialize(ColSpecifierV3 col, Type typeOfCol, JsonSerializationContext context) {'
+    yield u'      return new JsonPrimitive(col.columnName);'
+    yield u'    }'
+    yield u'  }'
+    yield u''
+    yield u'  /**'
+    yield u'   * Return an array of Strings for an array of keys.'
+    yield u'   */'
+    yield u'  private static String[] keyArrayToStringArray(KeyV3[] keys) {'
+    yield u'    if (keys == null) return null;'
+    yield u'    String[] ids = new String[keys.length];'
+    yield u'    int i = 0;'
+    yield u'    for (KeyV3 key : keys) ids[i++] = key.name;'
+    yield u'    return ids;'
+    yield u'  }'
+    yield u''
+    yield u'  /**'
+    yield u'   *'
+    yield u'   */'
+    yield u'  private static String keyToString(KeyV3 key) {'
+    yield u'    return key == null? null : key.name;'
+    yield u'  }'
+    yield u''
+    yield u'  /**'
+    yield u'   *'
+    yield u'   */'
+    yield u'  private static String colToString(ColSpecifierV3 col) {'
+    yield u'    return col == null? null : col.columnName;'
+    yield u'  }'
+    yield u''
     yield u'}'

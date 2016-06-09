@@ -22,7 +22,7 @@ def generate_schema(class_name, schema):
             continue
         java_type = translate_type(field[u'type'], field[u'schema_name'])
         java_value = get_java_value(field)
-        if (is_model_builder and (field[u'name'] == u'parameters')):
+        if (False and is_model_builder and (field[u'name'] == u'parameters')):
             fields.append((u'parameters', u'null', u'ModelParameterSchemaV3[]', field[u'help'], field[u'is_inherited']))
         else:
             fields.append((field[u'name'], java_value, java_type, field[u'help'], field[u'is_inherited']))
@@ -37,7 +37,8 @@ def generate_schema(class_name, schema):
     yield (u'import java.util.Map;' if has_map else None)
     yield u''
     yield u''
-    yield (u'public class %s extends %s {' % (class_name, superclass))
+    yield ((u'public class %s extends %s {' % (class_name, superclass)) if (superclass != u'Object') else None)
+    yield ((u'public class %s {' % class_name) if (superclass == u'Object') else None)
     yield u''
     for (name, value, ftype, fhelp, inherited) in fields:
         if inherited:

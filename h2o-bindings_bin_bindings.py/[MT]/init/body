@@ -1,5 +1,5 @@
 def init(language, output_dir, clear_dir=True):
-    u'\n    Entry point for the bindings module. It parses the command line arguments and verifies their\n    correctness.\n      :param language -- name of the target language (used to show the command-line description).\n      :param output_dir -- folder where the bindings files will be generated. If the folder does\n        not exist, it will be created. If it does exist, it will be cleared first. This folder is\n        relative to ../src-gen/main/.\n      :param clear_dir -- if True (default), the target folder will be cleared before any new\n        files created in it.\n    '
+    u'\n    Entry point for the bindings module. It parses the command line arguments and verifies their\n    correctness.\n      :param language -- name of the target language (used to show the command-line description).\n      :param output_dir -- folder where the bindings files will be generated. If the folder does\n        not exist, it will be created. This folder is relative to ../src-gen/main/. The user may\n        specify a different output dir through the commandline argument.\n      :param clear_dir -- if True (default), the target folder will be cleared before any new\n        files created in it.\n    '
     config[u'start_time'] = time.time()
     print((u'Generating %s bindings... ' % language), end=u'')
     sys.stdout.flush()
@@ -7,7 +7,7 @@ def init(language, output_dir, clear_dir=True):
     default_output_dir = os.path.abspath(((this_module_dir + u'/../src-gen/main/') + output_dir))
     parser = argparse.ArgumentParser(description=(u'\n        Generate %s REST API bindings (with docs) and write them to the filesystem.\n        Must attach to a running H2O instance to query the interface.' % language))
     parser.add_argument(u'-v', u'--verbose', help=u'Verbose output', action=u'store_true')
-    parser.add_argument(u'--usecloud', metavar=u'IP:PORT', default=u'localhost:54321', help=u'Address of an H2O server (defaults to localhost:54321)')
+    parser.add_argument(u'--usecloud', metavar=u'IP:PORT', default=u'localhost:54321', help=u'Address of an H2O server (defaults to http://localhost:54321/)')
     parser.add_argument(u'--dest', metavar=u'DIR', default=default_output_dir, help=u'Destination directory for generated bindings')
     args = parser.parse_args()
     base_url = args.usecloud
@@ -39,7 +39,7 @@ def init(language, output_dir, clear_dir=True):
         except Exception as e:
             print((u'Unable to remove file %s: %r' % (filepath, e)))
             sys.exit(9)
-    json = _request_or_exit(u'LATEST/About')
+    json = _request_or_exit(u'/LATEST/About')
     l1 = max((len(e[u'name']) for e in json[u'entries']))
     l2 = max((len(e[u'value']) for e in json[u'entries']))
     ll = max((29 + len(config[u'baseurl'])), ((l1 + l2) + 2))

@@ -12,13 +12,13 @@ def generate_proxy(classname, endpoints):
     yield u'import water.bindings.pojos.*;'
     yield u'import retrofit2.*;'
     yield u'import retrofit2.http.*;'
-    yield u'import java.util.Map;'
     yield u''
     yield ((u'public interface ' + classname) + u' {')
     yield u''
     for e in endpoints:
         method = e[u'handler_method']
         param_strs = []
+        required_param_strs = []
         for field in e[u'input_params']:
             fname = field[u'name']
             ftype = (u'Path' if field[u'is_path_param'] else u'Field')
@@ -27,21 +27,32 @@ def generate_proxy(classname, endpoints):
                 ptype = u'String'
             if ptype.endswith(u'KeyV3[]'):
                 ptype = u'String[]'
-            param_strs.append(u'@{ftype}("{fname}") {ptype} {fname}'.format(**locals()))
+            param_str = u'@{ftype}("{fname}") {ptype} {fname}'.format(**locals())
+            param_strs.append(param_str)
+            if field[u'required']:
+                required_param_strs.append(param_str)
+        if (len(param_strs) == len(required_param_strs)):
+            required_param_strs = None
         yield u'  /** '
         yield bi.wrap(e[u'summary'], indent=u'   * ')
+        for field in e[u'input_params']:
+            s = (u'   *   @param %s ' % field[u'name'])
+            yield (s + bi.wrap(field[u'help'], indent=(u'   *' + (u' ' * (len(s) - 4))), indent_first=False))
         yield u'   */'
-        yield (u'  @FormUrlEncoded' if (e[u'http_method'] == u'POST') else None)
-        yield u'  @{method}("{path}")'.format(method=e[u'http_method'], path=e[u'url_pattern'])
-        if (len(param_strs) <= 1):
-            args = (param_strs[0] if param_strs else u'')
-            yield u'  Call<{schema}> {method}({args});'.format(schema=e[u'output_schema'], method=method, args=args)
-        else:
-            yield u'  Call<{schema}> {method}('.format(schema=e[u'output_schema'], method=method)
-            for arg in param_strs:
-                yield ((u'    ' + arg) + (u'' if (arg == param_strs[(-1)]) else u','))
-            yield u'  );'
-        yield u''
+        for params in [param_strs, required_param_strs]:
+            if (params is None):
+                continue
+            yield (u'  @FormUrlEncoded' if (e[u'http_method'] == u'POST') else None)
+            yield u'  @{method}("{path}")'.format(method=e[u'http_method'], path=e[u'url_pattern'])
+            if (len(params) <= 1):
+                args = (params[0] if params else u'')
+                yield u'  Call<{schema}> {method}({args});'.format(schema=e[u'output_schema'], method=method, args=args)
+            else:
+                yield u'  Call<{schema}> {method}('.format(schema=e[u'output_schema'], method=method)
+                for arg in params:
+                    yield ((u'    ' + arg) + (u'' if (arg == params[(-1)]) else u','))
+                yield u'  );'
+            yield u''
         if (u'algo' in e):
             helper_class.append(u'    /**')
             helper_class.append(bi.wrap(e[u'summary'], indent=u'     * '))
@@ -68,7 +79,7 @@ def generate_proxy(classname, endpoints):
             helper_class.append(u'')
     if helper_class:
         yield u''
-        yield u'  public static class Helper {'
+        yield u'  class Helper {'
         for line in helper_class:
             yield line
         if found_key_array_parameter:
