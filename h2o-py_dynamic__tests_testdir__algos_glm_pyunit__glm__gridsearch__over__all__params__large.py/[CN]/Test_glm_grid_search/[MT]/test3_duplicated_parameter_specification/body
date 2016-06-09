@@ -4,9 +4,13 @@ def test3_duplicated_parameter_specification(self):
     print(('test3_duplicated_parameter_specification for GLM ' + self.family))
     error_number = np.random.random_integers(0, 2, 1)
     print('error_number is {0}'.format(error_number[0]))
-    (params_dict, error_hyper_params) = pyunit_utils.generate_redundant_parameters(self.hyper_params, self.gridable_parameters, self.gridable_defaults, error_number[0])
+    (params_dict, error_hyper_params) = pyunit_utils.generate_redundant_parameters(self.final_hyper_params, self.gridable_parameters, self.gridable_defaults, error_number[0])
     params_dict['family'] = self.family
     params_dict['nfolds'] = self.nfolds
+    if ('stopping_rounds' in list(params_dict)):
+        del params_dict['stopping_rounds']
+    if ('stopping_tolerance' in list(params_dict)):
+        del params_dict['stopping_tolerance']
     print('Your hyper-parameter dict is: ')
     print(error_hyper_params)
     print('Your model parameters are: ')
