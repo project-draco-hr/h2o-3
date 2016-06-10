@@ -1,8 +1,7 @@
 def setup_data(self):
-    '\n        This function performs all initializations necessary:\n        1. generates all the random parameter values for our dynamic tests like the Gaussian\n        noise std, column count and row count for training/test data sets.\n        2. randomly choose the distribution family (gaussian, binomial, multinomial)\n        to test.\n        3. with the chosen distribution family, generate the appropriate data sets\n        4. load the data sets and set the training set indices and response column index\n        '
+    '\n        This function performs all initializations necessary:\n        1. Randomly choose which distribution family to use\n        2. load the correct data sets and set the training set indices and response column index\n        '
     self.sandbox_dir = pyunit_utils.make_Rsandbox_dir(self.current_dir, self.test_name, True)
     self.family = self.families[random.randint(0, (len(self.families) - 1))]
-    self.family = 'gaussian'
     if ('binomial' in self.family):
         self.training1_data = h2o.import_file(path=pyunit_utils.locate(self.training1_filename[1]))
         self.training2_data = h2o.import_file(path=pyunit_utils.locate(self.training2_filename[1]))

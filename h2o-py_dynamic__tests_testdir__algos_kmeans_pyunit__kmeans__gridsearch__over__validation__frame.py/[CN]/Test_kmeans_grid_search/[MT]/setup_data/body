@@ -1,0 +1,8 @@
+def setup_data(self):
+    '\n        This function performs all initializations necessary:\n        load the training/validation data sets and set the training set indices\n        '
+    self.training1_data = h2o.import_file(path=pyunit_utils.locate(self.training1_filenames))
+    self.x_indices = list(range(self.training1_data.ncol))
+    self.hyper_params['validation_frame'] = []
+    for fname in self.validation_filenames:
+        temp = h2o.import_file(path=pyunit_utils.locate(fname))
+        self.hyper_params['validation_frame'].append(temp.frame_id)
