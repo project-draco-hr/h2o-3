@@ -17,6 +17,10 @@
   validateHyperParams((P)gss.parameters,gss.hyper_parameters);
   MP params=(MP)gss.parameters.createAndFillImpl();
   Map<String,Object[]> sortedMap=new TreeMap<>(gss.hyper_parameters);
+  if (sortedMap.containsKey("validation_frame")) {
+    sortedMap.put("valid",sortedMap.get("validation_frame"));
+    sortedMap.remove("validation_frame");
+  }
   Key<Grid> destKey=gss.grid_id != null ? gss.grid_id.key() : null;
   Job<Grid> gsJob=GridSearch.startGridSearch(destKey,params,sortedMap,new DefaultModelParametersBuilderFactory<MP,P>(),(HyperSpaceSearchCriteria)gss.search_criteria.createAndFillImpl());
   gss.hyper_parameters=null;

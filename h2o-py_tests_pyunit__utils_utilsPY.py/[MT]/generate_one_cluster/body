@@ -1,0 +1,14 @@
+def generate_one_cluster(cluster_center, cluster_number, cluster_size):
+    '\n    This function will generate a full cluster wither cluster_number points centered on cluster_center\n    with maximum radius cluster_size\n\n    :param cluster_center: python list denoting coordinates of cluster center\n    :param cluster_number: integer denoting number of points to generate for this cluster\n    :param cluster_size: float denoting radius of cluster\n    :return: np matrix denoting a cluster\n    '
+    pt_dists = np.random.uniform(0, cluster_size, [cluster_number, 1])
+    coord_pts = len(cluster_center)
+    one_cluster_data = np.zeros((cluster_number, coord_pts), dtype=np.float)
+    for p_ind in range(cluster_number):
+        coord_indices = list(range(coord_pts))
+        random.shuffle(coord_indices)
+        left_radius = pt_dists[p_ind]
+        for c_ind in range(coord_pts):
+            coord_index = coord_indices[c_ind]
+            one_cluster_data[(p_ind, coord_index)] = random.uniform((((-1) * left_radius) + cluster_center[coord_index]), (left_radius + cluster_center[coord_index]))
+            left_radius = math.sqrt((pow(left_radius, 2) - pow((one_cluster_data[(p_ind, coord_index)] - cluster_center[coord_index]), 2)))
+    return one_cluster_data

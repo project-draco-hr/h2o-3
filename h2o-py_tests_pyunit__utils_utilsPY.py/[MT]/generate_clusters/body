@@ -1,0 +1,15 @@
+def generate_clusters(cluster_center_list, cluster_pt_number_list, cluster_radius_list):
+    '\n    This function is used to generate clusters of points around cluster_centers listed in\n    cluster_center_list.  The radius of the cluster of points are specified by cluster_pt_number_list.\n    The size of each cluster could be different and it is specified in cluster_radius_list.\n\n    :param cluster_center_list: list of coordinates of cluster centers\n    :param cluster_pt_number_list: number of points to generate for each cluster center\n    :param cluster_radius_list: list of size of each cluster\n    :return: list of sample points that belong to various clusters\n    '
+    k = len(cluster_pt_number_list)
+    if ((not (k == len(cluster_center_list))) or (not (k == len(cluster_radius_list)))):
+        print('Length of list cluster_center_list, cluster_pt_number_list, cluster_radius_list must be the same!')
+        sys.exit(1)
+    training_sets = []
+    for k_ind in range(k):
+        new_cluster_data = generate_one_cluster(cluster_center_list[k_ind], cluster_pt_number_list[k_ind], cluster_radius_list[k_ind])
+        if (k_ind > 0):
+            training_sets = np.concatenate((training_sets, new_cluster_data), axis=0)
+        else:
+            training_sets = new_cluster_data
+    map(np.random.shuffle, training_sets)
+    return training_sets
