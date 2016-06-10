@@ -2,7 +2,7 @@
   NodePersistentStorage nps=H2O.getNPS();
   AtomicLong length=new AtomicLong();
   InputStream is=nps.get(categoryName,keyName,length);
-  NanoHTTPD.Response res=new Response(NanoHTTPD.HTTP_OK,NanoHTTPD.MIME_DEFAULT_BINARY,is);
+  Response res=new Response(HTTP_OK,MIME_DEFAULT_BINARY,is);
   res.addHeader("Content-Length",Long.toString(length.get()));
   res.addHeader("Content-Disposition","attachment; filename=" + keyName + ".flow");
   return res;

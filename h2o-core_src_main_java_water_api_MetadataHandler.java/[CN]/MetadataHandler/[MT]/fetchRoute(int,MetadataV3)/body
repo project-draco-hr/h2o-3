@@ -1,7 +1,12 @@
 {
   Route route=null;
   if (null != docs.path && null != docs.http_method) {
-    route=RequestServer.lookup(docs.http_method,docs.path);
+    try {
+      route=RequestServer.lookupRoute(new RequestUri(docs.http_method,docs.path));
+    }
+ catch (    MalformedURLException e) {
+      route=null;
+    }
   }
  else {
     int i=0;
@@ -14,7 +19,7 @@
   if (route == null)   return null;
   Schema sinput, soutput;
   if (route._handler_class.equals(water.api.ModelBuilderHandler.class) || route._handler_class.equals(water.api.GridSearchHandler.class)) {
-    String ss[]=route._url_pattern_raw.split("/");
+    String ss[]=route._url.split("/");
     String algoURLName=ss[3];
     String algoName=ModelBuilder.algoName(algoURLName);
     String schemaDir=ModelBuilder.schemaDirectory(algoURLName);
