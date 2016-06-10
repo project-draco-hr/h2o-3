@@ -61,7 +61,19 @@
     if (!required && (s == null || s.length() == 0))     return null;
     return KeyV3.make(fclz,Key.make(s.startsWith("\"") ? s.substring(1,s.length() - 1) : s));
   }
-  if (Enum.class.isAssignableFrom(fclz))   return Enum.valueOf(fclz,s);
+  if (Enum.class.isAssignableFrom(fclz)) {
+    try {
+      return Enum.valueOf(fclz,s);
+    }
+ catch (    Throwable t1) {
+      try {
+        return Enum.valueOf(fclz,s.toLowerCase());
+      }
+ catch (      Throwable t2) {
+        return Enum.valueOf(fclz,s.toUpperCase());
+      }
+    }
+  }
   if (FrameV3.class.isAssignableFrom(fclz)) {
     if ((s == null || s.length() == 0) && required)     throw new H2OKeyNotFoundArgumentException(field_name,s);
  else     if (!required && (s == null || s.length() == 0))     return null;
