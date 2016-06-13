@@ -7,13 +7,49 @@
     Response special=maybeServeSpecial(uri);
     if (special != null)     return special;
     Route route=routesTree.lookup(uri,parms);
-    if (url.startsWith("/3/Frames/") && (url.toLowerCase().endsWith("/overwrite/true") || url.toLowerCase().endsWith("/overwrite/false")) && url.contains("/export/")) {
-      int i=url.indexOf("/export/");
-      boolean force=url.toLowerCase().endsWith("true");
-      parms.put("frame_id",url.substring(10,i));
-      parms.put("path",url.substring(i + 8,url.length() - 15 - (force ? 0 : 1)));
-      parms.put("force",force);
-      route=findRouteByApiName("exportFrame_deprecated");
+    if (url.startsWith("/3/Frames/")) {
+      if ((url.toLowerCase().endsWith("/overwrite/true") || url.toLowerCase().endsWith("/overwrite/false")) && url.contains("/export/")) {
+        int i=url.indexOf("/export/");
+        boolean force=url.toLowerCase().endsWith("true");
+        parms.put("frame_id",url.substring(10,i));
+        parms.put("path",url.substring(i + 8,url.length() - 15 - (force ? 0 : 1)));
+        parms.put("force",force);
+        route=findRouteByApiName("exportFrame_deprecated");
+      }
+ else       if (url.endsWith("/export")) {
+        parms.put("frame_id",url.substring(10,url.length() - 7));
+        route=findRouteByApiName("exportFrame");
+      }
+ else       if (url.endsWith("/summary") && url.contains("/columns/")) {
+        int i=url.indexOf("/columns/");
+        parms.put("frame_id",url.substring(10,i));
+        parms.put("column",url.substring(i + 9,url.length() - 8));
+        route=findRouteByApiName("frameColumnSummary");
+      }
+ else       if (url.endsWith("/domain") && url.contains("/columns/")) {
+        int i=url.indexOf("/columns/");
+        parms.put("frame_id",url.substring(10,i));
+        parms.put("column",url.substring(i + 9,url.length() - 7));
+        route=findRouteByApiName("frameColumnDomain");
+      }
+ else       if (url.contains("/columns/")) {
+        int i=url.indexOf("/columns/");
+        parms.put("frame_id",url.substring(10,i));
+        parms.put("column",url.substring(i + 9));
+        route=findRouteByApiName("frameColumn");
+      }
+ else       if (url.endsWith("/summary")) {
+        parms.put("frame_id",url.substring(10,url.length() - 8));
+        route=findRouteByApiName("frameSummary");
+      }
+ else       if (url.endsWith("/columns")) {
+        parms.put("frame_id",url.substring(10,url.length() - 8));
+        route=findRouteByApiName("frameColumns");
+      }
+ else {
+        parms.put("frame_id",url.substring(10));
+        route=findRouteByApiName(method.equals("DELETE") ? "deleteFrame" : "frame");
+      }
     }
     if (route == null) {
       if (uri.isGetMethod())       return getResource(type,url);
