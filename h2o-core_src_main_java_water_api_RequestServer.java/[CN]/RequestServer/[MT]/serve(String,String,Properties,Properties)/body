@@ -7,6 +7,14 @@
     Response special=maybeServeSpecial(uri);
     if (special != null)     return special;
     Route route=routesTree.lookup(uri,parms);
+    if (url.startsWith("/3/Frames/") && (url.toLowerCase().endsWith("/overwrite/true") || url.toLowerCase().endsWith("/overwrite/false")) && url.contains("/export/")) {
+      int i=url.indexOf("/export/");
+      boolean force=url.toLowerCase().endsWith("true");
+      parms.put("frame_id",url.substring(10,i));
+      parms.put("path",url.substring(i + 8,url.length() - 15 - (force ? 0 : 1)));
+      parms.put("force",force);
+      route=findRouteByApiName("exportFrame_deprecated");
+    }
     if (route == null) {
       if (uri.isGetMethod())       return getResource(type,url);
  else       return response404(method + " " + url,type);
