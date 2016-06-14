@@ -17,6 +17,7 @@
       _model.addWarning("Removed collinear columns " + Arrays.toString(collinear_col_names));
       Log.warn("Removed collinear columns " + Arrays.toString(collinear_col_names));
       _state.removeCols(collinear_cols);
+      gram.dropCols(collinear_cols);
       xy=ArrayUtils.removeIds(xy,collinear_cols);
     }
     xy=xy.clone();
@@ -32,7 +33,7 @@
     }
  else {
       xy=MemoryManager.malloc8d(xy.length);
-      if (_state._u == null && _parms._family != Family.multinomial)       _state._u=MemoryManager.malloc8d(_state.activeData().P() + 1);
+      if (_state._u == null && _parms._family != Family.multinomial)       _state._u=MemoryManager.malloc8d(_state.activeData().fullN() + 1);
       (_lslvr=new ADMM.L1Solver(1e-4,10000,_state._u)).solve(slvr,xy,_state.l1pen(),_parms._intercept,_state.activeBC()._betaLB,_state.activeBC()._betaUB);
     }
   }

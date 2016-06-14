@@ -37,7 +37,7 @@
   params._beta_epsilon=1e-6;
   params._missing_values_handling=MissingValuesHandling.Skip;
   try {
-    for (    Solver s : new Solver[]{Solver.AUTO,Solver.IRLSM,Solver.L_BFGS}) {
+    for (    Solver s : new Solver[]{Solver.AUTO,Solver.IRLSM,Solver.L_BFGS,Solver.COORDINATE_DESCENT}) {
       Frame scoreTrain=null, scoreTest=null;
       try {
         params._solver=s;
@@ -45,13 +45,13 @@
         model=new GLM(params).trainModel().get();
         HashMap<String,Double> coefs=model.coefficients();
         System.out.println("coefs = " + coefs);
-        for (int i=0; i < cfs1.length; ++i)         assertEquals(vals[i],coefs.get(cfs1[i]),1e-4);
+        boolean CD=s == Solver.COORDINATE_DESCENT;
+        for (int i=0; i < cfs1.length; ++i)         assertEquals(vals[i],coefs.get(cfs1[i]),CD ? 1e-2 : 1e-4);
         assertEquals(355.7,GLMTest.nullDeviance(model),1e-1);
         assertEquals(313.0,GLMTest.residualDeviance(model),1e-1);
         assertEquals(290,GLMTest.nullDOF(model),0);
         assertEquals(286,GLMTest.resDOF(model),0);
         assertEquals(321,GLMTest.aic(model),1e-1);
-        boolean CD=(s == Solver.COORDINATE_DESCENT || s == Solver.COORDINATE_DESCENT_NAIVE);
         assertEquals(88.72363,GLMTest.residualDevianceTest(model),CD ? 1e-2 : 1e-4);
         try {
           scoreTrain=model.score(_prostateTrain);
@@ -79,7 +79,7 @@
         assertEquals(((ModelMetricsBinomialGLM)model._output._validation_metrics)._resDev,mmTest._resDev,1e-8);
         GLMTest.testScoring(model,fTest);
         Vec.Reader preds=scoreTest.vec("p1").new Reader();
-        for (int i=0; i < pred_test.length; ++i)         assertEquals(pred_test[i],preds.at(i),CD ? 1e-4 : 1e-6);
+        for (int i=0; i < pred_test.length; ++i)         assertEquals(pred_test[i],preds.at(i),CD ? 1e-3 : 1e-6);
       }
   finally {
         if (model != null)         model.delete();
