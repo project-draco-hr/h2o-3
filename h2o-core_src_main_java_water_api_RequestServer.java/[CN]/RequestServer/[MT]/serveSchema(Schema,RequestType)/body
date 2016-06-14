@@ -1,0 +1,37 @@
+{
+  String http_response_header=H2OError.httpStatusHeader(HttpResponseStatus.OK.getCode());
+  if (s instanceof SpecifiesHttpResponseCode) {
+    http_response_header=H2OError.httpStatusHeader(((SpecifiesHttpResponseCode)s).httpStatus());
+  }
+  if (s instanceof SpecifiesHttpResponseCode && HttpResponseStatus.OK.getCode() != ((SpecifiesHttpResponseCode)s).httpStatus()) {
+    type=RequestType.json;
+  }
+switch (type) {
+case html:
+case json:
+    return new Response(http_response_header,MIME_JSON,s.toJsonString());
+case xml:
+  throw H2O.unimpl("Unknown type: " + type.toString());
+case java:
+if (s instanceof H2OErrorV3) {
+  return new Response(http_response_header,MIME_JSON,s.toJsonString());
+}
+if (s instanceof AssemblyV99) {
+Assembly ass=DKV.getGet(((AssemblyV99)s).assembly_id);
+Response r=new Response(http_response_header,MIME_DEFAULT_BINARY,ass.toJava(((AssemblyV99)s).pojo_name));
+r.addHeader("Content-Disposition","attachment; filename=\"" + JCodeGen.toJavaId(((AssemblyV99)s).pojo_name) + ".java\"");
+return r;
+}
+ else if (s instanceof StreamingSchema) {
+StreamingSchema ss=(StreamingSchema)s;
+Response r=new StreamResponse(http_response_header,MIME_DEFAULT_BINARY,ss.getStreamWriter());
+r.addHeader("Content-Disposition","attachment; filename=\"" + ss.getFilename() + "\"");
+return r;
+}
+ else {
+throw new H2OIllegalArgumentException("Cannot generate java for type: " + s.getClass().getSimpleName());
+}
+default :
+throw H2O.unimpl("Unknown type to serveSchema(): " + type);
+}
+}

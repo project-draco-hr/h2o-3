@@ -1,0 +1,21 @@
+def write_to_file(filename, content):
+    u'\n    Writes content to the given file. The file\'s directory will be created if needed.\n      :param filename: name of the output file, relative to the "destination folder" provided by the user\n      :param content: iterable (line-by-line) that should be written to the file. Either a list or a generator. Each\n                      line will be appended with a "\n". Lines containing None will be skipped.\n    '
+    if (not config[u'destdir']):
+        print(u'{destdir} config variable not present. Did you forget to run init()?')
+        sys.exit(8)
+    abs_filename = os.path.abspath(((config[u'destdir'] + u'/') + filename))
+    abs_filepath = os.path.dirname(abs_filename)
+    if (not os.path.exists(abs_filepath)):
+        try:
+            os.makedirs(abs_filepath)
+        except OSError as e:
+            print((u'Cannot create directory ' + abs_filepath))
+            print((u'Error %d: %s' % (e.errno, e.strerror)))
+            sys.exit(6)
+    with codecs.open(abs_filename, u'w', u'utf-8') as out:
+        if isinstance(content, str):
+            content = [content]
+        for line in content:
+            if (line is not None):
+                out.write(line)
+                out.write(u'\n')

@@ -1,0 +1,20 @@
+def translate(self, h2o_type, schema):
+    if config[u'verbose']:
+        self._mem.add((h2o_type, schema))
+    if h2o_type.endswith(u'[][]'):
+        return self.make_array2(self.translate(h2o_type[:(-4)], schema))
+    if h2o_type.endswith(u'[]'):
+        return self.make_array(self.translate(h2o_type[:(-2)], schema))
+    if h2o_type.startswith(u'Map<'):
+        (t1, t2) = h2o_type[4:(-1)].split(u',', 2)
+        return self.make_map(self.translate(t1, schema), self.translate(t2, schema))
+    if h2o_type.startswith(u'Key<'):
+        return self.make_key(self.translate(h2o_type[4:(-1)], schema), schema)
+    if (h2o_type == u'enum'):
+        return self.make_enum(schema)
+    if (schema is None):
+        if (h2o_type in self.types):
+            return self.types[h2o_type]
+        else:
+            return h2o_type
+    return self.translate_object(h2o_type, schema)

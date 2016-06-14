@@ -1,7 +1,7 @@
 {
-  byte[] bytes=_cache.get(uri);
+  byte[] bytes=_cache.get(url);
   if (bytes == null) {
-    try (InputStream resource=water.init.JarHash.getResource2(uri)){
+    try (InputStream resource=water.init.JarHash.getResource2(url)){
       if (resource != null) {
         try {
           bytes=toByteArray(resource);
@@ -14,10 +14,10 @@
  catch (    IOException ignore) {
     }
   }
-  if (bytes == null || bytes.length == 0)   return response404("Resource " + uri,request_type);
+  if (bytes == null || bytes.length == 0)   return response404("Resource " + url,request_type);
   String mime=MIME_DEFAULT_BINARY;
-  if (uri.endsWith(".css"))   mime="text/css";
- else   if (uri.endsWith(".html"))   mime="text/html";
+  if (url.endsWith(".css"))   mime="text/css";
+ else   if (url.endsWith(".html"))   mime="text/html";
   Response res=new Response(HTTP_OK,mime,new ByteArrayInputStream(bytes));
   res.addHeader("Content-Length",Long.toString(bytes.length));
   return res;

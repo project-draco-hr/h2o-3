@@ -1,0 +1,17 @@
+def generate_struct(name, schema):
+    bi.vprint((u'Generating struct ' + name))
+    yield (u'struct %s {' % name)
+    yield u''
+    for (i, field) in enumerate(schema[u'fields']):
+        if (field[u'name'] == u'__meta'):
+            continue
+        thrift_type = translate_type(field[u'type'], field[u'schema_name'])
+        name = field[u'name']
+        if (name in thrift_reserved_words):
+            name += u'_'
+        required = (u'required' if field[u'required'] else u'optional')
+        yield bi.wrap(field[u'help'], indent=u'  # ')
+        yield u'  {num}: {req} {type} {name},'.format(num=i, req=required, type=thrift_type, name=name)
+        yield u''
+    yield u'}'
+    yield u''
