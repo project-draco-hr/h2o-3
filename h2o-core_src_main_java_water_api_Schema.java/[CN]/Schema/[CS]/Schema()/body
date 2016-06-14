@@ -1,18 +1,16 @@
 {
-  String name=this.getClass().getSimpleName();
-  int version=extractVersionFromSchemaName(name);
-  String type=getImplClass().getSimpleName();
   init_meta();
-  if (null == schema_to_iced.get(name)) {
-    Log.debug("Registering schema: " + name + " schema_version: "+ version+ " with Iced class: "+ _impl_class.toString());
-    if (null != schemas.get(name))     throw H2O.fail("Found a duplicate schema name in two different packages: " + schemas.get(name) + " and: "+ this.getClass().toString());
+  String name=__meta.getSchemaName();
+  int version=__meta.getSchemaVersion();
+  String type=__meta.getSchemaType();
+  if (schema_to_iced.get(name) == null) {
+    Log.debug("Registering schema: " + name + " version: "+ version+ " with Iced class: "+ _impl_class.toString());
+    if (schemas.get(name) != null)     throw H2O.fail("Found a duplicate schema name in: " + schemas.get(name) + " and: "+ this.getClass());
     schemas.put(name,this.getClass());
     schema_to_iced.put(name,_impl_class);
     if (_impl_class != Iced.class) {
-      Pair versioned=new Pair(type,version);
-      if (null != iced_to_schema.get(versioned)) {
-        throw H2O.fail("Found two schemas mapping to the same Iced class with the same version: " + iced_to_schema.get(versioned) + " and: "+ this.getClass().toString()+ " both map to version: "+ version+ " of Iced class: "+ _impl_class);
-      }
+      Pair<String,Integer> versioned=new Pair<>(type,version);
+      if (iced_to_schema.get(versioned) != null)       throw H2O.fail("Found two schemas mapping to the same Iced class with the same version: " + iced_to_schema.get(versioned) + " and: "+ this.getClass().toString()+ " both map to "+ "version: "+ version+ " of Iced class: "+ _impl_class);
       iced_to_schema.put(versioned,this.getClass());
     }
   }
