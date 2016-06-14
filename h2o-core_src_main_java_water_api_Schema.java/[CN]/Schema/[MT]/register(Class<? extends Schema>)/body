@@ -17,7 +17,7 @@ synchronized (clz) {
  else {
       throw H2O.fail("Found a Schema that does not have a parameterized superclass.  Each Schema needs to be parameterized on the backing class (if any, or Iced if not) and itself: " + clz);
     }
-    int version=extractVersion(clz.getSimpleName());
+    int version=extractVersionFromSchemaName(clz.getSimpleName());
     if (version > getHighestSupportedVersion() && version != EXPERIMENTAL_VERSION)     throw H2O.fail("Found a schema with a version higher than the highest supported version; you probably want to bump the highest supported version: " + clz);
     if (version > -1 && version != EXPERIMENTAL_VERSION) {
       if (version > HIGHEST_SUPPORTED_VERSION)       throw H2O.fail("Found a schema with a version greater than the highest supported version of: " + getHighestSupportedVersion() + ": "+ clz);
