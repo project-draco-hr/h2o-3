@@ -1,11 +1,6 @@
 {
-  if (!_parms._intercept) {
-    gram.dropIntercept();
-    xy=Arrays.copyOf(xy,xy.length - 1);
-  }
-  gram.mul(_parms._obj_reg);
-  ArrayUtils.mult(xy,_parms._obj_reg);
   if (_parms._remove_collinear_columns || _parms._compute_p_values) {
+    if (!_parms._intercept)     throw H2O.unimpl();
     ArrayList<Integer> ignoredCols=new ArrayList<>();
     Cholesky chol=((_state._iter == 0) ? gram.qrCholesky(ignoredCols,_parms._standardize) : gram.cholesky(null));
     if (!ignoredCols.isEmpty() && !_parms._remove_collinear_columns) {
@@ -24,9 +19,12 @@
       _state.removeCols(collinear_cols);
       xy=ArrayUtils.removeIds(xy,collinear_cols);
     }
+    xy=xy.clone();
     chol.solve(xy);
   }
  else {
+    gram=gram.deep_clone();
+    xy=xy.clone();
     GramSolver slvr=new GramSolver(gram.clone(),xy.clone(),_parms._intercept,_state.l2pen(),_state.l1pen(),_state.activeBC()._betaGiven,_state.activeBC()._rho,_state.activeBC()._betaLB,_state.activeBC()._betaUB);
     _chol=slvr._chol;
     if (_state.l1pen() == 0 && !_state.activeBC().hasBounds()) {
@@ -34,9 +32,9 @@
     }
  else {
       xy=MemoryManager.malloc8d(xy.length);
-      if (_state._u == null && _parms._family != Family.multinomial)       _state._u=MemoryManager.malloc8d(_state.activeData().fullN() + 1);
+      if (_state._u == null && _parms._family != Family.multinomial)       _state._u=MemoryManager.malloc8d(_state.activeData().P() + 1);
       (_lslvr=new ADMM.L1Solver(1e-4,10000,_state._u)).solve(slvr,xy,_state.l1pen(),_parms._intercept,_state.activeBC()._betaLB,_state.activeBC()._betaUB);
     }
   }
-  return _parms._intercept ? xy : Arrays.copyOf(xy,xy.length + 1);
+  return xy;
 }
