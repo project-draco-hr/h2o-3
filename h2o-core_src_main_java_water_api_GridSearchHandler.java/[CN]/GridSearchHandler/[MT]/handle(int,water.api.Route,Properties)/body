@@ -1,6 +1,6 @@
 {
   if (!route._handler_method.getName().equals("train"))   throw water.H2O.unimpl();
-  String ss[]=route._url_pattern_raw.split("/");
+  String ss[]=route._url.split("/");
   String algoURLName=ss[3];
   String algoName=ModelBuilder.algoName(algoURLName);
   String schemaDir=ModelBuilder.schemaDirectory(algoURLName);
@@ -16,8 +16,13 @@
   gss.fillFromParms(parms);
   validateHyperParams((P)gss.parameters,gss.hyper_parameters);
   MP params=(MP)gss.parameters.createAndFillImpl();
+  Map<String,Object[]> sortedMap=new TreeMap<>(gss.hyper_parameters);
+  if (sortedMap.containsKey("validation_frame")) {
+    sortedMap.put("valid",sortedMap.get("validation_frame"));
+    sortedMap.remove("validation_frame");
+  }
   Key<Grid> destKey=gss.grid_id != null ? gss.grid_id.key() : null;
-  Job<Grid> gsJob=GridSearch.startGridSearch(destKey,params,gss.hyper_parameters,new DefaultModelParametersBuilderFactory<MP,P>(),(HyperSpaceSearchCriteria)gss.search_criteria.createAndFillImpl());
+  Job<Grid> gsJob=GridSearch.startGridSearch(destKey,params,sortedMap,new DefaultModelParametersBuilderFactory<MP,P>(),(HyperSpaceSearchCriteria)gss.search_criteria.createAndFillImpl());
   gss.hyper_parameters=null;
   gss.total_models=gsJob._result.get().getModelCount();
   gss.job=(JobV3)Schema.schema(version,Job.class).fillFromImpl(gsJob);

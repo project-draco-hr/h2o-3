@@ -1,0 +1,20 @@
+{
+  final byte[] buf=str.getBuffer();
+  int i=str.getOffset();
+  final int end=i + str.length();
+  while (i < end && buf[i] == ' ')   i++;
+  if (i < end && buf[i] == '"')   i++;
+  if ((end - i) < 6)   return Long.MIN_VALUE;
+  int yyyy=0, MM=0;
+  yyyy=digit(yyyy,buf[i++]);
+  yyyy=digit(yyyy,buf[i++]);
+  if (buf[i++] != '-')   return Long.MIN_VALUE;
+  yyyy+=(yyyy >= 69) ? 1900 : 2000;
+  MM=parseMonth(buf,i,end);
+  if (MM == -1)   return Long.MIN_VALUE;
+  i+=(MM >> 4);
+  MM&=0xF;
+  while (i < end && buf[i] == ' ')   i++;
+  if (i == end)   return new DateTime(yyyy,MM,1,0,0,0,getTimezone()).getMillis();
+  return Long.MIN_VALUE;
+}

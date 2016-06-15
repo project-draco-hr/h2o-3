@@ -1,0 +1,34 @@
+def get_java_value(field):
+    value = field[u'value']
+    h2o_type = field[u'type']
+    java_type = translate_type(h2o_type, field[u'schema_name'])
+    if ((java_type == u'float') and (value == u'Infinity')):
+        return u'Float.POSITIVE_INFINITY'
+    if ((java_type == u'double') and (value == u'Infinity')):
+        return u'Double.POSITIVE_INFINITY'
+    if (java_type == u'long'):
+        return (str(value) + u'L')
+    if (java_type == u'float'):
+        return (str(value) + u'f')
+    if (java_type == u'boolean'):
+        return str(value).lower()
+    if ((java_type == u'String') and ((value == u'') or (value is None))):
+        return u'""'
+    if (java_type == u'String'):
+        return (u'"%s"' % value)
+    if (value is None):
+        return u'null'
+    if h2o_type.startswith(u'enum'):
+        return ((field[u'schema_name'] + u'.') + value)
+    if h2o_type.endswith(u'[][]'):
+        return u'null'
+    if h2o_type.endswith(u'[]'):
+        basetype = (field[u'schema_name'] if field[u'is_schema'] else h2o_type.partition(u'[')[0])
+        if (basetype == u'Iced'):
+            basetype = u'Object'
+        return (u'new %s[]{%s}' % (basetype, str(value)[1:(-1)]))
+    if h2o_type.startswith(u'Map'):
+        return u'null'
+    if h2o_type.startswith(u'Key'):
+        return u'null'
+    return value

@@ -2,6 +2,7 @@
   super.fillFromImpl(modelMetrics);
   r2=modelMetrics.r2();
   logloss=modelMetrics._logloss;
+  mean_per_class_error=modelMetrics._mean_per_class_error;
   AUC2 auc=modelMetrics._auc;
   if (null != auc) {
     AUC=auc._auc;
@@ -10,7 +11,7 @@
     for (int i=0; i < auc._nBins; i++)     thresholds[i]=Double.toString(auc._ths[i]);
     AUC2.ThresholdCriterion crits[]=AUC2.ThresholdCriterion.VALUES;
     String[] colHeaders=new String[crits.length + 2];
-    String[] colHeadersMax=new String[9];
+    String[] colHeadersMax=new String[crits.length - 8];
     String[] types=new String[crits.length + 2];
     String[] formats=new String[crits.length + 2];
     colHeaders[0]="Threshold";

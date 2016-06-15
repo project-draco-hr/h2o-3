@@ -12,6 +12,7 @@
     if (((ModelMetricsBinomial)m)._auc != null) {
       _AUC=((ModelMetricsBinomial)m)._auc._auc;
       _classError=((ModelMetricsBinomial)m)._auc.defaultErr();
+      _mean_per_class_error=((ModelMetricsBinomial)m).mean_per_class_error();
     }
     GainsLift gl=((ModelMetricsBinomial)m)._gainsLift;
     if (gl != null && gl.response_rates != null && gl.response_rates.length > 0) {
@@ -21,6 +22,7 @@
  else   if (m instanceof ModelMetricsMultinomial) {
     _logloss=((ModelMetricsMultinomial)m)._logloss;
     _classError=((ModelMetricsMultinomial)m)._cm.err();
+    _mean_per_class_error=((ModelMetricsMultinomial)m).mean_per_class_error();
     _hitratio=((ModelMetricsMultinomial)m)._hit_ratios;
   }
 }

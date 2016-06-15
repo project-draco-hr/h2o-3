@@ -1,0 +1,17 @@
+{
+  boolean exceptional=false;
+  try {
+    Scope.enter();
+    _parms.read_lock_frames(_job);
+    computeImpl();
+  }
+ catch (  Throwable t) {
+    exceptional=true;
+    throw t;
+  }
+ finally {
+    _parms.read_unlock_frames(_job);
+    Scope.exit();
+  }
+  if (!exceptional)   tryComplete();
+}

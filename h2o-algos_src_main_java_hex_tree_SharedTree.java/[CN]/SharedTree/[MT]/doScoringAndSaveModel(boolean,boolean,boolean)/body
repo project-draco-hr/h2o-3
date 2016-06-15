@@ -1,5 +1,4 @@
 {
-  double training_r2=Double.NaN;
   long now=System.currentTimeMillis();
   if (_firstScore == 0)   _firstScore=now;
   long sinceLastScore=now - _timeLastScoreStart;
@@ -21,7 +20,6 @@
     Score sc=new Score(this,_model._output._ntrees > 0,oob,response()._key,_model._output.getModelCategory(),computeGainsLift).doAll(train(),build_tree_one_node);
     ModelMetrics mm=sc.makeModelMetrics(_model,_parms.train());
     out._training_metrics=mm;
-    training_r2=((ModelMetricsSupervised)mm).r2();
     if (oob)     out._training_metrics._description="Metrics reported on Out-Of-Bag training samples";
     out._scored_train[out._ntrees].fillFrom(mm);
     if (_parms._valid != null) {
@@ -42,5 +40,5 @@
     _timeLastScoreEnd=System.currentTimeMillis();
   }
   if (updated)   _model.update(_job);
-  return training_r2;
+  return updated;
 }

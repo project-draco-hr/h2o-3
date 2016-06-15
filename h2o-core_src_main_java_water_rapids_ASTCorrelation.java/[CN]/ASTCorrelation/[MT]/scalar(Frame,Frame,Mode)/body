@@ -1,0 +1,37 @@
+{
+  if (frx.numCols() != fry.numCols())   throw new IllegalArgumentException("Single rows must have the same number of columns, found " + frx.numCols() + " and "+ fry.numCols());
+  Vec vecxs[]=frx.vecs();
+  Vec vecys[]=fry.vecs();
+  double xmean=0, ymean=0, xvar=0, yvar=0, xsd=0, ysd=0, ncols=frx.numCols(), NACount=0, xval, yval, ss=0;
+  for (int r=0; r < ncols; r++) {
+    xval=vecxs[r].at(0);
+    yval=vecys[r].at(0);
+    if (Double.isNaN(xval) || Double.isNaN(yval))     NACount++;
+ else {
+      xmean+=xval;
+      ymean+=yval;
+    }
+  }
+  xmean/=(ncols - NACount);
+  ymean/=(ncols - NACount);
+  for (int r=0; r < ncols; r++) {
+    xval=vecxs[r].at(0);
+    yval=vecys[r].at(0);
+    if (!(Double.isNaN(xval) || Double.isNaN(yval)))     xvar+=Math.pow((vecxs[r].at(0) - xmean),2);
+    yvar+=Math.pow((vecys[r].at(0) - ymean),2);
+    ss+=(vecxs[r].at(0) - xmean) * (vecys[r].at(0) - ymean);
+  }
+  xsd=Math.sqrt(xvar / (frx.numRows()));
+  ysd=Math.sqrt(yvar / (fry.numRows()));
+  double cor_denom=xsd * ysd;
+  if (NACount != 0) {
+    if (mode.equals(Mode.AllObs))     throw new IllegalArgumentException("Mode is 'all.obs' but NAs are present");
+    if (mode.equals(Mode.Everything))     return new ValNum(Double.NaN);
+  }
+  for (int r=0; r < ncols; r++) {
+    xval=vecxs[r].at(0);
+    yval=vecys[r].at(0);
+    if (!(Double.isNaN(xval) || Double.isNaN(yval)))     ss+=(vecxs[r].at(0) - xmean) * (vecys[r].at(0) - ymean);
+  }
+  return new ValNum(ss / cor_denom);
+}

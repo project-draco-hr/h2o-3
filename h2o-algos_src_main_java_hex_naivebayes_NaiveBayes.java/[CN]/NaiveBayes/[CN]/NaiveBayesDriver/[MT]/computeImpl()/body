@@ -1,0 +1,18 @@
+{
+  NaiveBayesModel model=null;
+  DataInfo dinfo=null;
+  try {
+    init(true);
+    if (error_count() > 0)     throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(NaiveBayes.this);
+    dinfo=new DataInfo(_train,_valid,1,false,DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,true,false,false,_weights != null,false,_fold != null);
+    model=new NaiveBayesModel(dest(),_parms,new NaiveBayesOutput(NaiveBayes.this));
+    model.delete_and_lock(_job);
+    _job.update(1,"Begin distributed Naive Bayes calculation");
+    NBTask tsk=new NBTask(_job._key,dinfo,_response.cardinality()).doAll(dinfo._adaptedFrame);
+    if (computeStatsFillModel(model,dinfo,tsk))     model.update(_job);
+  }
+  finally {
+    if (model != null)     model.unlock(_job);
+    if (dinfo != null)     dinfo.remove();
+  }
+}

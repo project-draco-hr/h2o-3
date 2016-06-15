@@ -1,0 +1,21 @@
+{
+  Frame frx=stk.track(asts[1].exec(env)).getFrame();
+  Frame fry=stk.track(asts[2].exec(env)).getFrame();
+  if (frx.numRows() != fry.numRows())   throw new IllegalArgumentException("Frames must have the same number of rows, found " + frx.numRows() + " and "+ fry.numRows());
+  String use=stk.track(asts[3].exec(env)).getStr();
+  Mode mode;
+switch (use) {
+case "everything":
+    mode=Mode.Everything;
+  break;
+case "all.obs":
+mode=Mode.AllObs;
+break;
+case "complete.obs":
+mode=Mode.CompleteObs;
+break;
+default :
+throw new IllegalArgumentException("unknown use mode: " + use);
+}
+return fry.numRows() == 1 ? scalar(frx,fry,mode) : array(frx,fry,mode);
+}

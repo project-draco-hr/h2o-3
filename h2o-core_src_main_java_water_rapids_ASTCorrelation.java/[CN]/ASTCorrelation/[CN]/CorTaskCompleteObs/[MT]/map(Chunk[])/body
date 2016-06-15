@@ -1,0 +1,44 @@
+{
+  int ncolx=_xmeans.length;
+  int ncoly=_ymeans.length;
+  double[] xvals=new double[ncolx];
+  double[] yvals=new double[ncoly];
+  _cors=new double[ncoly][ncolx];
+  double[] _cors_y;
+  double xval, yval, ymean;
+  boolean add;
+  int len=cs[0]._len;
+  for (int row=0; row < len; row++) {
+    add=true;
+    Arrays.fill(xvals,0);
+    Arrays.fill(yvals,0);
+    for (int y=0; y < ncoly; y++) {
+      final Chunk cy=cs[y];
+      yval=cy.atd(row);
+      if (Double.isNaN(yval)) {
+        add=false;
+        break;
+      }
+      yvals[y]=yval;
+    }
+    if (add) {
+      for (int x=0; x < ncolx; x++) {
+        final Chunk cx=cs[x + ncoly];
+        xval=cx.atd(row);
+        if (Double.isNaN(xval)) {
+          add=false;
+          break;
+        }
+        xvals[x]=xval;
+      }
+    }
+    if (add) {
+      for (int y=0; y < ncoly; y++) {
+        _cors_y=_cors[y];
+        yval=yvals[y];
+        ymean=_ymeans[y];
+        for (int x=0; x < ncolx; x++)         _cors_y[x]+=((xvals[x] - _xmeans[x]) * (yval - ymean)) / (Math.sqrt(Math.pow(xvals[x] - _xmeans[x],2)) * Math.sqrt(Math.pow(yval - ymean,2)));
+      }
+    }
+  }
+}

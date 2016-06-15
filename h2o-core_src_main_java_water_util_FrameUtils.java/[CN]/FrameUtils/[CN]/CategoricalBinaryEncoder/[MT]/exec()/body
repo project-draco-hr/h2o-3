@@ -1,0 +1,8 @@
+{
+  final Frame frame=DKV.getGet(_frameKey);
+  if (frame == null)   throw new IllegalArgumentException("Invalid Frame key " + _frameKey + " (Frame doesn't exist).");
+  Key<Frame> destKey=Key.make();
+  _job=new Job<>(destKey,Frame.class.getName(),"CategoricalBinaryEncoder");
+  int workAmount=frame.lastVec().nChunks();
+  return _job.start(new CategoricalBinaryEncoderDriver(frame,destKey),workAmount);
+}

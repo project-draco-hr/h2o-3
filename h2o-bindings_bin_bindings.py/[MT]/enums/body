@@ -1,0 +1,8 @@
+def enums():
+    u'\n    Return the dictionary of H\u2082O enums, retrieved from data in schemas(). For each entry in the dictionary its key is\n    the name of the enum, and the value is the set of all enum values.\n    '
+    enumset = defaultdict(set)
+    for schema in schemas():
+        for field in schema[u'fields']:
+            if (field[u'type'] == u'enum'):
+                enumset[field[u'schema_name']].update(field[u'values'])
+    return enumset
