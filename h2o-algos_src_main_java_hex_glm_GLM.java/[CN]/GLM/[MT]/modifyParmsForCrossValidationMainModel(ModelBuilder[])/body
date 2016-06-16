@@ -3,9 +3,11 @@
     _xval_test_deviances=new double[_parms._lambda.length];
     _xval_test_sd=new double[_parms._lambda.length];
     double bestTestDev=Double.POSITIVE_INFINITY;
-    double bestTestDevSD=0;
+    int lmin_max=_parms._lambda.length;
     int lidx=0;
-    for (; lidx < _parms._lambda.length; ++lidx) {
+    int bestId=0;
+    int cnt=0;
+    for (; lidx < lmin_max; ++lidx) {
       double testDev=0;
       for (int i=0; i < cvModelBuilders.length; ++i) {
         GLM g=(GLM)cvModelBuilders[i];
@@ -24,15 +26,22 @@
       }
       _xval_test_sd[lidx]=Math.sqrt(testDevSE / ((cvModelBuilders.length - 1) * cvModelBuilders.length));
       _xval_test_deviances[lidx]=testDevAvg;
-      if (bestTestDev < testDevAvg) {
-        _parms._lambda=Arrays.copyOf(_parms._lambda,lidx);
-        _xval_test_deviances=Arrays.copyOf(_xval_test_deviances,lidx + 1);
-        _xval_test_sd=Arrays.copyOf(_xval_test_sd,lidx + 1);
+      if (testDevAvg < bestTestDev) {
+        bestTestDev=testDevAvg;
+        bestId=lidx;
+      }
+      if (testDevAvg > bestTestDev && ++cnt == 3) {
+        lmin_max=lidx + 1;
         break;
       }
-      if (testDevAvg < bestTestDev)       bestTestDev=testDevAvg;
     }
-    int bestId=ArrayUtils.minIndex(_xval_test_deviances);
+    _parms._lambda=Arrays.copyOf(_parms._lambda,lmin_max);
+    _xval_test_deviances=Arrays.copyOf(_xval_test_deviances,lmin_max);
+    _xval_test_sd=Arrays.copyOf(_xval_test_sd,lmin_max);
+    for (int i=0; i < cvModelBuilders.length; ++i) {
+      GLM g=(GLM)cvModelBuilders[i];
+      g._model.unlock(_job);
+    }
     double bestDev=_xval_test_deviances[bestId];
     double bestDev1se=bestDev + _xval_test_sd[bestId];
     int bestId1se=bestId;
