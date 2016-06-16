@@ -2,7 +2,7 @@
   try {
     String line=readLine(in);
     int i=line.indexOf(boundary);
-    if (i != 2)     sendError(HTTP_BADREQUEST,"BAD REQUEST: Content type is multipart/form-data but next chunk does not start with boundary. Usage: GET /example/file.html");
+    if (i != 2)     sendError(HTTP_BAD_REQUEST,"BAD REQUEST: Content type is multipart/form-data but next chunk does not start with boundary. Usage: GET /example/file.html");
     if (line.substring(i + boundary.length()).startsWith("--"))     return false;
     Properties item=new Properties();
     line=readLine(in);
@@ -13,7 +13,7 @@
     }
     if (line != null) {
       String contentDisposition=item.getProperty("content-disposition");
-      if (contentDisposition == null)       sendError(HTTP_BADREQUEST,"BAD REQUEST: Content type is multipart/form-data but no content-disposition info found. Usage: GET /example/file.html");
+      if (contentDisposition == null)       sendError(HTTP_BAD_REQUEST,"BAD REQUEST: Content type is multipart/form-data but no content-disposition info found. Usage: GET /example/file.html");
 {
         String key=parms.getProperty("key");
         boolean nps=Pattern.matches("/[^/]+/NodePersistentStorage.*",uri);
@@ -22,7 +22,7 @@
           Matcher m=p.matcher(uri);
           boolean b=m.matches();
           if (!b) {
-            sendError(HTTP_BADREQUEST,"NodePersistentStorage URL malformed");
+            sendError(HTTP_BAD_REQUEST,"NodePersistentStorage URL malformed");
           }
           String categoryName=m.group(1);
           String keyName=m.group(2);
@@ -39,7 +39,7 @@
           destination_key="upload" + Key.rand();
         }
         if (!validKeyName(destination_key)) {
-          sendError(HTTP_BADREQUEST,"Invalid key name, contains illegal characters");
+          sendError(HTTP_BAD_REQUEST,"Invalid key name, contains illegal characters");
         }
         boolean uploadFile=Pattern.matches("/PostFile",uri) || Pattern.matches("/[1-9][0-9]*/PostFile",uri) || Pattern.matches("/LATEST/PostFile",uri);
         if (uploadFile) {
@@ -50,11 +50,11 @@
           return true;
         }
       }
-      sendError(HTTP_NOTFOUND,"(Attempt to upload data) URL not found");
+      sendError(HTTP_NOT_FOUND,"(Attempt to upload data) URL not found");
     }
   }
  catch (  Exception e) {
-    sendError(HTTP_INTERNALERROR,"SERVER INTERNAL ERROR: Exception: " + e.getMessage());
+    sendError(HTTP_INTERNAL_ERROR,"SERVER INTERNAL ERROR: Exception: " + e.getMessage());
   }
   return false;
 }

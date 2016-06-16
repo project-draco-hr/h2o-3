@@ -17,7 +17,7 @@
  else       if (b != '\r')       nl=false;
       if (rlen == buf.length)       buf=Arrays.copyOf(buf,2 * buf.length);
     }
-    if (rlen == MAX_HEADER_BUFFER_SIZE)     sendError(HTTP_TOOLONGREQUEST,"Requested URL is too long!");
+    if (rlen == MAX_HEADER_BUFFER_SIZE)     sendError(HTTP_TOO_LONG_REQUEST,"Requested URL is too long!");
     ByteArrayInputStream hbis=new ByteArrayInputStream(buf,0,rlen);
     BufferedReader hin=new BufferedReader(new InputStreamReader(hbis));
     Properties pre=new Properties();
@@ -59,10 +59,10 @@
         contentType=st.nextToken();
       }
       if (contentType.equalsIgnoreCase("multipart/form-data")) {
-        if (!st.hasMoreTokens())         sendError(HTTP_BADREQUEST,"BAD REQUEST: Content type is multipart/form-data but boundary missing. Usage: GET /example/file.html");
+        if (!st.hasMoreTokens())         sendError(HTTP_BAD_REQUEST,"BAD REQUEST: Content type is multipart/form-data but boundary missing. Usage: GET /example/file.html");
         String boundaryExp=st.nextToken();
         st=new StringTokenizer(boundaryExp,"=");
-        if (st.countTokens() != 2)         sendError(HTTP_BADREQUEST,"BAD REQUEST: Content type is multipart/form-data but boundary syntax error. Usage: GET /example/file.html");
+        if (st.countTokens() != 2)         sendError(HTTP_BAD_REQUEST,"BAD REQUEST: Content type is multipart/form-data but boundary syntax error. Usage: GET /example/file.html");
         st.nextToken();
         String boundary=st.nextToken();
         String paddedMethod=String.format("%-6s",method);
@@ -111,14 +111,14 @@
       }
     }
     Response r=serve(uri,method,header,parms);
-    if (r == null)     sendError(HTTP_INTERNALERROR,"SERVER INTERNAL ERROR: Serve() returned a null response.");
+    if (r == null)     sendError(HTTP_INTERNAL_ERROR,"SERVER INTERNAL ERROR: Serve() returned a null response.");
  else     sendResponse(r.status,r.mimeType,r.header,r.data);
     in.close();
     is.close();
   }
  catch (  IOException ioe) {
     try {
-      sendError(HTTP_INTERNALERROR,"SERVER INTERNAL ERROR: IOException: " + ioe.getMessage());
+      sendError(HTTP_INTERNAL_ERROR,"SERVER INTERNAL ERROR: IOException: " + ioe.getMessage());
     }
  catch (    Throwable t) {
       Log.err(t);

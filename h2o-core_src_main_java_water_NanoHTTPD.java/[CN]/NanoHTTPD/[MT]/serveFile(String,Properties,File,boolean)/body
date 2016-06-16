@@ -1,13 +1,13 @@
 {
   Response res=null;
-  if (!homeDir.isDirectory())   res=new Response(HTTP_INTERNALERROR,MIME_PLAINTEXT,"INTERNAL ERROR: serveFile(): given homeDir is not a directory.");
+  if (!homeDir.isDirectory())   res=new Response(HTTP_INTERNAL_ERROR,MIME_PLAINTEXT,"INTERNAL ERROR: serveFile(): given homeDir is not a directory.");
   if (res == null) {
     uri=uri.trim().replace(File.separatorChar,'/');
     if (uri.indexOf('?') >= 0)     uri=uri.substring(0,uri.indexOf('?'));
     if (uri.startsWith("..") || uri.endsWith("..") || uri.contains("../"))     res=new Response(HTTP_FORBIDDEN,MIME_PLAINTEXT,"FORBIDDEN: Won't serve ../ for security reasons.");
   }
   File f=new File(homeDir,uri);
-  if (res == null && !f.exists())   res=new Response(HTTP_NOTFOUND,MIME_PLAINTEXT,"Error 404, file not found.");
+  if (res == null && !f.exists())   res=new Response(HTTP_NOT_FOUND,MIME_PLAINTEXT,"Error 404, file not found.");
   if (res == null && f.isDirectory()) {
     if (!uri.endsWith("/")) {
       uri+="/";
@@ -98,7 +98,7 @@
           }
 ){
             fis.skip(startFrom);
-            res=new Response(HTTP_PARTIALCONTENT,mime,fis);
+            res=new Response(HTTP_PARTIAL_CONTENT,mime,fis);
             res.addHeader("Content-Length","" + dataLen);
             res.addHeader("Content-Range","bytes " + startFrom + "-"+ endAt+ "/"+ fileLen);
             res.addHeader("ETag",etag);
@@ -106,7 +106,7 @@
          }
       }
  else {
-        if (etag.equals(header.getProperty("if-none-match")))         res=new Response(HTTP_NOTMODIFIED,mime,"");
+        if (etag.equals(header.getProperty("if-none-match")))         res=new Response(HTTP_NOT_MODIFIED,mime,"");
  else {
           res=new Response(HTTP_OK,mime,new FileInputStream(f));
           res.addHeader("Content-Length","" + fileLen);
