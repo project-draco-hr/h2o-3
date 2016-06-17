@@ -1,7 +1,8 @@
 def _attempt_rest(self, url, method, post_body, file_upload_info):
     auth = (self._username, self._password)
     verify = (not self._insecure)
-    headers = {'User-Agent': ('H2O Python client/' + sys.version.replace('\n', '')), }
+    cluster = self._cluster_name
+    headers = {'User-Agent': ('H2O Python client/' + sys.version.replace('\n', '')), 'X-Cluster': cluster, }
     try:
         if (method == 'GET'):
             return requests.get(url, headers=headers, proxies=self._proxy, auth=auth, verify=verify)
