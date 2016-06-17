@@ -1,4 +1,5 @@
-def _pytest_cmd(self, test_name, ip, port, on_hadoop, hadoop_namenode):
+@staticmethod
+def _pytest_cmd(test_name, ip, port, on_hadoop, hadoop_namenode):
     if g_pycoverage:
         pyver = ('coverage-3.5' if g_py3 else 'coverage')
         cmd = [pyver, 'run', '-a', g_py_test_setup, '--usecloud', ((ip + ':') + str(port)), '--resultsDir', g_output_dir, '--testName', test_name]
@@ -9,14 +10,14 @@ def _pytest_cmd(self, test_name, ip, port, on_hadoop, hadoop_namenode):
         cmd = [pyver, g_py_test_setup, '--usecloud', ((ip + ':') + str(port)), '--resultsDir', g_output_dir, '--testName', test_name]
     if is_pyunit(test_name):
         if on_hadoop:
-            cmd = (cmd + ['--onHadoop'])
+            cmd += ['--onHadoop']
         if hadoop_namenode:
-            cmd = (cmd + ['--hadoopNamenode', hadoop_namenode])
-        cmd = (cmd + ['--pyUnit'])
+            cmd += ['--hadoopNamenode', hadoop_namenode]
+        cmd += ['--pyUnit']
     elif is_ipython_notebook(test_name):
-        cmd = (cmd + ['--ipynb'])
+        cmd += ['--ipynb']
     elif is_pydemo(test_name):
-        cmd = (cmd + ['--pyDemo'])
+        cmd += ['--pyDemo']
     else:
-        cmd = (cmd + ['--pyBooklet'])
+        cmd += ['--pyBooklet']
     return cmd
