@@ -1,14 +1,4 @@
 {
   init_meta();
-  if (schema_to_iced.get(_schema_name) == null) {
-    Log.debug("Registering schema: " + _schema_name + " version: "+ _schema_version+ " with Iced class: "+ _impl_class.toString());
-    if (schemas.get(_schema_name) != null)     throw H2O.fail("Found a duplicate schema name in: " + schemas.get(_schema_name) + " and: "+ this.getClass());
-    schemas.put(_schema_name,this.getClass());
-    schema_to_iced.put(_schema_name,_impl_class);
-    if (_impl_class != Iced.class) {
-      Pair<String,Integer> versioned=new Pair<>(_schema_type,_schema_version);
-      if (iced_to_schema.get(versioned) != null)       throw H2O.fail("Found two schemas mapping to the same Iced class with the same version: " + iced_to_schema.get(versioned) + " and: "+ this.getClass().toString()+ " both map to "+ "version: "+ _schema_version+ " of Iced class: "+ _impl_class);
-      iced_to_schema.put(versioned,this.getClass());
-    }
-  }
+  SchemaServer.checkIfRegistered(this);
 }

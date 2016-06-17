@@ -1,0 +1,17 @@
+{
+  if (schemas_registered)   return;
+  long startTime=System.currentTimeMillis();
+  String[] packages=new String[]{"water","hex"};
+  Class<? extends Schema> clzs[]=new Class[]{SchemaV3.class,ModelBuilderSchema.class,ModelSchema.class,ModelOutputSchema.class,ModelParametersSchema.class};
+  for (  String pkg : packages) {
+    Reflections reflections=new Reflections(pkg);
+    for (    Class<? extends Schema> clz : clzs) {
+      Log.debug("Registering: " + clz.toString() + " in package: "+ pkg);
+      if (!Modifier.isAbstract(clz.getModifiers()))       register(clz);
+      Log.debug("Registering subclasses of: " + clz.toString() + " in package: "+ pkg);
+      for (      Class<? extends Schema> schema_class : reflections.getSubTypesOf(clz))       if (!Modifier.isAbstract(schema_class.getModifiers()))       register(schema_class);
+    }
+  }
+  schemas_registered=true;
+  Log.info("Registered: " + schemas().size() + " schemas in "+ (System.currentTimeMillis() - startTime)+ "ms");
+}
