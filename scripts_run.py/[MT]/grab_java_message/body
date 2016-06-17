@@ -1,29 +1,29 @@
 def grab_java_message(node_list, curr_testname):
-    'scan through the java output text and extract the java messages related to running\n    test specified in curr_testname.\n    Parameters\n    ----------\n    node_list :  list of H2O nodes\n      List of H2o nodes associated with a H2OCloud that are performing the test specified in curr_testname.\n    curr_testname : str\n      Store the unit test name (can be R unit or Py unit) that has been completed and failed.\n    :return: a string object that is either empty or the java messages that associated with the test in curr_testname.\n     The java messages can usually be found in one of the java_*_0.out.txt\n    '
+    'scan through the java output text and extract the java messages related to running\n    test specified in curr_testname.\n    Parameters\n    ----------\n    :param node_list:  list of H2O nodes\n      List of H2o nodes associated with a H2OCloud that are performing the test specified in curr_testname.\n    :param curr_testname: str\n      Store the unit test name (can be R unit or Py unit) that has been completed and failed.\n    :return: a string object that is either empty or the java messages that associated with the test in curr_testname.\n     The java messages can usually be found in one of the java_*_0.out.txt\n    '
     global g_java_start_text
     java_messages = ''
-    startTest = False
+    start_test = False
     for each_node in node_list:
         java_filename = each_node.output_file_name
         if os.path.isfile(java_filename):
             java_file = open(java_filename, 'r')
             for each_line in java_file:
                 if (g_java_start_text in each_line):
-                    (startStr, found, endStr) = each_line.partition(g_java_start_text)
+                    (start_str, found, end_str) = each_line.partition(g_java_start_text)
                     if (len(found) > 0):
-                        current_testname = endStr.strip()
+                        current_testname = end_str.strip()
                         if (current_testname == curr_testname):
-                            startTest = True
+                            start_test = True
                             java_messages += '\n\n**********************************************************\n'
                             java_messages += '**********************************************************\n'
                             java_messages += 'JAVA Messages\n'
                             java_messages += '**********************************************************\n'
                             java_messages += '**********************************************************\n\n'
-                        elif startTest:
+                        elif start_test:
                             break
-                if startTest:
+                if start_test:
                     java_messages += each_line
             java_file.close()
-        if startTest:
+        if start_test:
             break
     return java_messages
