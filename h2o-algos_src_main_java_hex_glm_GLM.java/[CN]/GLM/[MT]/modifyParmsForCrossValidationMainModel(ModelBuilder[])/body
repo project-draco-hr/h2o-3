@@ -40,7 +40,8 @@
     _xval_test_sd=Arrays.copyOf(_xval_test_sd,lmin_max);
     for (int i=0; i < cvModelBuilders.length; ++i) {
       GLM g=(GLM)cvModelBuilders[i];
-      g._model.unlock(_job);
+      g._model._output.setSubmodelIdx(bestId);
+      g._model.update(_job);
     }
     double bestDev=_xval_test_deviances[bestId];
     double bestDev1se=bestDev + _xval_test_sd[bestId];
@@ -50,5 +51,10 @@
     _model._output._lambda_1se=bestId1se;
     _model._output._best_lambda_idx=bestId;
   }
+  for (int i=0; i < cvModelBuilders.length; ++i) {
+    GLM g=(GLM)cvModelBuilders[i];
+    g._model.unlock(_job);
+  }
   _doInit=false;
+  _cv=false;
 }
