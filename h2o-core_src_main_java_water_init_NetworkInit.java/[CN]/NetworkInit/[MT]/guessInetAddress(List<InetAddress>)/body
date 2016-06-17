@@ -4,7 +4,7 @@
   m+="\nAttempting to determine correct address...\n";
   Socket s=null;
   try {
-    s=new Socket("8.8.8.8",53);
+    s=NetworkUtils.isIPv6Preferred() && !NetworkUtils.isIPv4Preferred() ? new Socket(InetAddress.getByAddress(NetworkUtils.GOOGLE_DNS_IPV6),53) : new Socket(InetAddress.getByAddress(NetworkUtils.GOOGLE_DNS_IPV4),53);
     m+="Using " + s.getLocalAddress() + "\n";
     return s.getLocalAddress();
   }
