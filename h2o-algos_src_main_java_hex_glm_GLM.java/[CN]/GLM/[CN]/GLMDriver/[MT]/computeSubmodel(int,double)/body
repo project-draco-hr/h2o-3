@@ -1,7 +1,8 @@
 {
   Submodel sm;
-  if (lambda >= _lmax)   sm=new Submodel(lambda,getNullBeta(),_state._iter,_nullDevTrain,_nullDevTest);
+  if (lambda >= _lmax)   _model.addSubmodel(sm=new Submodel(lambda,getNullBeta(),_state._iter,_nullDevTrain,_nullDevTest));
  else {
+    _model.addSubmodel(sm=new Submodel(lambda,_state.beta(),_state._iter,-1,-1));
     _state.setLambda(lambda);
     checkMemoryFootPrint(_state.activeData());
     do {
@@ -21,10 +22,10 @@
       double xvalDev=_xval_test_deviances == null ? -1 : _xval_test_deviances[i];
       double xvalDevSE=_xval_test_sd == null ? -1 : _xval_test_sd[i];
       _lsc.addLambdaScore(_state._iter,ArrayUtils.countNonzeros(_state.beta()),_state.lambda(),trainDev,testDev,xvalDev,xvalDevSE);
-      sm=new Submodel(_state.lambda(),_state.beta(),_state._iter,trainDev,testDev);
+      _model.updateSubmodel(sm=new Submodel(_state.lambda(),_state.beta(),_state._iter,trainDev,testDev));
     }
- else     sm=new Submodel(lambda,_state.beta(),_state._iter,-1,-1);
+ else     _model.updateSubmodel(sm=new Submodel(lambda,_state.beta(),_state._iter,-1,-1));
   }
-  _model.addSubmodel(sm).update(_job);
+  _model.update(_job);
   return sm;
 }
