@@ -1,15 +1,15 @@
 def run_tests(self, nopass):
-    '\n        Run all tests.\n\n        @return: none\n        '
+    '\n        Run all tests.\n        :param nopass:\n        :return none\n        '
     if self.terminated:
         return
     if self.perf:
         self.perf_file = os.path.join(self.output_dir, 'perf.csv')
-    if (self.on_hadoop and (self.hadoop_namenode == None)):
+    if (self.on_hadoop and (self.hadoop_namenode is None)):
         print ''
         print 'ERROR: Must specify --hadoopNamenode when using --onHadoop option.'
         print ''
         sys.exit(1)
-    if (self.r_pkg_ver_chk == True):
+    if self.r_pkg_ver_chk:
         self._r_pkg_ver_chk()
     elif (self.path_to_tar is not None):
         self._install_h2o_r_pkg(self.path_to_tar)

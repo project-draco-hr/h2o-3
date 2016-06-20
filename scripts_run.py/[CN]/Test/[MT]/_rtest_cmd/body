@@ -1,4 +1,5 @@
-def _rtest_cmd(self, test_name, ip, port, on_hadoop, hadoop_namenode):
+@staticmethod
+def _rtest_cmd(test_name, ip, port, on_hadoop, hadoop_namenode):
     if is_runit(test_name):
         r_test_driver = test_name
     else:
@@ -6,16 +7,16 @@ def _rtest_cmd(self, test_name, ip, port, on_hadoop, hadoop_namenode):
     cmd = ['R', '-f', r_test_driver, '--args', '--usecloud', ((ip + ':') + str(port)), '--resultsDir', g_output_dir, '--testName', test_name]
     if is_runit(test_name):
         if on_hadoop:
-            cmd = (cmd + ['--onHadoop'])
+            cmd += ['--onHadoop']
         if hadoop_namenode:
-            cmd = (cmd + ['--hadoopNamenode', hadoop_namenode])
-        cmd = (cmd + ['--rUnit'])
+            cmd += ['--hadoopNamenode', hadoop_namenode]
+        cmd += ['--rUnit']
     elif (is_rdemo(test_name) and is_ipython_notebook(test_name)):
-        cmd = (cmd + ['--rIPythonNotebook'])
+        cmd += ['--rIPythonNotebook']
     elif is_rdemo(test_name):
-        cmd = (cmd + ['--rDemo'])
+        cmd += ['--rDemo']
     elif is_rbooklet(test_name):
-        cmd = (cmd + ['--rBooklet'])
+        cmd += ['--rBooklet']
     else:
         raise ValueError('Unsupported R test type: {1}'.format(test_name))
     return cmd

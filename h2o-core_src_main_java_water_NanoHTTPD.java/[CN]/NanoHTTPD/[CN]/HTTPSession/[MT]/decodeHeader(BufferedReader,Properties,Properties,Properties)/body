@@ -3,10 +3,10 @@
     String inLine=in.readLine();
     if (inLine == null)     return;
     StringTokenizer st=new StringTokenizer(inLine);
-    if (!st.hasMoreTokens())     sendError(HTTP_BADREQUEST,"BAD REQUEST: Syntax error. Usage: GET /example/file.html");
+    if (!st.hasMoreTokens())     sendError(HTTP_BAD_REQUEST,"BAD REQUEST: Syntax error. Usage: GET /example/file.html");
     String method=st.nextToken();
     pre.put("method",method);
-    if (!st.hasMoreTokens())     sendError(HTTP_BADREQUEST,"BAD REQUEST: Missing URI. Usage: GET /example/file.html");
+    if (!st.hasMoreTokens())     sendError(HTTP_BAD_REQUEST,"BAD REQUEST: Missing URI. Usage: GET /example/file.html");
     String uri=st.nextToken();
     int qmi=uri.indexOf('?');
     if (qmi >= 0) {
@@ -25,6 +25,6 @@
     pre.put("uri",uri);
   }
  catch (  IOException ioe) {
-    sendError(HTTP_INTERNALERROR,"SERVER INTERNAL ERROR: IOException: " + ioe.getMessage());
+    sendError(HTTP_INTERNAL_ERROR,"SERVER INTERNAL ERROR: IOException: " + ioe.getMessage());
   }
 }
