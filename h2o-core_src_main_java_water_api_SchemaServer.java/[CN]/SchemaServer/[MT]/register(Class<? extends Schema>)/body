@@ -1,0 +1,54 @@
+{
+synchronized (clz) {
+    String clzname=clz.getSimpleName();
+    Class<? extends Schema> existing=schemas.get(clzname);
+    if (existing != null) {
+      if (clz != existing)       throw H2O.fail("Two schema classes have the same simpleName: " + clz + " and "+ existing+ ".");
+      return;
+    }
+    if (clz.getGenericSuperclass() instanceof ParameterizedType) {
+      Type[] schema_type_parms=((ParameterizedType)(clz.getGenericSuperclass())).getActualTypeArguments();
+      if (schema_type_parms.length < 2)       throw H2O.fail("Found a Schema that does not pass at least two type parameters.  Each Schema needs to be " + "parametrized on the backing class (if any, or Iced if not) and itself: " + clz);
+      Class parm0=ReflectionUtils.findActualClassParameter(clz,0);
+      Class parm1=ReflectionUtils.findActualClassParameter(clz,1);
+      String clzstr=clzname + "<" + parm0.getSimpleName()+ ","+ parm1.getSimpleName()+ ">";
+      if (!Iced.class.isAssignableFrom(parm0))       throw H2O.fail("Schema " + clzstr + " has bad type parameters: first arg should be a subclass of Iced");
+      if (Schema.class.isAssignableFrom(parm0))       throw H2O.fail("Schema " + clzstr + " has bad type parameters: first arg cannot be a Schema");
+      if (!Schema.class.isAssignableFrom(parm1))       throw H2O.fail("Schema " + clzstr + " has bad type parameters: second arg should be a subclass of Schema");
+      if (!parm1.getSimpleName().equals(clzname))       throw H2O.fail("Schema " + clzstr + " has bad type parameters: second arg should refer to the schema itself");
+    }
+ else {
+      throw H2O.fail("Found a Schema that does not have a parametrized superclass.  Each Schema needs to be " + "parameterized on the backing class (if any, or Iced if not) and itself: " + clz);
+    }
+    int version=Schema.extractVersionFromSchemaName(clzname);
+    if (version > HIGHEST_SUPPORTED_VERSION && version != EXPERIMENTAL_VERSION)     throw H2O.fail("Found a schema with a version higher than the highest supported version; you probably want  " + "to bump the highest supported version: " + clz);
+    if (version > LATEST_VERSION && version != EXPERIMENTAL_VERSION) synchronized (Schema.class) {
+      if (version > LATEST_VERSION)       LATEST_VERSION=version;
+    }
+    Class<? extends Iced> impl_class=ReflectionUtils.findActualClassParameter(clz,0);
+    Log.debug(String.format("Registering schema: %-40s  (v = %2d, impled by %s)",clz.getCanonicalName(),version,impl_class.getCanonicalName()));
+    schemas.put(clzname,clz);
+    schema_to_iced.put(clzname,impl_class);
+    try {
+      Schema s=clz.newInstance();
+      SchemaMetadata meta=new SchemaMetadata(s);
+      for (      SchemaMetadata.FieldMetadata field_meta : meta.fields) {
+        String name=field_meta.name;
+        if (name.equals("__meta") || name.equals("__http_status") || name.equals("_exclude_fields")|| name.equals("__schema")|| name.equals("_fields"))         continue;
+        if (name.equals("Gini"))         continue;
+        if (name.endsWith("AUC"))         continue;
+        if ("f0point5".equals(name) || "f0point5_for_criteria".equals(name) || "f1_for_criteria".equals(name)|| "f2_for_criteria".equals(name))         continue;
+        if (name.startsWith("_"))         Log.warn("Found schema field which violates the naming convention; name starts with underscore: " + meta.name + "."+ name);
+        if (!name.equals(name.toLowerCase()) && !name.equals(name.toUpperCase()))         if (!clzname.equals("Word2VecParametersV3"))         Log.warn("Found schema field which violates the naming convention; name has mixed lowercase and " + "uppercase characters: " + meta.name + "."+ name);
+      }
+    }
+ catch (    Exception e) {
+      throw H2O.fail("Failed to instantiate schema class " + clzname + " because: "+ e);
+    }
+    if (impl_class != Iced.class) {
+      Pair<String,Integer> versioned=new Pair<>(impl_class.getSimpleName(),version);
+      if (iced_to_schema.containsKey(versioned))       throw H2O.fail("Found two schemas mapping to the same Iced class with the same version: " + iced_to_schema.get(versioned) + " and "+ clz+ " both map to "+ "version: "+ version+ " of Iced class: "+ impl_class);
+      iced_to_schema.put(versioned,clz);
+    }
+  }
+}
