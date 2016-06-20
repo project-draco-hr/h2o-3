@@ -8,22 +8,22 @@
   while (i < _numJoinCols && xval == yval) {
     int xlen=_leftFieldSizes[i];
     int ylen=_rightFieldSizes[i];
-    xval=xbatch[xoff] & 0xFF;
+    xval=xbatch[xoff] & 0xFFL;
     while (xlen > 1) {
       xval<<=8;
-      xval|=xbatch[++xoff] & 0xFF;
+      xval|=xbatch[++xoff] & 0xFFL;
       xlen--;
     }
     xoff++;
-    yval=ybatch[yoff] & 0xFF;
+    yval=ybatch[yoff] & 0xFFL;
     while (ylen > 1) {
       yval<<=8;
-      yval|=ybatch[++yoff] & 0xFF;
+      yval|=ybatch[++yoff] & 0xFFL;
       ylen--;
     }
     yoff++;
-    xval=xval == 0 ? Long.MIN_VALUE : xval - 1 + _leftColMins[i];
-    yval=yval == 0 ? Long.MIN_VALUE : yval - 1 + _rightColMins[i];
+    xval=xval == 0 ? Long.MIN_VALUE : xval - 1 + _leftBase[i];
+    yval=yval == 0 ? Long.MIN_VALUE : yval - 1 + _rightBase[i];
     i++;
   }
   long diff=xval - yval;
