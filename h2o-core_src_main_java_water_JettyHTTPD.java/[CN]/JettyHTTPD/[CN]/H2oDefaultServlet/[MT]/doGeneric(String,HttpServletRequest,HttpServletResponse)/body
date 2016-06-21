@@ -31,7 +31,7 @@
         parms.put(key,sb.toString());
       }
     }
-    NanoHTTPD.Response resp=water.api.RequestServer.serve(uri,method,headers,parms);
+    NanoResponse resp=water.api.RequestServer.serve(uri,method,headers,parms);
     String choppedNanoStatus=resp.status.substring(0,3);
     assert(choppedNanoStatus.length() == 3);
     int sc=Integer.parseInt(choppedNanoStatus);
@@ -44,15 +44,7 @@
       String value=header.getProperty(key);
       response.setHeader(key,value);
     }
-    OutputStream os=response.getOutputStream();
-    if (resp instanceof NanoHTTPD.StreamResponse) {
-      NanoHTTPD.StreamResponse ssr=(NanoHTTPD.StreamResponse)resp;
-      ssr.streamWriter.writeTo(os);
-    }
- else {
-      InputStream is=resp.data;
-      FileUtils.copyStream(is,os,1024);
-    }
+    resp.writeTo(response.getOutputStream());
   }
   finally {
     logRequest(method,request,response);
