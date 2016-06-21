@@ -1,0 +1,19 @@
+{
+  if (from == null && to == null)   return;
+  if (from == null || to == null)   throw new IllegalArgumentException("Bad parameter name translation arrays; one is null and the other isn't.");
+  Map<String,String> translations=new HashMap<>();
+  for (int i=0; i < from.length; i++) {
+    translations.put(from[i],to[i]);
+  }
+  for (  ValidationMessageV3 vm : validation_messages) {
+    if (null == vm) {
+      Log.err("Null ValidationMessageV3 for ModelBuilderSchema.");
+      continue;
+    }
+    if (null == vm.field_name) {
+      Log.err("Null field_name: " + vm);
+      continue;
+    }
+    if (translations.containsKey(vm.field_name))     vm.field_name=translations.get(vm.field_name);
+  }
+}
