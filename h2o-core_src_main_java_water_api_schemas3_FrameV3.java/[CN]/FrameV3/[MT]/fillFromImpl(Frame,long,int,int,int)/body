@@ -2,7 +2,7 @@
   if (row_count == 0)   row_count=100;
   if (column_count == 0)   column_count=f.numCols() - column_offset;
   row_count=(int)Math.min(row_count,row_offset + f.numRows());
-  column_count=(int)Math.min(column_count,column_offset + f.numCols());
+  column_count=Math.min(column_count,column_offset + f.numCols());
   this.frame_id=new FrameKeyV3(f._key);
   this.checksum=f.checksum();
   this.byte_size=f.byteSize();
@@ -22,10 +22,8 @@
   this.is_text=f.numCols() == 1 && vecs[0] instanceof ByteVec;
   this.default_percentiles=Vec.PERCENTILES;
   ChunkSummary cs=FrameUtils.chunkSummary(f);
-  TwoDimTable chunk_summary_table=cs.toTwoDimTableChunkTypes();
-  this.chunk_summary=(TwoDimTableV3)SchemaServer.schema(3,chunk_summary_table).fillFromImpl(chunk_summary_table);
-  TwoDimTable distribution_summary_table=cs.toTwoDimTableDistribution();
-  distribution_summary=(TwoDimTableV3)SchemaServer.schema(3,distribution_summary_table).fillFromImpl(distribution_summary_table);
+  this.chunk_summary=new TwoDimTableV3(cs.toTwoDimTableChunkTypes());
+  this.distribution_summary=new TwoDimTableV3(cs.toTwoDimTableDistribution());
   this._fr=f;
   return this;
 }
