@@ -3,7 +3,7 @@
   if (impl._multinomial)   return fillMultinomial(impl);
   String[] names=impl.coefficientNames().clone();
   String[] ns=ArrayUtils.append(new String[]{"Intercept"},Arrays.copyOf(names,names.length - 1));
-  coefficients_table=new TwoDimTableBase();
+  coefficients_table=new TwoDimTableV3();
   final double[] magnitudes;
   double[] beta=impl.beta();
   if (beta == null)   beta=MemoryManager.malloc8d(names.length);
@@ -66,7 +66,7 @@
       tdt.set(i,0,magnitudes[indices[i]]);
       tdt.set(i,1,beta[indices[i]] < 0 ? "NEG" : "POS");
     }
-    standardized_coefficient_magnitudes=new TwoDimTableBase();
+    standardized_coefficient_magnitudes=new TwoDimTableV3();
     standardized_coefficient_magnitudes.fillFromImpl(tdt);
   }
   return this;
