@@ -1,0 +1,23 @@
+{
+  gram.addDiag(rhos);
+  if (!intercept) {
+    gram.dropIntercept();
+    _xy[_xy.length - 1]=0;
+  }
+  _chol=gram.cholesky(null,true,null);
+  if (!_chol.isSPD()) {
+    gram.addDiag(ArrayUtils.mult(rhos,-1));
+    gram.addDiag(rhoAdd,!intercept);
+    Log.info("Got NonSPD matrix with original rho, re-computing with rho = " + (_rho[0] + rhoAdd));
+    _chol=gram.cholesky(null,true,null);
+    int cnt=0;
+    double rhoAddSum=rhoAdd;
+    while (!_chol.isSPD() && cnt++ < 5) {
+      gram.addDiag(rhoAdd,!intercept);
+      rhoAddSum+=rhoAdd;
+      Log.warn("Still NonSPD matrix, re-computing with rho = " + (rhos[0] + rhoAddSum));
+      _chol=gram.cholesky(null,true,null);
+    }
+    if (!_chol.isSPD())     throw new NonSPDMatrixException();
+  }
+}

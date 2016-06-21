@@ -42,7 +42,7 @@
         GLMCoordinateDescentTaskSeqNaive stupdate;
         if (intercept)         stupdate=new GLMCoordinateDescentTaskSeqNaive(intercept,false,4,Arrays.copyOfRange(betaold,start_old,start_old + level_num),new double[]{beta[p - 1]},_state.activeData()._catLvls[i],null,null,null,null,null,skipFirstLevel).doAll(fr3);
  else         stupdate=new GLMCoordinateDescentTaskSeqNaive(intercept,false,1,Arrays.copyOfRange(betaold,start_old,start_old + level_num),Arrays.copyOfRange(beta,_state.activeData()._catOffsets[i - 1],_state.activeData()._catOffsets[i]),_state.activeData()._catLvls[i],_state.activeData()._catLvls[i - 1],null,null,null,null,skipFirstLevel).doAll(fr3);
-        for (int j=0; j < level_num; ++j)         beta[_state.activeData()._catOffsets[i] + j]=ADMM.shrinkage(stupdate._temp[j] / wsumu,_parms._lambda[_lambdaId] * _parms._alpha[0]) / (denums[_state.activeData()._catOffsets[i] + j] / wsumu + _parms._lambda[_lambdaId] * (1 - _parms._alpha[0]));
+        for (int j=0; j < level_num; ++j)         beta[_state.activeData()._catOffsets[i] + j]=ADMM.shrinkage(stupdate._temp[j] / wsumu,_state.lambda() * _parms._alpha[0]) / (denums[_state.activeData()._catOffsets[i] + j] / wsumu + _state.lambda() * (1 - _parms._alpha[0]));
       }
       int cat_num=2;
       for (int i=0; i < _state.activeData()._nums; ++i) {
@@ -63,7 +63,7 @@
             }
           }
           stupdate=new GLMCoordinateDescentTaskSeqNaive(intercept,false,cat_num,new double[]{betaold[_state.activeData().numStart() + i]},new double[]{beta[(_state.activeData().numStart() + i - 1 + p) % p]},null,null,varold,meanold,varnew,meannew,skipFirstLevel).doAll(fr3);
-          beta[i + _state.activeData().numStart()]=ADMM.shrinkage(stupdate._temp[0] / wsumu,_parms._lambda[_lambdaId] * _parms._alpha[0]) / (denums[i + _state.activeData().numStart()] / wsumu + _parms._lambda[_lambdaId] * (1 - _parms._alpha[0]));
+          beta[i + _state.activeData().numStart()]=ADMM.shrinkage(stupdate._temp[0] / wsumu,_state.lambda() * _parms._alpha[0]) / (denums[i + _state.activeData().numStart()] / wsumu + _state.lambda() * (1 - _parms._alpha[0]));
         }
  else         if (i == 0 && !intercept) {
           int prev_level_num=_state.activeData().numStart() - _state.activeData()._catOffsets[_state.activeData()._cats - 1];
@@ -73,7 +73,7 @@
             meanold=new double[]{_state.activeData()._normSub[i]};
           }
           stupdate=new GLMCoordinateDescentTaskSeqNaive(intercept,false,cat_num,new double[]{betaold[_state.activeData().numStart()]},Arrays.copyOfRange(beta,_state.activeData()._catOffsets[_state.activeData()._cats - 1],_state.activeData().numStart()),null,_state.activeData()._catLvls[_state.activeData()._cats - 1],varold,meanold,null,null,skipFirstLevel).doAll(fr3);
-          beta[_state.activeData().numStart()]=ADMM.shrinkage(stupdate._temp[0] / wsumu,_parms._lambda[_lambdaId] * _parms._alpha[0]) / (denums[_state.activeData().numStart()] / wsumu + _parms._lambda[_lambdaId] * (1 - _parms._alpha[0]));
+          beta[_state.activeData().numStart()]=ADMM.shrinkage(stupdate._temp[0] / wsumu,_state.lambda() * _parms._alpha[0]) / (denums[_state.activeData().numStart()] / wsumu + _state.lambda() * (1 - _parms._alpha[0]));
         }
       }
       if (_state.activeData()._nums + _state.activeData()._cats > 0) {

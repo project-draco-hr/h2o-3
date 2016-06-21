@@ -14,6 +14,7 @@
     glm.hide("_tweedie_variance_power","Only applicable with Tweedie family");
     glm.hide("_tweedie_link_power","Only applicable with Tweedie family");
   }
+  if (_remove_collinear_columns && !_intercept)   glm.error("_intercept","Remove colinear columns option is currently not supported without intercept");
   if (_beta_constraints != null) {
     if (_family == Family.multinomial)     glm.error("beta_constraints","beta constraints are not supported for family = multionomial");
     Frame f=_beta_constraints.get();
@@ -34,9 +35,7 @@
   if (!_lambda_search) {
     glm.hide("_lambda_min_ratio","only applies if lambda search is on.");
     glm.hide("_nlambdas","only applies if lambda search is on.");
-    glm.hide("_stopping_rounds","only applies if lambda search is on.");
-    glm.hide("_stopping_metric","only applies if lambda search is on.");
-    glm.hide("_stopping_threshold","only applies if lambda search is on.");
+    glm.hide("_early_stopping","only applies if lambda search is on.");
   }
   if (_link != Link.family_default) {
 switch (_family) {
