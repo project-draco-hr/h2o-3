@@ -1,5 +1,5 @@
 {
-  String xy=",0\n1,0\n2,0\n3,0\n4,-10\n,0";
+  String xy=",10\n1,0\n2,0\n3,0\n4,10\n,10";
   Key tr=Key.make("train");
   Frame df=ParseDataset.parse(tr,makeByteVec(Key.make("xy"),xy));
   GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
@@ -14,12 +14,12 @@
   Log.info(df);
   Log.info(preds);
   Assert.assertTrue(gbm.testJavaScoring(df,preds,1e-15));
-  Assert.assertTrue(Math.abs(preds.vec(0).at(0) - 0) < 1e-6);
-  Assert.assertTrue(Math.abs(preds.vec(0).at(1) - 0) < 1e-6);
-  Assert.assertTrue(Math.abs(preds.vec(0).at(2) - 0) < 1e-6);
-  Assert.assertTrue(Math.abs(preds.vec(0).at(3) - 0) < 1e-6);
-  Assert.assertTrue(Math.abs(preds.vec(0).at(4) - -10) < 1e-6);
-  Assert.assertTrue(Math.abs(preds.vec(0).at(5) - 0) < 1e-6);
+  Assert.assertTrue(preds.vec(0).at(0) == 10);
+  Assert.assertTrue(preds.vec(0).at(1) == 0);
+  Assert.assertTrue(preds.vec(0).at(2) == 0);
+  Assert.assertTrue(preds.vec(0).at(3) == 0);
+  Assert.assertTrue(preds.vec(0).at(4) == 10);
+  Assert.assertTrue(preds.vec(0).at(5) == 10);
   preds.remove();
   gbm.remove();
   df.remove();
