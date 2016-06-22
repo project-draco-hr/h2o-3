@@ -9,10 +9,18 @@
     if (col_data > minmax[1])     minmax[1]=col_data;
     double y=ys[k];
     double wy=weight * y;
-    int b=bin(col_data);
-    w[b]+=weight;
-    wY[b]+=wy;
-    wYY[b]+=wy * y;
+    double wyy=wy * y;
+    if (Double.isNaN(col_data)) {
+      _wNA.addAndGet(weight);
+      _wYNA.addAndGet(wy);
+      _wYYNA.addAndGet(wyy);
+    }
+ else {
+      int b=bin(col_data);
+      w[b]+=weight;
+      wY[b]+=wy;
+      wYY[b]+=wyy;
+    }
   }
   setMin(minmax[0]);
   setMaxIn(minmax[1]);
