@@ -15,10 +15,36 @@
     }
   }
   if (bytes == null || bytes.length == 0)   return response404("Resource " + url,request_type);
-  String mime=MIME_DEFAULT_BINARY;
-  if (url.endsWith(".css"))   mime="text/css";
- else   if (url.endsWith(".html"))   mime="text/html";
-  NanoResponse res=new NanoResponse(HTTP_OK,mime,new ByteArrayInputStream(bytes));
-  res.addHeader("Content-Length",Long.toString(bytes.length));
-  return res;
+  int i=url.lastIndexOf('.');
+  String mime;
+switch (url.substring(i + 1)) {
+case "js":
+    mime=MIME_JS;
+  break;
+case "css":
+mime=MIME_CSS;
+break;
+case "htm":
+case "html":
+mime=MIME_HTML;
+break;
+case "jpg":
+case "jpeg":
+mime=MIME_JPEG;
+break;
+case "png":
+mime=MIME_PNG;
+break;
+case "gif":
+mime=MIME_GIF;
+break;
+case "woff":
+mime=MIME_WOFF;
+break;
+default :
+mime=MIME_DEFAULT_BINARY;
+}
+NanoResponse res=new NanoResponse(HTTP_OK,mime,new ByteArrayInputStream(bytes));
+res.addHeader("Content-Length",Long.toString(bytes.length));
+return res;
 }
