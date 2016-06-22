@@ -1,6 +1,6 @@
 {
   Map<String,Class<? extends Schema>> ss=SchemaServer.schemas();
-  docs.schemas=new SchemaMetadataBase[ss.size()];
+  docs.schemas=new SchemaMetadataV3[ss.size()];
   int i=0;
   for (  Class<? extends Schema> schema_class : ss.values()) {
     Schema schema=Schema.newInstance(schema_class);
@@ -10,7 +10,7 @@
     }
  catch (    Exception e) {
     }
-    docs.schemas[i++]=(SchemaMetadataBase)SchemaServer.schema(version,SchemaMetadata.class).fillFromImpl(new SchemaMetadata(schema));
+    docs.schemas[i++]=new SchemaMetadataV3(new SchemaMetadata(schema));
   }
   return docs;
 }

@@ -3,15 +3,15 @@
   this.algo_full_name=builder._parms.fullName();
   this.can_build=builder.can_build();
   this.visibility=builder.builderVisibility();
-  job=builder._job == null ? null : (JobV3)SchemaServer.schema(this.getSchemaVersion(),Job.class).fillFromImpl(builder._job);
+  job=builder._job == null ? null : new JobV3(builder._job);
   final ModelBuilder.ValidationMessage[] msgs=builder._messages;
   if (msgs != null) {
-    this.messages=new ValidationMessageBase[msgs.length];
+    this.messages=new ValidationMessageV3[msgs.length];
     int i=0;
     for (    ModelBuilder.ValidationMessage vm : msgs) {
       if (vm != null)       this.messages[i++]=new ValidationMessageV3().fillFromImpl(vm);
     }
-    ValidationMessageBase.mapValidationMessageFieldNames(this.messages,new String[]{"_train","_valid"},new String[]{"training_frame","validation_frame"});
+    ValidationMessageV3.mapValidationMessageFieldNames(this.messages,new String[]{"_train","_valid"},new String[]{"training_frame","validation_frame"});
   }
   this.error_count=builder.error_count();
   parameters=createParametersSchema();

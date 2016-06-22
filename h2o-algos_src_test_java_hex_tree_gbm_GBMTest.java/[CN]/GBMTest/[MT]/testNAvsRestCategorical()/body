@@ -1,0 +1,26 @@
+{
+  String xy=",5\nA,0\nB,0\nA,0\nD,0\n,3";
+  Key tr=Key.make("train");
+  Frame df=ParseDataset.parse(tr,makeByteVec(Key.make("xy"),xy));
+  GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
+  parms._train=tr;
+  parms._response_column="C2";
+  parms._min_rows=1;
+  parms._learn_rate=1;
+  parms._ntrees=1;
+  GBM job=new GBM(parms);
+  GBMModel gbm=job.trainModel().get();
+  Frame preds=gbm.score(df);
+  Log.info(df);
+  Log.info(preds);
+  Assert.assertTrue(gbm.testJavaScoring(df,preds,1e-15));
+  Assert.assertTrue(Math.abs(preds.vec(0).at(0) - 4) < 1e-6);
+  Assert.assertTrue(Math.abs(preds.vec(0).at(1) - 0) < 1e-6);
+  Assert.assertTrue(Math.abs(preds.vec(0).at(2) - 0) < 1e-6);
+  Assert.assertTrue(Math.abs(preds.vec(0).at(3) - 0) < 1e-6);
+  Assert.assertTrue(Math.abs(preds.vec(0).at(4) - 0) < 1e-6);
+  Assert.assertTrue(Math.abs(preds.vec(0).at(5) - 4) < 1e-6);
+  preds.remove();
+  gbm.remove();
+  df.remove();
+}

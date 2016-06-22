@@ -15,13 +15,13 @@
     if (_parms._alpha[0] == 0)     regularization="Ridge ( lambda = ";
  else     if (_parms._alpha[0] == 1)     regularization="Lasso (lambda = ";
  else     regularization="Elastic Net (alpha = " + MathUtils.roundToNDigits(_parms._alpha[0],4) + ", lambda = ";
-    regularization=regularization + MathUtils.roundToNDigits(_parms._lambda[_output._best_lambda_idx],4) + " )";
+    regularization=regularization + MathUtils.roundToNDigits(_parms._lambda[_output._selected_lambda_idx],4) + " )";
   }
   _output._model_summary.set(0,2,regularization);
   int lambdaSearch=0;
   if (_parms._lambda_search) {
     lambdaSearch=1;
-    _output._model_summary.set(0,3,"nlambda = " + _parms._nlambdas + ", lambda_max = "+ MathUtils.roundToNDigits(_lambda_max,4)+ ", best_lambda = "+ MathUtils.roundToNDigits(_output.bestSubmodel().lambda_value,4));
+    _output._model_summary.set(0,3,"nlambda = " + _parms._nlambdas + ", lambda.max = "+ MathUtils.roundToNDigits(_lambda_max,4)+ ", lambda.min = "+ MathUtils.roundToNDigits(_output.lambda_best(),4)+ ", lambda.1se = "+ MathUtils.roundToNDigits(_output.lambda_1se(),4));
   }
   int intercept=_parms._intercept ? 1 : 0;
   if (_output.nclasses() > 2) {

@@ -1,7 +1,7 @@
 {
   Model model=getFromDKV("key",s.model_id.key());
-  s.models=new ModelSchema[1];
-  s.models[0]=(ModelSchema)SchemaServer.schema(version,model).fillFromImpl(model);
+  s.models=new ModelSchemaV3[1];
+  s.models[0]=(ModelSchemaV3)SchemaServer.schema(version,model).fillFromImpl(model);
   if (s.find_compatible_frames) {
     Models m=new Models();
     m.models=new Model[1];
@@ -9,11 +9,11 @@
     m.find_compatible_frames=true;
     Frame[] compatible=Models.findCompatibleFrames(model,Frames.fetchAll(),m.fetchFrameCols());
     s.compatible_frames=new FrameV3[compatible.length];
-    ((ModelSchema)s.models[0]).compatible_frames=new String[compatible.length];
+    ((ModelSchemaV3)s.models[0]).compatible_frames=new String[compatible.length];
     int i=0;
     for (    Frame f : compatible) {
       s.compatible_frames[i]=new FrameV3(f).fillFromImpl(f);
-      ((ModelSchema)s.models[0]).compatible_frames[i]=f._key.toString();
+      ((ModelSchemaV3)s.models[0]).compatible_frames[i]=f._key.toString();
       i++;
     }
   }

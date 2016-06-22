@@ -2,12 +2,16 @@
   final String[] names=tm._names;
   final SB sb=new SB();
   new TreeVisitor<RuntimeException>(this){
-    @Override protected void pre(    int col,    float fcmp,    IcedBitSet gcmp,    int equal){
-      if (equal == 1)       sb.p("!Double.isNaN(" + sb.i().p(names[col]).p(") && "));
-      sb.i().p(names[col]).p(' ');
-      if (equal == 0)       sb.p("< ").p(fcmp);
- else       if (equal == 1)       sb.p("!=").p(fcmp);
- else       sb.p("in ").p(gcmp);
+    @Override protected void pre(    int col,    float fcmp,    IcedBitSet gcmp,    int equal,    DHistogram.NASplitDir naSplitDir){
+      if (naSplitDir == DHistogram.NASplitDir.NAvsREST)       sb.p("!Double.isNaN(" + sb.i().p(names[col]).p(")"));
+ else       if (naSplitDir == DHistogram.NASplitDir.NALeft)       sb.p("Double.isNaN(" + sb.i().p(names[col]).p(") || "));
+ else       if (equal == 1)       sb.p("!Double.isNaN(" + sb.i().p(names[col]).p(") && "));
+      if (naSplitDir != DHistogram.NASplitDir.NAvsREST) {
+        sb.i().p(names[col]).p(' ');
+        if (equal == 0)         sb.p("< ").p(fcmp);
+ else         if (equal == 1)         sb.p("!=").p(fcmp);
+ else         sb.p("in ").p(gcmp);
+      }
       sb.ii(1).nl();
     }
     @Override protected void post(    int col,    float fcmp,    int equal){

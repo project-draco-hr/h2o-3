@@ -1,0 +1,12 @@
+{
+  this.model_id=new KeyV3.ModelKeyV3(m.model_id);
+  this.find_compatible_frames=m.find_compatible_frames;
+  if (null != m.models) {
+    this.models=new ModelSchemaBaseV3[m.models.length];
+    int i=0;
+    for (    Model model : m.models) {
+      this.models[i++]=(ModelSchemaV3)SchemaServer.schema(this.getSchemaVersion(),model).fillFromImpl(model);
+    }
+  }
+  return this;
+}

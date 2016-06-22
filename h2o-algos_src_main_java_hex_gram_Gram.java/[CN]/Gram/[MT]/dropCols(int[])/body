@@ -1,0 +1,37 @@
+{
+  int diagCols=0;
+  for (int i=0; i < cols.length; ++i)   if (cols[i] < _diagN)   ++diagCols;
+ else   break;
+  int j=0;
+  if (diagCols > 0) {
+    double[] diag=MemoryManager.malloc8d(_diagN - diagCols);
+    int k=0;
+    for (int i=0; i < _diagN; ++i)     if (j < cols.length && cols[j] == i) {
+      ++j;
+    }
+ else     diag[k++]=_diag[i];
+    _diag=diag;
+  }
+  double[][] xxNew=new double[_xx.length - cols.length + diagCols][];
+  int iNew=0;
+  for (int i=0; i < _xx.length; ++i) {
+    if (j < cols.length && (_diagN + i) == cols[j]) {
+      ++j;
+      continue;
+    }
+    if (j == 0) {
+      xxNew[iNew++]=_xx[i];
+      continue;
+    }
+    int l=0, m=0;
+    double[] x=MemoryManager.malloc8d(_xx[i].length - j);
+    for (int k=0; k < _xx[i].length; ++k)     if (l < cols.length && k == cols[l]) {
+      ++l;
+    }
+ else     x[m++]=_xx[i][k];
+    xxNew[iNew++]=x;
+  }
+  _xx=xxNew;
+  _diagN=_diag.length;
+  _fullN=_xx[_xx.length - 1].length;
+}

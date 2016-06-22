@@ -1,17 +1,25 @@
 {
+  assert(_nids.length == 2);
   for (int i=0; i < _nids.length; i++) {
     for (int d=0; d < depth; d++)     sb.append("  ");
     sb.append(_nid).append(" ");
     if (_split._col < 0)     sb.append("init");
  else {
       sb.append(_tree._names[_split._col]);
-      if (_split._equal < 2) {
-        sb.append(_split._equal != 0 ? (i == 0 ? " != " : " == ") : (i == 0 ? " <  " : " >= "));
+      if (_split._nasplit == DHistogram.NASplitDir.NAvsREST) {
+        if (i == 0)         sb.append(" not NA");
+        if (i == 1)         sb.append(" is NA");
       }
  else {
-        sb.append(i == 0 ? " not in " : "  is in ");
+        if (_split._equal < 2) {
+          if (_split._nasplit == DHistogram.NASplitDir.NARight || _split._nasplit == DHistogram.NASplitDir.None)           sb.append(_split._equal != 0 ? (i == 0 ? " != " : " == ") : (i == 0 ? " <  " : " is NA or >= "));
+          if (_split._nasplit == DHistogram.NASplitDir.NALeft)           sb.append(_split._equal != 0 ? (i == 0 ? " is NA or != " : " == ") : (i == 0 ? " is NA or <  " : " >= "));
+        }
+ else {
+          sb.append(i == 0 ? " not in " : "  is in ");
+        }
+        sb.append((_split._equal == 2 || _split._equal == 3) ? _split._bs.toString() : _splat).append("\n");
       }
-      sb.append((_split._equal == 2 || _split._equal == 3) ? _split._bs.toString() : _splat).append("\n");
     }
     if (_nids[i] >= 0 && _nids[i] < _tree._len)     _tree.node(_nids[i]).toString2(sb,depth + 1);
   }

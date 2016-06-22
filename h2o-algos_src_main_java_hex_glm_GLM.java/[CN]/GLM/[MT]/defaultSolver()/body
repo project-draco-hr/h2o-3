@@ -1,12 +1,14 @@
 {
   Solver s=Solver.IRLSM;
-  if (_parms._family == Family.multinomial && _parms._alpha[0] == 0)   s=Solver.L_BFGS;
- else   if (_state.activeData().fullN() >= 5000)   s=Solver.L_BFGS;
+  if (_state.activeData().fullN() >= 5000)   s=Solver.L_BFGS;
  else   if (_parms._lambda_search && _parms._alpha[0] > 0) {
     s=Solver.COORDINATE_DESCENT;
   }
- else   if (_parms._lambda_search && _parms._alpha[0] > 0)   s=Solver.COORDINATE_DESCENT;
-  Log.info(LogMsg("picked solver " + s));
+ else   if (_state.activeBC().hasBounds()) {
+    s=Solver.COORDINATE_DESCENT;
+  }
+ else   if (_parms._family == Family.multinomial && _parms._alpha[0] == 0)   s=Solver.L_BFGS;
+ else   Log.info(LogMsg("picked solver " + s));
   _parms._solver=s;
   return s;
 }
