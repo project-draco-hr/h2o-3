@@ -12,8 +12,14 @@
     parseParms.blocking=true;
     ParseV3 parseBody=h2o.parse(parseParms);
     System.out.println("parseBody: " + parseBody);
+    String tmpVec="tmp_" + UUID.randomUUID().toString();
+    String splitExpr="(, " + "  (tmp= " + tmpVec + " (h2o.runif arrhythmia.hex 906317))"+ "  (assign train "+ "    (rows arrhythmia.hex (<= "+ tmpVec+ " 0.75)))"+ "  (assign test "+ "    (rows arrhythmia.hex (> "+ tmpVec+ " 0.75)))"+ "  (rm "+ tmpVec+ "))";
+    RapidsSchemaV3 rapidsParms=new RapidsSchemaV3();
+    rapidsParms.ast=splitExpr;
+    h2o.rapidsExec(rapidsParms);
     GBMParametersV3 gbmParms=new GBMParametersV3();
-    gbmParms.trainingFrame=H2oApi.stringToFrameKey("arrhythmia.hex");
+    gbmParms.trainingFrame=H2oApi.stringToFrameKey("train");
+    gbmParms.validationFrame=H2oApi.stringToFrameKey("test");
     ColSpecifierV3 responseColumn=new ColSpecifierV3();
     responseColumn.columnName="C1";
     gbmParms.responseColumn=responseColumn;
