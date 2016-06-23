@@ -12,6 +12,7 @@ def generate_main_class(endpoints):
     yield u'import com.google.gson.*;'
     yield u'import okhttp3.OkHttpClient;'
     yield u'import java.io.IOException;'
+    yield u'import java.lang.reflect.Array;'
     yield u'import java.lang.reflect.Type;'
     yield u'import java.util.concurrent.TimeUnit;'
     yield u''
@@ -86,7 +87,7 @@ def generate_main_class(endpoints):
         li = len(input_fields)
         le = len(input_fields_wo_excluded)
         lr = len(required_fields)
-        assert (lr <= 3), (u'Too many required fields in method ' + apiName)
+        assert (lr <= 3), (u'Too many required fields in method ' + apiname)
         if (lr == li):
             input_fields = None
             input_fields_wo_excluded = None
@@ -223,7 +224,7 @@ def generate_main_class(endpoints):
     yield u'  }'
     yield u''
     yield u'  /**'
-    yield u'   * Return an array of Keys for an array of Strings.'
+    yield u'   * Return an array of Keys for an array of Strings. TODO: remove me'
     yield u'   */'
     yield u'  public static FrameKeyV3[] stringArrayToFrameKeyArray(String[] keys) {'
     yield u'    if (keys == null) return null;'
@@ -231,6 +232,30 @@ def generate_main_class(endpoints):
     yield u'    int i = 0;'
     yield u'    for (String key : keys) { FrameKeyV3 k = new FrameKeyV3(); k.name = key; ids[i++] = k; }'
     yield u'    return ids;'
+    yield u'  }'
+    yield u''
+    yield u'  /**'
+    yield u'   * Return an array of keys from an array of Strings.'
+    yield u"   * @param ids array of string ids to convert to KeyV3's"
+    yield u'   * @param clz class of key objects to create. Since we have JobKeyV3, FrameKeyV3, ModelKeyV3, etc -- this'
+    yield u'   *            method needs to know which of these keys you want to create'
+    yield u'   */'
+    yield u'  private static <T extends KeyV3> T[] stringArrayToKeyArray(String[] ids, Class<T> clz) {'
+    yield u'    if (ids == null) return null;'
+    yield u'    // noinspection unchecked'
+    yield u'    T[] keys = (T[]) Array.newInstance(clz, ids.length);'
+    yield u'    String keyType = clz.getSimpleName();'
+    yield u'    if (keyType.endsWith("KeyV3")) keyType = keyType.substring(0, keyType.length()-5);'
+    yield u'    try {'
+    yield u'      int i = 0;'
+    yield u'      for (String id: ids) {'
+    yield u'        keys[i] = clz.newInstance();'
+    yield u'        keys[i].name = id;'
+    yield u'        keys[i].type = keyType;'
+    yield u'        i++;'
+    yield u'      }'
+    yield u"    } catch (InstantiationException | IllegalAccessException e) { /* can't be */ }"
+    yield u'    return keys;'
     yield u'  }'
     yield u''
     yield u'  /**'
