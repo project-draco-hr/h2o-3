@@ -2,6 +2,7 @@
   H2oApi h2o=new H2oApi();
   try {
     JobV3 job=null;
+    String sessionId=h2o.newSession().sessionKey;
     ImportFilesV3 importBody=h2o.importFiles("http://s3.amazonaws.com/h2o-public-test-data/smalldata/flow_examples/arrhythmia.csv.gz",null);
     System.out.println("import: " + importBody);
     ParseSetupV3 parseSetupBody=h2o.guessParseSetup(H2oApi.stringArrayToFrameKeyArray(importBody.destinationFrames));
@@ -15,6 +16,7 @@
     String tmpVec="tmp_" + UUID.randomUUID().toString();
     String splitExpr="(, " + "  (tmp= " + tmpVec + " (h2o.runif arrhythmia.hex 906317))"+ "  (assign train "+ "    (rows arrhythmia.hex (<= "+ tmpVec+ " 0.75)))"+ "  (assign test "+ "    (rows arrhythmia.hex (> "+ tmpVec+ " 0.75)))"+ "  (rm "+ tmpVec+ "))";
     RapidsSchemaV3 rapidsParms=new RapidsSchemaV3();
+    rapidsParms.sessionId=sessionId;
     rapidsParms.ast=splitExpr;
     h2o.rapidsExec(rapidsParms);
     GBMParametersV3 gbmParms=new GBMParametersV3();
@@ -39,6 +41,7 @@
     predict_params.predictionsFrame=H2oApi.stringToFrameKey("predictions");
     ModelMetricsListSchemaV3 predictions=h2o.predict(predict_params);
     System.out.println("predictions: " + predictions);
+    h2o.endSession();
   }
  catch (  IOException e) {
     System.err.println("Caught exception: " + e);
