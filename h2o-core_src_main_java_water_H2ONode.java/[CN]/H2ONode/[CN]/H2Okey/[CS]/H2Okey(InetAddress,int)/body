@@ -1,5 +1,14 @@
 {
   super(inet,port);
   byte[] b=inet.getAddress();
-  _ipv4=(b[0] & 0xFF) + ((b[1] & 0xFF) << 8) + ((b[2] & 0xFF) << 16)+ ((b[3] & 0xFF) << 24);
+  if (b.length == 4) {
+    _ipHigh=0;
+    _ipLow=ArrayUtils.encodeAsLong(b);
+    _isIPv4=true;
+  }
+ else {
+    _ipHigh=ArrayUtils.encodeAsLong(b,8,8);
+    _ipLow=ArrayUtils.encodeAsLong(b,0,8);
+    _isIPv4=false;
+  }
 }

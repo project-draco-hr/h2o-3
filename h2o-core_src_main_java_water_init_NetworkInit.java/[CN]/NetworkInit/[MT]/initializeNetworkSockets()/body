@@ -48,8 +48,9 @@
     }
     H2O.API_PORT+=2;
   }
+  boolean isIPv6=H2O.SELF_ADDRESS instanceof Inet6Address;
   H2O.SELF=H2ONode.self(H2O.SELF_ADDRESS);
-  Log.info("Internal communication uses port: ",H2O.H2O_PORT,"\n" + "Listening for HTTP and REST traffic on " + H2O.getJetty().getScheme() + "://",H2O.getIpPortString() + "/");
+  Log.info("Internal communication uses port: ",H2O.H2O_PORT,"\n" + "Listening for HTTP and REST traffic on " + H2O.getURL(H2O.getJetty().getScheme()) + "/");
   try {
     Log.debug("Interface MTU: ",(NetworkInterface.getByInetAddress(H2O.SELF_ADDRESS)).getMTU());
   }
@@ -73,15 +74,13 @@
   }
   if (embeddedConfigFlatfile != null)   H2O.STATIC_H2OS=parseFlatFileFromString(embeddedConfigFlatfile);
  else   H2O.STATIC_H2OS=parseFlatFile(H2O.ARGS.flatfile);
-  int hash=H2O.ARGS.name.hashCode() & 0x7fffffff;
-  int port=(hash % (0xF0000000 - 0xE1000000)) + 0xE1000000;
-  byte[] ip=new byte[4];
-  for (int i=0; i < 4; i++)   ip[i]=(byte)(port >>> ((3 - i) << 3));
+  int hash=H2O.ARGS.name.hashCode();
   try {
-    H2O.CLOUD_MULTICAST_GROUP=InetAddress.getByAddress(ip);
+    H2O.CLOUD_MULTICAST_GROUP=isIPv6 ? NetworkUtils.getIPv6MulticastGroup(hash,NetworkUtils.getIPv6Scope(H2O.SELF_ADDRESS)) : NetworkUtils.getIPv4MulticastGroup(hash);
   }
  catch (  UnknownHostException e) {
+    Log.err("Cannot get multicast group address for " + H2O.SELF_ADDRESS);
     Log.throwErr(e);
   }
-  H2O.CLOUD_MULTICAST_PORT=(port >>> 16);
+  H2O.CLOUD_MULTICAST_PORT=NetworkUtils.getMulticastPort(hash);
 }

@@ -10,7 +10,7 @@
       if (strLine.startsWith("#") || strLine.isEmpty())       continue;
       String ip=null, portStr=null;
       int slashIdx=strLine.indexOf('/');
-      int colonIdx=strLine.indexOf(':');
+      int colonIdx=strLine.lastIndexOf(':');
       if (slashIdx == -1 && colonIdx == -1) {
         ip=strLine;
       }
@@ -22,14 +22,13 @@
         ip=strLine.substring(slashIdx + 1);
       }
  else       if (slashIdx > colonIdx) {
-        H2O.die("Invalid format, must be name/ip[:port], not '" + strLine + "'");
+        H2O.die("Invalid format, must be [name/]ip[:port], not '" + strLine + "'");
       }
  else {
         ip=strLine.substring(slashIdx + 1,colonIdx);
         portStr=strLine.substring(colonIdx + 1);
       }
       InetAddress inet=InetAddress.getByName(ip);
-      if (!(inet instanceof Inet4Address))       H2O.die("Only IP4 addresses allowed: given " + ip);
       if (portStr != null && !portStr.equals("")) {
         try {
           port=Integer.decode(portStr);

@@ -1,5 +1,5 @@
 {
-  ArrayList<NetworkInit> networkList=new ArrayList<>();
+  ArrayList<NetworkInit.CIDRBlock> networkList=new ArrayList<>();
   if (networkOpt == null)   return networkList;
   String[] networks;
   if (networkOpt.contains(",")) {
@@ -10,21 +10,8 @@
     networks[0]=networkOpt;
   }
   for (  String n : networks) {
-    Pattern p=Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)/(\\d+)");
-    Matcher m=p.matcher(n);
-    boolean b=m.matches();
-    if (!b) {
-      Log.err("network invalid: " + n);
-      return null;
-    }
-    assert(m.groupCount() == 5);
-    int o1=Integer.parseInt(m.group(1));
-    int o2=Integer.parseInt(m.group(2));
-    int o3=Integer.parseInt(m.group(3));
-    int o4=Integer.parseInt(m.group(4));
-    int bits=Integer.parseInt(m.group(5));
-    NetworkInit usn=new NetworkInit(o1,o2,o3,o4,bits);
-    if (!usn.valid()) {
+    NetworkInit.CIDRBlock usn=CIDRBlock.parse(n);
+    if (n == null || !usn.valid()) {
       Log.err("network invalid: " + n);
       return null;
     }
