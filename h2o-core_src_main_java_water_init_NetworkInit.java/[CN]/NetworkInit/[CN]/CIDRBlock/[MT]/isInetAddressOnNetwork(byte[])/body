@@ -1,0 +1,12 @@
+{
+  int i=0;
+  for (i=0; i < bits / 8; i++) {
+    if (((int)ipBytes[i] & 0xff) != ip[i])     return false;
+  }
+  int remaining=0;
+  if ((remaining=8 - (bits % 8)) < 8) {
+    int mask=~((1 << remaining) - 1) & 0xff;
+    return (((int)ipBytes[i] & 0xff) & mask) == (ip[i] & mask);
+  }
+  return true;
+}

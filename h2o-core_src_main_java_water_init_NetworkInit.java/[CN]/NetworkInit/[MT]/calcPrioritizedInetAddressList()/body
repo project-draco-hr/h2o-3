@@ -2,13 +2,16 @@
   ArrayList<java.net.InetAddress> ips=new ArrayList<>();
 {
     ArrayList<NetworkInterface> networkInterfaceList=calcPrioritizedInterfaceList();
-    for (    NetworkInterface ni : networkInterfaceList) {
-      Enumeration<InetAddress> ias=ni.getInetAddresses();
-      while (ias.hasMoreElements()) {
-        InetAddress ia;
-        ia=ias.nextElement();
-        ips.add(ia);
-        Log.info("Possible IP Address: " + ni.getName() + " ("+ ni.getDisplayName()+ "), "+ ia.getHostAddress());
+    for (    NetworkInterface nIface : networkInterfaceList) {
+      Enumeration<InetAddress> ias=nIface.getInetAddresses();
+      if (NetworkUtils.isUp(nIface)) {
+        while (ias.hasMoreElements()) {
+          InetAddress ia=ias.nextElement();
+          if (NetworkUtils.isReachable(nIface,ia,50)) {
+            ips.add(ia);
+            Log.info("Possible IP Address: " + nIface.getName() + " ("+ nIface.getDisplayName()+ "), "+ ia.getHostAddress());
+          }
+        }
       }
     }
   }
