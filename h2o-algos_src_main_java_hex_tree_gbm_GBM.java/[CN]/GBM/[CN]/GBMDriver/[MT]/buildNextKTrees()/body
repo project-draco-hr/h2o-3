@@ -21,4 +21,9 @@
   }
   new AddTreeContributions(ktrees).doAll(_train);
   _model._output.addKTrees(ktrees);
+  boolean converged=effective_learning_rate() < 1e-8;
+  if (converged) {
+    Log.warn("Effective learning rate dropped below 1e-8 (" + _parms._learn_rate + " * "+ _parms._learn_rate_annealing+ "^"+ (_model._output._ntrees - 1)+ ") - stopping the model now.");
+  }
+  return converged;
 }
