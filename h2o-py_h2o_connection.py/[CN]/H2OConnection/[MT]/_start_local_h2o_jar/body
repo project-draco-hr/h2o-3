@@ -1,0 +1,53 @@
+def _start_local_h2o_jar(self, mmax, mmin, ea, license, ice, jar_path, nthreads):
+    command = H2OConnection._check_java()
+    if license:
+        if (not os.path.exists(license)):
+            raise ValueError((('License file not found (' + license) + ')'))
+    if (not ice):
+        raise ValueError('`ice_root` must be specified')
+    stdout = open(H2OConnection._tmp_file('stdout'), 'w')
+    stderr = open(H2OConnection._tmp_file('stderr'), 'w')
+    print(('Using ice_root: ' + ice))
+    print()
+    jver = subprocess.check_output([command, '-version'], stderr=subprocess.STDOUT)
+    if PY3:
+        jver = str(jver, H2OConnection.__ENCODING__)
+    print()
+    print(('Java Version: ' + jver))
+    print()
+    if ('GNU libgcj' in jver):
+        raise ValueError((('Sorry, GNU Java is not supported for H2O.\n' + 'Please download the latest Java SE JDK 7 from the following URL:\n') + 'http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html'))
+    if ('Client VM' in jver):
+        print('WARNING: ')
+        print('You have a 32-bit version of Java. H2O works best with 64-bit Java.')
+        print('Please download the latest Java SE JDK 7 from the following URL:')
+        print('http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html')
+        print()
+    vm_opts = []
+    if mmin:
+        if (type(mmin) == int):
+            warnings.warn('User specified min_mem_size should have a trailing letter indicating byte type.\n`m` or `M` indicate megabytes & `g` or `G` indicate gigabytes.\nWill default to gigabytes as byte type.')
+            vm_opts += ['-Xms{}g'.format(mmin)]
+        else:
+            vm_opts += ['-Xms{}'.format(mmin)]
+    if mmax:
+        if (type(mmax) == int):
+            warnings.warn('User specified max_mem_size should have a trailing letter indicating byte type.\n`m` or `M` indicate megabytes & `g` or `G` indicate gigabytes.\nWill default to gigabytes as byte type.')
+            vm_opts += ['-Xmx{}g'.format(mmax)]
+        else:
+            vm_opts += ['-Xmx{}'.format(mmax)]
+    if ea:
+        vm_opts += ['-ea']
+    h2o_opts = ['-verbose:gc', '-XX:+PrintGCDetails', '-XX:+PrintGCTimeStamps', '-jar', jar_path, '-name', ((('H2O_started_from_python_' + re.sub('[^A-Za-z0-9]', '_', ((os.getenv('USERNAME') if (sys.platform == 'win32') else os.getenv('USER')) or 'unknownUser'))) + '_') + ''.join(([choice(ascii_lowercase) for _ in range(3)] + [choice(digits) for _ in range(3)]))), '-ip', '127.0.0.1', '-port', '54321', '-ice_root', ice]
+    if (nthreads > 0):
+        h2o_opts += ['-nthreads', str(nthreads)]
+    if license:
+        h2o_opts += ['-license', license]
+    cmd = (([command] + vm_opts) + h2o_opts)
+    cwd = os.path.abspath(os.getcwd())
+    if (sys.platform == 'win32'):
+        self._child = subprocess.Popen(args=cmd, stdout=stdout, stderr=stderr, cwd=cwd, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+    else:
+        self._child = subprocess.Popen(args=cmd, stdout=stdout, stderr=stderr, cwd=cwd, preexec_fn=os.setsid)
+    cld = self._connect(1, 30, True)
+    return cld

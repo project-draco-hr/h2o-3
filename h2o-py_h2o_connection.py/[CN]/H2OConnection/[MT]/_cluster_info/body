@@ -1,0 +1,12 @@
+@staticmethod
+def _cluster_info():
+    global __H2OCONN__
+    cld = __H2OCONN__._cld
+    ncpus = sum([n['num_cpus'] for n in cld['nodes']])
+    allowed_cpus = sum([n['cpus_allowed'] for n in cld['nodes']])
+    mfree = sum([n['free_mem'] for n in cld['nodes']])
+    cluster_health = all([n['healthy'] for n in cld['nodes']])
+    ip = ('127.0.0.1' if (__H2OCONN__._ip == 'localhost') else __H2OCONN__._ip)
+    cluster_info = [['H2O cluster uptime: ', get_human_readable_time(cld['cloud_uptime_millis'])], ['H2O cluster version: ', cld['version']], ['H2O cluster name: ', cld['cloud_name']], ['H2O cluster total nodes: ', cld['cloud_size']], ['H2O cluster total free memory: ', get_human_readable_size(mfree)], ['H2O cluster total cores: ', str(ncpus)], ['H2O cluster allowed cores: ', str(allowed_cpus)], ['H2O cluster healthy: ', str(cluster_health)], ['H2O Connection ip: ', ip], ['H2O Connection port: ', __H2OCONN__._port], ['H2O Connection proxy: ', __H2OCONN__._proxy], ['Python Version: ', sys.version.split()[0]]]
+    __H2OCONN__._cld = H2OConnection.get_json(url_suffix='Cloud')
+    H2ODisplay(cluster_info)

@@ -1,0 +1,76 @@
+def _do_raw_rest(self, url_suffix, method, file_upload_info, **kwargs):
+    if (not url_suffix):
+        raise ValueError('No url suffix supplied.')
+    if ('_rest_version' in kwargs):
+        _rest_version = kwargs['_rest_version']
+        del kwargs['_rest_version']
+    else:
+        _rest_version = self._rest_version
+    url = H2OConnection.make_url(url_suffix, _rest_version)
+    query_string = ''
+    for (k, v) in iteritems(kwargs):
+        if (v is None):
+            continue
+        if isinstance(v, list):
+            x = '['
+            for l in v:
+                if isinstance(l, list):
+                    x += '['
+                    x += ','.join([(str(e) if PY3 else str(e).encode(H2OConnection.__ENCODING__, errors=H2OConnection.__ENCODING_ERROR__)) for e in l])
+                    x += ']'
+                else:
+                    x += (str(l) if PY3 else str(l).encode(H2OConnection.__ENCODING__, errors=H2OConnection.__ENCODING_ERROR__))
+                x += ','
+            x = x[:(-1)]
+            x += ']'
+        elif (isinstance(v, dict) and ('__meta' in v) and v['__meta']['schema_name'].endswith('KeyV3')):
+            x = v['name']
+        else:
+            x = (str(v) if PY3 else str(v).encode(H2OConnection.__ENCODING__, errors=H2OConnection.__ENCODING_ERROR__))
+        query_string += (((k + '=') + quote(x)) + '&')
+    query_string = query_string[:(-1)]
+    post_body = ''
+    if (not file_upload_info):
+        if (method == 'POST'):
+            post_body = query_string
+        elif (query_string != ''):
+            url = '{}?{}'.format(url, query_string)
+    else:
+        if (not (method == 'POST')):
+            raise ValueError(('Received file upload info and expected method to be POST. Got: ' + str(method)))
+        if (query_string != ''):
+            url = '{}?{}'.format(url, query_string)
+    if _is_logging():
+        _log_rest('------------------------------------------------------------\n')
+        _log_rest('\n')
+        _log_rest('Time:     {0}\n'.format(time.strftime('Y-%m-%d %H:%M:%OS3')))
+        _log_rest('\n')
+        _log_rest('{0} {1}\n'.format(method, url))
+        _log_rest('postBody: {0}\n'.format(post_body))
+    global _rest_ctr
+    _rest_ctr = (_rest_ctr + 1)
+    begin_time_seconds = time.time()
+    http_result = self._attempt_rest(url, method, post_body, file_upload_info)
+    end_time_seconds = time.time()
+    elapsed_time_seconds = (end_time_seconds - begin_time_seconds)
+    elapsed_time_millis = (elapsed_time_seconds * 1000)
+    if (not http_result.ok):
+        detailed_error_msgs = []
+        try:
+            result = http_result.json()
+            if ('messages' in result.keys()):
+                detailed_error_msgs = '\n'.join([m['message'] for m in result['messages'] if (m['message_type'] in ['ERRR'])])
+            elif ('exception_msg' in result.keys()):
+                detailed_error_msgs = result['exception_msg']
+        except ValueError:
+            pass
+        raise EnvironmentError(('h2o-py got an unexpected HTTP status code:\n {} {} (method = {}; url = {}). \n' + 'detailed error messages: {}').format(http_result.status_code, http_result.reason, method, url, detailed_error_msgs))
+    if _is_logging():
+        _log_rest('\n')
+        _log_rest('httpStatusCode:    {0}\n'.format(http_result.status_code))
+        _log_rest('httpStatusMessage: {0}\n'.format(http_result.reason))
+        _log_rest('millis:            {0}\n'.format(elapsed_time_millis))
+        _log_rest('\n')
+        _log_rest('{0}\n'.format(http_result.json()))
+        _log_rest('\n')
+    return http_result
