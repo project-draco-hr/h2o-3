@@ -1,0 +1,16 @@
+from __future__ import unicode_literals
+from builtins import range
+import re
+import bindings as bi
+if (__name__ == u'__main__'):
+    bi.init(u'Python', u'python')
+    type_adapter = PythonTypeTranslator()
+    for (name, mb) in bi.model_builders().items():
+        module = name
+        if (name == u'drf'):
+            module = u'random_forest'
+        if (name == u'naivebayes'):
+            module = u'naive_bayes'
+        bi.vprint((u'Generating model: ' + name))
+        bi.write_to_file((u'%s.py' % module), gen_module(mb, name))
+    type_adapter.vprint_translation_map()

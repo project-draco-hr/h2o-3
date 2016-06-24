@@ -1,0 +1,16 @@
+def reindent_block(str, new_indent):
+    if (not str):
+        return u''
+    add_indent = (u' ' * new_indent)
+    lines = str.split(u'\n')
+    if (len(lines) == 1):
+        return lines[0].strip()
+    line0_indent = (len(lines[0]) - len(lines[0].lstrip()))
+    line1_indent = (len(lines[1]) - len(lines[1].lstrip()))
+    remove_indent = max(line0_indent, line1_indent)
+    out = u''
+    for line in lines:
+        dedented = line.lstrip()
+        extra_indent = (u' ' * ((len(line) - len(dedented)) - remove_indent))
+        out += (((add_indent + extra_indent) + dedented) + u'\n')
+    return out.strip()
