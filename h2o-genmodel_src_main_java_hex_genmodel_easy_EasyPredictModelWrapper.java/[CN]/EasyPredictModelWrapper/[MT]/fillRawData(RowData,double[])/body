@@ -26,10 +26,19 @@
         String levelName=(String)o;
         HashMap<String,Integer> columnDomainMap=domainMap.get(index);
         Integer levelIndex=columnDomainMap.get(levelName);
+        double value;
         if (levelIndex == null) {
-          throw new PredictUnknownCategoricalLevelException("Unknown categorical level (" + dataColumnName + ","+ levelName+ ")",dataColumnName,levelName);
+          if (convertUnknownCategoricalLevelsToNa) {
+            value=Double.NaN;
+            unknownCategoricalLevelsSeenPerColumn.get(dataColumnName).incrementAndGet();
+          }
+ else {
+            throw new PredictUnknownCategoricalLevelException("Unknown categorical level (" + dataColumnName + ","+ levelName+ ")",dataColumnName,levelName);
+          }
         }
-        double value=levelIndex;
+ else {
+          value=levelIndex;
+        }
         rawData[index]=value;
       }
  else {
