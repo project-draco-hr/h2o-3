@@ -1,0 +1,70 @@
+{
+  MyModel rawModel=makeModel();
+  EasyPredictModelWrapper m=new EasyPredictModelWrapper(rawModel);
+{
+    RowData row=new RowData();
+    row.put("C1","c1level1");
+    try {
+      m.predictBinomial(row);
+    }
+ catch (    PredictUnknownCategoricalLevelException e) {
+      Assert.fail("Caught exception but should not have");
+    }
+    ConcurrentHashMap<String,AtomicLong> unknown=m.getUnknownCategoricalLevelsSeenPerColumn();
+    long total=0;
+    for (    AtomicLong l : unknown.values()) {
+      total+=l.get();
+    }
+    Assert.assertEquals(total,0);
+  }
+{
+    RowData row=new RowData();
+    row.put("C1","c1level1");
+    row.put("C2","unknownLevel");
+    boolean caught=false;
+    try {
+      m.predictBinomial(row);
+    }
+ catch (    PredictUnknownCategoricalLevelException e) {
+      caught=true;
+    }
+    Assert.assertEquals(caught,true);
+    ConcurrentHashMap<String,AtomicLong> unknown=m.getUnknownCategoricalLevelsSeenPerColumn();
+    long total=0;
+    for (    AtomicLong l : unknown.values()) {
+      total+=l.get();
+    }
+    Assert.assertEquals(total,0);
+  }
+  m=new EasyPredictModelWrapper(rawModel);
+  m.setConvertUnknownCategoricalLevelsToNa(true);
+{
+    RowData row0=new RowData();
+    m.predict(row0);
+    Assert.assertEquals(m.getTotalUnknownCategoricalLevelsSeen(),0);
+    RowData row1=new RowData();
+    row1.put("C1","c1level1");
+    row1.put("C2","unknownLevel");
+    m.predictBinomial(row1);
+    Assert.assertEquals(m.getTotalUnknownCategoricalLevelsSeen(),1);
+    RowData row2=new RowData();
+    row2.put("C1","c1level1");
+    row2.put("C2","c2level3");
+    m.predictBinomial(row2);
+    Assert.assertEquals(m.getTotalUnknownCategoricalLevelsSeen(),1);
+    RowData row3=new RowData();
+    row3.put("C1","c1level1");
+    row3.put("unknownColumn","unknownLevel");
+    m.predictBinomial(row3);
+    Assert.assertEquals(m.getTotalUnknownCategoricalLevelsSeen(),1);
+    m.predictBinomial(row1);
+    m.predictBinomial(row1);
+    Assert.assertEquals(m.getTotalUnknownCategoricalLevelsSeen(),3);
+    RowData row4=new RowData();
+    row4.put("C1","unknownLevel");
+    m.predictBinomial(row4);
+    Assert.assertEquals(m.getTotalUnknownCategoricalLevelsSeen(),4);
+    Assert.assertEquals(m.getUnknownCategoricalLevelsSeenPerColumn().get("C1").get(),1);
+    Assert.assertEquals(m.getUnknownCategoricalLevelsSeenPerColumn().get("C2").get(),3);
+  }
+}
