@@ -5,14 +5,15 @@ import gen_java
 import gen_python
 import gen_thrift
 import bindings
-import sys, os
+import sys
+import os
 sys.path.insert(0, '../../scripts')
 import run
-for directory in ['../../results', '../../results/failed', '../../../build', '../../../build/test-results']:
-    if (not os.path.exists(directory)):
-        os.mkdir(directory)
+results_dir = '../../results'
+if (not os.path.exists(results_dir)):
+    os.mkdir(results_dir)
 print('Starting H2O cloud...')
-cloud = run.H2OCloud(cloud_num=0, use_client=False, nodes_per_cloud=1, h2o_jar=os.path.abspath('../../build/h2o.jar'), base_port=48000, xmx='4g', cp='', output_dir='../../results')
+cloud = run.H2OCloud(cloud_num=0, use_client=False, nodes_per_cloud=1, h2o_jar=os.path.abspath('../../build/h2o.jar'), base_port=48000, xmx='4g', cp='', output_dir=results_dir)
 cloud.start()
 cloud.wait_for_cloud_to_be_up()
 sys.argv.insert(1, '--usecloud')
