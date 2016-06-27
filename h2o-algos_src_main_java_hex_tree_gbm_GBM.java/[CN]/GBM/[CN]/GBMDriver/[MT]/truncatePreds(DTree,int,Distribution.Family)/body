@@ -1,5 +1,11 @@
 {
-  assert(tree != null);
+  if (firstLeafIndex == tree._len)   return;
+  ComputeMinMax minMax=new ComputeMinMax(firstLeafIndex,tree._len).doAll(_train);
+  if (DEV_DEBUG) {
+    Log.info("Number of leaf nodes: " + minMax._mins.length);
+    Log.info("Min: " + java.util.Arrays.toString(minMax._mins));
+    Log.info("Max: " + java.util.Arrays.toString(minMax._maxs));
+  }
   for (int i=0; i < tree._len - firstLeafIndex; i++) {
     final LeafNode node=((LeafNode)tree.node(firstLeafIndex + i));
     int nidx=node.nid();
