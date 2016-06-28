@@ -1,0 +1,20 @@
+{
+  HashMap<String,Enum> map=enumMappings.get(clz);
+  if (map == null) {
+    map=new HashMap<>();
+    enumMappings.put(clz,map);
+    for (    Enum item : clz.getEnumConstants()) {
+      String origName=item.name();
+      String unifName=origName.toUpperCase().replaceAll("[^0-9A-Z]","");
+      if (map.containsKey(origName))       throw H2O.fail("Unexpected key " + origName + " in enum "+ clz);
+      if (map.containsKey(unifName))       throw H2O.fail("Non-unique key " + unifName + " in enum "+ clz);
+      map.put(origName,item);
+      map.put(unifName,item);
+    }
+  }
+  Enum value=map.get(name);
+  if (value == null && name != null)   value=map.get(name.toUpperCase().replaceAll("[^0-9A-Z]",""));
+  if (value == null)   throw new IllegalArgumentException("No enum constant " + clz.getCanonicalName() + "."+ name);
+  if (name == null)   throw new NullPointerException("Name is null");
+  return (T)value;
+}
