@@ -1,5 +1,6 @@
 @staticmethod
 def makeGLMModel(model, coefs, threshold=0.5):
+    '\n        Create a custom GLM model using the given coefficients.\n        Needs to be passed source model trained on the dataset to extract the dataset information from.\n          @param model - source model, used for extracting dataset information\n          @param coefs - dictionary containing model coefficients\n          @param threshold - (optional, only for binomial) decision threshold used for classification\n        '
     model_json = H2OConnection.post_json('MakeGLMModel', model=model._model_json['model_id']['name'], names=list(coefs.keys()), beta=list(coefs.values()), threshold=threshold)
     m = H2OGeneralizedLinearEstimator()
     m._resolve_model(model_json['model_id']['name'], model_json)

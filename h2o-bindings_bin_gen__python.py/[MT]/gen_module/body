@@ -19,17 +19,21 @@ def gen_module(schema, name):
     yield u''
     yield (u'class %s(H2OEstimator):' % classname)
     yield u'    """'
-    yield (u'    %s' % schema[u'algo_full_name'])
-    yield (u'    %s' % (u'-' * len(schema[u'algo_full_name'])))
+    yield (u'    ' + schema[u'algo_full_name'])
+    yield (u'    ' + (u'-' * len(schema[u'algo_full_name'])))
     if help_preamble:
         yield (u'    %s' % reindent_block(help_preamble, 4))
     yield u''
     yield u'    Parameters (optional, unless specified otherwise)'
     yield u'    ----------'
+    param_names = []
     for param in schema[u'parameters']:
-        assert ((param[u'type'] == u'enum') == bool(param[u'values'])), u'Values are expected for enum types only'
+        assert ((param[u'type'][:4] == u'enum') == bool(param[u'values'])), u'Values are expected for enum types only'
         ptype = translate_type(param[u'type'], param[u'values'])
         name = param[u'name']
+        if (name in reserved_words):
+            name += u'_'
+        param_names.append(name)
         if param[u'required']:
             ptype += u', required'
         yield (u'      %s : %s' % (name, bi.wrap(ptype, (u' ' * (9 + len(name))), indent_first=False)))
@@ -42,23 +46,31 @@ def gen_module(schema, name):
     yield u'    """'
     yield u'    def __init__(self, **kwargs):'
     yield (u'        super(%s, self).__init__()' % classname)
-    yield u'        self._parms = kwargs'
+    yield u'        self._parms = {}'
+    yield ((u'        for name in [' + bi.wrap(u', '.join(((u'"%s"' % p) for p in param_names)), indent=(u' ' * 21), indent_first=False)) + u']:')
+    yield u"            pname = name[:-1] if name[-1] == '_' else name"
+    yield u'            self._parms[pname] = kwargs[name] if name in kwargs else None'
     if init_extra:
-        yield (u'        %s' % reindent_block(init_extra, 8))
+        yield (u'        ' + reindent_block(init_extra, 8))
     yield u''
     for param in schema[u'parameters']:
         name = param[u'name']
+        if (name == u'model_id'):
+            continue
+        prop = name
+        if (name in reserved_words):
+            prop += u'_'
         yield u'    @property'
-        yield (u'    def %s(self):' % name)
+        yield (u'    def %s(self):' % prop)
         yield (u'        return self._parms["%s"]' % name)
         yield u''
-        yield (u'    @%s.setter' % name)
-        yield (u'    def %s(self, value):' % name)
+        yield (u'    @%s.setter' % prop)
+        yield (u'    def %s(self, value):' % prop)
         yield (u'        self._parms["%s"] = value' % name)
         yield u''
     if class_extra:
-        yield (u'    %s' % reindent_block(class_extra, 4))
+        yield (u'    ' + reindent_block(class_extra, 4))
         yield u''
     if module_extra:
-        yield (u'%s' % reindent_block(module_extra, 0))
+        yield reindent_block(module_extra, 0)
         yield u''

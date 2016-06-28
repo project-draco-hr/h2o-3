@@ -1,5 +1,8 @@
-def __init__(self, model_id=None, ignore_const_cols=None, max_iterations=None, beta_epsilon=None, solver=None, standardize=None, family=None, link=None, tweedie_variance_power=None, tweedie_link_power=None, alpha=None, prior=None, lambda_search=None, early_stopping=True, nlambdas=None, lambda_min_ratio=None, beta_constraints=None, nfolds=None, seed=None, fold_assignment=None, keep_cross_validation_predictions=None, keep_cross_validation_fold_assignment=None, intercept=None, Lambda=None, max_active_predictors=None, checkpoint=None, objective_epsilon=None, gradient_epsilon=None, non_negative=False, compute_p_values=False, remove_collinear_columns=False, missing_values_handling=None, interactions=None, max_runtime_secs=0):
+def __init__(self, **kwargs):
     super(H2OGeneralizedLinearEstimator, self).__init__()
-    self._parms = locals()
-    self._parms = {k: v for (k, v) in self._parms.items() if (k != 'self')}
-    self._parms['lambda'] = self._parms.pop('Lambda')
+    self._parms = {}
+    for name in ['model_id', 'training_frame', 'validation_frame', 'nfolds', 'seed', 'keep_cross_validation_predictions', 'keep_cross_validation_fold_assignment', 'fold_assignment', 'fold_column', 'response_column', 'ignored_columns', 'ignore_const_cols', 'score_each_iteration', 'offset_column', 'weights_column', 'family', 'tweedie_variance_power', 'tweedie_link_power', 'solver', 'alpha', 'lambda_', 'lambda_search', 'early_stopping', 'nlambdas', 'standardize', 'missing_values_handling', 'compute_p_values', 'remove_collinear_columns', 'intercept', 'non_negative', 'max_iterations', 'objective_epsilon', 'beta_epsilon', 'gradient_epsilon', 'link', 'prior', 'lambda_min_ratio', 'beta_constraints', 'max_active_predictors', 'interactions', 'balance_classes', 'class_sampling_factors', 'max_after_balance_size', 'max_confusion_matrix_size', 'max_hit_ratio_k', 'max_runtime_secs']:
+        pname = (name[:(-1)] if (name[(-1)] == '_') else name)
+        self._parms[pname] = (kwargs[name] if (name in kwargs) else None)
+    if ('Lambda' in kwargs):
+        self._parms['lambda'] = kwargs['Lambda']
