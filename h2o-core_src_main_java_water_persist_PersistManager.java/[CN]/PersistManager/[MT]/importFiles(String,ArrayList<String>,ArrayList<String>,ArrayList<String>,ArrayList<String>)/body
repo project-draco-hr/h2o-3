@@ -15,8 +15,13 @@
     }
     return;
   }
-  if (s.startsWith("hdfs:") || s.startsWith("s3:") || s.startsWith("s3n:")|| s.startsWith("s3a:")|| s.startsWith("maprfs:")) {
-    if (I[Value.HDFS] == null)     throw new H2OIllegalArgumentException("HDFS, S3, S3N, and S3A support is not configured");
+  if (s.startsWith("s3:")) {
+    if (I[Value.S3] == null)     throw new H2OIllegalArgumentException("S3 support is not configured");
+    I[Value.S3].importFiles(path,files,keys,fails,dels);
+    return;
+  }
+  if (s.startsWith("hdfs:") || s.startsWith("s3n:") || s.startsWith("s3a:")|| s.startsWith("maprfs:")) {
+    if (I[Value.HDFS] == null)     throw new H2OIllegalArgumentException("HDFS, S3N, and S3A support is not configured");
     I[Value.HDFS].importFiles(path,files,keys,fails,dels);
     return;
   }

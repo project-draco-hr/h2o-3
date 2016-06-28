@@ -2,7 +2,7 @@
   Vec v=Vec.makeCon(0,0);
   Chunk c;
   NewChunkTestCpy nc=new NewChunkTestCpy(v,4);
-  for (int i=0; i < values.length; ++i)   nc.addNum(values[i],0);
+  for (  long val : values)   nc.addNum(val,0);
   assertEquals(mantissaSize,nc.mantissaSize());
   assertEquals(0,nc.exponentSize());
   assertEquals(0,nc.missingSize());
@@ -14,7 +14,7 @@
  else     assertEquals(values[i],c.at8_impl(i));
   }
   nc=new NewChunkTestCpy(v,4);
-  for (int i=0; i < values.length; ++i)   nc.addNum(values[i],-1);
+  for (  long val : values)   nc.addNum(val,-1);
   for (int i=0; i < values.length; i+=5)   nc.setNA_impl(i);
   assertEquals(1,nc.exponentSize());
   c=nc.compress();
@@ -23,7 +23,7 @@
  else     assertEquals(values[i] * 0.1,c.atd(i),1e-10);
   }
   nc=new NewChunkTestCpy(v,4);
-  for (int i=0; i < values.length; ++i)   nc.addNum(values[i],0);
+  for (  long val : values)   nc.addNum(val,0);
   for (int i=0; i < values.length; i+=5)   nc.setNA_impl(i);
   nc.addNum(Math.PI);
   c=nc.compress();
@@ -33,7 +33,7 @@
   }
   assertEquals(Math.PI,c.atd(values.length),0);
   nc=new NewChunkTestCpy(v,4);
-  for (int i=0; i < values.length; ++i)   nc.addNum(values[i],0);
+  for (  long val : values)   nc.addNum(val,0);
   nc.addNA();
   nc.setNA_impl(0);
   int nzs=0;
@@ -52,7 +52,7 @@
   for (int i=10; i < values.length; i++)   if (i % 10 == 0)   assertEquals(values[i],c.atd(i),0);
  else   assertEquals(0,c.atd(i),0);
   nc=new NewChunkTestCpy(v,4);
-  for (int i=0; i < values.length; ++i)   nc.addNum(values[i],0);
+  for (  long val : values)   nc.addNum(val,0);
   nc.addNA();
   nc.setNA_impl(0);
   nzs=0;

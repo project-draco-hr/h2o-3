@@ -7,14 +7,16 @@
       break;
     }
  catch (    EOFException e) {
-      ignoreAndWait(e,false);
+      e.printStackTrace();
+      System.out.println(e.getMessage());
+      ignoreAndWait(e,true);
     }
 catch (    SocketTimeoutException e) {
       ignoreAndWait(e,false);
     }
 catch (    IOException e) {
       if (e.getClass().getName().contains("S3Exception")) {
-        ignoreAndWait(e,false);
+        ignoreAndWait(e,true);
       }
  else {
         ignoreAndWait(e,true);

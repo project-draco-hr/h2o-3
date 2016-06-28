@@ -1,0 +1,22 @@
+{
+  m=config.getModel();
+  modelColumnNameToIndexMap=new HashMap<>();
+  String[] modelColumnNames=m.getNames();
+  for (int i=0; i < modelColumnNames.length; i++) {
+    modelColumnNameToIndexMap.put(modelColumnNames[i],i);
+  }
+  unknownCategoricalLevelsSeenPerColumn=new ConcurrentHashMap<>();
+  convertUnknownCategoricalLevelsToNa=config.getConvertUnknownCategoricalLevelsToNa();
+  setupConvertUnknownCategoricalLevelsToNa();
+  domainMap=new HashMap<>();
+  for (int i=0; i < m.getNumCols(); i++) {
+    String[] domainValues=m.getDomainValues(i);
+    if (domainValues != null) {
+      HashMap<String,Integer> m=new HashMap<>();
+      for (int j=0; j < domainValues.length; j++) {
+        m.put(domainValues[j],j);
+      }
+      domainMap.put(i,m);
+    }
+  }
+}
