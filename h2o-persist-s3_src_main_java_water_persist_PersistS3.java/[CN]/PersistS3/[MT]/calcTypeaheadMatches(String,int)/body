@@ -1,0 +1,13 @@
+{
+  String[] parts=decodePath(filter);
+  if (parts[1] != null) {
+    if (_keyCaches.get(parts[0]) == null) {
+      if (!getClient().doesBucketExist(parts[0]))       return new ArrayList<>();
+      _keyCaches.put(parts[0],new KeyCache(parts[0]));
+    }
+    return _keyCaches.get(parts[0]).fetch(parts[1],limit);
+  }
+ else {
+    return _bucketCache.fetch(parts[0],limit);
+  }
+}

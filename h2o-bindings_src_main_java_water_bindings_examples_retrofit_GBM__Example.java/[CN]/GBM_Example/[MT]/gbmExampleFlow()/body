@@ -3,12 +3,12 @@
   try {
     JobV3 job=null;
     String sessionId=h2o.newSession().sessionKey;
-    ImportFilesV3 importBody=h2o.importFiles("http://s3.amazonaws.com/h2o-public-test-data/smalldata/flow_examples/arrhythmia.csv.gz",null);
+    ImportFilesV3 importBody=h2o.importFiles("http://s3.amazonaws.com/h2o-public-test-data/smalldata/flow_examples/arrhythmia.csv.gz");
     System.out.println("import: " + importBody);
-    ParseSetupV3 parseSetupBody=h2o.guessParseSetup(H2oApi.stringArrayToFrameKeyArray(importBody.destinationFrames));
+    ParseSetupV3 parseSetupBody=h2o.guessParseSetup(H2oApi.stringArrayToKeyArray(importBody.destinationFrames,FrameKeyV3.class));
     System.out.println("parseSetupBody: " + parseSetupBody);
     ParseV3 parseParms=new ParseV3();
-    GBM_Example.copyFields(parseParms,parseSetupBody);
+    H2oApi.copyFields(parseParms,parseSetupBody);
     parseParms.destinationFrame=H2oApi.stringToFrameKey("arrhythmia.hex");
     parseParms.blocking=true;
     ParseV3 parseBody=h2o.parse(parseParms);

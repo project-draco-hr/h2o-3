@@ -1,0 +1,10 @@
+def main():
+    bi.init(u'C#', u'CSharp')
+    for schema in bi.schemas():
+        name = schema[u'name']
+        bi.vprint((u'Generating schema: ' + name))
+        bi.write_to_file((u'h2o/%s.cs' % name), generate_schema(name, schema))
+    for (name, values) in bi.enums().items():
+        bi.vprint((u'Generating enum: ' + name))
+        bi.write_to_file((u'h2o/%s.cs' % name), generate_enum(name, sorted(values)))
+    type_adapter.vprint_translation_map()

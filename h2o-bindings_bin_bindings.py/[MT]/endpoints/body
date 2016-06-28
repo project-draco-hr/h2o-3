@@ -37,7 +37,7 @@ def endpoints(raw=False):
             assert (e[u'output_schema'] in schmap), (u'Encountered unknown schema %s in %s' % (e[u'output_schema'], path))
             e[u'ischema'] = schmap[e[u'input_schema']]
             e[u'oschema'] = schmap[e[u'output_schema']]
-            if ((e[u'class_name'], method) in set([(u'Grid', u'train'), (u'ModelBuilders', u'train'), (u'ModelBuilders', u'validate_parameters')])):
+            if ((e[u'class_name'], method) in {(u'Grid', u'train'), (u'ModelBuilders', u'train'), (u'ModelBuilders', u'validate_parameters')}):
                 pieces = path.split(u'/')
                 assert (len(pieces) >= 4), (u'Expected to see algo name in the path: ' + path)
                 e[u'algo'] = pieces[3]

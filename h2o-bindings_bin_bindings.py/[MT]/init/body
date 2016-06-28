@@ -1,5 +1,7 @@
 def init(language, output_dir, clear_dir=True):
     u'\n    Entry point for the bindings module. It parses the command line arguments and verifies their\n    correctness.\n      :param language -- name of the target language (used to show the command-line description).\n      :param output_dir -- folder where the bindings files will be generated. If the folder does\n        not exist, it will be created. This folder is relative to ../src-gen/main/. The user may\n        specify a different output dir through the commandline argument.\n      :param clear_dir -- if True (default), the target folder will be cleared before any new\n        files created in it.\n    '
+    if config[u'start_time']:
+        done()
     config[u'start_time'] = time.time()
     print((u'Generating %s bindings... ' % language), end=u'')
     sys.stdout.flush()
@@ -28,6 +30,7 @@ def init(language, output_dir, clear_dir=True):
             print((u'Error %d: %s' % (e.errno, e.strerror)))
             sys.exit(6)
     if clear_dir:
+        filepath = u'?'
         try:
             vprint(u'Deleting contents of the output directory...')
             for filename in os.listdir(config[u'destdir']):
