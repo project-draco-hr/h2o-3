@@ -1,6 +1,6 @@
 {
   Route route=null;
-  if (null != docs.path && null != docs.http_method) {
+  if (docs.path != null && docs.http_method != null) {
     try {
       route=RequestServer.lookupRoute(new RequestUri(docs.http_method,docs.path));
     }
@@ -9,12 +9,13 @@
     }
   }
  else {
-    int i=0;
-    for (    Route r : RequestServer.routes())     if (i++ == docs.num) {
-      route=r;
-      break;
+    if (docs.path != null)     try {
+      docs.num=Integer.parseInt(docs.path);
     }
-    docs.routes=new RouteBase[]{(RouteBase)Schema.schema(version,Route.class).fillFromImpl(route)};
+ catch (    NumberFormatException e) {
+    }
+    if (docs.num >= 0 && docs.num < RequestServer.numRoutes())     route=RequestServer.routes().get(docs.num);
+    docs.routes=new RouteV3[]{new RouteV3(route)};
   }
   if (route == null)   return null;
   Schema sinput, soutput;

@@ -1,0 +1,14 @@
+{
+  super.fillFromImpl(modelMetrics);
+  logloss=modelMetrics._logloss;
+  r2=modelMetrics.r2();
+  if (modelMetrics._hit_ratios != null) {
+    TwoDimTable table=getHitRatioTable(modelMetrics._hit_ratios);
+    hit_ratio_table=(TwoDimTableV3)SchemaServer.schema(this.getSchemaVersion(),table).fillFromImpl(table);
+  }
+  if (null != modelMetrics._cm) {
+    modelMetrics._cm.table();
+    cm=(ConfusionMatrixV3)SchemaServer.schema(this.getSchemaVersion(),modelMetrics._cm).fillFromImpl(modelMetrics._cm);
+  }
+  return (S)this;
+}

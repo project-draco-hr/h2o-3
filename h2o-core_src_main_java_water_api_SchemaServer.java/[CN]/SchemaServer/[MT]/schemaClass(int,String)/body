@@ -1,0 +1,8 @@
+{
+  if (version < 1)   return null;
+  Class<? extends Schema> clz=iced_to_schema.get(new Pair<>(type,version));
+  if (clz != null)   return clz;
+  clz=schemaClass(version == EXPERIMENTAL_VERSION ? HIGHEST_SUPPORTED_VERSION : version - 1,type);
+  if (clz != null)   iced_to_schema.put(new Pair<>(type,version),clz);
+  return clz;
+}

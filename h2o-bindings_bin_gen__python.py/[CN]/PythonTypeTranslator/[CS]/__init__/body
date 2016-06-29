@@ -1,0 +1,15 @@
+def __init__(self):
+    bi.TypeTranslator.__init__(self)
+    self.types[u'byte'] = u'int'
+    self.types[u'short'] = u'int'
+    self.types[u'long'] = u'int'
+    self.types[u'double'] = u'float'
+    self.types[u'string'] = u'str'
+    self.types[u'boolean'] = u'bool'
+    self.types[u'Polymorphic'] = u'object'
+    self.types[u'Object'] = u'object'
+    self.make_array = (lambda vtype: (u'list(%s)' % vtype))
+    self.make_array2 = (lambda vtype: (u'list(list(%s))' % vtype))
+    self.make_map = (lambda ktype, vtype: (u'Dictionary<%s,%s>' % (ktype, vtype)))
+    self.make_key = (lambda itype, schema: u'str')
+    self.make_enum = (lambda schema, values: (u' | '.join((stringify(v) for v in values)) if values else schema))

@@ -1,0 +1,39 @@
+{
+  if (rapids == null)   return null;
+  if (!StringUtils.isNullOrEmpty(rapids.id))   throw new H2OIllegalArgumentException("Field RapidsSchemaV3.id is deprecated and should not be set " + rapids.id);
+  if (StringUtils.isNullOrEmpty(rapids.ast))   return rapids;
+  if (StringUtils.isNullOrEmpty(rapids.session_id))   rapids.session_id="_specialSess";
+  Session ses=InitIDHandler.SESSIONS.get(rapids.session_id);
+  if (ses == null) {
+    ses=new Session();
+    InitIDHandler.SESSIONS.put(rapids.session_id,ses);
+  }
+  Val val;
+  try {
+    val=Rapids.exec(rapids.ast,ses);
+  }
+ catch (  IllegalArgumentException e) {
+    throw e;
+  }
+catch (  Throwable e) {
+    Log.err(e);
+    e.printStackTrace();
+    throw e;
+  }
+switch (val.type()) {
+case Val.NUM:
+    return new RapidsNumberV3(val.getNum());
+case Val.NUMS:
+  return new RapidsNumbersV3(val.getNums());
+case Val.STR:
+return new RapidsStringV3(val.getStr());
+case Val.STRS:
+return new RapidsStringsV3(val.getStrs());
+case Val.FRM:
+return new RapidsFrameV3(val.getFrame());
+case Val.FUN:
+return new RapidsFunctionV3(val.getFun().toString());
+default :
+throw H2O.fail();
+}
+}

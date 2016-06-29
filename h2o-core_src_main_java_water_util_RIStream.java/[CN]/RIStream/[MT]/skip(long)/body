@@ -1,0 +1,16 @@
+{
+  int attempts=0;
+  while (true) {
+    try {
+      long res=_is.skip(n);
+      if (res > 0) {
+        updateOffset((int)res);
+        if (_pmon != null)         _pmon.update(res);
+      }
+      return res;
+    }
+ catch (    IOException e) {
+      try2Recover(attempts++,e);
+    }
+  }
+}

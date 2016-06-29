@@ -1,0 +1,7 @@
+{
+  hash=hash & 0x7fffffff;
+  int port=(hash % (highIp - lowIp + 1)) + lowIp;
+  byte[] ip=new byte[4];
+  for (int i=0; i < 4; i++)   ip[i]=(byte)(port >>> ((3 - i) << 3));
+  return InetAddress.getByAddress(ip);
+}

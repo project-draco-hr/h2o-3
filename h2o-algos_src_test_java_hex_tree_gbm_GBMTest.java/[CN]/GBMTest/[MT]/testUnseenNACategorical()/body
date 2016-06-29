@@ -1,0 +1,37 @@
+{
+  String xy="B,-5\nA,0\nB,0\nA,0\nD,0\nA,3";
+  Key tr=Key.make("train");
+  Frame df=ParseDataset.parse(tr,makeByteVec(Key.make("xy"),xy));
+  String test=",5\n,0\nB,0\n,0\nE,0\n,3";
+  Key te=Key.make("test");
+  Frame df2=ParseDataset.parse(te,makeByteVec(Key.make("te"),test));
+  GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
+  parms._train=tr;
+  parms._response_column="C2";
+  parms._min_rows=1;
+  parms._learn_rate=1;
+  parms._ntrees=1;
+  GBM job=new GBM(parms);
+  GBMModel gbm=job.trainModel().get();
+  Scope.enter();
+  Frame preds=gbm.score(df);
+  Frame preds2=gbm.score(df2);
+  Log.info(df);
+  Log.info(preds);
+  Log.info(df2);
+  Log.info(preds2);
+  Assert.assertTrue(gbm.testJavaScoring(df,preds,1e-15));
+  Assert.assertTrue(gbm.testJavaScoring(df2,preds2,1e-15));
+  Assert.assertTrue(Math.abs(preds.vec(0).at(0) - -2.5) < 1e-6);
+  Assert.assertTrue(Math.abs(preds.vec(0).at(1) - 1) < 1e-6);
+  Assert.assertTrue(Math.abs(preds.vec(0).at(2) - -2.5) < 1e-6);
+  Assert.assertTrue(Math.abs(preds.vec(0).at(3) - 1) < 1e-6);
+  Assert.assertTrue(Math.abs(preds.vec(0).at(4) - 0) < 1e-6);
+  Assert.assertTrue(Math.abs(preds.vec(0).at(5) - 1) < 1e-6);
+  preds.remove();
+  preds2.remove();
+  gbm.remove();
+  df.remove();
+  df2.remove();
+  Scope.exit();
+}

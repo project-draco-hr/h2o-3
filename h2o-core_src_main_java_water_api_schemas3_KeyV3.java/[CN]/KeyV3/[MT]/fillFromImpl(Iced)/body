@@ -1,0 +1,20 @@
+{
+  if (!(i instanceof Key))   throw new H2OIllegalArgumentException("fillFromImpl","key",i);
+  Key key=(Key)i;
+  if (null == key)   return (S)this;
+  this.name=key.toString();
+  this.type="Key<" + this.getKeyedClassType() + ">";
+  if ("Keyed".equals(this.type)) {
+    String vc=key.valueClassSimple();
+    if (null != vc) {
+      this.type="Key<" + vc + ">";
+    }
+  }
+  Class<? extends Keyed> keyed_class=this.getKeyedClass();
+  if (Job.class.isAssignableFrom(keyed_class))   this.URL="/3/Jobs/" + key.toString();
+ else   if (Frame.class.isAssignableFrom(keyed_class))   this.URL="/3/Frames/" + key.toString();
+ else   if (Model.class.isAssignableFrom(keyed_class))   this.URL="/3/Models/" + key.toString();
+ else   if (Vec.class.isAssignableFrom(keyed_class))   this.URL=null;
+ else   this.URL=null;
+  return (S)this;
+}

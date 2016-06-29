@@ -1,11 +1,11 @@
 def endpoints(raw=False):
     u'\n    Return the list of REST API endpoints. The data is enriched with the following fields:\n      class_name: which back-end class handles this endpoint (the class is derived from the URL);\n      ischema: input schema object (input_schema is the schema\'s name)\n      oschema: output schema object (output_schema is the schema\'s name)\n      algo: for special-cased calls (ModelBuilders/train and Grid/train) -- name of the ML algo requested\n      input_params: list of all input parameters (first path parameters, then all the others). The parameters are\n            given as objects, not just names. There is a flag "is_path_param" on each field.\n    Additionally certain buggy/deprecated endpoints are removed.\n    For Grid/train and ModelBuilders/train endpoints we fix the method name and parameters info (there is some mangling\n    of those on the server side).\n\n      :param raw: if True, then the complete untouched response to .../endpoints is returned (including the metadata)\n    '
-    json = _request_or_exit(u'/LATEST/Metadata/endpoints')
+    json = _request_or_exit(u'/3/Metadata/endpoints')
     if raw:
         return json
     schmap = schemas_map()
     apinames = {}
-    assert (u'routes' in json), u'Unexpected result from /LATEST/Metadata/endpoints call'
+    assert (u'routes' in json), u'Unexpected result from /3/Metadata/endpoints call'
     re_api_name = re.compile(u'^\\w+$')
 
     def gen_rich_route():
@@ -37,7 +37,7 @@ def endpoints(raw=False):
             assert (e[u'output_schema'] in schmap), (u'Encountered unknown schema %s in %s' % (e[u'output_schema'], path))
             e[u'ischema'] = schmap[e[u'input_schema']]
             e[u'oschema'] = schmap[e[u'output_schema']]
-            if ((e[u'class_name'], method) in set([(u'Grid', u'train'), (u'ModelBuilders', u'train'), (u'ModelBuilders', u'validate_parameters')])):
+            if ((e[u'class_name'], method) in {(u'Grid', u'train'), (u'ModelBuilders', u'train'), (u'ModelBuilders', u'validate_parameters')}):
                 pieces = path.split(u'/')
                 assert (len(pieces) >= 4), (u'Expected to see algo name in the path: ' + path)
                 e[u'algo'] = pieces[3]

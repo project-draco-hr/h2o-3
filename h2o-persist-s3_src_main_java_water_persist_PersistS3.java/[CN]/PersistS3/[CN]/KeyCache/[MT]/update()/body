@@ -1,0 +1,12 @@
+{
+  AmazonS3 s3=getClient();
+  ObjectListing currentList=s3.listObjects(_bucket,"");
+  ArrayList<String> res=new ArrayList<>();
+  processListing(currentList,res,null,false);
+  while (currentList.isTruncated()) {
+    currentList=s3.listNextBatchOfObjects(currentList);
+    processListing(currentList,res,null,false);
+  }
+  Collections.sort(res);
+  return _cache=res.toArray(new String[res.size()]);
+}

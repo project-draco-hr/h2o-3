@@ -1,0 +1,8 @@
+{
+  byte[] address=toByte(toOctects(ari(0x2001,0xdb8,0x1234,0x0001,0x9988,0x7766,0xdead,0xbabe)));
+  long high=ArrayUtils.encodeAsLong(address,8,8);
+  long low=ArrayUtils.encodeAsLong(address,0,8);
+  AutoBuffer ab=new AutoBuffer();
+  byte[] returnedAddress=ab.put8(low).put8(high).flipForReading().getA1(16);
+  Assert.assertArrayEquals(address,returnedAddress);
+}

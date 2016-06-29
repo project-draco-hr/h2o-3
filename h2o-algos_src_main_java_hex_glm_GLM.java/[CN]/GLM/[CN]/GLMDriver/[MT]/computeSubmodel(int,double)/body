@@ -1,0 +1,31 @@
+{
+  Submodel sm;
+  if (lambda >= _lmax)   _model.addSubmodel(sm=new Submodel(lambda,getNullBeta(),_state._iter,_nullDevTrain,_nullDevTest));
+ else {
+    _model.addSubmodel(sm=new Submodel(lambda,_state.beta(),_state._iter,-1,-1));
+    _state.setLambda(lambda);
+    checkMemoryFootPrint(_state.activeData());
+    do {
+      if (_parms._family == Family.multinomial)       for (int c=0; c < _nclass; ++c)       Log.info(LogMsg("Class " + c + " got "+ _state.activeDataMultinomial(c).fullN()+ " active columns out of "+ _state._dinfo.fullN()+ " total"));
+ else       Log.info(LogMsg("Got " + _state.activeData().fullN() + " active columns out of "+ _state._dinfo.fullN()+ " total"));
+      fitModel();
+    }
+ while (!_state.checkKKTs());
+    Log.info(LogMsg("solution has " + ArrayUtils.countNonzeros(_state.beta()) + " nonzeros"));
+    if (_parms._lambda_search) {
+      double trainDev=_state.deviance() / _nobs;
+      double testDev=Double.NaN;
+      if (_validDinfo != null) {
+        testDev=_parms._family == Family.multinomial ? new GLMResDevTaskMultinomial(_job._key,_validDinfo,_dinfo.denormalizeBeta(_state.beta()),_nclass).doAll(_validDinfo._adaptedFrame).avgDev() : new GLMResDevTask(_job._key,_validDinfo,_parms,_dinfo.denormalizeBeta(_state.beta())).doAll(_validDinfo._adaptedFrame).avgDev();
+      }
+      Log.info(LogMsg("train deviance = " + trainDev + ", test deviance = "+ testDev));
+      double xvalDev=_xval_test_deviances == null ? -1 : _xval_test_deviances[i];
+      double xvalDevSE=_xval_test_sd == null ? -1 : _xval_test_sd[i];
+      _lsc.addLambdaScore(_state._iter,ArrayUtils.countNonzeros(_state.beta()),_state.lambda(),trainDev,testDev,xvalDev,xvalDevSE);
+      _model.updateSubmodel(sm=new Submodel(_state.lambda(),_state.beta(),_state._iter,trainDev,testDev));
+    }
+ else     _model.updateSubmodel(sm=new Submodel(lambda,_state.beta(),_state._iter,-1,-1));
+  }
+  _model.update(_job);
+  return sm;
+}
