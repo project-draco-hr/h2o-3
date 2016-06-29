@@ -1,8 +1,11 @@
 {
+  Futures fs=new Futures();
+  Keyed.remove(_key,fs);
+  fs.blockForPending();
   if (chunkSize <= 0)   throw new IllegalArgumentException("Chunk sizes must be > 0.");
   if (chunkSize > (1 << 30))   throw new IllegalArgumentException("Chunk sizes must be < 1G.");
   _chunkSize=chunkSize;
-  Futures fs=new Futures();
+  fs=new Futures();
   DKV.put(_key,this,fs);
   if (fr != null) {
     fr.reloadVecs();

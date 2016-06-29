@@ -1,0 +1,17 @@
+{
+  int attempts=0;
+  while (true) {
+    try {
+      int res=_is.read(b,off,len);
+      if (res == -1)       checkEof();
+      if (res > 0) {
+        updateOffset(res);
+        if (_pmon != null)         _pmon.update(res);
+      }
+      return res;
+    }
+ catch (    IOException e) {
+      try2Recover(attempts++,e);
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  for (  S3ObjectSummary obj : listing.getObjectSummaries()) {
+    try {
+      if (doImport) {
+        Key k=loadKey(obj);
+        succ.add(k.toString());
+      }
+ else {
+        succ.add(obj.getKey());
+      }
+    }
+ catch (    IOException e) {
+      fail.add(obj.getKey());
+    }
+  }
+}

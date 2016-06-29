@@ -1,8 +1,11 @@
 {
-  if (null == key)   throw new H2OIllegalArgumentException(param_name,"Handler.getFromDKV()",key);
+  if (key == null)   throw new H2OIllegalArgumentException(param_name,"Handler.getFromDKV()","null");
   Value v=DKV.get(key);
-  if (null == v)   throw new H2OKeyNotFoundArgumentException(param_name,key.toString());
-  Iced ice=v.get();
-  if (!(klazz.isInstance(ice)))   throw new H2OKeyWrongTypeArgumentException(param_name,key.toString(),klazz,ice.getClass());
-  return (T)ice;
+  if (v == null)   throw new H2OKeyNotFoundArgumentException(param_name,key.toString());
+  try {
+    return klazz.cast(v.get());
+  }
+ catch (  ClassCastException e) {
+    throw new H2OKeyWrongTypeArgumentException(param_name,key.toString(),klazz,v.get().getClass());
+  }
 }
