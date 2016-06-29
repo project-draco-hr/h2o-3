@@ -1,0 +1,37 @@
+def _report_xunit_result(self, testsuite_name, testcase_name, testcase_runtime, skipped=False, failure_type=None, failure_message=None, failure_description=None):
+    global g_use_xml2
+    errors = 0
+    failures = (1 if failure_type else 0)
+    skip = (1 if skipped else 0)
+    failure = ('' if (not failure_type) else '"<failure type="{}" message="{}">{}</failure>'.format(failure_type, failure_message, failure_description))
+    if g_use_xml2:
+        if (failure_description is not None):
+            failure_file = failure_description.split()[1]
+            failure_message = open(failure_file, 'r').read()
+            java_errors = None
+            for each_cloud in self.clouds:
+                java_errors = grab_java_message(each_cloud.nodes, testcase_name)
+                if (len(java_errors) > 0):
+                    if g_use_client:
+                        failure_message += '\n##### Java message from server node #####\n'
+                    failure_message += java_errors
+                    break
+            if g_use_client:
+                for each_cloud in self.clouds:
+                    java_errors = grab_java_message(each_cloud.client_nodes, testcase_name)
+                    if (len(java_errors) > 0):
+                        failure_message += '\n\n##### Java message from client node #####\n'
+                        failure_message += java_errors
+                        break
+            if (not java_errors):
+                failure_message += '\n\n'
+                failure_message += (('#' * 83) + '\n')
+                failure_message += '########### Problems encountered extracting Java messages. Please alert the QA team.\n'
+                failure_message += (('#' * 83) + '\n\n')
+            if failure_message:
+                if failure_type:
+                    failure = '<failure type="{}" message="{}"><![CDATA[{}]]></failure>'.format(failure_type, failure_description, failure_message)
+                else:
+                    failure = ''
+    xml_report = '<?xml version="1.0" encoding="UTF-8"?>\n<testsuite name="{testsuiteName}" tests="1" errors="{errors}" failures="{failures}" skip="{skip}">\n  <testcase classname="{testcaseClassName}" name="{testcaseName}" time="{testcaseRuntime}">\n  {failure}\n  </testcase>\n</testsuite>\n'.format(testsuiteName=testsuite_name, testcaseClassName=testcase_name, testcaseName=testcase_name, testcaseRuntime=testcase_runtime, failure=failure, errors=errors, failures=failures, skip=skip)
+    self._save_xunit_report(testsuite_name, testcase_name, xml_report)

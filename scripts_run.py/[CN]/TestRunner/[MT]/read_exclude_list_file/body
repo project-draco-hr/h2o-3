@@ -1,0 +1,22 @@
+def read_exclude_list_file(self, exclude_list_file):
+    '\n        Read in a file of excluded tests line by line.  Each line in the file is a test\n        to NOT add to the test run.\n\n        :param exclude_list_file: Filesystem path to a file with a list of tests to NOT run.\n        :return none\n        '
+    try:
+        f = open(exclude_list_file, 'r')
+        s = f.readline()
+        while (len(s) != 0):
+            stripped = s.strip()
+            if (len(stripped) == 0):
+                s = f.readline()
+                continue
+            if stripped.startswith('#'):
+                s = f.readline()
+                continue
+            self.exclude_list.append(stripped)
+            s = f.readline()
+        f.close()
+    except IOError as e:
+        print ''
+        print ('ERROR: Failure reading exclude list: ' + exclude_list_file)
+        print '       (errno {0}): {1}'.format(e.errno, e.strerror)
+        print ''
+        sys.exit(1)

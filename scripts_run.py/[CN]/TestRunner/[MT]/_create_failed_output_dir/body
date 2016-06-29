@@ -1,0 +1,12 @@
+def _create_failed_output_dir(self):
+    try:
+        if (not os.path.exists(self.failed_output_dir)):
+            os.makedirs(self.failed_output_dir)
+    except OSError as e:
+        print ''
+        print 'mkdir failed (errno {0}): {1}'.format(e.errno, e.strerror)
+        print ('    ' + self.failed_output_dir)
+        print ''
+        print '(try adding --wipe)'
+        print ''
+        sys.exit(1)

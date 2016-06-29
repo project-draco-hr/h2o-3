@@ -1,0 +1,219 @@
+def parse_args(argv):
+    global g_base_port
+    global g_num_clouds
+    global g_nodes_per_cloud
+    global g_wipe_test_state
+    global g_wipe_output_dir
+    global g_test_to_run
+    global g_test_list_file
+    global g_exclude_list_file
+    global g_test_group
+    global g_run_small
+    global g_run_medium
+    global g_run_large
+    global g_run_xlarge
+    global g_use_cloud
+    global g_use_cloud2
+    global g_use_client
+    global g_config
+    global g_use_ip
+    global g_use_port
+    global g_no_run
+    global g_jvm_xmx
+    global g_jvm_cp
+    global g_nopass
+    global g_nointernal
+    global g_convenient
+    global g_path_to_h2o_jar
+    global g_path_to_tar
+    global g_path_to_whl
+    global g_jacoco_include
+    global g_jacoco_options
+    global g_produce_unit_reports
+    global g_phantomjs_to
+    global g_phantomjs_packs
+    global g_r_pkg_ver_chk
+    global g_on_hadoop
+    global g_hadoop_namenode
+    global g_r_test_setup
+    global g_py_test_setup
+    global g_perf
+    global g_git_hash
+    global g_git_branch
+    global g_machine_ip
+    global g_date
+    global g_build_id
+    global g_ncpu
+    global g_os
+    global g_job_name
+    global g_py3
+    global g_pycoverage
+    global g_use_xml2
+    i = 1
+    while (i < len(argv)):
+        s = argv[i]
+        if (s == '--baseport'):
+            i += 1
+            if (i >= len(argv)):
+                usage()
+            g_base_port = int(argv[i])
+        elif (s == '--py3'):
+            g_py3 = True
+        elif (s == '--coverage'):
+            g_pycoverage = True
+        elif (s == '--numclouds'):
+            i += 1
+            if (i >= len(argv)):
+                usage()
+            g_num_clouds = int(argv[i])
+        elif (s == '--numnodes'):
+            i += 1
+            if (i >= len(argv)):
+                usage()
+            g_nodes_per_cloud = int(argv[i])
+        elif (s == '--wipeall'):
+            g_wipe_test_state = True
+            g_wipe_output_dir = True
+        elif (s == '--wipe'):
+            g_wipe_output_dir = True
+        elif (s == '--test'):
+            i += 1
+            if (i >= len(argv)):
+                usage()
+            g_test_to_run = TestRunner.find_test(argv[i])
+        elif (s == '--testlist'):
+            i += 1
+            if (i >= len(argv)):
+                usage()
+            g_test_list_file = argv[i]
+        elif (s == '--excludelist'):
+            i += 1
+            if (i >= len(argv)):
+                usage()
+            g_exclude_list_file = argv[i]
+        elif (s == '--testgroup'):
+            i += 1
+            if (i >= len(argv)):
+                usage()
+            g_test_group = argv[i]
+        elif (s == '--testsize'):
+            i += 1
+            if (i >= len(argv)):
+                usage()
+            v = argv[i]
+            if re.match('(s)?(m)?(l)?', v):
+                if ('s' not in v):
+                    g_run_small = False
+                if ('m' not in v):
+                    g_run_medium = False
+                if ('l' not in v):
+                    g_run_large = False
+                if ('x' not in v):
+                    g_run_xlarge = False
+            else:
+                bad_arg(s)
+        elif (s == '--usecloud'):
+            i += 1
+            if (i >= len(argv)):
+                usage()
+            s = argv[i]
+            m = re.match('(\\S+):([1-9][0-9]*)', s)
+            if (m is None):
+                unknown_arg(s)
+            g_use_cloud = True
+            g_use_ip = m.group(1)
+            port_string = m.group(2)
+            g_use_port = int(port_string)
+        elif (s == '--usecloud2'):
+            i += 1
+            if (i >= len(argv)):
+                usage()
+            s = argv[i]
+            if (s is None):
+                unknown_arg(s)
+            g_use_cloud2 = True
+            g_config = s
+        elif (s == '--client'):
+            g_use_client = True
+        elif (s == '--nopass'):
+            g_nopass = True
+        elif (s == '--nointernal'):
+            g_nointernal = True
+        elif (s == '--c'):
+            g_convenient = True
+        elif (s == '--h2ojar'):
+            i += 1
+            g_path_to_h2o_jar = os.path.abspath(argv[i])
+        elif (s == '--pto'):
+            i += 1
+            g_phantomjs_to = int(argv[i])
+        elif (s == '--ptt'):
+            i += 1
+            g_phantomjs_packs = argv[i]
+        elif (s == '--tar'):
+            i += 1
+            g_path_to_tar = os.path.abspath(argv[i])
+        elif (s == '--whl'):
+            i += 1
+            g_path_to_whl = os.path.abspath(argv[i])
+        elif (s == '--jvm.xmx'):
+            i += 1
+            if (i >= len(argv)):
+                usage()
+            g_jvm_xmx = argv[i]
+        elif (s == '--jvm.cp'):
+            i += 1
+            if (i > len(argv)):
+                usage()
+            g_jvm_cp = argv[i]
+        elif (s == '--norun'):
+            g_no_run = True
+        elif (s == '--noxunit'):
+            g_produce_unit_reports = False
+        elif (s == '--jacoco'):
+            g_jacoco_include = True
+            if ((i + 1) < len(argv)):
+                s = argv[(i + 1)]
+                m = re.match('(?P<includes>([^:,]+(,[^:,]+)*)?):(?P<excludes>([^:,]+(,[^:,]+)*)?)$', s)
+                if (m is not None):
+                    g_jacoco_options[0] = m.group('includes')
+                    g_jacoco_options[1] = m.group('excludes')
+        elif ((s == '-h') or (s == '--h') or (s == '-help') or (s == '--help')):
+            usage()
+        elif (s == '--rPkgVerChk'):
+            g_r_pkg_ver_chk = True
+        elif (s == '--onHadoop'):
+            g_on_hadoop = True
+        elif (s == '--hadoopNamenode'):
+            i += 1
+            if (i >= len(argv)):
+                usage()
+            g_hadoop_namenode = argv[i]
+        elif (s == '--perf'):
+            g_perf = True
+            i += 1
+            if (i >= len(argv)):
+                usage()
+            g_git_hash = argv[i]
+            i += 1
+            if (i >= len(argv)):
+                usage()
+            g_git_branch = argv[i]
+            i += 1
+            if (i >= len(argv)):
+                usage()
+            g_build_id = argv[i]
+            i += 1
+            if (i >= len(argv)):
+                usage()
+            g_job_name = argv[i]
+        elif (s == '--geterrs'):
+            g_use_xml2 = True
+        else:
+            unknown_arg(s)
+        i += 1
+    if (((int(g_use_client) + int(g_use_cloud)) + int(g_use_cloud2)) > 1):
+        print ''
+        print 'ERROR: --client, --usecloud and --usecloud2 are mutually exclusive.'
+        print ''
+        sys.exit(1)

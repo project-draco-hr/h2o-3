@@ -1,0 +1,74 @@
+def build_test_list(self, test_group, run_small, run_medium, run_large, run_xlarge, nopass, nointernal):
+    '\n        Recursively find the list of tests to run and store them in the object.\n        Fills in self.tests and self.tests_not_started.\n\n        :param test_group: Name of the test group of tests to run.\n        :param run_small:\n        :param run_medium:\n        :param run_large:\n        :param run_xlarge:\n        :param nopass:\n        :param nointernal:\n        :return none\n        '
+    if self.terminated:
+        return
+    for (root, dirs, files) in os.walk(self.test_root_dir):
+        if root.endswith('Util'):
+            continue
+        dirs.sort()
+        for f in sorted(files):
+            is_test = False
+            if is_rdemo(f):
+                is_test = True
+            if is_runit(f):
+                is_test = True
+            if is_rbooklet(f):
+                is_test = True
+            if is_ipython_notebook(f):
+                is_test = True
+            if is_pydemo(f):
+                is_test = True
+            if is_pyunit(f):
+                is_test = True
+            if is_pybooklet(f):
+                is_test = True
+            if is_gradle_build_python_test(f):
+                is_test = True
+            if (not is_test):
+                continue
+            is_small = False
+            is_medium = False
+            is_large = False
+            is_xlarge = False
+            is_nopass = False
+            is_nofeature = False
+            is_h2o_internal = False
+            if ('xlarge' in f):
+                is_xlarge = True
+            elif ('medium' in f):
+                is_medium = True
+            elif ('large' in f):
+                is_large = True
+            else:
+                is_small = True
+            if ('NOPASS' in f):
+                is_nopass = True
+            if ('NOFEATURE' in f):
+                is_nofeature = True
+            if ('INTERNAL' in f):
+                is_h2o_internal = True
+            if (is_small and (not run_small)):
+                continue
+            if (is_medium and (not run_medium)):
+                continue
+            if (is_large and (not run_large)):
+                continue
+            if (is_xlarge and (not run_xlarge)):
+                continue
+            if (is_nopass and (not nopass)):
+                self.nopass_counter += 1
+                continue
+            if (is_nofeature and (not nopass)):
+                self.nofeature_counter += 1
+                continue
+            if (nopass and (not is_nopass) and (not is_nofeature)):
+                continue
+            if (test_group is not None):
+                test_short_dir = self._calc_test_short_dir(os.path.join(root, f))
+                if ((test_group.lower() not in test_short_dir) and (test_group.lower() not in f)):
+                    continue
+            if is_h2o_internal:
+                if nointernal:
+                    continue
+                self.h2o_internal_counter += 1
+            self.add_test(os.path.join(root, f))

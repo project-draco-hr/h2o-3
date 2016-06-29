@@ -1,0 +1,10 @@
+def _scrape_output_for_seed(self):
+    '\n        :return The seed scraped from the output file.\n        '
+    res = ''
+    with open(self.get_output_dir_file_name(), 'r') as f:
+        for line in f:
+            if ('SEED used' in line):
+                line = line.strip().split(' ')
+                res = line[(-1)]
+                break
+    return res

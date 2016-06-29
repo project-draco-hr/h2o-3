@@ -1,0 +1,29 @@
+def scrape_port_from_stdout(self):
+    '\n        Look at the stdout log and figure out which port the JVM chose.\n        Write this to self.port.\n        This call is blocking.\n        Exit if this fails.\n\n        :return none\n        '
+    retries = 30
+    while (retries > 0):
+        if self.terminated:
+            return
+        f = open(self.output_file_name, 'r')
+        s = f.readline()
+        while (len(s) > 0):
+            if self.terminated:
+                return
+            match_groups = re.search('Listening for HTTP and REST traffic on http.*://(\\S+):(\\d+)', s)
+            if (match_groups is not None):
+                port = match_groups.group(2)
+                if (port is not None):
+                    self.port = port
+                    f.close()
+                    print 'H2O Cloud {} Node {} started with output file {}'.format(self.cloud_num, self.node_num, self.output_file_name)
+                    return
+            s = f.readline()
+        f.close()
+        retries -= 1
+        if self.terminated:
+            return
+        time.sleep(1)
+    print ''
+    print 'ERROR: Too many retries starting cloud.'
+    print ''
+    sys.exit(1)

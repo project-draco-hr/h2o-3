@@ -1,0 +1,17 @@
+def _h2o_exists_and_healthy(self, ip, port):
+    '\n        check if connection to h2o exists, and that h2o is healthy.\n        '
+    global __H2O_REST_API_VERSION__
+    h2o_okay = False
+    try:
+        http = requests.get('http://{}:{}/{}/Cloud?skip_ticks=true'.format(ip, port, __H2O_REST_API_VERSION__))
+        json = http.json()
+        if ('cloud_healthy' in json):
+            h2o_okay = json['cloud_healthy']
+    except exceptions.ConnectionError:
+        pass
+    if (not h2o_okay):
+        if g_jacoco_include:
+            self._suspect_cloud(ip, port)
+        else:
+            self._remove_cloud(ip, port)
+    return h2o_okay

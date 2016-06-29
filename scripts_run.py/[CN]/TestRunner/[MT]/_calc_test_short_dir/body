@@ -1,0 +1,13 @@
+def _calc_test_short_dir(self, test_path):
+    '\n        Calculate directory of test relative to test_root_dir.\n\n        :param test_path: Path to test file.\n        :return test_short_dir, relative directory containing test (relative to test_root_dir).\n        '
+    abs_test_root_dir = os.path.abspath(self.test_root_dir)
+    abs_test_path = os.path.abspath(test_path)
+    abs_test_dir = os.path.dirname(abs_test_path)
+    test_short_dir = abs_test_dir
+    prefix = os.path.join(abs_test_root_dir, '')
+    if test_short_dir.startswith(prefix):
+        test_short_dir = test_short_dir.replace(prefix, '', 1)
+    prefix = abs_test_root_dir
+    if test_short_dir.startswith(prefix):
+        test_short_dir = test_short_dir.replace(prefix, '', 1)
+    return test_short_dir
