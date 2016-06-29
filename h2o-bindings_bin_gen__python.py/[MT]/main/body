@@ -1,5 +1,6 @@
 def main():
-    bi.init(u'Python', u'python')
+    bi.init(u'Python', u'../../../h2o-py/h2o/estimators', clear_dir=False)
+    modules = [(u'deeplearning', u'H2OAutoEncoderEstimator')]
     for (name, mb) in bi.model_builders().items():
         module = name
         if (name == u'drf'):
@@ -8,4 +9,6 @@ def main():
             module = u'naive_bayes'
         bi.vprint((u'Generating model: ' + name))
         bi.write_to_file((u'%s.py' % module), gen_module(mb, name))
+        modules.append((module, algo_to_classname(name)))
+    bi.write_to_file(u'__init__.py', gen_init(modules))
     type_adapter.vprint_translation_map()
