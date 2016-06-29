@@ -1,5 +1,7 @@
-def __init__(self, k=None, max_iterations=None, transform=None, seed=None, ignore_const_cols=None, loss=None, multi_loss=None, loss_by_col=None, loss_by_col_idx=None, regularization_x=None, regularization_y=None, gamma_x=None, gamma_y=None, init_step_size=None, min_step_size=None, init=None, svd_method=None, user_x=None, user_y=None, recover_svd=None):
+def __init__(self, **kwargs):
     super(H2OGeneralizedLowRankEstimator, self).__init__()
-    self._parms = locals()
-    self._parms = {k: v for (k, v) in self._parms.items() if (k != 'self')}
+    self._parms = {}
+    for name in ['model_id', 'training_frame', 'validation_frame', 'ignored_columns', 'ignore_const_cols', 'score_each_iteration', 'loading_name', 'transform', 'k', 'loss', 'loss_by_col', 'loss_by_col_idx', 'multi_loss', 'period', 'regularization_x', 'regularization_y', 'gamma_x', 'gamma_y', 'max_iterations', 'max_updates', 'init_step_size', 'min_step_size', 'seed', 'init', 'svd_method', 'user_y', 'user_x', 'expand_user_y', 'impute_original', 'recover_svd', 'max_runtime_secs']:
+        pname = (name[:(-1)] if (name[(-1)] == '_') else name)
+        self._parms[pname] = (kwargs[name] if (name in kwargs) else None)
     self._parms['_rest_version'] = 3
