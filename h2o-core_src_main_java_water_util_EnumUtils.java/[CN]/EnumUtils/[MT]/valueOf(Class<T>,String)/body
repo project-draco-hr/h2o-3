@@ -2,7 +2,6 @@
   HashMap<String,Enum> map=enumMappings.get(clz);
   if (map == null) {
     map=new HashMap<>();
-    enumMappings.put(clz,map);
     for (    Enum item : clz.getEnumConstants()) {
       String origName=item.name();
       String unifName=origName.toUpperCase().replaceAll("[^0-9A-Z]","");
@@ -11,9 +10,14 @@
       map.put(origName,item);
       map.put(unifName,item);
     }
+    enumMappings.put(clz,map);
   }
   Enum value=map.get(name);
-  if (value == null && name != null)   value=map.get(name.toUpperCase().replaceAll("[^0-9A-Z]",""));
+  if (value == null && name != null) {
+    String unifName=name.toUpperCase().replaceAll("[^0-9A-Z]","");
+    value=map.get(unifName);
+    map.put(name,value);
+  }
   if (value == null)   throw new IllegalArgumentException("No enum constant " + clz.getCanonicalName() + "."+ name);
   if (name == null)   throw new NullPointerException("Name is null");
   return (T)value;
