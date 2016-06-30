@@ -1,9 +1,12 @@
 {
-  final Chunk wrks=chks[_ncols + 2];
-  final Chunk nids=chks[_ncols + 3];
-  final Chunk weight=chks.length >= _ncols + 5 ? chks[_ncols + 4] : new C0DChunk(1,chks[0].len());
+  final Chunk wrks=chks[_workIdx];
+  final Chunk nids=chks[_nidIdx];
+  final Chunk weight=_weightIdx >= 0 ? chks[_weightIdx] : new C0DChunk(1,chks[0].len());
   int nnids[]=new int[nids._len];
   if (_leaf > 0)   score_decide(chks,nids,nnids);
- else   for (int row=0; row < nids._len; row++)   if (isDecidedRow((int)nids.atd(row)))   nnids[row]=-1;
+ else   for (int row=0; row < nids._len; row++) {
+    if (weight.atd(row) == 0)     continue;
+    if (isDecidedRow((int)nids.atd(row)))     nnids[row]=DECIDED_ROW;
+  }
   accum_all(chks,wrks,weight,nnids);
 }

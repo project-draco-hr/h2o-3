@@ -1,9 +1,7 @@
 {
-  if (o == null) {
-    cellValues[row][col]=null;
-    return;
-  }
-  if (colTypes[col].equals("double"))   cellValues[row][col]=new IcedWrapper(new Double(o.toString()));
+  if (o == null)   cellValues[row][col]=new IcedWrapper(null);
+ else   if (o instanceof Double && Double.isNaN((double)o))   cellValues[row][col]=new IcedWrapper(Double.NaN);
+ else   if (colTypes[col].equals("double"))   cellValues[row][col]=new IcedWrapper(new Double(o.toString()));
  else   if (colTypes[col].equals("float"))   cellValues[row][col]=new IcedWrapper(new Float(o.toString()));
  else   if (colTypes[col].equals("int"))   cellValues[row][col]=new IcedWrapper(new Integer(o.toString()));
  else   if (colTypes[col].equals("long"))   cellValues[row][col]=new IcedWrapper(new Long(o.toString()));

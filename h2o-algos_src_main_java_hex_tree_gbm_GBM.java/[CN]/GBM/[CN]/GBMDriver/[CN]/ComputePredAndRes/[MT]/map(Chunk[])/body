@@ -3,14 +3,16 @@
   Chunk offset=hasOffsetCol() ? chk_offset(chks) : new C0DChunk(0,chks[0]._len);
   Chunk preds=chk_tree(chks,0);
   Chunk wk=chk_work(chks,0);
+  Chunk weights=hasWeightCol() ? chk_weight(chks) : new C0DChunk(1,chks[0]._len);
   double fs[]=_nclass > 1 ? new double[_nclass + 1] : null;
   Distribution dist=new Distribution(_parms);
   for (int row=0; row < wk._len; row++) {
+    double weight=weights.atd(row);
+    if (weight == 0)     continue;
     if (ys.isNA(row))     continue;
     double f=preds.atd(row) + offset.atd(row);
     double y=ys.atd(row);
     if (_parms._distribution == Distribution.Family.multinomial) {
-      double weight=hasWeightCol() ? chk_weight(chks).atd(row) : 1;
       double sum=score1(chks,weight,0.0,fs,row);
       if (Double.isInfinite(sum)) {
         for (int k=0; k < _nclass; k++) {
