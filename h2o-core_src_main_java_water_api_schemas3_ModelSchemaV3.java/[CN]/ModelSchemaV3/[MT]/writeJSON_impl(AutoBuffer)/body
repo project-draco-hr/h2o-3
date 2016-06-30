@@ -1,0 +1,25 @@
+{
+  ab.putJSONStr("algo",algo);
+  ab.put1(',');
+  ab.putJSONStr("algo_full_name",algo_full_name);
+  ab.put1(',');
+  ab.putJSON("model_id",model_id);
+  ab.put1(',');
+  try {
+    PS defaults=createParametersSchema().fillFromImpl(parameters.getImplClass().newInstance());
+    ModelParametersSchemaV3.writeParametersJSON(ab,parameters,defaults);
+    ab.put1(',');
+  }
+ catch (  Exception e) {
+    String msg="Error creating an instance of ModelParameters for algo: " + algo;
+    String dev_msg="Error creating an instance of ModelParameters for algo: " + algo + ": "+ this.getImplClass();
+    throw new H2OIllegalArgumentException(msg,dev_msg);
+  }
+  if (null == output) {
+    output=createOutputSchema();
+  }
+  ab.putJSON("output",output);
+  ab.put1(',');
+  ab.putJSONAStr("compatible_frames",compatible_frames);
+  return ab;
+}

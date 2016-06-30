@@ -61,7 +61,9 @@
     if (!required && (s == null || s.length() == 0))     return null;
     return KeyV3.make(fclz,Key.make(s.startsWith("\"") ? s.substring(1,s.length() - 1) : s));
   }
-  if (Enum.class.isAssignableFrom(fclz))   return Enum.valueOf(fclz,s);
+  if (Enum.class.isAssignableFrom(fclz)) {
+    return EnumUtils.valueOf(fclz,s);
+  }
   if (FrameV3.class.isAssignableFrom(fclz)) {
     if ((s == null || s.length() == 0) && required)     throw new H2OKeyNotFoundArgumentException(field_name,s);
  else     if (!required && (s == null || s.length() == 0))     return null;
@@ -85,6 +87,6 @@
   if (FrameV3.ColSpecifierV3.class.isAssignableFrom(fclz)) {
     return new FrameV3.ColSpecifierV3(s);
   }
-  if (ModelSchema.class.isAssignableFrom(fclz))   throw H2O.fail("Can't yet take ModelSchema as input.");
+  if (ModelSchemaV3.class.isAssignableFrom(fclz))   throw H2O.fail("Can't yet take ModelSchemaV3 as input.");
   throw H2O.fail("Unimplemented schema fill from " + fclz.getSimpleName());
 }

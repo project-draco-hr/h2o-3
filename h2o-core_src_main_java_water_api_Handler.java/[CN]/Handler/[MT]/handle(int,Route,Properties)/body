@@ -7,8 +7,7 @@
     schema.fillFromImpl(defaults);
   }
   schema=schema.fillFromParms(parms);
-  if (null == schema)   throw H2O.fail("fillFromParms returned a null schema for version: " + version + " in: "+ this.getClass()+ " with params: "+ parms);
-  _t_start=System.currentTimeMillis();
+  if (schema == null)   throw H2O.fail("fillFromParms returned a null schema for version: " + version + " in: "+ this.getClass()+ " with params: "+ parms);
   Schema result=null;
   try {
     route._handler_method.setAccessible(true);
@@ -20,6 +19,5 @@
     if (t instanceof Error)     throw (Error)t;
     throw new RuntimeException(t);
   }
-  _t_stop=System.currentTimeMillis();
   return result;
 }

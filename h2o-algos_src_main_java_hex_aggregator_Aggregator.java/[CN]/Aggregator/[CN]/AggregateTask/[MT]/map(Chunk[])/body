@@ -1,7 +1,6 @@
 {
   _mapping=new GIDMapping();
-  List<Exemplar> exemplars=new ArrayList<>();
-  List<Long> counts=new ArrayList<>();
+  Exemplar[] es=new Exemplar[4];
   Chunk[] dataChks=Arrays.copyOf(chks,chks.length - 1);
   Chunk assignmentChk=chks[chks.length - 1];
   DataInfo di=((DataInfo)_dataInfoKey.get());
@@ -14,21 +13,19 @@
     double[] data=Arrays.copyOf(row.numVals,nCols);
     if (r == 0) {
       Exemplar ex=new Exemplar(data,rowIndex);
-      exemplars.add(ex);
-      counts.add(1L);
+      es=Exemplar.addExemplar(es,ex);
       assignmentChk.set(r,ex.gid);
     }
  else {
       double distanceToNearestExemplar=Double.MAX_VALUE;
-      Iterator<Exemplar> it=exemplars.iterator();
       int closestExemplarIndex=0;
       int index=0;
       long gid=-1;
-      while (it.hasNext()) {
-        Exemplar e=it.next();
-        double d=squaredEuclideanDistance(e.data,data,nCols,distanceToNearestExemplar);
-        if (d < distanceToNearestExemplar) {
-          distanceToNearestExemplar=d;
+      for (      Exemplar e : es) {
+        if (null == e)         break;
+        double distToExemplar=e.squaredEuclideanDistance(data,distanceToNearestExemplar);
+        if (distToExemplar < distanceToNearestExemplar) {
+          distanceToNearestExemplar=distToExemplar;
           closestExemplarIndex=index;
           gid=e.gid;
         }
@@ -36,28 +33,20 @@
         index++;
       }
       if (distanceToNearestExemplar < _delta) {
-        Long count=counts.get(closestExemplarIndex);
-        counts.set(closestExemplarIndex,count + 1);
+        es[closestExemplarIndex]._cnt++;
         assignmentChk.set(r,gid);
       }
  else {
         Exemplar ex=new Exemplar(data,rowIndex);
-        exemplars.add(ex);
-        counts.add(1L);
+        es=Exemplar.addExemplar(es,ex);
         assignmentChk.set(r,rowIndex);
       }
     }
   }
-  _exemplars=exemplars.toArray(new Exemplar[0]);
-  Object[] countsArray=counts.toArray();
-  _counts=new long[counts.size()];
-  for (int i=0; i < counts.size(); i++) {
-    _counts[i]=(Long)countsArray[i];
-  }
+  _exemplars=Exemplar.trim(es);
   assert(_exemplars.length <= chks[0].len());
-  assert(_counts.length == _exemplars.length);
   long sum=0;
-  for (  long c : _counts)   sum+=c;
+  for (  Exemplar e : _exemplars)   sum+=e._cnt;
   assert(sum <= chks[0].len());
   ((Job)_jobKey.get()).update(1,"Aggregating.");
 }

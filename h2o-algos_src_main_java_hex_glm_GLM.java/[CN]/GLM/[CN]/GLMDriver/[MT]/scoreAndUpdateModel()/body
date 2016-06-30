@@ -8,12 +8,10 @@
   long t2=System.currentTimeMillis();
   Log.info(LogMsg("Training metrics computed in " + (t2 - t1) + "ms"));
   Log.info(LogMsg(mtrain.toString()));
-  _keys2Keep.put("training_metrics",mtrain._key);
   if (_valid != null) {
     Frame valid=DKV.<Frame>getGet(_parms._valid);
     _model.score(valid).delete();
     _model._output._validation_metrics=ModelMetrics.getFromDKV(_model,valid);
-    _keys2Keep.put("validation_metrics",_model._output._validation_metrics._key);
   }
   _model._output._scoring_history=_parms._lambda_search ? _lsc.to2dTable() : _sc.to2dTable();
   _model.update(_job._key);

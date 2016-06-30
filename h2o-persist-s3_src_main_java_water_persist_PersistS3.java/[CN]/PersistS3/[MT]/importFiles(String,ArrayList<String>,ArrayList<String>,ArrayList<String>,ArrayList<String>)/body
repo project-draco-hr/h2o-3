@@ -1,0 +1,12 @@
+{
+  Log.info("ImportS3 processing (" + path + ")");
+  AmazonS3 s3=getClient();
+  String[] parts=decodePath(path);
+  ObjectListing currentList=s3.listObjects(parts[0],parts[1]);
+  processListing(currentList,files,fails,true);
+  while (currentList.isTruncated()) {
+    currentList=s3.listNextBatchOfObjects(currentList);
+    processListing(currentList,files,fails,true);
+  }
+  keys.addAll(files);
+}

@@ -23,6 +23,7 @@
       assertEquals(params._nlambdas,model._output._submodels.length);
       System.out.println(model._output._training_metrics);
     }
+    model.delete();
     params=new GLMParameters(Family.gaussian);
     params._lambda=null;
     params._response_column=fr._names[0];
@@ -32,11 +33,14 @@
     params._lambda_min_ratio=0.18;
     params._max_active_predictors=20;
     params._alpha=new double[]{1};
-    GLM glm=new GLM(params,modelKey);
+    GLM glm=new GLM(params);
     glm.trainModel().get();
-    model=DKV.get(modelKey).get();
+    model=DKV.get(glm.dest()).get();
+    testScoring(model,fr);
     assertTrue(model._output._submodels.length > 3);
     assertTrue(residualDeviance(model) <= 93);
+    model.delete();
+    model=null;
   }
   finally {
     fr.delete();

@@ -1,0 +1,8 @@
+{
+  GLMIterationTask t=new GLMTask.GLMIterationTask(_job._key,_state.activeData(),new GLMWeightsFun(_parms),null).doAll(_state.activeData()._adaptedFrame);
+  double[] beta=solveGram(s,t);
+  double[] x=t._gram.mul(beta);
+  for (int i=0; i < x.length; ++i)   x[i]=(x[i] - 2 * t._xy[i]);
+  double l=.5 * (ArrayUtils.innerProduct(x,beta) / _parms._obj_reg + t._yy);
+  _state.updateState(beta,l);
+}

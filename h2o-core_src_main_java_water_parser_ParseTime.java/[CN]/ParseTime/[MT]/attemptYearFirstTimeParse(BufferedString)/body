@@ -4,7 +4,7 @@
   final int end=i + str.length();
   while (i < end && buf[i] == ' ')   i++;
   if (i < end && buf[i] == '"')   i++;
-  if ((end - i) != 10 && (end - i) < 19)   return Long.MIN_VALUE;
+  if ((end - i) < 6)   return Long.MIN_VALUE;
   int yyyy=0, MM=0, dd=0;
   yyyy=digit(yyyy,buf[i++]);
   yyyy=digit(yyyy,buf[i++]);
@@ -12,13 +12,16 @@
   yyyy=digit(yyyy,buf[i++]);
   if (buf[i++] != '-')   return Long.MIN_VALUE;
   MM=digit(MM,buf[i++]);
-  MM=digit(MM,buf[i++]);
+  MM=i < end && buf[i] != '-' ? digit(MM,buf[i++]) : MM;
   if (MM < 1 || MM > 12)   return Long.MIN_VALUE;
-  if (buf[i++] != '-')   return Long.MIN_VALUE;
-  dd=digit(dd,buf[i++]);
-  dd=digit(dd,buf[i++]);
-  if (dd < 1 || dd > 31)   return Long.MIN_VALUE;
+  if ((end - i) >= 2) {
+    if (buf[i++] != '-')     return Long.MIN_VALUE;
+    dd=digit(dd,buf[i++]);
+    dd=i < end && buf[i] >= '0' && buf[i] <= '9' ? digit(dd,buf[i++]) : dd;
+    if (dd < 1 || dd > 31)     return Long.MIN_VALUE;
+  }
+ else   dd=1;
+  while (i < end && buf[i] == ' ')   i++;
   if (i == end)   return new DateTime(yyyy,MM,dd,0,0,0,getTimezone()).getMillis();
-  if (buf[i++] != ' ')   return Long.MIN_VALUE;
-  return parseTime(buf,i,end,yyyy,MM,dd);
+  return parseTime(buf,i,end,yyyy,MM,dd,false);
 }

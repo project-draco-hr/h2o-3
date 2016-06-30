@@ -3,8 +3,10 @@ def _h2o_exists_and_healthy(self, ip, port):
     global __H2O_REST_API_VERSION__
     h2o_okay = False
     try:
-        http = requests.get('http://{}:{}/{}/{}'.format(ip, port, __H2O_REST_API_VERSION__, 'Cloud?skip_ticks=true'))
-        h2o_okay = http.json()['cloud_healthy']
+        http = requests.get('http://{}:{}/{}/Cloud?skip_ticks=true'.format(ip, port, __H2O_REST_API_VERSION__))
+        json = http.json()
+        if ('cloud_healthy' in json):
+            h2o_okay = json['cloud_healthy']
     except exceptions.ConnectionError:
         pass
     if (not h2o_okay):

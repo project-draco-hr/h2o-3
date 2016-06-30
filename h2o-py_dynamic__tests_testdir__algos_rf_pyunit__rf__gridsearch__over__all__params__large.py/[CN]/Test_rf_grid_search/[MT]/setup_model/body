@@ -1,0 +1,24 @@
+def setup_model(self):
+    '\n        This function setup the gridsearch hyper-parameters that will be used later on:\n\n        1. It will first try to grab all the parameters that are griddable and parameters used by random forest.\n        2. It will find the intersection of parameters that are both griddable and used by random forest.\n        3. There are several extra parameters that are used by random forest that are denoted as griddable but actually\n        are not.  These parameters have to be discovered manually and they are captured in\n        self.exclude_parameter_lists.\n        4. We generate the gridsearch hyper-parameter.  For numerical parameters, we will generate those randomly.\n        For enums, we will include all of them.\n\n        :return: None\n        '
+    model = H2ORandomForestEstimator(ntrees=self.max_int_val, nfolds=self.nfolds, score_tree_interval=0)
+    model.train(x=self.x_indices, y=self.y_index, training_frame=self.training1_data)
+    self.model_run_time = pyunit_utils.find_grid_runtime([model])
+    print('Time taken to build a base barebone model is {0}'.format(self.model_run_time))
+    summary_list = model._model_json['output']['model_summary']
+    num_trees = summary_list.cell_values[0][summary_list.col_header.index('number_of_trees')]
+    if (num_trees == 0):
+        self.min_runtime_per_tree = self.model_run_time
+    else:
+        self.min_runtime_per_tree = (self.model_run_time / num_trees)
+    (self.gridable_parameters, self.gridable_types, self.gridable_defaults) = pyunit_utils.get_gridables(model._model_json['parameters'])
+    (self.hyper_params, self.gridable_parameters, self.gridable_types, self.gridable_defaults) = pyunit_utils.gen_grid_search(model.full_parameters.keys(), self.hyper_params, self.exclude_parameter_lists, self.gridable_parameters, self.gridable_types, self.gridable_defaults, random.randint(1, self.max_int_number), self.max_int_val, self.min_int_val, random.randint(1, self.max_real_number), self.max_real_val, self.min_real_val)
+    time_scale = (self.time_scale * self.model_run_time)
+    if ('max_runtime_secs' in list(self.hyper_params)):
+        self.hyper_params['max_runtime_secs'] = [(time_scale * x) for x in self.hyper_params['max_runtime_secs']]
+    [self.possible_number_models, self.final_hyper_params] = pyunit_utils.check_and_count_models(self.hyper_params, self.params_zero_one, self.params_more_than_zero, self.params_more_than_one, self.params_zero_positive, self.max_grid_model)
+    if (('max_runtime_secs' not in list(self.final_hyper_params)) and ('max_runtime_secs' in list(self.hyper_params))):
+        self.final_hyper_params['max_runtime_secs'] = self.hyper_params['max_runtime_secs']
+        len_good_time = len([x for x in self.hyper_params['max_runtime_secs'] if (x >= 0)])
+        self.possible_number_models = (self.possible_number_models * len_good_time)
+    self.final_hyper_params['seed'] = [self.seed]
+    pyunit_utils.write_hyper_parameters_json(self.current_dir, self.sandbox_dir, self.json_filename, self.final_hyper_params)

@@ -1,25 +1,37 @@
 {
   Route route=null;
-  if (null != docs.path && null != docs.http_method) {
-    route=RequestServer.lookup(docs.http_method,docs.path);
+  if (docs.path != null && docs.http_method != null) {
+    try {
+      route=RequestServer.lookupRoute(new RequestUri(docs.http_method,docs.path));
+    }
+ catch (    MalformedURLException e) {
+      route=null;
+    }
   }
  else {
-    int i=0;
-    for (    Route r : RequestServer.routes())     if (i++ == docs.num) {
-      route=r;
-      break;
+    if (docs.path != null)     try {
+      docs.num=Integer.parseInt(docs.path);
     }
-    docs.routes=new RouteBase[]{(RouteBase)Schema.schema(version,Route.class).fillFromImpl(route)};
+ catch (    NumberFormatException e) {
+    }
+    if (docs.num >= 0 && docs.num < RequestServer.numRoutes())     route=RequestServer.routes().get(docs.num);
+    docs.routes=new RouteV3[]{new RouteV3(route)};
   }
+  if (route == null)   return null;
   Schema sinput, soutput;
-  if (route._handler_class.equals(water.api.ModelBuilderHandler.class)) {
-    String ss[]=route._url_pattern_raw.split("/");
+  if (route._handler_class.equals(water.api.ModelBuilderHandler.class) || route._handler_class.equals(water.api.GridSearchHandler.class)) {
+    String ss[]=route._url.split("/");
     String algoURLName=ss[3];
-    int version2=Integer.valueOf(ss[1]);
     String algoName=ModelBuilder.algoName(algoURLName);
     String schemaDir=ModelBuilder.schemaDirectory(algoURLName);
-    String inputSchemaName=schemaDir + algoName + "V"+ version2;
-    sinput=(Schema)TypeMap.theFreezable(TypeMap.onIce(inputSchemaName));
+    int version2=Integer.valueOf(ss[1]);
+    try {
+      String inputSchemaName=schemaDir + algoName + "V"+ version2;
+      sinput=(Schema)TypeMap.getTheFreezableOrThrow(TypeMap.onIce(inputSchemaName));
+    }
+ catch (    java.lang.ClassNotFoundException e) {
+      sinput=(Schema)TypeMap.theFreezable(TypeMap.onIce(schemaDir + algoName + "V3"));
+    }
     sinput.init_meta();
     soutput=sinput;
   }

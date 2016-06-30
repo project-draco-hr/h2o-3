@@ -1,0 +1,17 @@
+{
+  boolean isIPV4=cidrBlock.contains(".");
+  Matcher m=isIPV4 ? NETWORK_IPV4_CIDR_PATTERN.matcher(cidrBlock) : NETWORK_IPV6_CIDR_PATTERN.matcher(cidrBlock);
+  boolean b=m.matches();
+  if (!b) {
+    return null;
+  }
+  assert(isIPV4 && m.groupCount() == 5 || m.groupCount() == 9);
+  int len=isIPV4 ? 4 : 8;
+  int[] ipBytes=new int[len];
+  for (int i=0; i < len; i++) {
+    ipBytes[i]=isIPV4 ? Integer.parseInt(m.group(i + 1)) : Integer.parseInt(m.group(i + 1),16);
+  }
+  int bits=Integer.parseInt(m.group(len + 1));
+  NetworkInit.CIDRBlock usn=isIPV4 ? NetworkInit.CIDRBlock.createIPv4(ipBytes,bits) : NetworkInit.CIDRBlock.createIPv6(ipBytes,bits);
+  return usn.valid() ? usn : null;
+}

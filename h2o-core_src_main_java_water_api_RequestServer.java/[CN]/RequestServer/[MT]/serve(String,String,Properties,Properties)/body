@@ -1,96 +1,85 @@
 {
-  Thread.currentThread().setPriority(Thread.MAX_PRIORITY - 1);
-  if (uri.startsWith("/LATEST")) {
-    if (-1 == Schema.getLatestVersion()) {
-      uri="/" + Schema.getHighestSupportedVersion() + uri.substring("/latest".length());
-    }
- else {
-      uri="/" + Schema.getLatestVersion() + uri.substring("/latest".length());
-    }
-  }
-  RequestType type=RequestType.requestType(uri);
-  if (uri.equals("/") && method.equals("HEAD")) {
-    Response r=new Response(HTTP_OK,MIME_PLAINTEXT,"");
-    return r;
-  }
-  String versioned_path=uri;
-  String path=uri;
-  int version=1;
-  Matcher m=getVersionPattern().matcher(uri);
-  if (m.matches()) {
-    if ("EXPERIMENTAL".equals(m.group(1))) {
-      version=99;
-    }
- else {
-      version=Integer.valueOf(m.group(1));
-    }
-    String uripath="/" + m.group(2);
-    path=type.requestName(uripath);
-    versioned_path="/" + version + path;
-  }
   try {
-    boolean logged;
-    if (method.equals("GET") && uri.equals("/")) {
-      logged=maybeLogRequest(method,uri,"",parms,header);
-      if (logged)       GAUtils.logRequest(uri,header);
-      return redirectToFlow();
-    }
-    if (method.equals("GET") && uri.endsWith("/Logs/download")) {
-      logged=maybeLogRequest(method,uri,"",parms,header);
-      if (logged)       GAUtils.logRequest(uri,header);
-      return downloadLogs();
-    }
-    if (method.equals("GET")) {
-      Pattern p2=Pattern.compile(".*/NodePersistentStorage.bin/([^/]+)/([^/]+)");
-      Matcher m2=p2.matcher(uri);
-      boolean b2=m2.matches();
-      if (b2) {
-        String categoryName=m2.group(1);
-        String keyName=m2.group(2);
-        return downloadNps(categoryName,keyName);
+    Thread.currentThread().setPriority(Thread.MAX_PRIORITY - 1);
+    RequestType type=RequestType.requestType(url);
+    RequestUri uri=new RequestUri(method,url);
+    maybeLogRequest(uri,header,parms);
+    NanoResponse special=maybeServeSpecial(uri);
+    if (special != null)     return special;
+    Route route=routesTree.lookup(uri,parms);
+    if (url.startsWith("/3/Frames/")) {
+      if ((url.toLowerCase().endsWith("/overwrite/true") || url.toLowerCase().endsWith("/overwrite/false")) && url.contains("/export/")) {
+        int i=url.indexOf("/export/");
+        boolean force=url.toLowerCase().endsWith("true");
+        parms.put("frame_id",url.substring(10,i));
+        parms.put("path",url.substring(i + 8,url.length() - 15 - (force ? 0 : 1)));
+        parms.put("force",force ? "true" : "false");
+        route=findRouteByApiName("exportFrame_deprecated");
+      }
+ else       if (url.endsWith("/export")) {
+        parms.put("frame_id",url.substring(10,url.length() - 7));
+        route=findRouteByApiName("exportFrame");
+      }
+ else       if (url.endsWith("/summary") && url.contains("/columns/")) {
+        int i=url.indexOf("/columns/");
+        parms.put("frame_id",url.substring(10,i));
+        parms.put("column",url.substring(i + 9,url.length() - 8));
+        route=findRouteByApiName("frameColumnSummary");
+      }
+ else       if (url.endsWith("/domain") && url.contains("/columns/")) {
+        int i=url.indexOf("/columns/");
+        parms.put("frame_id",url.substring(10,i));
+        parms.put("column",url.substring(i + 9,url.length() - 7));
+        route=findRouteByApiName("frameColumnDomain");
+      }
+ else       if (url.contains("/columns/")) {
+        int i=url.indexOf("/columns/");
+        parms.put("frame_id",url.substring(10,i));
+        parms.put("column",url.substring(i + 9));
+        route=findRouteByApiName("frameColumn");
+      }
+ else       if (url.endsWith("/summary")) {
+        parms.put("frame_id",url.substring(10,url.length() - 8));
+        route=findRouteByApiName("frameSummary");
+      }
+ else       if (url.endsWith("/columns")) {
+        parms.put("frame_id",url.substring(10,url.length() - 8));
+        route=findRouteByApiName("frameColumns");
+      }
+ else {
+        parms.put("frame_id",url.substring(10));
+        route=findRouteByApiName(method.equals("DELETE") ? "deleteFrame" : "frame");
       }
     }
-    Route route=lookup(method,versioned_path);
     if (route == null) {
-      if (method.equals("GET")) {
-        return getResource(type,uri);
-      }
- else {
-        return response404(method + " " + uri,type);
-      }
+      if (uri.isGetMethod())       return getResource(type,url);
+ else       return response404(method + " " + url,type);
     }
  else {
-      capturePathParms(parms,versioned_path,route);
-      logged=maybeLogRequest(method,uri,route._url_pattern.namedPattern(),parms,header);
-      if (logged)       GAUtils.logRequest(uri,header);
-      Schema s=handle(type,route,version,parms);
-      PojoUtils.filterFields(s,(String)parms.get("_include_fields"),(String)parms.get("_exclude_fields"));
-      Response r=wrap(s,type);
-      return r;
+      Schema response=route._handler.handle(uri.getVersion(),route,parms);
+      PojoUtils.filterFields(response,(String)parms.get("_include_fields"),(String)parms.get("_exclude_fields"));
+      return serveSchema(response,type);
     }
   }
  catch (  H2OFailException e) {
-    H2OError error=e.toH2OError(uri);
+    H2OError error=e.toH2OError(url);
     Log.fatal("Caught exception (fatal to the cluster): " + error.toString());
-    H2O.fail(wrap(new H2OErrorV3().fillFromImpl(error),type).toString());
-    return null;
+    throw H2O.fail(serveError(error).toString());
   }
 catch (  H2OModelBuilderIllegalArgumentException e) {
-    H2OModelBuilderError error=e.toH2OError(uri);
+    H2OModelBuilderError error=e.toH2OError(url);
     Log.warn("Caught exception: " + error.toString());
-    return wrap(new H2OModelBuilderErrorV3().fillFromImpl(error),type);
+    return serveSchema(new H2OModelBuilderErrorV3().fillFromImpl(error),RequestType.json);
   }
 catch (  H2OAbstractRuntimeException e) {
-    H2OError error=e.toH2OError(uri);
+    H2OError error=e.toH2OError(url);
     Log.warn("Caught exception: " + error.toString());
-    return wrap(new H2OErrorV3().fillFromImpl(error),type);
+    return serveError(error);
   }
 catch (  Exception e) {
-    H2OError error=new H2OError(e,uri);
-    if (e instanceof IllegalArgumentException)     error._http_status=HttpResponseStatus.BAD_REQUEST.getCode();
- else     if (e instanceof FileNotFoundException)     error._http_status=HttpResponseStatus.BAD_REQUEST.getCode();
- else     if (e instanceof MalformedURLException)     error._http_status=HttpResponseStatus.BAD_REQUEST.getCode();
+    H2OError error=new H2OError(e,url);
+    if (e instanceof IllegalArgumentException || e instanceof FileNotFoundException || e instanceof MalformedURLException)     error._http_status=HttpResponseStatus.BAD_REQUEST.getCode();
     Log.err("Caught exception: " + error.toString());
-    return wrap(new H2OErrorV3().fillFromImpl(error),type);
+    return serveError(error);
   }
 }

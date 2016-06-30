@@ -1,0 +1,12 @@
+{
+  int[] zeros=t._gram.findZeroCols();
+  if (zeros.length > 0) {
+    t._gram.dropCols(zeros);
+    t._xy=ArrayUtils.removeIds(t._xy,zeros);
+    if (t._beta != null)     t._beta=ArrayUtils.removeIds(t._beta,zeros);
+    _state.removeCols(zeros);
+  }
+  t._gram.mul(_parms._obj_reg);
+  ArrayUtils.mult(t._xy,_parms._obj_reg);
+  return (s == Solver.COORDINATE_DESCENT) ? COD_solve(t,_state._alpha,_state.lambda()) : ADMM_solve(t._gram,t._xy);
+}

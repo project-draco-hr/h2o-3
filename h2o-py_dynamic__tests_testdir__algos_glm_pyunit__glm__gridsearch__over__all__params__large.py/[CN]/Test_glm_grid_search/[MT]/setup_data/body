@@ -1,0 +1,21 @@
+def setup_data(self):
+    '\n        This function performs all initializations necessary:\n        1. Randomly choose which distribution family to use\n        2. load the correct data sets and set the training set indices and response column index\n        '
+    self.sandbox_dir = pyunit_utils.make_Rsandbox_dir(self.current_dir, self.test_name, True)
+    self.family = self.families[random.randint(0, (len(self.families) - 1))]
+    if ('binomial' in self.family):
+        self.training1_data = h2o.import_file(path=pyunit_utils.locate(self.training1_filename[1]))
+        self.training2_data = h2o.import_file(path=pyunit_utils.locate(self.training2_filename[1]))
+    elif ('multinomial' in self.family):
+        self.training1_data = h2o.import_file(path=pyunit_utils.locate(self.training1_filename[2]))
+        self.training2_data = h2o.import_file(path=pyunit_utils.locate(self.training2_filename[2]))
+    else:
+        self.training1_data = h2o.import_file(path=pyunit_utils.locate(self.training1_filename[0]))
+        self.training2_data = h2o.import_file(path=pyunit_utils.locate(self.training2_filename[0]))
+        self.scale_model = 0.75
+        self.hyper_params['fold_assignment'] = ['AUTO', 'Random', 'Modulo']
+    self.y_index = (self.training1_data.ncol - 1)
+    self.x_indices = list(range(self.y_index))
+    if (('binomial' in self.family) or ('multinomial' in self.family)):
+        self.training1_data[self.y_index] = self.training1_data[self.y_index].round().asfactor()
+        self.training2_data[self.y_index] = self.training2_data[self.y_index].round().asfactor()
+    pyunit_utils.remove_csv_files(self.current_dir, '.csv', action='copy', new_dir_path=self.sandbox_dir)

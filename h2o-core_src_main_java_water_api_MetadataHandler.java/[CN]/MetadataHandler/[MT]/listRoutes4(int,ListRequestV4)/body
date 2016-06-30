@@ -1,0 +1,11 @@
+{
+  EndpointsListV4 res=new EndpointsListV4();
+  res.endpoints=new EndpointV4[RequestServer.numRoutes(4)];
+  int i=0;
+  for (  Route route : RequestServer.routes()) {
+    if (route.getVersion() != version)     continue;
+    EndpointV4 routeSchema=Schema.newInstance(EndpointV4.class).fillFromImpl(route);
+    res.endpoints[i++]=routeSchema;
+  }
+  return res;
+}

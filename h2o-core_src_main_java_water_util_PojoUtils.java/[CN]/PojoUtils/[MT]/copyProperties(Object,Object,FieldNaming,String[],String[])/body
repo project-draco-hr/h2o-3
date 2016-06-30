@@ -53,7 +53,7 @@
  else {
                 Schema s=null;
                 try {
-                  s=Schema.schema(version,impl);
+                  s=SchemaServer.schema(version,impl);
                 }
  catch (                H2ONotFoundArgumentException e) {
                   s=((Schema)dest_field.getType().getComponentType().newInstance());
@@ -122,7 +122,7 @@
           dest_field.set(dest,(o == null ? null : o.toString()));
         }
  else         if (Schema.class.isAssignableFrom(dest_field.getType()) && Schema.getImplClass((Class<? extends Schema>)dest_field.getType()).isAssignableFrom(orig_field.getType())) {
-          dest_field.set(dest,Schema.schema(3,(Class<? extends Iced>)orig_field.get(origin).getClass()).fillFromImpl((Iced)orig_field.get(origin)));
+          dest_field.set(dest,SchemaServer.schema(3,(Class<? extends Iced>)orig_field.get(origin).getClass()).fillFromImpl((Iced)orig_field.get(origin)));
         }
  else         if (Schema.class.isAssignableFrom(orig_field.getType()) && Schema.getImplClass((Class<? extends Schema>)orig_field.getType()).isAssignableFrom(dest_field.getType())) {
           Schema s=((Schema)orig_field.get(origin));
@@ -137,7 +137,7 @@
  else {
             if (((Schema)dest_field.get(dest)).getImplClass().isAssignableFrom(v.get().getClass())) {
               Schema s=((Schema)dest_field.get(dest));
-              dest_field.set(dest,Schema.schema(s.getSchemaVersion(),s.getImplClass()).fillFromImpl(v.get()));
+              dest_field.set(dest,SchemaServer.schema(s.getSchemaVersion(),s.getImplClass()).fillFromImpl(v.get()));
             }
  else {
               Log.err("Can't fill Schema of type: " + dest_field.getType() + " with value of type: "+ v.getClass()+ " fetched from Key: "+ origin_key);

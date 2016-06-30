@@ -1,0 +1,32 @@
+{
+  f.setAccessible(true);
+  try {
+    this.name=f.getName();
+    API annotation=f.getAnnotation(API.class);
+    boolean is_array=f.getType().isArray();
+    Object o;
+    o=f.get(default_schema);
+    this.default_value=FieldMetadata.consValue(o);
+    o=f.get(schema);
+    this.actual_value=FieldMetadata.consValue(o);
+    boolean is_enum=Enum.class.isAssignableFrom(f.getType());
+    this.type=FieldMetadata.consType(schema,f.getType(),f.getName(),annotation);
+    if (null != annotation) {
+      String l=annotation.label();
+      this.label=this.name;
+      this.help=annotation.help();
+      this.required=annotation.required();
+      this.level=annotation.level().toString();
+      this.values=annotation.values();
+      if (is_enum && (null == this.values || 0 == this.values.length)) {
+        throw H2O.fail("Didn't find values annotation for enum field: " + this.name);
+      }
+      this.is_member_of_frames=annotation.is_member_of_frames();
+      this.is_mutually_exclusive_with=annotation.is_mutually_exclusive_with();
+      this.gridable=annotation.gridable();
+    }
+  }
+ catch (  Exception e) {
+    throw H2O.fail("Caught exception accessing field: " + f + " for schema object: "+ this+ ": "+ e.toString());
+  }
+}

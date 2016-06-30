@@ -1,0 +1,15 @@
+def translate_name(name):
+    u'\n    Converts names with underscores into camelcase. For example:\n        "num_rows" => "numRows"\n        "very_long_json_name" => "veryLongJsonName"\n        "build_GBM_model" => "buildGbmModel"\n        "KEY" => "key"\n        "middle___underscores" => "middleUnderscores"\n        "_exclude_fields" => "_excludeFields" (retain initial/trailing underscores)\n        "__http_status__" => "__httpStatus__"\n    :param name: name to be converted\n    '
+    parts = name.split(u'_')
+    i = 0
+    while (parts[i] == u''):
+        parts[i] = u'_'
+        i += 1
+    parts[i] = parts[i].lower()
+    for j in range((i + 1), len(parts)):
+        parts[j] = parts[j].capitalize()
+    i = (len(parts) - 1)
+    while (parts[i] == u''):
+        parts[i] = u'_'
+        i -= 1
+    return u''.join(parts)

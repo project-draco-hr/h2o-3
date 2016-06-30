@@ -1,0 +1,17 @@
+def setup_data(self):
+    '\n        This function performs all initializations necessary:\n        load the data sets and set the training set indices and response column index\n        '
+    self.sandbox_dir = pyunit_utils.make_Rsandbox_dir(self.current_dir, self.test_name, True)
+    self.family = self.families[random.randint(0, (len(self.families) - 1))]
+    if ('multinomial' in self.family):
+        self.training_metric = 'logloss'
+        self.training1_data = h2o.import_file(path=pyunit_utils.locate(self.training1_filenames[1]))
+        self.y_index = (self.training1_data.ncol - 1)
+        self.x_indices = list(range(self.y_index))
+        self.training1_data[self.y_index] = self.training1_data[self.y_index].round().asfactor()
+        self.scale_model = 1
+    else:
+        self.training1_data = h2o.import_file(path=pyunit_utils.locate(self.training1_filenames[0]))
+        self.y_index = (self.training1_data.ncol - 1)
+        self.x_indices = list(range(self.y_index))
+        self.scale_model = 0.75
+    pyunit_utils.remove_csv_files(self.current_dir, '.csv', action='copy', new_dir_path=self.sandbox_dir)

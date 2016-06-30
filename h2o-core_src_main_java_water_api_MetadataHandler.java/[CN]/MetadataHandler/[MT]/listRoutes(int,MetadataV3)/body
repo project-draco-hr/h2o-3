@@ -4,19 +4,20 @@
   builder.heading1("REST API Routes Table of Contents");
   builder.hline();
   builder.tableHeader("HTTP method","URI pattern","Input schema","Output schema","Summary");
-  docs.routes=new RouteBase[RequestServer.numRoutes()];
+  docs.routes=new RouteV3[RequestServer.numRoutes()];
   int i=0;
   for (  Route route : RequestServer.routes()) {
-    docs.routes[i]=(RouteBase)Schema.schema(version,Route.class).fillFromImpl(route);
+    RouteV3 schema=new RouteV3(route);
+    docs.routes[i]=schema;
     MetadataV3 look=new MetadataV3();
-    look.routes=new RouteBase[1];
-    look.routes[0]=docs.routes[i];
-    look.path=route._url_pattern.toString();
+    look.routes=new RouteV3[1];
+    look.routes[0]=schema;
+    look.path=route._url;
     look.http_method=route._http_method;
-    look=fetchRoute(version,look);
-    docs.routes[i].input_schema=look.routes[0].input_schema;
-    docs.routes[i].output_schema=look.routes[0].output_schema;
-    builder.tableRow(route._http_method,route._url_pattern.toString().replace("(?<","{").replace(">.*)","}"),Handler.getHandlerMethodInputSchema(route._handler_method).getSimpleName(),Handler.getHandlerMethodOutputSchema(route._handler_method).getSimpleName(),route._summary);
+    fetchRoute(version,look);
+    schema.input_schema=look.routes[0].input_schema;
+    schema.output_schema=look.routes[0].output_schema;
+    builder.tableRow(route._http_method,route._url,Handler.getHandlerMethodInputSchema(route._handler_method).getSimpleName(),Handler.getHandlerMethodOutputSchema(route._handler_method).getSimpleName(),route._summary);
     i++;
   }
   docs.markdown=builder.toString();

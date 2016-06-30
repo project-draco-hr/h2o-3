@@ -6,11 +6,15 @@
   parms._intercept=false;
   parms._standardize=false;
   GLMModel m=null;
-  try {
-    m=new GLM(parms).trainModel().get();
-    System.out.println(m.coefficients());
-  }
+  for (  Solver s : new Solver[]{Solver.IRLSM,Solver.COORDINATE_DESCENT}) {
+    parms._solver=s;
+    try {
+      m=new GLM(parms).trainModel().get();
+      GLMTest.testScoring(m,_abcd);
+      System.out.println(m.coefficients());
+    }
   finally {
-    if (m != null)     m.delete();
+      if (m != null)       m.delete();
+    }
   }
 }

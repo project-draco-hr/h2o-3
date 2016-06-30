@@ -1,0 +1,11 @@
+{
+  super.fillFromImpl(builder);
+  ModelBuilder.ValidationMessage[] vms=builder._messages;
+  this.messages=new ValidationMessageV3[vms.length];
+  for (int i=0; i < vms.length; i++)   this.messages[i]=new ValidationMessageV3().fillFromImpl(vms[i]);
+  ValidationMessageV3.mapValidationMessageFieldNames(this.messages,new String[]{"_train","_valid"},new String[]{"training_frame","validation_frame"});
+  this.error_count=builder.error_count();
+  ModelBuilderSchema s=(ModelBuilderSchema)SchemaServer.schema(this.getSchemaVersion(),builder).fillFromImpl(builder);
+  parameters=s.parameters;
+  return (S)this;
+}

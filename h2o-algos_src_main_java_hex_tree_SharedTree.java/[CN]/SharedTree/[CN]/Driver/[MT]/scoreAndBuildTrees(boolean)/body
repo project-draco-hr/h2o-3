@@ -1,26 +1,29 @@
 {
   for (int tid=0; tid < _ntrees; tid++) {
     if (tid != 0 || !_parms.hasCheckpoint()) {
-      double training_r2=doScoringAndSaveModel(false,oob,_parms._build_tree_one_node);
-      if (training_r2 >= _parms._r2_stopping) {
+      boolean scored=doScoringAndSaveModel(false,oob,_parms._build_tree_one_node);
+      if (((ModelMetricsSupervised)_model._output._training_metrics).r2() >= _parms._r2_stopping) {
         doScoringAndSaveModel(true,oob,_parms._build_tree_one_node);
         _job.update(_ntrees - _model._output._ntrees);
         return;
       }
-      if (!Double.isNaN(training_r2) && ScoreKeeper.stopEarly(_model._output.scoreKeepers(),_parms._stopping_rounds,_nclass > 1,_parms._stopping_metric,_parms._stopping_tolerance,"model's last",true)) {
+      if (scored && ScoreKeeper.stopEarly(_model._output.scoreKeepers(),_parms._stopping_rounds,_nclass > 1,_parms._stopping_metric,_parms._stopping_tolerance,"model's last",true)) {
         doScoringAndSaveModel(true,oob,_parms._build_tree_one_node);
         _job.update(_ntrees - _model._output._ntrees);
         return;
       }
     }
     Timer kb_timer=new Timer();
-    buildNextKTrees();
+    boolean converged=buildNextKTrees();
     Log.info((tid + 1) + ". tree was built in " + kb_timer.toString());
     _job.update(1);
     if (_model._output._treeStats._max_depth == 0) {
       Log.warn("Nothing to split on: Check that response and distribution are meaningful (e.g., you are not using laplace/quantile regression with a binary response).");
     }
-    if (timeout())     break;
+    if (converged || timeout()) {
+      _job.update(_parms._ntrees - tid - 1);
+      break;
+    }
     if (stop_requested())     throw new Job.JobCancelledException();
   }
   doScoringAndSaveModel(true,oob,_parms._build_tree_one_node);

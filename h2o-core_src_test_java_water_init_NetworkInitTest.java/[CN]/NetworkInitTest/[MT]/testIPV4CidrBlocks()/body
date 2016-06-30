@@ -1,0 +1,24 @@
+{
+  NetworkInit.CIDRBlock c1=NetworkInit.CIDRBlock.parse("128.0.0.1/32");
+  Assert.assertEquals(32,c1.bits);
+  Assert.assertArrayEquals(ari(128,0,0,1),c1.ip);
+  Assert.assertTrue(c1.isInetAddressOnNetwork(toByte(ari(128,0,0,1))));
+  Assert.assertFalse(c1.isInetAddressOnNetwork(toByte(ari(128,0,0,2))));
+  c1=NetworkInit.CIDRBlock.parse("128.0.0.1/0");
+  Assert.assertEquals(0,c1.bits);
+  Assert.assertArrayEquals(ari(128,0,0,1),c1.ip);
+  Assert.assertTrue(c1.isInetAddressOnNetwork(toByte(ari(128,0,0,1))));
+  Assert.assertTrue(c1.isInetAddressOnNetwork(toByte(ari(128,0,0,2))));
+  Assert.assertTrue(c1.isInetAddressOnNetwork(toByte(ari(255,255,255,255))));
+  c1=NetworkInit.CIDRBlock.parse("10.10.1.32/27");
+  Assert.assertEquals(27,c1.bits);
+  Assert.assertArrayEquals(ari(10,10,1,32),c1.ip);
+  Assert.assertTrue(c1.isInetAddressOnNetwork(toByte(ari(10,10,1,44))));
+  Assert.assertFalse(c1.isInetAddressOnNetwork(toByte(ari(10,10,1,90))));
+  c1=NetworkInit.CIDRBlock.parse("128.0.0.1/42");
+  Assert.assertNull(c1);
+  c1=NetworkInit.CIDRBlock.parse("128.1/21");
+  Assert.assertNull(c1);
+  c1=NetworkInit.CIDRBlock.parse("1.1.257.1/21");
+  Assert.assertNull(c1);
+}

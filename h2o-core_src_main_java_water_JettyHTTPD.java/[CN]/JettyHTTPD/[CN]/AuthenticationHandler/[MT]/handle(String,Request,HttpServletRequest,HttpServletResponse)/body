@@ -1,7 +1,5 @@
 {
-  if (!(H2O.ARGS.ldap_login || H2O.ARGS.kerberos_login)) {
-    return;
-  }
+  if (!H2O.ARGS.ldap_login && !H2O.ARGS.kerberos_login)   return;
   String loginName=request.getUserPrincipal().getName();
   if (!loginName.equals(H2O.ARGS.user_name)) {
     Log.warn("Login name (" + loginName + ") does not match cluster owner name ("+ H2O.ARGS.user_name+ ")");

@@ -1,0 +1,24 @@
+{
+  double d=chks[_split._col].atd(row);
+  int bin;
+  if (!Double.isNaN(d)) {
+    if (_split._nasplit == DHistogram.NASplitDir.NAvsREST)     bin=0;
+ else     if (_split._equal == 0)     bin=d >= _splat ? 1 : 0;
+ else     if (_split._equal == 1)     bin=d == _splat ? 1 : 0;
+ else     if (_split._equal == 2 || _split._equal == 3)     bin=_split._bs.contains((int)d) ? 1 : 0;
+ else     throw H2O.unimpl();
+  }
+ else {
+    if (_split._nasplit == DHistogram.NASplitDir.NALeft || _split._nasplit == DHistogram.NASplitDir.Left) {
+      bin=0;
+    }
+ else     if (_split._nasplit == DHistogram.NASplitDir.NARight || _split._nasplit == DHistogram.NASplitDir.Right || _split._nasplit == DHistogram.NASplitDir.NAvsREST) {
+      bin=1;
+    }
+ else     if (_split._nasplit == DHistogram.NASplitDir.None) {
+      bin=1;
+    }
+ else     throw H2O.unimpl();
+  }
+  return _nids[bin];
+}

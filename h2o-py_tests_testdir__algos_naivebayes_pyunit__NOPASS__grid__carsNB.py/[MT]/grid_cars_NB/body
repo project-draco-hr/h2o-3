@@ -2,15 +2,6 @@ def grid_cars_NB():
     cars = h2o.import_file(path=pyunit_utils.locate('smalldata/junit/cars_20mpg.csv'))
     r = cars[0].runif(seed=42)
     train = cars[(r > 0.2)]
-    validation_scheme = random.randint(1, 3)
-    print('Validation scheme: {0}'.format(validation_scheme))
-    if (validation_scheme == 2):
-        nfolds = 2
-        print('Nfolds: 2')
-    if (validation_scheme == 3):
-        valid = cars[(r <= 0.2)]
-    grid_space = pyunit_utils.make_random_grid_space(algo='naiveBayes')
-    print('Grid space: {0}'.format(grid_space))
     problem = random.sample(['binomial', 'multinomial'], 1)
     predictors = ['displacement', 'power', 'weight', 'acceleration', 'year']
     if (problem == 'binomial'):
@@ -21,15 +12,12 @@ def grid_cars_NB():
     print('Response: {0}'.format(response_col))
     print('Converting the response column to a factor...')
     train[response_col] = train[response_col].asfactor()
-    if (validation_scheme == 3):
-        valid[response_col] = valid[response_col].asfactor()
-    print('Grid space: {0}'.format(grid_space))
-    print('Constructing the grid of nb models...')
-    grid_space['compute_metrics'] = [False]
-    cars_nb_grid = H2OGridSearch(H2ONaiveBayesEstimator, hyper_params=grid_space)
-    if (validation_scheme == 1):
-        cars_nb_grid.train(x=predictors, y=response_col, training_frame=train)
-    elif (validation_scheme == 2):
-        cars_nb_grid.train(x=predictors, y=response_col, training_frame=train, nfolds=nfolds)
+    max_runtime_secs = 10
+    max_runtime_secs = 0.001
+    model_params = {'compute_metrics': True, 'fold_assignment': 'AUTO', 'laplace': 8.3532975, 'nfolds': 2, }
+    cars_nb = H2ONaiveBayesEstimator(**model_params)
+    cars_nb.train(x=predictors, y=response_col, training_frame=train, max_runtime_secs=max_runtime_secs)
+    if (len(cars_nb._model_json['output']['cross_validation_metrics_summary'].cell_values) > 0):
+        print('Pass test.  Complete metrics returned.')
     else:
-        cars_nb_grid.train(x=predictors, y=response_col, training_frame=train, validation_frame=valid)
+        print('Failed test.  Model metrics is missing.')

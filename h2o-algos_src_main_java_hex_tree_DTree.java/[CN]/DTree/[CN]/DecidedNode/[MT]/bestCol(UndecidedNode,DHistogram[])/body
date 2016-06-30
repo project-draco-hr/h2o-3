@@ -1,5 +1,5 @@
 {
-  DTree.Split best=new DTree.Split(-1,-1,null,(byte)0,Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE,0L,0L,0,0);
+  DTree.Split best=null;
   if (hs == null)   return best;
   final int maxCols=u._scoreCols == null ? hs.length : u._scoreCols.length;
   List<FindSplits> findSplits=new ArrayList<>();
@@ -21,7 +21,7 @@
   for (  FindSplits fs : findSplits) {
     DTree.Split s=fs._s;
     if (s == null)     continue;
-    if (s.se() < best.se())     best=s;
+    if (best == null || s.se() < best.se())     best=s;
   }
   return best;
 }

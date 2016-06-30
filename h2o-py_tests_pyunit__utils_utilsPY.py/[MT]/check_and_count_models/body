@@ -1,0 +1,26 @@
+def check_and_count_models(hyper_params, params_zero_one, params_more_than_zero, params_more_than_one, params_zero_positive, max_grid_model):
+    '\n    This function will look at the hyper-parameter space set in hyper_params, generate a new hyper_param space that\n    will contain a smaller number of grid_models.  It will determine how many models will be built from\n    this new hyper_param space.  In order to arrive at the correct answer, it must discount parameter settings that\n    are illegal.\n\n    :param hyper_params: dict containing model parameter names and list of values to set it to\n    :param params_zero_one: list containing model parameter names whose values must be between 0 and 1\n    :param params_more_than_zero: list containing model parameter names whose values must exceed zero\n    :param params_more_than_one: list containing model parameter names whose values must exceed one\n    :param params_zero_positive: list containing model parameter names whose values must equal to or exceed zero\n    :param max_grid_model: maximum number of grid_model that can be generated from the new hyper_params space\n\n    :return: total model: integer denoting number of grid models that can be built from all legal parameter settings\n                          in new hyper_parameter space\n             final_hyper_params: dict of new hyper parameter space derived from the original hyper_params\n    '
+    total_model = 1
+    param_len = 0
+    hyper_keys = list(hyper_params)
+    shuffle(hyper_keys)
+    final_hyper_params = dict()
+    for param in hyper_keys:
+        if (param == 'col_sample_rate_change_per_level'):
+            param_len = len([x for x in hyper_params['col_sample_rate_change_per_level'] if ((x >= 0) and (x <= 2))])
+        elif (param in params_zero_one):
+            param_len = len([x for x in hyper_params[param] if ((x >= 0) and (x <= 1))])
+        elif (param in params_more_than_zero):
+            param_len = len([x for x in hyper_params[param] if (x > 0)])
+        elif (param in params_more_than_one):
+            param_len = len([x for x in hyper_params[param] if (x > 1)])
+        elif (param in params_zero_positive):
+            param_len = len([x for x in hyper_params[param] if (x >= 0)])
+        else:
+            param_len = len(hyper_params[param])
+        if ((param_len >= 0) and ((total_model * param_len) <= max_grid_model)):
+            total_model *= param_len
+            final_hyper_params[param] = hyper_params[param]
+        elif ((total_model * param_len) > max_grid_model):
+            break
+    return (total_model, final_hyper_params)

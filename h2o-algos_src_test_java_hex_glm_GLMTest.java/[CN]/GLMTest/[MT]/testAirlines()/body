@@ -4,9 +4,14 @@
   Frame frG=parse_test_file(Key.make("gram"),"smalldata/airlines/gram_std.csv",true);
   Vec xy=frG.remove("xy");
   frMM.remove("C1").remove();
-  frMM.add("IsDepDelayed",frMM.remove("IsDepDelayed"));
+  Vec v;
+  frMM.add("IsDepDelayed",(v=frMM.remove("IsDepDelayed")).makeCopy(null));
+  v.remove();
   DKV.put(frMM._key,frMM);
   Frame fr=parse_test_file(Key.make("Airlines"),"smalldata/airlines/AirlinesTrain.csv.zip"), res=null;
+  fr.add("IsDepDelayed",(v=fr.remove("IsDepDelayed")).makeCopy(null));
+  v.remove();
+  DKV.put(fr._key,fr);
   String[] ignoredCols=new String[]{"fYear","fMonth","fDayofMonth","fDayOfWeek","DepTime","ArrTime","IsDepDelayed_REC"};
   try {
     Scope.enter();
@@ -18,7 +23,8 @@
     params._alpha=new double[]{0};
     params._standardize=false;
     params._use_all_factor_levels=false;
-    model1=new GLM(params,glmkey("airlines_cat_nostd")).trainModel().get();
+    model1=new GLM(params).trainModel().get();
+    testScoring(model1,fr);
     Frame score1=model1.score(fr);
     ModelMetricsRegressionGLM mm=(ModelMetricsRegressionGLM)ModelMetrics.getFromDKV(model1,fr);
     Assert.assertEquals(((ModelMetricsRegressionGLM)model1._output._training_metrics)._resDev,mm._resDev,1e-4);
@@ -26,11 +32,11 @@
     score1.delete();
     mm.remove();
     res=model1.score(fr);
-    Assert.assertTrue(model1.testJavaScoring(fr,res,1e-15));
     params._train=frMM._key;
     params._ignored_columns=new String[]{"X"};
-    model2=new GLM(params,glmkey("airlines_mm")).trainModel().get();
+    model2=new GLM(params).trainModel().get();
     HashMap<String,Double> coefs1=model1.coefficients();
+    testScoring(model2,frMM);
     HashMap<String,Double> coefs2=model2.coefficients();
     boolean failed=false;
     for (    String s : coefs2.keySet()) {
@@ -60,10 +66,12 @@
     params._standardize=false;
     params._family=Family.binomial;
     params._link=Link.logit;
-    model3=new GLM(params,glmkey("airlines_mm")).trainModel().get();
+    model3=new GLM(params).trainModel().get();
+    testScoring(model3,frMM);
     params._train=fr._key;
     params._ignored_columns=ignoredCols;
-    model4=new GLM(params,glmkey("airlines_mm")).trainModel().get();
+    model4=new GLM(params).trainModel().get();
+    testScoring(model4,fr);
     assertEquals(nullDeviance(model3),nullDeviance(model4),1e-4);
     assertEquals(residualDeviance(model4),residualDeviance(model3),nullDeviance(model3) * 1e-3);
     assertEquals(nullDeviance(model1),nullDeviance(model2),1e-4);
