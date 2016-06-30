@@ -1,0 +1,27 @@
+{
+  Frame fr=null;
+  try {
+    int OFFSET=5;
+    int firstVal=1;
+    String data="1\nNA\n";
+    Key k1=ParserTest.makeByteVec(data);
+    Key r1=Key.make();
+    fr=ParseDataset.parse(r1,k1);
+    assertTrue(fr.numRows() == 2);
+    assertTrue(fr.hasNAs());
+    System.out.println(fr);
+    TwoDimTable table=fr.toTwoDimTable(0,2);
+    assertTrue(table.getColTypes()[0] == "long");
+    assertTrue((long)table.get(0 + OFFSET,0) == firstVal);
+    try {
+      long invalid=(long)table.get(1 + OFFSET,0);
+      assertFalse(true);
+    }
+ catch (    ClassCastException ex) {
+    }
+    assertTrue(Double.isNaN((double)table.get(1 + OFFSET,0)));
+  }
+  finally {
+    if (fr != null)     fr.delete();
+  }
+}
