@@ -5,12 +5,9 @@
     Integer count=refcnts.get(vec);
     refcnts.put(vec,count == null ? 1 : count + 1);
   }
-  if (returning != null && returning.isFrame()) {
-    if (FRAMES.containsValue(returning.getFrame()))     throw new IllegalStateException("Unexpected: returning frame is not nameless after all... " + returning);
-    for (    Vec vec : returning.getFrame().vecs()) {
-      Integer count=refcnts.get(vec);
-      refcnts.put(vec,count == null ? 1 : count + 1);
-    }
+  if (returning != null && returning.isFrame())   for (  Vec vec : returning.getFrame().vecs()) {
+    Integer count=refcnts.get(vec);
+    refcnts.put(vec,count == null ? 1 : count + 1);
   }
   for (  Map.Entry<Vec,Integer> pair : refcnts.entrySet()) {
     Vec vec=pair.getKey();
