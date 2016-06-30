@@ -1,19 +1,25 @@
 {
-  NonBlockingHashMap<Vec,Integer> refcnts=new NonBlockingHashMap<>();
+  if ((sanityChecksCounter++) % 1000 >= sanityChecksFrequency)   return;
+  NonBlockingHashMap<Vec,Integer> refcnts=new NonBlockingHashMap<>(REFCNTS.size());
   for (  Frame fr : FRAMES.values())   for (  Vec vec : fr.vecs()) {
-    Integer I=refcnts.get(vec);
-    refcnts.put(vec,I == null ? 1 : I + 1);
+    Integer count=refcnts.get(vec);
+    refcnts.put(vec,count == null ? 1 : count + 1);
   }
-  if (returning != null && returning.isFrame())   for (  Vec vec : returning.getFrame().vecs()) {
-    Integer I=refcnts.get(vec);
-    refcnts.put(vec,I == null ? 1 : I + 1);
+  if (returning != null && returning.isFrame()) {
+    if (FRAMES.containsValue(returning.getFrame()))     throw new IllegalStateException("Unexpected: returning frame is not nameless after all... " + returning);
+    for (    Vec vec : returning.getFrame().vecs()) {
+      Integer count=refcnts.get(vec);
+      refcnts.put(vec,count == null ? 1 : count + 1);
+    }
   }
-  for (  Vec vec : refcnts.keySet()) {
-    Integer I=REFCNTS.get(vec);
-    if (I == null)     return "REFCNTS missing vec " + vec;
-    Integer II=refcnts.get(vec);
-    if ((int)II != (int)I)     return "Mismatch vec " + vec + ", computed refcnts: "+ II+ ", cached REFCNTS: "+ I;
+  for (  Map.Entry<Vec,Integer> pair : refcnts.entrySet()) {
+    Vec vec=pair.getKey();
+    Integer count=pair.getValue();
+    Integer savedCount=REFCNTS.get(vec);
+    if (savedCount == null)     throw new IllegalStateException("REFCNTS missing vec " + vec);
+    if (count.intValue() != savedCount.intValue())     throw new IllegalStateException("Ref-count mismatch for vec " + vec + ": REFCNT = "+ savedCount+ ", should be "+ count);
   }
-  if (refcnts.size() != REFCNTS.size())   return "Cached REFCNTS has " + REFCNTS.size() + " vecs, and computed refcnts has "+ refcnts.size()+ " vecs";
-  return null;
+  if (refcnts.size() != REFCNTS.size())   for (  Map.Entry<Vec,Integer> pair : REFCNTS.entrySet()) {
+    if (!refcnts.containsKey(pair.getKey()))     throw new IllegalStateException("REFCNTs contains an extra vec " + pair.getKey() + ", count = "+ pair.getValue());
+  }
 }

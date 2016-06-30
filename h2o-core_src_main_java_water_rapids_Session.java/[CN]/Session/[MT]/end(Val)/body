@@ -1,2 +1,22 @@
 {
+  sanity_check_refs(returning);
+  Futures fs=new Futures();
+  for (  Frame fr : FRAMES.values()) {
+    fs=downRefCnt(fr,fs);
+    DKV.remove(fr._key,fs);
+  }
+  fs.blockForPending();
+  FRAMES.clear();
+  if (returning != null && returning.isFrame()) {
+    Frame fr=returning.getFrame();
+    Vec[] vecs=fr.vecs();
+    for (int i=0; i < vecs.length; i++) {
+      _addRefCnt(vecs[i],-1);
+      if (GLOBALS.contains(vecs[i]))       fr.replace(i,vecs[i].makeCopy());
+    }
+  }
+  GLOBALS.clear();
+  sanity_check_refs(null);
+  REFCNTS.clear();
+  return returning;
 }
