@@ -76,6 +76,11 @@ catch (  H2OAbstractRuntimeException e) {
     Log.warn("Caught exception: " + error.toString());
     return serveError(error);
   }
+catch (  AssertionError e) {
+    H2OError error=new H2OError(System.currentTimeMillis(),url,e.toString(),e.toString(),HttpResponseStatus.INTERNAL_SERVER_ERROR.getCode(),new IcedHashMap.IcedHashMapStringObject(),e);
+    Log.err("Caught assertion error: " + error.toString());
+    return serveError(error);
+  }
 catch (  Exception e) {
     H2OError error=new H2OError(e,url);
     if (e instanceof IllegalArgumentException || e instanceof FileNotFoundException || e instanceof MalformedURLException)     error._http_status=HttpResponseStatus.BAD_REQUEST.getCode();
