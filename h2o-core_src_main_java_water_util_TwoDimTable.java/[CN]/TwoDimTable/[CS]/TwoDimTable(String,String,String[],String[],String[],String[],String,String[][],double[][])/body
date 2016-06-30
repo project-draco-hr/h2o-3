@@ -33,10 +33,16 @@ case "float":
       for (int r=0; r < rowDim; ++r)       set(r,c,dblCellValues[r][c]);
     break;
 case "int":
-  for (int r=0; r < rowDim; ++r)   set(r,c,(int)dblCellValues[r][c]);
+  for (int r=0; r < rowDim; ++r) {
+    if (isEmpty(dblCellValues[r][c]))     set(r,c,Double.NaN);
+ else     set(r,c,(int)dblCellValues[r][c]);
+  }
 break;
 case "long":
-for (int r=0; r < rowDim; ++r) set(r,c,(long)dblCellValues[r][c]);
+for (int r=0; r < rowDim; ++r) {
+if (isEmpty(dblCellValues[r][c])) set(r,c,Double.NaN);
+ else set(r,c,(long)dblCellValues[r][c]);
+}
 break;
 case "string":
 for (int r=0; r < rowDim; ++r) set(r,c,strCellValues[r][c]);
