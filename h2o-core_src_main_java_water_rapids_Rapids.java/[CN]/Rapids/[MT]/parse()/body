@@ -1,9 +1,9 @@
 {
 switch (skipWS()) {
 case '(':
-    return new ASTExec(this);
+    return new AstExec(this);
 case '{':
-  return new ASTFun(this);
+  return new AstFunction(this);
 case '#':
 _x++;
 case '0':
@@ -16,18 +16,18 @@ case '6':
 case '7':
 case '8':
 case '9':
-return new ASTNum(this);
+return new AstNum(this);
 case '\"':
-return new ASTStr(this,'\"');
+return new AstStr(this,'\"');
 case '\'':
-return new ASTStr(this,'\'');
+return new AstStr(this,'\'');
 case '[':
-return isQuote(xpeek('[').skipWS()) ? new ASTStrList(this) : new ASTNumList(this);
+return isQuote(xpeek('[').skipWS()) ? new AstStrList(this) : new AstNumList(this);
 case ' ':
 throw new IllegalASTException("Expected an expression but ran out of text");
 case '-':
-return (peek(1) >= '0' && peek(1) <= '9') ? new ASTNum(this) : new ASTId(this);
+return (peek(1) >= '0' && peek(1) <= '9') ? new AstNum(this) : new AstId(this);
 default :
-return new ASTId(this);
+return new AstId(this);
 }
 }

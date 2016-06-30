@@ -1,0 +1,40 @@
+{
+  Frame dst=stk.track(asts[1].exec(env)).getFrame();
+  Val vsrc=stk.track(asts[2].exec(env));
+  AstNumList cols_numlist=new AstNumList(asts[3].columns(dst.names()));
+  if (cols_numlist.isEmpty())   cols_numlist=new AstNumList(0,dst.numCols());
+  int[] cols=AstColSlice.col_select(dst.names(),cols_numlist);
+  dst=new Frame(dst._names,dst.vecs().clone());
+  if (asts[4] instanceof AstNum || asts[4] instanceof AstNumList) {
+    AstNumList rows=(asts[4] instanceof AstNum) ? new AstNumList(((AstNum)asts[4]).getNum()) : ((AstNumList)asts[4]);
+    if (rows.isEmpty())     rows=new AstNumList(0,dst.numRows());
+switch (vsrc.type()) {
+case Val.NUM:
+      assign_frame_scalar(dst,cols,rows,vsrc.getNum(),env._ses);
+    break;
+case Val.STR:
+  assign_frame_scalar(dst,cols,rows,vsrc.getStr(),env._ses);
+break;
+case Val.FRM:
+assign_frame_frame(dst,cols,rows,vsrc.getFrame(),env._ses);
+break;
+default :
+throw new IllegalArgumentException("Source must be a Frame or Number, but found a " + vsrc.getClass());
+}
+}
+ else {
+Frame rows=stk.track(asts[4].exec(env)).getFrame();
+switch (vsrc.type()) {
+case Val.NUM:
+assign_frame_scalar(dst,cols,rows,vsrc.getNum(),env._ses);
+break;
+case Val.STR:
+throw H2O.unimpl();
+case Val.FRM:
+throw H2O.unimpl();
+default :
+throw new IllegalArgumentException("Source must be a Frame or Number, but found a " + vsrc.getClass());
+}
+}
+return new ValFrame(dst);
+}

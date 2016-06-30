@@ -1,0 +1,11 @@
+{
+  _group_impute_map=new IcedHashMap<>();
+  for (int row=0; row < cs[0]._len; ++row) {
+    IcedDouble[] imputes=new IcedDouble[_ncol];
+    for (int c=0, z=_byCols.length; c < imputes.length; ++c, ++z) {
+      if (_imputedCol != -1)       imputes[c]=c == _imputedCol ? new IcedDouble(cs[cs.length - 1].atd(row)) : new IcedDouble(Double.NaN);
+ else       imputes[c]=_localbyColzSet.contains(c) ? new IcedDouble(Double.NaN) : new IcedDouble(cs[z].atd(row));
+    }
+    _group_impute_map.put(new AstGroup.G(_byCols.length,null).fill(row,cs,_byCols),imputes);
+  }
+}
