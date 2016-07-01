@@ -1,5 +1,9 @@
 {
-  if (path.contains(":/")) {
+  boolean windowsPath=path.matches("^[a-zA-Z]:.*$");
+  if (windowsPath) {
+    return new File(path).toURI();
+  }
+ else   if (path.contains(":/")) {
     return URI.create(path);
   }
  else {
