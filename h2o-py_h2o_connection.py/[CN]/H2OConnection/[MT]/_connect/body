@@ -1,5 +1,5 @@
 def _connect(self, size=1, max_retries=5, print_dots=False):
-    '\n    Does not actually "connect", instead simply tests that the cluster can be reached,\n    is of a certain size, and is taking basic status commands.\n    \n    :param size: The number of H2O instances in the cloud.\n    :return: The JSON response from a "stable" cluster.\n    '
+    '\n        Does not actually "connect", instead simply tests that the cluster can be reached,\n        is of a certain size, and is taking basic status commands.\n\n        :param size: The number of H2O instances in the cloud.\n        :return: The JSON response from a "stable" cluster.\n        '
     retries = 0
     while True:
         retries += 1
@@ -8,10 +8,7 @@ def _connect(self, size=1, max_retries=5, print_dots=False):
         try:
             cld = H2OConnection.get_json(url_suffix='Cloud')
             if (not cld['cloud_healthy']):
-                if __H2OCONN__.force_connect:
-                    print('WARNING: Cluster reports unhealthy status')
-                else:
-                    raise ValueError('Cluster reports unhealthy status', cld)
+                raise ValueError('Cluster reports unhealthy status', cld)
             if ((cld['cloud_size'] >= size) and cld['consensus']):
                 if print_dots:
                     print(' Connection successful!')

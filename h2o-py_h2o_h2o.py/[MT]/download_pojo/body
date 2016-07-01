@@ -1,18 +1,18 @@
-def download_pojo(model, path='', get_jar=True):
-    'Download the POJO for this model to the directory specified by path (no trailing\n  slash!). If path is "", then dump to screen.\n\n  Parameters\n  ----------\n    model : H2OModel\n      Retrieve this model\'s scoring POJO.\n\n    path : str\n      An absolute path to the directory where POJO should be saved.\n\n    get_jar : bool\n      Retrieve the h2o-genmodel.jar also.\n  '
-    java = H2OConnection.get(('Models.java/' + model.model_id))
-    regex = re.compile('[+\\-* !@#$%^&()={}\\[\\]|;:\'"<>,.?/]')
-    pojoname = regex.sub('_', model.model_id)
-    filepath = (((path + '/') + pojoname) + '.java')
-    print('Filepath: {}'.format(filepath))
-    if (path == ''):
+def download_pojo(model, path=u'', get_jar=True):
+    u'Download the POJO for this model to the directory specified by path (no trailing\n    slash!). If path is "", then dump to screen.\n\n    Parameters\n    ----------\n      model : H2OModel\n        Retrieve this model\'s scoring POJO.\n\n      path : str\n        An absolute path to the directory where POJO should be saved.\n\n      get_jar : bool\n        Retrieve the h2o-genmodel.jar also.\n    '
+    java = H2OConnection.get((u'Models.java/' + model.model_id))
+    regex = re.compile(u'[+\\-* !@#$%^&()={}\\[\\]|;:\'"<>,.?/]')
+    pojoname = regex.sub(u'_', model.model_id)
+    filepath = (((path + u'/') + pojoname) + u'.java')
+    print(u'Filepath: {}'.format(filepath))
+    if (path == u''):
         print(java.text)
     else:
-        with open(filepath, 'wb') as f:
-            f.write(java.text.encode('utf-8'))
-    if (get_jar and (path != '')):
-        url = H2OConnection.make_url('h2o-genmodel.jar')
-        filename = ((path + '/') + 'h2o-genmodel.jar')
+        with open(filepath, u'wb') as f:
+            f.write(java.text.encode(u'utf-8'))
+    if (get_jar and (path != u'')):
+        url = H2OConnection.make_url(u'h2o-genmodel.jar')
+        filename = ((path + u'/') + u'h2o-genmodel.jar')
         response = urlopen()(url)
-        with open(filename, 'wb') as f:
+        with open(filename, u'wb') as f:
             f.write(response.read())

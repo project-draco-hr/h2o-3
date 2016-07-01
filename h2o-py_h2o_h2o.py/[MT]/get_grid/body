@@ -1,8 +1,8 @@
 def get_grid(grid_id):
-    'Return the specified grid\n\n  Parameters\n  ----------\n    grid_id : str\n      The grid identification in h2o\n\n  Returns\n  -------\n    H2OGridSearch instance\n  '
-    grid_json = H2OConnection.get_json(('Grids/' + grid_id), _rest_version=99)
-    models = [get_model(key['name']) for key in grid_json['model_ids']]
-    first_model_json = H2OConnection.get_json(('Models/' + grid_json['model_ids'][0]['name']))['models'][0]
+    u'Return the specified grid\n\n    Parameters\n    ----------\n      grid_id : str\n        The grid identification in h2o\n\n    Returns\n    -------\n      H2OGridSearch instance\n    '
+    grid_json = H2OConnection.get_json((u'Grids/' + grid_id), _rest_version=99)
+    models = [get_model(key[u'name']) for key in grid_json[u'model_ids']]
+    first_model_json = H2OConnection.get_json((u'Models/' + grid_json[u'model_ids'][0][u'name']))[u'models'][0]
     gs = H2OGridSearch(None, {}, grid_id)
     gs._resolve_grid(grid_id, grid_json, first_model_json)
     gs.models = models
