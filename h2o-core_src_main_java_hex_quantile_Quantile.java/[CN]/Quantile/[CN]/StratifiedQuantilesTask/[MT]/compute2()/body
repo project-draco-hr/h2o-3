@@ -6,19 +6,28 @@
     return;
   }
   final int nstrata=strataMax - strataMin + 1;
-  Log.info("Computing quantiles for " + nstrata + " different strata.");
+  Log.info("Computing quantiles for (up to) " + nstrata + " different strata.");
   _quantiles=new double[nstrata];
+  _nids=new int[nstrata];
   Vec weights=_weights != null ? _weights : _response.makeCon(1);
   for (int i=0; i < nstrata; ++i) {
     Vec newWeights=weights.makeCopy();
-    if (_strata != null)     new KeepOnlyOneStrata(strataMin + i).doAll(_strata,newWeights);
+    if (_strata != null) {
+      _nids[i]=strataMin + i;
+      new KeepOnlyOneStrata(_nids[i]).doAll(_strata,newWeights);
+    }
     double sumRows=new SumWeights().doAll(_response,newWeights).sum;
-    Histo h=new Histo(_response.min(),_response.max(),0,sumRows,_response.isInt());
-    h.doAll(_response,newWeights);
-    while (Double.isNaN(_quantiles[i]=h.findQuantile(_prob,_combine_method)))     h=h.refinePass(_prob).doAll(_response,newWeights);
-    newWeights.remove();
-    assert(_quantiles[i] <= _response.max() + 1e-6);
-    assert(_quantiles[i] >= _response.min() - 1e-6);
+    if (sumRows == 0) {
+      _quantiles[i]=Double.NaN;
+    }
+ else {
+      Histo h=new Histo(_response.min(),_response.max(),0,sumRows,_response.isInt());
+      h.doAll(_response,newWeights);
+      while (Double.isNaN(_quantiles[i]=h.findQuantile(_prob,_combine_method)))       h=h.refinePass(_prob).doAll(_response,newWeights);
+      newWeights.remove();
+      assert(_quantiles[i] <= _response.max() + 1e-6);
+      assert(_quantiles[i] >= _response.min() - 1e-6);
+    }
   }
   if (_weights != weights)   weights.remove();
   tryComplete();
