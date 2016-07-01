@@ -29,57 +29,48 @@
         row++;
         continue;
       }
-switch (colTypes[c]) {
-case "double":
-        cellStrings[row + 1][c + 1]=String.format(formatString,(Double)cellValues[r][c].get());
-      break;
-case "float":
-    cellStrings[row + 1][c + 1]=String.format(formatString,(Float)cellValues[r][c].get());
-  break;
-case "int":
-cellStrings[row + 1][c + 1]=String.format(formatString,(Integer)cellValues[r][c].get());
-break;
-case "long":
-cellStrings[row + 1][c + 1]=String.format(formatString,(Long)cellValues[r][c].get());
-break;
-case "string":
-cellStrings[row + 1][c + 1]=String.format(formatString,(String)cellValues[r][c].get());
-break;
-default :
-cellStrings[row + 1][c + 1]=String.format(formatString,cellValues[r][c]);
-break;
-}
-row++;
-}
-}
-final int[] colLen=new int[colDim + 1];
-for (int c=0; c <= colDim; ++c) {
-for (int r=0; r <= actualRowDim; ++r) {
-colLen[c]=Math.max(colLen[c],cellStrings[r][c].length());
-}
-}
-final StringBuilder sb=new StringBuilder();
-if (tableHeader.length() > 0) {
-sb.append(tableHeader);
-}
-if (tableDescription.length() > 0) {
-sb.append(" (").append(tableDescription).append(")");
-}
-sb.append(":\n");
-for (int r=0; r <= actualRowDim; ++r) {
-int len=colLen[0];
-if (actualRowDim != rowDim && r - 1 == PRINTOUT_ROW_LIMIT / 2) {
-assert(!full);
-sb.append("---");
-}
+      try {
+        if (o instanceof Double)         cellStrings[row + 1][c + 1]=String.format(formatString,(Double)o);
+ else         if (o instanceof Float)         cellStrings[row + 1][c + 1]=String.format(formatString,(Float)o);
+ else         if (o instanceof Integer)         cellStrings[row + 1][c + 1]=String.format(formatString,(Integer)o);
+ else         if (o instanceof Long)         cellStrings[row + 1][c + 1]=String.format(formatString,(Long)o);
+ else         if (o instanceof String)         cellStrings[row + 1][c + 1]=(String)o;
+ else         cellStrings[row + 1][c + 1]=String.format(formatString,cellValues[r][c]);
+      }
+ catch (      Throwable t) {
+        cellStrings[row + 1][c + 1]=o.toString();
+      }
+      row++;
+    }
+  }
+  final int[] colLen=new int[colDim + 1];
+  for (int c=0; c <= colDim; ++c) {
+    for (int r=0; r <= actualRowDim; ++r) {
+      colLen[c]=Math.max(colLen[c],cellStrings[r][c].length());
+    }
+  }
+  final StringBuilder sb=new StringBuilder();
+  if (tableHeader.length() > 0) {
+    sb.append(tableHeader);
+  }
+  if (tableDescription.length() > 0) {
+    sb.append(" (").append(tableDescription).append(")");
+  }
+  sb.append(":\n");
+  for (int r=0; r <= actualRowDim; ++r) {
+    int len=colLen[0];
+    if (actualRowDim != rowDim && r - 1 == PRINTOUT_ROW_LIMIT / 2) {
+      assert(!full);
+      sb.append("---");
+    }
  else {
-if (len > 0) sb.append(String.format("%" + colLen[0] + "s",cellStrings[r][0]));
-for (int c=1; c <= colDim; ++c) {
-len=colLen[c];
-if (len > 0) sb.append(String.format("%" + (len + pad) + "s",cellStrings[r][c].equals("null") ? "" : cellStrings[r][c]));
-}
-}
-sb.append("\n");
-}
-return sb.toString();
+      if (len > 0)       sb.append(String.format("%" + colLen[0] + "s",cellStrings[r][0]));
+      for (int c=1; c <= colDim; ++c) {
+        len=colLen[c];
+        if (len > 0)         sb.append(String.format("%" + (len + pad) + "s",cellStrings[r][c].equals("null") ? "" : cellStrings[r][c]));
+      }
+    }
+    sb.append("\n");
+  }
+  return sb.toString();
 }
