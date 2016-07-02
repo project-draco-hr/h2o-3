@@ -14,13 +14,22 @@
     if (hasOffsetCol() && _parms._distribution == Distribution.Family.bernoulli) {
       if (_offset.max() > 1)       error("_offset_column","Offset cannot be larger than 1 for Bernoulli distribution.");
     }
+    if (hasOffsetCol() && _parms._distribution == Distribution.Family.modified_huber) {
+      if (_offset.max() > 1)       error("_offset_column","Offset cannot be larger than 1 for Modified Huber distribution.");
+    }
   }
 switch (_parms._distribution) {
 case bernoulli:
     if (_nclass != 2)     error("_distribution",H2O.technote(2,"Binomial requires the response to be a 2-class categorical"));
   break;
+case modified_huber:
+if (_nclass != 2) error("_distribution",H2O.technote(2,"Modified Huber requires the response to be a 2-class categorical."));
+break;
 case multinomial:
 if (!isClassifier()) error("_distribution",H2O.technote(2,"Multinomial requires an categorical response."));
+break;
+case huber:
+if (isClassifier()) error("_distribution",H2O.technote(2,"Huber requires the response to be numeric."));
 break;
 case poisson:
 if (isClassifier()) error("_distribution",H2O.technote(2,"Poisson requires the response to be numeric."));

@@ -3,6 +3,7 @@ switch (distribution) {
 case AUTO:
 case gaussian:
 case bernoulli:
+case huber:
 case multinomial:
     return w * (y - o);
 case poisson:
@@ -11,6 +12,8 @@ case gamma:
 return w * y * linkInv(-o);
 case tweedie:
 return w * y * exp(o * (1 - tweediePower));
+case modified_huber:
+return y == 1 ? w : 0;
 default :
 throw H2O.unimpl();
 }

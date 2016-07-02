@@ -74,6 +74,9 @@ break;
 case Huber:
 toParms._distribution=Distribution.Family.huber;
 break;
+case ModifiedHuber:
+toParms._distribution=Distribution.Family.modified_huber;
+break;
 default :
 throw H2O.unimpl();
 }
@@ -93,14 +96,17 @@ break;
 case huber:
 toParms._loss=Loss.Huber;
 break;
-case multinomial:
-case bernoulli:
-toParms._loss=Loss.CrossEntropy;
-break;
 case tweedie:
 case poisson:
 case gamma:
 toParms._loss=Loss.Automatic;
+break;
+case multinomial:
+case bernoulli:
+toParms._loss=Loss.CrossEntropy;
+break;
+case modified_huber:
+toParms._loss=Loss.ModifiedHuber;
 break;
 default :
 throw H2O.unimpl();

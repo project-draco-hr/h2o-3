@@ -9,7 +9,13 @@
   ((Neurons.Input)neurons[0]).setInput(-1,data,mb);
   DeepLearningTask.fpropMiniBatch(-1,neurons,model_info,null,false,null,new double[]{offset},n);
   double[] out=neurons[neurons.length - 1]._a[mb].raw();
-  if (_output.isClassifier()) {
+  if (get_params()._distribution == Distribution.Family.modified_huber) {
+    preds[0]=-1;
+    preds[1]=_dist.linkInv(out[0]);
+    preds[2]=1 - preds[1];
+    return preds;
+  }
+ else   if (_output.isClassifier()) {
     assert(preds.length == out.length + 1);
     for (int i=0; i < preds.length - 1; ++i) {
       preds[i + 1]=out[i];
@@ -20,7 +26,7 @@
  else {
     if (model_info().data_info()._normRespMul != null)     preds[0]=(out[0] / model_info().data_info()._normRespMul[0] + model_info().data_info()._normRespSub[0]);
  else     preds[0]=out[0];
-    preds[0]=new Distribution(model_info.get_params()).linkInv(preds[0]);
+    preds[0]=_dist.linkInv(preds[0]);
     if (Double.isNaN(preds[0]))     throw new RuntimeException("Predicted regression target NaN!");
   }
   return preds;

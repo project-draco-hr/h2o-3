@@ -5,11 +5,11 @@ case AUTO:
 case gaussian:
     return w * (y - f) * (y - f);
 case huber:
-  if (Math.abs(y - f) < 1) {
+  if (Math.abs(y - f) < huberCutoff) {
     return w * (y - f) * (y - f);
   }
  else {
-    return 2 * w * Math.abs(y - f) - 1;
+    return (2 * w * Math.abs(y - f) - huberCutoff) * huberCutoff;
   }
 case laplace:
 return w * Math.abs(y - f);
@@ -24,6 +24,11 @@ return 2 * w * (y * exp(-f) + f);
 case tweedie:
 assert(tweediePower > 1 && tweediePower < 2);
 return 2 * w * (Math.pow(y,2 - tweediePower) / ((1 - tweediePower) * (2 - tweediePower)) - y * exp(f * (1 - tweediePower)) / (1 - tweediePower) + exp(f * (2 - tweediePower)) / (2 - tweediePower));
+case modified_huber:
+double yf=(2 * y - 1) * f;
+if (yf < -1) return -w * 4 * yf;
+ else if (yf > 1) return 0;
+ else return w * yf * yf;
 default :
 throw H2O.unimpl();
 }

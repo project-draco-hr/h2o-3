@@ -1,0 +1,34 @@
+{
+  Frame tfr=null, vfr=null;
+  GBMModel gbm=null;
+  Scope.enter();
+  try {
+    tfr=parse_test_file("./smalldata/airlines/allyears2k_headers.zip");
+    for (    String s : new String[]{"DepTime","ArrTime","ActualElapsedTime","AirTime","ArrDelay","DepDelay","Cancelled","CancellationCode","CarrierDelay","WeatherDelay","NASDelay","SecurityDelay","LateAircraftDelay","IsArrDelayed"}) {
+      tfr.remove(s).remove();
+    }
+    DKV.put(tfr);
+    GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
+    parms._train=tfr._key;
+    parms._response_column="IsDepDelayed";
+    parms._seed=1234;
+    parms._distribution=Distribution.Family.modified_huber;
+    parms._min_rows=1;
+    parms._learn_rate=.1;
+    parms._max_depth=5;
+    parms._ntrees=10;
+    gbm=new GBM(parms).trainModel().get();
+    Frame train_preds=gbm.score(tfr);
+    train_preds.remove();
+    ModelMetricsBinomial mm=(ModelMetricsBinomial)gbm._output._training_metrics;
+  }
+  finally {
+    if (tfr != null)     tfr.remove();
+    if (vfr != null)     vfr.remove();
+    if (gbm != null) {
+      gbm.deleteCrossValidationModels();
+      gbm.delete();
+    }
+    Scope.exit();
+  }
+}

@@ -26,16 +26,16 @@
       if (_wEA != null) {
         grad-=params._elastic_averaging_regularization * (_w.raw()[w] - _wEA.raw()[w]);
       }
-      if (DeepLearningModelInfo.gradientCheck != null)       DeepLearningModelInfo.gradientCheck.apply(_index,row,col,-grad);
+      if (DeepLearningModelInfo.gradientCheck != null)       DeepLearningModelInfo.gradientCheck.apply(_index,row,col,grad);
       if (have_ada) {
         final double grad2=grad * grad;
         avg_grad2+=grad2;
         float brate=computeAdaDeltaRateForWeight(grad,w,_ada_dx_g,rho,eps);
-        _w.raw()[w]+=brate * grad;
+        _w.raw()[w]-=brate * grad;
       }
  else {
         if (!nesterov) {
-          final double delta=rate * grad;
+          final double delta=-rate * grad;
           _w.raw()[w]+=delta;
           if (have_momenta) {
             _w.raw()[w]+=momentum * _wm.raw()[w];
@@ -43,7 +43,7 @@
           }
         }
  else {
-          double tmp=grad;
+          double tmp=-grad;
           if (have_momenta) {
             _wm.raw()[w]*=momentum;
             _wm.raw()[w]+=tmp;

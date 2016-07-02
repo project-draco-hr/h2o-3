@@ -1,5 +1,5 @@
 {
-  boolean classification=expensive || dl.nclasses() != 0 ? dl.isClassifier() : _loss == Loss.CrossEntropy;
+  boolean classification=expensive || dl.nclasses() != 0 ? dl.isClassifier() : _loss == Loss.CrossEntropy || _loss == Loss.ModifiedHuber;
   if (_hidden == null || _hidden.length == 0)   dl.error("_hidden","There must be at least one hidden layer.");
   for (  int h : _hidden)   if (h <= 0)   dl.error("_hidden","Hidden layer size must be positive.");
   if (_mini_batch_size < 1)   dl.error("_mini_batch_size","Mini-batch size must be >= 1");
@@ -69,7 +69,7 @@
   }
   if (_loss == null) {
     if (expensive || dl.nclasses() != 0) {
-      dl.error("_loss","Loss function must be specified. Try CrossEntropy for categorical response (classification), Quadratic, Absolute or Huber for numerical response (regression).");
+      dl.error("_loss","Loss function must be specified. Try CrossEntropy for categorical response (classification), ModifiedHuber for binomial response, Quadratic, Absolute or Huber for numerical response (regression).");
     }
   }
  else {
@@ -90,6 +90,7 @@ case poisson:
     break;
 case AUTO:
 case bernoulli:
+case modified_huber:
 case multinomial:
 default :
   break;
@@ -99,6 +100,7 @@ default :
 switch (_distribution) {
 case multinomial:
 case bernoulli:
+case modified_huber:
 dl.error("_distribution",technote(2,_distribution + " distribution is not allowed for regression."));
 break;
 case tweedie:

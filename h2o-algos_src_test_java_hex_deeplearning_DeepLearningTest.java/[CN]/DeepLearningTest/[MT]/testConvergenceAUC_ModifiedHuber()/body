@@ -1,0 +1,36 @@
+{
+  Frame tfr=null;
+  DeepLearningModel dl=null;
+  DeepLearningModel dl2=null;
+  try {
+    tfr=parse_test_file("./smalldata/logreg/prostate.csv");
+    for (    String s : new String[]{"CAPSULE"}) {
+      Vec resp=tfr.vec(s).toCategoricalVec();
+      tfr.remove(s).remove();
+      tfr.add(s,resp);
+      DKV.put(tfr);
+    }
+    DeepLearningParameters parms=new DeepLearningParameters();
+    parms._train=tfr._key;
+    parms._epochs=1000000;
+    parms._response_column="CAPSULE";
+    parms._reproducible=true;
+    parms._hidden=new int[]{2,2};
+    parms._seed=0xdecaf;
+    parms._variable_importances=true;
+    parms._distribution=modified_huber;
+    parms._score_duty_cycle=1.0;
+    parms._score_interval=0;
+    parms._classification_stop=-1;
+    parms._stopping_rounds=2;
+    parms._stopping_metric=ScoreKeeper.StoppingMetric.AUC;
+    parms._stopping_tolerance=0.0;
+    dl=new DeepLearning(parms).trainModel().get();
+    Assert.assertTrue(dl.epoch_counter < parms._epochs);
+  }
+  finally {
+    if (tfr != null)     tfr.delete();
+    if (dl != null)     dl.delete();
+    if (dl2 != null)     dl2.delete();
+  }
+}

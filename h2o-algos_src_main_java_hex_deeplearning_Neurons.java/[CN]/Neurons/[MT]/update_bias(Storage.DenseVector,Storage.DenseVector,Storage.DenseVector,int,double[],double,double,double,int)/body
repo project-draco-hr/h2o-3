@@ -13,7 +13,7 @@
     rate=computeAdaDeltaRateForBias(avg_grad2,b,_bias_ada_dx_g,rho,eps);
   }
   if (!params._nesterov_accelerated_gradient) {
-    final double delta=rate * partial_grad[mb];
+    final double delta=-rate * partial_grad[mb];
     _b.add(b,delta);
     if (have_momenta) {
       _b.add(b,momentum * _bm.get(b));
@@ -21,7 +21,7 @@
     }
   }
  else {
-    double d=partial_grad[mb];
+    double d=-partial_grad[mb];
     if (have_momenta) {
       _bm.set(b,_bm.get(b) * momentum);
       _bm.add(b,d);

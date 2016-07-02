@@ -1,7 +1,6 @@
 {
   double loss=0;
   Neurons[] neurons=DeepLearningTask.makeNeuronsForTraining(model_info());
-  final double prefactor=get_params()._distribution == Distribution.Family.laplace || get_params()._distribution == Distribution.Family.quantile ? 1 : 0.5;
   long seed=-1;
   double[] responses=new double[myRows.length];
   double[] offsets=new double[myRows.length];
@@ -38,9 +37,8 @@
       if (model_info.get_params()._autoencoder)       throw H2O.unimpl();
       double pred=neurons[neurons.length - 1]._a[mb].get(0);
       double actual=myRow.response[0];
-      Distribution dist=new Distribution(model_info.get_params());
-      pred=dist.linkInv(pred);
-      loss+=prefactor * dist.deviance(1,actual,pred);
+      pred=_dist.linkInv(pred);
+      loss+=_dist.deviance(1,actual,pred);
     }
     for (int i=0; i < get_params()._hidden.length + 1; ++i) {
       if (neurons[i]._w == null)       continue;

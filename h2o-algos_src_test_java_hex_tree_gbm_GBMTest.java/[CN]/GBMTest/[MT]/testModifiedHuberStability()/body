@@ -1,0 +1,30 @@
+{
+  String xy="A,Y\nB,N\nA,N\nB,N\nA,Y\nA,Y";
+  Key tr=Key.make("train");
+  Frame df=ParseDataset.parse(tr,makeByteVec(Key.make("xy"),xy));
+  String test="A,Y\nB,N\nA,N\nB,N\nA,Y\nA,Y";
+  Key te=Key.make("test");
+  Frame df2=ParseDataset.parse(te,makeByteVec(Key.make("te"),test));
+  GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
+  parms._train=tr;
+  parms._response_column="C2";
+  parms._min_rows=1;
+  parms._learn_rate=1;
+  parms._distribution=Distribution.Family.modified_huber;
+  parms._ntrees=1;
+  GBM job=new GBM(parms);
+  GBMModel gbm=job.trainModel().get();
+  Scope.enter();
+  Frame preds=gbm.score(df);
+  Frame preds2=gbm.score(df2);
+  Log.info(df);
+  Log.info(preds);
+  Log.info(df2);
+  Log.info(preds2);
+  preds.remove();
+  preds2.remove();
+  gbm.remove();
+  df.remove();
+  df2.remove();
+  Scope.exit();
+}
