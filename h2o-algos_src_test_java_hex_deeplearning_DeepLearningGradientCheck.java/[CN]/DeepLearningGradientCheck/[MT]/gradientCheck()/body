@@ -128,8 +128,8 @@
                         double gradient=((up - down) / (2. * eps));
                         double relError=2 * Math.abs(bpropGradient - gradient) / (Math.abs(gradient) + Math.abs(bpropGradient));
                         count++;
-                        if (Math.abs(gradient) < 1e-8 || Math.abs(bpropGradient) < 1e-8) {
-                          if (Math.abs(bpropGradient - gradient) < 1e-8)                           continue;
+                        if (Math.abs(gradient) < 1e-7 || Math.abs(bpropGradient) < 1e-7) {
+                          if (Math.abs(bpropGradient - gradient) < 1e-7)                           continue;
                         }
                         meanRelErr+=relError;
                         if (relError > MAX_TOLERANCE) {
@@ -170,6 +170,7 @@
     Log.info("Mean. relative error: " + meanRelErr / count);
     Log.info("Max. relative error: " + PrettyPrint.formatPct(maxRelErr));
     Assert.assertTrue("Error too large: " + maxRelErr + " >= "+ MAX_TOLERANCE,maxRelErr < MAX_TOLERANCE);
+    Assert.assertTrue("Failed count too large: " + failedcount + " > "+ MAX_FAILED_RATIO * count,failedcount <= MAX_FAILED_RATIO * count);
   }
   finally {
     if (tfr != null)     tfr.remove();
