@@ -1,5 +1,5 @@
 {
-  boolean classification=expensive || dl.nclasses() != 0 ? dl.isClassifier() : _loss == Loss.CrossEntropy || _loss == Loss.ModifiedHuber;
+  boolean classification=expensive || dl.nclasses() != 0 ? dl.isClassifier() : _loss == CrossEntropy || _loss == ModifiedHuber;
   if (_hidden == null || _hidden.length == 0)   dl.error("_hidden","There must be at least one hidden layer.");
   for (  int h : _hidden)   if (h <= 0)   dl.error("_hidden","Hidden layer size must be positive.");
   if (_mini_batch_size < 1)   dl.error("_mini_batch_size","Mini-batch size must be >= 1");
@@ -73,10 +73,11 @@
     }
   }
  else {
-    if (_autoencoder && _loss == Loss.CrossEntropy)     dl.error("_loss","Cannot use CrossEntropy loss for auto-encoder.");
-    if (!classification && _loss == Loss.CrossEntropy)     dl.error("_loss",technote(2,"For CrossEntropy loss, the response must be categorical."));
+    if (_autoencoder && _loss == CrossEntropy)     dl.error("_loss","Cannot use CrossEntropy loss for auto-encoder.");
+    if (!classification && _loss == CrossEntropy)     dl.error("_loss",technote(2,"For CrossEntropy loss, the response must be categorical."));
   }
-  if (!classification && _loss == Loss.CrossEntropy)   dl.error("_loss","For CrossEntropy loss, the response must be categorical. Either select Automatic, Quadratic, Absolute or Huber loss for regression, or use a categorical response.");
+  if (!classification && _loss == CrossEntropy)   dl.error("_loss","For CrossEntropy loss, the response must be categorical.");
+  if (classification && (_loss != Automatic && _loss != CrossEntropy && _loss != Quadratic && _loss != ModifiedHuber))   dl.error("_loss","For classification tasks, the loss must be one of: Automatic, Quadratic, CrossEntropy or ModifiedHuber.");
   if (classification) {
 switch (_distribution) {
 case gaussian:
@@ -106,16 +107,16 @@ break;
 case tweedie:
 case gamma:
 case poisson:
-if (_loss != Loss.Automatic) dl.error("_distribution","Only Automatic loss (deviance) is allowed for " + _distribution + " distribution.");
+if (_loss != Automatic) dl.error("_distribution","Only Automatic loss (deviance) is allowed for " + _distribution + " distribution.");
 break;
 case laplace:
-if (_loss != Loss.Absolute && _loss != Loss.Automatic) dl.error("_distribution","Only Automatic or Absolute loss is allowed for " + _distribution + " distribution.");
+if (_loss != Loss.Absolute && _loss != Automatic) dl.error("_distribution","Only Automatic or Absolute loss is allowed for " + _distribution + " distribution.");
 break;
 case quantile:
-if (_loss != Loss.Quantile && _loss != Loss.Automatic) dl.error("_distribution","Only Automatic or Quantile loss is allowed for " + _distribution + " distribution.");
+if (_loss != Loss.Quantile && _loss != Automatic) dl.error("_distribution","Only Automatic or Quantile loss is allowed for " + _distribution + " distribution.");
 break;
 case huber:
-if (_loss != Loss.Huber && _loss != Loss.Automatic) dl.error("_distribution","Only Automatic or Huber loss is allowed for " + _distribution + " distribution.");
+if (_loss != Loss.Huber && _loss != Automatic) dl.error("_distribution","Only Automatic or Huber loss is allowed for " + _distribution + " distribution.");
 break;
 case AUTO:
 case gaussian:

@@ -19,6 +19,7 @@
     parms._ntrees=10;
     gbm=new GBM(parms).trainModel().get();
     Frame train_preds=gbm.score(tfr);
+    Assert.assertTrue(gbm.testJavaScoring(tfr,train_preds,1e-15));
     train_preds.remove();
     ModelMetricsBinomial mm=(ModelMetricsBinomial)gbm._output._training_metrics;
   }
