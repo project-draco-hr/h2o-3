@@ -7,9 +7,10 @@
     parms._train=tfr._key;
     parms._response_column=tfr.lastVecName();
     parms._seed=0xdecaf;
-    parms._distribution=laplace;
+    parms._distribution=huber;
+    parms._huber_delta=1e-3;
     dl=new GBM(parms).trainModel().get();
-    Assert.assertEquals(1.4229760,((ModelMetricsRegression)dl._output._training_metrics)._mean_residual_deviance,1e-5);
+    Assert.assertEquals(0.013053461,((ModelMetricsRegression)dl._output._training_metrics)._mean_residual_deviance,1e-8);
   }
   finally {
     if (tfr != null)     tfr.delete();

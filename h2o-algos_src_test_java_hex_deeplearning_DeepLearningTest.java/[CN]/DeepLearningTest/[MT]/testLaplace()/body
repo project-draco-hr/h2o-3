@@ -1,15 +1,17 @@
 {
   Frame tfr=null;
-  GBMModel dl=null;
+  DeepLearningModel dl=null;
   try {
     tfr=parse_test_file("./smalldata/gbm_test/BostonHousing.csv");
-    GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
+    DeepLearningParameters parms=new DeepLearningParameters();
     parms._train=tfr._key;
     parms._response_column=tfr.lastVecName();
+    parms._reproducible=true;
+    parms._hidden=new int[]{20,20};
     parms._seed=0xdecaf;
     parms._distribution=laplace;
-    dl=new GBM(parms).trainModel().get();
-    Assert.assertEquals(1.4229760,((ModelMetricsRegression)dl._output._training_metrics)._mean_residual_deviance,1e-5);
+    dl=new DeepLearning(parms).trainModel().get();
+    Assert.assertEquals(2.31398,((ModelMetricsRegression)dl._output._training_metrics)._mean_residual_deviance,1e-5);
   }
   finally {
     if (tfr != null)     tfr.delete();
