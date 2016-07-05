@@ -28,6 +28,9 @@
     truncatePreds(ktrees[0],leaves[0],_parms._distribution);
   }
   new AddTreeContributions(ktrees).doAll(_train);
+  for (int k=0; k < _nclass; k++) {
+    if (ktrees[k] != null)     assert(vec_nids(_train,k).mean() == 0);
+  }
   _model._output.addKTrees(ktrees);
   boolean converged=effective_learning_rate() < 1e-6;
   if (converged) {

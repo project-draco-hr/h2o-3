@@ -1,2 +1,20 @@
 {
+  double m1class=_nclass > 1 && _parms._distribution != Distribution.Family.bernoulli ? (double)(_nclass - 1) / _nclass : 1.0;
+  for (int k=0; k < _nclass; k++) {
+    final DTree tree=ktrees[k];
+    if (tree == null)     continue;
+    if (DEV_DEBUG)     for (int i=0; i < ktrees[k]._len - leafs[k]; ++i)     System.out.println(ktrees[k].node(leafs[k] + i).toString());
+    for (int i=0; i < tree._len - leafs[k]; i++) {
+      double gf=effective_learning_rate() * m1class * gp.gamma(k,i);
+      if (_parms._distribution == Distribution.Family.multinomial) {
+        if (gf > 1e4)         gf=1e4f;
+ else         if (gf < -1e4)         gf=-1e4f;
+      }
+      if (Double.isNaN(gf))       gf=0;
+ else       if (Double.isInfinite(gf))       gf=Math.signum(gf) * 1e4f;
+      if (gf > _parms._max_abs_leafnode_pred)       gf=_parms._max_abs_leafnode_pred;
+      if (gf < -_parms._max_abs_leafnode_pred)       gf=-_parms._max_abs_leafnode_pred;
+      ((LeafNode)tree.node(leafs[k] + i))._pred=(float)gf;
+    }
+  }
 }

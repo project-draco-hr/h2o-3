@@ -1,18 +1,24 @@
 {
   ArrayList<java.net.InetAddress> ips=new ArrayList<>();
-{
-    ArrayList<NetworkInterface> networkInterfaceList=calcPrioritizedInterfaceList();
-    for (    NetworkInterface nIface : networkInterfaceList) {
-      Enumeration<InetAddress> ias=nIface.getInetAddresses();
-      if (NetworkUtils.isUp(nIface)) {
-        while (ias.hasMoreElements()) {
-          InetAddress ia=ias.nextElement();
-          if (NetworkUtils.isReachable(nIface,ia,50)) {
-            ips.add(ia);
-            Log.info("Possible IP Address: " + nIface.getName() + " ("+ nIface.getDisplayName()+ "), "+ ia.getHostAddress());
-          }
+  ArrayList<NetworkInterface> networkInterfaceList=calcPrioritizedInterfaceList();
+  boolean isWindows=OSUtils.isWindows();
+  int localIpTimeout=NetworkUtils.getLocalIpPingTimeout();
+  for (  NetworkInterface nIface : networkInterfaceList) {
+    Enumeration<InetAddress> ias=nIface.getInetAddresses();
+    if (NetworkUtils.isUp(nIface)) {
+      while (ias.hasMoreElements()) {
+        InetAddress ia=ias.nextElement();
+        if (isWindows || NetworkUtils.isReachable(null,ia,localIpTimeout)) {
+          ips.add(ia);
+          Log.info("Possible IP Address: ",nIface.getName()," (",nIface.getDisplayName(),"), ",ia.getHostAddress());
+        }
+ else {
+          Log.info("Network address/interface is not reachable in 150ms: ",ia,"/",nIface);
         }
       }
+    }
+ else {
+      Log.info("Network interface is down: ",nIface);
     }
   }
   return ips;
