@@ -1,13 +1,14 @@
-def concat(self, frames):
-    "Append multiple data to this H2OFrame column-wise\n\n    Parameters\n    ----------\n      data : List of H2OFrame's\n        H2OFrame's to be column bound to the right of this H2OFrame.\n\n    Returns\n    -------\n      H2OFrame of the combined datasets.\n    "
-    if (not frames):
-        assert 'Input list of frames is empty! Nothing to concat.'
+def concat(self, frames, axis=1):
+    "Append multiple data to this H2OFrame column-wise\n\n    Parameters\n    ----------\n      frames : List of H2OFrame's\n        H2OFrame's to be column bound to the right of this H2OFrame.\n      axis : int, default = 1\n        Type of concatenation to conduct.\n        If axis = 1, then column-wise (Default).\n        If axis = 0, then row-wise.\n\n    Returns\n    -------\n      H2OFrame of the combined datasets.\n    "
+    if (len(frames) == 0):
+        raise ValueError('Input list of frames is empty! Nothing to concat.')
     elif (len(frames) == 1):
-        assert 'Input list of frames is of length one. Better to use cbind for one frame.'
-    df = None
-    for i in frames:
-        if (df is None):
-            df = self
-        else:
+        raise ValueError('Input list of frames is of length one. Better to use cbind for one frame.')
+    df = self
+    if (axis == 1):
+        for i in frames:
             df = df.cbind(i)
+    else:
+        for i in frames:
+            df = df.rbind(i)
     return df
