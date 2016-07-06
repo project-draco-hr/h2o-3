@@ -4,14 +4,14 @@ def metric_json_check():
     reg_mod.train(x=list(range(3, df.ncol)), y='CAPSULE', training_frame=df)
     reg_met = reg_mod.model_performance()
     reg_metric_json_keys_have = list(reg_met._metric_json.keys())
-    reg_metric_json_keys_desired = [u'model_category', u'description', u'r2', u'frame', u'model_checksum', u'MSE', u'RMSE', u'__meta', u'_exclude_fields', u'scoring_time', u'predictions', u'model', u'duration_in_ms', u'frame_checksum', u'nobs', u'mean_residual_deviance']
+    reg_metric_json_keys_desired = [u'model_category', u'description', u'r2', u'frame', u'model_checksum', u'MSE', u'RMSE', u'mae', u'__meta', u'_exclude_fields', u'scoring_time', u'predictions', u'model', u'duration_in_ms', u'frame_checksum', u'nobs', u'mean_residual_deviance']
     reg_metric_diff = list((set(reg_metric_json_keys_have) - set(reg_metric_json_keys_desired)))
     assert (not reg_metric_diff), "There's a difference between the current ({0}) and the desired ({1}) regression metric json. The difference is {2}".format(reg_metric_json_keys_have, reg_metric_json_keys_desired, reg_metric_diff)
     reg_mod = H2OGeneralizedLinearEstimator(family='gaussian')
     reg_mod.train(x=list(range(3, df.ncol)), y='CAPSULE', training_frame=df)
     reg_met = reg_mod.model_performance()
     reg_metric_json_keys_have = list(reg_met._metric_json.keys())
-    reg_metric_json_keys_desired = [u'model_category', u'description', u'r2', u'residual_degrees_of_freedom', u'frame', u'model_checksum', u'MSE', u'RMSE', u'__meta', u'_exclude_fields', u'null_deviance', u'scoring_time', u'null_degrees_of_freedom', u'predictions', u'AIC', u'model', u'duration_in_ms', u'frame_checksum', u'nobs', u'residual_deviance', u'mean_residual_deviance']
+    reg_metric_json_keys_desired = [u'model_category', u'description', u'r2', u'residual_degrees_of_freedom', u'frame', u'model_checksum', u'MSE', u'RMSE', u'mae', u'__meta', u'_exclude_fields', u'null_deviance', u'scoring_time', u'null_degrees_of_freedom', u'predictions', u'AIC', u'model', u'duration_in_ms', u'frame_checksum', u'nobs', u'residual_deviance', u'mean_residual_deviance']
     reg_metric_diff = list((set(reg_metric_json_keys_have) - set(reg_metric_json_keys_desired)))
     assert (not reg_metric_diff), "There's a difference between the current ({0}) and the desired ({1}) glm-regression metric json. The difference is {2}".format(reg_metric_json_keys_have, reg_metric_json_keys_desired, reg_metric_diff)
     bin_mod = H2OGradientBoostingEstimator(distribution='bernoulli')
