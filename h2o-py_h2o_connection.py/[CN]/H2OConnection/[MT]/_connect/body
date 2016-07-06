@@ -8,7 +8,10 @@ def _connect(self, size=1, max_retries=5, print_dots=False):
         try:
             cld = H2OConnection.get_json(url_suffix='Cloud')
             if (not cld['cloud_healthy']):
-                raise ValueError('Cluster reports unhealthy status', cld)
+                if __H2OCONN__.force_connect:
+                    print('WARNING: Cluster reports unhealthy status')
+                else:
+                    raise ValueError('Cluster reports unhealthy status', cld)
             if ((cld['cloud_size'] >= size) and cld['consensus']):
                 if print_dots:
                     print(' Connection successful!')

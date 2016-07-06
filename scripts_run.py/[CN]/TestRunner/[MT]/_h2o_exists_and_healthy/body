@@ -10,5 +10,8 @@ def _h2o_exists_and_healthy(self, ip, port):
     except exceptions.ConnectionError:
         pass
     if (not h2o_okay):
-        self._remove_cloud(ip, port)
+        if g_jacoco_include:
+            self._suspect_cloud(ip, port)
+        else:
+            self._remove_cloud(ip, port)
     return h2o_okay

@@ -40,14 +40,15 @@ def run_tests(self, nopass):
     while (len(self.tests_not_started) > 0):
         if self.terminated:
             return
-        completed_test = self._wait_for_one_test_to_complete()
+        cld = self._wait_for_available_cloud(nopass)
+        if (cld is None):
+            self._log('NO GOOD CLOUDS REMAINING...')
+            self.terminate()
+        (available_ip, available_port) = cld
         if self.terminated:
             return
-        self._report_test_result(completed_test, nopass)
-        ip_of_completed_test = completed_test.get_ip()
-        port_of_completed_test = completed_test.get_port()
-        if self._h2o_exists_and_healthy(ip_of_completed_test, port_of_completed_test):
-            self._start_next_test_on_ip_port(ip_of_completed_test, port_of_completed_test)
+        if self._h2o_exists_and_healthy(available_ip, available_port):
+            self._start_next_test_on_ip_port(available_ip, available_port)
     while (len(self.tests_running) > 0):
         if self.terminated:
             return
