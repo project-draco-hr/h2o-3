@@ -1,0 +1,15 @@
+{
+  Chunk ys=chk_resp(chks);
+  Chunk offset=hasOffsetCol() ? chk_offset(chks) : new C0DChunk(0,chks[0]._len);
+  Chunk preds=chk_tree(chks,0);
+  Chunk wk=chk_work(chks,0);
+  Chunk weights=hasWeightCol() ? chk_weight(chks) : new C0DChunk(1,chks[0]._len);
+  for (int row=0; row < wk._len; row++) {
+    double weight=weights.atd(row);
+    if (weight == 0)     continue;
+    if (ys.isNA(row))     continue;
+    double f=preds.atd(row) + offset.atd(row);
+    double y=ys.atd(row);
+    wk.set(row,(float)_dist.negHalfGradient(y,f));
+  }
+}

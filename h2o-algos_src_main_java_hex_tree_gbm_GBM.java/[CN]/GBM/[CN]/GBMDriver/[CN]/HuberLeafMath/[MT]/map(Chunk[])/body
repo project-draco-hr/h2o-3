@@ -1,0 +1,20 @@
+{
+  final int strataMin=(int)_strata.min();
+  final int strataMax=(int)_strata.max();
+  if (strataMin < 0 || strataMax < 0) {
+    Log.warn("No Huber math can be done since there's no strata.");
+    return;
+  }
+  final int nstrata=strataMax - strataMin + 1;
+  Log.info("Computing Huber math for (up to) " + nstrata + " different strata.");
+  _huberCorrection=new double[nstrata];
+  _wcounts=new double[nstrata];
+  Chunk weights=hasWeightCol() ? chk_weight(cs) : new C0DChunk(1,cs[0]._len);
+  Chunk stratum=chk_nids(cs,0);
+  Chunk diffMinusMedianDiff=cs[cs.length - 1];
+  for (int row=0; row < cs[0]._len; ++row) {
+    int nidx=(int)stratum.at8(row) - strataMin;
+    _huberCorrection[nidx]+=Math.signum(diffMinusMedianDiff.atd(row)) * Math.min(Math.abs(diffMinusMedianDiff.atd(row)),_huberDelta);
+    _wcounts[nidx]+=weights.atd(row);
+  }
+}
