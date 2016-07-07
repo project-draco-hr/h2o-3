@@ -1,0 +1,13 @@
+{
+  Scope.enter();
+  init();
+  try {
+    MeanResidualBuilder gt=new MeanResidualBuilder(_dist);
+    gt=(_weights != null) ? gt.doAll(_actuals,_preds,_weights) : gt.doAll(_actuals,_preds);
+    meanResidualDeviance=gt._mean_residual_deviance;
+  }
+  finally {
+    Scope.exit();
+  }
+  return this;
+}

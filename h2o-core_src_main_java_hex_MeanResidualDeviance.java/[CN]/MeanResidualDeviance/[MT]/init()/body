@@ -1,0 +1,15 @@
+{
+  if (_actuals == null || _preds == null)   throw new IllegalArgumentException("Missing actual targets or predicted values!");
+  if (_actuals.length() != _preds.length())   throw new IllegalArgumentException("Both arguments must have the same length (" + _actuals.length() + "!="+ _preds.length()+ ")!");
+  if (!_actuals.isNumeric())   throw new IllegalArgumentException("Actual target column must be numeric!");
+  if (_preds.isCategorical())   throw new IllegalArgumentException("Predicted targets cannot be class labels, expect continuous values.");
+  if (_weights != null && !_weights.isNumeric())   throw new IllegalArgumentException("Observation weights must be numeric.");
+  if (!_actuals.group().equals(_preds.group())) {
+    _preds=_actuals.align(_preds);
+    Scope.track(_preds);
+    if (_weights != null) {
+      _weights=_actuals.align(_weights);
+      Scope.track(_weights);
+    }
+  }
+}

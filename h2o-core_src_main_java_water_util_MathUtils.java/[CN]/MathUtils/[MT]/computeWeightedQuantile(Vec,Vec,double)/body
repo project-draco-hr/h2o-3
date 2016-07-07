@@ -1,0 +1,17 @@
+{
+  QuantileModel.QuantileParameters parms=new QuantileModel.QuantileParameters();
+  Frame tempFrame=weight == null ? new Frame(Key.make(),new String[]{"y"},new Vec[]{values}) : new Frame(Key.make(),new String[]{"y","w"},new Vec[]{values,weight});
+  DKV.put(tempFrame);
+  parms._train=tempFrame._key;
+  parms._probs=new double[]{alpha};
+  parms._weights_column=weight == null ? null : "w";
+  Job<QuantileModel> job=new Quantile(parms).trainModel();
+  QuantileModel kmm=job.get();
+  double value=kmm._output._quantiles[0][0];
+  assert(!Double.isNaN(value));
+  Log.info("weighted " + alpha + "-quantile: "+ value);
+  job.remove();
+  kmm.remove();
+  DKV.remove(tempFrame._key);
+  return value;
+}

@@ -1,25 +1,13 @@
 {
   final DTree[] ktrees=new DTree[_nclass];
   int[] leaves=new int[_nclass];
-  double huberDelta=1;
+  double huberDelta=Double.NaN;
   if (_parms._distribution == Distribution.Family.huber) {
     Vec diff=new ComputeAbsDiff().doAll(1,(byte)3,_train).outputFrame().anyVec();
-    QuantileModel.QuantileParameters parms=new QuantileModel.QuantileParameters();
-    Frame residualFrame=hasWeightCol() ? new Frame(Key.make(),new String[]{"residual",_parms._weights_column},new Vec[]{diff,_weights}) : new Frame(Key.make(),new String[]{"residual"},new Vec[]{diff});
-    DKV.put(residualFrame);
-    parms._train=residualFrame._key;
-    parms._probs=new double[]{_parms._huber_alpha};
-    parms._weights_column=_parms._weights_column;
-    Job<QuantileModel> job=new Quantile(parms).trainModel();
-    QuantileModel kmm=job.get();
-    huberDelta=kmm._output._quantiles[0][0];
-    Log.info("huber delta (" + (_parms._huber_alpha * 100) + "-th weighted quantile of residuals): "+ huberDelta);
-    job.remove();
-    kmm.remove();
-    residualFrame.remove();
-    Distribution huber=new Distribution(_parms);
-    huber.setHuberDelta(huberDelta);
-    new StoreResiduals(huber).doAll(_train,_parms._build_tree_one_node);
+    Distribution dist=new Distribution(_parms);
+    huberDelta=MathUtils.computeWeightedQuantile(_weights,diff,_parms._huber_alpha);
+    dist.setHuberDelta(huberDelta);
+    new StoreResiduals(dist).doAll(_train,_parms._build_tree_one_node);
   }
  else {
     new ComputePredAndRes().doAll(_train,_parms._build_tree_one_node);
