@@ -15,6 +15,7 @@
       Distribution dist=new Distribution(m._parms);
       Vec weight=adaptedFrame.vec(m._parms._weights_column);
       double huberDelta=MathUtils.computeWeightedQuantile(weight,absdiff,m._parms._huber_alpha);
+      absdiff.remove();
       dist.setHuberDelta(huberDelta);
       meanResDeviance=new MeanResidualDeviance(dist,preds.anyVec(),actual,weight).exec().meanResidualDeviance;
     }

@@ -16,7 +16,9 @@
     expandSplits=ShuffleSplitFrame.shuffleSplitFrame(expanded,new Key[]{Key.make(),Key.make()},new double[]{0.8,0.2},seed);
     checkSplits(frSplits,expandSplits,interactions,useAll,standardize,skipMissing);
     dinfo=makeInfo(frSplits[0],interactions,useAll,standardize,skipMissing);
-    Model.adaptTestForTrain(dinfo._adaptedFrame.names(),null,null,null,"IsDepDelayed",dinfo._adaptedFrame.domains(),frSplits[1],Double.NaN,true,false,interactions);
+    GLMModel.GLMParameters parms=new GLMModel.GLMParameters();
+    parms._response_column="IsDepDelayed";
+    Model.adaptTestForTrain(frSplits[1],null,null,dinfo._adaptedFrame.names(),dinfo._adaptedFrame.domains(),parms,true,false,interactions);
     scoreInfo=dinfo.scoringInfo(frSplits[1]);
     checkFrame(scoreInfo,expandSplits[1],skipMissing);
   }
