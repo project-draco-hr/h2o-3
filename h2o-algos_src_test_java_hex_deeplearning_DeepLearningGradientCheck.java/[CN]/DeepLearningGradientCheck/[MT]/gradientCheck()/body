@@ -58,7 +58,7 @@
               parms._momentum_start=0.9;
               parms._momentum_stable=0.99;
               parms._mini_batch_size=miniBatchSize;
-              DeepLearningModelInfo.gradientCheck=null;
+              DeepLearningModelInfo.gradientCheck=new DeepLearningModelInfo.GradientCheck(0,0,0);
               DeepLearning job=new DeepLearning(parms);
               try {
                 dl=job.trainModel().get();
@@ -114,7 +114,6 @@
                         dl.set_model_info(modelInfo.deep_clone());
                         assert(before == dl.model_info().checksum_impl());
                         double bpropGradient=DeepLearningModelInfo.gradientCheck.gradient;
-                        DeepLearningModelInfo.gradientCheck=null;
                         final float weight=dl.model_info().get_weights(layer).get(row,col);
                         double eps=1e-4 * Math.abs(weight);
                         if (eps == 0)                         eps=1e-6;

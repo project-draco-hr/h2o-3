@@ -74,7 +74,7 @@
       if (get_params()._distribution == Distribution.Family.huber) {
         Vec absdiff=new MathUtils.ComputeAbsDiff().doAll(1,(byte)3,new Frame(new String[]{"a","p"},new Vec[]{fTrain.vec(get_params()._response_column),trainPredict.anyVec()})).outputFrame().anyVec();
         double huberDelta=MathUtils.computeWeightedQuantile(fTrain.vec(get_params()._weights_column),absdiff,get_params()._huber_alpha);
-        _dist.setHuberDelta(huberDelta);
+        if (model_info().gradientCheck == null)         _dist.setHuberDelta(huberDelta);
       }
       trainPredict.delete();
       hex.ModelMetrics mtrain=ModelMetrics.getFromDKV(this,fTrain);

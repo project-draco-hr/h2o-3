@@ -1,6 +1,6 @@
 {
   Frame adaptFr=new Frame(fr);
-  boolean computeMetrics=(!isSupervised() || adaptFr.find(_output.responseName()) != -1);
+  final boolean computeMetrics=(!isSupervised() || (adaptFr.vec(_output.responseName()) != null && !adaptFr.vec(_output.responseName()).isBad()));
   adaptTestForTrain(adaptFr,true,computeMetrics);
   Frame output=predictScoreImpl(fr,adaptFr,destination_key,j);
   Vec predicted=output.vecs()[0];

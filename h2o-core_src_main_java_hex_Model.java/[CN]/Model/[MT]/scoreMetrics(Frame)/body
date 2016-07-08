@@ -1,5 +1,5 @@
 {
-  final boolean computeMetrics=(!isSupervised() || adaptFrm.find(_output.responseName()) != -1);
+  final boolean computeMetrics=(!isSupervised() || (adaptFrm.vec(_output.responseName()) != null && !adaptFrm.vec(_output.responseName()).isBad()));
   String[] domain=!computeMetrics ? _output._domains[_output._domains.length - 1] : adaptFrm.lastVec().domain();
   BigScore bs=new BigScore(domain,0,adaptFrm.means(),_output.hasWeights() && adaptFrm.find(_output.weightsName()) >= 0,computeMetrics,false,null).doAll(adaptFrm);
   return bs._mb;
