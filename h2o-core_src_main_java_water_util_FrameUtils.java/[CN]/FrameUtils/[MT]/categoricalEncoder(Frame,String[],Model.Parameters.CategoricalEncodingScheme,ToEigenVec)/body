@@ -1,0 +1,16 @@
+{
+switch (scheme) {
+case AUTO:
+case Enum:
+case OneHotInternal:
+    return dataset;
+case OneHotExplicit:
+  return new CategoricalOneHotEncoder(dataset,skipCols).exec().get();
+case Binary:
+return new CategoricalBinaryEncoder(dataset,skipCols).exec().get();
+case Eigen:
+return new CategoricalEigenEncoder(tev,dataset,skipCols).exec().get();
+default :
+throw H2O.unimpl();
+}
+}

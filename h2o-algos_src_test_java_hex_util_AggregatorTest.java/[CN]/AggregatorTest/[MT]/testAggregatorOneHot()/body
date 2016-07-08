@@ -1,0 +1,31 @@
+{
+  CreateFrame cf=new CreateFrame();
+  cf.rows=1000;
+  cf.cols=10;
+  cf.categorical_fraction=0.6;
+  cf.integer_fraction=0.0;
+  cf.binary_fraction=0.0;
+  cf.real_range=100;
+  cf.integer_range=100;
+  cf.missing_fraction=0.1;
+  cf.factors=5;
+  cf.seed=1234;
+  Frame frame=cf.execImpl().get();
+  Scope.enter();
+  AggregatorModel.AggregatorParameters parms=new AggregatorModel.AggregatorParameters();
+  parms._train=frame._key;
+  parms._radius_scale=1.0;
+  parms._transform=DataInfo.TransformType.NORMALIZE;
+  parms._categorical_encoding=Model.Parameters.CategoricalEncodingScheme.OneHotExplicit;
+  long start=System.currentTimeMillis();
+  AggregatorModel agg=new Aggregator(parms).trainModel().get();
+  System.out.println("AggregatorModel finished in: " + (System.currentTimeMillis() - start) / 1000. + " seconds");
+  agg.checkConsistency();
+  Frame output=agg._output._output_frame.get();
+  System.out.println(output);
+  Log.info("Number of exemplars: " + agg._exemplars.length);
+  output.remove();
+  frame.remove();
+  Scope.exit();
+  agg.remove();
+}

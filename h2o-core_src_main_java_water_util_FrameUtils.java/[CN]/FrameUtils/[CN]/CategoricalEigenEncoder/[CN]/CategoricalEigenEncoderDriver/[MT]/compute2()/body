@@ -5,17 +5,14 @@
     Vec v=_frame.vec(_skipCols[i]);
     if (v != null)     extraVecs[i]=v;
   }
-  Frame train=new Frame(Key.make());
   Frame outputFrame=new Frame(_destKey);
   for (int i=0; i < frameVecs.length; ++i) {
     if (ArrayUtils.find(_skipCols,_frame._names[i]) >= 0)     continue;
-    if (frameVecs[i].isCategorical()) {
-      outputFrame.add(_frame.name(i),frameVecs[i]);
-    }
- else     outputFrame.add(_frame.name(i),frameVecs[i]);
+    if (frameVecs[i].isCategorical())     outputFrame.add(_frame.name(i),_tev.toEigenVec(frameVecs[i]));
+ else     outputFrame.add(_frame.name(i),frameVecs[i].makeCopy());
   }
   for (int i=0; i < extraVecs.length; ++i) {
-    if (extraVecs[i] != null)     outputFrame.add(_skipCols[i],extraVecs[i]);
+    if (extraVecs[i] != null)     outputFrame.add(_skipCols[i],extraVecs[i].makeCopy());
   }
   DKV.put(outputFrame);
   tryComplete();

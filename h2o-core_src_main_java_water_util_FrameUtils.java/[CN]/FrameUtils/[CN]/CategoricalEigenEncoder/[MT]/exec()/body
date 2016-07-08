@@ -1,7 +1,7 @@
 {
   if (_frame == null)   throw new IllegalArgumentException("Frame doesn't exist.");
-  Key<Frame> destKey=Key.make();
+  Key<Frame> destKey=Key.makeSystem(Key.make().toString());
   _job=new Job<>(destKey,Frame.class.getName(),"CategoricalEigenEncoder");
   int workAmount=_frame.lastVec().nChunks();
-  return _job.start(new CategoricalEigenEncoderDriver(_frame,destKey,_skipCols),workAmount);
+  return _job.start(new CategoricalEigenEncoderDriver(_tev,_frame,destKey,_skipCols),workAmount);
 }

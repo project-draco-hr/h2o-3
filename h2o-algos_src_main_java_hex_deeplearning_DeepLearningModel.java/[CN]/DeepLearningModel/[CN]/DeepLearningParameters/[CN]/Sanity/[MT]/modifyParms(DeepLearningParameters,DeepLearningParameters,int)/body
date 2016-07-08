@@ -25,6 +25,10 @@
     if (!fromParms._quiet_mode)     Log.info("_overwrite_with_best_model: Disabling overwrite_with_best_model in combination with n-fold cross-validation.");
     toParms._overwrite_with_best_model=false;
   }
+  if (fromParms._categorical_encoding == CategoricalEncodingScheme.AUTO) {
+    if (!fromParms._quiet_mode)     Log.info("_categorical_encoding: Automatically enabling OneHotInternal categorical encoding.");
+    toParms._categorical_encoding=CategoricalEncodingScheme.OneHotInternal;
+  }
   if (fromParms._adaptive_rate) {
     if (!fromParms._quiet_mode)     Log.info("_adaptive_rate: Using automatic learning rate. Ignoring the following input parameters: " + "rate, rate_decay, rate_annealing, momentum_start, momentum_ramp, momentum_stable.");
     toParms._rate=0;

@@ -1,0 +1,7 @@
+{
+  if (_frame == null)   throw new IllegalArgumentException("Frame doesn't exist.");
+  Key<Frame> destKey=Key.makeSystem(Key.make().toString());
+  _job=new Job<>(destKey,Frame.class.getName(),"CategoricalOneHotEncoder");
+  int workAmount=_frame.lastVec().nChunks();
+  return _job.start(new CategoricalOneHotEncoderDriver(_frame,destKey,_skipCols),workAmount);
+}

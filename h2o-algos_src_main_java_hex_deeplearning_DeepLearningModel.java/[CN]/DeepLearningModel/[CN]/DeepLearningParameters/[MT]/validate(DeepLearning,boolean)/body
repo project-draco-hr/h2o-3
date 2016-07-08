@@ -22,6 +22,9 @@
   if (_categorical_encoding == CategoricalEncodingScheme.Enum) {
     dl.error("_categorical_encoding","Cannot use Enum encoding for categoricals - need numbers!");
   }
+  if (_categorical_encoding == CategoricalEncodingScheme.OneHotExplicit) {
+    dl.error("_categorical_encoding","Won't use explicit Enum encoding for categoricals - it's much faster with OneHotInternal!");
+  }
   if (_activation != Activation.TanhWithDropout && _activation != Activation.MaxoutWithDropout && _activation != Activation.RectifierWithDropout && _activation != Activation.ExpRectifierWithDropout) {
     dl.hide("_hidden_dropout_ratios","hidden_dropout_ratios requires a dropout activation function.");
   }
