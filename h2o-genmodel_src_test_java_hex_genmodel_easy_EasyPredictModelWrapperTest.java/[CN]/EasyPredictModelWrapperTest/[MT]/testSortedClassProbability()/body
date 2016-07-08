@@ -1,0 +1,14 @@
+{
+  MyModel rawModel=makeModel();
+  EasyPredictModelWrapper m=new EasyPredictModelWrapper(rawModel);
+{
+    RowData row=new RowData();
+    row.put("C1","c1level1");
+    BinomialModelPrediction p=m.predictBinomial(row);
+    SortedClassProbability[] arr=m.sortByDescendingClassProbability(p);
+    Assert.assertEquals(arr[0].name,"NO");
+    Assert.assertEquals(arr[0].probability,1.0,0.001);
+    Assert.assertEquals(arr[1].name,"YES");
+    Assert.assertEquals(arr[1].probability,0.0,0.001);
+  }
+}
