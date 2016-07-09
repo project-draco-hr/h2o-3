@@ -1,0 +1,33 @@
+{
+  Frame tfr=null;
+  DeepLearningModel dl=null;
+  try {
+    String response="survived";
+    tfr=parse_test_file("./smalldata/junit/titanic_alt.csv");
+    if (tfr.vec(response).isBinary()) {
+      Vec v=tfr.remove(response);
+      tfr.add(response,v.toCategoricalVec());
+      v.remove();
+    }
+    DKV.put(tfr);
+    DeepLearningParameters parms=new DeepLearningParameters();
+    parms._train=tfr._key;
+    parms._valid=tfr._key;
+    parms._response_column=response;
+    parms._reproducible=true;
+    parms._hidden=new int[]{20,20};
+    parms._seed=0xdecaf;
+    parms._nfolds=3;
+    parms._categorical_encoding=Model.Parameters.CategoricalEncodingScheme.Eigen;
+    dl=new DeepLearning(parms).trainModel().get();
+    Assert.assertEquals(0.94905686,((ModelMetricsBinomial)dl._output._training_metrics)._auc._auc,1e-4);
+    Assert.assertEquals(0.94905686,((ModelMetricsBinomial)dl._output._validation_metrics)._auc._auc,1e-4);
+    Assert.assertEquals(0.90714833,((ModelMetricsBinomial)dl._output._cross_validation_metrics)._auc._auc,1e-5);
+    Assert.assertEquals(0.90714833,Double.parseDouble((String)(dl._output._cross_validation_metrics_summary).get(1,0)),1e-2);
+  }
+  finally {
+    if (tfr != null)     tfr.remove();
+    if (dl != null)     dl.deleteCrossValidationModels();
+    if (dl != null)     dl.delete();
+  }
+}
