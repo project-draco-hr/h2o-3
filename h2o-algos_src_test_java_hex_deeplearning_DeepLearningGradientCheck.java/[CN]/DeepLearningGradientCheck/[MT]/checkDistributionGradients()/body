@@ -13,7 +13,8 @@
         Distribution d=new Distribution(p);
         double f=(i + 0.5) / N;
         double grad=-2 * d.negHalfGradient(y,f);
-        double approxgrad=(d.deviance(1,y,d.linkInv(f + eps)) - d.deviance(1,y,d.linkInv(f - eps))) / (2 * eps);
+        double w=rng.nextDouble() * 10;
+        double approxgrad=(d.deviance(w,y,d.linkInv(f + eps)) - d.deviance(w,y,d.linkInv(f - eps))) / (2 * eps * w);
         assert(Math.abs(grad - approxgrad) <= 1e-4);
       }
     }
