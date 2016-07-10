@@ -9,7 +9,7 @@
     M cvModel=cvModelBuilders[i].dest().get();
     cvModel.adaptTestForTrain(adaptFr,true,!isSupervised());
     mbs[i]=cvModel.scoreMetrics(adaptFr);
-    if (nclasses() == 2 || _parms._keep_cross_validation_predictions || (nclasses() == 1 && _parms._distribution == Distribution.Family.huber)) {
+    if (nclasses() == 2 || _parms._keep_cross_validation_predictions || (_parms._distribution == Distribution.Family.huber)) {
       String predName="prediction_" + cvModelBuilders[i]._result.toString();
       cvModel.predictScoreImpl(cvValid,adaptFr,predName,null);
     }

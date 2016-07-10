@@ -2,6 +2,7 @@
   for (  boolean ae : new boolean[]{true,false}) {
     Frame tfr=null;
     DeepLearningModel dl=null;
+    Frame pred=null;
     try {
       tfr=parse_test_file("./smalldata/junit/two_spiral.csv");
       for (      String s : new String[]{"Class"}) {
@@ -30,12 +31,18 @@
  catch (      RuntimeException de) {
       }
       dl=DKV.getGet(job.dest());
+      try {
+        pred=dl.score(tfr);
+      }
+ catch (      RuntimeException ex) {
+      }
       assertTrue(dl.model_info().isUnstable());
       assertTrue(dl._output._job.isCrashed());
     }
   finally {
       if (tfr != null)       tfr.delete();
       if (dl != null)       dl.delete();
+      if (pred != null)       pred.delete();
     }
   }
 }

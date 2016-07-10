@@ -1,20 +1,13 @@
 {
-  boolean exceptional=false;
   try {
     Scope.enter();
     _parms.read_lock_frames(_job);
     computeImpl();
   }
- catch (  Throwable t) {
-    exceptional=true;
-    throw t;
-  }
- finally {
-    if (dest() != null && dest().get() != null && dest().get()._output != null) {
-      dest().get()._output._job=_job;
-    }
+  finally {
+    setFinalState();
     _parms.read_unlock_frames(_job);
     Scope.exit();
   }
-  if (!exceptional)   tryComplete();
+  tryComplete();
 }

@@ -1,8 +1,8 @@
 {
   Chunk ys=_bldr.chk_resp(chks);
   Model m=_bldr._model;
-  Chunk weightsChunk=m._output.hasWeights() ? chks[m._output.weightsIdx()] : new C0DChunk(1,chks[0]._len);
-  Chunk offsetChunk=m._output.hasOffset() ? chks[m._output.offsetIdx()] : new C0DChunk(0,chks[0]._len);
+  Chunk weightsChunk=m._output.hasWeights() ? chks[m._output.weightsIdx()] : null;
+  Chunk offsetChunk=m._output.hasOffset() ? chks[m._output.offsetIdx()] : null;
   final int nclass=_bldr.nclasses();
   String[] domain=_kresp.get().domain();
   final int oobColIdx=_bldr.idx_oobt();
@@ -13,9 +13,9 @@
   for (int row=0; row < ys._len; row++) {
     if (ys.isNA(row))     continue;
     if (_oob && chks[oobColIdx].atd(row) == 0)     continue;
-    double weight=weightsChunk.atd(row);
+    double weight=weightsChunk != null ? weightsChunk.atd(row) : 1;
     if (weight == 0)     continue;
-    double offset=offsetChunk.atd(row);
+    double offset=offsetChunk != null ? offsetChunk.atd(row) : 0;
     if (_is_train)     _bldr.score2(chks,weight,offset,cdists,row);
  else     m.score0(chks,weight,offset,row,tmp,cdists);
     if (_is_train && _bldr._ntrees == 0)     for (int i=0; i < tmp.length; i++)     tmp[i]=chks[i].atd(row);
