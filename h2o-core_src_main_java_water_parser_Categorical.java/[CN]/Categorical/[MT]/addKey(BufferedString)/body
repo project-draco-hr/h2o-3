@@ -1,2 +1,11 @@
 {
+  IcedHashMap<BufferedString,Integer> m=_map;
+  if (m == null)   return Integer.MAX_VALUE;
+  Integer res=m.get(str);
+  if (res != null)   return res;
+  int newVal=_id.incrementAndGet();
+  res=m.putIfAbsent(new BufferedString(str),newVal);
+  if (res != null)   return res;
+  if (m.size() > MAX_CATEGORICAL_COUNT)   maxDomainExceeded=true;
+  return newVal;
 }
