@@ -45,6 +45,8 @@
               parms._quantile_alpha=0.05 + rng.nextDouble() * 0.9;
               parms._train=tfr._key;
               parms._epochs=100;
+              parms._l1=1e-3;
+              parms._l2=1e-3;
               parms._force_load_balance=false;
               parms._hidden=new int[]{10,10,10};
               parms._fast_mode=false;
@@ -89,7 +91,59 @@
                   meanLoss+=loss;
                   for (int layer=0; layer <= parms._hidden.length; ++layer) {
                     int rows=dl.model_info().get_weights(layer).rows();
+                    assert(dl.model_info().get_biases(layer).size() == rows);
                     for (int row=0; row < rows; ++row) {
+                      if (true) {
+                        dl.set_model_info(modelInfo.deep_clone());
+                        Neurons[] neurons=DeepLearningTask.makeNeuronsForTraining(dl.model_info());
+                        double[] responses=new double[miniBatchSize];
+                        double[] offsets=new double[miniBatchSize];
+                        int n=0;
+                        for (                        DataInfo.Row myRow : rowsMiniBatch) {
+                          if (myRow == null)                           continue;
+                          ((Neurons.Input)neurons[0]).setInput(-1,myRow.numIds,myRow.numVals,myRow.nBins,myRow.binIds,n);
+                          responses[n]=myRow.response(0);
+                          offsets[n]=myRow.offset;
+                          n++;
+                        }
+                        DeepLearningTask.fpropMiniBatch(-1,neurons,dl.model_info(),null,true,responses,offsets,n);
+                        long after=dl.model_info().checksum_impl();
+                        assert(after == before);
+                        DeepLearningModelInfo.gradientCheck=new DeepLearningModelInfo.GradientCheck(layer,row,-1);
+                        DeepLearningTask.bpropMiniBatch(neurons,n);
+                        assert(before != dl.model_info().checksum_impl());
+                        dl.set_model_info(modelInfo.deep_clone());
+                        assert(before == dl.model_info().checksum_impl());
+                        double bpropGradient=DeepLearningModelInfo.gradientCheck.gradient;
+                        final double bias=dl.model_info().get_biases(layer).get(row);
+                        double eps=1e-4 * Math.abs(bias);
+                        if (eps == 0)                         eps=1e-6;
+                        dl.model_info().get_biases(layer).set(row,bias + eps);
+                        double up=dl.meanLoss(rowsMiniBatch);
+                        dl.model_info().get_biases(layer).set(row,bias - eps);
+                        double down=dl.meanLoss(rowsMiniBatch);
+                        if (Math.abs(up - down) / Math.abs(up + down) < 1e-8) {
+                          continue;
+                        }
+                        double gradient=((up - down) / (2. * eps));
+                        double relError=2 * Math.abs(bpropGradient - gradient) / (Math.abs(gradient) + Math.abs(bpropGradient));
+                        count++;
+                        if (Math.abs(gradient) < 1e-7 || Math.abs(bpropGradient) < 1e-7) {
+                          if (Math.abs(bpropGradient - gradient) < 1e-7)                           continue;
+                        }
+                        meanRelErr+=relError;
+                        if (relError > MAX_TOLERANCE) {
+                          Log.info("\nDistribution: " + dl._parms._distribution);
+                          Log.info("\nRow: " + rId);
+                          Log.info("bias (layer " + layer + ", row "+ row+ "): "+ bias+ " +/- "+ eps);
+                          Log.info("loss: " + loss);
+                          Log.info("losses up/down: " + up + " / "+ down);
+                          Log.info("=> Finite differences gradient: " + gradient);
+                          Log.info("=> Back-propagation gradient  : " + bpropGradient);
+                          Log.info("=> Relative error             : " + PrettyPrint.formatPct(relError));
+                          failedcount++;
+                        }
+                      }
                       int cols=dl.model_info().get_weights(layer).cols();
                       for (int col=0; col < cols; ++col) {
                         if (rng.nextFloat() >= SAMPLE_RATE)                         continue;

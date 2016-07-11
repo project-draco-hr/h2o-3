@@ -22,9 +22,9 @@
       if (update_prev)       _previous._e[mb].add(col,partial_grad[mb] * weight);
       final double previous_a=_previous._a[mb].get(col);
       if (fast_mode && previous_a == 0)       continue;
-      double grad=partial_grad[mb] * previous_a - Math.signum(weight) * l1 - weight * l2;
+      double grad=partial_grad[mb] * previous_a + Math.signum(weight) * l1 + weight * l2;
       if (_wEA != null) {
-        grad-=params._elastic_averaging_regularization * (_w.raw()[w] - _wEA.raw()[w]);
+        grad+=params._elastic_averaging_regularization * (_w.raw()[w] - _wEA.raw()[w]);
       }
       if (DeepLearningModelInfo.gradientCheck != null)       DeepLearningModelInfo.gradientCheck.apply(_index,row,col,grad);
       if (have_ada) {

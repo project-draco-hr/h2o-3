@@ -5,8 +5,9 @@
   final float l2=(float)params._l2;
   final int b=_k != 0 ? _k * row + _maxIncoming[mb][row] : row;
   final double bias=_b.get(b);
-  partial_grad[mb]-=Math.signum(bias) * l1 + bias * l2;
-  if (_bEA != null)   partial_grad[mb]-=(bias - _bEA.get(b)) * params._elastic_averaging_regularization;
+  partial_grad[mb]+=Math.signum(bias) * l1 + bias * l2;
+  if (_bEA != null)   partial_grad[mb]+=(bias - _bEA.get(b)) * params._elastic_averaging_regularization;
+  if (DeepLearningModelInfo.gradientCheck != null)   DeepLearningModelInfo.gradientCheck.apply(_index,row,-1,partial_grad[mb]);
   if (have_ada) {
     final float rho=(float)params._rho;
     final float eps=(float)params._epsilon;
