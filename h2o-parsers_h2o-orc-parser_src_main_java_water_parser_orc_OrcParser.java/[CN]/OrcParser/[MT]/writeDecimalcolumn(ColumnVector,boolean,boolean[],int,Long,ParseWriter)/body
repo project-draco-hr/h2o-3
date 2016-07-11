@@ -1,0 +1,7 @@
+{
+  HiveDecimalWritable[] oneColumn=((DecimalColumnVector)oneDecimalColumn).vector;
+  for (int rowIndex=0; rowIndex < rowNumber; rowIndex++) {
+    HiveDecimal hd=oneColumn[rowIndex].getHiveDecimal();
+    if (noNulls || !isNull[rowIndex])     dout.addNumCol(cIdx,hd.unscaledValue().longValue(),-hd.scale());
+  }
+}

@@ -1,0 +1,9 @@
+{
+  double[] oneColumn=((DoubleColumnVector)oneDoubleColumn).vector;
+  long frameRowIndex=startRowIndex;
+  for (int rowIndex=0; rowIndex < currentBatchRow; rowIndex++) {
+    if (isNull[rowIndex])     assertEquals("Na is found: ",true,h2oFrame.isNA(frameRowIndex));
+ else     assertEquals("Numerical elements should equal: ",oneColumn[rowIndex],h2oFrame.at(frameRowIndex),EPSILON);
+    frameRowIndex++;
+  }
+}

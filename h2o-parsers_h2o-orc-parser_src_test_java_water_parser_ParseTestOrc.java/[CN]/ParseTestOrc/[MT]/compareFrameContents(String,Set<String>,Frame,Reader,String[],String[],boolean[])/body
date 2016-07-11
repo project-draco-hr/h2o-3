@@ -1,0 +1,35 @@
+{
+  List<StripeInformation> stripesInfo=orcReader.getStripes();
+  if (stripesInfo.size() == 0) {
+    assertEquals("Orc file is empty.  H2O frame row number should be zero: ",0,h2oFrame.numRows());
+  }
+ else {
+    Long startRowIndex=0L;
+    for (    StripeInformation oneStripe : stripesInfo) {
+      try {
+        RecordReader perStripe=orcReader.rows(oneStripe.getOffset(),oneStripe.getDataLength(),toInclude,null,colNames);
+        VectorizedRowBatch batch=perStripe.nextBatch(null);
+        boolean done=false;
+        Long rowCounts=0L;
+        Long rowNumber=oneStripe.getNumberOfRows();
+        while (!done) {
+          long currentBatchRow=batch.count();
+          ColumnVector[] dataVectors=batch.cols;
+          for (int cIdx=0; cIdx < colNames.length; cIdx++) {
+            compare1Cloumn(dataVectors[cIdx],colTypes[cIdx].toLowerCase(),cIdx,currentBatchRow,h2oFrame.vec(colNames[cIdx]),startRowIndex);
+          }
+          rowCounts=rowCounts + currentBatchRow;
+          startRowIndex=startRowIndex + currentBatchRow;
+          if (rowCounts >= rowNumber)           done=true;
+          if (!done)           batch=perStripe.nextBatch(batch);
+        }
+        perStripe.close();
+      }
+ catch (      Throwable e) {
+        numberWrong++;
+        failedFiles.add(fileName);
+        e.printStackTrace();
+      }
+    }
+  }
+}

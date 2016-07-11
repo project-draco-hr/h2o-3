@@ -1,0 +1,14 @@
+{
+  long[] oneColumn=((LongColumnVector)oneTSColumn).vector;
+  if (noNulls) {
+    for (int rowIndex=0; rowIndex < rowNumber; rowIndex++) {
+      dout.addNumCol(cIdx,oneColumn[rowIndex]);
+    }
+  }
+ else {
+    for (int rowIndex=0; rowIndex < rowNumber; rowIndex++) {
+      if (isNull[rowIndex])       dout.addInvalidCol(cIdx);
+ else       dout.addNumCol(cIdx,oneColumn[rowIndex]);
+    }
+  }
+}

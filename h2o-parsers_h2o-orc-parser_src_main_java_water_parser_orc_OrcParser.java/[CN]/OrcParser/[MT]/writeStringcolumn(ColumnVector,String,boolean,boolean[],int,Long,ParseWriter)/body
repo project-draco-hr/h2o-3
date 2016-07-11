@@ -1,0 +1,11 @@
+{
+  byte[][] oneColumn=((BytesColumnVector)oneStringColumn).vector;
+  int[] stringLength=((BytesColumnVector)oneStringColumn).length;
+  int[] stringStart=((BytesColumnVector)oneStringColumn).start;
+  for (int rowIndex=0; rowIndex < rowNumber; rowIndex++) {
+    if (isNull[rowIndex])     dout.addInvalidCol(cIdx);
+ else {
+      dout.addStrCol(cIdx,bs.set(oneColumn[rowIndex],stringStart[rowIndex],stringLength[rowIndex]));
+    }
+  }
+}
