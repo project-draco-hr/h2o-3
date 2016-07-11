@@ -1,0 +1,15 @@
+{
+  Frame fr=null;
+  String tree="(sort hex [0 1])";
+  try {
+    fr=buildFrame(3,4);
+    Val val=Rapids.exec(tree);
+    System.out.println(val.toString());
+    assertTrue(val instanceof ValFrame);
+    Frame res=((ValFrame)val)._fr;
+  }
+  finally {
+    if (fr != null)     fr.delete();
+    Keyed.remove(Key.make("hex"));
+  }
+}
