@@ -1,0 +1,11 @@
+{
+  _preds=preds;
+  _labels=labels.toCategoricalVec();
+  if (_labels == null || _preds == null)   throw new IllegalArgumentException("Missing actualLabels or predictedProbs!");
+  if (_labels.length() != _preds.numRows())   throw new IllegalArgumentException("Both arguments must have the same length (" + _labels.length() + "!="+ _preds.numRows()+ ")!");
+  if (_labels.cardinality() <= 1)   throw new IllegalArgumentException("Labels, must have cardinality >1, but found " + _labels.cardinality() + "!");
+  for (  Vec p : _preds.vecs())   if (p.isCategorical())   throw new IllegalArgumentException("Predicted probabilities cannot be class labels, expect only per-class probabilities.");
+  int nclasses=_preds.numCols();
+  if (domain.length != nclasses)   throw new IllegalArgumentException("Given domain has " + domain.length + " classes, but predictions have "+ nclasses+ " columns (per-class probabilities).");
+  _labels=_labels.adaptTo(domain);
+}

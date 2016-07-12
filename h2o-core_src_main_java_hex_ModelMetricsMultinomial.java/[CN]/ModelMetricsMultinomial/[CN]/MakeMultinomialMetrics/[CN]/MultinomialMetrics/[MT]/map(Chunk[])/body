@@ -1,0 +1,10 @@
+{
+  _mb=new MetricBuilderMultinomial(hitRatioK,domain);
+  Chunk actuals=chks[chks.length - 1];
+  double[] ds=new double[chks.length];
+  for (int i=0; i < chks[0]._len; ++i) {
+    for (int c=1; c < chks.length; ++c)     ds[c]=chks[c - 1].atd(i);
+    ds[0]=GenModel.getPrediction(ds,null,ds,0.5);
+    _mb.perRow(ds,new float[]{actuals.at8(i)},null);
+  }
+}
