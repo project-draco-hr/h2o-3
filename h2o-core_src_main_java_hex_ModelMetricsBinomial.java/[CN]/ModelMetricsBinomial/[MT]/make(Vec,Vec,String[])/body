@@ -4,12 +4,11 @@
   if (!targetClassProbs.isNumeric())   throw new IllegalArgumentException("Predicted probabilities must be numeric per-class probabilities.");
   if (targetClassProbs.min() < 0 || targetClassProbs.max() > 1)   throw new IllegalArgumentException("Predicted probabilities must be between 0 and 1.");
   if (domain.length != 2)   throw new IllegalArgumentException("Domain must have 2 class labels, but is " + Arrays.toString(domain));
-  if (threshold < 0 || threshold > 1)   throw new IllegalArgumentException("Classification threshold must be between 0 and 1.");
   _labels=_labels.adaptTo(domain);
   Frame predsLabel=new Frame(targetClassProbs);
   predsLabel.add("labels",_labels);
-  ModelMetricsBinomial mm=new BinomialMetrics(_labels.domain(),threshold).doAll(predsLabel)._mm;
-  mm._description="Computed on user-given predictions and labels";
+  ModelMetricsBinomial mm=new BinomialMetrics(_labels.domain()).doAll(predsLabel)._mm;
+  mm._description="Computed on user-given predictions and labels, using F1-optimal threshold: " + mm.auc_obj().defaultThreshold();
   _labels.remove();
   return mm;
 }
