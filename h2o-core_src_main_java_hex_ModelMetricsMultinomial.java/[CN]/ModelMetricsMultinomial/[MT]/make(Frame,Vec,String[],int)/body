@@ -1,0 +1,18 @@
+{
+  Vec _labels=actualLabels.toCategoricalVec();
+  if (_labels == null || perClassProbs == null)   throw new IllegalArgumentException("Missing actualLabels or predictedProbs!");
+  if (_labels.length() != perClassProbs.numRows())   throw new IllegalArgumentException("Both arguments must have the same length (" + _labels.length() + "!="+ perClassProbs.numRows()+ ")!");
+  if (_labels.cardinality() <= 1)   throw new IllegalArgumentException("Labels, must have cardinality >1, but found " + _labels.cardinality() + "!");
+  for (  Vec p : perClassProbs.vecs()) {
+    if (p.isCategorical())     throw new IllegalArgumentException("Predicted probabilities cannot be class labels, expect only per-class probabilities.");
+    if (p.min() < 0 || p.max() > 1)     throw new IllegalArgumentException("Predicted probabilities must be between 0 and 1.");
+  }
+  int nclasses=perClassProbs.numCols();
+  if (domain.length != nclasses)   throw new IllegalArgumentException("Given domain has " + domain.length + " classes, but predictions have "+ nclasses+ " columns (per-class probabilities).");
+  _labels=_labels.adaptTo(domain);
+  Frame predsLabel=new Frame(perClassProbs);
+  predsLabel.add("labels",_labels);
+  ModelMetricsMultinomial mm=new MultinomialMetrics(_labels.domain(),topKHitRatio).doAll(predsLabel)._mm;
+  _labels.remove();
+  return mm;
+}
