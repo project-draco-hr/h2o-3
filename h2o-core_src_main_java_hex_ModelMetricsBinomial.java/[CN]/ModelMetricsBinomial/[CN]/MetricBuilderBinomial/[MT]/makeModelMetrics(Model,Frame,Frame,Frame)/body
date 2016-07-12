@@ -3,23 +3,22 @@
   double mse=Double.NaN;
   double logloss=Double.NaN;
   double sigma=Double.NaN;
+  AUC2 auc=null;
+  GainsLift gl=null;
   if (_wcount > 0) {
     sigma=weightedSigma();
     mse=_sumsqe / _wcount;
     logloss=_logloss / _wcount;
-    AUC2 auc=new AUC2(_auc);
-    GainsLift gl=null;
+    auc=new AUC2(_auc);
+    gl=null;
     if (preds != null) {
-      Vec resp=f.vec(m._parms._response_column);
-      Vec weight=frameWithWeights.vec(m._parms._weights_column);
+      Vec resp=m == null && f.vec(f.numCols() - 1).isCategorical() ? f.vec(f.numCols() - 1) : f.vec(m._parms._response_column);
+      Vec weight=m == null ? null : frameWithWeights.vec(m._parms._weights_column);
       if (resp != null) {
         gl=new GainsLift(preds.lastVec(),resp,weight);
         gl.exec(m._output._job);
       }
     }
-    return m._output.addModelMetrics(new ModelMetricsBinomial(m,f,_count,mse,_domain,sigma,auc,logloss,gl));
   }
- else {
-    return m._output.addModelMetrics(new ModelMetricsBinomial(m,f,_count,mse,null,sigma,null,logloss,null));
-  }
+  return m == null ? new ModelMetricsBinomial(null,f,_count,mse,_domain,sigma,auc,logloss,gl) : m._output.addModelMetrics(new ModelMetricsBinomial(m,f,_count,mse,_domain,sigma,auc,logloss,gl));
 }
