@@ -37,14 +37,15 @@ def _except_hook(exc_type, exc_value, exc_tb):
             if (key.startswith(u'__') and key.endswith(u'__')):
                 continue
             value = frame_locl[key]
-            if (value.__class__ is ModuleType):
-                continue
-            if (value.__class__ is ClassType):
-                continue
-            if (value.__class__ is print_function.__class__):
-                continue
             if (value is None):
                 continue
+            if hasattr(value, u'__class__'):
+                if (value.__class__ is ModuleType):
+                    continue
+                if (value.__class__ is type):
+                    continue
+                if (value.__class__ is print_function.__class__):
+                    continue
             try:
                 strval = str(value)
                 n_lines = strval.count(u'\n')
