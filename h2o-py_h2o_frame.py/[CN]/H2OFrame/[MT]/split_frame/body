@@ -23,6 +23,7 @@ def split_frame(self, ratios=None, destination_frames=None, seed=None):
         i += 1
     splits = []
     tmp_runif = self.runif(seed)
+    tmp_runif.frame_id = (u'%s_splitter' % _py_tmp_key())
     i = 0
     while (i < num_slices):
         if (i == 0):
@@ -42,4 +43,5 @@ def split_frame(self, ratios=None, destination_frames=None, seed=None):
             tmp_slice.frame_id = destination_frame_id
             splits.append(tmp_slice)
         i += 1
+    del tmp_runif
     return splits
