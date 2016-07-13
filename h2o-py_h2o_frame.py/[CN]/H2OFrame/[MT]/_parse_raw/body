@@ -4,7 +4,7 @@ def _parse_raw(self, setup):
         p[u'column_names'] = None
     if setup[u'na_strings']:
         p[u'na_strings'] = None
-    p.update({k: v for (k, v) in iteritems(setup) if (k in p)})
+    p.update({k: v for (k, v) in viewitems(setup) if (k in p)})
     p[u'source_frames'] = [_quoted(src[u'name']) for src in setup[u'source_frames']]
     H2OJob(h2o.connection().post_json(url_suffix=u'Parse', **p), u'Parse').poll()
     self._ex._cache._id = p[u'destination_frame']
