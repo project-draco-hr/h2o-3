@@ -1,0 +1,21 @@
+u'\nThis module gathers common declarations needed to ensure Python 2 / Python 3 compatibility.\nIt has to be imported from all other files, so that the common header looks like this:\n\nfrom __future__ import division, print_function, absolute_import, unicode_literals\n# noinspection PyUnresolvedReferences\nfrom .compatibility import *\n\n'
+from __future__ import division, print_function, absolute_import, unicode_literals
+from future.utils import PY2, PY3, with_metaclass
+from functools import wraps
+native_bytes = bytes
+native_dict = dict
+native_int = int
+native_list = list
+native_object = object
+native_str = str
+if PY2:
+    native_unicode = unicode
+if PY2:
+    from future.types import newbytes as bytes, newdict as dict, newint as int, newlist as list, newobject as object, newrange as range, newstr as str
+if PY2:
+    from future.builtins.iterators import range, filter, map, zip
+    from future.utils import viewitems, iteritems, viewkeys, iterkeys, viewvalues, itervalues
+if PY2:
+    from future.builtins.disabled import apply, cmp, coerce, execfile, file, long, raw_input, reduce, reload, unicode, xrange, StandardError
+if PY2:
+    from future.builtins.misc import ascii, chr, hex, input, next, oct, open, pow, round, super
