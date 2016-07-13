@@ -1,6 +1,7 @@
 def cluster_is_up(self):
-    u'\n        Determine if an H2O cluster is up or not.\n\n        :return: True if the cluster is up; False otherwise\n        '
-    rv = self.api(u'GET /')
-    if (rv.status_code == 401):
-        warnings.warn(u'401 Unauthorized Access. Did you forget to provide a username and password?')
-    return ((rv.status_code == 200) or (rv.status_code == 301))
+    u'\n        Determine if an H\u2082O cluster is running or not.\n        :return: True if the cluster is up; False otherwise\n        '
+    try:
+        self.api(u'GET /')
+        return True
+    except (H2OConnectionError, H2OServerError):
+        return False
