@@ -1,0 +1,26 @@
+{
+  RPC<GetRawRemoteRows> grrrsRiteRPC[][]=new RPC[H2O.CLOUD.size()][];
+  RPC<GetRawRemoteRows> grrrsLeftRPC[][]=new RPC[H2O.CLOUD.size()][];
+  for (  H2ONode node : H2O.CLOUD._memary) {
+    final int ni=node.index();
+    final int bUppRite=perNodeRightRows[ni] == null ? 0 : perNodeRightRows[ni].length;
+    final int bUppLeft=perNodeLeftRows[ni] == null ? 0 : perNodeLeftRows[ni].length;
+    grrrsRiteRPC[ni]=new RPC[bUppRite];
+    grrrsLeftRPC[ni]=new RPC[bUppLeft];
+    grrrsRite[ni]=new GetRawRemoteRows[bUppRite];
+    grrrsLeft[ni]=new GetRawRemoteRows[bUppLeft];
+    for (int b=0; b < bUppRite; b++) {
+      grrrsRiteRPC[ni][b]=new RPC<>(node,new GetRawRemoteRows(_riteSB._frame,perNodeRightRows[ni][b])).call();
+    }
+    for (int b=0; b < bUppLeft; b++) {
+      grrrsLeftRPC[ni][b]=new RPC<>(node,new GetRawRemoteRows(_leftSB._frame,perNodeLeftRows[ni][b])).call();
+    }
+  }
+  for (  H2ONode node : H2O.CLOUD._memary) {
+    int ni=node.index();
+    final int bUppRite=perNodeRightRows[ni] == null ? 0 : perNodeRightRows[ni].length;
+    for (int b=0; b < bUppRite; b++)     _timings[5]+=(grrrsRite[ni][b]=grrrsRiteRPC[ni][b].get()).timeTaken;
+    final int bUppLeft=perNodeLeftRows[ni] == null ? 0 : perNodeLeftRows[ni].length;
+    for (int b=0; b < bUppLeft; b++)     _timings[5]+=(grrrsLeft[ni][b]=grrrsLeftRPC[ni][b].get()).timeTaken;
+  }
+}
