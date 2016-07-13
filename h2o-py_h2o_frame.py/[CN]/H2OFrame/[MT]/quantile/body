@@ -1,16 +1,16 @@
-def quantile(self, prob=None, combine_method='interpolate', weights_column=None):
-    'Compute quantiles.\n\n    Parameters\n    ----------\n      prob : list, default=[0.01,0.1,0.25,0.333,0.5,0.667,0.75,0.9,0.99]\n        A list of probabilities of any length.\n\n      combine_method : str, default="interpolate"\n        For even samples, how to combine quantiles.\n        Should be one of ["interpolate", "average", "low", "high"]\n\n      weights_column : str, default=None\n        Name of column with optional observation weights in this H2OFrame or a 1-column H2OFrame of observation weights.\n\n    Returns\n    -------\n      A new H2OFrame containing the quantiles and probabilities.\n    '
+def quantile(self, prob=None, combine_method=u'interpolate', weights_column=None):
+    u'Compute quantiles.\n\n    Parameters\n    ----------\n      prob : list, default=[0.01,0.1,0.25,0.333,0.5,0.667,0.75,0.9,0.99]\n        A list of probabilities of any length.\n\n      combine_method : str, default="interpolate"\n        For even samples, how to combine quantiles.\n        Should be one of ["interpolate", "average", "low", "high"]\n\n      weights_column : str, default=None\n        Name of column with optional observation weights in this H2OFrame or a 1-column H2OFrame of observation weights.\n\n    Returns\n    -------\n      A new H2OFrame containing the quantiles and probabilities.\n    '
     if (len(self) == 0):
         return self
     if (prob is None):
         prob = [0.01, 0.1, 0.25, 0.333, 0.5, 0.667, 0.75, 0.9, 0.99]
     if (weights_column is None):
-        weights_column = '_'
+        weights_column = u'_'
     else:
         if (not (isinstance(weights_column, basestring) or (isinstance(weights_column, H2OFrame) and (weights_column.ncol == 1) and (weights_column.nrow == self.nrow)))):
-            raise ValueError('`weights_column` must be a column name in x or an H2OFrame object with 1 column and same row count as x')
+            raise ValueError(u'`weights_column` must be a column name in x or an H2OFrame object with 1 column and same row count as x')
         if isinstance(weights_column, H2OFrame):
             merged = self.cbind(weights_column)
             weights_column = merged.names[(-1)]
-            return H2OFrame._expr(expr=ExprNode('quantile', merged, prob, combine_method, weights_column))
-    return H2OFrame._expr(expr=ExprNode('quantile', self, prob, combine_method, weights_column))
+            return H2OFrame._expr(expr=ExprNode(u'quantile', merged, prob, combine_method, weights_column))
+    return H2OFrame._expr(expr=ExprNode(u'quantile', self, prob, combine_method, weights_column))

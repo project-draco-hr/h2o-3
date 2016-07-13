@@ -1,8 +1,7 @@
-'\nAn H2OConnection represents the latest active handle to a cloud. No more than a single\nH2OConnection object will be active at any one time.\n'
-from __future__ import print_function
-from __future__ import absolute_import
+from __future__ import division, print_function, absolute_import, unicode_literals
+from h2o.compatibility import *
+from future import standard_library
 import requests
-import math
 import tempfile
 import os
 import re
@@ -11,20 +10,21 @@ import time
 import subprocess
 import atexit
 import warnings
-import site
-from .display import H2ODisplay
-from .h2o_logging import _is_logging, _log_rest
-from .two_dim_table import H2OTwoDimTable
-from .utils.shared_utils import quote
-from six import iteritems, PY3
-from string import ascii_lowercase, digits
+from simplejson import JSONDecodeError
+from sysconfig import get_config_var
 from random import choice
-warnings.simplefilter('always', UserWarning)
+from requests.auth import AuthBase
+from .utils.backward_compatibility import backwards_compatible
+from .h2o_logging import is_logging, log_rest
+from .two_dim_table import H2OTwoDimTable
+from .utils.shared_utils import quote, stringify_list
+from .schemas.cloud import CloudV3
+from .schemas.error import H2OErrorV3, H2OModelBuilderErrorV3
+standard_library.install_aliases()
 try:
-    warnings.simplefilter('ignore', requests.packages.urllib3.exceptions.InsecureRequestWarning)
+    warnings.simplefilter(u'ignore', requests.packages.urllib3.exceptions.InsecureRequestWarning)
 except:
     pass
+__all__ = (u'H2OConnection', u'H2OStartupError', u'H2OConnectionError', u'H2OServerError', u'H2OResponseError')
 __H2OCONN__ = None
 __H2O_REST_API_VERSION__ = 3
-atexit.register(_kill_jvm_fork)
-atexit.register(end_session)

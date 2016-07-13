@@ -1,0 +1,11 @@
+@staticmethod
+def _log_end_transaction(start_time, response):
+    u'Log response from an API request.'
+    if (not is_logging()):
+        return
+    elapsed_time = int(((time.time() - start_time) * 1000))
+    msg = (u'<<< HTTP %d %s   (%d ms)\n' % (response.status_code, response.reason, elapsed_time))
+    if (u'Content-Type' in response.headers):
+        msg += (u'    Content-Type: %s\n' % response.headers[u'Content-Type'])
+    msg += response.text
+    log_rest((msg + u'\n\n'))

@@ -1,21 +1,26 @@
 @staticmethod
+@translate_args
 def _arg_to_expr(arg):
-    if ((arg is not None) and PY3 and isinstance(arg, range)):
+    if ((arg is not None) and isinstance(arg, range)):
         arg = list(arg)
     if (arg is None):
-        return '[]'
+        return u'[]'
     elif isinstance(arg, ExprNode):
         return arg._do_it(False)
     elif isinstance(arg, ASTId):
         return str(arg)
     elif isinstance(arg, bool):
-        return '{}'.format(('TRUE' if arg else 'FALSE'))
-    elif isinstance(arg, (int, long, float)):
-        return '{}'.format(('NaN' if math.isnan(arg) else arg))
-    elif isinstance(arg, basestring):
-        return (('"' + arg) + '"')
+        return u'{}'.format((u'TRUE' if arg else u'FALSE'))
+    elif isinstance(arg, (int, float)):
+        return u'{}'.format((u'NaN' if math.isnan(arg) else arg))
+    elif isinstance(arg, str):
+        return ((u'"' + arg) + u'"')
     elif isinstance(arg, slice):
-        return '[{}:{}]'.format((0 if (arg.start is None) else arg.start), ('NaN' if ((arg.stop is None) or math.isnan(arg.stop)) else (arg.stop if (arg.start is None) else (arg.stop - arg.start))))
+        return u'[{}:{}]'.format((0 if (arg.start is None) else arg.start), (u'NaN' if ((arg.stop is None) or math.isnan(arg.stop)) else (arg.stop if (arg.start is None) else (arg.stop - arg.start))))
     elif isinstance(arg, list):
-        return ((('["' + '" "'.join(arg)) + '"]') if all((isinstance(i, basestring) for i in arg)) else (('[' + ' '.join([('NaN' if ((i == 'NaN') or math.isnan(i)) else str(i)) for i in arg])) + ']'))
-    raise ValueError(((((('Unexpected arg type: ' + str(type(arg))) + ' ') + str(arg.__class__)) + ' ') + arg.__repr__()))
+        allstrs = all((isinstance(elem, str) for elem in arg))
+        if allstrs:
+            return (u'[%s]' % u' '.join(((u'"%s"' % elem) for elem in arg)))
+        else:
+            return (u'[%s]' % u' '.join(((u'NaN' if ((i == u'NaN') or math.isnan(i)) else str(i)) for i in arg)))
+    raise ValueError((((((u'Unexpected arg type: ' + str(type(arg))) + u' ') + str(arg.__class__)) + u' ') + arg.__repr__()))

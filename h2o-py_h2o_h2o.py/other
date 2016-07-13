@@ -1,14 +1,12 @@
 from __future__ import division, print_function, absolute_import, unicode_literals
+from .compatibility import *
+from future.standard_library import install_aliases
 import warnings
 import re
 import os
 import sys
-from future.standard_library import install_aliases
-from past.builtins import basestring
-from six import PY3
-import copy
-from .utils.shared_utils import _quoted, _is_list_of_lists, _gen_header, _py_tmp_key, quote, urlopen
-from .connection import H2OConnection
+from .utils.shared_utils import quoted, is_list_of_lists, gen_header, py_tmp_key, urlopen
+from .connection import H2OConnection, H2OConnectionError
 from .expr import ExprNode
 from .job import H2OJob
 from .frame import H2OFrame
@@ -24,9 +22,11 @@ from .estimators.random_forest import H2ORandomForestEstimator
 from .grid.grid_search import H2OGridSearch
 from .transforms.decomposition import H2OPCA
 from .transforms.decomposition import H2OSVD
+from .debugging import *
 warnings.simplefilter(u'always', DeprecationWarning)
 try:
     install_aliases()
 except AttributeError:
     if os.path.exists(os.path.join(sys.path[0], u'test.py')):
         print(u'File named `test` is conflicting with python module `test` used by the future library.')
+h2oconn = None

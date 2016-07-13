@@ -19,11 +19,11 @@ def poll(self):
     if self.warnings:
         for w in self.warnings:
             warnings.warn(w)
-    if (self.status == 'CANCELLED'):
-        raise EnvironmentError('Job with key {} was cancelled by the user.'.format(self.job_key))
-    if (self.status == 'FAILED'):
-        if (isinstance(self.job, dict) and ('stacktrace' in list(self.job))):
-            raise EnvironmentError('Job with key {} failed with an exception: {}\nstacktrace: \n{}'.format(self.job_key, self.exception, self.job['stacktrace']))
+    if (self.status == u'CANCELLED'):
+        raise EnvironmentError(u'Job with key {} was cancelled by the user.'.format(self.job_key))
+    if (self.status == u'FAILED'):
+        if (isinstance(self.job, dict) and (u'stacktrace' in list(self.job))):
+            raise EnvironmentError(u'Job with key {} failed with an exception: {}\nstacktrace: \n{}'.format(self.job_key, self.exception, self.job[u'stacktrace']))
         else:
-            raise EnvironmentError('Job with key {} failed with an exception: {}'.format(self.job_key, self.exception))
+            raise EnvironmentError(u'Job with key {} failed with an exception: {}'.format(self.job_key, self.exception))
     return self

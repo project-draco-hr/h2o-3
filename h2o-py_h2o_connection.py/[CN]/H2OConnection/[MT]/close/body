@@ -1,0 +1,16 @@
+def close(self):
+    if self._session_id:
+        try:
+            self.api((u'DELETE /4/sessions/%s' % self._session_id))
+            self._print((u'H2O session %s closed.' % self._session_id))
+        except:
+            pass
+        self._session_id = None
+    if self._child:
+        try:
+            self._child.kill()
+            self._print(u'Local H2O server stopped.')
+        except:
+            pass
+        self._child = None
+    self._stage = (-1)

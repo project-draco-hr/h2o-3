@@ -1,6 +1,6 @@
 def parse_setup(raw_frames, destination_frame=u'', header=((-1), 0, 1), separator=u'', column_names=None, column_types=None, na_strings=None):
     u'During parse setup, the H2O cluster will make several guesses about the attributes of\n    the data. This method allows a user to perform corrective measures by updating the\n    returning dictionary from this method. This dictionary is then fed into `parse_raw` to\n    produce the H2OFrame instance.\n\n    Parameters\n    ----------\n      raw_frames : H2OFrame\n        A collection of imported file frames\n\n      destination_frame : str, optional\n        The unique hex key assigned to the imported file. If none is given, a key will\n        automatically be generated.\n\n      parse : bool, optional\n        A logical value indicating whether the file should be parsed after import.\n\n      header : int, optional\n        -1 means the first line is data, 0 means guess, 1 means first line is header.\n\n      sep : str, optional\n        The field separator character. Values on each line of the file are separated by this\n         character. If sep = "", the parser will automatically detect the separator.\n\n      col_names : list, optional\n        A list of column names for the file.\n\n      col_types : list or dict, optional\n          A list of types or a dictionary of column names to types to specify whether columns\n          should be forced to a certain type upon import parsing. If a list, the types for\n          elements that are None will be guessed. The possible types a column may have are:\n          "unknown" - this will force the column to be parsed as all NA\n          "uuid"    - the values in the column must be true UUID or will be parsed as NA\n          "string"  - force the column to be parsed as a string\n          "numeric" - force the column to be parsed as numeric. H2O will handle the\n          compression of the numeric data in the optimal manner.\n          "enum"    - force the column to be parsed as a categorical column.\n          "time"    - force the column to be parsed as a time column. H2O will attempt to\n          parse the following list of date time formats\n          date - "yyyy-MM-dd", "yyyy MM dd", "dd-MMM-yy", "dd MMM yy"\n          time - "HH:mm:ss", "HH:mm:ss:SSS", "HH:mm:ss:SSSnnnnnn", "HH.mm.ss" "HH.mm.ss.SSS",\n          "HH.mm.ss.SSSnnnnnn"\n          Times can also contain "AM" or "PM".\n\n      na_strings : list or dict, optional\n        A list of strings, or a list of lists of strings (one list per column), or a\n        dictionary of column names to strings which are to be interpreted as missing values.\n\n    Returns\n    -------\n      A dictionary is returned containing all of the guesses made by the H2O back end.\n    '
-    if isinstance(raw_frames, basestring):
+    if isinstance(raw_frames, str):
         raw_frames = [raw_frames]
     kwargs = {}
     if (header != ((-1), 0, 1)):
@@ -8,10 +8,10 @@ def parse_setup(raw_frames, destination_frame=u'', header=((-1), 0, 1), separato
             raise ValueError(u'header should be -1, 0, or 1')
         kwargs[u'check_header'] = header
     if separator:
-        if ((not isinstance(separator, basestring)) or (len(separator) != 1)):
-            raise ValueError(u'separator should be a single character string')
+        if ((not isinstance(separator, str)) or (len(separator) != 1)):
+            raise ValueError((u'separator should be a single character string; got %r' % separator))
         kwargs[u'separator'] = ord(separator)
-    j = H2OConnection.post_json(url_suffix=u'ParseSetup', source_frames=[_quoted(id) for id in raw_frames], **kwargs)
+    j = h2oconn.post_json(url_suffix=u'ParseSetup', source_frames=[quoted(id) for id in raw_frames], **kwargs)
     if j[u'warnings']:
         for w in j[u'warnings']:
             warnings.warn(w)
@@ -26,7 +26,7 @@ def parse_setup(raw_frames, destination_frame=u'', header=((-1), 0, 1), separato
     if (column_types is not None):
         if isinstance(column_types, dict):
             if (j[u'column_names'] is None):
-                j[u'column_names'] = _gen_header(j[u'number_columns'])
+                j[u'column_names'] = gen_header(j[u'number_columns'])
             if (not set(column_types.keys()).issubset(set(j[u'column_names']))):
                 raise ValueError(u'names specified in col_types is not a subset of the column names')
             idx = 0
@@ -54,19 +54,19 @@ def parse_setup(raw_frames, destination_frame=u'', header=((-1), 0, 1), separato
             j[u'na_strings'] = [[] for _ in range(len(j[u'column_names']))]
             for (name, na) in na_strings.items():
                 idx = j[u'column_names'].index(name)
-                if isinstance(na, basestring):
+                if isinstance(na, str):
                     na = [na]
                 for n in na:
-                    j[u'na_strings'][idx].append(_quoted(n))
-        elif _is_list_of_lists(na_strings):
+                    j[u'na_strings'][idx].append(quoted(n))
+        elif is_list_of_lists(na_strings):
             if (len(na_strings) != len(j[u'column_types'])):
                 raise ValueError(u'length of na_strings should be equal to the number of columns')
-            j[u'na_strings'] = [([_quoted(na) for na in col] if (col is not None) else []) for col in na_strings]
+            j[u'na_strings'] = [([quoted(na) for na in col] if (col is not None) else []) for col in na_strings]
         elif isinstance(na_strings, list):
-            j[u'na_strings'] = ([[_quoted(na) for na in na_strings]] * len(j[u'column_types']))
+            j[u'na_strings'] = ([[quoted(na) for na in na_strings]] * len(j[u'column_types']))
         else:
             raise ValueError(u'na_strings should be a list, a list of lists (one list per column), or a dictionary of column names to strings which are to be interpreted as missing values')
     if j[u'column_names']:
-        j[u'column_names'] = list(map(_quoted, j[u'column_names']))
-    j[u'column_types'] = list(map(_quoted, j[u'column_types']))
+        j[u'column_names'] = list(map(quoted, j[u'column_names']))
+    j[u'column_types'] = list(map(quoted, j[u'column_types']))
     return j

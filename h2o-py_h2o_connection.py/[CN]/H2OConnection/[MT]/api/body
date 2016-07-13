@@ -1,0 +1,39 @@
+def api(self, endpoint, data=None, json=None, filename=None):
+    u'\n        Perform a REST API request to the backend H\u2082O server.\n\n        :param endpoint: (str) The endpoint\'s URL, for example "GET /4/schemas/KeyV4"\n        :param data: data payload for POST (and sometimes GET) requests. This should be a dictionary of simple\n            key/value pairs (values can also be arrays), which will be sent over in x-www-form-encoded format.\n        :param json: also data payload, but it will be sent as a JSON body. Cannot be used together with `data`.\n        :param filename: file to upload to the server. Cannot be used with `data` or `json`.\n        :return: an H2OResponse object representing the server\'s response\n        :raise ValueError if the endpoint\'s URL is invalid\n        :raise H2OConnectionError if the H\u2082O server cannot be reached (or connection is not initialized)\n        :raise H2OServerError if there was a server error (http 500), or server returned malformed JSON\n        :raise H2OResponseError if the server returned an H2OErrorV3 response (e.g. if the parameters were invalid)\n        '
+    if (self._stage == 0):
+        raise H2OConnectionError(u'Connection not initialized; run .connect() first.')
+    if (self._stage == (-1)):
+        raise H2OConnectionError(u'Connection was closed, and can no longer be used.')
+    if (endpoint.count(u' ') != 1):
+        raise ValueError((u"Incorrect endpoint '%s': must be of the form 'METHOD URL'." % endpoint))
+    (method, urltail) = endpoint.split(u' ', 2)
+    if (method not in {u'GET', u'POST', u'PUT', u'DELETE', u'PATCH', u'HEAD'}):
+        raise ValueError((u"Incorrect method in endpoint '%s'" % endpoint))
+    if (urltail[0] != u'/'):
+        raise ValueError((u"Incorrect url in endpoint '%s': should start with '/'" % endpoint))
+    url = (self._base_url + urltail)
+    if (((bool(data) + bool(json)) + bool(filename)) > 1):
+        raise ValueError(u'Only one of parameters `json`, `data`, `file` can be supplied.')
+    if ((filename is not None) and (method != u'POST')):
+        raise ValueError((u'File uploads can only be done via POST method, got %s' % endpoint))
+    data = self._prepare_data_payload(data)
+    files = self._prepare_file_payload(filename)
+    params = None
+    if ((method == u'GET') and data):
+        params = data
+        data = None
+    try:
+        start_time = time.time()
+        self._log_start_transaction(endpoint, data, json, files, params)
+        headers = {u'User-Agent': (u'H2O Python client/' + sys.version.replace(u'\n', u'')), u'X-Cluster': self._cluster_name, }
+        resp = requests.request(method=method, url=url, data=data, json=json, files=files, params=params, headers=headers, auth=self._auth, verify=self._verify_ssl_cert, proxies=self._proxies)
+        self._log_end_transaction(start_time, resp)
+        return self._process_response(resp)
+    except requests.ConnectionError as e:
+        self._log_end_exception(e)
+        raise H2OConnectionError((u'Unexpected HTTP error %s' % e))
+    except H2OResponseError as e:
+        err = e.args[0]
+        err.endpoint = endpoint
+        err.payload = (data, json, files, params)
+        raise

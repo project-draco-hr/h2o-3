@@ -1,9 +1,9 @@
 def _resolve_model(future_model, **kwargs):
     future_model.poll()
     if ('_rest_version' in list(kwargs.keys())):
-        model_json = H2OConnection.get_json(('Models/' + future_model.job.dest_key), _rest_version=kwargs['_rest_version'])['models'][0]
+        model_json = h2o.connection().get_json(('Models/' + future_model.job.dest_key), _rest_version=kwargs['_rest_version'])['models'][0]
     else:
-        model_json = H2OConnection.get_json(('Models/' + future_model.job.dest_key))['models'][0]
+        model_json = h2o.connection().get_json(('Models/' + future_model.job.dest_key))['models'][0]
     model_type = model_json['output']['model_category']
     if (model_type == 'Binomial'):
         model = H2OBinomialModel(future_model.job.dest_key, model_json)

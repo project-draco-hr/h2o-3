@@ -2,6 +2,6 @@ def download_csv(data, filename):
     u'Download an H2O data set to a CSV file on the local disk.\n\n    Warning: Files located on the H2O server may be very large! Make sure you have enough\n    hard drive space to accommodate the entire file.\n\n    Parameters\n    ----------\n      data : H2OFrame\n        An H2OFrame object to be downloaded.\n\n      filename : str\n        A string indicating the name that the CSV file should be should be saved to.\n    '
     if (not isinstance(data, H2OFrame)):
         raise ValueError
-    url = (H2OConnection.make_url(u'DownloadDataset', 3) + u'?frame_id={}&hex_string=false'.format(data.frame_id))
+    url = (h2oconn.make_url(u'DownloadDataset', 3) + u'?frame_id={}&hex_string=false'.format(data.frame_id))
     with open(filename, u'wb') as f:
         f.write(urlopen()(url).read())

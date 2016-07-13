@@ -1,14 +1,9 @@
 @staticmethod
-def _tmp_file(type):
-    usr = re.sub('[^A-Za-z0-9]', '_', ((os.getenv('USERNAME') if (sys.platform == 'win32') else os.getenv('USER')) or 'unknownUser'))
-    if (type == 'stdout'):
-        path = os.path.join(tempfile.mkdtemp(), 'h2o_{}_started_from_python.out'.format(usr))
-        print(('JVM stdout: ' + path))
-        return path
-    if (type == 'stderr'):
-        path = os.path.join(tempfile.mkdtemp(), 'h2o_{}_started_from_python.err'.format(usr))
-        print(('JVM stderr: ' + path))
-        return path
-    if (type == 'pid'):
-        return os.path.join(tempfile.mkdtemp(), 'h2o_{}_started_from_python.pid'.format(usr))
-    raise ValueError(('Unkown type in H2OConnection._tmp_file call: ' + type))
+def _tmp_file(kind):
+    u'\n        Generate names for temporary files. `kind` is one of "stdout", "stderr", "pid" and "salt". The "salt" kind\n        is used for process name, not for a file, so it doesn\'t contain a path. All generated names are based on the\n        user name of the currently logged-in user. This is a helper method for ._start_h2o_server().\n        '
+    username = ((os.getenv(u'USERNAME') if (sys.platform == u'win32') else os.getenv(u'USER')) or u'unknownUser')
+    usr = re.sub(u'\\W', u'_', username)
+    if (kind == u'salt'):
+        return ((usr + u'_') + u''.join((choice(u'0123456789abcdefghijklmnopqrstuvwxyz') for _ in range(6))))
+    ext = (u'pid' if (kind == u'pid') else kind[3:])
+    return os.path.join(tempfile.mkdtemp(), (u'h2o_%s_started_from_python.%s' % (usr, ext)))

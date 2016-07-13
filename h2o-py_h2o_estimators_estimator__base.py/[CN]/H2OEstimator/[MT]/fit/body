@@ -1,15 +1,15 @@
 def fit(self, X, y=None, **params):
-    'Fit an H2O model as part of a scikit-learn pipeline or grid search.\n\n    A warning will be issued if a caller other than sklearn attempts to use this method.\n\n    Parameters\n    ----------\n      X : H2OFrame\n        An H2OFrame consisting of the predictor variables.\n\n      y : H2OFrame, optional\n        An H2OFrame consisting of the response variable.\n\n      params : optional\n        Extra arguments.\n\n    Returns\n    -------\n      The current instance of H2OEstimator for method chaining.\n    '
+    u'Fit an H2O model as part of a scikit-learn pipeline or grid search.\n\n    A warning will be issued if a caller other than sklearn attempts to use this method.\n\n    Parameters\n    ----------\n      X : H2OFrame\n        An H2OFrame consisting of the predictor variables.\n\n      y : H2OFrame, optional\n        An H2OFrame consisting of the response variable.\n\n      params : optional\n        Extra arguments.\n\n    Returns\n    -------\n      The current instance of H2OEstimator for method chaining.\n    '
     stk = inspect.stack()[1:]
     warn = True
     for s in stk:
         mod = inspect.getmodule(s[0])
         if mod:
-            warn = ('sklearn' not in mod.__name__)
+            warn = (u'sklearn' not in mod.__name__)
             if (not warn):
                 break
     if warn:
-        warnings.warn('\n\n\t`fit` is not recommended outside of the sklearn framework. Use `train` instead.', UserWarning, stacklevel=2)
+        warnings.warn(u'\n\n\t`fit` is not recommended outside of the sklearn framework. Use `train` instead.', UserWarning, stacklevel=2)
     training_frame = (X.cbind(y) if (y is not None) else X)
     X = X.names
     y = (y.names[0] if (y is not None) else None)

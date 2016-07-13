@@ -1,0 +1,48 @@
+@staticmethod
+def _start_h2o_server(mmax, mmin, ea, logs_dir, jar_path, nthreads, verbose):
+    u"\n        Actually start the h2o.jar executable (helper method for H2OConnection.start()).\n        :return tuple (ip, port, child), where `child` is the handle to the server's process.\n        "
+    ip = u'127.0.0.1'
+    port = 54321
+    command = H2OConnection._find_java()
+    if (not command):
+        raise H2OStartupError(u'Cannot find Java. Please install the latest JDK from\nhttp://www.oracle.com/technetwork/java/javase/downloads/index.html')
+    jver_bytes = subprocess.check_output([command, u'-version'], stderr=subprocess.STDOUT)
+    jver = jver_bytes.decode(encoding=u'utf-8', errors=u'ignore')
+    if verbose:
+        print((u'Java Version: ' + jver.strip().replace(u'\n', u'; ')))
+    if (u'GNU libgcj' in jver):
+        raise H2OStartupError(u'Sorry, GNU Java is not supported for H2O.\nPlease download the latest 64-bit Java SE JDK from Oracle.')
+    if (u'Client VM' in jver):
+        warnings.warn(u'WARNING:\nYou have a 32-bit version of Java. H2O works best with 64-bit Java.\nPlease download the latest 64-bit Java SE JDK from Oracle.\n')
+    cmd = [command]
+    cmd += ([u'-ea'] if ea else [])
+    for (mq, num) in [(u'-Xms', mmin), (u'-Xmx', mmax)]:
+        if (num is None):
+            continue
+        numstr = ((u'%dG' % (num >> 30)) if (num == ((num >> 30) << 30)) else ((u'%dM' % (num >> 20)) if (num == ((num >> 20) << 20)) else str(num)))
+        cmd += [(mq + numstr)]
+    cmd += [u'-verbose:gc', u'-XX:+PrintGCDetails', u'-XX:+PrintGCTimeStamps']
+    cmd += [u'-jar', jar_path]
+    cmd += [u'-ip', ip]
+    cmd += [u'-port', str(port)]
+    cmd += [u'-ice_root', logs_dir]
+    cmd += ([u'-nthreads', str(nthreads)] if (nthreads > 0) else [])
+    cmd += [u'-name', (u'H2O_from_python_%s' % H2OConnection._tmp_file(u'salt'))]
+    cwd = os.path.abspath(os.getcwd())
+    out = open(H2OConnection._tmp_file(u'stdout'), u'w')
+    err = open(H2OConnection._tmp_file(u'stderr'), u'w')
+    if verbose:
+        print((u'Ice root: ' + logs_dir))
+        print((u'JVM stdout: ' + out.name))
+        print((u'JVM stderr: ' + err.name))
+    win32 = (sys.platform == u'win32')
+    flags = (subprocess.CREATE_NEW_PROCESS_GROUP if win32 else 0)
+    prex = (os.setsid if (not win32) else None)
+    try:
+        child = subprocess.Popen(args=cmd, stdout=out, stderr=err, cwd=cwd, creationflags=flags, preexec_fn=prex)
+    except OSError as e:
+        raise H2OServerError((u'Cannot start server: %s' % e))
+    time.sleep(0.5)
+    if (child.poll() is not None):
+        raise H2OServerError((u'Server process terminated with error code %d' % child.poll()))
+    return (ip, port, child)

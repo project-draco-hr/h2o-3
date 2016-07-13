@@ -1,0 +1,17 @@
+def shutdown(self, prompt):
+    u'\n        Shut down the specified server. All data will be lost.\n        This method checks if H2O is running at the specified IP address and port, and if it is, shuts down that H2O\n        instance.\n        :param self: An H2OConnection object containing the IP address and port of the server running H2O.\n        :param prompt: A logical value indicating whether to prompt the user before shutting down the H2O server.\n        :return: None\n        '
+    try:
+        if (not self.cluster_is_up()):
+            raise ValueError((u'There is no H2O instance running at ' + self._base_url))
+    except:
+        raise ValueError((u'The H2O instance running at %s has already been shutdown.' % self._base_url))
+    if (not isinstance(prompt, bool)):
+        raise ValueError(u'`prompt` must be boolean')
+    if prompt:
+        question = (u'Are you sure you want to shutdown the H2O instance running at %s (Y/N)? ' % self._base_url)
+        response = input(question)
+    else:
+        response = u'Y'
+    if ((response == u'Y') or (response == u'y')):
+        self.api(u'POST /3/Shutdown')
+        self.close()

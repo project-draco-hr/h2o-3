@@ -1,5 +1,5 @@
 def __getitem__(self, item):
-    'Frame slicing. Supports R-like row and column slicing.\n\n    Parameters\n    ----------\n      item : tuple, list, string, int\n        If a tuple, then this indicates both row and column selection. The tuple\n        must be exactly length 2.\n        If a list, then this indicates column selection.\n        If a int, the this indicates a single column to be retrieved at the index.\n        If a string, then slice on the column with this name.\n\n    Returns\n    -------\n      An instance of H2OFrame.\n\n    Examples\n    --------\n      fr[2]              # All rows, column 2\n      fr[-2]             # All rows, 2nd column from end\n      fr[:,-1]           # All rows, last column\n      fr[0:5,:]          # first 5 rows, all columns\n      fr[fr[0] > 1, :]   # all rows greater than 1 in the first column, all columns\n      fr[[1,5,6]]        # columns 1, 5, and 6\n      fr[0:50, [1,2,3]]  # first 50 rows, columns 1,2, and 3\n    '
+    u'Frame slicing. Supports R-like row and column slicing.\n\n    Parameters\n    ----------\n      item : tuple, list, string, int\n        If a tuple, then this indicates both row and column selection. The tuple\n        must be exactly length 2.\n        If a list, then this indicates column selection.\n        If a int, the this indicates a single column to be retrieved at the index.\n        If a string, then slice on the column with this name.\n\n    Returns\n    -------\n      An instance of H2OFrame.\n\n    Examples\n    --------\n      fr[2]              # All rows, column 2\n      fr[-2]             # All rows, 2nd column from end\n      fr[:,-1]           # All rows, last column\n      fr[0:5,:]          # first 5 rows, all columns\n      fr[fr[0] > 1, :]   # all rows greater than 1 in the first column, all columns\n      fr[[1,5,6]]        # columns 1, 5, and 6\n      fr[0:50, [1,2,3]]  # first 50 rows, columns 1,2, and 3\n    '
     new_ncols = (-1)
     new_nrows = (-1)
     new_names = None
@@ -9,13 +9,13 @@ def __getitem__(self, item):
     if isinstance(item, (basestring, list, int, slice)):
         (new_ncols, new_names, new_types, item) = self._compute_ncol_update(item)
         new_nrows = self.nrow
-        fr = H2OFrame._expr(expr=ExprNode('cols_py', self, item))
+        fr = H2OFrame._expr(expr=ExprNode(u'cols_py', self, item))
     elif isinstance(item, (ExprNode, H2OFrame)):
         new_ncols = self.ncol
         new_names = self.names
         new_types = self.types
         new_nrows = (-1)
-        fr = H2OFrame._expr(expr=ExprNode('rows', self, item))
+        fr = H2OFrame._expr(expr=ExprNode(u'rows', self, item))
     elif isinstance(item, tuple):
         (rows, cols) = item
         allrows = allcols = False
@@ -28,20 +28,20 @@ def __getitem__(self, item):
         if allrows:
             (new_ncols, new_names, new_types, cols) = self._compute_ncol_update(cols)
             new_nrows = self.nrow
-            fr = H2OFrame._expr(expr=ExprNode('cols_py', self, cols))
+            fr = H2OFrame._expr(expr=ExprNode(u'cols_py', self, cols))
         if allcols:
             new_ncols = self.ncol
             new_names = self.names
             new_types = self.types
             (new_nrows, rows) = self._compute_nrow_update(rows)
-            fr = H2OFrame._expr(expr=ExprNode('rows', self, rows))
+            fr = H2OFrame._expr(expr=ExprNode(u'rows', self, rows))
         if ((not allrows) and (not allcols)):
             (new_ncols, new_names, new_types, cols) = self._compute_ncol_update(cols)
             (new_nrows, rows) = self._compute_nrow_update(rows)
-            fr = H2OFrame._expr(expr=ExprNode('rows', ExprNode('cols_py', self, cols), rows))
+            fr = H2OFrame._expr(expr=ExprNode(u'rows', ExprNode(u'cols_py', self, cols), rows))
         flatten = (isinstance(rows, int) and isinstance(cols, (basestring, int)))
     else:
-        raise ValueError(((('Unexpected __getitem__ selector: ' + str(type(item))) + ' ') + str(item.__class__)))
+        raise ValueError((((u'Unexpected __getitem__ selector: ' + str(type(item))) + u' ') + str(item.__class__)))
     assert (fr is not None)
     if flatten:
         return fr.flatten()
