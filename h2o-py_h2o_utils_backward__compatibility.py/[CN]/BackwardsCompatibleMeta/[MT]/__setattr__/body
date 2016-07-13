@@ -1,0 +1,7 @@
+def __setattr__(cls, name, value):
+    bc = cls.__dict__['_bc']
+    if (name in bc['sv']):
+        print(('Warning: Symbol %s in class %s is deprecated.' % (name, cls.__name__)))
+        bc['sv'][name] = value
+    else:
+        cls.__dict__[name] = value
