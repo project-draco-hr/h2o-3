@@ -1,3 +1,18 @@
 {
-  return make(perClassProbs,actualLabels,domain,10);
+  Vec _labels=actualLabels.toCategoricalVec();
+  if (_labels == null || perClassProbs == null)   throw new IllegalArgumentException("Missing actualLabels or predictedProbs!");
+  if (_labels.length() != perClassProbs.numRows())   throw new IllegalArgumentException("Both arguments must have the same length (" + _labels.length() + "!="+ perClassProbs.numRows()+ ")!");
+  for (  Vec p : perClassProbs.vecs()) {
+    if (!p.isNumeric())     throw new IllegalArgumentException("Predicted probabilities must be numeric per-class probabilities.");
+    if (p.min() < 0 || p.max() > 1)     throw new IllegalArgumentException("Predicted probabilities must be between 0 and 1.");
+  }
+  int nclasses=perClassProbs.numCols();
+  if (domain.length != nclasses)   throw new IllegalArgumentException("Given domain has " + domain.length + " classes, but predictions have "+ nclasses+ " columns (per-class probabilities).");
+  _labels=_labels.adaptTo(domain);
+  Frame predsLabel=new Frame(perClassProbs);
+  predsLabel.add("labels",_labels);
+  ModelMetricsMultinomial mm=new MultinomialMetrics(_labels.domain()).doAll(predsLabel)._mm;
+  mm._description="Computed on user-given predictions and labels";
+  _labels.remove();
+  return mm;
 }
