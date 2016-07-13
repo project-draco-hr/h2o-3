@@ -1,0 +1,7 @@
+def _log_message(self, msg):
+    u'\n        Actually log the message to the `self._logging_dest` destination. If this destination is a file name,\n        then we append the message to the file and then close the file immediately. If the destination is an open\n        file handle, then we simply write the message there and do not attempt to close it.\n        '
+    if isinstance(self._logging_dest, str):
+        with open(self._logging_dest, u'at', encoding=u'utf-8') as f:
+            f.write(msg)
+    else:
+        self._logging_dest.write(msg)
