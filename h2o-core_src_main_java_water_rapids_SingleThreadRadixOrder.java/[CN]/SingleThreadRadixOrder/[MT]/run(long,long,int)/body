@@ -1,0 +1,85 @@
+{
+  if (len < 200) {
+    insert(start,(int)len);
+    return;
+  }
+  int batch0=(int)(start / _batchSize);
+  int batch1=(int)((start + len - 1) / _batchSize);
+  long thisHist[]=counts[Byte];
+  int idx=(int)(start % _batchSize) * _keySize + _keySize - Byte - 1;
+  int bin=-1;
+  int nbatch=batch1 - batch0 + 1;
+  int thisLen=(int)Math.min(len,_batchSize - start % _batchSize);
+  for (int b=0; b < nbatch; b++) {
+    byte _xbatch[]=_x[batch0 + b];
+    for (int i=0; i < thisLen; i++) {
+      bin=0xff & _xbatch[idx];
+      thisHist[bin]++;
+      idx+=_keySize;
+    }
+    idx=_keySize - Byte - 1;
+    thisLen=(b == nbatch - 2 ? (int)(start + len - 1) % _batchSize : _batchSize);
+  }
+  if (thisHist[bin] == len) {
+    thisHist[bin]=0;
+    if (Byte != 0)     run(start,len,Byte - 1);
+    return;
+  }
+  long rollSum=0;
+  for (int c=0; c < 256; c++) {
+    long tmp=thisHist[c];
+    if (tmp == 0)     continue;
+    thisHist[c]=rollSum;
+    rollSum+=tmp;
+  }
+  int oidx=(int)(start % _batchSize);
+  int xidx=oidx * _keySize + _keySize - Byte - 1;
+  thisLen=(int)Math.min(len,_batchSize - start % _batchSize);
+  for (int b=0; b < nbatch; b++) {
+    long _obatch[]=_o[batch0 + b];
+    byte _xbatch[]=_x[batch0 + b];
+    for (int i=0; i < thisLen; i++) {
+      long target=thisHist[0xff & _xbatch[xidx]]++;
+      _otmp[(int)(target / _batchSize)][(int)(target % _batchSize)]=_obatch[oidx + i];
+      System.arraycopy(_xbatch,(oidx + i) * _keySize,_xtmp[(int)(target / _batchSize)],(int)(target % _batchSize) * _keySize,_keySize);
+      xidx+=_keySize;
+    }
+    xidx=_keySize - Byte - 1;
+    oidx=0;
+    thisLen=(b == nbatch - 2 ? (int)(start + len - 1) % _batchSize : _batchSize);
+  }
+  long numRowsToCopy=len;
+  int sourceBatch=0, sourceOffset=0;
+  int targetBatch=(int)(start / _batchSize), targetOffset=(int)(start % _batchSize);
+  int targetBatchRemaining=_batchSize - targetOffset;
+  int sourceBatchRemaining=_batchSize - sourceOffset;
+  int thisCopy;
+  while (numRowsToCopy > 0) {
+    thisCopy=(int)Math.min(numRowsToCopy,Math.min(sourceBatchRemaining,targetBatchRemaining));
+    System.arraycopy(_otmp[sourceBatch],sourceOffset,_o[targetBatch],targetOffset,thisCopy);
+    System.arraycopy(_xtmp[sourceBatch],sourceOffset * _keySize,_x[targetBatch],targetOffset * _keySize,thisCopy * _keySize);
+    numRowsToCopy-=thisCopy;
+    sourceOffset+=thisCopy;
+    sourceBatchRemaining-=thisCopy;
+    targetOffset+=thisCopy;
+    targetBatchRemaining-=thisCopy;
+    if (sourceBatchRemaining == 0) {
+      sourceBatch++;
+      sourceOffset=0;
+      sourceBatchRemaining=_batchSize;
+    }
+    if (targetBatchRemaining == 0) {
+      targetBatch++;
+      targetOffset=0;
+      targetBatchRemaining=_batchSize;
+    }
+  }
+  long itmp=0;
+  for (int i=0; i < 256; i++) {
+    if (thisHist[i] == 0)     continue;
+    long thisgrpn=thisHist[i] - itmp;
+    if (!(thisgrpn == 1 || Byte == 0))     run(start + itmp,thisgrpn,Byte - 1);
+    itmp=thisHist[i];
+    thisHist[i]=0;
+  }
+}

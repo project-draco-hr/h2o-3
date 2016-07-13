@@ -2,16 +2,16 @@
   long low=-1;
   while (low < upp - 1) {
     long mid=low + (upp - low) / 2;
-    byte keyBatch[]=_leftKey[(int)(mid / _leftBatchSize)];
-    int off=(int)(mid % _leftBatchSize) * _leftKeySize;
-    int len=_leftFieldSizes[0];
+    byte keyBatch[]=_leftKO._key[(int)(mid / _leftKO._batchSize)];
+    int off=(int)(mid % _leftKO._batchSize) * _leftSB._keySize;
+    int len=_leftSB._fieldSizes[0];
     long val=keyBatch[off] & 0xFFL;
     while (len > 1) {
       val<<=8;
       val|=keyBatch[++off] & 0xFFL;
       len--;
     }
-    val=val == 0 ? Long.MIN_VALUE : val - 1 + _leftBase[0];
+    val=val == 0 ? Long.MIN_VALUE : val - 1 + _leftSB._base[0];
     if (x < val || (x == val && returnLow)) {
       upp=mid;
     }
