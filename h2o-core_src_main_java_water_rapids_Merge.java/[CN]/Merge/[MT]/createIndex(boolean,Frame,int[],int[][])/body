@@ -1,0 +1,9 @@
+{
+  System.out.println("\nCreating " + (isLeft ? "left" : "right") + " index ...");
+  long t0=System.nanoTime();
+  RadixOrder idxTask=new RadixOrder(fr,isLeft,cols,id_maps);
+  H2O.submitTask(idxTask);
+  idxTask.join();
+  System.out.println("***\n*** Creating " + (isLeft ? "left" : "right") + " index took: "+ (System.nanoTime() - t0) / 1e9 + "\n***\n");
+  return idxTask;
+}
