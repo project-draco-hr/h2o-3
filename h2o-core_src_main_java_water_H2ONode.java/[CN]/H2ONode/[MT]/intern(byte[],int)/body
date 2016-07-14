@@ -1,7 +1,14 @@
 {
-  byte[] b=new byte[4];
-  UnsafeUtils.set4(b,0,UnsafeUtils.get4(bs,off));
-  int port=UnsafeUtils.get2(bs,off + 4) & 0xFFFF;
+  byte[] b=new byte[H2Okey.SIZE_OF_IP];
+  int port;
+  if (!H2O.IS_IPV6) {
+    UnsafeUtils.set4(b,0,UnsafeUtils.get4(bs,off));
+  }
+ else {
+    UnsafeUtils.set8(b,0,UnsafeUtils.get8(bs,off));
+    UnsafeUtils.set8(b,8,UnsafeUtils.get8(bs,off + 8));
+  }
+  port=UnsafeUtils.get2(bs,off + H2Okey.SIZE_OF_IP) & 0xFFFF;
   try {
     return intern(InetAddress.getByAddress(b),port);
   }
