@@ -1,0 +1,35 @@
+{
+  Frame train=null;
+  Frame preds=null;
+  DeepLearningModel model=null;
+  Scope.enter();
+  try {
+    train=parse_test_file("./smalldata/junit/titanic_alt.csv");
+    Vec v=train.remove("pclass");
+    train.add("pclass",v.toCategoricalVec());
+    v.remove();
+    DKV.put(train);
+    DeepLearningParameters p=new DeepLearningParameters();
+    p._train=train._key;
+    p._response_column="pclass";
+    p._activation=DeepLearningParameters.Activation.RectifierWithDropout;
+    p._hidden=new int[]{50,50};
+    p._epochs=1;
+    p._adaptive_rate=false;
+    p._rate=0.005;
+    p._sparse=true;
+    model=new DeepLearning(p).trainModel().get();
+    preds=model.score(train);
+    preds.remove(0);
+    Vec labels=train.vec("pclass");
+    String[] fullDomain=train.vec("pclass").domain();
+    ModelMetricsMultinomial mm=ModelMetricsMultinomial.make(preds,labels,fullDomain);
+    Log.info(mm.toString());
+  }
+  finally {
+    if (model != null)     model.delete();
+    if (preds != null)     preds.remove();
+    if (train != null)     train.remove();
+    Scope.exit();
+  }
+}

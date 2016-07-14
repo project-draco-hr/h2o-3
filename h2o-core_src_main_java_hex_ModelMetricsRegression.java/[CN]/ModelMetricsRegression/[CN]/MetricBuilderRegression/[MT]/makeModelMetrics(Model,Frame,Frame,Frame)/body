@@ -1,5 +1,6 @@
 {
   double mse=_sumsqe / _wcount;
+  double mae=_abserror / _wcount;
   if (adaptedFrame == null)   adaptedFrame=f;
   double meanResDeviance=0;
   if (m != null && m._parms._distribution == Distribution.Family.huber) {
@@ -23,5 +24,5 @@
  else {
     meanResDeviance=_sumdeviance / _wcount;
   }
-  return m._output.addModelMetrics(new ModelMetricsRegression(m,f,_count,mse,weightedSigma(),meanResDeviance));
+  return m == null ? new ModelMetricsRegression(null,f,_count,mse,weightedSigma(),mae,meanResDeviance) : m._output.addModelMetrics(new ModelMetricsRegression(m,f,_count,mse,weightedSigma(),mae,meanResDeviance));
 }

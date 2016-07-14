@@ -14,10 +14,6 @@
     HeartBeat hb=H2O.SELF._heartbeat;
     hb._hb_version=HB_VERSION++;
     hb._jvm_boot_msec=TimeLine.JVM_BOOT_MSEC;
-    if ((counter + Math.abs(H2O.SELF.hashCode() * 0xDECAF)) % (300 / (Float.isNaN(hb._gflops) ? 10 : 1)) == 0) {
-      hb._gflops=(float)Linpack.run(hb._cpus_allowed);
-      hb._membw=(float)MemoryBandwidth.run(hb._cpus_allowed);
-    }
     long kv_gc=Cleaner.KV_USED_AT_LAST_GC;
     long heap_gc=Cleaner.HEAP_USED_AT_LAST_GC;
     long pojo_gc=Math.max(heap_gc - kv_gc,0);
@@ -87,6 +83,10 @@
         Paxos.print("hart: regained contact with node",cloud._memary,h2o.toString());
         h2o._announcedLostContact=false;
       }
+    }
+    if ((counter + Math.abs(H2O.SELF.hashCode() * 0xDECAF)) % (300 / (Float.isNaN(hb._gflops) ? 10 : 1)) == 0) {
+      hb._gflops=(float)Linpack.run(hb._cpus_allowed);
+      hb._membw=(float)MemoryBandwidth.run(hb._cpus_allowed);
     }
     counter++;
     try {

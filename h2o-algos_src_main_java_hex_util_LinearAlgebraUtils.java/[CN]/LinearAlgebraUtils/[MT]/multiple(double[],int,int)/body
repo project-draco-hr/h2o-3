@@ -1,0 +1,18 @@
+{
+  int ny=diagYY.length;
+  for (int i=0; i < ny; i++) {
+    diagYY[i]*=nTot;
+  }
+  double[][] uu=new double[ny][ny];
+  for (int i=0; i < ny; i++) {
+    for (int j=0; j < ny; j++) {
+      double yyij=i == j ? diagYY[i] : 0;
+      uu[i][j]=(yyij - diagYY[i] * diagYY[j] / nTot) / (nVars * Math.sqrt(diagYY[i] * diagYY[j]));
+    }
+  }
+  EigenvalueDecomposition eigen=new EigenvalueDecomposition(new Matrix(uu));
+  double[] eigenvalues=eigen.getRealEigenvalues();
+  double[][] eigenvectors=eigen.getV().getArray();
+  int maxIndex=ArrayUtils.maxIndex(eigenvalues);
+  return eigenvectors[maxIndex];
+}

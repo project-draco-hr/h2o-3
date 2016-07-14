@@ -20,7 +20,13 @@
       _tcpSocket.socket().bind(isa);
       if (!H2O.ARGS.disable_web) {
         apiSocket.close();
-        H2O.getJetty().start(H2O.ARGS.web_ip,H2O.API_PORT);
+        try {
+          H2O.getJetty().start(H2O.ARGS.web_ip,H2O.API_PORT);
+        }
+ catch (        Exception e) {
+          Log.err("Cannot start Jetty server for REST interface!",e);
+          H2O.exit(-1);
+        }
       }
       break;
     }
@@ -47,6 +53,10 @@
       if (H2O.ARGS.port != 0)       H2O.die("On " + H2O.SELF_ADDRESS + " some of the required ports "+ H2O.ARGS.port+ ", "+ (H2O.ARGS.port + 1)+ " are not available, change -port PORT and try again.");
     }
     H2O.API_PORT+=2;
+    if (H2O.API_PORT > (1 << 16)) {
+      Log.err("Cannot find free port for " + H2O.SELF_ADDRESS);
+      H2O.exit(-1);
+    }
   }
   boolean isIPv6=H2O.SELF_ADDRESS instanceof Inet6Address;
   H2O.SELF=H2ONode.self(H2O.SELF_ADDRESS);

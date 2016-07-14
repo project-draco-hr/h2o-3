@@ -1,0 +1,35 @@
+{
+  Frame train=null;
+  Frame preds=null;
+  DeepLearningModel model=null;
+  Scope.enter();
+  try {
+    train=parse_test_file("./smalldata/junit/titanic_alt.csv");
+    DeepLearningParameters parms=new DeepLearningParameters();
+    parms._train=train._key;
+    parms._response_column="age";
+    parms._reproducible=true;
+    parms._hidden=new int[]{20,20};
+    parms._distribution=laplace;
+    parms._seed=0xdecaf;
+    model=new DeepLearning(parms).trainModel().get();
+    preds=model.score(train);
+    Vec targets=train.vec("age");
+    ModelMetricsRegression mm=ModelMetricsRegression.make(preds.vec(0),targets,parms._distribution);
+    Log.info(mm.toString());
+    mm=ModelMetricsRegression.make(preds.vec(0),targets,gaussian);
+    Log.info(mm.toString());
+    mm=ModelMetricsRegression.make(preds.vec(0),targets,poisson);
+    Log.info(mm.toString());
+  }
+ catch (  Throwable t) {
+    t.printStackTrace();
+    throw t;
+  }
+ finally {
+    if (model != null)     model.delete();
+    if (preds != null)     preds.remove();
+    if (train != null)     train.remove();
+    Scope.exit();
+  }
+}

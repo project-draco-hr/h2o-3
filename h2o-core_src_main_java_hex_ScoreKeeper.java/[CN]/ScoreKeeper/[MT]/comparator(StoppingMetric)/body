@@ -7,24 +7,31 @@ case AUC:
       }
     }
 ;
-case MSE:
+case RMSE:
   return new Comparator<ScoreKeeper>(){
     @Override public int compare(    ScoreKeeper o1,    ScoreKeeper o2){
-      return (int)Math.signum(o1._mse - o2._mse);
+      return (int)Math.signum(o1._rmse - o2._rmse);
     }
   }
 ;
-case deviance:
+case MAE:
 return new Comparator<ScoreKeeper>(){
   @Override public int compare(  ScoreKeeper o1,  ScoreKeeper o2){
-    return (int)Math.signum(o1._mean_residual_deviance - o2._mean_residual_deviance);
+    return (int)Math.signum(o1._mae - o2._mae);
   }
+}
+;
+case deviance:
+return new Comparator<ScoreKeeper>(){
+@Override public int compare(ScoreKeeper o1,ScoreKeeper o2){
+  return (int)Math.signum(o1._mean_residual_deviance - o2._mean_residual_deviance);
+}
 }
 ;
 case logloss:
 return new Comparator<ScoreKeeper>(){
 @Override public int compare(ScoreKeeper o1,ScoreKeeper o2){
-  return (int)Math.signum(o1._logloss - o2._logloss);
+return (int)Math.signum(o1._logloss - o2._logloss);
 }
 }
 ;
