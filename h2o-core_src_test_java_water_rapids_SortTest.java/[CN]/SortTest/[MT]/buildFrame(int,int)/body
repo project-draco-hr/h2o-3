@@ -2,17 +2,23 @@
   int scale0=3;
   int scale1=10;
   int scale2=100;
+  if (nChunks == -1) {
+    long len=(long)card0 * (long)scale0 * (long)scale2;
+    int rowsPerChunk=100000;
+    nChunks=(int)((len + rowsPerChunk - 1) / rowsPerChunk);
+  }
   NonBlockingHashMapLong<String> pairs_hash=new NonBlockingHashMapLong<>();
   Random R=new Random(card0 * scale0 * nChunks);
   for (int i=0; i < card0 * scale0; i++) {
     long pair=(((long)R.nextInt(card0)) << 32) | (R.nextInt(card0 * scale1));
-    if (pairs_hash.contains(pair))     i--;
+    if (pairs_hash.containsKey(pair))     i--;
  else     pairs_hash.put(pair,"");
   }
   long[] pairs=pairs_hash.keySetLong();
-  AppendableVec col0=new AppendableVec(Vec.newKey(),Vec.T_NUM);
-  AppendableVec col1=new AppendableVec(Vec.newKey(),Vec.T_NUM);
-  AppendableVec col2=new AppendableVec(Vec.newKey(),Vec.T_NUM);
+  Key[] keys=new Vec.VectorGroup().addVecs(3);
+  AppendableVec col0=new AppendableVec(keys[0],Vec.T_NUM);
+  AppendableVec col1=new AppendableVec(keys[1],Vec.T_NUM);
+  AppendableVec col2=new AppendableVec(keys[2],Vec.T_NUM);
   NewChunk ncs0[]=new NewChunk[nChunks];
   NewChunk ncs1[]=new NewChunk[nChunks];
   NewChunk ncs2[]=new NewChunk[nChunks];
