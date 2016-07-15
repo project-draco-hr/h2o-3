@@ -9,7 +9,7 @@ def impute(self, column=(-1), method=u'mean', combine_method=u'interpolate', by=
     if (group_by_frame is None):
         group_by_frame = u'_'
     if (self._ex._cache._id is None):
-        self._ex._cache._id = _py_tmp_key()
+        self._ex._cache._id = (u'%s_%s' % (_py_tmp_key(), h2o.connection().session_id))
         self._ex._eager_frame()
     if ((by is not None) or (group_by_frame is not u'_')):
         res = H2OFrame._expr(expr=ExprNode(u'h2o.impute', self, column, method, combine_method, by, group_by_frame, values))._frame()
