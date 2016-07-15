@@ -4,7 +4,7 @@ def _test_connection(self, max_retries=5):
     cld = None
     for _ in range(max_retries):
         self._print(u'.', end=u'', flush=True)
-        if (self._child and (self._child.poll() is not None)):
+        if (self._local_server and (not self._local_server.is_running())):
             raise H2OServerError(u'Local server was unable to start')
         try:
             cld = self.request(u'GET /3/Cloud')
