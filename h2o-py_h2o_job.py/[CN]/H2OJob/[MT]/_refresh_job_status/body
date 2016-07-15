@@ -1,7 +1,7 @@
-def _refresh_job_view(self):
+def _refresh_job_status(self):
     jobs = h2o.api((u'GET /3/Jobs/%s' % self.job_key))
     self.job = (jobs[u'jobs'][0] if (u'jobs' in jobs) else jobs[u'job'][0])
     self.status = self.job[u'status']
-    self.progress = self.job[u'progress']
+    self.progress = min(self.job[u'progress'], 1)
     self.exception = self.job[u'exception']
     self.warnings = self.job[u'warnings']
