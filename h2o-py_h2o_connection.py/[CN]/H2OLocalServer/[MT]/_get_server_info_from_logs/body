@@ -1,11 +1,11 @@
 def _get_server_info_from_logs(self):
-    u'\n        Check server\'s output log, and determine its IP / port (helper method for `._launch_server()`).\n\n        This method is polled during process startup. It looks at the server output log and checks for a presence of\n        a particular string ("INFO: Open H2O Flow in your web browser:") which indicates that the server is\n        up-and-running. If the method detects this string, it extracts the server\'s ip and port and returns them;\n        otherwise it returns None.\n\n        :returns: (ip, port) tuple if the server has already started, None otherwise.\n        '
+    u'\n        Check server\'s output log, and determine its scheme / IP / port (helper method for `._launch_server()`).\n\n        This method is polled during process startup. It looks at the server output log and checks for a presence of\n        a particular string ("INFO: Open H2O Flow in your web browser:") which indicates that the server is\n        up-and-running. If the method detects this string, it extracts the server\'s scheme, ip and port and returns\n        them; otherwise it returns None.\n\n        :returns: (scheme, ip, port) tuple if the server has already started, None otherwise.\n        '
     searchstr = u'INFO: Open H2O Flow in your web browser:'
     with open(self._stdout, u'rt') as f:
         for line in f:
             if (searchstr in line):
                 url = line[(line.index(searchstr) + len(searchstr)):].strip()
                 parts = url.split(u':')
-                assert (((parts[0] == u'http') or (parts[1] == u'https')) and (len(parts) == 3) and parts[2].isdigit()), (u'Unexpected URL: %s' % url)
-                return (parts[1][2:], int(parts[2]))
+                assert ((len(parts) == 3) and ((parts[0] == u'http') or (parts[1] == u'https')) and parts[2].isdigit()), (u'Unexpected URL: %s' % url)
+                return (parts[0], parts[1][2:], int(parts[2]))
     return None

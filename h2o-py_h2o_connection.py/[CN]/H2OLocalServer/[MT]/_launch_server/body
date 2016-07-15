@@ -38,7 +38,7 @@ def _launch_server(self, port, baseport, mmax, mmin, ea, nthreads):
         print((u'JVM stdout: ' + out.name))
         print((u'JVM stderr: ' + err.name))
     win32 = (sys.platform == u'win32')
-    flags = (subprocess.CREATE_NEW_PROCESS_GROUP if win32 else 0)
+    flags = (getattr(subprocess, u'CREATE_NEW_PROCESS_GROUP', 0) if win32 else 0)
     prex = (os.setsid if (not win32) else None)
     try:
         proc = subprocess.Popen(args=cmd, stdout=out, stderr=err, cwd=cwd, creationflags=flags, preexec_fn=prex)
@@ -51,8 +51,9 @@ def _launch_server(self, port, baseport, mmax, mmin, ea, nthreads):
             raise H2OServerError((u'Server process terminated with error code %d' % proc.returncode))
         ret = self._get_server_info_from_logs()
         if ret:
-            self._ip = ret[0]
-            self._port = ret[1]
+            self._scheme = ret[0]
+            self._ip = ret[1]
+            self._port = ret[2]
             self._process = proc
             break
         if (time.time() > giveup_time):
