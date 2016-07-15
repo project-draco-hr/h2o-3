@@ -10,6 +10,6 @@ def _update_progress_bar(self, display_amount=None):
         else:
             progress_pct = int((((display_amount / self._progress_bar_width) * 100) + 0.5))
         space_amount = (self._progress_bar_width - display_amount)
-        the_bar = ((u'#' * display_amount) + (u' ' * space_amount))
-        sys.stdout.write(((u'\r' + self._job_type) + (u' Progress: [%s] %02d%%' % (the_bar, progress_pct))))
+        the_bar = (((u'|' + (u'\u2588' * display_amount)) + (u' ' * space_amount)) + u'|')
+        sys.stdout.write((u'\r%s Progress: %s %02d%%' % (self._job_type, the_bar, progress_pct)))
         sys.stdout.flush()
