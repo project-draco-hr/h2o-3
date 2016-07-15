@@ -1,11 +1,11 @@
 @translate_args
 def start_logging(self, dest=None):
-    u'\n        Start logging all API requests to the provided destination.\n        :param dest: Where to write the log: either a filename (str), or an open file handle (file). If not given,\n            then a new temporary file will be created.\n        '
+    u'\n        Start logging all API requests to the provided destination.\n\n        :param dest: Where to write the log: either a filename (str), or an open file handle (file). If not given,\n            then a new temporary file will be created.\n        '
     if (dest is None):
         dest = os.path.join(tempfile.mkdtemp(), u'h2o-connection.log')
     if (not isinstance(dest, (str, type(sys.stdout)))):
         raise ValueError(u'Logging destination should be either a string (filename), or an open file handle')
     name = (dest if isinstance(dest, str) else dest.name)
-    self._print((u'Start logging H2OConnection.api() requests into file %s' % name))
+    self._print((u'Start logging H2OConnection.request() requests into file %s' % name))
     self._is_logging = True
     self._logging_dest = dest

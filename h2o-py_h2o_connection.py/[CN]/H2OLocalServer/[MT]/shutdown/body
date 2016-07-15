@@ -1,0 +1,17 @@
+def shutdown(self):
+    u"\n        Shut down the server by trying to terminate/kill its process.\n\n        First we attempt to terminate the server process gracefully (sending SIGTERM signal). However after\n        _TIME_TO_KILL seconds if the process didn't shutdown, we forcefully kill it with a SIGKILL signal.\n        "
+    if (not self._process):
+        return
+    try:
+        kill_time = (time.time() + self._TIME_TO_KILL)
+        while ((self._process.poll() is None) and (time.time() < kill_time)):
+            self._process.terminate()
+            time.sleep(0.2)
+        if (self._process().poll() is None):
+            self._process.kill()
+            time.sleep(0.2)
+        if self._verbose:
+            print((u'Local H2O server %s:%s stopped.' % (self.ip, self.port)))
+    except:
+        pass
+    self._process = None

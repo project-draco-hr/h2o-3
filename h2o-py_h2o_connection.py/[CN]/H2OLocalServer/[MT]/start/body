@@ -1,0 +1,34 @@
+@staticmethod
+@translate_args
+def start(jar_path=None, nthreads=(-1), enable_assertions=True, max_mem_size=None, min_mem_size=None, ice_root=None, port=u'54321+', verbose=True):
+    u'\n        Start new H\u2082O server on the local machine.\n\n        :param jar_path: Path to the h2o.jar executable. If not given, then we will search for h2o.jar in the\n            locations returned by `._jar_paths()`.\n        :param nthreads: Number of threads in the thread pool. This should be related to the number of CPUs used.\n            -1 means use all CPUs on the host. A positive integer specifies the number of CPUs directly.\n        :param enable_assertions: If True, pass `-ea` option to the JVM.\n        :param max_mem_size: Maximum heap size (jvm option Xmx), in bytes.\n        :param min_mem_size: Minimum heap size (jvm option Xms), in bytes.\n        :param ice_root: A directory where H\u2082O stores its temporary files. Default location is determined by\n            tempfile.mkdtemp().\n        :param port: Port where to start the new server. This could be either an integer, or a string of the form\n            "DDDDD+", indicating that the server should start looking for an open port starting from DDDDD and up.\n        :param verbose: If True, then connection info will be printed to the stdout.\n        :return a new H2OLocalServer instance\n        '
+    assert ((jar_path is None) or isinstance(jar_path, str)), (u'`jar_path` should be string, got %s' % type(jar_path))
+    assert ((jar_path is None) or jar_path.endswith(u'h2o.jar')), (u'`jar_path` should be a path to an h2o.jar executable, got %s' % jar_path)
+    assert isinstance(nthreads, int), (u'`nthreads` should be integer, got %s' % type(nthreads))
+    assert ((nthreads == (-1)) or (1 <= nthreads <= 4096)), (u'`nthreads` is out of bounds: %d' % nthreads)
+    assert isinstance(enable_assertions, bool), (u'`enable_assertions` should be bool, got %s' % type(enable_assertions))
+    assert ((max_mem_size is None) or isinstance(max_mem_size, int)), (u'`max_mem_size` should be integer, got %s' % type(max_mem_size))
+    assert ((max_mem_size is None) or (max_mem_size >= (1 << 25))), (u'`max_mem_size` too small: %d' % max_mem_size)
+    assert ((min_mem_size is None) or isinstance(min_mem_size, int)), (u'`min_mem_size` should be integer, got %s' % type(min_mem_size))
+    assert ((min_mem_size is None) or (max_mem_size is None) or (min_mem_size <= max_mem_size)), (u'`min_mem_size`=%d is larger than the `max_mem_size`=%d' % (min_mem_size, max_mem_size))
+    if ice_root:
+        assert isinstance(ice_root, str), (u'`ice_root` should be string, got %r' % type(ice_root))
+        assert os.path.isdir(ice_root), (u'`ice_root` is not a valid directory: %s' % ice_root)
+    if (port is None):
+        port = u'54321+'
+    baseport = None
+    if isinstance(port, str):
+        if port.isdigit():
+            port = int(port)
+        else:
+            assert ((port[(-1)] == u'+') and port[:(-1)].isdigit()), (u"`port` should be of the form 'DDDD+', where D is a digit. Got: %s" % port)
+            baseport = int(port[:(-1)])
+            port = 0
+    assert isinstance(port, int), (u'`port` should be integer (or string). Got: %s' % type(port))
+    hs = H2OLocalServer()
+    hs._verbose = bool(verbose)
+    hs._jar_path = hs._find_jar(jar_path)
+    hs._ice_root = (ice_root or tempfile.mkdtemp())
+    hs._launch_server(port=port, baseport=baseport, nthreads=int(nthreads), ea=enable_assertions, mmax=max_mem_size, mmin=min_mem_size)
+    atexit.register((lambda : hs.shutdown()))
+    return hs

@@ -1,4 +1,6 @@
+@property
 def session_id(self):
+    u'\n        Return the session id of the current connection.\n\n        The session id is issued (through an API request) the first time it is requested, but no sooner. This is\n        because generating a session id puts it into the DKV on the server, which effectively locks the cloud. Once\n        issued, the session id will stay the same until the connection is closed.\n        '
     if (self._session_id is None):
-        self._session_id = self.api(u'POST /4/sessions')[u'session_key']
-    return self._session_id
+        self._session_id = self.request(u'POST /4/sessions')[u'session_key']
+    return CallableString(self._session_id)
