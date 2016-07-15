@@ -1,5 +1,5 @@
 def _refresh_job_view(self):
-    jobs = h2o.connection().get_json(url_suffix=(u'Jobs/' + self.job_key))
+    jobs = h2o.api((u'GET /3/Jobs/%s' % self.job_key))
     self.job = (jobs[u'jobs'][0] if (u'jobs' in jobs) else jobs[u'job'][0])
     self.status = self.job[u'status']
     self.progress = self.job[u'progress']
