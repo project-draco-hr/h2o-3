@@ -30,7 +30,7 @@ def _upload_python_object(self, python_obj, destination_frame=u'', header=((-1),
         raise ValueError(u'No data to write')
     (tmp_handle, tmp_path) = tempfile.mkstemp(suffix=u'.csv')
     tmp_file = os.fdopen(tmp_handle, u'w')
-    csv_writer = csv.DictWriter(tmp_file, fieldnames=col_header, restval=None, dialect=u'excel', extrasaction=u'ignore', delimiter=',', quoting=csv.QUOTE_ALL)
+    csv_writer = csv_dict_writer(tmp_file, fieldnames=col_header, restval=None, dialect=u'excel', extrasaction=u'ignore', delimiter=u',', quoting=csv.QUOTE_ALL)
     csv_writer.writeheader()
     header = 1
     if (column_names is None):
