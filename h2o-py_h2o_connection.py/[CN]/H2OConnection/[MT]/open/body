@@ -13,9 +13,9 @@ def open(server=None, url=None, ip=None, port=None, https=None, verify_ssl_certi
         assert ((ip is None) and (port is None) and (https is None) and (server is None)), u'`server`, `ip`, `port` and `https` parameters cannot be used together with `url`'
         parts = url.rstrip(u'/').split(u':')
         assert ((len(parts) == 3) and (parts[0] in {u'http', u'https'}) and parts[2].isdigit()), (u"Invalid URL parameter '%s'" % url)
-        ip = parts[1]
-        port = int(parts[2])
         scheme = parts[0]
+        ip = parts[1][2:]
+        port = int(parts[2])
     else:
         if (ip is None):
             ip = str(u'localhost')
@@ -55,7 +55,7 @@ def open(server=None, url=None, ip=None, port=None, https=None, verify_ssl_certi
         conn._stage = 1
         conn._timeout = 3.0
         conn._cluster_info = conn._test_connection(retries)
-        conn._timeout = 10.0
+        conn._timeout = None
         atexit.register((lambda : conn.close()))
     except:
         conn._stage = 0
