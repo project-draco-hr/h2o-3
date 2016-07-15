@@ -5,14 +5,14 @@ def _launch_server(self, port, baseport, mmax, mmin, ea, nthreads):
     jver_bytes = subprocess.check_output([java, u'-version'], stderr=subprocess.STDOUT)
     jver = jver_bytes.decode(encoding=u'utf-8', errors=u'ignore')
     if self._verbose:
-        print((u'Java Version: ' + jver.strip().replace(u'\n', u'; ')))
+        print((u'  Java Version: ' + jver.strip().replace(u'\n', u'; ')))
     if (u'GNU libgcj' in jver):
         raise H2OStartupError(u'Sorry, GNU Java is not supported for H2O.\nPlease download the latest 64-bit Java SE JDK from Oracle.')
     if (u'Client VM' in jver):
-        warn(u'You have a 32-bit version of Java. H2O works best with 64-bit Java.\nPlease download the latest 64-bit Java SE JDK from Oracle.\n')
+        warn(u'  You have a 32-bit version of Java. H2O works best with 64-bit Java.\n  Please download the latest 64-bit Java SE JDK from Oracle.\n')
     if self._verbose:
-        print((u'Starting server from ' + self._jar_path))
-        print((u'Ice root: ' + self._ice_root))
+        print((u'  Starting server from ' + self._jar_path))
+        print((u'  Ice root: ' + self._ice_root))
     cmd = [java]
     cmd += ([u'-ea'] if ea else [])
     for (mq, num) in [(u'-Xms', mmin), (u'-Xmx', mmax)]:
@@ -35,8 +35,8 @@ def _launch_server(self, port, baseport, mmax, mmin, ea, nthreads):
     out = open(self._stdout, u'w')
     err = open(self._stderr, u'w')
     if self._verbose:
-        print((u'JVM stdout: ' + out.name))
-        print((u'JVM stderr: ' + err.name))
+        print((u'  JVM stdout: ' + out.name))
+        print((u'  JVM stderr: ' + err.name))
     win32 = (sys.platform == u'win32')
     flags = (getattr(subprocess, u'CREATE_NEW_PROCESS_GROUP', 0) if win32 else 0)
     prex = (os.setsid if (not win32) else None)
