@@ -28,9 +28,14 @@ def start(jar_path=None, nthreads=(-1), enable_assertions=True, max_mem_size=Non
     hs = H2OLocalServer()
     hs._verbose = bool(verbose)
     hs._jar_path = hs._find_jar(jar_path)
-    hs._ice_root = (ice_root or tempfile.mkdtemp())
+    hs._ice_root = ice_root
+    if (not ice_root):
+        hs._ice_root = tempfile.mkdtemp()
+        hs._tempdir = hs._ice_root
     if verbose:
         print(u'Attempting to start a local H2O server...')
     hs._launch_server(port=port, baseport=baseport, nthreads=int(nthreads), ea=enable_assertions, mmax=max_mem_size, mmin=min_mem_size)
+    if verbose:
+        print((u'Server is running at %s://%s:%d' % (hs.scheme, hs.ip, hs.port)))
     atexit.register((lambda : hs.shutdown()))
     return hs

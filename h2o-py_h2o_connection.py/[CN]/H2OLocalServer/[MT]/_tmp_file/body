@@ -1,5 +1,4 @@
-@staticmethod
-def _tmp_file(kind):
+def _tmp_file(self, kind):
     u'\n        Generate names for temporary files (helper method for `._launch_server()`).\n\n        :param kind: one of "stdout", "stderr" or "salt". The "salt" kind is used for process name, not for a\n            file, so it doesn\'t contain a path. All generated names are based on the user name of the currently\n            logged-in user.\n        '
     if (sys.platform == u'win32'):
         username = os.getenv(u'USERNAME')
@@ -11,4 +10,6 @@ def _tmp_file(kind):
     if (kind == u'salt'):
         return ((usr + u'_') + u''.join((choice(u'0123456789abcdefghijklmnopqrstuvwxyz') for _ in range(6))))
     else:
-        return os.path.join(tempfile.mkdtemp(), (u'h2o_%s_started_from_python.%s' % (usr, kind[3:])))
+        if (not self._tempdir):
+            self._tempdir = tempfile.mkdtemp()
+        return os.path.join(self._tempdir, (u'h2o_%s_started_from_python.%s' % (usr, kind[3:])))
