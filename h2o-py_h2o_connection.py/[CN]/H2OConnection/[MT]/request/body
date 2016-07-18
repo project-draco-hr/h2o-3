@@ -5,9 +5,11 @@ def request(self, endpoint, data=None, json=None, filename=None):
         raise H2OConnectionError(u'Connection not initialized; run .connect() first.')
     if (self._stage == (-1)):
         raise H2OConnectionError(u'Connection was closed, and can no longer be used.')
+    if (not isinstance(endpoint, str)):
+        raise ValueError((u'Endpoint should be a string, got %s' % type(endpoint)))
     if (endpoint.count(u' ') != 1):
         raise ValueError((u"Incorrect endpoint '%s': must be of the form 'METHOD URL'." % endpoint))
-    (method, urltail) = endpoint.split(u' ', 2)
+    (method, urltail) = str(endpoint).split(u' ', 2)
     if (method not in {u'GET', u'POST', u'PUT', u'DELETE', u'PATCH', u'HEAD'}):
         raise ValueError((u"Incorrect method in endpoint '%s'" % endpoint))
     if (urltail[0] != u'/'):
