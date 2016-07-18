@@ -13,6 +13,8 @@ def init(url=None, ip=None, port=None, https=None, insecure=False, username=None
     try:
         connect(url=url, ip=ip, port=port, https=https, verify_ssl_certificates=(not insecure), auth=auth, proxy=proxy, cluster_name=cluster_name, verbose=True)
     except H2OConnectionError:
+        if (not str(port).endswith(u'+')):
+            port = (str(port) + u'+')
         if (not start_h2o):
             raise
         global h2oconn
