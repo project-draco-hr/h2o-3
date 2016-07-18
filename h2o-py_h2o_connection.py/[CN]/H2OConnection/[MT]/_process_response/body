@@ -8,7 +8,7 @@ def _process_response(response):
     if (content_type == u'application/json'):
         try:
             data = response.json(object_pairs_hook=H2OResponse)
-        except JSONDecodeError as e:
+        except (JSONDecodeError, requests.exceptions.ContentDecodingError) as e:
             raise H2OServerError((u'Malformed JSON from server (%s):\n%s' % (str(e), response.text)))
     else:
         data = response.text
