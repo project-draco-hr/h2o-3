@@ -4,7 +4,7 @@ def _get_server_info_from_logs(self):
     with open(self._stdout, u'rt') as f:
         for line in f:
             if (searchstr in line):
-                url = line[(line.index(searchstr) + len(searchstr)):].strip()
+                url = line[(line.index(searchstr) + len(searchstr)):].strip().rstrip(u'/')
                 parts = url.split(u':')
                 assert ((len(parts) == 3) and ((parts[0] == u'http') or (parts[1] == u'https')) and parts[2].isdigit()), (u'Unexpected URL: %s' % url)
                 return (parts[0], parts[1][2:], int(parts[2]))
