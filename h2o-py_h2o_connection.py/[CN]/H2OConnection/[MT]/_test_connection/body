@@ -12,8 +12,16 @@ def _test_connection(self, max_retries=5):
             if (cld.consensus and cld.cloud_healthy):
                 self._print(u' successful!')
                 return cld
+            else:
+                if (cld.consensus and (not cld.cloud_healthy)):
+                    msg = u'in consensus but not healthy'
+                elif ((not cld.consensus) and cld.cloud_healthy):
+                    msg = u'not in consensus but healthy'
+                else:
+                    msg = u'not in consensus and not healthy'
+                errors.append((u'Cloud is in a bad shape: %s (size = %d, bad nodes = %d)' % (msg, cld.cloud_size, cld.bad_nodes)))
         except (H2OConnectionError, H2OServerError) as e:
-            errors.append((u'[%s] %s.%d' % (time.strftime(u'%M:%S'), (int((time.time() * 10)) % 10), str(e))))
+            errors.append((u'[%s.%d] %s' % (time.strftime(u'%M:%S'), (int((time.time() * 10)) % 10), str(e))))
         time.sleep(0.2)
     self._print(u' failed.')
     if (cld and (not cld.cloud_healthy)):
