@@ -2,6 +2,7 @@ def _test_connection(self, max_retries=5):
     u'\n        Test that the H2O cluster can be reached, and retrieve basic cloud status info.\n\n        :param max_retries: Number of times to try to connect to the cloud (with 0.2s intervals)\n        :return Cloud information (a CloudV3 object)\n        :raise H2OConnectionError, H2OServerError\n        '
     self._print((u'Connecting to H2O server at ' + self._base_url), end=u'..')
     cld = None
+    errors = []
     for _ in range(max_retries):
         self._print(u'.', end=u'', flush=True)
         if (self._local_server and (not self._local_server.is_running())):
@@ -11,8 +12,8 @@ def _test_connection(self, max_retries=5):
             if (cld.consensus and cld.cloud_healthy):
                 self._print(u' successful!')
                 return cld
-        except (H2OConnectionError, H2OServerError):
-            pass
+        except (H2OConnectionError, H2OServerError) as e:
+            errors.append((u'[%s] %s.%d' % (time.strftime(u'%M:%S'), (int((time.time() * 10)) % 10), str(e))))
         time.sleep(0.2)
     self._print(u' failed.')
     if (cld and (not cld.cloud_healthy)):
@@ -20,4 +21,4 @@ def _test_connection(self, max_retries=5):
     if (cld and (not cld.consensus)):
         raise H2OServerError(u'Cluster cannot reach consensus')
     else:
-        raise H2OConnectionError((u'Could not establish link to the H2O cloud %s after %d retries' % (self._base_url, max_retries)))
+        raise H2OConnectionError((u'Could not establish link to the H2O cloud %s after %d retries\n%s' % (self._base_url, max_retries, u'\n'.join(errors))))
