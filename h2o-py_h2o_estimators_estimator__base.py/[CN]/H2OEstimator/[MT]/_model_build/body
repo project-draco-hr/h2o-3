@@ -2,13 +2,13 @@ def _model_build(self, x, y, tframe, vframe, kwargs):
     kwargs[u'training_frame'] = tframe
     if (vframe is not None):
         kwargs[u'validation_frame'] = vframe
-    if isinstance(y, int):
+    if is_int(y):
         y = tframe.names[y]
     if (y is not None):
         kwargs[u'response_column'] = y
     if (not isinstance(x, (list, tuple))):
         x = [x]
-    if isinstance(x[0], int):
+    if is_int(x[0]):
         x = [tframe.names[i] for i in x]
     offset = kwargs[u'offset_column']
     folds = kwargs[u'fold_column']

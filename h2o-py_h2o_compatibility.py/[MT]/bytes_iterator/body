@@ -1,0 +1,12 @@
+def bytes_iterator(s):
+    u"Given a string, return an iterator over this string's bytes (as ints)."
+    if (s is None):
+        return
+    if (PY2 or (PY3 and isinstance(s, str))):
+        for ch in s:
+            yield ord(ch)
+    elif (PY3 and isinstance(s, bytes)):
+        for ch in s.encode(u'utf-8'):
+            yield ch
+    else:
+        raise TypeError((u'String argument expected, got %s' % type(s)))

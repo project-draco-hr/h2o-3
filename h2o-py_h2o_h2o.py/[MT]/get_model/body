@@ -1,6 +1,6 @@
 def get_model(model_id):
-    u'Return the specified model\n\n    Parameters\n    ----------\n      model_id : str\n        The model identification in h2o\n\n    Returns\n      -------\n        Subclass of H2OEstimator\n    '
-    model_json = h2oconn.get_json((u'Models/' + model_id))[u'models'][0]
+    u'Return the specified model.\n\n    Parameters\n    ----------\n      model_id : str\n        The model identification in h2o\n\n    Returns\n      -------\n        Subclass of H2OEstimator\n    '
+    model_json = api((u'GET /3/Models/%s' % model_id))[u'models'][0]
     algo = model_json[u'algo']
     if (algo == u'svd'):
         m = H2OSVD()
@@ -18,10 +18,11 @@ def get_model(model_id):
         m = H2OGeneralizedLinearEstimator()
     elif (algo == u'gbm'):
         m = H2OGradientBoostingEstimator()
-    elif ((algo == u'deeplearning') and (model_json[u'output'][u'model_category'] == u'AutoEncoder')):
-        m = H2OAutoEncoderEstimator()
     elif (algo == u'deeplearning'):
-        m = H2ODeepLearningEstimator()
+        if (model_json[u'output'][u'model_category'] == u'AutoEncoder'):
+            m = H2OAutoEncoderEstimator()
+        else:
+            m = H2ODeepLearningEstimator()
     else:
         raise ValueError((u'Unknown algo type: ' + algo))
     m._resolve_model(model_id, model_json)

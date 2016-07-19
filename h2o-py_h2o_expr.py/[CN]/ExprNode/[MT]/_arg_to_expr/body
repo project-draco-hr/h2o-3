@@ -11,14 +11,14 @@ def _arg_to_expr(arg):
         return str(arg)
     elif isinstance(arg, bool):
         return u'{}'.format((u'TRUE' if arg else u'FALSE'))
-    elif isinstance(arg, (int, float)):
+    elif is_numeric(arg):
         return u'{}'.format((u'NaN' if math.isnan(arg) else arg))
-    elif isinstance(arg, str):
+    elif is_str(arg):
         return ((u'"' + arg) + u'"')
     elif isinstance(arg, slice):
         return u'[{}:{}]'.format((0 if (arg.start is None) else arg.start), (u'NaN' if ((arg.stop is None) or math.isnan(arg.stop)) else (arg.stop if (arg.start is None) else (arg.stop - arg.start))))
     elif isinstance(arg, list):
-        allstrs = all((isinstance(elem, str) for elem in arg))
+        allstrs = all((is_str(elem) for elem in arg))
         if allstrs:
             return (u'[%s]' % u' '.join(((u'"%s"' % elem) for elem in arg)))
         else:

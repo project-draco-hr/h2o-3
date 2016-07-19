@@ -1,5 +1,6 @@
 def translate_args(fun):
     u'\n    This decorator ensures that arguments supplied to a function are Python-3 compatible.\n    The problem that it tries to solve is the following: the code in the h2o-py module is written with the\n    unicode_literals future import, and Py3 compatibility layer (which replaces some of the builtin types in Python2\n    with custom objects that are Python3-compatible). However when h2o module is imported from within the "old-style"\n    Python 2 environment, then this enviroment will provide h2o functions with incompatible arguments.\n    For example, when Python 2 environment invokes\n        h2o.connect(ip="localhost", port=12345)\n    then the `ip` argument will be of "native" Python 2 str type, instead of the augmented `str` type provided by\n    this module. As a result, simple check such as `isinstance(ip, str)` will fail, a\n\n    :param fun: Function target of the decorator\n    '
+    from functools import wraps
     if PY3:
         return fun
     strings = (native_str, native_bytes, native_unicode)

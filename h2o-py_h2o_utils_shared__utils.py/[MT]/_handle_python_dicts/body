@@ -9,7 +9,7 @@ def _handle_python_dicts(python_obj):
         if isinstance(v, (tuple, list)):
             if _is_list_of_lists(v):
                 raise ValueError(u'Values in the dictionary must be flattened!')
-        elif (isinstance(v, (int, float)) or _is_str(v)):
+        elif (is_numeric(v) or is_str(v)):
             python_obj[k] = [v]
         else:
             raise ValueError(u'Encountered invalid dictionary value when constructing H2OFrame. Got: {0}'.format(v))
