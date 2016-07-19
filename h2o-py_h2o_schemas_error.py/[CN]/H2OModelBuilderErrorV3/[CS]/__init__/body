@@ -1,0 +1,13 @@
+def __init__(self, keyvals):
+    self._props = {}
+    self._endpoint = None
+    self._payload = None
+    for (k, v) in keyvals:
+        if ((k == u'__meta') or (k == u'_exclude_fields') or (k == u'__schema')):
+            continue
+        if (k in _h2omberror_v3_valid_keys):
+            if k.endswith(u'msg'):
+                v = v.replace(u'ERROR MESSAGE:', u'').strip()
+            self._props[k] = v
+        else:
+            raise AttributeError((u'Attribute %s cannot be set on H2OModelBuilderErrorV3 (= %r)' % (k, v)))

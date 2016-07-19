@@ -1,30 +1,30 @@
 def _model_build(self, x, y, tframe, vframe, kwargs):
-    kwargs['training_frame'] = tframe
+    kwargs[u'training_frame'] = tframe
     if (vframe is not None):
-        kwargs['validation_frame'] = vframe
-    if isinstance(y, int):
+        kwargs[u'validation_frame'] = vframe
+    if is_int(y):
         y = tframe.names[y]
     if (y is not None):
-        kwargs['response_column'] = y
+        kwargs[u'response_column'] = y
     if (not isinstance(x, (list, tuple))):
         x = [x]
-    if isinstance(x[0], int):
+    if is_int(x[0]):
         x = [tframe.names[i] for i in x]
-    offset = kwargs['offset_column']
-    folds = kwargs['fold_column']
-    weights = kwargs['weights_column']
+    offset = kwargs[u'offset_column']
+    folds = kwargs[u'fold_column']
+    weights = kwargs[u'weights_column']
     ignored_columns = list((set(tframe.names) - set((x + [y, offset, folds, weights]))))
-    kwargs['ignored_columns'] = (None if (ignored_columns == []) else [h2o.h2o._quoted(col) for col in ignored_columns])
-    kwargs['interactions'] = (None if (('interactions' not in kwargs) or (kwargs['interactions'] is None)) else [h2o.h2o._quoted(col) for col in kwargs['interactions']])
+    kwargs[u'ignored_columns'] = (None if (ignored_columns == []) else [quoted(col) for col in ignored_columns])
+    kwargs[u'interactions'] = (None if ((u'interactions' not in kwargs) or (kwargs[u'interactions'] is None)) else [quoted(col) for col in kwargs[u'interactions']])
     kwargs = dict([(k, H2OEstimator._keyify_if_H2OFrame(kwargs[k])) for k in kwargs])
     algo = self._compute_algo()
-    model = H2OJob(H2OConnection.post_json(('ModelBuilders/' + algo), **kwargs), job_type=(algo + ' Model Build'))
+    model = H2OJob(h2o.connection().post_json((u'ModelBuilders/' + algo), **kwargs), job_type=(algo + u' Model Build'))
     if self._future:
         self._job = model
         return
     model.poll()
-    if ('_rest_version' in list(kwargs.keys())):
-        model_json = H2OConnection.get_json(('Models/' + model.dest_key), _rest_version=kwargs['_rest_version'])['models'][0]
+    if (u'_rest_version' in list(kwargs.keys())):
+        model_json = h2o.connection().get_json((u'Models/' + model.dest_key), _rest_version=kwargs[u'_rest_version'])[u'models'][0]
     else:
-        model_json = H2OConnection.get_json(('Models/' + model.dest_key))['models'][0]
+        model_json = h2o.connection().get_json((u'Models/' + model.dest_key))[u'models'][0]
     self._resolve_model(model.dest_key, model_json)

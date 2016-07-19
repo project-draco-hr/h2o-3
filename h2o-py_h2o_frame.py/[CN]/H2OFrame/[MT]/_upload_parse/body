@@ -1,5 +1,6 @@
 def _upload_parse(self, path, destination_frame, header, sep, column_names, column_types, na_strings):
-    fui = {'file': os.path.abspath(path), }
-    rawkey = H2OConnection.post_json(url_suffix='PostFile', file_upload_info=fui)['destination_frame']
+    fui = {u'file': os.path.abspath(path), }
+    ret = h2o.connection().post_json(url_suffix=u'PostFile', file_upload_info=fui)
+    rawkey = ret[u'destination_frame']
     self._parse(rawkey, destination_frame, header, sep, column_names, column_types, na_strings)
     return self

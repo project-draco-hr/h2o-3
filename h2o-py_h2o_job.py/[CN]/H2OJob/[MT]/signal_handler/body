@@ -1,6 +1,7 @@
 def signal_handler(self, signum, stackframe):
-    if POLLING:
-        H2OConnection.post(url_suffix=(('Jobs/' + self.job_key) + '/cancel'))
-        print('Job {} was cancelled.'.format(self.job_key))
+    u'(internal).'
+    if self._polling:
+        h2o.api((u'POST /3/Jobs/%s/cancel' % self.job_key))
+        print(u'Job {} was cancelled.'.format(self.job_key))
     else:
         signal.default_int_handler()

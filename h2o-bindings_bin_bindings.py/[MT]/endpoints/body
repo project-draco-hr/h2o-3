@@ -51,7 +51,7 @@ def endpoints(raw=False):
             e[u'input_params'] = []
             for parm in e[u'path_params']:
                 fields = [field for field in e[u'ischema'][u'fields'] if (field[u'name'] == parm)]
-                assert (len(fields) == 1), (u'Failed to find parameter: %s for endpoint: %r' % (parm, e))
+                assert (len(fields) == 1), (u'Failed to find parameter: %s for endpoint: %s in the input schema %s' % (parm, e[u'url_pattern'], e[u'ischema'][u'name']))
                 field = fields[0].copy()
                 schema = (field[u'schema_name'] or u'')
                 ftype = field[u'type']

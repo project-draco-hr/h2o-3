@@ -1,11 +1,11 @@
 def _parse_raw(self, setup):
-    p = {'destination_frame': None, 'parse_type': None, 'separator': None, 'single_quotes': None, 'check_header': None, 'number_columns': None, 'chunk_size': None, 'delete_on_done': True, 'blocking': False, 'column_types': None, }
-    if setup['column_names']:
-        p['column_names'] = None
-    if setup['na_strings']:
-        p['na_strings'] = None
-    p.update({k: v for (k, v) in iteritems(setup) if (k in p)})
-    p['source_frames'] = [_quoted(src['name']) for src in setup['source_frames']]
-    H2OJob(H2OConnection.post_json(url_suffix='Parse', **p), 'Parse').poll()
-    self._ex._cache._id = p['destination_frame']
+    p = {u'destination_frame': None, u'parse_type': None, u'separator': None, u'single_quotes': None, u'check_header': None, u'number_columns': None, u'chunk_size': None, u'delete_on_done': True, u'blocking': False, u'column_types': None, }
+    if setup[u'column_names']:
+        p[u'column_names'] = None
+    if setup[u'na_strings']:
+        p[u'na_strings'] = None
+    p.update({k: v for (k, v) in viewitems(setup) if (k in p)})
+    p[u'source_frames'] = [_quoted(src[u'name']) for src in setup[u'source_frames']]
+    H2OJob(h2o.connection().post_json(url_suffix=u'Parse', **p), u'Parse').poll()
+    self._ex._cache._id = p[u'destination_frame']
     self._ex._cache.fill()

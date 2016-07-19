@@ -1,19 +1,19 @@
 def train(self, x, y=None, training_frame=None, offset_column=None, fold_column=None, weights_column=None, validation_frame=None, max_runtime_secs=None, **params):
-    'Train the H2O model by specifying the predictor columns, response column, and any\n    additional frame-specific values.\n\n    Parameters\n    ----------\n      x : list\n        A list of column names or indices indicating the predictor columns.\n\n      y : str\n        An index or a column name indicating the response column.\n\n      training_frame : H2OFrame\n        The H2OFrame having the columns indicated by x and y (as well as any\n        additional columns specified by fold, offset, and weights).\n\n      offset_column : str, optional\n        The name or index of the column in training_frame that holds the offsets.\n\n      fold_column : str, optional\n        The name or index of the column in training_frame that holds the per-row fold\n        assignments.\n\n      weights_column : str, optional\n        The name or index of the column in training_frame that holds the per-row weights.\n\n      validation_frame : H2OFrame, optional\n        H2OFrame with validation data to be scored on while training.\n\n      max_runtime_secs : float\n        Maximum allowed runtime in seconds for model training. Use 0 to disable.\n    '
+    u'Train the H2O model by specifying the predictor columns, response column, and any\n    additional frame-specific values.\n\n    Parameters\n    ----------\n      x : list\n        A list of column names or indices indicating the predictor columns.\n\n      y : str\n        An index or a column name indicating the response column.\n\n      training_frame : H2OFrame\n        The H2OFrame having the columns indicated by x and y (as well as any\n        additional columns specified by fold, offset, and weights).\n\n      offset_column : str, optional\n        The name or index of the column in training_frame that holds the offsets.\n\n      fold_column : str, optional\n        The name or index of the column in training_frame that holds the per-row fold\n        assignments.\n\n      weights_column : str, optional\n        The name or index of the column in training_frame that holds the per-row weights.\n\n      validation_frame : H2OFrame, optional\n        H2OFrame with validation data to be scored on while training.\n\n      max_runtime_secs : float\n        Maximum allowed runtime in seconds for model training. Use 0 to disable.\n    '
     algo_params = locals()
     parms = self._parms.copy()
-    if ('__class__' in parms):
-        del parms['__class__']
-    parms.update({k: v for (k, v) in algo_params.items() if (k not in ['self', 'params', 'algo_params', 'parms'])})
-    y = algo_params['y']
-    tframe = algo_params['training_frame']
+    if (u'__class__' in parms):
+        del parms[u'__class__']
+    parms.update({k: v for (k, v) in algo_params.items() if (k not in [u'self', u'params', u'algo_params', u'parms'])})
+    y = algo_params[u'y']
+    tframe = algo_params[u'training_frame']
     if (tframe is None):
-        raise ValueError('Missing training_frame')
+        raise ValueError(u'Missing training_frame')
     if (y is not None):
         if isinstance(y, (list, tuple)):
             if (len(y) == 1):
-                parms['y'] = y[0]
+                parms[u'y'] = y[0]
             else:
-                raise ValueError('y must be a single column reference')
-        self._estimator_type = ('classifier' if tframe[y].isfactor() else 'regressor')
+                raise ValueError(u'y must be a single column reference')
+        self._estimator_type = (u'classifier' if tframe[y].isfactor() else u'regressor')
     self.build_model(parms)

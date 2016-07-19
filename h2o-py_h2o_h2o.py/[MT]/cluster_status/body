@@ -1,20 +1,20 @@
 def cluster_status():
-    'This is possibly confusing because this can come back without warning,\n  but if a user tries to do any remoteSend, they will get a "cloud sick warning"\n  Retrieve information on the status of the cluster running H2O.\n  '
-    cluster_json = H2OConnection.get_json('Cloud?skip_ticks=true')
-    print('Version: {0}'.format(cluster_json['version']))
-    print('Cloud name: {0}'.format(cluster_json['cloud_name']))
-    print('Cloud size: {0}'.format(cluster_json['cloud_size']))
-    if cluster_json['locked']:
-        print('Cloud is locked\n')
+    u'This is possibly confusing because this can come back without warning,\n    but if a user tries to do any remoteSend, they will get a "cloud sick warning"\n    Retrieve information on the status of the cluster running H2O.\n    '
+    cluster = h2oconn.request(u'GET /3/Cloud?skip_ticks=true')
+    print((u'Version: %s' % cluster.version))
+    print((u'Cloud name: %s' % cluster.cloud_name))
+    print((u'Cloud size: %d' % cluster.cloud_size))
+    if cluster.locked:
+        print(u'Cloud is locked')
     else:
-        print('Accepting new members\n')
-    if ((cluster_json['nodes'] == None) or (len(cluster_json['nodes']) == 0)):
-        print('No nodes found')
+        print(u'Accepting new members')
+    if (not cluster.nodes):
+        print(u'No nodes found')
         return
     status = []
-    for node in cluster_json['nodes']:
-        for (k, v) in zip(node.keys(), node.values()):
-            if (k in ['h2o', 'healthy', 'last_ping', 'num_cpus', 'sys_load', 'mem_value_size', 'free_mem', 'pojo_mem', 'swap_mem', 'free_disk', 'max_disk', 'pid', 'num_keys', 'tcps_active', 'open_fds', 'rpcs_active']):
-                status.append((k + ': {0}'.format(v)))
-        print(', '.join(status))
-        print()
+    for node in cluster.nodes:
+        for k in [u'h2o', u'healthy', u'last_ping', u'num_cpus', u'sys_load', u'mem_value_size', u'free_mem', u'pojo_mem', u'swap_mem', u'free_disk', u'max_disk', u'pid', u'num_keys', u'tcps_active', u'open_fds', u'rpcs_active']:
+            if (k in node):
+                status.append((u'%s: %s' % (k, node[k])))
+        print(u', '.join(status))
+    print()

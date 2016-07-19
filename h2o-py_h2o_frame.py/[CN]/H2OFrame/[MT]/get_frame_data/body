@@ -1,4 +1,4 @@
 def get_frame_data(self):
-    "Get frame data as str in csv format\n\n    Returns\n    -------\n      A local python string, each line is a row and each element separated by commas,\n      containing this H2OFrame instance's data.\n    "
-    url = (H2OConnection.make_url('DownloadDataset', 3) + '?frame_id={}&hex_string=false'.format(self.frame_id))
-    return requests.get(url, headers={'User-Agent': ('H2O Python client/' + sys.version.replace('\n', '')), }, auth=(H2OConnection.username(), H2OConnection.password()), verify=(not H2OConnection.insecure()), stream=True).text
+    u"Get frame data as str in csv format\n\n    Returns\n    -------\n      A local python string, each line is a row and each element separated by commas,\n      containing this H2OFrame instance's data.\n    "
+    url = (h2o.connection().make_url(u'DownloadDataset', 3) + u'?frame_id={}&hex_string=false'.format(self.frame_id))
+    return requests.get(url, headers={u'User-Agent': (u'H2O Python client/' + sys.version.replace(u'\n', u'')), }, auth=h2o.connection()._auth, verify=h2o.connection()._verify_ssl_cert, stream=True).text

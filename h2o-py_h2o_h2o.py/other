@@ -1,21 +1,12 @@
-from __future__ import print_function
-from __future__ import absolute_import
-import warnings
-warnings.simplefilter('always', DeprecationWarning)
-import os, sys
-import os.path
-from future.standard_library import install_aliases
-from past.builtins import basestring
-try:
-    install_aliases()
-except AttributeError:
-    if os.path.exists(os.path.join(sys.path[0], 'test.py')):
-        print('File named `test` is conflicting with python module `test` used by the future library.')
+u'\nh2o -- module for using H2O services.\n\n  :copyright: (c) 2016 H2O.ai\n  :license:   Apache License Version 2.0 (see LICENSE for details)\n'
+from __future__ import division, print_function, absolute_import, unicode_literals
+import os
 import re
-from six import PY3
-import copy
-from .utils.shared_utils import _quoted, _is_list_of_lists, _gen_header, _py_tmp_key, quote, urlopen
-from .connection import H2OConnection
+import warnings
+from .compatibility import *
+from .debugging import *
+from .utils.shared_utils import quoted, is_list_of_lists, gen_header, py_tmp_key, urlopen
+from .connection import H2OConnection, H2OLocalServer, H2OConnectionError, H2OServerError
 from .expr import ExprNode
 from .job import H2OJob
 from .frame import H2OFrame
@@ -31,3 +22,5 @@ from .estimators.random_forest import H2ORandomForestEstimator
 from .grid.grid_search import H2OGridSearch
 from .transforms.decomposition import H2OPCA
 from .transforms.decomposition import H2OSVD
+warnings.simplefilter(u'always', DeprecationWarning)
+h2oconn = None

@@ -1,0 +1,10 @@
+def close(self):
+    u'\n        Close an existing connection; once closed it cannot be used again.\n\n        Strictly speaking it is not necessary to close all connection that you opened -- we have several mechanisms\n        in place that will do so automatically (__del__(), __exit__() and atexit() handlers), however there is also\n        no good reason to make this method private.\n        '
+    if self._session_id:
+        try:
+            self.request((u'DELETE /4/sessions/%s' % self._session_id))
+            self._print((u'H2O session %s closed.' % self._session_id))
+        except:
+            pass
+        self._session_id = None
+    self._stage = (-1)

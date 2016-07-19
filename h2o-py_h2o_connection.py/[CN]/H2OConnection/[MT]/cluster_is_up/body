@@ -1,9 +1,9 @@
-@staticmethod
-def cluster_is_up(conn):
-    '\n    Determine if an H2O cluster is up or not\n    :param conn: An H2OConnection object containing the IP address and port of the server running H2O.\n    :return: TRUE if the cluster is up; FALSE otherwise\n    '
-    if (not isinstance(conn, H2OConnection)):
-        raise ValueError('`conn` must be an H2OConnection object')
-    rv = conn.current_connection()._attempt_rest(url=(('https' if conn.https() else 'http') + '://{0}:{1}/'.format(conn.ip(), conn.port())), method='GET', post_body='', file_upload_info='')
-    if (rv.status_code == 401):
-        warnings.warn('401 Unauthorized Access. Did you forget to provide a username and password?')
-    return ((rv.status_code == 200) or (rv.status_code == 301))
+def cluster_is_up(self):
+    u'\n        Determine if an H\u2082O cluster is running or not.\n\n        :return: True if the cluster is up; False otherwise\n        '
+    try:
+        if (self._local_server and (not self._local_server.is_running())):
+            return False
+        self.request(u'GET /')
+        return True
+    except (H2OConnectionError, H2OServerError):
+        return False

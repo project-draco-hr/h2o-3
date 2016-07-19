@@ -1,0 +1,19 @@
+@staticmethod
+def _prepare_data_payload(data):
+    u'\n        Make a copy of the `data` object, preparing it to be sent to the server.\n\n        The data will be sent via x-www-form-urlencoded or multipart/form-data mechanisms. Both of them work with\n        plain lists of key/value pairs, so this method converts the data into such format.\n        '
+    if (not data):
+        return None
+    if (not isinstance(data, dict)):
+        raise ValueError((u'Invalid `data` argument, should be a dict: %r' % data))
+    res = {}
+    for (key, value) in viewitems(data):
+        if (value is None):
+            continue
+        if isinstance(value, list):
+            value = stringify_list(value)
+        elif (isinstance(value, dict) and (u'__meta' in value) and value[u'__meta'][u'schema_name'].endswith(u'KeyV3')):
+            value = value[u'name']
+        else:
+            value = str(value)
+        res[key] = value
+    return res

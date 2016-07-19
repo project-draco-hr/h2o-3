@@ -1,0 +1,7 @@
+def _deprecated_post(self, url_suffix, **kwargs):
+    restver = (kwargs.pop(u'_rest_version') if (u'_rest_version' in kwargs) else 3)
+    endpoint = (u'POST /%d/%s' % (restver, url_suffix))
+    filename = None
+    if (u'file_upload_info' in kwargs):
+        filename = next(iter(viewvalues(kwargs.pop(u'file_upload_info'))))
+    return self.request(endpoint, data=kwargs, filename=filename)

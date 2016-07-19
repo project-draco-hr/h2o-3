@@ -2,7 +2,7 @@ def fit(self, fr, **fit_params):
     res = []
     for step in self.steps:
         res.append(step[1].to_rest(step[0]))
-    res = (('[' + ','.join([_quoted(r.replace('"', "'")) for r in res])) + ']')
-    j = H2OConnection.post_json(url_suffix='Assembly', steps=res, frame=fr.frame_id, _rest_version=99)
-    self.id = j['assembly']['name']
-    return H2OFrame.get_frame(j['result']['name'])
+    res = ((u'[' + u','.join([quoted(r.replace(u'"', u"'")) for r in res])) + u']')
+    j = h2o.connection().post_json(url_suffix=u'Assembly', steps=res, frame=fr.frame_id, _rest_version=99)
+    self.id = j[u'assembly'][u'name']
+    return H2OFrame.get_frame(j[u'result'][u'name'])

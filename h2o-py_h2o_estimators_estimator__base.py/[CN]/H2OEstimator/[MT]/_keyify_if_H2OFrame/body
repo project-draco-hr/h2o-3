@@ -3,6 +3,6 @@ def _keyify_if_H2OFrame(item):
     if isinstance(item, H2OFrame):
         return item.frame_id
     elif (isinstance(item, list) and all((((i is None) or isinstance(i, H2OFrame)) for i in item))):
-        return [(h2o.h2o._quoted(i) if (i is None) else h2o.h2o._quoted(i.frame_id)) for i in item]
+        return [(quoted(i) if (i is None) else quoted(i.frame_id)) for i in item]
     else:
         return item

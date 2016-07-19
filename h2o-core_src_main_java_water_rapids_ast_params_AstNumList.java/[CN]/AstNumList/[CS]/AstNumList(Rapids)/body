@@ -1,0 +1,47 @@
+{
+  ArrayList<Double> bases=new ArrayList<>();
+  ArrayList<Double> strides=new ArrayList<>();
+  ArrayList<Long> cnts=new ArrayList<>();
+  while (true) {
+    char c=e.skipWS();
+    if (c == ']')     break;
+    if (c == '#')     e.xpeek('#');
+    double base=e.number(), cnt=1, stride=1;
+    c=e.skipWS();
+    if (c == ':') {
+      e.xpeek(':');
+      e.skipWS();
+      cnt=e.number();
+      if (cnt < 1 || ((long)cnt) != cnt)       throw new IllegalArgumentException("Count must be a integer larger than zero, " + cnt);
+      c=e.skipWS();
+      if (c == ':') {
+        e.xpeek(':');
+        e.skipWS();
+        stride=e.number();
+        if (stride < 0)         throw new IllegalArgumentException("Stride must be positive, " + stride);
+        c=e.skipWS();
+      }
+    }
+    if (cnt == 1 && stride != 1)     throw new IllegalArgumentException("If count is 1, then stride must be one (and ignored)");
+    bases.add(base);
+    cnts.add((long)cnt);
+    strides.add(stride);
+    if (c == ',')     e.xpeek(',');
+  }
+  e.xpeek(']');
+  _bases=new double[bases.size()];
+  _strides=new double[bases.size()];
+  _cnts=new long[bases.size()];
+  boolean isList=true;
+  for (int i=0; i < _bases.length; i++) {
+    _bases[i]=bases.get(i);
+    _cnts[i]=cnts.get(i);
+    _strides[i]=strides.get(i);
+    if (_cnts[i] != 1)     isList=false;
+  }
+  _isList=isList;
+  boolean isSort=true;
+  for (int i=1; i < _bases.length; i++)   if (_bases[i - 1] >= _bases[i])   if (_isList)   isSort=false;
+ else   throw new IllegalArgumentException("Bases must be monotonically increasing");
+  _isSort=isSort;
+}

@@ -1,16 +1,16 @@
-def to_pojo(self, pojo_name='', path='', get_jar=True):
-    if (pojo_name == ''):
-        pojo_name = unicode(('AssemblyPOJO_' + str(uuid.uuid4())))
-    java = H2OConnection.get(((('Assembly.java/' + self.id) + '/') + pojo_name), _rest_version=99)
-    file_path = (((path + '/') + pojo_name) + '.java')
-    if (path == ''):
-        print(java.text)
+def to_pojo(self, pojo_name=u'', path=u'', get_jar=True):
+    if (pojo_name == u''):
+        pojo_name = (u'AssemblyPOJO_' + str(uuid.uuid4()))
+    java = h2o.connection().request((u'GET /99/Assembly.java/%s/%s' % (self.id, pojo_name)))
+    file_path = (((path + u'/') + pojo_name) + u'.java')
+    if (path == u''):
+        print(java)
     else:
-        with open(file_path, 'wb') as f:
-            f.write(java.text.encode('utf-8'))
-    if (get_jar and (path != '')):
-        url = H2OConnection.make_url('h2o-genmodel.jar')
-        filename = ((path + '/') + 'h2o-genmodel.jar')
+        with open(file_path, u'w', encoding=u'utf-8') as f:
+            f.write(java)
+    if (get_jar and (path != u'')):
+        url = h2o.connection().make_url(u'h2o-genmodel.jar')
+        filename = ((path + u'/') + u'h2o-genmodel.jar')
         response = urlopen()(url)
-        with open(filename, 'wb') as f:
+        with open(filename, u'wb') as f:
             f.write(response.read())

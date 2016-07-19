@@ -1,0 +1,19 @@
+@staticmethod
+def _process_response(response):
+    u'\n        Given a response object, prepare it to be handed over to the external caller.\n\n        Preparation steps include:\n           * detect if the response has error status, and convert it to an appropriate exception;\n           * detect Content-Type, and based on that either parse the response as JSON or return as plain text.\n        '
+    content_type = (response.headers[u'Content-Type'] if (u'Content-Type' in response.headers) else u'')
+    if (u';' in content_type):
+        content_type = content_type[:content_type.index(u';')]
+    status_code = response.status_code
+    if (content_type == u'application/json'):
+        try:
+            data = response.json(object_pairs_hook=H2OResponse)
+        except (JSONDecodeError, requests.exceptions.ContentDecodingError) as e:
+            raise H2OServerError((u'Malformed JSON from server (%s):\n%s' % (str(e), response.text)))
+    else:
+        data = response.text
+    if (status_code in {200, 201, 202, 204}):
+        return data
+    if ((status_code in {400, 404, 412}) and isinstance(data, (H2OErrorV3, H2OModelBuilderErrorV3))):
+        raise H2OResponseError(data)
+    raise H2OServerError((u'HTTP %d %s:\n%r' % (status_code, response.reason, data)))

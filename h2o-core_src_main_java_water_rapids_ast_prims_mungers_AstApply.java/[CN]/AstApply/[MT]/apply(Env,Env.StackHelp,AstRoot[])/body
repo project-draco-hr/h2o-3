@@ -1,0 +1,15 @@
+{
+  Frame fr=stk.track(asts[1].exec(env)).getFrame();
+  double margin=stk.track(asts[2].exec(env)).getNum();
+  AstRoot fun=stk.track(asts[3].exec(env)).getFun();
+  int nargs=fun.nargs();
+  if (nargs != -1 && nargs != 2)   throw new IllegalArgumentException("Incorrect number of arguments; '" + fun + "' expects "+ nargs+ " but was passed "+ 2);
+switch ((int)margin) {
+case 1:
+    return rowwise(env,fr,fun);
+case 2:
+  return colwise(env,stk,fr,fun);
+default :
+throw new IllegalArgumentException("Only row-wise (margin 1) or col-wise (margin 2) allowed");
+}
+}

@@ -1,0 +1,9 @@
+{
+  Val[] args=new Val[asts.length];
+  for (int i=1; i < asts.length; i++)   args[i]=stk.track(asts[i].exec(env));
+  AstFunction old=env._scope;
+  env._scope=new AstFunction(this,args,_parent);
+  Val res=stk.untrack(_body.exec(env));
+  env._scope=old;
+  return res;
+}

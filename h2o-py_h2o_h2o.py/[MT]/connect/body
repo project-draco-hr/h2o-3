@@ -1,0 +1,7 @@
+def connect(server=None, url=None, ip=None, port=None, https=None, verify_ssl_certificates=None, auth=None, proxy=None, cluster_name=None, verbose=True):
+    u'\n    Connect to an existing H\u2082O server, remote or local.\n\n    There are two ways to connect to a server: either pass a `server` parameter containing an instance of\n    an H2OLocalServer, or specify `ip` and `port` of the server that you want to connect to.\n\n    :param server: An H2OLocalServer instance to connect to (optional).\n    :param url: Full URL of the server to connect to (can be used instead of `ip` + `port` + `https`).\n    :param ip: The ip address (or host name) of the server where H\u2082O is running.\n    :param port: Port number that H\u2082O service is listening to.\n    :param https: Set to True to connect via https:// instead of http://.\n    :param verify_ssl_certificates: When using https, setting this to False will disable SSL certificates verification.\n    :param auth: Either a (username, password) pair for basic authentication, or one of the requests.auth\n                 authenticator objects.\n    :param proxy: Proxy server address.\n    :param cluster_name: Name of the H2O cluster to connect to. This option is used from Steam only.\n    :param verbose: Set to False to disable printing connection status messages.\n    :return  None\n    '
+    global h2oconn
+    h2oconn = H2OConnection.open(**locals())
+    if verbose:
+        h2oconn.info().pprint()
+    return h2oconn

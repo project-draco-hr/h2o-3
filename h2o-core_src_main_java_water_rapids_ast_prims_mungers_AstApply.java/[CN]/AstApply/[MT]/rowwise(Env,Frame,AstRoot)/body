@@ -1,0 +1,26 @@
+{
+  final String[] names=fr._names;
+  final AstFunction scope=env._scope;
+  double[] ds=new double[fr.numCols()];
+  for (int col=0; col < fr.numCols(); ++col)   ds[col]=fr.vec(col).at(0);
+  int noutputs=fun.apply(env,env.stk(),new AstRoot[]{fun,new AstRow(ds,fr.names())}).getRow().length;
+  Frame res=new MRTask(){
+    @Override public void map(    Chunk chks[],    NewChunk[] nc){
+      double ds[]=new double[chks.length];
+      AstRoot[] asts=new AstRoot[]{fun,new AstRow(ds,names)};
+      Session ses=new Session();
+      Env env=new Env(ses);
+      env._scope=scope;
+      for (int row=0; row < chks[0]._len; row++) {
+        for (int col=0; col < chks.length; col++)         ds[col]=chks[col].atd(row);
+        try (Env.StackHelp stk_inner=env.stk()){
+          double[] valRow=fun.apply(env,stk_inner,asts).getRow();
+          for (int newCol=0; newCol < nc.length; ++newCol)           nc[newCol].addNum(valRow[newCol]);
+        }
+       }
+      ses.end(null);
+    }
+  }
+.doAll(noutputs,Vec.T_NUM,fr).outputFrame();
+  return new ValFrame(res);
+}

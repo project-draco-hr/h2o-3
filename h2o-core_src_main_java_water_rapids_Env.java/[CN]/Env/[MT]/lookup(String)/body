@@ -1,16 +1,15 @@
 {
   Val val=_scope == null ? null : _scope.lookup(id);
   if (val != null)   return val;
-  if (id.equals("TRUE") || id.equals("FALSE") || id.equals("NA")|| id.equals("NaN")) {
-    AST ast=AST.PRIMS.get(id);
-    return ast.exec(this);
+  if (AstRoot.CONSTS.containsKey(id)) {
+    return AstRoot.CONSTS.get(id).exec(this);
   }
   Value value=DKV.get(Key.make(id));
   if (value != null) {
     if (value.isFrame())     return addGlobals((Frame)value.get());
     throw new IllegalArgumentException("DKV name lookup of " + id + " yielded an instance of type "+ value.className()+ ", but only Frame is supported");
   }
-  AST ast=AST.PRIMS.get(id);
-  if (ast != null)   return ast instanceof ASTNum ? ast.exec(this) : new ValFun(ast);
+  AstPrimitive ast=AstRoot.PRIMS.get(id);
+  if (ast != null)   return new ValFun(ast);
   throw new IllegalArgumentException("Name lookup of '" + id + "' failed");
 }
