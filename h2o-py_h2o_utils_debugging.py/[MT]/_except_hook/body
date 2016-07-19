@@ -6,6 +6,7 @@ def _except_hook(exc_type, exc_value, exc_tb):
         return
 
     def err(msg=u''):
+        u'Print to stderr.'
         print(msg, file=sys.stderr)
     err(u'\n================================ EXCEPTION INFO ================================\n')
     if (exc_type != type(exc_value)):
@@ -33,7 +34,7 @@ def _except_hook(exc_type, exc_value, exc_tb):
         if (not frame_locl):
             continue
         err((u'\n  Within %s() line %s in file %s:' % (frame_func, tb_line, frame_file)))
-        for key in sorted(frame_locl.keys(), reverse=True):
+        for key in sorted(viewkeys(frame_locl), reverse=True):
             if (key.startswith(u'__') and key.endswith(u'__')):
                 continue
             value = frame_locl[key]
