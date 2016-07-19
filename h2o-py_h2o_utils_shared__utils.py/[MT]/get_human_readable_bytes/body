@@ -4,7 +4,8 @@ def get_human_readable_bytes(size):
         return u'0'
     if (size is None):
         return u''
-    assert (isinstance(size, int) and (size >= 0)), (u'Expected a numeric argument: %r' % size)
+    assert_is_int(size, u'size')
+    assert (size >= 0), (u'`size` cannot be negative, got %d' % size)
     suffixes = u'PTGMk'
     maxl = len(suffixes)
     for i in range((maxl + 1)):

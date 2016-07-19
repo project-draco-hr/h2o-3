@@ -1,5 +1,5 @@
-u'\nThis module gathers common declarations needed to ensure Python 2 / Python 3 compatibility.\nIt has to be imported from all other files, so that the common header looks like this:\n\nfrom __future__ import division, print_function, absolute_import, unicode_literals\n# noinspection PyUnresolvedReferences\nfrom .compatibility import *\n\n'
-from __future__ import division, print_function, absolute_import, unicode_literals
+u'\nPython 2 / 3 compatibility module.\n\nThis module gathers common declarations needed to ensure Python 2 / Python 3 compatibility.\nIt has to be imported from all other files, so that the common header looks like this:\n\nfrom __future__ import absolute_import, division, print_function, unicode_literals\nfrom .compatibility import *  # NOQA\n\n  :copyright: (c) 2016 H2O.ai\n  :license:   Apache License Version 2.0 (see LICENSE for details)\n'
+from __future__ import absolute_import, division, print_function, unicode_literals
 from future.utils import PY2, PY3, with_metaclass
 native_bytes = bytes
 native_dict = dict
@@ -10,8 +10,13 @@ native_str = str
 if PY2:
     native_unicode = unicode
     native_long = long
-if PY2:
-    from future.types import newrange as range
+    _str_type = (str, unicode)
+    _int_type = (int, long)
+    _num_type = (int, long, float)
+else:
+    _str_type = str
+    _int_type = int
+    _num_type = (int, float)
 if PY2:
     from future.builtins.iterators import range, filter, map, zip
 if (PY2 or PY3):

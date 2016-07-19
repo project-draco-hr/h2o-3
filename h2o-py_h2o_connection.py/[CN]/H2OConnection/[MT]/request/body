@@ -4,8 +4,7 @@ def request(self, endpoint, data=None, json=None, filename=None):
         raise H2OConnectionError(u'Connection not initialized; run .connect() first.')
     if (self._stage == (-1)):
         raise H2OConnectionError(u'Connection was closed, and can no longer be used.')
-    if (not is_str(endpoint)):
-        raise ValueError((u'Endpoint should be a string, got %s' % type(endpoint)))
+    assert_is_str(endpoint, u'endpoint')
     if (endpoint.count(u' ') != 1):
         raise ValueError((u"Incorrect endpoint '%s': must be of the form 'METHOD URL'." % endpoint))
     (method, urltail) = str(endpoint).split(u' ', 2)
@@ -25,7 +24,6 @@ def request(self, endpoint, data=None, json=None, filename=None):
         params = data
         data = None
     start_time = time.time()
-    cluster_name = self._cluster_name
     try:
         self._log_start_transaction(endpoint, data, json, files, params)
         headers = {u'User-Agent': (u'H2O Python client/' + sys.version.replace(u'\n', u'')), u'X-Cluster': self._cluster_name, }
