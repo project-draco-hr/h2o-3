@@ -1,0 +1,13 @@
+{
+  Val v=stk.track(asts[1].exec(env));
+  if (v instanceof ValRow) {
+    ValRow vv=(ValRow)v;
+    return vv.slice(asts[2].columns(vv.getNames()));
+  }
+  Frame src=v.getFrame();
+  int[] cols=col_select(src.names(),asts[2]);
+  Frame dst=new Frame();
+  Vec[] vecs=src.vecs();
+  for (  int col : cols)   dst.add(src._names[col],vecs[col]);
+  return new ValFrame(dst);
+}

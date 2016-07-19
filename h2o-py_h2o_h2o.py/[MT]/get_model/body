@@ -1,28 +1,29 @@
 def get_model(model_id):
-    'Return the specified model\n\n  Parameters\n  ----------\n    model_id : str\n      The model identification in h2o\n\n  Returns\n  -------\n    Subclass of H2OEstimator\n  '
-    model_json = H2OConnection.get_json(('Models/' + model_id))['models'][0]
-    algo = model_json['algo']
-    if (algo == 'svd'):
+    u'Return the specified model.\n\n    Parameters\n    ----------\n      model_id : str\n        The model identification in h2o\n\n    Returns\n      -------\n        Subclass of H2OEstimator\n    '
+    model_json = api((u'GET /3/Models/%s' % model_id))[u'models'][0]
+    algo = model_json[u'algo']
+    if (algo == u'svd'):
         m = H2OSVD()
-    elif (algo == 'pca'):
+    elif (algo == u'pca'):
         m = H2OPCA()
-    elif (algo == 'drf'):
+    elif (algo == u'drf'):
         m = H2ORandomForestEstimator()
-    elif (algo == 'naivebayes'):
+    elif (algo == u'naivebayes'):
         m = H2ONaiveBayesEstimator()
-    elif (algo == 'kmeans'):
+    elif (algo == u'kmeans'):
         m = H2OKMeansEstimator()
-    elif (algo == 'glrm'):
+    elif (algo == u'glrm'):
         m = H2OGeneralizedLowRankEstimator()
-    elif (algo == 'glm'):
+    elif (algo == u'glm'):
         m = H2OGeneralizedLinearEstimator()
-    elif (algo == 'gbm'):
+    elif (algo == u'gbm'):
         m = H2OGradientBoostingEstimator()
-    elif ((algo == 'deeplearning') and (model_json['output']['model_category'] == 'AutoEncoder')):
-        m = H2OAutoEncoderEstimator()
-    elif (algo == 'deeplearning'):
-        m = H2ODeepLearningEstimator()
+    elif (algo == u'deeplearning'):
+        if (model_json[u'output'][u'model_category'] == u'AutoEncoder'):
+            m = H2OAutoEncoderEstimator()
+        else:
+            m = H2ODeepLearningEstimator()
     else:
-        raise ValueError(('Unknown algo type: ' + algo))
+        raise ValueError((u'Unknown algo type: ' + algo))
     m._resolve_model(model_id, model_json)
     return m

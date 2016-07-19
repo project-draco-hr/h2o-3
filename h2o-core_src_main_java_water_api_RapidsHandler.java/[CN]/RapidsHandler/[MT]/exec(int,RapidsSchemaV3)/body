@@ -3,10 +3,10 @@
   if (!StringUtils.isNullOrEmpty(rapids.id))   throw new H2OIllegalArgumentException("Field RapidsSchemaV3.id is deprecated and should not be set " + rapids.id);
   if (StringUtils.isNullOrEmpty(rapids.ast))   return rapids;
   if (StringUtils.isNullOrEmpty(rapids.session_id))   rapids.session_id="_specialSess";
-  Session ses=InitIDHandler.SESSIONS.get(rapids.session_id);
+  Session ses=RapidsHandler.SESSIONS.get(rapids.session_id);
   if (ses == null) {
     ses=new Session();
-    InitIDHandler.SESSIONS.put(rapids.session_id,ses);
+    RapidsHandler.SESSIONS.put(rapids.session_id,ses);
   }
   Val val;
   try {

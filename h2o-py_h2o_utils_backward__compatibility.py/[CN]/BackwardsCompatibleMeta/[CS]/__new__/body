@@ -1,0 +1,7 @@
+def __new__(mcs, clsname, bases, dct):
+    bcsv = (dct.pop('_bcsv') if ('_bcsv' in dct) else {})
+    bcsm = (dct.pop('_bcsm') if ('_bcsm' in dct) else {})
+    bcim = (dct.pop('_bcim') if ('_bcim' in dct) else {})
+    bca = ((set(bcsv) | set(bcsm)) | set(bcim))
+    dct['_bc'] = {'sv': bcsv, 'sm': bcsm, 'im': bcim, 'a': bca, }
+    return super(BackwardsCompatibleMeta, mcs).__new__(mcs, clsname, bases, dct)

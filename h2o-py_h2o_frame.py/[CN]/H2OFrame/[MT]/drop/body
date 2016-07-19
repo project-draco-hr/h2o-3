@@ -1,8 +1,8 @@
 def drop(self, i):
-    'Drop a column from the current H2OFrame.\n\n    Parameters\n    ----------\n      i : str, int\n        The column to be dropped\n\n    Returns\n    -------\n      H2OFrame with the column at index i dropped. Returns a new H2OFrame.\n    '
+    u'Drop a column from the current H2OFrame.\n\n    Parameters\n    ----------\n      i : str, int\n        The column to be dropped\n\n    Returns\n    -------\n      H2OFrame with the column at index i dropped. Returns a new H2OFrame.\n    '
     if isinstance(i, basestring):
         i = self.names.index(i)
-    fr = H2OFrame._expr(expr=ExprNode('cols', self, (- (i + 1))), cache=self._ex._cache)
+    fr = H2OFrame._expr(expr=ExprNode(u'cols', self, (- (i + 1))), cache=self._ex._cache)
     fr._ex._cache.ncols -= 1
     fr._ex._cache.names = (self.names[:i] + self.names[(i + 1):])
     fr._ex._cache.types = {name: self.types[name] for name in fr._ex._cache.names}

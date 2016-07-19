@@ -14,19 +14,19 @@ def _model_build(self, x, y, tframe, vframe, kwargs):
     folds = kwargs['fold_column']
     weights = kwargs['weights_column']
     ignored_columns = list((set(tframe.names) - set((x + [y, offset, folds, weights]))))
-    kwargs['ignored_columns'] = (None if (ignored_columns == []) else [h2o.h2o._quoted(col) for col in ignored_columns])
+    kwargs['ignored_columns'] = (None if (not ignored_columns) else [quoted(col) for col in ignored_columns])
     kwargs = dict([(k, (kwargs[k].frame_id if isinstance(kwargs[k], H2OFrame) else kwargs[k])) for k in kwargs if (kwargs[k] is not None)])
     algo = self.model._compute_algo()
     kwargs['_rest_version'] = 99
     if (self.grid_id is not None):
         kwargs['grid_id'] = self.grid_id
-    grid = H2OJob(H2OConnection.post_json(('Grid/' + algo), **kwargs), job_type=(algo + ' Grid Build'))
+    grid = H2OJob(h2o.connection().post_json(('Grid/' + algo), **kwargs), job_type=(algo + ' Grid Build'))
     if self._future:
         self._job = grid
         return
     grid.poll()
     if ('_rest_version' in list(kwargs.keys())):
-        grid_json = H2OConnection.get_json(('Grids/' + grid.dest_key), _rest_version=kwargs['_rest_version'])
+        grid_json = h2o.connection().get_json(('Grids/' + grid.dest_key), _rest_version=kwargs['_rest_version'])
         error_index = 0
         if (len(grid_json['failure_details']) > 0):
             print('Errors/Warnings building gridsearch model\n')
@@ -38,10 +38,10 @@ def _model_build(self, x, y, tframe, vframe, kwargs):
                     print('failure_details: {0}\nfailure_stack_traces: {1}\n'.format(error_message, grid_json['failure_stack_traces'][error_index]))
                 error_index += 1
     else:
-        grid_json = H2OConnection.get_json(('Grids/' + grid.dest_key))
+        grid_json = h2o.connection().get_json(('Grids/' + grid.dest_key))
     self.models = [h2o.get_model(key['name']) for key in grid_json['model_ids']]
     if (len(grid_json['model_ids']) > 0):
-        first_model_json = H2OConnection.get_json(('Models/' + grid_json['model_ids'][0]['name']), _rest_version=kwargs['_rest_version'])['models'][0]
+        first_model_json = h2o.connection().get_json(('Models/' + grid_json['model_ids'][0]['name']), _rest_version=kwargs['_rest_version'])['models'][0]
         self._resolve_grid(grid.dest_key, grid_json, first_model_json)
     else:
         raise ValueError('Gridsearch returns no model due to bad parameter values or other reasons....')

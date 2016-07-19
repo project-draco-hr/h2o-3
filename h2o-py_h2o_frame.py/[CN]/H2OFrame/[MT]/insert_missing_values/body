@@ -1,12 +1,12 @@
 def insert_missing_values(self, fraction=0.1, seed=None):
-    'Inserting Missing Values into an H2OFrame.\n    Randomly replaces a user-specified fraction of entries in a H2O dataset with missing\n    values.\n\n    WARNING! This will modify the original dataset.  Unless this is intended, this\n    function should only be called on a subset of the original.\n\n    Parameters\n    ----------\n      fraction : float\n        A number between 0 and 1 indicating the fraction of entries to replace with missing.\n\n      seed : int\n        A random number used to select which entries to replace with missing values.\n\n    Returns\n    -------\n      H2OFrame with missing values inserted.\n    '
+    u'Inserting Missing Values into an H2OFrame.\n    Randomly replaces a user-specified fraction of entries in a H2O dataset with missing\n    values.\n\n    WARNING! This will modify the original dataset.  Unless this is intended, this\n    function should only be called on a subset of the original.\n\n    Parameters\n    ----------\n      fraction : float\n        A number between 0 and 1 indicating the fraction of entries to replace with missing.\n\n      seed : int\n        A random number used to select which entries to replace with missing values.\n\n    Returns\n    -------\n      H2OFrame with missing values inserted.\n    '
     kwargs = {}
-    kwargs['dataset'] = self.frame_id
-    kwargs['fraction'] = fraction
+    kwargs[u'dataset'] = self.frame_id
+    kwargs[u'fraction'] = fraction
     if (seed is not None):
-        kwargs['seed'] = seed
+        kwargs[u'seed'] = seed
     job = {}
-    job['job'] = H2OConnection.post_json('MissingInserter', **kwargs)
-    H2OJob(job, job_type='Insert Missing Values').poll()
+    job[u'job'] = h2o.connection().post_json(u'MissingInserter', **kwargs)
+    H2OJob(job, job_type=u'Insert Missing Values').poll()
     self._ex._cache.flush()
     return self

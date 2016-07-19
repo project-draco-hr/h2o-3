@@ -1,0 +1,41 @@
+{
+  Frame fr=stk.track(asts[1].exec(env)).getFrame();
+  int ncols=fr.numCols();
+  double[] means;
+  if (asts[2] instanceof AstNumList) {
+    means=((AstNumList)asts[2]).expand();
+    if (means.length != ncols)     throw new IllegalArgumentException("Numlist must be the same length as the columns of the Frame");
+  }
+ else {
+    double d=asts[2].exec(env).getNum();
+    if (d == 0)     means=new double[ncols];
+ else     if (d == 1)     means=fr.means();
+ else     throw new IllegalArgumentException("Only true or false allowed");
+  }
+  double[] mults;
+  if (asts[3] instanceof AstNumList) {
+    mults=((AstNumList)asts[3]).expand();
+    if (mults.length != ncols)     throw new IllegalArgumentException("Numlist must be the same length as the columns of the Frame");
+  }
+ else {
+    Val v=asts[3].exec(env);
+    if (v instanceof ValFrame) {
+      mults=toArray(v.getFrame().anyVec());
+    }
+ else {
+      double d=v.getNum();
+      if (d == 0)       Arrays.fill(mults=new double[ncols],1.0);
+ else       if (d == 1)       mults=fr.mults();
+ else       throw new IllegalArgumentException("Only true or false allowed");
+    }
+  }
+  final double[] fmeans=means;
+  final double[] fmults=mults;
+  new MRTask(){
+    @Override public void map(    Chunk[] cs){
+      for (int i=0; i < cs.length; i++)       for (int row=0; row < cs[i]._len; row++)       cs[i].set(row,(cs[i].atd(row) - fmeans[i]) * fmults[i]);
+    }
+  }
+.doAll(fr);
+  return new ValFrame(fr);
+}

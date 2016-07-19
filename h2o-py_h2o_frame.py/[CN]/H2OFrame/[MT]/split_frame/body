@@ -1,12 +1,12 @@
 def split_frame(self, ratios=None, destination_frames=None, seed=None):
-    'Split a frame into distinct subsets of size determined by the given ratios.\n    The number of subsets is always 1 more than the number of ratios given. Note that\n    this does not give an exact split. H2O is designed to be efficient on big data\n    using a probabilistic splitting method rather than an exact split. For example\n    when specifying a split of 0.75/0.25, H2O will produce a test/train split with\n    an expected value of 0.75/0.25 rather than exactly 0.75/0.25. On small datasets,\n    the sizes of the resulting splits will deviate from the expected value more than\n    on big data, where they will be very close to exact.\n\n    Parameters\n    ----------\n      ratios : list\n        The fraction of rows for each split.\n\n      destination_frames : list\n        The names of the split frames.\n\n      seed : int\n        Used for selecting which H2OFrame a row will belong to.\n\n    Returns\n    -------\n      A list of H2OFrame instances\n    '
+    u'Split a frame into distinct subsets of size determined by the given ratios.\n    The number of subsets is always 1 more than the number of ratios given. Note that\n    this does not give an exact split. H2O is designed to be efficient on big data\n    using a probabilistic splitting method rather than an exact split. For example\n    when specifying a split of 0.75/0.25, H2O will produce a test/train split with\n    an expected value of 0.75/0.25 rather than exactly 0.75/0.25. On small datasets,\n    the sizes of the resulting splits will deviate from the expected value more than\n    on big data, where they will be very close to exact.\n\n    Parameters\n    ----------\n      ratios : list\n        The fraction of rows for each split.\n\n      destination_frames : list\n        The names of the split frames.\n\n      seed : int\n        Used for selecting which H2OFrame a row will belong to.\n\n    Returns\n    -------\n      A list of H2OFrame instances\n    '
     if (ratios is None):
         ratios = [0.75]
     if (len(ratios) < 1):
-        raise ValueError('Ratios must have length of at least 1')
+        raise ValueError(u'Ratios must have length of at least 1')
     if (destination_frames is not None):
         if ((len(ratios) + 1) != len(destination_frames)):
-            raise ValueError('The number of provided destination_frames must be one more than the number of provided ratios')
+            raise ValueError(u'The number of provided destination_frames must be one more than the number of provided ratios')
     num_slices = (len(ratios) + 1)
     boundaries = []
     last_boundary = 0
@@ -14,15 +14,16 @@ def split_frame(self, ratios=None, destination_frames=None, seed=None):
     while (i < (num_slices - 1)):
         ratio = ratios[i]
         if (ratio < 0):
-            raise ValueError('Ratio must be greater than 0')
+            raise ValueError(u'Ratio must be greater than 0')
         boundary = (last_boundary + ratio)
         if (boundary >= 1.0):
-            raise ValueError('Ratios must add up to less than 1.0')
+            raise ValueError(u'Ratios must add up to less than 1.0')
         boundaries.append(boundary)
         last_boundary = boundary
         i += 1
     splits = []
     tmp_runif = self.runif(seed)
+    tmp_runif.frame_id = (u'%s_splitter' % _py_tmp_key())
     i = 0
     while (i < num_slices):
         if (i == 0):
@@ -42,4 +43,5 @@ def split_frame(self, ratios=None, destination_frames=None, seed=None):
             tmp_slice.frame_id = destination_frame_id
             splits.append(tmp_slice)
         i += 1
+    del tmp_runif
     return splits

@@ -1,10 +1,10 @@
 def pop(self, i):
-    'Pop a column from the H2OFrame at index i\n\n    Parameters\n    ----------\n    i : int, str\n      The index or name of the column to pop.\n\n    Returns\n    -------\n      The column dropped from the frame; the frame is side-effected to lose the column.\n    '
+    u'Pop a column from the H2OFrame at index i\n\n    Parameters\n    ----------\n    i : int, str\n      The index or name of the column to pop.\n\n    Returns\n    -------\n      The column dropped from the frame; the frame is side-effected to lose the column.\n    '
     if isinstance(i, basestring):
         i = self.names.index(i)
-    col = H2OFrame._expr(expr=ExprNode('cols', self, i))
+    col = H2OFrame._expr(expr=ExprNode(u'cols', self, i))
     old_cache = self._ex._cache
-    self._ex = ExprNode('cols', self, (- (i + 1)))
+    self._ex = ExprNode(u'cols', self, (- (i + 1)))
     self._ex._cache.ncols -= 1
     self._ex._cache.names = (old_cache.names[:i] + old_cache.names[(i + 1):])
     self._ex._cache.types = {name: old_cache.types[name] for name in self._ex._cache.names}

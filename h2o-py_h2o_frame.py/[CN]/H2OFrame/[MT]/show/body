@@ -1,7 +1,7 @@
 def show(self, use_pandas=False):
-    "Used by the H2OFrame.__repr__ method to print or display a snippet of the data frame.\n    If called from IPython, displays an html'ized result\n    Else prints a tabulate'd result\n    "
+    u"Used by the H2OFrame.__repr__ method to print or display a snippet of the data frame.\n    If called from IPython, displays an html'ized result\n    Else prints a tabulate'd result\n    "
     if (self._ex is None):
-        print('This H2OFrame has been removed.')
+        print(u'This H2OFrame has been removed.')
         return
     if (not self._ex._cache.is_valid()):
         self._frame()._ex._cache.fill()
@@ -10,7 +10,7 @@ def show(self, use_pandas=False):
         if (use_pandas and can_use_pandas()):
             IPython.display.display(self.head().as_data_frame(True))
         else:
-            IPython.display.display_html(self._ex._cache._tabulate('html', False), raw=True)
+            IPython.display.display_html(self._ex._cache._tabulate(u'html', False), raw=True)
     elif (use_pandas and can_use_pandas()):
         print(self.head().as_data_frame(True))
     else:

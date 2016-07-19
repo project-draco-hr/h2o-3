@@ -1,0 +1,6 @@
+{
+  Vec foldVec=stk.track(asts[1].exec(env)).getFrame().anyVec().makeZero();
+  int nfolds=(int)asts[2].exec(env).getNum();
+  long seed=(long)asts[3].exec(env).getNum();
+  return new ValFrame(new Frame(AstKFold.stratifiedKFoldColumn(foldVec,nfolds,seed == -1 ? new Random().nextLong() : seed)));
+}

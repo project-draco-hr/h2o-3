@@ -1,30 +1,30 @@
-'\nAn H2OConnection represents the latest active handle to a cloud. No more than a single\nH2OConnection object will be active at any one time.\n'
-from __future__ import print_function
-from __future__ import absolute_import
-import requests
-import math
-import tempfile
-import os
-import re
-import sys
-import time
-import subprocess
+u'\nCollection of methods for communication with H\u2082O servers.\n\n`H2OConnection` is the main class of this module, and it handles the connection itself. Public interface:\n    hc = H2OConnection.open() : open a new connection\n    hc.request(endpoint, [data|json|filename]) : make a REST API request to the server\n    hc.info() : return information about the current connection\n    hc.close() : close the connection\n    hc.session_id() : return the current session id\n\n`H2OLocalServer`\n    hs = H2OLocalServer.start() : start a new local server\n    assert hs.is_running() : check if the server is running\n    hs.shutdown() : shut down the server\n\n:copyright: (c) 2016 H2O.ai\n:license:   Apache License Version 2.0 (see LICENSE for details)\n'
+from __future__ import absolute_import, division, print_function, unicode_literals
 import atexit
-import warnings
-import site
-from .display import H2ODisplay
-from .h2o_logging import _is_logging, _log_rest
-from .two_dim_table import H2OTwoDimTable
-from .utils.shared_utils import quote
-from six import iteritems, PY3
-from string import ascii_lowercase, digits
+import os
+import subprocess
+import sys
+import tempfile
+import time
 from random import choice
-warnings.simplefilter('always', UserWarning)
+from sysconfig import get_config_var
+from warnings import warn
+import requests
+from requests.auth import AuthBase
+from .compatibility import *
+from .schemas.cloud import CloudV3
+from .schemas.error import H2OErrorV3, H2OModelBuilderErrorV3
+from .two_dim_table import H2OTwoDimTable
+from .utils.backward_compatibility import backwards_compatible, CallableString
+from .utils.shared_utils import stringify_list
+__all__ = (u'H2OConnection', u'H2OLocalServer', u'H2OStartupError', u'H2OConnectionError', u'H2OServerError', u'H2OResponseError')
+(JSONDecodeError, _r) = (None, None)
 try:
-    warnings.simplefilter('ignore', requests.packages.urllib3.exceptions.InsecureRequestWarning)
-except:
-    pass
-__H2OCONN__ = None
+    _r = requests.Response()
+    _r._content = 'haha'
+    _r.json()
+except Exception as exc:
+    JSONDecodeError = type(exc)
+    del _r
+__H2OCONN__ = H2OConnection()
 __H2O_REST_API_VERSION__ = 3
-atexit.register(_kill_jvm_fork)
-atexit.register(end_session)

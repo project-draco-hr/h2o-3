@@ -1,0 +1,10 @@
+@staticmethod
+def _prepare_file_payload(filename):
+    u'\n        Prepare `filename` to be sent to the server.\n\n        The "preparation" consists of creating a data structure suitable\n        for passing to requests.request().\n        '
+    if (not filename):
+        return None
+    assert_is_str(filename, u'filename')
+    absfilename = os.path.abspath(filename)
+    if (not os.path.exists(absfilename)):
+        raise ValueError((u'File %s does not exist' % filename))
+    return {os.path.basename(absfilename): open(absfilename, u'rb'), }

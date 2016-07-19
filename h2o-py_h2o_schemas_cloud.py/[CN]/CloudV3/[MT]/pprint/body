@@ -1,0 +1,6 @@
+def pprint(self):
+    ncpus = sum((node[u'num_cpus'] for node in self.nodes))
+    allowed_cpus = sum((node[u'cpus_allowed'] for node in self.nodes))
+    free_mem = sum((node[u'free_mem'] for node in self.nodes))
+    cluster_health = all((node[u'healthy'] for node in self.nodes))
+    H2ODisplay([[u'H2O cluster uptime:', get_human_readable_time(self.cloud_uptime_millis)], [u'H2O cluster version:', self.version], [u'H2O cluster name:', self.cloud_name], [u'H2O cluster total nodes:', self.cloud_size], [u'H2O cluster free memory:', get_human_readable_bytes(free_mem)], [u'H2O cluster total cores:', str(ncpus)], [u'H2O cluster allowed cores:', str(allowed_cpus)], [u'H2O cluster is healthy:', str(cluster_health)], [u'H2O cluster is locked:', self.locked], [u'H2O connection url:', self.connection.base_url], [u'H2O connection proxy:', self.connection.proxy], [u'Python version:', (u'%d.%d.%d %s' % tuple(sys.version_info[:4]))]])

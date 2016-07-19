@@ -1,20 +1,20 @@
 def _tabulate(self, tablefmt, rollups):
-    'Pretty tabulated string of all the cached data, and column names'
+    u'Pretty tabulated string of all the cached data, and column names'
     if (not self.is_valid()):
         self.fill()
     d = collections.OrderedDict()
     if rollups:
-        col = next(itervalues(self._data))
-        lrows = len(col['data'])
-        d[''] = (['type', 'mins', 'mean', 'maxs', 'sigma', 'zeros', 'missing'] + list(map(str, range(lrows))))
-    for (k, v) in iteritems(self._data):
-        x = v['data']
-        domain = v['domain']
+        col = next(iter(viewvalues(self._data)))
+        lrows = len(col[u'data'])
+        d[u''] = ([u'type', u'mins', u'mean', u'maxs', u'sigma', u'zeros', u'missing'] + list(map(str, range(lrows))))
+    for (k, v) in viewitems(self._data):
+        x = v[u'data']
+        domain = v[u'domain']
         if domain:
-            x = [('' if math.isnan(idx) else domain[int(idx)]) for idx in x]
+            x = [(u'' if math.isnan(idx) else domain[int(idx)]) for idx in x]
         if rollups:
-            mins = (v['mins'][0] if v['mins'] else None)
-            maxs = (v['maxs'][0] if v['maxs'] else None)
-            x = ([v['type'], mins, v['mean'], maxs, v['sigma'], v['zero_count'], v['missing_count']] + x)
+            mins = (v[u'mins'][0] if v[u'mins'] else None)
+            maxs = (v[u'maxs'][0] if v[u'maxs'] else None)
+            x = ([v[u'type'], mins, v[u'mean'], maxs, v[u'sigma'], v[u'zero_count'], v[u'missing_count']] + x)
         d[k] = x
-    return tabulate.tabulate(d, headers='keys', tablefmt=tablefmt)
+    return tabulate.tabulate(d, headers=u'keys', tablefmt=tablefmt)
