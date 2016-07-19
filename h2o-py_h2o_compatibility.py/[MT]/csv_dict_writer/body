@@ -1,10 +1,6 @@
 def csv_dict_writer(f, fieldnames, **kwargs):
+    u'Equivalent of csv.DictWriter, but allows `delimiter` to be a unicode string on Py2.'
     import csv
     if (u'delimiter' in kwargs):
-        delim = kwargs.pop(u'delimiter')
-        if PY2:
-            delim = str(delim).encode(u'utf-8')
-        if PY3:
-            delim = str(delim)
-        kwargs[u'delimiter'] = delim
+        kwargs[u'delimiter'] = str(kwargs[u'delimiter'])
     return csv.DictWriter(f, fieldnames, **kwargs)
