@@ -1,0 +1,81 @@
+def _run_demo(body_fn, interactive, echo, testing):
+    u"\n    Execute the demo, echoing commands and pausing for user input.\n\n    :param body_fn: function that contains the sequence of demo's commands.\n    :param interactive: If True, the user will be prompted to continue the demonstration after every segment.\n    :param echo: If True, the python commands that are executed will be displayed.\n    :param testing: Used for pyunit testing. h2o.init() will not be called if set to True.\n    :type body_fn: function\n    "
+    import colorama
+    from colorama import Style, Fore
+    colorama.init()
+
+
+    class StopExecution(Exception):
+        u'Helper class for cancelling the demo.'
+        pass
+    assert_is_type(body_fn, u'body_fn', type(_run_demo))
+    if body_fn.__doc__:
+        desc_lines = body_fn.__doc__.split(u'\n')
+        while (desc_lines[0].strip() == u''):
+            desc_lines = desc_lines[1:]
+        while (desc_lines[(-1)].strip() == u''):
+            desc_lines = desc_lines[:(-1)]
+        strip_spaces = min(((len(line) - len(line.lstrip(u' '))) for line in desc_lines[1:] if (line.strip() != u'')))
+        maxlen = max((len(line) for line in desc_lines))
+        print(Fore.CYAN)
+        print((u'-' * maxlen))
+        for line in desc_lines:
+            print(line[strip_spaces:].rstrip())
+        print((u'-' * maxlen))
+        print(Style.RESET_ALL, end=u'')
+
+    def controller():
+        u'Print to console the next block of commands, and wait for keypress.'
+        try:
+            raise RuntimeError(u'Catch me!')
+        except RuntimeError:
+            print()
+            if echo:
+                tb = sys.exc_info()[2]
+                fr = tb.tb_frame.f_back
+                filename = fr.f_code.co_filename
+                linecache.checkcache(filename)
+                line = linecache.getline(filename, fr.f_lineno, fr.f_globals).rstrip()
+                indent_len = (len(line) - len(line.lstrip(u' ')))
+                assert (line[indent_len:] == u'go()')
+                i = fr.f_lineno
+                output_lines = []
+                n_blank_lines = 0
+                while True:
+                    i += 1
+                    line = linecache.getline(filename, i, fr.f_globals).rstrip()
+                    if (line[:indent_len].strip() != u''):
+                        break
+                    line = line[indent_len:]
+                    if (line == u'go()'):
+                        break
+                    style = (Fore.LIGHTBLACK_EX if line.lstrip().startswith(u'#') else Style.BRIGHT)
+                    prompt = (u'... ' if line.startswith(u' ') else u'>>> ')
+                    output_lines.append((((((Fore.CYAN + prompt) + Fore.RESET) + style) + line) + Style.RESET_ALL))
+                    del style
+                    if (line.strip() == u''):
+                        n_blank_lines += 1
+                        if (n_blank_lines > 5):
+                            break
+                    else:
+                        n_blank_lines = 0
+                for line in output_lines[:(- n_blank_lines)]:
+                    print(line)
+            if interactive:
+                print((((u'\n' + Style.DIM) + u'(press any key)') + Style.RESET_ALL), end=u'')
+                key = _wait_for_keypress()
+                print(u'\r                     \r', end=u'')
+                if (key.lower() == u'q'):
+                    raise StopExecution()
+    _h2o_init = h2o.init
+    if testing:
+        h2o.init = (lambda *args, **kwargs: None)
+    try:
+        body_fn(controller)
+        print((((u'\n' + Fore.CYAN) + u'---- End of Demo ----') + Style.RESET_ALL))
+    except StopExecution:
+        print((((u'\n' + Fore.RED) + u'---- Demo aborted ----') + Style.RESET_ALL))
+    if testing:
+        h2o.init = _h2o_init
+    print()
+    colorama.deinit()

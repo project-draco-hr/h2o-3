@@ -1,0 +1,31 @@
+def gbm(interactive=True, echo=True, testing=False):
+    u'GBM model demo.'
+
+    def demo_body(go):
+        u"\n        Demo of H2O's Gradient Boosting estimator.\n\n        This demo uploads a dataset to h2o, parses it, and shows a description.\n        Then it divides the dataset into training and test sets, builds a GLM\n        from the training set, and makes predictions for the test set.\n        Finally, default performance metrics are displayed.\n        "
+        go()
+        h2o.init()
+        go()
+        prostate = h2o.upload_file(h2o.data_file(u'h2o_data/prostate.csv'))
+        go()
+        prostate.summary()
+        go()
+        r = prostate[0].runif()
+        train = prostate[(r < 0.7)]
+        test = prostate[(r >= 0.7)]
+        go()
+        train[u'CAPSULE'] = train[u'CAPSULE'].asfactor()
+        test[u'CAPSULE'] = test[u'CAPSULE'].asfactor()
+        go()
+        from h2o.estimators import H2OGradientBoostingEstimator
+        prostate_gbm = H2OGradientBoostingEstimator(distribution=u'bernoulli', ntrees=10, max_depth=8, min_rows=10, learn_rate=0.2)
+        prostate_gbm.train(x=[u'AGE', u'RACE', u'PSA', u'VOL', u'GLEASON'], y=u'CAPSULE', training_frame=train)
+        go()
+        prostate_gbm.show()
+        go()
+        predictions = prostate_gbm.predict(test)
+        predictions.show()
+        go()
+        performance = prostate_gbm.model_performance(test)
+        performance.show()
+    _run_demo(demo_body, interactive, echo, testing)

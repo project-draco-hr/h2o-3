@@ -1,0 +1,8 @@
+def demo(funcname, interactive=True, echo=True, test=False):
+    u'\n    H2O built-in demo facility.\n\n    :param funcname: A string that identifies the h2o python function to demonstrate.\n    :param interactive: If True, the user will be prompted to continue the demonstration after every segment.\n    :param echo: If True, the python commands that are executed will be displayed.\n    :param test: If True, `h2o.init()` will not be called (used for pyunit testing).\n\n    Example:\n    >>> import h2o\n    >>> h2o.demo("gbm")\n    '
+    import h2o.demo
+    demo_function = getattr(h2o.demo, funcname, None)
+    if (demo_function and (type(demo_function) is type(demo))):
+        demo_function(interactive, echo, test)
+    else:
+        print((u'Demo for %s is not available.' % funcname))

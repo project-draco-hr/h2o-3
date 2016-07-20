@@ -1,13 +1,14 @@
 def h2o_deprecated(newfun=None):
+    u'The @h2o_deprecated decorator.'
 
-    def o(fun):
+    def _o(fun):
 
-        def i(*args, **kwargs):
+        def _i(*args, **kwargs):
             print(u'\n')
             if (newfun is None):
                 raise DeprecationWarning((u'%s is deprecated.' % fun.__name__))
             else:
                 warnings.warn((u'%s is deprecated. Use %s instead.' % (fun.__name__, newfun.__name__)), category=DeprecationWarning, stacklevel=2)
                 return newfun(*args, **kwargs)
-        return i
-    return o
+        return _i
+    return _o

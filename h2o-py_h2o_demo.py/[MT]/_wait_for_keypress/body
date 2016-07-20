@@ -1,0 +1,21 @@
+def _wait_for_keypress():
+    u'\n    Wait for a key press on the console and return it.\n\n    Borrowed from http://stackoverflow.com/questions/983354/how-do-i-make-python-to-wait-for-a-pressed-key\n    '
+    result = None
+    if (os.name == u'nt'):
+        import msvcrt
+        result = msvcrt.getch()
+    else:
+        import termios
+        fd = sys.stdin.fileno()
+        oldterm = termios.tcgetattr(fd)
+        newattr = termios.tcgetattr(fd)
+        newattr[3] = ((newattr[3] & (~ termios.ICANON)) & (~ termios.ECHO))
+        termios.tcsetattr(fd, termios.TCSANOW, newattr)
+        try:
+            try:
+                result = sys.stdin.read(1)
+            except IOError:
+                pass
+        finally:
+            termios.tcsetattr(fd, termios.TCSAFLUSH, oldterm)
+    return result

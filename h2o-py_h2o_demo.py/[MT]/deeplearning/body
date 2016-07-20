@@ -1,0 +1,31 @@
+def deeplearning(interactive=True, echo=True, testing=False):
+    u'DeepLearning model demo.'
+
+    def demo_body(go):
+        u"\n        Demo of H2O's Deep Learning model.\n\n        This demo uploads a dataset to h2o, parses it, and shows a description.\n        Then it divides the dataset into training and test sets, builds a GLM\n        from the training set, and makes predictions for the test set.\n        Finally, default performance metrics are displayed.\n        "
+        go()
+        h2o.init()
+        go()
+        prostate = h2o.upload_file(h2o.data_file(u'h2o_data/prostate.csv'))
+        go()
+        prostate.summary()
+        go()
+        r = prostate[0].runif()
+        train = prostate[(r < 0.7)]
+        test = prostate[(r >= 0.7)]
+        go()
+        train[u'CAPSULE'] = train[u'CAPSULE'].asfactor()
+        test[u'CAPSULE'] = test[u'CAPSULE'].asfactor()
+        go()
+        from h2o.estimators import H2ODeepLearningEstimator
+        prostate_dl = H2ODeepLearningEstimator(activation=u'Tanh', hidden=[10, 10, 10], epochs=10000)
+        prostate_dl.train(x=list((set(prostate.col_names) - {u'ID', u'CAPSULE'})), y=u'CAPSULE', training_frame=train)
+        go()
+        prostate_dl.show()
+        go()
+        predictions = prostate_dl.predict(test)
+        predictions.show()
+        go()
+        performance = prostate_dl.model_performance(test)
+        performance.show()
+    _run_demo(demo_body, interactive, echo, testing)
