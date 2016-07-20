@@ -1,5 +1,5 @@
 def _import(path):
-    j = h2oconn.get_json(url_suffix=u'ImportFiles', path=path)
+    j = api(u'GET /3/ImportFiles', data={u'path': path, })
     if j[u'fails']:
         raise ValueError((((u'ImportFiles of ' + path) + u' failed on ') + str(j[u'fails'])))
     return j[u'destination_frames']
