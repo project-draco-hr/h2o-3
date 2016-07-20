@@ -1,4 +1,4 @@
 def save_model(model, path=u'', force=False):
     u'Save an H2O Model Object to Disk.\n\n    Parameters\n    ----------\n      model :  H2OModel\n        The model object to save.\n\n      path : str\n        A path to save the model at (hdfs, s3, local)\n\n      force : bool\n        Overwrite destination directory in case it exists or throw exception if set to false.\n\n    Returns\n    -------\n      The path of the saved model (string)\n    '
     path = os.path.join((os.getcwd() if (path == u'') else path), model.model_id)
-    return h2oconn.get_json((u'Models.bin/' + model.model_id), dir=path, force=force, _rest_version=99)[u'dir']
+    return api((u'GET /99/Models.bin/%s' % model.model_id), data={u'dir': path, u'force': force, })[u'dir']

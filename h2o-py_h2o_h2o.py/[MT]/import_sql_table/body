@@ -6,6 +6,5 @@ def import_sql_table(connection_url, table, username, password, columns=None, op
         columns = u', '.join(columns)
     p = {}
     p.update({k: v for (k, v) in locals().items() if (k is not u'p')})
-    p[u'_rest_version'] = 99
-    j = H2OJob(h2oconn.post_json(url_suffix=u'ImportSQLTable', **p), u'Import SQL Table').poll()
+    j = H2OJob(api(u'POST /99/ImportSQLTable', data=p), u'Import SQL Table').poll()
     return get_frame(j.dest_key)

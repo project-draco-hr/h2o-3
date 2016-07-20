@@ -3,7 +3,7 @@ def fill(self, rows=10):
     if (self._data is not None):
         if (rows <= len(self)):
             return
-    res = h2o.connection().get_json((u'Frames/' + self._id), row_count=rows)[u'frames'][0]
+    res = h2o.api((u'GET /3/Frames/%s' % self._id), data={u'row_count': rows, })[u'frames'][0]
     self._l = rows
     self._nrows = res[u'rows']
     self._ncols = res[u'total_column_count']

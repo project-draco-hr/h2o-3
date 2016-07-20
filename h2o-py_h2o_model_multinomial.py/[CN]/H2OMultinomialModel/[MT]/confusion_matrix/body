@@ -1,6 +1,5 @@
 def confusion_matrix(self, data):
     "\n    Returns a confusion matrix based of H2O's default prediction threshold for a dataset\n    "
-    if (not isinstance(data, H2OFrame)):
-        raise ValueError('data argument must be of type H2OFrame, but got {0}'.format(type(data)))
-    j = h2o.connection().post_json(((('Predictions/models/' + self._id) + '/frames/') + data.frame_id))
+    assert_is_type(data, 'data', H2OFrame)
+    j = h2o.api(('POST /3/Predictions/models/%s/frames/%s' % (self._id, data.frame_id)))
     return j['model_metrics'][0]['cm']['table']

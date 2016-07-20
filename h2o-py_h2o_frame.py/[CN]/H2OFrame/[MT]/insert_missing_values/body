@@ -6,7 +6,7 @@ def insert_missing_values(self, fraction=0.1, seed=None):
     if (seed is not None):
         kwargs[u'seed'] = seed
     job = {}
-    job[u'job'] = h2o.connection().post_json(u'MissingInserter', **kwargs)
+    job[u'job'] = h2o.api(u'POST /3/MissingInserter', data=kwargs)
     H2OJob(job, job_type=u'Insert Missing Values').poll()
     self._ex._cache.flush()
     return self

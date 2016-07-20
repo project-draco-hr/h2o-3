@@ -11,7 +11,8 @@ def parse_setup(raw_frames, destination_frame=u'', header=((-1), 0, 1), separato
         if ((not is_str(separator)) or (len(separator) != 1)):
             raise ValueError((u'separator should be a single character string; got %r' % separator))
         kwargs[u'separator'] = ord(separator)
-    j = h2oconn.post_json(url_suffix=u'ParseSetup', source_frames=[quoted(id) for id in raw_frames], **kwargs)
+    kwargs[u'source_frames'] = [quoted(id) for id in raw_frames]
+    j = api(u'POST /3/ParseSetup', data=kwargs)
     if j[u'warnings']:
         for w in j[u'warnings']:
             warnings.warn(w)

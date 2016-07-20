@@ -12,12 +12,12 @@ def remove(x):
             rapids(u'(rm {})'.format(xi_id))
             xi._ex = None
         elif isinstance(xi, H2OEstimator):
-            h2oconn.delete((u'DKV/' + xi.model_id))
+            api((u'DELETE /3/DKV/%s' % xi.model_id))
             xi._id = None
         elif is_str(xi):
             try:
                 rapids(u'(rm {})'.format(xi))
             except:
-                h2oconn.delete((u'DKV/' + xi))
+                api((u'DELETE /3/DKV/%s' % xi))
         else:
             raise ValueError(u'input to h2o.remove must one of: H2OFrame, H2OEstimator, or string')
