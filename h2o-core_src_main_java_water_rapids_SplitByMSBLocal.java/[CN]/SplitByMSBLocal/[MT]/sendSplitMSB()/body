@@ -3,12 +3,12 @@
   for (  int bs : _bytesUsed)   System.out.print(" " + bs);
   System.out.println(" ]) ...");
   long t0=System.nanoTime();
-  Futures fs=new Futures();
+  Futures myfs=new Futures();
   for (int msb=0; msb < _o.length; ++msb) {
     if (_o[msb] == null)     continue;
-    fs.add(H2O.submitTask(new SendOne(msb)));
+    myfs.add(H2O.submitTask(new SendOne(msb,myfs)));
   }
-  fs.blockForPending();
+  myfs.blockForPending();
   double timeTaken=(System.nanoTime() - t0) / 1e9;
   long bytes=_numRowsOnThisNode * (8 + _keySize) + 64;
   System.out.println("took : " + timeTaken);
