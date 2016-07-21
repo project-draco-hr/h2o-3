@@ -18,24 +18,26 @@
     }
  else {
       int b=bin(col_data);
-      w[b]+=weight;
-      wY[b]+=wy;
-      wYY[b]+=wyy;
+      lh.wAdd(b,weight);
+      lh.wYAdd(b,wy);
+      lh.wYYAdd(b,wyy);
     }
   }
   setMin(minmax[0]);
   setMaxIn(minmax[1]);
   final int len=_w.length;
   for (int b=0; b < len; b++) {
-    if (w[b] != 0) {
-      AtomicUtils.DoubleArray.add(_w,b,w[b]);
-      w[b]=0;
+    if (lh.w(b) != 0) {
+      AtomicUtils.DoubleArray.add(_w,b,lh.w(b));
+      lh.wClear(b);
     }
-  }
-  for (int b=0; b < len; b++) {
-    if (wY[b] != 0 || wYY[b] != 0) {
-      incr1(b,wY[b],wYY[b]);
-      wY[b]=wYY[b]=0;
+    if (lh.wY(b) != 0) {
+      AtomicUtils.DoubleArray.add(_wY,b,(float)lh.wY(b));
+      lh.wYClear(b);
+    }
+    if (lh.wYY(b) != 0) {
+      AtomicUtils.DoubleArray.add(_wYY,b,(float)lh.wYY(b));
+      lh.wYYClear(b);
     }
   }
 }
