@@ -1,8 +1,7 @@
 def find_idx_by_threshold(self, threshold):
-    "\n    Retrieve the index in this metric's threshold list at which the given threshold is located.\n\n    :param threshold: Find the index of this input threshold.\n    :return: Return the index or throw a ValueError if no such index can be found.\n    "
-    if (not isinstance(threshold, float)):
-        raise ValueError(('Expected a float but got a ' + type(threshold)))
-    thresh2d = self._metric_json['thresholds_and_metric_scores']
+    u"\n    Retrieve the index in this metric's threshold list at which the given threshold is located.\n\n    :param threshold: Find the index of this input threshold.\n    :return: Return the index or throw a ValueError if no such index can be found.\n    "
+    assert_is_numeric(threshold, u'threshold')
+    thresh2d = self._metric_json[u'thresholds_and_metric_scores']
     for (i, e) in enumerate(thresh2d.cell_values):
         t = float(e[0])
         if (abs((t - threshold)) < (1e-08 * max(t, threshold))):
@@ -12,6 +11,6 @@ def find_idx_by_threshold(self, threshold):
         threshold_diffs = [abs((t - threshold)) for t in thresholds]
         closest_idx = threshold_diffs.index(min(threshold_diffs))
         closest_threshold = thresholds[closest_idx]
-        print('Could not find exact threshold {0}; using closest threshold found {1}.'.format(threshold, closest_threshold))
+        print(u'Could not find exact threshold {0}; using closest threshold found {1}.'.format(threshold, closest_threshold))
         return closest_idx
-    raise ValueError('Threshold must be between 0 and 1, but got {0} '.format(threshold))
+    raise ValueError(u'Threshold must be between 0 and 1, but got {0} '.format(threshold))

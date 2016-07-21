@@ -1,6 +1,6 @@
 def drop(self, i):
     u'Drop a column from the current H2OFrame.\n\n    Parameters\n    ----------\n      i : str, int\n        The column to be dropped\n\n    Returns\n    -------\n      H2OFrame with the column at index i dropped. Returns a new H2OFrame.\n    '
-    if isinstance(i, basestring):
+    if is_str(i):
         i = self.names.index(i)
     fr = H2OFrame._expr(expr=ExprNode(u'cols', self, (- (i + 1))), cache=self._ex._cache)
     fr._ex._cache.ncols -= 1

@@ -1,34 +1,34 @@
 def show(self):
-    '\n    Print innards of model, without regards to type\n\n    '
+    u'\n    Print innards of model, without regards to type\n\n    '
     if self._future:
         self._job.poll_once()
         return
     if (self._model_json is None):
-        print('No model trained yet')
+        print(u'No model trained yet')
         return
     if (self.model_id is None):
-        print('This H2OEstimator has been removed.')
+        print(u'This H2OEstimator has been removed.')
         return
-    model = self._model_json['output']
-    print('Model Details')
-    print('=============')
-    print(self.__class__.__name__, ': ', self._model_json['algo_full_name'])
-    print('Model Key: ', self._id)
+    model = self._model_json[u'output']
+    print(u'Model Details')
+    print(u'=============')
+    print(self.__class__.__name__, u': ', self._model_json[u'algo_full_name'])
+    print(u'Model Key: ', self._id)
     self.summary()
     print()
-    tm = model['training_metrics']
+    tm = model[u'training_metrics']
     if tm:
         tm.show()
-    vm = model['validation_metrics']
+    vm = model[u'validation_metrics']
     if vm:
         vm.show()
-    xm = model['cross_validation_metrics']
+    xm = model[u'cross_validation_metrics']
     if xm:
         xm.show()
-    xms = model['cross_validation_metrics_summary']
+    xms = model[u'cross_validation_metrics_summary']
     if xms:
         xms.show()
-    if (('scoring_history' in list(model.keys())) and model['scoring_history']):
-        model['scoring_history'].show()
-    if (('variable_importances' in list(model.keys())) and model['variable_importances']):
-        model['variable_importances'].show()
+    if ((u'scoring_history' in list(model.keys())) and model[u'scoring_history']):
+        model[u'scoring_history'].show()
+    if ((u'variable_importances' in list(model.keys())) and model[u'variable_importances']):
+        model[u'variable_importances'].show()

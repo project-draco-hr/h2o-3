@@ -1,6 +1,6 @@
 def proj_archetypes(self, test_data, reverse_transform=False):
-    "Convert archetypes of a GLRM model into original feature space.\n\n        Parameters\n        ----------\n          test_data : H2OFrame\n            The dataset upon which the H2O GLRM model was trained.\n\n          reverse_transform : logical\n            Whether the transformation of the training data during model-building should\n            be reversed on the projected archetypes.\n\n        Returns\n        -------\n          Return the GLRM archetypes projected back into the original training data's\n          feature space.\n        "
+    u"Convert archetypes of a GLRM model into original feature space.\n\n        Parameters\n        ----------\n          test_data : H2OFrame\n            The dataset upon which the H2O GLRM model was trained.\n\n          reverse_transform : logical\n            Whether the transformation of the training data during model-building should\n            be reversed on the projected archetypes.\n\n        Returns\n        -------\n          Return the GLRM archetypes projected back into the original training data's\n          feature space.\n        "
     if ((test_data is None) or (test_data.nrow == 0)):
-        raise ValueError('Must specify test data')
-    j = h2o.api(('POST /3/Predictions/models/%s/frames/%s' % (self.model_id, test_data.frame_id)), data={'project_archetypes': True, 'reverse_transform': reverse_transform, })
-    return h2o.get_frame(j['model_metrics'][0]['predictions']['frame_id']['name'])
+        raise ValueError(u'Must specify test data')
+    j = h2o.api((u'POST /3/Predictions/models/%s/frames/%s' % (self.model_id, test_data.frame_id)), data={u'project_archetypes': True, u'reverse_transform': reverse_transform, })
+    return h2o.get_frame(j[u'model_metrics'][0][u'predictions'][u'frame_id'][u'name'])

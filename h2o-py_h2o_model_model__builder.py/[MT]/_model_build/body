@@ -1,10 +1,10 @@
 def _model_build(x, y, tframe, vframe, algo, kwargs):
-    kwargs['training_frame'] = tframe
+    kwargs[u'training_frame'] = tframe
     if (vframe is not None):
-        kwargs['validation_frame'] = vframe
+        kwargs[u'validation_frame'] = vframe
     if (y is not None):
-        kwargs['response_column'] = tframe[y].names[0]
+        kwargs[u'response_column'] = tframe[y].names[0]
     kwargs = dict([(k, (kwargs[k]._frame().frame_id if isinstance(kwargs[k], H2OFrame) else kwargs[k])) for k in kwargs if (kwargs[k] is not None)])
-    rest_ver = (kwargs.pop('_rest_version') if ('_rest_version' in kwargs) else 3)
-    future_model = H2OModelFuture(H2OJob(h2o.api(('POST /%d/ModelBuilders/%s' % (rest_ver, algo)), data=kwargs), job_type=(algo + ' Model Build')), x)
+    rest_ver = (kwargs.pop(u'_rest_version') if (u'_rest_version' in kwargs) else 3)
+    future_model = H2OModelFuture(H2OJob(h2o.api((u'POST /%d/ModelBuilders/%s' % (rest_ver, algo)), data=kwargs), job_type=(algo + u' Model Build')), x)
     return _resolve_model(future_model, _rest_version=rest_ver, **kwargs)

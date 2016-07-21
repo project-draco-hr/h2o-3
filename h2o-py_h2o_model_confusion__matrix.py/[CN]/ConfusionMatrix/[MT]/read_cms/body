@@ -1,10 +1,10 @@
 @staticmethod
 def read_cms(cms=None, domains=None):
     if (cms is None):
-        raise ValueError('Missing data, no `cms`.')
+        raise ValueError(u'Missing data, no `cms`.')
     if (not isinstance(cms, list)):
-        raise ValueError('`cms` must be a list of lists')
-    lol_all = all((isinstance(l, (tuple, list)) for l in cms))
+        raise ValueError(u'`cms` must be a list of lists')
+    lol_all = all((is_listlike(l) for l in cms))
     if (not lol_all):
-        raise ValueError('`cms` must be a list of lists')
+        raise ValueError(u'`cms` must be a list of lists')
     return [ConfusionMatrix(cm, domains) for cm in cms]

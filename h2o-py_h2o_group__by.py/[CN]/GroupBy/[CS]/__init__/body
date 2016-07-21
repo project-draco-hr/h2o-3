@@ -3,9 +3,9 @@ def __init__(self, fr, by):
     self._by = by
     self._aggs = {}
     self._res = None
-    if isinstance(by, basestring):
+    if is_str(by):
         self._by = [self._fr.names.index(by)]
-    elif isinstance(by, (tuple, list)):
-        self._by = [(self._fr.names.index(b) if isinstance(b, basestring) else b) for b in by]
+    elif is_listlike(by):
+        self._by = [(self._fr.names.index(b) if is_str(b) else b) for b in by]
     else:
         self._by = [self._by]

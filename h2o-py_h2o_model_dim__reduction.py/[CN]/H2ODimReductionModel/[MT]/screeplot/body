@@ -1,22 +1,22 @@
-def screeplot(self, type='barplot', **kwargs):
-    'Produce the scree plot\n\n        Parameters\n        ----------\n          type : str\n           "barplot" and "lines" currently supported\n\n          show: str\n            if False, the plot is not shown. matplotlib show method is blocking.\n        '
+def screeplot(self, type=u'barplot', **kwargs):
+    u'Produce the scree plot\n\n        Parameters\n        ----------\n          type : str\n           "barplot" and "lines" currently supported\n\n          show: str\n            if False, the plot is not shown. matplotlib show method is blocking.\n        '
     try:
-        imp.find_module('matplotlib')
+        imp.find_module(u'matplotlib')
         import matplotlib
-        if (('server' in list(kwargs.keys())) and kwargs['server']):
-            matplotlib.use('Agg', warn=False)
+        if ((u'server' in list(kwargs.keys())) and kwargs[u'server']):
+            matplotlib.use(u'Agg', warn=False)
         import matplotlib.pyplot as plt
     except ImportError:
-        print('matplotlib is required for this function!')
+        print(u'matplotlib is required for this function!')
         return
-    variances = [(s ** 2) for s in self._model_json['output']['importance'].cell_values[0][1:]]
-    plt.xlabel('Components')
-    plt.ylabel('Variances')
-    plt.title('Scree Plot')
+    variances = [(s ** 2) for s in self._model_json[u'output'][u'importance'].cell_values[0][1:]]
+    plt.xlabel(u'Components')
+    plt.ylabel(u'Variances')
+    plt.title(u'Scree Plot')
     plt.xticks(list(range(1, (len(variances) + 1))))
-    if (type == 'barplot'):
+    if (type == u'barplot'):
         plt.bar(list(range(1, (len(variances) + 1))), variances)
-    elif (type == 'lines'):
-        plt.plot(list(range(1, (len(variances) + 1))), variances, 'b--')
-    if (not (('server' in list(kwargs.keys())) and kwargs['server'])):
+    elif (type == u'lines'):
+        plt.plot(list(range(1, (len(variances) + 1))), variances, u'b--')
+    if (not ((u'server' in list(kwargs.keys())) and kwargs[u'server'])):
         plt.show()

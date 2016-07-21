@@ -1,22 +1,22 @@
 def train(self, x, y=None, training_frame=None, offset_column=None, fold_column=None, weights_column=None, validation_frame=None, **params):
     algo_params = locals()
     parms = self._parms.copy()
-    parms.update({k: v for (k, v) in algo_params.items() if (k not in ['self', 'params', 'algo_params', 'parms'])})
-    parms['search_criteria'] = self.search_criteria
-    parms['hyper_parameters'] = self.hyper_params
+    parms.update({k: v for (k, v) in algo_params.items() if (k not in [u'self', u'params', u'algo_params', u'parms'])})
+    parms[u'search_criteria'] = self.search_criteria
+    parms[u'hyper_parameters'] = self.hyper_params
     parms.update({k: v for (k, v) in list(self.model._parms.items()) if (v is not None)})
     parms.update(params)
-    if ('__class__' in parms):
-        del parms['__class__']
-    y = algo_params['y']
-    tframe = algo_params['training_frame']
+    if (u'__class__' in parms):
+        del parms[u'__class__']
+    y = algo_params[u'y']
+    tframe = algo_params[u'training_frame']
     if (tframe is None):
-        raise ValueError('Missing training_frame')
+        raise ValueError(u'Missing training_frame')
     if (y is not None):
-        if isinstance(y, (list, tuple)):
+        if is_listlike(y):
             if (len(y) == 1):
-                parms['y'] = y[0]
+                parms[u'y'] = y[0]
             else:
-                raise ValueError('y must be a single column reference')
-        self._estimator_type = ('classifier' if tframe[y].isfactor() else 'regressor')
+                raise ValueError(u'y must be a single column reference')
+        self._estimator_type = (u'classifier' if tframe[y].isfactor() else u'regressor')
     self.build_model(parms)

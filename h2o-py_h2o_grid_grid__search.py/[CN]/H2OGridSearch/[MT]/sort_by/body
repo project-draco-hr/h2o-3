@@ -1,12 +1,12 @@
 def sort_by(self, metric, increasing=True):
-    "\n    Sort the models in the grid space by a metric.\n\n    Parameters\n    ----------\n    metric: str\n      A metric ('logloss', 'auc', 'r2') by which to sort the models. If addtional arguments are desired,\n      they can be passed to the metric, for example 'logloss(valid=True)'\n    increasing: boolean, optional\n      Sort the metric in increasing (True) (default) or decreasing (False) order.\n\n    Returns\n    -------\n      An H2OTwoDimTable of the sorted models showing model id, hyperparameters, and metric value. The best model can\n      be selected and used for prediction.\n\n    Examples\n    --------\n      >>> grid_search_results = gs.sort_by('F1', False)\n      >>> best_model_id = grid_search_results['Model Id'][0]\n      >>> best_model = h2o.get_model(best_model_id)\n      >>> best_model.predict(test_data)\n    "
-    if (metric[(-1)] != ')'):
-        metric += '()'
-    c_values = [list(x) for x in zip(*sorted(eval((('self.' + metric) + '.items()')), key=(lambda k_v: k_v[1])))]
+    u"\n    Sort the models in the grid space by a metric.\n\n    Parameters\n    ----------\n    metric: str\n      A metric ('logloss', 'auc', 'r2') by which to sort the models. If addtional arguments are desired,\n      they can be passed to the metric, for example 'logloss(valid=True)'\n    increasing: boolean, optional\n      Sort the metric in increasing (True) (default) or decreasing (False) order.\n\n    Returns\n    -------\n      An H2OTwoDimTable of the sorted models showing model id, hyperparameters, and metric value. The best model can\n      be selected and used for prediction.\n\n    Examples\n    --------\n      >>> grid_search_results = gs.sort_by('F1', False)\n      >>> best_model_id = grid_search_results['Model Id'][0]\n      >>> best_model = h2o.get_model(best_model_id)\n      >>> best_model.predict(test_data)\n    "
+    if (metric[(-1)] != u')'):
+        metric += u'()'
+    c_values = [list(x) for x in zip(*sorted(eval(((u'self.' + metric) + u'.items()')), key=(lambda k_v: k_v[1])))]
     c_values.insert(1, [self.get_hyperparams(model_id, display=False) for model_id in c_values[0]])
     if (not increasing):
         for col in c_values:
             col.reverse()
-    if (metric[(-2)] == '('):
+    if (metric[(-2)] == u'('):
         metric = metric[:(-2)]
-    return H2OTwoDimTable(col_header=['Model Id', (('Hyperparameters: [' + ', '.join(list(self.hyper_params.keys()))) + ']'), metric], table_header=('Grid Search Results for ' + self.model.__class__.__name__), cell_values=list(zip(*c_values)))
+    return H2OTwoDimTable(col_header=[u'Model Id', ((u'Hyperparameters: [' + u', '.join(list(self.hyper_params.keys()))) + u']'), metric], table_header=(u'Grid Search Results for ' + self.model.__class__.__name__), cell_values=list(zip(*c_values)))

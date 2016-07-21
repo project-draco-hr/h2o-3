@@ -1,6 +1,6 @@
 def biases(self, vector_id=0):
-    '\n    Return the frame for the respective bias vector\n    :param: vector_id: an integer, ranging from 0 to number of layers, that specifies the bias vector to return.\n    :return: an H2OFrame which represents the bias vector identified by vector_id\n    '
-    num_bias_vectors = len(self._model_json['output']['biases'])
+    u'\n    Return the frame for the respective bias vector\n    :param: vector_id: an integer, ranging from 0 to number of layers, that specifies the bias vector to return.\n    :return: an H2OFrame which represents the bias vector identified by vector_id\n    '
+    num_bias_vectors = len(self._model_json[u'output'][u'biases'])
     if (vector_id not in list(range(num_bias_vectors))):
-        raise ValueError('Bias vector does not exist. Model has {0} bias vectors (0-based indexing), but vector {1} was requested.'.format(num_bias_vectors, vector_id))
-    return h2o.get_frame(self._model_json['output']['biases'][vector_id]['URL'].split('/')[3])
+        raise ValueError(u'Bias vector does not exist. Model has {0} bias vectors (0-based indexing), but vector {1} was requested.'.format(num_bias_vectors, vector_id))
+    return h2o.get_frame(self._model_json[u'output'][u'biases'][vector_id][u'URL'].split(u'/')[3])

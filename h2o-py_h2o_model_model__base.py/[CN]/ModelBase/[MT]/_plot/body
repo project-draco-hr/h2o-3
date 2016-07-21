@@ -1,42 +1,42 @@
 def _plot(self, timestep, metric, **kwargs):
     try:
-        imp.find_module('matplotlib')
+        imp.find_module(u'matplotlib')
         import matplotlib
-        if (('server' in list(kwargs.keys())) and kwargs['server']):
-            matplotlib.use('Agg', warn=False)
+        if ((u'server' in kwargs) and kwargs[u'server']):
+            matplotlib.use(u'Agg', warn=False)
         import matplotlib.pyplot as plt
     except ImportError:
-        print('matplotlib is required for this function!')
+        print(u'matplotlib is required for this function!')
         return
     scoring_history = self.scoring_history()
-    if (self._model_json['algo'] == 'glm'):
-        timestep = 'iteration'
-        if (metric == 'AUTO'):
-            metric = 'log_likelihood'
-        elif (metric not in ('log_likelihood', 'objective')):
-            raise ValueError('for GLM, metric must be one of: log_likelihood, objective')
+    if (self._model_json[u'algo'] == u'glm'):
+        timestep = u'iteration'
+        if (metric == u'AUTO'):
+            metric = u'log_likelihood'
+        elif (metric not in (u'log_likelihood', u'objective')):
+            raise ValueError(u'for GLM, metric must be one of: log_likelihood, objective')
         plt.xlabel(timestep)
         plt.ylabel(metric)
-        plt.title('Validation Scoring History')
+        plt.title(u'Validation Scoring History')
         plt.plot(scoring_history[timestep], scoring_history[metric])
-    elif (self._model_json['algo'] in ('deeplearning', 'drf', 'gbm')):
-        if (self._model_json['algo'] in ('gbm', 'drf')):
-            if (timestep == 'AUTO'):
-                timestep = 'number_of_trees'
-            elif (timestep not in ('duration', 'number_of_trees')):
-                raise ValueError('timestep for gbm or drf must be one of: duration, number_of_trees')
+    elif (self._model_json[u'algo'] in (u'deeplearning', u'drf', u'gbm')):
+        if (self._model_json[u'algo'] in (u'gbm', u'drf')):
+            if (timestep == u'AUTO'):
+                timestep = u'number_of_trees'
+            elif (timestep not in (u'duration', u'number_of_trees')):
+                raise ValueError(u'timestep for gbm or drf must be one of: duration, number_of_trees')
         else:
-            if (scoring_history['samples'][0] == 0):
+            if (scoring_history[u'samples'][0] == 0):
                 scoring_history = scoring_history[1:]
-            if (timestep == 'AUTO'):
-                timestep = 'epochs'
-            elif (timestep not in ('epochs', 'samples', 'duration')):
-                raise ValueError('timestep for deeplearning must be one of: epochs, samples, duration')
-        training_metric = 'training_{}'.format(metric)
-        validation_metric = 'validation_{}'.format(metric)
-        if (timestep == 'duration'):
-            dur_colname = 'duration_{}'.format(scoring_history['duration'][1].split()[1])
-            scoring_history[dur_colname] = [str(x).split()[0] for x in scoring_history['duration']]
+            if (timestep == u'AUTO'):
+                timestep = u'epochs'
+            elif (timestep not in (u'epochs', u'samples', u'duration')):
+                raise ValueError(u'timestep for deeplearning must be one of: epochs, samples, duration')
+        training_metric = u'training_{}'.format(metric)
+        validation_metric = u'validation_{}'.format(metric)
+        if (timestep == u'duration'):
+            dur_colname = u'duration_{}'.format(scoring_history[u'duration'][1].split()[1])
+            scoring_history[dur_colname] = [str(x).split()[0] for x in scoring_history[u'duration']]
             timestep = dur_colname
         if can_use_pandas():
             valid = (validation_metric in list(scoring_history))
@@ -49,18 +49,18 @@ def _plot(self, timestep, metric, **kwargs):
         if valid:
             plt.xlabel(timestep)
             plt.ylabel(metric)
-            plt.title('Scoring History')
+            plt.title(u'Scoring History')
             plt.ylim(ylim)
-            plt.plot(scoring_history[timestep], scoring_history[training_metric], label='Training')
-            plt.plot(scoring_history[timestep], scoring_history[validation_metric], color='orange', label='Validation')
+            plt.plot(scoring_history[timestep], scoring_history[training_metric], label=u'Training')
+            plt.plot(scoring_history[timestep], scoring_history[validation_metric], color=u'orange', label=u'Validation')
             plt.legend()
         else:
             plt.xlabel(timestep)
             plt.ylabel(training_metric)
-            plt.title('Training Scoring History')
+            plt.title(u'Training Scoring History')
             plt.ylim(ylim)
             plt.plot(scoring_history[timestep], scoring_history[training_metric])
     else:
-        raise ValueError('Plotting not implemented for this type of model')
-    if (('server' not in list(kwargs.keys())) or (not kwargs['server'])):
+        raise ValueError(u'Plotting not implemented for this type of model')
+    if ((u'server' not in list(kwargs.keys())) or (not kwargs[u'server'])):
         plt.show()

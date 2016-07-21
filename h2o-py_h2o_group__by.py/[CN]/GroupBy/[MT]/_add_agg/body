@@ -1,21 +1,21 @@
 def _add_agg(self, op, col, na):
-    if (op == 'nrow'):
+    if (op == u'nrow'):
         col = 0
     if (col is None):
         for i in range(self._fr.ncol):
             if (i not in self._by):
                 self._add_agg(op, i, na)
         return self
-    elif isinstance(col, basestring):
+    elif is_str(col):
         cidx = self._fr.names.index(col)
-    elif isinstance(col, int):
+    elif is_int(col):
         cidx = col
-    elif isinstance(col, (tuple, list)):
+    elif is_listlike(col):
         for i in col:
             self._add_agg(op, i, na)
         return self
     else:
-        raise ValueError('col must be a column name or index.')
-    name = '{}_{}'.format(op, self._fr.names[cidx])
+        raise ValueError(u'col must be a column name or index.')
+    name = u'{}_{}'.format(op, self._fr.names[cidx])
     self._aggs[name] = [op, cidx, na]
     return self

@@ -1,7 +1,7 @@
 def confusion_matrix(self, metrics=None, thresholds=None):
-    '\n    Get the confusion matrix for the specified metric\n\n    :param metrics: A string (or list of strings) in {"min_per_class_accuracy", "absolute_mcc", "tnr", "fnr", "fpr", "tpr", "precision", "accuracy", "f0point5", "f2", "f1","mean_per_class_accuracy"}\n    :param thresholds: A value (or list of values) between 0 and 1\n    :return: a list of ConfusionMatrix objects (if there are more than one to return), or a single ConfusionMatrix (if there is only one)\n    '
+    u'\n    Get the confusion matrix for the specified metric\n\n    :param metrics: A string (or list of strings) in {"min_per_class_accuracy", "absolute_mcc", "tnr", "fnr", "fpr", "tpr", "precision", "accuracy", "f0point5", "f2", "f1","mean_per_class_accuracy"}\n    :param thresholds: A value (or list of values) between 0 and 1\n    :return: a list of ConfusionMatrix objects (if there are more than one to return), or a single ConfusionMatrix (if there is only one)\n    '
     if ((metrics is None) and (thresholds is None)):
-        metrics = ['f1']
+        metrics = [u'f1']
     if isinstance(metrics, list):
         metrics_list = metrics
     elif (metrics is None):
@@ -14,14 +14,14 @@ def confusion_matrix(self, metrics=None, thresholds=None):
         thresholds_list = []
     else:
         thresholds_list = [thresholds]
-    if ((not all((isinstance(t, (int, float, int)) for t in thresholds_list))) or (not all((((t >= 0) or (t <= 1)) for t in thresholds_list)))):
-        raise ValueError('All thresholds must be numbers between 0 and 1 (inclusive).')
-    if (not all(((m in ['min_per_class_accuracy', 'absolute_mcc', 'precision', 'recall', 'specificity', 'accuracy', 'f0point5', 'f2', 'f1', 'mean_per_class_accuracy']) for m in metrics_list))):
-        raise ValueError('The only allowable metrics are min_per_class_accuracy, absolute_mcc, precision, accuracy, f0point5, f2, f1, mean_per_class_accuracy')
+    if ((not all((is_numeric(t) for t in thresholds_list))) or (not all((((t >= 0) or (t <= 1)) for t in thresholds_list)))):
+        raise ValueError(u'All thresholds must be numbers between 0 and 1 (inclusive).')
+    if (not all(((m in [u'min_per_class_accuracy', u'absolute_mcc', u'precision', u'recall', u'specificity', u'accuracy', u'f0point5', u'f2', u'f1', u'mean_per_class_accuracy']) for m in metrics_list))):
+        raise ValueError(u'The only allowable metrics are min_per_class_accuracy, absolute_mcc, precision, accuracy, f0point5, f2, f1, mean_per_class_accuracy')
     metrics_thresholds = [self.find_threshold_by_max_metric(m) for m in metrics_list]
     for mt in metrics_thresholds:
         thresholds_list.append(mt)
-    thresh2d = self._metric_json['thresholds_and_metric_scores']
+    thresh2d = self._metric_json[u'thresholds_and_metric_scores']
     actual_thresholds = [float(e[0]) for (i, e) in enumerate(thresh2d.cell_values)]
     cms = []
     for t in thresholds_list:
@@ -37,10 +37,10 @@ def confusion_matrix(self, metrics=None, thresholds=None):
         c1 = (p - tps)
         if (t in metrics_thresholds):
             m = metrics_list[metrics_thresholds.index(t)]
-            table_header = ((('Confusion Matrix (Act/Pred) for max ' + m) + ' @ threshold = ') + str(actual_thresholds[idx]))
+            table_header = (((u'Confusion Matrix (Act/Pred) for max ' + m) + u' @ threshold = ') + str(actual_thresholds[idx]))
         else:
-            table_header = ('Confusion Matrix (Act/Pred) @ threshold = ' + str(actual_thresholds[idx]))
-        cms.append(ConfusionMatrix(cm=[[c0, fps], [c1, tps]], domains=self._metric_json['domain'], table_header=table_header))
+            table_header = (u'Confusion Matrix (Act/Pred) @ threshold = ' + str(actual_thresholds[idx]))
+        cms.append(ConfusionMatrix(cm=[[c0, fps], [c1, tps]], domains=self._metric_json[u'domain'], table_header=table_header))
     if (len(cms) == 1):
         return cms[0]
     else:

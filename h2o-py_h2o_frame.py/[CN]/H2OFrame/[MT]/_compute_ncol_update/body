@@ -20,9 +20,9 @@ def _compute_ncol_update(self, item):
             new_names = [self.names[i] for i in range_list]
             new_types = {name: self.types[name] for name in new_names}
             item = slice(start, end)
-        elif isinstance(item, (basestring, int)):
+        elif (is_str(item) or is_int(item)):
             new_ncols = 1
-            if isinstance(item, basestring):
+            if is_str(item):
                 new_names = [item]
                 new_types = (None if (item not in self.types) else {item: self.types[item], })
             else:

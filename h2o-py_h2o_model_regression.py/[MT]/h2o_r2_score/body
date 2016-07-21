@@ -1,8 +1,8 @@
 def h2o_r2_score(y_actual, y_predicted, weights=1.0):
-    '\n  R^2 (coefficient of determination) regression score function\n\n  :param y_actual: H2OFrame of actual response.\n  :param y_predicted: H2OFrame of predicted response.\n  :param weights: (Optional) sample weights\n  :return: R^2 (float) (best is 1.0, lower is worse)\n  '
+    u'\n  R^2 (coefficient of determination) regression score function\n\n  :param y_actual: H2OFrame of actual response.\n  :param y_predicted: H2OFrame of predicted response.\n  :param weights: (Optional) sample weights\n  :return: R^2 (float) (best is 1.0, lower is worse)\n  '
     ModelBase._check_targets(y_actual, y_predicted)
     numerator = (weights * ((y_actual - y_predicted) ** 2)).sum()
     denominator = (weights * ((y_actual - y_actual.mean()[0]) ** 2)).sum()
     if (denominator == 0.0):
         return (1.0 if (numerator == 0.0) else 0.0)
-    return (1 - old_div(numerator, denominator))
+    return (1 - (numerator / denominator))

@@ -1,47 +1,47 @@
 def _model_build(self, x, y, tframe, vframe, kwargs):
-    kwargs['training_frame'] = tframe
+    kwargs[u'training_frame'] = tframe
     if (vframe is not None):
-        kwargs['validation_frame'] = vframe
-    if isinstance(y, int):
+        kwargs[u'validation_frame'] = vframe
+    if is_int(y):
         y = tframe.names[y]
     if (y is not None):
-        kwargs['response_column'] = y
-    if (not isinstance(x, (list, tuple))):
+        kwargs[u'response_column'] = y
+    if (not is_listlike(x)):
         x = [x]
-    if isinstance(x[0], int):
+    if is_int(x[0]):
         x = [tframe.names[i] for i in x]
-    offset = kwargs['offset_column']
-    folds = kwargs['fold_column']
-    weights = kwargs['weights_column']
+    offset = kwargs[u'offset_column']
+    folds = kwargs[u'fold_column']
+    weights = kwargs[u'weights_column']
     ignored_columns = list((set(tframe.names) - set((x + [y, offset, folds, weights]))))
-    kwargs['ignored_columns'] = (None if (not ignored_columns) else [quoted(col) for col in ignored_columns])
+    kwargs[u'ignored_columns'] = (None if (not ignored_columns) else [quoted(col) for col in ignored_columns])
     kwargs = dict([(k, (kwargs[k].frame_id if isinstance(kwargs[k], H2OFrame) else kwargs[k])) for k in kwargs if (kwargs[k] is not None)])
     algo = self.model._compute_algo()
     if (self.grid_id is not None):
-        kwargs['grid_id'] = self.grid_id
-    rest_ver = (kwargs.pop('_rest_version') if ('_rest_version' in kwargs) else None)
-    grid = H2OJob(h2o.api(('POST /99/Grid/%s' % algo), data=kwargs), job_type=(algo + ' Grid Build'))
+        kwargs[u'grid_id'] = self.grid_id
+    rest_ver = (kwargs.pop(u'_rest_version') if (u'_rest_version' in kwargs) else None)
+    grid = H2OJob(h2o.api((u'POST /99/Grid/%s' % algo), data=kwargs), job_type=(algo + u' Grid Build'))
     if self._future:
         self._job = grid
         return
     grid.poll()
     if (rest_ver is not None):
-        grid_json = h2o.api(('GET /99/Grids/%s' % grid.dest_key))
+        grid_json = h2o.api((u'GET /99/Grids/%s' % grid.dest_key))
         error_index = 0
-        if (len(grid_json['failure_details']) > 0):
-            print('Errors/Warnings building gridsearch model\n')
-            for error_message in grid_json['failure_details']:
-                if isinstance(grid_json['failed_params'][error_index], dict):
-                    for h_name in grid_json['hyper_names']:
-                        print('Hyper-parameter: {0}, {1}'.format(h_name, grid_json['failed_params'][error_index][h_name]))
-                if (len(grid_json['failure_stack_traces']) > error_index):
-                    print('failure_details: {0}\nfailure_stack_traces: {1}\n'.format(error_message, grid_json['failure_stack_traces'][error_index]))
+        if (len(grid_json[u'failure_details']) > 0):
+            print(u'Errors/Warnings building gridsearch model\n')
+            for error_message in grid_json[u'failure_details']:
+                if isinstance(grid_json[u'failed_params'][error_index], dict):
+                    for h_name in grid_json[u'hyper_names']:
+                        print(u'Hyper-parameter: {0}, {1}'.format(h_name, grid_json[u'failed_params'][error_index][h_name]))
+                if (len(grid_json[u'failure_stack_traces']) > error_index):
+                    print(u'failure_details: {0}\nfailure_stack_traces: {1}\n'.format(error_message, grid_json[u'failure_stack_traces'][error_index]))
                 error_index += 1
     else:
-        grid_json = h2o.api(('GET /99/Grids/%s' % grid.dest_key))
-    self.models = [h2o.get_model(key['name']) for key in grid_json['model_ids']]
-    if (len(grid_json['model_ids']) > 0):
-        first_model_json = h2o.api(('GET /%d/Models/%s' % ((rest_ver or 3), grid_json['model_ids'][0]['name'])))['models'][0]
+        grid_json = h2o.api((u'GET /99/Grids/%s' % grid.dest_key))
+    self.models = [h2o.get_model(key[u'name']) for key in grid_json[u'model_ids']]
+    if (len(grid_json[u'model_ids']) > 0):
+        first_model_json = h2o.api((u'GET /%d/Models/%s' % ((rest_ver or 3), grid_json[u'model_ids'][0][u'name'])))[u'models'][0]
         self._resolve_grid(grid.dest_key, grid_json, first_model_json)
     else:
-        raise ValueError('Gridsearch returns no model due to bad parameter values or other reasons....')
+        raise ValueError(u'Gridsearch returns no model due to bad parameter values or other reasons....')

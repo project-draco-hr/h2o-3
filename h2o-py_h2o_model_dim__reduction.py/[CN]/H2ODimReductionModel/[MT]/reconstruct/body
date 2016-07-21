@@ -1,6 +1,6 @@
 def reconstruct(self, test_data, reverse_transform=False):
-    'Reconstruct the training data from the GLRM model and impute all missing\n        values.\n\n        Parameters\n        ----------\n          test_data : H2OFrame\n            The dataset upon which the H2O GLRM model was trained.\n\n          reverse_transform : logical\n            Whether the transformation of the training data during model-building should\n            be reversed on the reconstructed frame.\n\n        Returns\n        -------\n          Return the approximate reconstruction of the training data.\n        '
+    u'Reconstruct the training data from the GLRM model and impute all missing\n        values.\n\n        Parameters\n        ----------\n          test_data : H2OFrame\n            The dataset upon which the H2O GLRM model was trained.\n\n          reverse_transform : logical\n            Whether the transformation of the training data during model-building should\n            be reversed on the reconstructed frame.\n\n        Returns\n        -------\n          Return the approximate reconstruction of the training data.\n        '
     if ((test_data is None) or (test_data.nrow == 0)):
-        raise ValueError('Must specify test data')
-    j = h2o.api(('POST /3/Predictions/models/%s/frames/%s' % (self.model_id, test_data.frame_id)), data={'reconstruct_train': True, 'reverse_transform': reverse_transform, })
-    return h2o.get_frame(j['model_metrics'][0]['predictions']['frame_id']['name'])
+        raise ValueError(u'Must specify test data')
+    j = h2o.api((u'POST /3/Predictions/models/%s/frames/%s' % (self.model_id, test_data.frame_id)), data={u'reconstruct_train': True, u'reverse_transform': reverse_transform, })
+    return h2o.get_frame(j[u'model_metrics'][0][u'predictions'][u'frame_id'][u'name'])
