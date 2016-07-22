@@ -15,10 +15,16 @@
       Vec resp=m == null && f.vec(f.numCols() - 1).isCategorical() ? f.vec(f.numCols() - 1) : f.vec(m._parms._response_column);
       Vec weight=m == null ? null : frameWithWeights.vec(m._parms._weights_column);
       if (resp != null) {
-        gl=new GainsLift(preds.lastVec(),resp,weight);
-        gl.exec(m._output._job);
+        try {
+          gl=new GainsLift(preds.lastVec(),resp,weight);
+          gl.exec(m != null ? m._output._job : null);
+        }
+ catch (        Throwable t) {
+        }
       }
     }
   }
-  return m == null ? new ModelMetricsBinomial(null,f,_count,mse,_domain,sigma,auc,logloss,gl) : m._output.addModelMetrics(new ModelMetricsBinomial(m,f,_count,mse,_domain,sigma,auc,logloss,gl));
+  ModelMetricsBinomial mm=new ModelMetricsBinomial(m,f,_count,mse,_domain,sigma,auc,logloss,gl);
+  if (m != null)   m._output.addModelMetrics(mm);
+  return mm;
 }

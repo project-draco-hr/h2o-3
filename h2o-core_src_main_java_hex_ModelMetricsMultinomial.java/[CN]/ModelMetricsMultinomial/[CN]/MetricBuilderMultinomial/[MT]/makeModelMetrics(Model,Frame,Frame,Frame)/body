@@ -12,6 +12,7 @@
     mse=_sumsqe / _wcount;
     logloss=_logloss / _wcount;
   }
-  if (m == null)   return new ModelMetricsMultinomial(null,f,_count,mse,_domain,sigma,cm,hr,logloss);
- else   return m._output.addModelMetrics(new ModelMetricsMultinomial(m,f,_count,mse,_domain,sigma,cm,hr,logloss));
+  ModelMetricsMultinomial mm=new ModelMetricsMultinomial(m,f,_count,mse,_domain,sigma,cm,hr,logloss);
+  if (m != null)   m._output.addModelMetrics(mm);
+  return mm;
 }

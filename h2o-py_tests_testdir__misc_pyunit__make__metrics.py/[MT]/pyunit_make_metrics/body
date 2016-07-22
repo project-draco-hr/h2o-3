@@ -1,0 +1,10 @@
+def pyunit_make_metrics():
+    fr = h2o.import_file(pyunit_utils.locate('smalldata/logreg/prostate.csv'))
+    fr['CAPSULE'] = fr['CAPSULE'].asfactor()
+    fr['RACE'] = fr['RACE'].asfactor()
+    fr.describe()
+    response = 'AGE'
+    predictors = range(1, fr.ncol)
+    model = H2OGradientBoostingEstimator()
+    model.train(x=predictors, y=response, training_frame=fr)
+    p = model.model_performance(train=True)
