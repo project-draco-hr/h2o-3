@@ -19,10 +19,11 @@ def start(self):
             os.mkdir(jresults_dir)
         jresults_dir = os.path.join(jresults_dir, '{cloud}_{node}'.format(cloud=self.cloud_num, node=self.node_num))
         jacoco = ((('-javaagent:' + agent_dir) + '=destfile=') + os.path.join(jresults_dir, '{cloud}_{node}.exec'.format(cloud=self.cloud_num, node=self.node_num)))
-        if g_jacoco_options[0]:
-            jacoco += ',includes={inc}'.format(inc=g_jacoco_options[0].replace(',', ':'))
-        if g_jacoco_options[1]:
-            jacoco += ',excludes={ex}'.format(ex=g_jacoco_options[1].replace(',', ':'))
+        (opt0, opt1) = g_jacoco_options
+        if (opt0 is not None):
+            jacoco += ',includes={inc}'.format(inc=opt0.replace(',', ':'))
+        if (opt1 is not None):
+            jacoco += ',excludes={ex}'.format(ex=opt1.replace(',', ':'))
         cmd = ((cmd[:1] + [jacoco]) + cmd[1:])
     self.output_file_name = os.path.join(self.output_dir, (((('java_' + str(self.cloud_num)) + '_') + str(self.node_num)) + '.out.txt'))
     f = open(self.output_file_name, 'w')
