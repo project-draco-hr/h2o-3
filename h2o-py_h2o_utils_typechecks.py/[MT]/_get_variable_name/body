@@ -1,0 +1,21 @@
+def _get_variable_name():
+    u'\n    Magic variable name retrieval.\n\n    This function is designed as a helper for assert_*() functions. Typically such assertion is used like this:\n        assert_is_int(num_threads)\n    If the variable `num_threads` turns out to be non-integer, we would like to raise an exception such as\n        TypeError("`num_threads` is expected to be integer, but got <str>")\n    and in order to compose an error message like that, we need to know that the variables that was passed to\n    assert_is_int() carries a name "num_threads". Naturally, the variable itself knows nothing about that.\n\n    This is where this function comes in: we walk up the stack trace until the first frame outside of this\n    file, find the original line that called the assert_is_int() function, and extract the variable name from\n    that line. This is slightly fragile, in particular we assume that only one assert_* statement can be per line,\n    or that this statement does not spill over multiple lines, or that the argument is not a complicated\n    expression like `assert_is_int(foo(x))` or `assert_is_str(x[1,2])`. I do not foresee such complexities in the\n    code, but if they arise this function can be amended to parse those cases properly.\n    '
+    try:
+        raise RuntimeError(u'Catch me!')
+    except RuntimeError:
+        import linecache
+        import re
+        tb = sys.exc_info()[2]
+        assert (tb.tb_frame.f_code.co_name == u'_get_variable_name')
+        this_filename = tb.tb_frame.f_code.co_filename
+        fr = tb.tb_frame
+        while ((fr is not None) and (fr.f_code.co_filename == this_filename)):
+            fr = fr.f_back
+        linecache.checkcache(fr.f_code.co_filename)
+        line = linecache.getline(fr.f_code.co_filename, fr.f_lineno)
+        variables = re.findall(u'assert_(?:is|maybe)_\\w+\\(([^,)]*)', line)
+        if (len(variables) == 0):
+            return u'<arg>'
+        if (len(variables) == 1):
+            return variables[0]
+        raise RuntimeError(u'More than one assert_*() statement on the line!')

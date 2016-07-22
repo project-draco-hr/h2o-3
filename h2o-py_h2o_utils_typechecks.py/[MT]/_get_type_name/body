@@ -1,0 +1,8 @@
+def _get_type_name(stype):
+    u'\n    Return name of the provided type.\n\n    Examples:\n    >>> _get_type_name(int) == "int"\n    >>> _get_type_name(tuple) == "tuple"\n    >>> _get_type_name(Exception) == "Exception"\n    >>> _get_type_name((int, long, float)) == "int | long | float"\n    '
+    if (type(stype) is type):
+        return stype.__name__
+    elif ((type(stype) is tuple) and all(((type(t) is type) for t in stype))):
+        return u' | '.join((t.__name__ for t in stype))
+    else:
+        raise RuntimeError((u'Unexpected `stype`: %r' % stype))

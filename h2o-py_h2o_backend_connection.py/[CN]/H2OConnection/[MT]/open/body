@@ -2,13 +2,13 @@
 def open(server=None, url=None, ip=None, port=None, https=None, verify_ssl_certificates=True, auth=None, proxy=None, cluster_name=None, verbose=True):
     u'\n        Establish connection to an existing H2O server.\n\n        The connection is not kept alive, so what this method actually does is it attempts to connect to the\n        specified server, and checks that the server is healthy and responds to REST API requests. If the H2O server\n        cannot be reached, an `H2OConnectionError` will be raised. On success this method returns a new\n        `H2OConnection` object, and it is the only "official" way to create instances of this class.\n\n        There are 3 ways to specify which server to connect to (these settings are mutually exclusive):\n            * Pass a `server` option,\n            * Pass the full `url` for the connection,\n            * Provide a triple of parameters `ip`, `port`, `https`.\n\n        :param server: (H2OLocalServer) connect to the specified local server instance. There is a slight difference\n            between connecting to a local server by specifying its ip and address, and connecting through\n            an H2OLocalServer instance: if the server becomes unresponsive, then having access to its process handle\n            will allow us to query the server status through OS, and potentially provide snapshot of the server\'s\n            error log in the exception information.\n        :param url: Full URL of the server to connect to.\n        :param ip: Target server\'s IP address or hostname (default "localhost").\n        :param port: H2O server\'s port (default 54321).\n        :param https: If True then connect using https instead of http (default False).\n        :param verify_ssl_certificates: If False then SSL certificate checking will be disabled (default True). This\n            setting should rarely be disabled, as it makes your connection vulnerable to man-in-the-middle attacks. When\n            used, it will generate a warning from the requests library. Has no effect when `https` is False.\n        :param auth: Authentication token for connecting to the remote server. This can be either a\n            (username, password) tuple, or an authenticator (AuthBase) object. Please refer to the documentation in\n            the `requests.auth` module.\n        :param proxy: (str) URL address of a proxy server. If you do not specify the proxy, then the requests module\n            will attempt to use a proxy specified in the environment (in HTTP_PROXY / HTTPS_PROXY variables). We\n            check for the presence of these variables and issue a warning if they are found. In order to suppress\n            that warning and use proxy from the environment, pass `proxy`="(default)".\n        :param cluster_name: Name of the H2O cluster to connect to. This option is used from Steam only.\n        :param verbose: If True (default), then connection progress info will be printed to the stdout.\n        :return A new H2OConnection instance.\n        :raise H2OConnectionError if the server cannot be reached.\n        :raise H2OServerError if the server is in an unhealthy state (although this might be a recoverable error, the\n            client itself should decide whether it wants to retry or not).\n        '
     if (server is not None):
-        assert_is_type(server, u'server', H2OLocalServer)
+        assert_is_type(server, H2OLocalServer)
         assert ((ip is None) and (port is None) and (https is None) and (url is None)), u'`url`, `ip`, `port` and `https` parameters cannot be used together with `server`'
         ip = server.ip
         port = server.port
         scheme = server.scheme
     elif (url is not None):
-        assert_is_str(url, u'url')
+        assert_is_str(url)
         assert ((ip is None) and (port is None) and (https is None) and (server is None)), u'`server`, `ip`, `port` and `https` parameters cannot be used together with `url`'
         parts = url.rstrip(u'/').split(u':')
         assert ((len(parts) == 3) and (parts[0] in {u'http', u'https'}) and parts[2].isdigit()), (u"Invalid URL parameter '%s'" % url)
@@ -24,17 +24,17 @@ def open(server=None, url=None, ip=None, port=None, https=None, verify_ssl_certi
             https = False
         if (is_str(port) and port.isdigit()):
             port = int(port)
-        assert_is_str(ip, u'ip')
-        assert_is_int(port, u'port')
-        assert_is_bool(https, u'https')
+        assert_is_str(ip)
+        assert_is_int(port)
+        assert_is_bool(https)
         assert (1 <= port <= 65535), (u'Invalid `port` number: %d' % port)
         scheme = (u'https' if https else u'http')
     if (verify_ssl_certificates is None):
         verify_ssl_certificates = True
-    assert_is_bool(verify_ssl_certificates, u'verify_ssl_certificates')
-    assert_maybe_str(proxy, u'proxy')
+    assert_is_bool(verify_ssl_certificates)
+    assert_maybe_str(proxy)
     assert ((auth is None) or (isinstance(auth, tuple) and (len(auth) == 2)) or isinstance(auth, AuthBase)), (u'Invalid authentication token of type %s' % type(auth))
-    assert_maybe_str(cluster_name, u'cluster_name')
+    assert_maybe_str(cluster_name)
     conn = H2OConnection()
     conn._verbose = bool(verbose)
     conn._local_server = server
