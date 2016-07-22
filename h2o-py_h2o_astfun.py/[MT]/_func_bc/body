@@ -13,8 +13,8 @@ def _func_bc(nargs, idx, ops, keys):
             nargs -= 1
     op = ops[idx][1][0]
     frcls = h2o.H2OFrame
-    if (op not in dir(frcls)):
-        raise ValueError('Unimplemented: op <{}> not bound in H2OFrame'.format(op))
+    if (not hasattr(frcls, op)):
+        raise ValueError((u'Unimplemented: op <%s> not bound in H2OFrame' % op))
     if is_attr(ops[idx][0]):
         if PY2:
             argspec = inspect.getargspec(getattr(frcls, op))
@@ -27,14 +27,14 @@ def _func_bc(nargs, idx, ops, keys):
         args = (unnamed_args + list(argdefs[len(unnamed_args):]))
         for a in named_args:
             args[argnames.index(a)] = named_args[a]
-    if (op == 'ceil'):
-        op = 'ceiling'
-    if ((op == 'sum') and (len(args) > 0) and args[0]):
-        op = 'sumNA'
-    if ((op == 'min') and (len(args) > 0) and args[0]):
-        op = 'minNA'
-    if ((op == 'max') and (len(args) > 0) and args[0]):
-        op = 'maxNA'
+    if (op == u'ceil'):
+        op = u'ceiling'
+    if ((op == u'sum') and (len(args) > 0) and args[0]):
+        op = u'sumNA'
+    if ((op == u'min') and (len(args) > 0) and args[0]):
+        op = u'minNA'
+    if ((op == u'max') and (len(args) > 0) and args[0]):
+        op = u'maxNA'
     idx -= 1
     if is_bytecode_instruction(ops[idx][0]):
         (arg, idx) = _opcode_read_arg(idx, ops, keys)

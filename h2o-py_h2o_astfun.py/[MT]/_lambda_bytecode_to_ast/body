@@ -1,7 +1,7 @@
 def _lambda_bytecode_to_ast(co, ops):
     s = (len(ops) - 1)
     keys = [o[0] for o in ops]
-    result = (([ASTId('{')] + [ASTId(arg) for arg in co.co_varnames]) + [ASTId('.')])
+    result = (([ASTId(u'{')] + [ASTId(arg) for arg in co.co_varnames]) + [ASTId(u'.')])
     instr = keys[s]
     if is_return(instr):
         s -= 1
@@ -9,14 +9,14 @@ def _lambda_bytecode_to_ast(co, ops):
     if (is_bytecode_instruction(instr) or is_load_fast(instr) or is_load_global(instr)):
         (body, s) = _opcode_read_arg(s, ops, keys)
     else:
-        raise ValueError(('unimpl bytecode instr: ' + instr))
+        raise ValueError((u'unimpl bytecode instr: ' + instr))
     if (s > 0):
-        print('Dumping disassembled code: ')
+        print(u'Dumping disassembled code: ')
         for i in range(len(ops)):
             if (i == s):
-                print(i, (' --> ' + str(ops[i])))
+                print(i, (u' --> ' + str(ops[i])))
             else:
                 print(i, str(ops[i]).rjust(5))
-        raise ValueError(('Unexpected bytecode disassembly @ ' + str(s)))
-    result += ([body] + [ASTId('}')])
+        raise ValueError((u'Unexpected bytecode disassembly @ ' + str(s)))
+    result += ([body] + [ASTId(u'}')])
     return result
