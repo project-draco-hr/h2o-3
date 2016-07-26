@@ -4,14 +4,14 @@ def _jar_paths():
     cwd_chunks = os.path.abspath(u'.').split(os.path.sep)
     for i in range(len(cwd_chunks), 0, (-1)):
         if (cwd_chunks[(i - 1)] == u'h2o-3'):
-            yield os.path.sep.join((cwd_chunks[:i] + [u'build', u'h2o.jar']))
+            yield os.path.sep.join((cwd_chunks[:i] + [u'build', u'_h2o.jar']))
     prefix1 = prefix2 = sys.prefix
     if prefix1.startswith((os.path.sep + u'Library')):
         prefix2 = os.path.join(u'', u'System', prefix1)
     elif prefix1.startswith((os.path.sep + u'System')):
         prefix2 = prefix1[len(os.path.join(u'', u'System')):]
-    yield os.path.join(prefix1, u'h2o_jar', u'h2o.jar')
-    yield os.path.join(u'', u'usr', u'local', u'h2o_jar', u'h2o.jar')
-    yield os.path.join(prefix1, u'local', u'h2o_jar', u'h2o.jar')
-    yield os.path.join(get_config_var(u'userbase'), u'h2o_jar', u'h2o.jar')
-    yield os.path.join(prefix2, u'h2o_jar', u'h2o.jar')
+    yield os.path.join(prefix1, u'h2o_jar', u'_h2o.jar')
+    yield os.path.join(os.path.abspath(os.sep), u'usr', u'local', u'h2o_jar', u'_h2o.jar')
+    yield os.path.join(prefix1, u'local', u'h2o_jar', u'_h2o.jar')
+    yield os.path.join(get_config_var(u'userbase'), u'h2o_jar', u'_h2o.jar')
+    yield os.path.join(prefix2, u'h2o_jar', u'_h2o.jar')

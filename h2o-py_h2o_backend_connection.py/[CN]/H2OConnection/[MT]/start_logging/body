@@ -4,7 +4,6 @@ def start_logging(self, dest=None):
         dest = os.path.join(tempfile.mkdtemp(), u'h2o-connection.log')
     if (not (isinstance(dest, type(sys.stdout)) or is_str(dest))):
         raise ValueError(u'Logging destination should be either a string (filename), or an open file handle')
-    name = (dest if is_str(dest) else dest.name)
-    self._print((u'Start logging H2OConnection.request() requests into file %s' % name))
+    self._print((u'Now logging all API requests to file %r' % dest))
     self._is_logging = True
     self._logging_dest = dest

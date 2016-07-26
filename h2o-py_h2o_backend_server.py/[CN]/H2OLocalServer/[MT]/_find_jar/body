@@ -1,10 +1,9 @@
 def _find_jar(self, path0=None):
-    u'\n        Return the location of an h2o.jar executable.\n\n        :param path0: Explicitly given h2o.jar path. If provided, then we will simply check whether the file is there,\n            otherwise we will search for an executable in locations returned by ._jar_paths().\n        :raise H2OStartupError if no h2o.jar executable can be found.\n        '
-    jar_paths = ([path0] if path0 else list(self._jar_paths()))
+    u'\n        Return the location of an h2o.jar executable.\n\n        :param path0: Explicitly given h2o.jar path. If provided, then we will simply check whether the file is there,\n            otherwise we will search for an executable in locations returned by ._jar_paths().\n\n        :raises H2OStartupError: if no h2o.jar executable can be found.\n        '
+    jar_paths = ([path0] if path0 else self._jar_paths())
+    searched_paths = []
     for jp in jar_paths:
+        searched_paths.append(jp)
         if os.path.exists(jp):
             return jp
-    if self._verbose:
-        print(u'  No jar file found. Paths searched:')
-        print((u'  ' + u''.join((u'    %s\n' % jar_paths))))
-    raise H2OStartupError(u'Cannot start local server: h2o.jar not found.')
+    raise H2OStartupError((u'Cannot start local server: h2o.jar not found. Paths searched:\n' + u''.join(((u'    %s\n' % s) for s in searched_paths))))
