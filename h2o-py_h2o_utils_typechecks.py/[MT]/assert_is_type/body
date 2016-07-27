@@ -1,7 +1,7 @@
 def assert_is_type(s, stype, typename=None):
-    u'\n    Assert that the argument has the specified type.\n\n    This function is used to check that the type of the argument is correct, or otherwise raise an error.\n    For example:\n        assert_is_type(fr, H2OFrame)\n\n    :param s: variable to check\n    :param stype: expected type\n    :param typename: name of the type (if not given, will be extracted from `stype`)\n    :raise TypeError if the argument is not of the desired type.\n    '
+    u'\n    Assert that the argument has the specified type.\n\n    This function is used to check that the type of the argument is correct, or otherwise raise an error.\n    For example::\n\n        assert_is_type(fr, H2OFrame)\n\n    :param s: variable to check\n    :param stype: expected type\n    :param typename: name of the type (if not given, will be extracted from `stype`)\n    :raises H2OTypeError: if the argument is not of the desired type.\n    '
     if (not isinstance(s, stype)):
         nn = _get_variable_name()
         tn = (typename or _get_type_name(stype))
         sn = _get_type_name(type(s))
-        raise TypeError((u'`%s` should have been a %s, got <%s>' % (nn, tn, sn)))
+        raise H2OTypeError((u'`%s` should have been a %s, got <%s>' % (nn, tn, sn)))
