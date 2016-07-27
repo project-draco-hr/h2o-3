@@ -1,9 +1,5 @@
-def _print(self, *args, **kwargs):
-    u'Helper function to print connection status messages when in "verbose" mode.'
-    if self._verbose:
-        flush = False
-        if (u'flush' in kwargs):
-            flush = kwargs.pop(u'flush')
-        print(*args, **kwargs)
-        if flush:
-            sys.stdout.flush()
+def _print(self, msg, flush=False, end=u'\n'):
+    u'Helper function to print connection status messages when in verbose mode.'
+    if (not self._verbose):
+        return
+    print2(msg, end=end, flush=flush)
