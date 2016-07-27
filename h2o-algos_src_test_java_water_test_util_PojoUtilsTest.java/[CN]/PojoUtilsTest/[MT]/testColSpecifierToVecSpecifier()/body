@@ -1,0 +1,15 @@
+{
+  SchemaServer.registerAllSchemasIfNecessary();
+  TestSchemaPojo fromSchema=new TestSchemaPojo();
+  TestIcedPojo toIced=new TestIcedPojo();
+  fromSchema.column=new FrameV3.ColSpecifierV3();
+  fromSchema.column.column_name=("see one");
+  fromSchema.column_array=new FrameV3.ColSpecifierV3[2];
+  fromSchema.column_array[0]=new FrameV3.ColSpecifierV3();
+  fromSchema.column_array[1]=new FrameV3.ColSpecifierV3();
+  fromSchema.column_array[0].column_name=("C1");
+  fromSchema.column_array[1].column_name=("C2");
+  PojoUtils.copyProperties(toIced,fromSchema,PojoUtils.FieldNaming.CONSISTENT);
+  Assert.assertEquals(fromSchema.column.column_name,toIced.column._column_name.toString());
+  for (int i=0; i < fromSchema.column_array.length; i++)   Assert.assertEquals(fromSchema.column_array[i].column_name,toIced.column_array[i]._column_name.toString());
+}
