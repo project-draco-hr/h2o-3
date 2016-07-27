@@ -1,0 +1,16 @@
+{
+  InputStream is=null;
+  try {
+    URL url=new URL(LATEST_STABLE_URL);
+    URLConnection conn=url.openConnection();
+    conn.setConnectTimeout(1000);
+    conn.setReadTimeout(1000);
+    return extractVersionFromUrl(IOUtils.toString(is=conn.getInputStream()));
+  }
+ catch (  Exception e) {
+    return "unknown";
+  }
+ finally {
+    FileUtils.close(is);
+  }
+}
