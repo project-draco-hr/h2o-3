@@ -1,0 +1,7 @@
+def assert_matches(v, regex):
+    m = re.match(regex, v)
+    if (m is None):
+        vn = _get_variable_name()
+        message = u'Argument `{var}` (= "{val}") did not match /{regex}/'.format(var=vn, regex=regex, val=v)
+        raise H2OValueError(message, var_name=vn, skip_frames=1)
+    return m
