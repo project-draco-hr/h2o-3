@@ -5,13 +5,9 @@ def request(self, endpoint, data=None, json=None, filename=None):
     if (self._stage == (-1)):
         raise H2OConnectionError(u'Connection was closed, and can no longer be used.')
     assert_is_type(endpoint, str)
-    if (endpoint.count(u' ') != 1):
-        raise ValueError((u"Incorrect endpoint '%s': must be of the form 'METHOD URL'." % endpoint))
-    (method, urltail) = str(endpoint).split(u' ', 2)
-    if (method not in {u'GET', u'POST', u'PUT', u'DELETE', u'PATCH', u'HEAD'}):
-        raise ValueError((u"Incorrect method in endpoint '%s'" % endpoint))
-    if (urltail[0] != u'/'):
-        raise ValueError((u"Incorrect url in endpoint '%s': should start with '/'" % endpoint))
+    match = assert_matches(str(endpoint), u'^(GET|POST|PUT|DELETE|PATCH|HEAD) (/.*)$')
+    method = match.group(1)
+    urltail = match.group(2)
     url = (self._base_url + urltail)
     if (((bool(data) + bool(json)) + bool(filename)) > 1):
         raise ValueError(u'Only one of parameters `json`, `data`, `file` can be supplied.')
