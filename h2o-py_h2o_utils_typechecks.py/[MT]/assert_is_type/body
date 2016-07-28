@@ -2,11 +2,4 @@ def assert_is_type(var, expected_type, message=None, skip_frames=1):
     u'\n    Assert that the argument has the specified type.\n\n    This function is used to check that the type of the argument is correct, otherwises it raises an error.\n    Use it like following::\n\n        assert_is_type(fr, H2OFrame)\n        assert_is_type(port, (int, str))\n\n    :param var: variable to check.\n    :param expected_type: the expected type. This could be either a raw type (such as ``bool``), a ``None`` literal,\n        a class name, or a tuple of those. If ``str`` or ``int`` are passed, then on Py2 we will also attempt to\n        match ``unicode`` and ``long`` respectively (so that the check is Py2/Py3 compatible).\n    :param message: override the error message.\n    :param skip_frames: how many local frames to skip when printing out the error.\n\n    :raises H2OTypeError: if the argument is not of the desired type.\n    '
     if _check_type(var, expected_type):
         return
-    nn = _get_variable_name()
-    tn = _get_type_name(expected_type)
-    if ((tn[0] in u'aioe') or tn.startswith(u'H2')):
-        tn = (u'an ' + tn)
-    else:
-        tn = (u'a ' + tn)
-    sn = _get_type_name(type(var))
-    raise H2OTypeError((u'`%s` should be %s, got %r (type <%s>)' % (nn, tn, var, sn)), skip_frames=skip_frames)
+    raise H2OTypeError(var_name=_get_variable_name(), var_value=var, exp_type=expected_type, message=message, skip_frames=skip_frames)

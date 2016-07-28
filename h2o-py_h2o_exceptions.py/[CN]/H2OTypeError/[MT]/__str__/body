@@ -1,0 +1,10 @@
+def __str__(self):
+    u'Used when printing out the exception message.'
+    if self._message:
+        return self._message
+    var = self._var_name
+    val = self._var_value
+    etn = self._get_type_name(self._exp_type)
+    article = (u'an' if (etn.lstrip(u'?')[0] in u'aioeH') else u'a')
+    atn = self._get_type_name(type(val))
+    return u'Argument `{var}` should be {an} {expected_type}, got {actual_type} (value: {value})'.format(var=var, an=article, expected_type=etn, actual_type=atn, value=val)

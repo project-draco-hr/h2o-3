@@ -1,4 +1,4 @@
-def _get_args_str(func):
+def _get_args_str(func, highlight=None):
     u'\n    Return function\'s declared arguments as a string.\n\n    For example for this function it returns "func"; for the ``_wrap`` function it returns\n    "text, wrap_at=100, indent=4". This should usually coincide with the function\'s declaration (the part\n    which is inside the parentheses).\n    '
 
     def gen_args():
@@ -6,10 +6,13 @@ def _get_args_str(func):
         defaults = (args_spec.defaults or [])
         i0 = (len(args_spec.args) - len(defaults))
         for i in range(len(args_spec.args)):
+            var = args_spec.args[i]
+            if (var == highlight):
+                var = ((((Style.BRIGHT + Fore.WHITE) + var) + Fore.LIGHTBLACK_EX) + Style.NORMAL)
             if (i < i0):
-                yield args_spec.args[i]
+                yield var
             else:
-                yield (u'%s=%r' % (args_spec.args[i], defaults[(i - i0)]))
+                yield (u'%s=%r' % (var, defaults[(i - i0)]))
         if args_spec.varargs:
             yield (u'*' + args_spec.varargs)
         if args_spec.keywords:
