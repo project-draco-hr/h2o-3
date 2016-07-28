@@ -13,7 +13,7 @@ def open(server=None, url=None, ip=None, port=None, https=None, auth=None, verif
     elif (url is not None):
         assert_is_type(url, str)
         assert_is_type(ip, None, u'`ip` should be None when `url` parameter is supplied')
-        match = assert_matches(url, u'^(https?)://([\\w.-]+):(\\d+)/?$')
+        match = assert_matches(url, u'^(https?)://((?:[\\w-]+\\.)*[\\w-]+):(\\d+)/?$')
         scheme = match.group(1)
         ip = match.group(2)
         port = int(match.group(3))
@@ -29,13 +29,14 @@ def open(server=None, url=None, ip=None, port=None, https=None, auth=None, verif
         assert_is_type(ip, str)
         assert_is_type(port, int)
         assert_is_type(https, bool)
-        assert (1 <= port <= 65535), (u'Invalid `port` number: %d' % port)
+        assert_matches(ip, u'(?:[\\w-]+\\.)*[\\w-]+')
+        assert_satisfies(port, (1 <= port <= 65535))
         scheme = (u'https' if https else u'http')
     if (verify_ssl_certificates is None):
         verify_ssl_certificates = True
     assert_is_type(verify_ssl_certificates, bool)
     assert_is_type(proxy, (str, None))
-    assert ((auth is None) or (isinstance(auth, tuple) and (len(auth) == 2)) or isinstance(auth, AuthBase)), (u'Invalid authentication token of type %s' % type(auth))
+    assert_is_type(auth, (AuthBase, tuple, None))
     assert_is_type(cluster_name, (str, None))
     conn = H2OConnection()
     conn._verbose = bool(verbose)
