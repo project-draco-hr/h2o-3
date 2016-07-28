@@ -21,3 +21,5 @@ def init(url=None, ip=None, port=None, https=None, insecure=False, username=None
         h2oconn = H2OConnection.open(server=hs, https=https, verify_ssl_certificates=(not insecure), auth=auth, proxy=proxy, cluster_name=cluster_name, verbose=True)
     if strict_version_check:
         version_check()
+    if h2oconn.info().build_too_old:
+        print(u'Warning: Your H2O cluster version is too old ({})! Please download and install the latest version from http://h2o.ai/download/'.format(h2oconn.info().build_age))
