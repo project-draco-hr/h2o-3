@@ -1,8 +1,31 @@
-def _get_type_name(stype):
-    u'\n    Return name of the provided type.\n\n    Examples:\n    >>> _get_type_name(int) == "int"\n    >>> _get_type_name(tuple) == "tuple"\n    >>> _get_type_name(Exception) == "Exception"\n    >>> _get_type_name((int, long, float)) == "int | long | float"\n    '
-    if (type(stype) is type):
-        return stype.__name__
-    elif ((type(stype) is tuple) and all(((type(t) is type) for t in stype))):
-        return u' | '.join((t.__name__ for t in stype))
+def _get_type_name(stype, _nested=False):
+    u'\n    Return the name of the provided type.\n\n    Examples:\n    >>> _get_type_name(int) == "integer"\n    >>> _get_type_name(str) == "string"\n    >>> _get_type_name(tuple) == "tuple"\n    >>> _get_type_name(Exception) == "Exception object"\n    >>> _get_type_name((int, float, bool)) == "integer|float|bool"\n    >>> _get_type_name((H2OFrame, None)) == "?H2OFrame"\n    '
+    if ((stype is None) or isinstance(None, stype)):
+        return u'None'
+    elif (stype is str):
+        return u'string'
+    elif (stype is int):
+        return u'integer'
+    elif isinstance(stype, type):
+        n = stype.__name__
+        if (n[0].isupper() and (not _nested)):
+            return (n + u' object')
+        else:
+            return n
+    elif isinstance(stype, tuple):
+        maybe_type = False
+        res = []
+        for tt in stype:
+            nn = _get_type_name(tt, _nested=True)
+            if (nn == u'None'):
+                maybe_type = True
+            else:
+                res.append(nn)
+        if maybe_type:
+            if res:
+                res[0] = (u'?' + res[0])
+            else:
+                res.append(u'None')
+        return u'|'.join(res)
     else:
         raise RuntimeError((u'Unexpected `stype`: %r' % stype))
