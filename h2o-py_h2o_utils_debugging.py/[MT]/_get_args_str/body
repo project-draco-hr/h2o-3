@@ -1,0 +1,17 @@
+def _get_args_str(func):
+    u'\n    Return function\'s declared arguments as a string.\n\n    For example for this function it returns "func"; for the ``_wrap`` function it returns\n    "text, wrap_at=100, indent=4". This should usually coincide with the function\'s declaration (the part\n    which is inside the parentheses).\n    '
+
+    def gen_args():
+        args_spec = inspect.getargspec(func)
+        defaults = (args_spec.defaults or [])
+        i0 = (len(args_spec.args) - len(defaults))
+        for i in range(len(args_spec.args)):
+            if (i < i0):
+                yield args_spec.args[i]
+            else:
+                yield (u'%s=%r' % (args_spec.args[i], defaults[(i - i0)]))
+        if args_spec.varargs:
+            yield (u'*' + args_spec.varargs)
+        if args_spec.keywords:
+            yield (u'**' + args_spec.keywords)
+    return u', '.join(gen_args())

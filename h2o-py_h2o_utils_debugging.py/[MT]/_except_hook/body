@@ -4,10 +4,10 @@ def _except_hook(exc_type, exc_value, exc_tb):
     if (not exc_tb):
         sys.__excepthook__(exc_type, exc_value, exc_tb)
         return
-
-    def err(msg=u''):
-        u'Print to stderr.'
-        print(msg, file=sys.stderr)
+    get_tb.tb = exc_tb
+    if isinstance(exc_value, (H2OValueError, H2OTypeError)):
+        _handle_soft_error(exc_type, exc_value, exc_tb)
+        return
     err(u'\n================================ EXCEPTION INFO ================================\n')
     if (exc_type != type(exc_value)):
         err((u'Exception type(s): %s / %s' % (exc_type, type(exc_value))))

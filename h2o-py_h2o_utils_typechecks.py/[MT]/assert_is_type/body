@@ -1,7 +1,11 @@
-def assert_is_type(s, stype, typename=None):
-    u'\n    Assert that the argument has the specified type.\n\n    This function is used to check that the type of the argument is correct, or otherwise raise an error.\n    For example::\n\n        assert_is_type(fr, H2OFrame)\n\n    :param s: variable to check\n    :param stype: expected type\n    :param typename: name of the type (if not given, will be extracted from `stype`)\n    :raises H2OTypeError: if the argument is not of the desired type.\n    '
+def assert_is_type(s, stype, typename=None, skip_frames=1):
+    u'\n    Assert that the argument has the specified type.\n\n    This function is used to check that the type of the argument is correct, or otherwise raise an error.\n    For example::\n\n        assert_is_type(fr, H2OFrame)\n\n    :param s: variable to check\n    :param stype: expected type\n    :param typename: name of the type (if not given, will be extracted from `stype`)\n    :param skip_frames: how many local frames to skip when printing out the error.\n\n    :raises H2OTypeError: if the argument is not of the desired type.\n    '
     if (not isinstance(s, stype)):
         nn = _get_variable_name()
         tn = (typename or _get_type_name(stype))
+        if ((tn[0] in u'aioe') or tn.startswith(u'H2')):
+            tn = (u'an ' + tn)
+        else:
+            tn = (u'a ' + tn)
         sn = _get_type_name(type(s))
-        raise H2OTypeError((u'`%s` should have been a %s, got <%s>' % (nn, tn, sn)))
+        raise H2OTypeError((u'`%s` should be %s, got %r (type <%s>)' % (nn, tn, s, sn)), skip_frames=skip_frames)

@@ -1,0 +1,21 @@
+def _handle_soft_error(exc_type, exc_value, exc_tb):
+    colorama.init()
+    err((((Fore.LIGHTRED_EX + exc_type.__name__) + u': ') + str(exc_value)))
+    tb = exc_tb
+    frames = []
+    while tb:
+        frames.append(tb.tb_frame)
+        tb = tb.tb_next
+    i0 = ((len(frames) - 1) - getattr(exc_value, u'skip_frames', 0))
+    indent = (u' ' * len(exc_type.__name__))
+    for i in range(i0, 0, (-1)):
+        co = frames[i].f_code
+        func = _find_function_from_code(frames[(i - 1)], co)
+        fullname = (_get_method_full_name(func) if func else (u'???.' + co.co_name))
+        line = (indent + u'  ')
+        line += (u'in ' if (i == i0) else u'   ')
+        line += (fullname + u'(')
+        line += _wrap((_get_args_str(func) + (u') line %d' % frames[i].f_lineno)), indent=len(line))
+        line = (((Fore.CYAN if (i == i0) else Fore.LIGHTBLACK_EX) + line) + Style.RESET_ALL)
+        err(line)
+    colorama.deinit()

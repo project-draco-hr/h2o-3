@@ -1,0 +1,21 @@
+def _find_function_from_code(frame, code):
+    u"\n    Given a frame and a compiled function code, find the corresponding function object within the frame.\n\n    This function addresses the following problem: when handling a stacktrace, we receive information about\n    which piece of code was being executed in the form of a CodeType object. That objects contains function name,\n    file name, line number, and the compiled bytecode. What it *doesn't* contain is the function object itself.\n\n    So this utility function aims at locating this function object, and it does so by searching through objects\n    in the preceding local frame (i.e. the frame where the function was called from). We expect that the function\n    should usually exist there -- either by itself, or as a method on one of the objects.\n\n    :param types.FrameType frame: local frame where the function ought to be found somewhere.\n    :param types.CodeType code: the compiled code of the function to look for.\n\n    :returns: the function object, or None if not found.\n    "
+
+    def find_code(iterable, depth=0):
+        if (depth > 3):
+            return
+        for item in iterable:
+            if (not item):
+                continue
+            found = None
+            if (hasattr(item, u'__code__') and (item.__code__ == code)):
+                found = item
+            elif (isinstance(item, type) or isinstance(item, ModuleType)):
+                found = find_code((getattr(item, n, None) for n in dir(item)), (depth + 1))
+            elif isinstance(item, (list, tuple, set)):
+                found = find_code(item, (depth + 1))
+            elif isinstance(item, dict):
+                found = find_code(item.values(), (depth + 1))
+            if found:
+                return found
+    return (find_code(frame.f_locals.values()) or find_code(frame.f_globals.values()))

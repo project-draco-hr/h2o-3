@@ -1,0 +1,17 @@
+def _wrap(text, wrap_at=120, indent=4):
+    u'\n    Return piece of text, wrapped around if needed.\n\n    :param text: text that may be too long and then needs to be wrapped.\n    :param wrap_at: the maximum line length.\n    :param indent: number of spaces to prepend to all subsequent lines after the first.\n    '
+    out = u''
+    curr_line_length = indent
+    space_needed = False
+    for word in text.split():
+        if ((curr_line_length + len(word)) > wrap_at):
+            out += (u'\n' + (u' ' * indent))
+            curr_line_length = indent
+            space_needed = False
+        if space_needed:
+            out += u' '
+            curr_line_length += 1
+        out += word
+        curr_line_length += len(word)
+        space_needed = True
+    return out
