@@ -1,14 +1,32 @@
-def _check_type(s, stype, _nested=False):
-    u'\n    Return True if the variable has the specified type, and False otherwise.\n\n    :param s: variable to check.\n    :param stype: expected type (should be either a type, a tuple of types, or None).\n    '
-    if (stype is None):
-        return (s is None)
-    elif (stype is str):
-        return isinstance(s, _str_type)
-    elif (stype is int):
-        return isinstance(s, _int_type)
-    elif isinstance(stype, type):
-        return isinstance(s, stype)
-    elif (isinstance(stype, tuple) and (not _nested)):
-        return any((_check_type(s, tt, _nested=True) for tt in stype))
-    else:
-        raise RuntimeError((u'Ivalid argument %r to _check_type()' % stype))
+def _check_type(var, types):
+    u'\n    Return True if the variable is of one of the specified types, and False otherwise.\n\n    :param var: variable to check\n    :param types: iterable of types\n    '
+    for tt in types:
+        if (tt is None):
+            if (var is None):
+                return True
+        elif (tt is str):
+            if isinstance(var, _str_type):
+                return True
+        elif (tt is int):
+            if isinstance(var, _int_type):
+                return True
+        elif isinstance(tt, type):
+            if isinstance(var, tt):
+                return True
+        elif isinstance(tt, list):
+            if (isinstance(var, list) and all((_check_type(item, tt) for item in var))):
+                return True
+        elif isinstance(tt, set):
+            if (isinstance(var, set) and all((_check_type(item, tt) for item in var))):
+                return True
+        elif isinstance(tt, tuple):
+            if (isinstance(var, tuple) and (len(tt) == len(var)) and all((_check_type(var[i], [tt[i]]) for i in range(len(tt))))):
+                return True
+        elif isinstance(tt, dict):
+            ttkeys = set(viewkeys(tt))
+            ttvals = set(viewvalues(tt))
+            if (isinstance(var, dict) and all(((_check_type(k, ttkeys) and _check_type(v, ttvals)) for (k, v) in viewitems(var)))):
+                return True
+        else:
+            raise RuntimeError((u'Ivalid type %r in _check_type()' % tt))
+    return False
