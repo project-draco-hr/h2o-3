@@ -9,10 +9,16 @@ def request(self, endpoint, data=None, json=None, filename=None):
     method = match.group(1)
     urltail = match.group(2)
     url = (self._base_url + urltail)
-    if (((bool(data) + bool(json)) + bool(filename)) > 1):
-        raise ValueError(u'Only one of parameters `json`, `data`, `file` can be supplied.')
-    if ((filename is not None) and (method != u'POST')):
-        raise ValueError((u'File uploads can only be done via POST method, got %s' % endpoint))
+    if (filename is not None):
+        assert_is_type(filename, str)
+        assert_is_type(json, None, u'Argument `json` should be None when `filename` is used.')
+        assert_is_type(data, None, u'Argument `data` should be None when `filename` is used.')
+        assert_satisfies(method, (method == u'POST'), (u'File uploads can only be done via POST method, got %s' % method))
+    elif (data is not None):
+        assert_is_type(data, dict)
+        assert_is_type(json, None, u'Argument `json` should be None when `data` is used.')
+    elif (json is not None):
+        assert_is_type(json, dict)
     data = self._prepare_data_payload(data)
     files = self._prepare_file_payload(filename)
     params = None
