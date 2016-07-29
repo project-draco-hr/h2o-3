@@ -10,6 +10,12 @@ def _check_type(var, types):
         elif (tt is int):
             if isinstance(var, _int_type):
                 return True
+        elif (isinstance(tt, _str_type) or isinstance(tt, _int_type)):
+            if (var == tt):
+                return True
+        elif isinstance(tt, U):
+            if _check_type(var, tt):
+                return True
         elif isinstance(tt, type):
             if isinstance(var, tt):
                 return True
@@ -23,9 +29,8 @@ def _check_type(var, types):
             if (isinstance(var, tuple) and (len(tt) == len(var)) and all((_check_type(var[i], [tt[i]]) for i in range(len(tt))))):
                 return True
         elif isinstance(tt, dict):
-            ttkeys = set(viewkeys(tt))
-            ttvals = set(viewvalues(tt))
-            if (isinstance(var, dict) and all(((_check_type(k, ttkeys) and _check_type(v, ttvals)) for (k, v) in viewitems(var)))):
+            ttkv = viewitems(tt)
+            if (isinstance(var, dict) and all((_check_type(kv, ttkv) for kv in viewitems(var)))):
                 return True
         else:
             raise RuntimeError((u'Ivalid type %r in _check_type()' % tt))
