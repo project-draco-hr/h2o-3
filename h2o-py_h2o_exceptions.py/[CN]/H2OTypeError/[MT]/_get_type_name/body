@@ -1,7 +1,7 @@
 @staticmethod
 def _get_type_name(types):
     u'\n        Return the name of the provided type.\n\n            >>> _get_type_name([int]) == "integer"\n            >>> _get_type_name([str]) == "string"\n            >>> _get_type_name([tuple]) == "tuple"\n            >>> _get_type_name([Exception]) == "Exception"\n            >>> _get_type_name((int, float, bool)) == "integer|float|bool"\n            >>> _get_type_name((H2OFrame, None)) == "?H2OFrame"\n        '
-    from h2o.utils.typechecks import is_str, is_int, U
+    from h2o.utils.typechecks import is_str, is_int, U, I, numeric
     maybe_type = False
     res = []
     for tt in types:
@@ -11,12 +11,16 @@ def _get_type_name(types):
             res.append(u'string')
         elif (tt is int):
             res.append(u'integer')
+        elif (tt is numeric):
+            res.append(u'numeric')
         elif is_str(tt):
             res.append((u'"%s"' % repr(tt)[1:(-1)]))
         elif is_int(tt):
             res.append(str(tt))
         elif isinstance(tt, U):
             res.append(H2OTypeError._get_type_name(tt))
+        elif isinstance(tt, I):
+            res.append(u'&'.join((H2OTypeError._get_type_name([tttt]) for tttt in tt)))
         elif isinstance(tt, type):
             res.append(tt.__name__)
         elif isinstance(tt, list):

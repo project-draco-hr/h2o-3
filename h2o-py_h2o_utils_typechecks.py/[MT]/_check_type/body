@@ -10,11 +10,17 @@ def _check_type(var, types):
         elif (tt is int):
             if isinstance(var, _int_type):
                 return True
+        elif (tt is numeric):
+            if isinstance(var, _num_type):
+                return True
         elif (isinstance(tt, _str_type) or isinstance(tt, _int_type)):
             if (var == tt):
                 return True
         elif isinstance(tt, U):
             if _check_type(var, tt):
+                return True
+        elif isinstance(tt, I):
+            if all((_check_type(var, [tttt]) for tttt in tt)):
                 return True
         elif isinstance(tt, type):
             if isinstance(var, tt):
