@@ -1,0 +1,21 @@
+{
+  long x0=cs[0].at8(0);
+  long x1=cs[1].at8(0);
+  long x2=cs[2].at8(0);
+  for (int i=1; i < cs[0]._len; i++) {
+    long y0=cs[0].at8(i);
+    long y1=cs[1].at8(i);
+    long y2=cs[2].at8(i);
+    assertTrue(x0 < y0 || (x0 == y0 && (x1 < y1 || (x1 == y1 && x2 < y2))));
+    x0=y0;
+    x1=y1;
+    x2=y2;
+  }
+  long row=cs[0].start() + cs[0]._len;
+  if (row < cs[0].vec().length()) {
+    long y0=cs[0].vec().at8(row);
+    long y1=cs[1].vec().at8(row);
+    long y2=cs[2].vec().at8(row);
+    assertTrue(x0 < y0 || (x0 == y0 && (x1 < y1 || (x1 == y1 && x2 < y2))));
+  }
+}

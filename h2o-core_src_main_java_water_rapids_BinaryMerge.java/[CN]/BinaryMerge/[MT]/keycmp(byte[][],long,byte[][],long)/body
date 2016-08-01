@@ -1,13 +1,13 @@
 {
-  byte xbatch[]=x[(int)(xi / _leftBatchSize)];
-  byte ybatch[]=y[(int)(yi / _rightBatchSize)];
-  int xoff=(int)(xi % _leftBatchSize) * _leftKeySize;
-  int yoff=(int)(yi % _rightBatchSize) * _rightKeySize;
+  byte xbatch[]=xss[(int)(xi / _leftKO._batchSize)];
+  byte ybatch[]=yss[(int)(yi / _riteKO._batchSize)];
+  int xoff=(int)(xi % _leftKO._batchSize) * _leftSB._keySize;
+  int yoff=(int)(yi % _riteKO._batchSize) * _riteSB._keySize;
   long xval=0, yval=0;
   int i=0;
   while (i < _numJoinCols && xval == yval) {
-    int xlen=_leftFieldSizes[i];
-    int ylen=_rightFieldSizes[i];
+    int xlen=_leftSB._fieldSizes[i];
+    int ylen=_riteSB._fieldSizes[i];
     xval=xbatch[xoff] & 0xFFL;
     while (xlen > 1) {
       xval<<=8;
@@ -22,8 +22,8 @@
       ylen--;
     }
     yoff++;
-    xval=xval == 0 ? Long.MIN_VALUE : xval - 1 + _leftBase[i];
-    yval=yval == 0 ? Long.MIN_VALUE : yval - 1 + _rightBase[i];
+    xval=xval == 0 ? Long.MIN_VALUE : xval - 1 + _leftSB._base[i];
+    yval=yval == 0 ? Long.MIN_VALUE : yval - 1 + _riteSB._base[i];
     i++;
   }
   long diff=xval - yval;

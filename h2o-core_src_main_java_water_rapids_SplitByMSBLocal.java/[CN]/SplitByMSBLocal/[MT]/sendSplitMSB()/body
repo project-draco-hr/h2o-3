@@ -1,0 +1,16 @@
+{
+  System.out.print("Starting SendSplitMSB on this node (keySize is " + _keySize + " as [");
+  for (  int bs : _bytesUsed)   System.out.print(" " + bs);
+  System.out.println(" ]) ...");
+  long t0=System.nanoTime();
+  Futures myfs=new Futures();
+  for (int msb=0; msb < _o.length; ++msb) {
+    if (_o[msb] == null)     continue;
+    myfs.add(H2O.submitTask(new SendOne(msb,myfs)));
+  }
+  myfs.blockForPending();
+  double timeTaken=(System.nanoTime() - t0) / 1e9;
+  long bytes=_numRowsOnThisNode * (8 + _keySize) + 64;
+  System.out.println("took : " + timeTaken);
+  System.out.println("  DKV.put " + PrettyPrint.bytes(bytes) + " @ "+ String.format("%.3f",bytes / timeTaken / (1024 * 1024 * 1024))+ " GByte/sec  [10Gbit = 1.25GByte/sec]");
+}
