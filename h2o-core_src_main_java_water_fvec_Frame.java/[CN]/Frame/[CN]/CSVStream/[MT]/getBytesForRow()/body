@@ -1,16 +1,16 @@
 {
   StringBuilder sb=new StringBuilder();
-  Vec vs[]=vecs();
   BufferedString tmpStr=new BufferedString();
-  for (int i=0; i < vs.length; i++) {
+  for (int i=0; i < _curChks.length; i++) {
+    Vec v=_curChks[i]._vec;
     if (i > 0)     sb.append(',');
-    if (!vs[i].isNA(_row)) {
-      if (vs[i].isCategorical())       sb.append('"').append(vs[i].factor(vs[i].at8(_row))).append('"');
- else       if (vs[i].isUUID())       sb.append(PrettyPrint.UUID(vs[i].at16l(_row),vs[i].at16h(_row)));
- else       if (vs[i].isInt())       sb.append(vs[i].at8(_row));
- else       if (vs[i].isString())       sb.append('"').append(vs[i].atStr(tmpStr,_row)).append('"');
+    if (!_curChks[i].isNA(_chkRow)) {
+      if (v.isCategorical())       sb.append('"').append(v.factor(_curChks[i].at8(_chkRow))).append('"');
+ else       if (v.isUUID())       sb.append(PrettyPrint.UUID(_curChks[i].at16l(_chkRow),_curChks[i].at16h(_chkRow)));
+ else       if (v.isInt())       sb.append(_curChks[i].at8(_chkRow));
+ else       if (v.isString())       sb.append('"').append(_curChks[i].atStr(tmpStr,_chkRow)).append('"');
  else {
-        double d=vs[i].at(_row);
+        double d=_curChks[i].atd(_chkRow);
         String s=_hex_string ? Double.toHexString(d) : Double.toString(d);
         sb.append(s);
       }

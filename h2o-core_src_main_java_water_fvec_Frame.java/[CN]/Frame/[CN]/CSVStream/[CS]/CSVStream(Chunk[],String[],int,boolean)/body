@@ -1,0 +1,16 @@
+{
+  if ((chks == null) && (nChunks != 0)) {
+    throw new IllegalArgumentException("If chunks are not defined, number of chunks to export need to be 0.");
+  }
+  _lastChkIdx=(chks != null) ? chks[0].cidx() + nChunks - 1 : -1;
+  _hex_string=hex_string;
+  StringBuilder sb=new StringBuilder();
+  if (names != null) {
+    sb.append('"').append(names[0]).append('"');
+    for (int i=1; i < names.length; i++)     sb.append(',').append('"').append(names[i]).append('"');
+    sb.append('\n');
+  }
+  _line=sb.toString().getBytes();
+  _chkRow=-1;
+  _curChks=chks;
+}

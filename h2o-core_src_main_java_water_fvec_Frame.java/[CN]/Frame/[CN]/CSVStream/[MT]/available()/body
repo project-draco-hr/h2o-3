@@ -2,18 +2,31 @@
   if (_position != _line.length) {
     return _line.length - _position;
   }
-  if (_row == numRows()) {
+  if (_curChks == null) {
     return 0;
   }
-  _curChkIdx=anyVec().elem2ChunkIdx(_row);
+  _chkRow++;
+  Chunk anyChunk=_curChks[0];
+  if (anyChunk._start + _chkRow == anyChunk._vec.length()) {
+    return 0;
+  }
+  if (_chkRow == anyChunk.len()) {
+    _curChkIdx=anyChunk._vec.elem2ChunkIdx(anyChunk._start + _chkRow);
+    if (_curChkIdx > _lastChkIdx) {
+      return 0;
+    }
+    Chunk[] newChks=new Chunk[_curChks.length];
+    for (int i=0; i < _curChks.length; i++) {
+      newChks[i]=_curChks[i]._vec.chunkForChunkIdx(_curChkIdx);
+      Key oldKey=_curChks[i]._vec.chunkKey(_curChks[i]._cidx);
+      if (!oldKey.home()) {
+        H2O.raw_remove(oldKey);
+      }
+    }
+    _curChks=newChks;
+    _chkRow=0;
+  }
   _line=getBytesForRow();
   _position=0;
-  if (isLastRowOfCurrentNonEmptyChunk(_curChkIdx,_row)) {
-    for (    Vec v : vecs()) {
-      Key k=v.chunkKey(_curChkIdx);
-      if (!k.home())       H2O.raw_remove(k);
-    }
-  }
-  _row++;
   return _line.length;
 }
