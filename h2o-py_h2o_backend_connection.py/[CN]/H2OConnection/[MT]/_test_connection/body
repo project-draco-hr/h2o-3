@@ -1,6 +1,8 @@
-def _test_connection(self, max_retries=5):
-    u'\n        Test that the H2O cluster can be reached, and retrieve basic cloud status info.\n\n        :param max_retries: Number of times to try to connect to the cloud (with 0.2s intervals)\n        :return Cloud information (an H2OCluster object)\n        :raise H2OConnectionError, H2OServerError\n        '
-    self._print((u'Connecting to H2O server at ' + self._base_url), end=u'..')
+def _test_connection(self, max_retries=5, messages=None):
+    u'\n        Test that the H2O cluster can be reached, and retrieve basic cloud status info.\n\n        :param max_retries: Number of times to try to connect to the cloud (with 0.2s intervals).\n\n        :returns: Cloud information (an H2OCluster object)\n        :raises H2OConnectionError, H2OServerError:\n        '
+    if (messages is None):
+        messages = (u'Connecting to H2O server at {url}..', u'successful.', u'failed.')
+    self._print(messages[0].format(url=self._base_url), end=u'')
     cld = None
     errors = []
     for _ in range(max_retries):
@@ -10,7 +12,7 @@ def _test_connection(self, max_retries=5):
         try:
             cld = self.request(u'GET /3/Cloud')
             if (cld.consensus and cld.cloud_healthy):
-                self._print(u' successful!')
+                self._print((u' ' + messages[1]))
                 return cld
             else:
                 if (cld.consensus and (not cld.cloud_healthy)):
@@ -26,7 +28,7 @@ def _test_connection(self, max_retries=5):
                 message = message[:message.index(u'\n')]
             errors.append((u'[%s.%02d] %s: %s' % (time.strftime(u'%M:%S'), (int((time.time() * 100)) % 100), e.__class__.__name__, message)))
         time.sleep(0.2)
-    self._print(u' failed.')
+    self._print((u' ' + messages[2]))
     if (cld and (not cld.cloud_healthy)):
         raise H2OServerError(u'Cluster reports unhealthy status')
     if (cld and (not cld.consensus)):

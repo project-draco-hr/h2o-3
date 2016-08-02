@@ -1,5 +1,6 @@
 def init(url=None, ip=None, port=None, https=None, insecure=False, username=None, password=None, cluster_name=None, proxy=None, start_h2o=True, nthreads=(-1), ice_root=None, enable_assertions=True, max_mem_size=None, min_mem_size=None, strict_version_check=True, **kwargs):
     u'\n    Attempt to connect to a local server, or if not successful start a new server and connect to it.\n\n    :param url:\n    :param ip:\n    :param port:\n    :param https:\n    :param insecure:\n    :param username:\n    :param password:\n    :param cluster_name:\n    :param proxy:\n    :param start_h2o:\n    :param nthreads:\n    :param ice_root:\n    :param enable_assertions:\n    :param max_mem_size:\n    :param min_mem_size:\n    :param strict_version_check:\n    :param kwargs: (all other deprecated attributes)\n    :returns: nothing\n    '
+    global h2oconn
     scheme = (u'https' if https else u'http')
     proxy = (proxy[scheme] if ((proxy is not None) and (scheme in proxy)) else (kwargs[u'proxies'][scheme] if ((u'proxies' in kwargs) and (scheme in kwargs[u'proxies'])) else None))
     mmax = (int(max_mem_size) if (max_mem_size is not None) else ((kwargs[u'max_mem_size_GB'] << 30) if (u'max_mem_size_GB' in kwargs) else None))
@@ -10,16 +11,13 @@ def init(url=None, ip=None, port=None, https=None, insecure=False, username=None
     if (ip and (ip != u'localhost') and (ip != u'127.0.0.1') and start_h2o):
         print(u'Warning: connecting to remote server but falling back to local... Did you mean to use `h2o.connect()`?')
     try:
-        connect(url=url, ip=ip, port=port, https=https, verify_ssl_certificates=(not insecure), auth=auth, proxy=proxy, cluster_name=cluster_name, verbose=True)
+        h2oconn = H2OConnection.open(url=url, ip=ip, port=port, https=https, verify_ssl_certificates=(not insecure), auth=auth, proxy=proxy, cluster_name=cluster_name, verbose=True, _msgs=(u'Checking whether there is an H2O instance running at {url}', u'connected.', u'not found.'))
     except H2OConnectionError:
         if (port and (not str(port).endswith(u'+'))):
             port = (str(port) + u'+')
         if (not start_h2o):
             raise
-        global h2oconn
         hs = H2OLocalServer.start(nthreads=nthreads, enable_assertions=enable_assertions, max_mem_size=mmax, min_mem_size=mmin, ice_root=ice_root, port=port)
         h2oconn = H2OConnection.open(server=hs, https=https, verify_ssl_certificates=(not insecure), auth=auth, proxy=proxy, cluster_name=cluster_name, verbose=True)
     if strict_version_check:
         version_check()
-    if h2oconn.info().build_too_old:
-        print(u'Warning: Your H2O cluster version is too old ({})! Please download and install the latest version from http://h2o.ai/download/'.format(h2oconn.info().build_age))
