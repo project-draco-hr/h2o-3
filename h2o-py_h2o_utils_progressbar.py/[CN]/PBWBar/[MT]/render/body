@@ -1,0 +1,29 @@
+def render(self, progress, width, status=None):
+    u'Render the widget.'
+    if (width <= 3):
+        return RenderResult()
+    bar_width = (width - 2)
+    n_chars = int(((progress * bar_width) + 0.001))
+    (endf, endl) = self._bar_ends
+    if self._file_mode:
+        out = endf
+        out += (self._bar_symbols[(-1)] * n_chars)
+        out += (endl if (progress == 1) else u'')
+        if status:
+            out += (u' (%s)' % status)
+        next_progress = ((n_chars + 1) / bar_width)
+        rendered_len = len(out)
+    else:
+        frac_chars = int((((progress * bar_width) - n_chars) * len(self._bar_symbols)))
+        out = endf
+        out += (self._bar_symbols[(-1)] * n_chars)
+        out += (self._bar_symbols[(frac_chars - 1)] if (frac_chars > 0) else u'')
+        rendered_len = len(out)
+        if status:
+            out += ((((colorama.Fore.LIGHTRED_EX + u' (') + status) + u')') + colorama.Style.RESET_ALL)
+            rendered_len += (3 + len(status))
+        out += (u' ' * ((width - 1) - rendered_len))
+        out += endl
+        next_progress = ((n_chars + ((frac_chars + 1) / len(self._bar_symbols))) / bar_width)
+        rendered_len += (max(0, ((width - 1) - rendered_len)) + 1)
+    return RenderResult(rendered=out, length=rendered_len, next_progress=next_progress)

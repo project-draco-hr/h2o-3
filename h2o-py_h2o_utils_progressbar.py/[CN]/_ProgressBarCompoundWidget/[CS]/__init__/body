@@ -1,0 +1,15 @@
+def __init__(self, widgets, title, file_mode):
+    super(ProgressBarWidget, self).__init__()
+    self._file_mode = file_mode
+    self._width = min(self._get_terminal_size(), 100)
+    self._encoding = (sys.stdout.encoding or u'').lower()
+    wlist = []
+    for widget in (widgets or [(title + u':'), PBWBar(), PBWPercentage()]):
+        if is_str(widget):
+            widget = PBWString(widget)
+        widget.set_mode((u'file' if file_mode else u'tty'))
+        widget.set_encoding(self._encoding)
+        wlist.append(widget)
+    self._widgets = tuple(wlist)
+    self._widget_lengths = self._compute_widget_sizes()
+    self._rendered = u''

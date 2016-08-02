@@ -1,0 +1,21 @@
+@staticmethod
+def _get_terminal_size():
+    u"Find current STDOUT's width, in characters."
+    if (not sys.stdout.isatty()):
+        return 100
+    try:
+        import subprocess
+        ret = subprocess.check_output([u'stty', u'size']).strip().split(u' ')
+        if (len(ret) == 2):
+            return int(ret[1])
+    except:
+        pass
+    try:
+        from termios import TIOCGWINSZ
+        from fcntl import ioctl
+        from struct import unpack
+        res = unpack(u'hh', ioctl(sys.stdout, TIOCGWINSZ, '1234'))
+        return int(res[1])
+    except:
+        pass
+    return int(os.environ.get(u'COLUMNS', 100))

@@ -1,0 +1,16 @@
+def _estimate_progress_completion_time(self):
+    u"\n        Estimate the moment when the underlying process is expected to reach completion.\n\n        This function is invoked every time new physical data about the underlying process' status arrives.\n        "
+    if (self._progress_data[(-1)][1] == self._maxval):
+        return self._progress_data[(-1)][0]
+    if (self._progress_data[(-1)][1] == self._progress_data[0][1]):
+        return (self._progress_data[(-1)][0] + 90)
+    (tlast, xlast) = self._progress_data[(-1)]
+    (tacc, xacc) = (0, 0)
+    factor = self.GAMMA
+    for (t, x) in self._progress_data[(-2)::(-1)]:
+        tacc += (factor * (tlast - t))
+        xacc += (factor * (xlast - x))
+        factor *= self.GAMMA
+    if (xacc == 0):
+        return (tlast + 300)
+    return (tlast + ((tacc * (self._maxval - xlast)) / xacc))

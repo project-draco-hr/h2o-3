@@ -1,0 +1,9 @@
+def _query_progress(self, progress_fn):
+    u'\n        Check the current progress level by calling the provided executor function.\n\n        :param progress_fn: same as ``progress_fn`` in :meth:`execute` (however it must be a regular function, not a\n            generator).\n\n        :returns: time moment when the next progress check should be made.\n        :raises StopIteration: if the progress function stopped yielding results.\n        '
+    res = progress_fn()
+    assert_is_type(res, (numeric, numeric), numeric)
+    progress = (res[0] if isinstance(res, tuple) else res)
+    now = time.time()
+    self._progress_data.append((now, progress))
+    delay = (res[1] if isinstance(res, tuple) else self._guess_next_poll_interval())
+    return (now + max(min(delay, self.MAX_PROGRESS_CHECK_INTERVAL), self.MIN_PROGRESS_CHECK_INTERVAL))

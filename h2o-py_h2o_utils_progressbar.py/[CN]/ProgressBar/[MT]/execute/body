@@ -1,0 +1,37 @@
+def execute(self, progress_fn):
+    u'\n        Start the progress bar, and return only when the progress reaches 100%.\n\n        :param progress_fn: the executor function (or a generator). This function should take no arguments\n            and return either a single number -- the current progress level, or a tuple (progress level, delay),\n            where delay is the time interval for when the progress should be checked again. This function may at\n            any point raise the ``StopIteration(message)`` exception, which will interrupt the progress bar,\n            display the ``message`` in red font, and then re-raise the exception.\n        :raises StopIteration: if the job is interrupted. The reason for interruption is provided in the exception\'s\n            message. The message will say "cancelled" if the job was interrupted by the user by pressing Ctrl+C.\n        '
+    assert_is_type(progress_fn, FunctionType, GeneratorType, MethodType)
+    if isinstance(progress_fn, GeneratorType):
+        progress_fn = (lambda g: (lambda : next(g)))(progress_fn)
+    colorama.init()
+    self._start_time = time.time()
+    next_progress_check = 0
+    progress = 0
+    status = None
+    try:
+        while True:
+            if (next_progress_check <= time.time()):
+                next_progress_check = self._query_progress(progress_fn)
+                self._recalculate_model_parameters()
+            current_time = time.time()
+            progress = self._compute_progress_at_time(current_time)[0]
+            if (progress >= 1):
+                break
+            result = self._widget.render(progress)
+            assert_is_type(result, RenderResult)
+            time0 = result.next_time
+            time1 = self._get_time_at_progress(result.next_progress)
+            next_render_time = min(time0, time1)
+            self._draw(result.rendered)
+            wait_time = (min(next_render_time, next_progress_check) - current_time)
+            if (wait_time > 0):
+                time.sleep(wait_time)
+        progress = 1
+    except KeyboardInterrupt:
+        status = u'cancelled'
+    except StopIteration as e:
+        status = str(e)
+    result = self._widget.render(progress=progress, status=status)
+    self._draw(result.rendered, final=True)
+    if (status == u'cancelled'):
+        raise StopIteration(status)

@@ -1,0 +1,17 @@
+def render(self, progress, width=None, status=None):
+    u'Render the widget.'
+    results = [widget.render(progress, width=self._widget_lengths[i], status=status) for (i, widget) in enumerate(self._widgets)]
+    if self._file_mode:
+        res = u''
+        for (i, result) in enumerate(results):
+            res += result.rendered
+            if ((result.length < self._widget_lengths[i]) and (progress < 1)):
+                break
+            res += (u' ' if (i < (len(results) - 1)) else u'')
+        rendered_str = res[len(self._rendered):]
+        self._rendered = res
+    else:
+        rendered_str = u' '.join((r.rendered for r in results))
+    next_progress = min((r.next_progress for r in results))
+    next_time = min((r.next_time for r in results))
+    return RenderResult(rendered_str, next_progress=next_progress, next_time=next_time)

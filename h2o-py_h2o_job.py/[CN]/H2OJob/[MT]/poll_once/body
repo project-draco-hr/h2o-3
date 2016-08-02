@@ -1,10 +1,6 @@
 def poll_once(self):
-    print()
-    self._refresh_job_status()
-    self._update_progress_bar()
-    print()
-    if (self.status == u'CANCELLED'):
-        raise EnvironmentError(u'Job with key {} was cancelled by the user.'.format(self.job_key))
-    if (self.status == u'FAILED'):
-        raise EnvironmentError(u'Job with key {} failed with an exception: {}'.format(self.job_key, self.exception))
+    u'Query the job status and show the progress bar, but then cancel immediately.'
+    self._poll_count = 1
+    self.poll()
+    self._poll_count = (10 ** 10)
     return self
