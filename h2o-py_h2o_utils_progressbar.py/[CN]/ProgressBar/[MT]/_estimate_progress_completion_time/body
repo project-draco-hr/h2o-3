@@ -1,16 +1,21 @@
-def _estimate_progress_completion_time(self):
-    u"\n        Estimate the moment when the underlying process is expected to reach completion.\n\n        This function is invoked every time new physical data about the underlying process' status arrives.\n        "
-    if (self._progress_data[(-1)][1] == self._maxval):
-        return self._progress_data[(-1)][0]
-    if (self._progress_data[(-1)][1] == self._progress_data[0][1]):
-        return (self._progress_data[(-1)][0] + 90)
-    (tlast, xlast) = self._progress_data[(-1)]
-    (tacc, xacc) = (0, 0)
+def _estimate_progress_completion_time(self, now):
+    u"\n        Estimate the moment when the underlying process is expected to reach completion.\n\n        This function should only return future times. Also this function is not allowed to return time moments less\n        than self._next_poll_time if the actual progress is below 100% (this is because we won't know that the\n        process have finished until we poll the external progress function).\n        "
+    assert (self._next_poll_time >= now)
+    (tlast, wlast) = self._progress_data[(-1)]
+    if (wlast == self._maxval):
+        current_completion_time = (((1 - self._x0) / self._v0) + self._t0)
+        return clamp(current_completion_time, now, (now + self.FINISH_DELAY))
+    (tacc, wacc) = (0, 0)
     factor = self.GAMMA
     for (t, x) in self._progress_data[(-2)::(-1)]:
         tacc += (factor * (tlast - t))
-        xacc += (factor * (xlast - x))
+        wacc += (factor * (wlast - x))
         factor *= self.GAMMA
-    if (xacc == 0):
-        return (tlast + 300)
-    return (tlast + ((tacc * (self._maxval - xlast)) / xacc))
+        if (factor < 0.01):
+            break
+    if (wacc == 0):
+        return (now + 300)
+    t_estimate = (tlast + ((tacc * (self._maxval - wlast)) / wacc))
+    if (t_estimate <= self._next_poll_time):
+        t_estimate = (self._next_poll_time + self.FINISH_DELAY)
+    return t_estimate

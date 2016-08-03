@@ -1,0 +1,8 @@
+def _store_model_progress(self, res, now):
+    u'\n        Save the current model progress into ``self._progress_data``, and update ``self._next_poll_time``.\n\n        :param res: tuple (progress level, poll delay).\n        :param now: current timestamp.\n        '
+    (raw_progress, delay) = res
+    raw_progress = clamp(raw_progress, 0, self._maxval)
+    self._progress_data.append((now, raw_progress))
+    if (delay < 0):
+        delay = self._guess_next_poll_interval()
+    self._next_poll_time = (now + clamp(delay, self.MIN_PROGRESS_CHECK_INTERVAL, self.MAX_PROGRESS_CHECK_INTERVAL))

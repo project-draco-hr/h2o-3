@@ -5,9 +5,9 @@ def poll(self):
         pb.execute(self._refresh_job_status)
     except StopIteration as e:
         if (str(e) == u'cancelled'):
-            self.status = u'CANCELLED'
             h2o.api((u'POST /3/Jobs/%s/cancel' % self.job_key))
-            print(u'Job {} was cancelled.'.format(self.job_key))
+            self.status = u'CANCELLED'
+    assert ((self.status in {u'DONE', u'CANCELLED', u'FAILED'}) or (self._poll_count <= 0)), (u'Polling finished while the job has status %s' % self.status)
     if self.warnings:
         for w in self.warnings:
             warnings.warn(w)

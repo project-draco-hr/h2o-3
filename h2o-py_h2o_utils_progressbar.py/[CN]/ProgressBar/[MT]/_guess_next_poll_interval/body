@@ -1,7 +1,5 @@
 def _guess_next_poll_interval(self):
-    u'\n        Determine when to query the progress status next.\n\n        This function is called\n        '
-    if (not self._progress_data):
-        return 0
-    time_elapsed = (self._progress_data[(-1)][0] - self._start_time)
-    raw_progress = self._progress_data[(-1)][1]
-    return min((0.2 * time_elapsed), (0.5 + ((1 - raw_progress) ** 2)))
+    u'\n        Determine when to query the progress status next.\n\n        This function is used if the external progress function did not return time interval for when it should be\n        queried next.\n        '
+    time_elapsed = (self._progress_data[(-1)][0] - self._progress_data[0][0])
+    real_progress = self._get_real_progress()
+    return min((0.2 * time_elapsed), (0.5 + ((1 - real_progress) ** 0.5)))
