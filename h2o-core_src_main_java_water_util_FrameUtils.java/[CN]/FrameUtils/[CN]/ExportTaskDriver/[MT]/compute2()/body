@@ -1,4 +1,10 @@
 {
+  if (_nParts < 0) {
+    EstimateSizeTask estSize=new EstimateSizeTask().dfork(_frame).getResult();
+    Log.debug("Estimator result: ",estSize);
+    _nParts=Math.max((int)(estSize._size / DEFAULT_TARGET_PART_SIZE),H2O.CLOUD.size() + 1);
+    Log.info("For file of estimated size " + estSize + "B determined number of parts: "+ _nParts);
+  }
   int nChunksPerPart=((_frame.anyVec().nChunks() - 1) / _nParts) + 1;
   boolean usePartNaming=_nParts > 1;
   new PartExportTask(this,_frame._names,nChunksPerPart,usePartNaming).dfork(_frame);

@@ -1,0 +1,19 @@
+{
+  if (cs[0]._len == 0)   return;
+  Frame.CSVStream is=new Frame.CSVStream(cs,null,1,false);
+  try {
+    _nNonEmpty++;
+    _size+=is.getCurrentRowSize() * cs[0]._len;
+  }
+ catch (  IOException e) {
+    throw new RuntimeException(e);
+  }
+ finally {
+    try {
+      is.close();
+    }
+ catch (    Exception e) {
+      Log.err(e);
+    }
+  }
+}
