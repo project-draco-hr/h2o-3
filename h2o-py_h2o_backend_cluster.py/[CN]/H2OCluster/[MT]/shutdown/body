@@ -1,0 +1,13 @@
+def shutdown(self, prompt=False):
+    u'\n        Shut down the server.\n\n        This method checks if the H2O cluster is still running, and if it does shuts it down (via a REST API call).\n\n        :param prompt: A logical value indicating whether to prompt the user before shutting down the H2O server.\n        '
+    if (not self.is_running()):
+        return
+    assert_is_type(prompt, bool)
+    if prompt:
+        question = (u'Are you sure you want to shutdown the H2O instance running at %s (Y/N)? ' % h2o.connection().base_url)
+        response = input(question)
+    else:
+        response = u'Y'
+    if (response.lower() in {u'y', u'yes'}):
+        h2o.api(u'POST /3/Shutdown')
+        h2o.connection().close()

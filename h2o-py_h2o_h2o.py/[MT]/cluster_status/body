@@ -1,20 +1,5 @@
+@deprecated(u'Deprecated, use ``h2o.cluster().show_status(True)``.')
 def cluster_status():
-    u'This is possibly confusing because this can come back without warning,\n    but if a user tries to do any remoteSend, they will get a "cloud sick warning"\n    Retrieve information on the status of the cluster running H2O.\n    '
-    cluster = api(u'GET /3/Cloud?skip_ticks=true')
-    print((u'Version: %s' % cluster.version))
-    print((u'Cloud name: %s' % cluster.cloud_name))
-    print((u'Cloud size: %d' % cluster.cloud_size))
-    if cluster.locked:
-        print(u'Cloud is locked')
-    else:
-        print(u'Accepting new members')
-    if (not cluster.nodes):
-        print(u'No nodes found')
-        return
-    status = []
-    for node in cluster.nodes:
-        for k in [u'h2o', u'healthy', u'last_ping', u'num_cpus', u'sys_load', u'mem_value_size', u'free_mem', u'pojo_mem', u'swap_mem', u'free_disk', u'max_disk', u'pid', u'num_keys', u'tcps_active', u'open_fds', u'rpcs_active']:
-            if (k in node):
-                status.append((u'%s: %s' % (k, node[k])))
-        print(u', '.join(status))
-    print()
+    u'Deprecated.'
+    _check_connection()
+    cluster().show_status(True)

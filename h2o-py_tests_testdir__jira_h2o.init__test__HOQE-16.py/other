@@ -8,15 +8,15 @@ from h2o.exceptions import H2OConnectionError
 PORT = 55330
 try:
     conn = h2o.connect(ip='localhost', port=PORT)
-    conn.shutdown_server(prompt=False)
+    conn.cluster.shutdown(prompt=False)
 except H2OConnectionError:
     pass
 server = H2OLocalServer.start(port=(str(PORT) + '+'))
 conn = h2o.connect(server=server)
-cluster_up = conn.cluster_is_up()
-cluster_healthy = all((node['healthy'] for node in conn.info().nodes))
+cluster_up = conn.cluster.is_running()
+cluster_healthy = all((node['healthy'] for node in conn.cluster.nodes))
 if (cluster_healthy and cluster_up):
-    print('Cluster health is up and healthy')
+    print('Cluster is up and healthy')
 elif ((not cluster_healthy) and cluster_up):
     raise ValueError('Cluster is up but not healthy')
 else:

@@ -1,4 +1,5 @@
 def deprecated(message):
+    u'The decorator to mark deprecated functions.'
     from traceback import extract_stack
     assert message, u'`message` argument in @deprecated is required.'
 
@@ -8,8 +9,12 @@ def deprecated(message):
             stack = extract_stack()
             assert ((len(stack) >= 2) and (stack[(-1)][2] == u'decorator_invisible')), (u'Got confusing stack... %r' % stack)
             print((u'[WARNING] in %s line %d:' % (stack[(-2)][0], stack[(-2)][1])))
-            print((u'    >>> %s' % stack[(-2)][3]))
+            print((u'    >>> %s' % (stack[(-2)][3] or u'????')))
             print((u'        ^^^^ %s' % message))
             return fun(*args, **kwargs)
+        decorator_invisible.__doc__ = message
+        decorator_invisible.__name__ = fun.__name__
+        decorator_invisible.__module__ = fun.__module__
+        decorator_invisible.__deprecated__ = True
         return decorator_invisible
     return deprecated_decorator

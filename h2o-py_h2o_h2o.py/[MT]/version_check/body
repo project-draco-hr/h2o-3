@@ -2,7 +2,7 @@ def version_check():
     u'Used to verify that h2o-python module and the H2O server are compatible with each other.'
     if os.environ.get(u'H2O_DISABLE_STRICT_VERSION_CHECK'):
         return
-    ci = h2oconn.info()
+    ci = h2oconn.cluster
     if (not ci):
         raise H2OConnectionError(u'Connection not initialized. Did you run h2o.connect()?')
     ver_h2o = ci.version
@@ -18,5 +18,5 @@ def version_check():
             raise H2OConnectionError(u'Version mismatch. H2O is version {0}, but the h2o-python package is version {1}. This is a developer build, please contact your developer.'.format(ver_h2o, ver_pkg))
         else:
             raise H2OConnectionError(u'Version mismatch. H2O is version {0}, but the h2o-python package is version {1}. Install the matching h2o-Python version from - http://h2o-release.s3.amazonaws.com/h2o/{2}/{3}/index.html.'.format(ver_h2o, ver_pkg, branch_name_h2o, build_number_h2o))
-    if h2oconn.info().build_too_old:
-        print(u'Warning: Your H2O cluster version is too old ({})! Please download and install the latest version from http://h2o.ai/download/'.format(h2oconn.info().build_age))
+    if ci.build_too_old:
+        print(u'Warning: Your H2O cluster version is too old ({})! Please download and install the latest version from http://h2o.ai/download/'.format(ci.build_age))

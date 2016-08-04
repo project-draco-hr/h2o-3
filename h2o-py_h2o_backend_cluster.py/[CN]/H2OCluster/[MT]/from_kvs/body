@@ -1,0 +1,13 @@
+@staticmethod
+def from_kvs(keyvals):
+    u'\n        Create H2OCluster object from a list of key-value pairs.\n\n        TODO: This method should be moved into the base H2OResponse class.\n        '
+    obj = H2OCluster()
+    obj._retrieved_at = time.time()
+    for (k, v) in keyvals:
+        if (k in {u'__meta', u'_exclude_fields', u'__schema'}):
+            continue
+        if (k in _cloud_v3_valid_keys):
+            obj._props[k] = v
+        else:
+            raise AttributeError((u'Attribute %s cannot be set on H2OCluster (= %r)' % (k, v)))
+    return obj
