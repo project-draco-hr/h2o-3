@@ -3,6 +3,10 @@
     EstimateSizeTask estSize=new EstimateSizeTask().dfork(_frame).getResult();
     Log.debug("Estimator result: ",estSize);
     _nParts=Math.max((int)(estSize._size / DEFAULT_TARGET_PART_SIZE),H2O.CLOUD.size() + 1);
+    if (_nParts > AUTO_PARTS_MAX) {
+      Log.debug("Recommended number of part files (" + _nParts + ") exceeds maximum limit "+ AUTO_PARTS_MAX+ ". "+ "Number of part files is limited to avoid slow downs when importing back to H2O.");
+      _nParts=AUTO_PARTS_MAX;
+    }
     Log.info("For file of estimated size " + estSize + "B determined number of parts: "+ _nParts);
   }
   int nChunksPerPart=((_frame.anyVec().nChunks() - 1) / _nParts) + 1;
