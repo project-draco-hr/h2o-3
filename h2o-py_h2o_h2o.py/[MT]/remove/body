@@ -1,10 +1,10 @@
 def remove(x):
-    u'Remove object(s) from H2O.\n\n    Parameters\n    ----------\n      x : H2OFrame, H2OEstimator, or string, or a list/tuple of those things.\n        The object(s) or unique id(s) pointing to the object(s) to be removed.\n    '
-    if (not isinstance(x, (list, tuple))):
-        x = (x,)
+    u'\n    Remove object(s) from H2O.\n\n    :param x: H2OFrame, H2OEstimator, or string, or a list of those things: the object(s) or unique id(s)\n        pointing to the object(s) to be removed.\n    '
+    item_type = U(str, H2OFrame, H2OEstimator)
+    assert_is_type(x, item_type, [item_type])
+    if (not isinstance(x, list)):
+        x = [x]
     for xi in x:
-        if (xi is None):
-            raise ValueError(u'h2o.remove with no object is not supported, for your protection')
         if isinstance(xi, H2OFrame):
             xi_id = xi._ex._cache._id
             if (xi_id is None):

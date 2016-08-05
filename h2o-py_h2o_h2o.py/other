@@ -5,10 +5,11 @@ import re
 import warnings
 from h2o.backend import H2OConnection
 from h2o.backend import H2OLocalServer
-from h2o.exceptions import H2OConnectionError
+from h2o.exceptions import H2OConnectionError, H2OValueError
 from .expr import ExprNode
 from .job import H2OJob
 from .frame import H2OFrame
+from .model.model_base import ModelBase
 from .estimators.estimator_base import H2OEstimator
 from .estimators.deeplearning import H2OAutoEncoderEstimator
 from .estimators.deeplearning import H2ODeepLearningEstimator
@@ -23,7 +24,7 @@ from .transforms.decomposition import H2OPCA
 from .transforms.decomposition import H2OSVD
 from .utils.debugging import *
 from .utils.compatibility import *
-from h2o.utils.typechecks import assert_is_type, is_type
+from h2o.utils.typechecks import U, assert_is_type, assert_satisfies, is_type, numeric
 from h2o.utils.shared_utils import quoted, is_list_of_lists, gen_header, py_tmp_key, urlopen, deprecated
 warnings.simplefilter(u'always', DeprecationWarning)
 h2oconn = None

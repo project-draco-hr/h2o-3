@@ -3,6 +3,8 @@ def _get_method_full_name(func):
     if hasattr(func, u'__qualname__'):
         return func.__qualname__
     module = inspect.getmodule(func)
+    if (module is None):
+        return (u'?.%s' % getattr(func, u'__name__', u'?'))
     for cls_name in dir(module):
         cls = getattr(module, cls_name)
         if (not inspect.isclass(cls)):

@@ -1,5 +1,6 @@
 def get_grid(grid_id):
-    u'Return the specified grid.\n\n    Parameters\n    ----------\n      grid_id : str\n        The grid identification in h2o\n\n    Returns\n    -------\n      H2OGridSearch instance\n    '
+    u'\n    Return the specified grid.\n\n    :param grid_id: The grid identification in h2o\n\n    :returns: H2OGridSearch instance\n    '
+    assert_is_type(grid_id, str)
     grid_json = api((u'GET /99/Grids/%s' % grid_id))
     models = [get_model(key[u'name']) for key in grid_json[u'model_ids']]
     first_model_json = api((u'GET /3/Models/%s' % grid_json[u'model_ids'][0][u'name']))[u'models'][0]

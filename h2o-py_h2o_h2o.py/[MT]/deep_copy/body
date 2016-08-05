@@ -1,6 +1,8 @@
 def deep_copy(data, xid):
-    if (data.frame_id == xid):
-        ValueError(u'Desination key must differ input frame')
+    u'??.'
+    assert_is_type(data, H2OFrame)
+    assert_is_type(xid, str)
+    assert_satisfies(xid, (xid != data.frame_id))
     duplicate = data.apply((lambda x: x))
     duplicate._ex = ExprNode(u'assign', xid, duplicate)._eval_driver(False)
     duplicate._ex._cache._id = xid

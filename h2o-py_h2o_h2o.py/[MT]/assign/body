@@ -1,6 +1,8 @@
 def assign(data, xid):
-    if (data.frame_id == xid):
-        ValueError(u'Desination key must differ input frame')
+    u'??.'
+    assert_is_type(data, H2OFrame)
+    assert_is_type(xid, str)
+    assert_satisfies(xid, (xid != data.frame_id))
     data._ex = ExprNode(u'assign', xid, data)._eval_driver(False)
     data._ex._cache._id = xid
     data._ex._children = None
