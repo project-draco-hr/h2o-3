@@ -1,0 +1,36 @@
+{
+  Chunk anyChunk=cs[0];
+  if (anyChunk.cidx() % _length > 0) {
+    return;
+  }
+  int partIdx=anyChunk.cidx() / _length;
+  String partPath=_partNaming ? _path + "/part-m-" + String.valueOf(100000 + partIdx).substring(1) : _path;
+  Frame.CSVStream is=new Frame.CSVStream(cs,_colNames,_length,false);
+  OutputStream os=null;
+  long written=-1;
+  try {
+    os=H2O.getPM().create(partPath,_overwrite);
+    written=copyStream(is,os,anyChunk.cidx(),4 * 1024 * 1024);
+  }
+ catch (  IOException e) {
+    throw new RuntimeException(e);
+  }
+ finally {
+    if (os != null) {
+      try {
+        os.flush();
+        os.close();
+        Log.info("Part " + partIdx + " of key '"+ _frameName+ "' of "+ written+ " bytes was written to "+ _path+ ".");
+      }
+ catch (      Exception e) {
+        Log.err(e);
+      }
+    }
+    try {
+      is.close();
+    }
+ catch (    Exception e) {
+      Log.err(e);
+    }
+  }
+}

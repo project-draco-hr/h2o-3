@@ -1,0 +1,19 @@
+{
+  long len=0;
+  byte[] bytes=new byte[buffer_size];
+  int curChkIdx=firstChkIdx;
+  for (; ; ) {
+    int count=is.read(bytes,0,buffer_size);
+    if (count <= 0) {
+      break;
+    }
+    len+=count;
+    os.write(bytes,0,count);
+    int workDone=is._curChkIdx - curChkIdx;
+    if (workDone > 0) {
+      _j.update(workDone);
+      curChkIdx=is._curChkIdx;
+    }
+  }
+  return len;
+}
