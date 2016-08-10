@@ -3,6 +3,9 @@
   DataInfo dinfo=new DataInfo(train,null,0,true,DataInfo.TransformType.NONE,DataInfo.TransformType.NONE,false,true,false,false,false,false,false);
   DKV.put(dinfo);
   Gram.GramTask gtsk=new Gram.GramTask(null,dinfo).doAll(dinfo._adaptedFrame);
+  double[] rounded=new double[gtsk._gram._diag.length];
+  for (int i=0; i < rounded.length; ++i)   rounded[i]=(float)gtsk._gram._diag[i];
   dinfo.remove();
-  return new ProjectOntoEigenVector(multiple(gtsk._gram._diag,(int)gtsk._nobs,1)).doAll(1,(byte)3,train).outputFrame().anyVec();
+  Vec v=new ProjectOntoEigenVector(multiple(rounded,(int)gtsk._nobs,1)).doAll(1,(byte)3,train).outputFrame().anyVec();
+  return v;
 }
