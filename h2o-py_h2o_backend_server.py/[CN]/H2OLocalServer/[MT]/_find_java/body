@@ -10,8 +10,10 @@ def _find_java():
     if os.getenv(u'JAVA_HOME'):
         return os.path.join(os.getenv(u'JAVA_HOME'), u'bin', u'java.exe')
     if (sys.platform == u'win32'):
-        program_folders = [os.path.join(u'C:', u'Program Files', u'Java'), os.path.join(u'C:', u'Program Files (x86)', u'Java')]
+        program_folders = [os.path.join(u'C:\\', u'Program Files', u'Java'), os.path.join(u'C:\\', u'Program Files (x86)', u'Java')]
         for folder in program_folders:
+            if (not os.path.exists(folder)):
+                continue
             for jdk in os.listdir(folder):
                 if (u'jdk' not in jdk.lower()):
                     continue
