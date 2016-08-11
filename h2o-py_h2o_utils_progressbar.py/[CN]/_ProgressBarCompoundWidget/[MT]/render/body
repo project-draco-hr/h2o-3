@@ -12,6 +12,9 @@ def render(self, progress, width=None, status=None):
         self._rendered = res
     else:
         rendered_str = u' '.join((r.rendered for r in results))
+        if self._to_render:
+            rendered_str = (self._to_render + rendered_str)
+            self._to_render = None
     next_progress = min((r.next_progress for r in results))
     next_time = min((r.next_time for r in results))
     return RenderResult(rendered_str, next_progress=next_progress, next_time=next_time)
