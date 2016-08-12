@@ -1,8 +1,8 @@
 def impute(self, column=(-1), method=u'mean', combine_method=u'interpolate', by=None, group_by_frame=None, values=None):
     u'Impute in place.\n\n        Parameters\n        ----------\n          column: int, default=-1\n              The column to impute, if -1 then impute the whole frame\n\n          method : str, default="mean"\n              The method of imputation: mean, median, mode\n\n          combine_method : str, default="interpolate"\n              When method is "median", dictates how to combine quantiles for even samples.\n\n          by : list, default=None\n              The columns to group on.\n\n          group_by_frame : H2OFrame, default=None\n              Impute the column col with this pre-computed grouped frame.\n\n          values : list\n              A list of impute values (one per column). NaN indicates to skip the column.\n\n        Returns\n        -------\n          A list of values used in the imputation or the group by result used in imputation.\n        '
-    if is_str(column):
+    if test_type(column, str):
         column = self.names.index(column)
-    if is_str(by):
+    if test_type(by, str):
         by = self.names.index(by)
     if (values is None):
         values = u'_'
