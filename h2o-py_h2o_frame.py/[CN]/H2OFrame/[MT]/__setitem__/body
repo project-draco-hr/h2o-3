@@ -3,18 +3,18 @@ def __setitem__(self, b, c):
     col_expr = None
     row_expr = None
     colname = None
-    if is_str(b):
+    if test_type(b, str):
         if (b in self.names):
             col_expr = self.names.index(b)
         else:
             col_expr = self.ncol
             colname = b
-    elif is_int(b):
+    elif test_type(b, int):
         col_expr = b
     elif isinstance(b, tuple):
         row_expr = b[0]
         col_expr = b[1]
-        if is_str(col_expr):
+        if test_type(col_expr, str):
             if (col_expr not in self.names):
                 colname = col_expr
                 col_expr = self.ncol

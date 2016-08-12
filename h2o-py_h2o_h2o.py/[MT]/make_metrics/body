@@ -3,7 +3,7 @@ def make_metrics(predicted, actual, domain=None, distribution=None):
     assert_is_type(predicted, H2OFrame)
     assert_is_type(actual, H2OFrame)
     assert (actual.ncol == 1), u'`actual` frame should have exactly 1 column'
-    assert_maybe_str(distribution)
+    assert_is_type(distribution, str, None)
     if ((domain is None) and any(actual.isfactor())):
         domain = actual.levels()[0]
     res = api((u'POST /3/ModelMetrics/predictions_frame/%s/actuals_frame/%s' % (predicted.frame_id, actual.frame_id)), data={u'domain': domain, u'distribution': distribution, })

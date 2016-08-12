@@ -6,11 +6,11 @@ def _add_agg(self, op, col, na):
             if (i not in self._by):
                 self._add_agg(op, i, na)
         return self
-    elif is_str(col):
+    elif test_type(col, str):
         cidx = self._fr.names.index(col)
-    elif is_int(col):
+    elif test_type(col, int):
         cidx = col
-    elif is_listlike(col):
+    elif test_type(col, list, tuple):
         for i in col:
             self._add_agg(op, i, na)
         return self

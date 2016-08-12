@@ -5,7 +5,7 @@ def __init__(self, widgets, title, file_mode):
     self._encoding = (sys.stdout.encoding or u'').lower()
     wlist = []
     for widget in (widgets or [(title + u':'), PBWBar(), PBWPercentage()]):
-        if is_str(widget):
+        if test_type(widget, str):
             widget = PBWString(widget)
         widget.set_mode((u'file' if file_mode else u'tty'))
         widget.set_encoding(self._encoding)
