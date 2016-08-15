@@ -1,7 +1,7 @@
 def drop(self, index, axis=1):
     u'Drop a set of columns or rows from the current H2OFrame.\n\n        Parameters\n        ----------\n          index : list\n            A list of column indexes, column names, or row indexes to drop.\n\n          axis : int, default = 1\n            Type of drop to conduct.\n            If axis = 1, then column-wise (Default).\n            If axis = 0, then row-wise.\n\n        Returns\n        -------\n          H2OFrame with the respective dropped columns or rows. Returns a new H2OFrame.\n        '
     if (axis == 1):
-        if test_type(index, str):
+        if is_type(index, str):
             index = self.names.index(index)
             fr = H2OFrame._expr(expr=ExprNode(u'cols', self, (- (index + 1))), cache=self._ex._cache)
             fr._ex._cache.ncols -= 1
@@ -15,7 +15,7 @@ def drop(self, index, axis=1):
             fr = H2OFrame._expr(expr=ExprNode(u'cols', self, index), cache=self._ex._cache)
         elif all((isinstance(item, str) for item in index)):
             for i in range(len(index)):
-                if test_type(index[i], str):
+                if is_type(index[i], str):
                     index[i] = (self.names.index(index[i]) + 1)
             index = [(- x) for x in index]
             fr = H2OFrame._expr(expr=ExprNode(u'cols', self, index), cache=self._ex._cache)

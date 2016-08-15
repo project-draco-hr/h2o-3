@@ -1,0 +1,29 @@
+def _get_type_name(vtype):
+    u'\n    Return the name of the provided type(s).\n\n        _get_type_name(int) == "integer"\n        _get_type_name(str) == "string"\n        _get_type_name(tuple) == "tuple"\n        _get_type_name(Exception) == "Exception"\n        _get_type_name(U(int, float, bool)) == "integer|float|bool"\n        _get_type_name(U(H2OFrame, None)) == "?H2OFrame"\n    '
+    if (vtype is None):
+        return u'None'
+    if (vtype is str):
+        return u'string'
+    if (vtype is int):
+        return u'integer'
+    if (vtype is numeric):
+        return u'numeric'
+    if is_type(vtype, str):
+        return (u'"%s"' % repr(vtype)[1:(-1)])
+    if is_type(vtype, int):
+        return str(vtype)
+    if isinstance(vtype, MagicType):
+        return str(vtype)
+    if isinstance(vtype, type):
+        return vtype.__name__
+    if isinstance(vtype, list):
+        return (u'list(%s)' % _get_type_name(U(*vtype)))
+    if isinstance(vtype, set):
+        return (u'set(%s)' % _get_type_name(U(*vtype)))
+    if isinstance(vtype, tuple):
+        return (u'(%s)' % u', '.join((_get_type_name(item) for item in vtype)))
+    if isinstance(vtype, dict):
+        return (u'dict(%s)' % u', '.join(((u'%s: %s' % (_get_type_name(tk), _get_type_name(tv))) for (tk, tv) in viewitems(vtype))))
+    if isinstance(vtype, (FunctionType, BuiltinFunctionType)):
+        return vtype.__name__
+    raise RuntimeError((u'Unexpected `vtype`: %r' % vtype))

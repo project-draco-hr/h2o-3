@@ -1,43 +1,30 @@
-def _check_type(var, types):
-    u'\n    Return True if the variable is of one of the specified types, and False otherwise.\n\n    :param var: variable to check\n    :param types: iterable of types\n    '
-    for tt in types:
-        if (tt is None):
-            if (var is None):
-                return True
-        elif (tt is str):
-            if isinstance(var, _str_type):
-                return True
-        elif (tt is int):
-            if isinstance(var, _int_type):
-                return True
-        elif (tt is numeric):
-            if isinstance(var, _num_type):
-                return True
-        elif (isinstance(tt, _str_type) or isinstance(tt, _int_type)):
-            if (var == tt):
-                return True
-        elif isinstance(tt, U):
-            if _check_type(var, tt):
-                return True
-        elif isinstance(tt, I):
-            if all((_check_type(var, [tttt]) for tttt in tt)):
-                return True
-        elif isinstance(tt, type):
-            if isinstance(var, tt):
-                return True
-        elif isinstance(tt, list):
-            if (isinstance(var, list) and all((_check_type(item, tt) for item in var))):
-                return True
-        elif isinstance(tt, set):
-            if (isinstance(var, set) and all((_check_type(item, tt) for item in var))):
-                return True
-        elif isinstance(tt, tuple):
-            if (isinstance(var, tuple) and (len(tt) == len(var)) and all((_check_type(var[i], [tt[i]]) for i in range(len(tt))))):
-                return True
-        elif isinstance(tt, dict):
-            ttkv = viewitems(tt)
-            if (isinstance(var, dict) and all((_check_type(kv, ttkv) for kv in viewitems(var)))):
-                return True
-        else:
-            raise RuntimeError((u'Ivalid type %r in _check_type()' % tt))
-    return False
+def _check_type(var, vtype):
+    u"\n    Return True if the variable is of the specified type, and False otherwise.\n\n    :param var: variable to check\n    :param vtype: expected variable's type\n    "
+    if (vtype is None):
+        return (var is None)
+    if isinstance(vtype, _primitive_type):
+        return (var == vtype)
+    if (vtype is str):
+        return isinstance(var, _str_type)
+    if (vtype is int):
+        return isinstance(var, _int_type)
+    if (vtype is numeric):
+        return isinstance(var, _num_type)
+    if isinstance(vtype, MagicType):
+        return vtype.check(var)
+    if isinstance(vtype, type):
+        return isinstance(var, vtype)
+    if isinstance(vtype, list):
+        elem_type = U(*vtype)
+        return (isinstance(var, list) and all((_check_type(item, elem_type) for item in var)))
+    if isinstance(vtype, set):
+        elem_type = U(*vtype)
+        return (isinstance(var, set) and all((_check_type(item, elem_type) for item in var)))
+    if isinstance(vtype, tuple):
+        return (isinstance(var, tuple) and (len(vtype) == len(var)) and all((_check_type(var[i], vtype[i]) for i in range(len(vtype)))))
+    if isinstance(vtype, dict):
+        ttkv = U(*viewitems(vtype))
+        return (isinstance(var, dict) and all((_check_type(kv, ttkv) for kv in viewitems(var))))
+    if isinstance(vtype, (FunctionType, BuiltinFunctionType)):
+        return vtype(var)
+    raise RuntimeError((u'Ivalid type %r in _check_type()' % vtype))

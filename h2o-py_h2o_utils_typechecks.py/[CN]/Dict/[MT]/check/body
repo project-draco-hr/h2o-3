@@ -1,0 +1,11 @@
+def check(self, var):
+    u'Return True if the variable matches this type, and False otherwise.'
+    if (not isinstance(var, dict)):
+        return False
+    if any(((key not in self._types) for key in var)):
+        return False
+    for (key, ktype) in viewitems(self._types):
+        val = var.get(key, None)
+        if (not _check_type(val, ktype)):
+            return False
+    return True

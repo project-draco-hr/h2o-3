@@ -1,9 +1,9 @@
-def __init__(self, var_name=None, exp_types=None, var_value=None, message=None, skip_frames=0):
-    u"\n        Create an H2OTypeError exception object.\n\n        :param message: error message that will be shown to the user. If not given, this message will be constructed\n            from ``var_name``, ``var_value`` and ``exp_types``.\n        :param exp_types: expected variable's type.\n        :param var_name: name of the variable whose type is wrong (can be used for highlighting etc).\n        :param skip_frames: how many auxiliary function calls have been made since the moment of the exception. This\n            many local frames will be skipped in the output of the exception message. For example if you want to check\n            a variables type, and call a helper function ``assert_is_type()`` to do that job for you, then\n            ``skip_frames`` should be 1 (thus making the call to ``assert_is_type`` invisible).\n        "
+def __init__(self, var_name=None, var_value=None, var_type_name=None, exp_type_name=None, message=None, skip_frames=0):
+    u"\n        Create an H2OTypeError exception object.\n\n        :param message: error message that will be shown to the user. If not given, this message will be constructed\n            from ``var_name``, ``var_value``, etc.\n        :param var_name: name of the variable whose type is wrong (can be used for highlighting etc).\n        :param var_value: the value of the variable.\n        :param var_type_name: the name of the variable's actual type.\n        :param exp_type_name: the name of the variable's expected type.\n        :param skip_frames: how many auxiliary function calls have been made since the moment of the exception. This\n            many local frames will be skipped in the output of the exception message. For example if you want to check\n            a variables type, and call a helper function ``assert_is_type()`` to do that job for you, then\n            ``skip_frames`` should be 1 (thus making the call to ``assert_is_type`` invisible).\n        "
     super(H2OTypeError, self).__init__(message)
-    assert isinstance(exp_types, (list, tuple)), (u'Bad `exp_types` argument: %r' % exp_types)
     self._var_name = var_name
-    self._exp_types = exp_types
     self._var_value = var_value
+    self._var_type_name = (var_type_name or str(type(var_value)))
+    self._exp_type_name = exp_type_name
     self._message = message
     self._skip_frames = skip_frames
