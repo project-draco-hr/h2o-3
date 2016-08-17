@@ -1,18 +1,14 @@
 def assert_is_type(var, *types, **kwargs):
     u"\n    Assert that the argument has the specified type.\n\n    This function is used to check that the type of the argument is correct, otherwises it raises an H2OTypeError.\n    See more details in the module's help.\n\n    :param var: variable to check\n    :param types: the expected types\n    :param kwargs:\n        message: override the error message\n        skip_frames: how many local frames to skip when printing out the error.\n\n    :raises H2OTypeError: if the argument is not of the desired type.\n    "
     assert types, u'The list of expected types was not provided'
-    if (len(types) == 1):
-        if _check_type(var, types[0]):
-            return
-        etn = _get_type_name(types[0])
-    else:
-        union_type = U(*types)
-        if _check_type(var, union_type):
-            return
-        etn = str(union_type)
+    expected_type = (types[0] if (len(types) == 1) else U(*types))
+    if _check_type(var, expected_type):
+        return
     assert set(kwargs).issubset({u'message', u'skip_frames'}), (u'Unexpected keyword arguments: %r' % kwargs)
-    vname = _retrieve_assert_arguments()[0]
     message = kwargs.get(u'message', None)
     skip_frames = kwargs.get(u'skip_frames', 1)
+    args = _retrieve_assert_arguments()
+    vname = args[0]
+    etn = _get_type_name(expected_type, dump=u', '.join(args[1:]))
     vtn = _get_type_name(type(var))
     raise H2OTypeError(var_name=vname, var_value=var, var_type_name=vtn, exp_type_name=etn, message=message, skip_frames=skip_frames)

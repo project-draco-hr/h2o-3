@@ -5,6 +5,13 @@ __all__ = (u'PY2', u'PY3', u'with_metaclass', u'bytes_iterator', u'range', u'fil
 if True:
     from future.builtins.iterators import range, filter, map, zip
     from future.utils import viewitems, viewkeys, viewvalues
+
+    def next_method(gen):
+        u"Return the 'next' method of the given generator."
+        if PY2:
+            return gen.next
+        else:
+            return gen.__next__
 if PY2:
     _native_unicode = unicode
     _native_long = long
