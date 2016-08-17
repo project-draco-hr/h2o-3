@@ -2,7 +2,8 @@ def __str__(self):
     if (sys.gettrace() is None):
         if (self._ex is None):
             return u'This H2OFrame has been removed.'
-        row_string = (u' rows x ' if (self.nrow != 1) else u' row x ')
-        column_string = (u' columns]' if (self.ncol != 1) else u' column]')
-        return (((((self._frame()._ex._cache._tabulate(u'simple', False) + u'\n\n[') + str(self.nrow)) + row_string) + str(self.ncol)) + column_string)
+        table = self._frame()._ex._cache._tabulate(u'simple', False)
+        nrows = (u'%d %s' % (self.nrow, (u'row' if (self.nrow == 1) else u'rows')))
+        ncols = (u'%d %s' % (self.ncol, (u'column' if (self.ncol == 1) else u'columns')))
+        return (u'%s\n\n[%s x %s]' % (table, nrows, ncols))
     return u''

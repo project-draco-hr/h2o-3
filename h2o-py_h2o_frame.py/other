@@ -1,6 +1,5 @@
-u'\nH2O data frame.\n\n:copyright: (c) 2016 H2O.ai\n:license:   Apache License Version 2.0 (see LICENSE for details)\n'
+u'\nH2O data frame.\n\nTODO: Automatically convert column names into Frame properties!\n\n:copyright: (c) 2016 H2O.ai\n:license:   Apache License Version 2.0 (see LICENSE for details)\n'
 from __future__ import division, print_function, absolute_import, unicode_literals
-import collections
 import csv
 import functools
 import imp
@@ -13,11 +12,12 @@ from io import StringIO
 import requests
 import h2o
 from types import FunctionType
-from .utils.shared_utils import _quoted, can_use_pandas, can_use_numpy, _handle_python_lists, _is_list, _is_str_list, _handle_python_dicts, _handle_numpy_array, _handle_pandas_data_frame, quote, _py_tmp_key
+from .utils.shared_utils import _quoted, can_use_pandas, _handle_python_lists, _is_list, _is_str_list, _handle_python_dicts, _handle_numpy_array, _handle_pandas_data_frame, quote, _py_tmp_key
 from .display import H2ODisplay
 from .job import H2OJob
 from .expr import ExprNode
 from .group_by import GroupBy
+from h2o.exceptions import H2OValueError
 from h2o.utils.compatibility import *
-from h2o.utils.typechecks import is_type, assert_is_type, assert_satisfies
+from h2o.utils.typechecks import I, U, is_type, assert_is_type, assert_satisfies, pandas_dataframe, numpy_ndarray
 warnings.filterwarnings(u'ignore', category=DeprecationWarning, module=u'pandas', lineno=7)
