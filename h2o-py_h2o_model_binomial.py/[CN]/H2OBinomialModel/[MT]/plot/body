@@ -1,8 +1,7 @@
-def plot(self, timestep=u'AUTO', metric=u'AUTO', **kwargs):
-    u'Plots training set (and validation set if available) scoring history for an\n        H2OBinomialModel. The timestep and metric arguments are restricted to what is\n        available in its scoring history.\n\n        Parameters\n        ----------\n          timestep : str\n             A unit of measurement for the x-axis.\n\n          metric : str\n            A unit of measurement for the y-axis.\n        '
+def plot(self, timestep=u'AUTO', metric=u'AUTO', server=False, **kwargs):
+    u'\n        Plot training set (and validation set if available) scoring history for an H2OBinomialModel.\n\n        The timestep and metric arguments are restricted to what is available in its scoring history.\n\n        Parameters\n        ----------\n          timestep : str\n             A unit of measurement for the x-axis.\n\n          metric : str\n            A unit of measurement for the y-axis.\n        '
+    assert_is_type(metric, u'AUTO', u'logloss', u'auc', u'classification_error', u'rmse')
     if (self._model_json[u'algo'] in (u'deeplearning', u'drf', u'gbm')):
         if (metric == u'AUTO'):
             metric = u'logloss'
-        elif (metric not in (u'logloss', u'auc', u'classification_error', u'rmse')):
-            raise ValueError(u'metric for H2OBinomialModel must be one of: AUTO, logloss, auc, classification_error, rmse')
-    self._plot(timestep=timestep, metric=metric, **kwargs)
+    self._plot(timestep=timestep, metric=metric, server=server)
