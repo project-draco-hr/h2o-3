@@ -1,22 +1,11 @@
 {
-  try {
-    while (true) {
-      Future f;
+  while (true) {
+    Future f;
 synchronized (this) {
-        if (_pending_cnt == 0)         return;
-        f=_pending[--_pending_cnt];
-      }
-      try {
-        f.get();
-      }
- catch (      CancellationException e) {
-      }
+      if (_pending_cnt == 0)       break;
+      f=_pending[--_pending_cnt];
     }
+    waitAndCheckForException(f);
   }
- catch (  ExecutionException e) {
-    throw Log.throwErr(new RuntimeException(e.getCause()));
-  }
-catch (  InterruptedException e) {
-    throw Log.throwErr(e);
-  }
+  if (_ex != null)   throw new RuntimeException(_ex);
 }

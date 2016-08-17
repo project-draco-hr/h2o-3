@@ -1,0 +1,49 @@
+{
+  Futures fs=new Futures();
+  TstFuture cf=new TstFuture();
+  fs.add(cf);
+  Assert.assertEquals(1,fs._pending_cnt);
+  cf.complete(new ExecutionException(new TstException("a")));
+  try {
+    fs.blockForPending();
+    Assert.assertTrue("should've thrown",false);
+  }
+ catch (  RuntimeException t) {
+    Assert.assertTrue(t.getCause() instanceof TstException);
+  }
+  fs=new Futures();
+  cf=new TstFuture();
+  cf.complete(new ExecutionException(new TstException("a")));
+  fs.add(cf);
+  Assert.assertEquals(0,fs._pending_cnt);
+  try {
+    fs.blockForPending();
+    Assert.assertTrue("should've thrown",false);
+  }
+ catch (  RuntimeException t) {
+    Assert.assertTrue(t.getCause() instanceof TstException);
+  }
+  fs=new Futures();
+  cf=new TstFuture();
+  fs.add(cf);
+  Assert.assertEquals(1,fs._pending_cnt);
+  cf.complete(new TstException("eager cleanup"));
+  for (int i=0; i < 3; ++i) {
+    fs.add(cf=new TstFuture());
+    Assert.assertEquals(1,fs._pending_cnt);
+    cf.complete();
+  }
+  try {
+    fs.blockForPending();
+    Assert.assertTrue("should've thrown",false);
+  }
+ catch (  RuntimeException t) {
+    Assert.assertTrue(t.getCause() instanceof TstException);
+    Assert.assertEquals("eager cleanup",t.getCause().getMessage());
+  }
+  fs=new Futures();
+  cf=new TstFuture();
+  cf.cancel(true);
+  fs.add(cf);
+  fs.blockForPending();
+}
