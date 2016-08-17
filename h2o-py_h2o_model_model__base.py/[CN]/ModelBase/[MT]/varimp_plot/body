@@ -1,16 +1,12 @@
-def varimp_plot(self, num_of_features=None, **kwargs):
-    u'\n        Plots the variable importance for a trained model.\n        \n        :param num_of_features: the number of features shown in the plot.\n\n        :returns: None.\n        '
-    try:
-        imp.find_module(u'matplotlib')
-        import matplotlib
-        if ((u'server' in list(kwargs.keys())) and kwargs[u'server']):
-            matplotlib.use(u'Agg', warn=False)
-        import matplotlib.pyplot as plt
-    except ImportError:
-        print(u'matplotlib is required for this function!')
+def varimp_plot(self, num_of_features=None, server=False):
+    u'\n        Plot the variable importance for a trained model.\n\n        :param num_of_features: the number of features shown in the plot.\n        :param server: ?\n\n        :returns: None.\n        '
+    assert_is_type(num_of_features, None, int)
+    assert_is_type(server, bool)
+    plt = _get_matplotlib_pyplot(server)
+    if (not plt):
         return
     if (self._model_json[u'algo'] == u'glm'):
-        print(u'Variable importance does not apply to GLM! Will use std_coef_plot() instead.')
+        print(u'Variable importance does not apply to GLM. Will use std_coef_plot() instead.')
         self.std_coef_plot(num_of_features)
         return
     importances = self.varimp(use_pandas=False)
@@ -18,10 +14,8 @@ def varimp_plot(self, num_of_features=None, **kwargs):
     scaled_importances = [tup[2] for tup in importances]
     pos = range(len(feature_labels))[::(-1)]
     val = scaled_importances
-    if (num_of_features == None):
+    if (num_of_features is None):
         num_of_features = len(val)
-    elif ((type(num_of_features) != int) or (num_of_features <= 0)):
-        raise ValueError(u'num_of_features must be an integer greater than 0')
     (fig, ax) = plt.subplots(1, 1, figsize=(14, 10))
     if (num_of_features == 1):
         plt.barh(pos[0:num_of_features], val[0:num_of_features], align=u'center', height=0.8, color=u'#1F77B4', edgecolor=u'none')
@@ -45,15 +39,15 @@ def varimp_plot(self, num_of_features=None, **kwargs):
         ax.margins(y=0.5)
     if (self._model_json[u'algo'] == u'gbm'):
         plt.title(u'Variable Importance: H2O GBM', fontsize=20)
-        if (not ((u'server' in list(kwargs.keys())) and kwargs[u'server'])):
+        if (not server):
             plt.show()
     elif (self._model_json[u'algo'] == u'drf'):
         plt.title(u'Variable Importance: H2O DRF', fontsize=20)
-        if (not ((u'server' in list(kwargs.keys())) and kwargs[u'server'])):
+        if (not server):
             plt.show()
     elif (self._model_json[u'algo'] == u'deeplearning'):
         plt.title(u'Variable Importance: H2O Deep Learning', fontsize=20)
-        if (not ((u'server' in list(kwargs.keys())) and kwargs[u'server'])):
+        if (not server):
             plt.show()
     else:
-        raise ValueError(u'A variable importances plot is not implemented for this type of model')
+        raise H2OValueError(u'A variable importances plot is not implemented for this type of model')

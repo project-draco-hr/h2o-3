@@ -1,12 +1,13 @@
 @staticmethod
 def _get_metrics(o, train, valid, xval):
+    output = o._model_json[u'output']
     metrics = {}
     if train:
-        metrics[u'train'] = o._model_json[u'output'][u'training_metrics']
+        metrics[u'train'] = output[u'training_metrics']
     if valid:
-        metrics[u'valid'] = o._model_json[u'output'][u'validation_metrics']
+        metrics[u'valid'] = output[u'validation_metrics']
     if xval:
-        metrics[u'xval'] = o._model_json[u'output'][u'cross_validation_metrics']
+        metrics[u'xval'] = output[u'cross_validation_metrics']
     if (len(metrics) == 0):
-        metrics[u'train'] = o._model_json[u'output'][u'training_metrics']
+        metrics[u'train'] = output[u'training_metrics']
     return metrics

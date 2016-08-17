@@ -1,9 +1,8 @@
 def metric(self, metric, thresholds=None):
-    u'\n        :param metric: The desired metric\n        :param thresholds: thresholds parameter must be a list (i.e. [0.01, 0.5, 0.99]). If None, then the thresholds in this set of metrics will be used.\n        :return: The set of metrics for the list of thresholds\n        '
+    u'\n        :param metric: The desired metric\n        :param thresholds: thresholds parameter must be a list (i.e. [0.01, 0.5, 0.99]). If None, then\n            the thresholds in this set of metrics will be used.\n        :return: The set of metrics for the list of thresholds\n        '
+    assert_is_type(thresholds, None, [numeric])
     if (not thresholds):
         thresholds = [self.find_threshold_by_max_metric(metric)]
-    if (not isinstance(thresholds, list)):
-        raise ValueError(u'thresholds parameter must be a list (i.e. [0.01, 0.5, 0.99])')
     thresh2d = self._metric_json[u'thresholds_and_metric_scores']
     midx = thresh2d.col_header.index(metric)
     metrics = []

@@ -1,12 +1,6 @@
-def _plot(self, timestep, metric, **kwargs):
-    try:
-        imp.find_module(u'matplotlib')
-        import matplotlib
-        if ((u'server' in kwargs) and kwargs[u'server']):
-            matplotlib.use(u'Agg', warn=False)
-        import matplotlib.pyplot as plt
-    except ImportError:
-        print(u'matplotlib is required for this function!')
+def _plot(self, timestep, metric, server=False):
+    plt = _get_matplotlib_pyplot(server)
+    if (not plt):
         return
     scoring_history = self.scoring_history()
     if (self._model_json[u'algo'] == u'glm'):
@@ -14,24 +8,22 @@ def _plot(self, timestep, metric, **kwargs):
         if (metric == u'AUTO'):
             metric = u'log_likelihood'
         elif (metric not in (u'log_likelihood', u'objective')):
-            raise ValueError(u'for GLM, metric must be one of: log_likelihood, objective')
+            raise H2OValueError(u'for GLM, metric must be one of: log_likelihood, objective')
         plt.xlabel(timestep)
         plt.ylabel(metric)
         plt.title(u'Validation Scoring History')
         plt.plot(scoring_history[timestep], scoring_history[metric])
     elif (self._model_json[u'algo'] in (u'deeplearning', u'drf', u'gbm')):
         if (self._model_json[u'algo'] in (u'gbm', u'drf')):
+            assert_is_type(timestep, u'AUTO', u'duration', u'number_of_trees')
             if (timestep == u'AUTO'):
                 timestep = u'number_of_trees'
-            elif (timestep not in (u'duration', u'number_of_trees')):
-                raise ValueError(u'timestep for gbm or drf must be one of: duration, number_of_trees')
         else:
             if (scoring_history[u'samples'][0] == 0):
                 scoring_history = scoring_history[1:]
+            assert_is_type(timestep, u'AUTO', u'epochs', u'samples', u'duration')
             if (timestep == u'AUTO'):
                 timestep = u'epochs'
-            elif (timestep not in (u'epochs', u'samples', u'duration')):
-                raise ValueError(u'timestep for deeplearning must be one of: epochs, samples, duration')
         training_metric = u'training_{}'.format(metric)
         validation_metric = u'validation_{}'.format(metric)
         if (timestep == u'duration'):
@@ -61,6 +53,6 @@ def _plot(self, timestep, metric, **kwargs):
             plt.ylim(ylim)
             plt.plot(scoring_history[timestep], scoring_history[training_metric])
     else:
-        raise ValueError(u'Plotting not implemented for this type of model')
-    if ((u'server' not in list(kwargs.keys())) or (not kwargs[u'server'])):
+        raise H2OValueError(u'Plotting not implemented for this type of model')
+    if (not server):
         plt.show()
