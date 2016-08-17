@@ -1,3 +1,6 @@
 {
-  for (int i=0; i < _pending_cnt; i++)   if (_pending[i].isDone())   _pending[i--]=_pending[--_pending_cnt];
+  for (int i=0; i < _pending_cnt; i++)   if (_pending[i].isDone()) {
+    waitAndCheckForException(_pending[i]);
+    _pending[i--]=_pending[--_pending_cnt];
+  }
 }
