@@ -1,0 +1,85 @@
+def std_coef_plot(self, num_of_features=None, **kwargs):
+    u"\n        plot a GLM model's standardized coefficient magnitudes.\n\n        :param num_of_features: the number of features shown in the plot.\n\n        :returns: None.\n        "
+    try:
+        imp.find_module(u'matplotlib')
+        import matplotlib
+        if ((u'server' in list(kwargs.keys())) and kwargs[u'server']):
+            matplotlib.use(u'Agg', warn=False)
+        import matplotlib.pyplot as plt
+    except ImportError:
+        print(u'matplotlib is required for this function!')
+        return
+    try:
+        imp.find_module(u'six')
+        import six
+        if ((u'server' in list(kwargs.keys())) and kwargs[u'server']):
+            six.use(u'Agg', warn=False)
+        from six import iteritems
+    except ImportError:
+        print(u'six is required for this function!')
+        return
+    if (self._model_json[u'algo'] != u'glm'):
+        raise ValueError(u'Warning: model must be a GLM')
+    unsorted_norm_coef = self.coef_norm().items()
+    drop_intercept = [tup for tup in unsorted_norm_coef if (tup[0] != u'Intercept')]
+    norm_coef = sorted(drop_intercept, key=(lambda x: abs(x[1])), reverse=True)
+    signage = []
+    for element in norm_coef:
+        if (element[1] >= 0):
+            signage.append(u'#1F77B4')
+        else:
+            signage.append(u'#FF7F0E')
+    feature_labels = [tup[0] for tup in norm_coef]
+    norm_coef_magn = [abs(tup[1]) for tup in norm_coef]
+    pos = range(len(feature_labels))[::(-1)]
+    val = norm_coef_magn
+    if (num_of_features is None):
+        num_of_features = len(val)
+    elif ((type(num_of_features) != int) or (num_of_features <= 0)):
+        raise ValueError(u'num_of_features must be an integer greater than 0')
+    (fig, ax) = plt.subplots(1, 1, figsize=(14, 10))
+    if (num_of_features == 1):
+        plt.barh(pos[0], val[0], align=u'center', height=0.8, color=signage[0], edgecolor=u'none')
+        ax.spines[u'right'].set_visible(False)
+        ax.spines[u'top'].set_visible(False)
+        ax.spines[u'bottom'].set_color(u'#7B7B7B')
+        ax.spines[u'left'].set_color(u'#7B7B7B')
+        ax.yaxis.set_ticks_position(u'left')
+        ax.xaxis.set_ticks_position(u'bottom')
+        plt.yticks([0], feature_labels[0])
+        ax.margins(y=0.5)
+    else:
+        plt.barh(pos[0:num_of_features], val[0:num_of_features], align=u'center', height=0.8, color=signage[0:num_of_features], edgecolor=u'none')
+        ax.spines[u'right'].set_visible(False)
+        ax.spines[u'top'].set_visible(False)
+        ax.spines[u'bottom'].set_color(u'#7B7B7B')
+        ax.spines[u'left'].set_color(u'#7B7B7B')
+        ax.yaxis.set_ticks_position(u'left')
+        ax.xaxis.set_ticks_position(u'bottom')
+        plt.yticks(pos[0:num_of_features], feature_labels[0:num_of_features])
+        ax.margins(y=0.05)
+    if ((u'#1F77B4' in signage[0:num_of_features]) and (u'#FF7F0E' not in signage[0:num_of_features])):
+        color_ids = {u'Positive': u'#1F77B4', }
+        markers = [plt.Line2D([0, 0], [0, 0], color=color, marker=u's', linestyle=u'') for color in set(signage[0:num_of_features])]
+        lgnd = plt.legend(markers, color_ids, numpoints=1, loc=u'best', frameon=False, fontsize=13)
+        lgnd.legendHandles[0]._legmarker.set_markersize(10)
+    elif ((u'#FF7F0E' in signage[0:num_of_features]) and (u'#1F77B4' not in signage[0:num_of_features])):
+        color_ids = {u'Negative': u'#FF7F0E', }
+        markers = [plt.Line2D([0, 0], [0, 0], color=color, marker=u's', linestyle=u'') for color in set(signage[0:num_of_features])]
+        lgnd = plt.legend(markers, color_ids, numpoints=1, loc=u'best', frameon=False, fontsize=13)
+        lgnd.legendHandles[0]._legmarker.set_markersize(10)
+    else:
+        color_ids = {u'Positive': u'#1F77B4', u'Negative': u'#FF7F0E', }
+        markers = [plt.Line2D([0, 0], [0, 0], color=color, marker=u's', linestyle=u'') for color in set(signage[0:num_of_features])]
+        lgnd = plt.legend(markers, color_ids, numpoints=1, loc=u'best', frameon=False, fontsize=13)
+        lgnd.legendHandles[0]._legmarker.set_markersize(10)
+        lgnd.legendHandles[1]._legmarker.set_markersize(10)
+    ax.spines[u'right'].set_visible(False)
+    ax.spines[u'top'].set_visible(False)
+    ax.spines[u'bottom'].set_color(u'#7B7B7B')
+    ax.spines[u'left'].set_color(u'#7B7B7B')
+    plt.yticks(pos[0:num_of_features], feature_labels[0:num_of_features])
+    plt.tick_params(axis=u'x', which=u'minor', bottom=u'off', top=u'off', labelbottom=u'off')
+    plt.title(u'Standardized Coef. Magnitudes: H2O GLM', fontsize=20)
+    if (not ((u'server' in list(kwargs.keys())) and kwargs[u'server'])):
+        plt.show()
