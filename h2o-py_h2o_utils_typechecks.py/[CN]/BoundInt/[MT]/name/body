@@ -1,0 +1,11 @@
+def name(self, src=None):
+    u'Return string representing the name of this type.'
+    if ((self._upper_bound is None) and (self._lower_bound is None)):
+        return u'int'
+    if (self._upper_bound is None):
+        if (self._lower_bound == 1):
+            return u'int>0'
+        return (u'int\u2265%d' % self._lower_bound)
+    if (self._lower_bound is None):
+        return (u'int\u2264%d' % self._upper_bound)
+    return (u'int[%d\u2026%d]' % (self._lower_bound, self._upper_bound))
