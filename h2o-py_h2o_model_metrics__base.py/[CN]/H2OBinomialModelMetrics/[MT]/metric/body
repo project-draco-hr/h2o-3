@@ -4,10 +4,8 @@ def metric(self, metric, thresholds=None):
     if (not thresholds):
         thresholds = [self.find_threshold_by_max_metric(metric)]
     thresh2d = self._metric_json[u'thresholds_and_metric_scores']
-    midx = thresh2d.col_header.index(metric)
     metrics = []
     for t in thresholds:
         idx = self.find_idx_by_threshold(t)
-        row = thresh2d.cell_values[idx]
-        metrics.append([t, row[midx]])
+        metrics.append([t, thresh2d[metric][idx]])
     return metrics
