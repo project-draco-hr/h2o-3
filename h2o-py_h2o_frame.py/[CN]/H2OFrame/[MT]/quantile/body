@@ -7,8 +7,7 @@ def quantile(self, prob=None, combine_method=u'interpolate', weights_column=None
     if (weights_column is None):
         weights_column = u'_'
     else:
-        if (not (is_type(weights_column, str) or (isinstance(weights_column, H2OFrame) and (weights_column.ncol == 1) and (weights_column.nrow == self.nrow)))):
-            raise ValueError(u'`weights_column` must be a column name in x or an H2OFrame object with 1 column and same row count as x')
+        assert_is_type(weights_column, str, I(H2OFrame, (lambda wc: ((wc.ncol == 1) and (wc.nrow == self.nrow)))))
         if isinstance(weights_column, H2OFrame):
             merged = self.cbind(weights_column)
             weights_column = merged.names[(-1)]
