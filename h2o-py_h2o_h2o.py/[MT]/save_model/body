@@ -1,0 +1,7 @@
+def save_model(model, path=u'', force=False):
+    u'\n    Save an H2O Model object to disk.\n\n    :param model: The model object to save.\n    :param path: a path to save the model at (hdfs, s3, local)\n    :param force: if True overwrite destination directory in case it exists, or throw exception if set to False.\n\n    :returns str: the path of the saved model\n    '
+    assert_is_type(model, ModelBase)
+    assert_is_type(path, str)
+    assert_is_type(force, bool)
+    path = os.path.join((os.getcwd() if (path == u'') else path), model.model_id)
+    return api((u'GET /99/Models.bin/%s' % model.model_id), data={u'dir': path, u'force': force, })[u'dir']

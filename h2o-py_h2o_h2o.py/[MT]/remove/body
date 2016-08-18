@@ -1,0 +1,21 @@
+def remove(x):
+    u'\n    Remove object(s) from H2O.\n\n    :param x: H2OFrame, H2OEstimator, or string, or a list of those things: the object(s) or unique id(s)\n        pointing to the object(s) to be removed.\n    '
+    item_type = U(str, H2OFrame, H2OEstimator)
+    assert_is_type(x, item_type, [item_type])
+    if (not isinstance(x, list)):
+        x = [x]
+    for xi in x:
+        if isinstance(xi, H2OFrame):
+            xi_id = xi._ex._cache._id
+            if (xi_id is None):
+                return
+            rapids(u'(rm {})'.format(xi_id))
+            xi._ex = None
+        elif isinstance(xi, H2OEstimator):
+            api((u'DELETE /3/DKV/%s' % xi.model_id))
+            xi._id = None
+        else:
+            try:
+                rapids(u'(rm {})'.format(xi))
+            except:
+                api((u'DELETE /3/DKV/%s' % xi))

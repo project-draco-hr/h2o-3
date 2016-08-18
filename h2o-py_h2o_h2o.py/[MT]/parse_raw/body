@@ -1,0 +1,14 @@
+def parse_raw(setup, id=None, first_line_is_header=0):
+    u'\n    Parse dataset using the parse setup structure.\n\n    :param setup: Result of ``h2o.parse_setup()``\n    :param id: an id for the frame.\n    :param first_line_is_header: -1, 0, 1 if the first line is to be used as the header\n\n    :returns: an :class:`H2OFrame` object.\n    '
+    assert_is_type(setup, dict)
+    assert_is_type(id, str, None)
+    assert_is_type(first_line_is_header, (-1), 0, 1)
+    if id:
+        setup[u'destination_frame'] = quoted(id).replace(u'%', u'.').replace(u'&', u'.')
+    if (first_line_is_header != ((-1), 0, 1)):
+        if (first_line_is_header not in ((-1), 0, 1)):
+            raise ValueError(u'first_line_is_header should be -1, 0, or 1')
+        setup[u'check_header'] = first_line_is_header
+    fr = H2OFrame()
+    fr._parse_raw(setup)
+    return fr

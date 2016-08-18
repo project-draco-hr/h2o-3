@@ -1,0 +1,24 @@
+def download_all_logs(dirname=u'.', filename=None):
+    u'\n    Download H2O log files to disk.\n\n    :param dirname: a character string indicating the directory that the log file should be saved in.\n    :param filename: a string indicating the name that the CSV file should be.\n\n    :returns: path of logs written.\n    '
+    assert_is_type(dirname, str)
+    assert_is_type(filename, str, None)
+    url = (u'%s/3/Logs/download' % h2oconn.base_url)
+    opener = urlopen()
+    response = opener(url)
+    if (not os.path.exists(dirname)):
+        os.mkdir(dirname)
+    if (filename is None):
+        if PY3:
+            headers = [h[1] for h in response.headers._headers]
+        else:
+            headers = response.headers.headers
+        for h in headers:
+            if (u'filename=' in h):
+                filename = h.split(u'filename=')[1].strip()
+                break
+    path = os.path.join(dirname, filename)
+    response = opener(url).read()
+    print((u'Writing H2O logs to ' + path))
+    with open(path, u'wb') as f:
+        f.write(response)
+    return path

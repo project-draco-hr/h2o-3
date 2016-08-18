@@ -1,0 +1,73 @@
+def parse_setup(raw_frames, destination_frame=u'', header=0, separator=u'', column_names=None, column_types=None, na_strings=None):
+    u'\n    Retrieve H2O\'s best guess as to what the structure of the data file is.\n\n    During parse setup, the H2O cluster will make several guesses about the attributes of\n    the data. This method allows a user to perform corrective measures by updating the\n    returning dictionary from this method. This dictionary is then fed into `parse_raw` to\n    produce the H2OFrame instance.\n\n    :param raw_frames: a collection of imported file frames\n    :param destination_frame: The unique hex key assigned to the imported file. If none is given, a key will\n        automatically be generated.\n    :param header: -1 means the first line is data, 0 means guess, 1 means first line is header.\n    :param separator: The field separator character. Values on each line of the file are separated by\n        this character. If sep = "", the parser will automatically detect the separator.\n    :param col_names: A list of column names for the file.\n    :param col_types: A list of types or a dictionary of column names to types to specify whether columns\n        should be forced to a certain type upon import parsing. If a list, the types for elements that are\n        one will be guessed. The possible types a column may have are:\n        * "unknown" - this will force the column to be parsed as all NA\n        * "uuid"    - the values in the column must be true UUID or will be parsed as NA\n        * "string"  - force the column to be parsed as a string\n        * "numeric" - force the column to be parsed as numeric. H2O will handle the compression of the numeric\n            data in the optimal manner.\n        * "enum"    - force the column to be parsed as a categorical column.\n        * "time"    - force the column to be parsed as a time column. H2O will attempt to parse the following\n            list of date time formats: (date) "yyyy-MM-dd", "yyyy MM dd", "dd-MMM-yy", "dd MMM yy", (time)\n            "HH:mm:ss", "HH:mm:ss:SSS", "HH:mm:ss:SSSnnnnnn", "HH.mm.ss" "HH.mm.ss.SSS", "HH.mm.ss.SSSnnnnnn".\n            Times can also contain "AM" or "PM".\n    :param na_strings: A list of strings, or a list of lists of strings (one list per column), or a dictionary\n        of column names to strings which are to be interpreted as missing values.\n\n    :returns: a dictionary is returned containing all of the guesses made by the H2O backend.\n    '
+    coltype = U(None, u'unknown', u'uuid', u'string', u'float', u'real', u'double', u'int', u'numeric', u'categorical', u'factor', u'enum', u'time')
+    natype = U(str, [str])
+    assert_is_type(raw_frames, str, [str])
+    assert_is_type(destination_frame, None, str)
+    assert_is_type(header, (-1), 0, 1)
+    assert_is_type(separator, None, I(str, (lambda s: (len(s) == 1))))
+    assert_is_type(column_names, [str], None)
+    assert_is_type(column_types, [coltype], {str: coltype, }, None)
+    assert_is_type(na_strings, [natype], {str: natype, }, None)
+    if is_type(raw_frames, str):
+        raw_frames = [raw_frames]
+    kwargs = {u'check_header': header, u'separator': ord(separator), u'source_frames': [quoted(id) for id in raw_frames], }
+    j = api(u'POST /3/ParseSetup', data=kwargs)
+    if ((u'warnings' in j) and j[u'warnings']):
+        for w in j[u'warnings']:
+            warnings.warn(w)
+    if destination_frame:
+        j[u'destination_frame'] = destination_frame.replace(u'%', u'.').replace(u'&', u'.')
+    if (column_names is not None):
+        if (not isinstance(column_names, list)):
+            raise ValueError(u'col_names should be a list')
+        if (len(column_names) != len(j[u'column_types'])):
+            raise ValueError(u'length of col_names should be equal to the number of columns')
+        j[u'column_names'] = column_names
+    if (column_types is not None):
+        if isinstance(column_types, dict):
+            if (j[u'column_names'] is None):
+                j[u'column_names'] = gen_header(j[u'number_columns'])
+            if (not set(column_types.keys()).issubset(set(j[u'column_names']))):
+                raise ValueError(u'names specified in col_types is not a subset of the column names')
+            idx = 0
+            column_types_list = []
+            for name in j[u'column_names']:
+                if (name in column_types):
+                    column_types_list.append(column_types[name])
+                else:
+                    column_types_list.append(j[u'column_types'][idx])
+                idx += 1
+            column_types = column_types_list
+        elif isinstance(column_types, list):
+            if (len(column_types) != len(j[u'column_types'])):
+                raise ValueError(u'length of col_types should be equal to the number of columns')
+            column_types = [(column_types[i] if column_types[i] else j[u'column_types'][i]) for i in range(len(column_types))]
+        else:
+            raise ValueError(u'col_types should be a list of types or a dictionary of column names to types')
+        j[u'column_types'] = column_types
+    if (na_strings is not None):
+        if isinstance(na_strings, dict):
+            if (not j[u'column_names']):
+                raise ValueError(u'column names should be specified')
+            if (not set(na_strings.keys()).issubset(set(j[u'column_names']))):
+                raise ValueError(u'names specified in na_strings is not a subset of the column names')
+            j[u'na_strings'] = [[] for _ in range(len(j[u'column_names']))]
+            for (name, na) in na_strings.items():
+                idx = j[u'column_names'].index(name)
+                if is_type(na, str):
+                    na = [na]
+                for n in na:
+                    j[u'na_strings'][idx].append(quoted(n))
+        elif is_list_of_lists(na_strings):
+            if (len(na_strings) != len(j[u'column_types'])):
+                raise ValueError(u'length of na_strings should be equal to the number of columns')
+            j[u'na_strings'] = [([quoted(na) for na in col] if (col is not None) else []) for col in na_strings]
+        elif isinstance(na_strings, list):
+            j[u'na_strings'] = ([[quoted(na) for na in na_strings]] * len(j[u'column_types']))
+        else:
+            raise ValueError(u'na_strings should be a list, a list of lists (one list per column), or a dictionary of column names to strings which are to be interpreted as missing values')
+    if j[u'column_names']:
+        j[u'column_names'] = list(map(quoted, j[u'column_names']))
+    j[u'column_types'] = list(map(quoted, j[u'column_types']))
+    return j

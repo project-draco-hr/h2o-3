@@ -1,0 +1,5 @@
+def load_model(path):
+    u'\n    Load a saved H2O model from disk.\n\n    :param path: the full path of the H2O Model to be imported.\n\n    :returns: an :class:`H2OEstimator` object\n\n    Examples\n    --------\n      >> path = h2o.save_mode(my_model,dir=my_path)\n      >> h2o.load_model(path)\n    '
+    assert_is_type(path, str)
+    res = api((u'POST /99/Models.bin/%s' % u''), data={u'dir': path, })
+    return get_model(res[u'models'][0][u'model_id'][u'name'])
