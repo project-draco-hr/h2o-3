@@ -1,8 +1,11 @@
-def __init__(self, row_header=None, col_header=None, col_types=None, table_header=None, raw_cell_values=None, col_formats=None, cell_values=None, table_description=None):
-    self.row_header = row_header
-    self.col_header = col_header
-    self.col_types = col_types
-    self.table_header = table_header
-    self.cell_values = (cell_values if cell_values else self._parse_values(raw_cell_values, col_types))
-    self.col_formats = col_formats
-    self.table_description = table_description
+def __init__(self, table_header=None, table_description=None, col_header=None, cell_values=None, raw_cell_values=None, col_types=None, row_header=None, col_formats=None):
+    u'\n        Create new H2OTwoDimTable object.\n\n        :param table_header: Header for the entire table.\n        :param table_description: Longer description of the table.\n        :param col_header: list of column names (used in conjunction with)\n        :param cell_values: table values, as an array of individual rows\n        :param raw_cell_values:\n        :param col_types:\n        :param row_header: ignored.\n        :param col_formats: ignored.\n        '
+    assert_is_type(table_header, None, str)
+    assert_is_type(table_description, None, str)
+    assert_is_type(col_header, None, [str])
+    assert_is_type(col_types, None, [str])
+    assert_is_type(cell_values, None, I([[object]], (lambda m: all(((len(row) == len(m[0])) for row in m)))))
+    self._table_header = table_header
+    self._table_description = table_description
+    self._col_header = col_header
+    self._cell_values = (cell_values or self._parse_values(raw_cell_values, col_types))

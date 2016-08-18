@@ -1,0 +1,18 @@
+def test_table():
+    u'Test functionality of the H2OTwoDimTable class.'
+    tbl1 = H2OTwoDimTable(cell_values=[[1, 2, 3], [10, 20, 30]], col_header=list(u'ABC'))
+    tbl1.show()
+    print()
+    tbl2 = H2OTwoDimTable(cell_values=([[1, 2, 4]] * 10), col_header=[u'q1', u'q2', u'q3'], row_header=range(10), table_header=u'Table 2')
+    tbl2.show()
+    assert (tbl2[u'q1'] == ([1] * 10))
+    assert (tbl2[u'q2'] == ([2] * 10))
+    assert (tbl2[u'q3'] == ([4] * 10))
+    assert (tbl2[0] == ([1] * 10))
+    assert (tbl2[(-1)] == ([4] * 10))
+    assert (tbl2[[0, 1]] == [([1] * 10), ([2] * 10)])
+    assert (tbl2[[u'q3']] == [([4] * 10)])
+    try:
+        H2OTwoDimTable(cell_values=[[1, 2, 3, 4], [1, 2, 3]])
+    except H2OTypeError:
+        pass

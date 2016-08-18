@@ -1,10 +1,10 @@
 def __setitem__(self, key, value):
-    cols = list(zip(*self.cell_values))
+    cols = list(zip(*self._cell_values))
     if (len(cols[0]) != len(value)):
         raise ValueError(u'value must be same length as columns')
-    if (key not in self.col_header):
-        self.col_header.append(key)
+    if (key not in self._col_header):
+        self._col_header.append(key)
         cols.append(tuple(value))
     else:
-        cols[self.col_header.index(key)] = value
-    self.cell_values = [list(x) for x in zip(*cols)]
+        cols[self._col_header.index(key)] = value
+    self._cell_values = [list(x) for x in zip(*cols)]

@@ -1,11 +1,11 @@
 def show(self, header=True):
+    u'Print the contents of this table.'
+    if (header and self._table_header):
+        print((self._table_header + u':'), end=u' ')
+        if self._table_description:
+            print(self._table_description)
     print()
-    if header:
-        print((self.table_header + u':'), end=u' ')
-        if self.table_description:
-            print(self.table_description)
-    print()
-    table = copy.deepcopy(self.cell_values)
+    table = copy.deepcopy(self._cell_values)
     nr = 0
     if _is_list_of_lists(table):
         nr = len(table)
@@ -15,6 +15,6 @@ def show(self, header=True):
         trunc_table.append(([u'---'] * len(table[0])))
         trunc_table += [v for v in table[(nr - 5):]]
         table = trunc_table
-    H2ODisplay(table, self.col_header, numalign=u'left', stralign=u'left')
+    H2ODisplay(table, self._col_header, numalign=u'left', stralign=u'left')
     if ((nr > 20) and can_use_pandas()):
         print(u'\nSee the whole table with table.as_data_frame()')

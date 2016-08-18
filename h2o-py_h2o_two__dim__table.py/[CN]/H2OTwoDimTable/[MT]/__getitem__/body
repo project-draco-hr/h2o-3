@@ -1,10 +1,20 @@
 def __getitem__(self, item):
-    if (item in self.col_header):
-        return list(zip(*self.cell_values))[self.col_header.index(item)]
+    if is_type(item, int, str):
+        if is_type(item, int):
+            index = item
+            if (index < 0):
+                index += len(self._col_header)
+            if ((index < 0) or (index >= len(self._col_header))):
+                raise H2OValueError((u'Index %d is out of range' % item))
+        elif (item in self._col_header):
+            index = self._col_header.index(item)
+        else:
+            raise H2OValueError((u'Column `%s` does not exist in the table' % item))
+        return [row[index] for row in self._cell_values]
     elif isinstance(item, slice):
-        self.cell_values = [self.cell_values[ii] for ii in xrange(*item.indices(len(self.cell_values)))]
+        self._cell_values = [self._cell_values[ii] for ii in range(*item.indices(len(self._cell_values)))]
         return self
-    elif (isinstance(item, list) and set(item).issubset(self.col_header)):
-        return [list(zip(*self.cell_values))[self.col_header.index(i)] for i in item]
+    elif is_type(item, [int, str]):
+        return [self[i] for i in item]
     else:
         raise TypeError((u'can not support getting item for ' + str(item)))

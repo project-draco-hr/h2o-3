@@ -9,4 +9,4 @@ def sort_by(self, metric, increasing=True):
             col.reverse()
     if (metric[(-2)] == u'('):
         metric = metric[:(-2)]
-    return H2OTwoDimTable(col_header=[u'Model Id', ((u'Hyperparameters: [' + u', '.join(list(self.hyper_params.keys()))) + u']'), metric], table_header=(u'Grid Search Results for ' + self.model.__class__.__name__), cell_values=list(zip(*c_values)))
+    return H2OTwoDimTable(col_header=[u'Model Id', ((u'Hyperparameters: [' + u', '.join(list(self.hyper_params.keys()))) + u']'), metric], table_header=(u'Grid Search Results for ' + self.model.__class__.__name__), cell_values=[list(x) for x in zip(*c_values)])
