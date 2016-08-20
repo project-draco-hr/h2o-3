@@ -1,5 +1,7 @@
 def __setitem__(self, b, c):
     u"Replace or update column(s) in an H2OFrame.\n\n        Parameters\n        ----------\n          b : int, str\n            A 0-based index or a column name.\n\n          c : int, H2OFrame, str\n            The value replacing 'b'\n\n        Returns\n        -------\n          Returns this H2OFrame.\n        "
+    assert_is_type(b, str, int, tuple, list, ExprNode, H2OFrame)
+    assert_is_type(c, None, numeric, str, H2OFrame, ExprNode)
     col_expr = None
     row_expr = None
     colname = None
@@ -10,6 +12,7 @@ def __setitem__(self, b, c):
             col_expr = self.ncol
             colname = b
     elif is_type(b, int):
+        assert_satisfies(b, ((- self.ncol) <= b < self.ncol))
         col_expr = b
     elif isinstance(b, tuple):
         row_expr = b[0]
