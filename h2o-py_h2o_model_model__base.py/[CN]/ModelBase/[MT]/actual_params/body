@@ -1,0 +1,11 @@
+@property
+def actual_params(self):
+    u'\n        Get actual parameters of a model\n\n        :return: A dictionary of actual parameters for the model\n        '
+    params_to_select = {u'model_id': u'name', u'response_column': u'column_name', u'training_frame': u'name', u'validation_frame': u'name', }
+    params = {}
+    for p in self.parms:
+        if (p in params_to_select.keys()):
+            params[p] = self.parms[p][u'actual_value'].get(params_to_select[p], None)
+        else:
+            params[p] = self.parms[p][u'actual_value']
+    return params
