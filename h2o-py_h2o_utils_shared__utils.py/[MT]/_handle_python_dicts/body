@@ -1,6 +1,6 @@
 def _handle_python_dicts(python_obj, check_header):
     header = list(python_obj.keys())
-    is_valid = all([re.match(u'^[a-zA-Z_][a-zA-Z0-9_.]*$', col) for col in header])
+    is_valid = all((re.match(u'^[a-zA-Z_][a-zA-Z0-9_.]*$', col) for col in header))
     if (not is_valid):
         raise ValueError(u'Did not get a valid set of column names! Must match the regular expression: ^[a-zA-Z_][a-zA-Z0-9_.]*$ ')
     for k in python_obj:
@@ -12,6 +12,7 @@ def _handle_python_dicts(python_obj, check_header):
             python_obj[k] = [v]
         else:
             raise ValueError(u'Encountered invalid dictionary value when constructing H2OFrame. Got: {0}'.format(v))
-    rows = list(map(list, itertools.zip_longest(*list(python_obj.values()))))
+    zipper = (getattr(itertools, u'zip_longest', None) or getattr(itertools, u'izip_longest', None) or zip)
+    rows = list(map(list, zipper(*list(python_obj.values()))))
     data_to_write = [dict(list(zip(header, row))) for row in rows]
     return (header, data_to_write)
