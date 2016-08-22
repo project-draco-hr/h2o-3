@@ -1,4 +1,4 @@
-def export_file():
+def export_file_multipart():
     pros_hex = h2o.upload_file(pyunit_utils.locate('smalldata/prostate/prostate.csv'))
     pros_hex[1] = pros_hex[1].asfactor()
     pros_hex[3] = pros_hex[3].asfactor()
@@ -14,11 +14,13 @@ def export_file():
 
     def id_generator(size=6, chars=(string.ascii_uppercase + string.digits)):
         return ''.join((random.choice(chars) for _ in range(size)))
-    fname = (id_generator() + '_prediction.csv')
     path = pyunit_utils.locate('results')
-    dname = ((path + '/') + fname)
-    h2o.export_file(mypred, dname)
-    py_pred = pd.read_csv(dname)
+    dname = os.path.join(path, (id_generator() + '_prediction'))
+    h2o.export_file(mypred, dname, parts=(-1))
+    assert os.path.isdir(dname)
+    part_files = glob.glob(os.path.join(dname, 'part-m-?????'))
+    print(part_files)
+    py_pred = pd.concat((pd.read_csv(f) for f in part_files))
     print(py_pred.head())
     h_pred = mypred.as_data_frame(True)
     print(h_pred.head())
