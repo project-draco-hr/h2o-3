@@ -1,0 +1,27 @@
+def export_file_multipart():
+    pros_hex = h2o.upload_file(pyunit_utils.locate('smalldata/prostate/prostate.csv'))
+    pros_hex[1] = pros_hex[1].asfactor()
+    pros_hex[3] = pros_hex[3].asfactor()
+    pros_hex[4] = pros_hex[4].asfactor()
+    pros_hex[5] = pros_hex[5].asfactor()
+    pros_hex[8] = pros_hex[8].asfactor()
+    p_sid = pros_hex.runif()
+    pros_train = pros_hex[(p_sid > 0.2), :]
+    pros_test = pros_hex[(p_sid <= 0.2), :]
+    glm = H2OGeneralizedLinearEstimator(family='binomial')
+    myglm = glm.train(x=list(range(2, pros_hex.ncol)), y=1, training_frame=pros_train)
+    mypred = glm.predict(pros_test)
+
+    def id_generator(size=6, chars=(string.ascii_uppercase + string.digits)):
+        return ''.join((random.choice(chars) for _ in range(size)))
+    path = pyunit_utils.locate('results')
+    dname = os.path.join(path, (id_generator() + '_prediction'))
+    h2o.export_file(mypred, dname, parts=(-1))
+    assert os.path.isdir(dname)
+    part_files = glob.glob(os.path.join(dname, 'part-m-?????'))
+    print(part_files)
+    py_pred = pd.concat((pd.read_csv(f) for f in part_files))
+    print(py_pred.head())
+    h_pred = mypred.as_data_frame(True)
+    print(h_pred.head())
+    assert_frame_equal(py_pred, h_pred)
