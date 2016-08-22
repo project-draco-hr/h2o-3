@@ -1,0 +1,54 @@
+{
+  List<StructField> allColumns=(List<StructField>)insp.getAllStructFieldRefs();
+  List<StripeInformation> allStripes=orcFileReader.getStripes();
+  ArrayList<String> allColNames=new ArrayList<>();
+  boolean[] toInclude=new boolean[allColumns.size() + 1];
+  int supportedFieldCnt=0;
+  int colIdx=0;
+  for (  StructField oneField : allColumns) {
+    allColNames.add(oneField.getFieldName());
+    String columnType=oneField.getFieldObjectInspector().getTypeName();
+    if (columnType.toLowerCase().contains("decimal")) {
+      columnType="decimal";
+    }
+    if (isSupportedSchema(columnType)) {
+      toInclude[colIdx + 1]=true;
+      supportedFieldCnt++;
+    }
+    int cnt=countStructFields(oneField.getFieldObjectInspector(),allColNames);
+    if (cnt > 1)     toInclude=Arrays.copyOf(toInclude,toInclude.length + cnt - 1);
+    colIdx+=cnt;
+  }
+  String[] allNames=allColNames.toArray(new String[allColNames.size()]);
+  String[] names=new String[supportedFieldCnt];
+  byte[] types=new byte[supportedFieldCnt];
+  String[][] domains=new String[supportedFieldCnt][];
+  String[] dataPreview=new String[supportedFieldCnt];
+  String[] dataTypes=new String[supportedFieldCnt];
+  ParseWriter.ParseErr[] errs=new ParseWriter.ParseErr[0];
+  int columnIndex=0;
+  for (  StructField oneField : allColumns) {
+    String columnType=oneField.getFieldObjectInspector().getTypeName();
+    if (columnType.toLowerCase().contains("decimal"))     columnType="decimal";
+    if (isSupportedSchema(columnType)) {
+      names[columnIndex]=oneField.getFieldName();
+      types[columnIndex]=schemaToColumnType(columnType);
+      dataTypes[columnIndex]=columnType;
+      columnIndex++;
+    }
+ else {
+      errs=ArrayUtils.append(errs,new ParseWriter.ParseErr("Orc Parser: Skipping field: " + oneField.getFieldName() + " because of unsupported type: "+ columnType,-1,-1L,-2L));
+    }
+  }
+  long[] stripeSizes=new long[allStripes.size()];
+  long fileSize=0L;
+  long maxStripeSize=0L;
+  for (int index=0; index < allStripes.size(); index++) {
+    long stripeSize=allStripes.get(index).getDataLength();
+    if (stripeSize > maxStripeSize)     maxStripeSize=stripeSize;
+    fileSize=fileSize + stripeSize;
+    stripeSizes[index]=fileSize;
+  }
+  OrcParseSetup ps=new OrcParseSetup(supportedFieldCnt,names,types,domains,null,new String[][]{dataPreview},orcFileReader,dataTypes,toInclude,allNames,errs);
+  return ps;
+}

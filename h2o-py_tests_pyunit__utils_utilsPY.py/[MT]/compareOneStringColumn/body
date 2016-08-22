@@ -1,0 +1,12 @@
+def compareOneStringColumn(frame1, frame2, col_ind, rows, numElements):
+    '\n    This function will compare two String columns of two H2O frames to make sure that they are the same.\n\n    :param frame1: H2O frame to be compared\n    :param frame2: H2O frame to be compared\n    :param col_ind: integer denoting column index to compare the two frames\n    :param rows: integer denoting number of rows in the column\n    :param numElements: integer to denote number of rows to compare.  Done to reduce compare time\n    :return: None.  Will throw exceptions if comparison failed.\n    '
+    row_indices = list(range(rows))
+    if (numElements > 0):
+        random.shuffle(row_indices)
+    else:
+        numElements = rows
+    for ele_ind in range(numElements):
+        row_ind = row_indices[ele_ind]
+        val1 = frame1[(row_ind, col_ind)]
+        val2 = frame2[(row_ind, col_ind)]
+        assert (val1 == val2), 'failed frame values check! frame1 value: {0}, frame2 value: {1} at row {2}, column {3}'.format(val1, val2, row_ind, col_ind)

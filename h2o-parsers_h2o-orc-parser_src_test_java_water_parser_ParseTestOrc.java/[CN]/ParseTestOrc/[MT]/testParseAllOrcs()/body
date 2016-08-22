@@ -1,0 +1,37 @@
+{
+  Set<String> failedFiles=new TreeSet<>();
+  int numOfOrcFiles=allOrcFiles.length;
+  for (int fIndex=0; fIndex < numOfOrcFiles; fIndex++) {
+    String fileName=allOrcFiles[fIndex];
+    Log.info("Orc Parser parsing " + fileName);
+    File f=find_test_file_static(fileName);
+    if (f != null && f.exists()) {
+      Configuration conf=new Configuration();
+      Path p=new Path(f.toString());
+      try {
+        Reader orcFileReader=OrcFile.createReader(p,OrcFile.readerOptions(conf));
+        Frame h2oFrame=parse_test_file(fileName);
+        compareH2OFrame(fileName,failedFiles,h2oFrame,orcFileReader);
+        if (h2oFrame != null)         h2oFrame.delete();
+        totalFilesTested++;
+      }
+ catch (      IOException e) {
+        e.printStackTrace();
+        failedFiles.add(fileName);
+        numberWrong++;
+      }
+    }
+ else {
+      Log.warn("The following file was not found: " + fileName);
+      failedFiles.add(fileName);
+      numberWrong++;
+    }
+  }
+  if (numberWrong > 0) {
+    Log.warn("There are errors in your test.");
+    assertEquals("Number of orc files failed to parse is: " + numberWrong + ", failed files = "+ failedFiles.toString(),0,numberWrong);
+  }
+ else {
+    Log.info("Parser test passed!  Number of files parsed is " + totalFilesTested);
+  }
+}

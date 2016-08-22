@@ -1,0 +1,28 @@
+def compare_frames(frame1, frame2, numElements, tol_time=0, tol_numeric=0, strict=False, compare_NA=True):
+    '\n    This function will compare two H2O frames to make sure their dimension, and values in all cells are the same.\n    It will not compare the column names though.\n\n    :param frame1: H2O frame to be compared\n    :param frame2: H2O frame to be compared\n    :param numElements: integer to denote number of rows to compare.  Done to reduce compare time.\n        Set to 0 or negative number if you want to compare all elements.\n    :param tol_time: optional parameter to limit time value difference.\n    :param tol_numerica: optional parameter to limit numeric value difference.\n    :param strict: optional parameter to enforce strict comparison or not.  If True, column type must\n        match in order to pass the test.\n    :param compare_NA: optional parameter to compare NA or not.  For csv file generated from orc file, the\n        NAs are represented as some other symbol but our CSV will not be able to parse it correctly as NA.\n        In this case, do not compare the number of NAs.\n    :return: boolean: True, the two frames are equal and False otherwise.\n    '
+    (rows1, cols1) = frame1.dim
+    (rows2, cols2) = frame2.dim
+    assert ((rows1 == rows2) and (cols1 == cols2)), 'failed dim check! frame 1 rows:{0} frame 2 rows:{1} frame 1 cols:{2} frame2 cols:{3}'.format(rows1, rows2, cols1, cols2)
+    na_frame1 = frame1.isna().sum()
+    na_frame2 = frame2.isna().sum()
+    if compare_NA:
+        assert (na_frame1 == na_frame2), 'failed numbers of NA check!  Frame 1 NA number: {0}, frame 2 NA number: {1}'.format(na_frame1, na_frame2)
+    for col_ind in range(cols1):
+        c1_key = frame1.columns[col_ind]
+        c2_key = frame2.columns[col_ind]
+        c2_type = frame2.types[c2_key]
+        c1_type = frame1.types[c1_key]
+        print('###### Comparing column: {0} and column type is {1}.'.format(col_ind, c1_type))
+        if strict:
+            assert (c1_type == c2_type), 'failed column type check! frame1 col type: {0}, frame2 col type: {1}'.format(c1_type, c2_type)
+        elif (str(c2_type) == 'enum'):
+            frame1[col_ind].asfactor()
+        else:
+            assert (c1_type == c2_type), 'failed column type check! frame1 col type: {0}, frame2 col type: {1}'.format(c1_type, c2_type)
+        if ((str(c1_type) == 'string') or (str(c1_type) == 'enum')):
+            compareOneStringColumn(frame1, frame2, col_ind, rows1, numElements)
+        elif (str(c2_type) == 'time'):
+            compareOneNumericColumn(frame1, frame2, col_ind, rows1, tol_time, numElements)
+        else:
+            compareOneNumericColumn(frame1, frame2, col_ind, rows1, tol_numeric, numElements)
+    return True

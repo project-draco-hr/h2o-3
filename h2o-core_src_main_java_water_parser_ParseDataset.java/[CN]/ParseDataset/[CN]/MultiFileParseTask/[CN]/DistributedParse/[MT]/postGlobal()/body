@@ -3,6 +3,7 @@
   _outerMFPT._dout[_outerMFPT._lo]=_dout;
   if (_dout.hasErrors()) {
     ParseWriter.ParseErr[] errs=_dout.removeErrors();
+    for (    ParseWriter.ParseErr err : errs)     err._file=FileVec.getPathForKey(_srckey).toString();
     Arrays.sort(errs,new Comparator<ParseWriter.ParseErr>(){
       @Override public int compare(      ParseWriter.ParseErr o1,      ParseWriter.ParseErr o2){
         return (int)(o1._byteOffset - o2._byteOffset);

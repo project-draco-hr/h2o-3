@@ -1,2 +1,30 @@
 {
+  if (_jobKey.get().stop_requested())   throw new Job.JobCancelledException();
+  AppendableVec[] avs=new AppendableVec[_setup._number_columns];
+  for (int i=0; i < avs.length; ++i)   if (_setup._column_types == null)   avs[i]=new AppendableVec(_vg.vecKey(_vecIdStart + i),_espc,Vec.T_NUM,_startChunkIdx);
+ else   avs[i]=new AppendableVec(_vg.vecKey(_vecIdStart + i),_espc,_setup._column_types[i],_startChunkIdx);
+  FVecParseReader din=new FVecParseReader(in);
+  FVecParseWriter dout;
+  Parser p=_setup.parser(_jobKey);
+switch (_setup._parse_type.name()) {
+case "ARFF":
+case "CSV":
+    Categorical[] categoricals=categoricals(_cKey,_setup._number_columns);
+  dout=new FVecParseWriter(_vg,_startChunkIdx + in.cidx(),categoricals,_setup._column_types,_setup._chunk_size,avs);
+break;
+case "SVMLight":
+dout=new SVMLightFVecParseWriter(_vg,_vecIdStart,in.cidx() + _startChunkIdx,_setup._chunk_size,avs);
+break;
+case "ORC":
+Categorical[] orc_categoricals=categoricals(_cKey,_setup._number_columns);
+dout=new FVecParseWriter(_vg,in.cidx() + _startChunkIdx,orc_categoricals,_setup._column_types,_setup._chunk_size,avs);
+break;
+default :
+dout=new FVecParseWriter(_vg,in.cidx() + _startChunkIdx,null,_setup._column_types,_setup._chunk_size,avs);
+break;
+}
+p.parseChunk(in.cidx(),din,dout);
+(_dout=dout).close(_fs);
+Job.update(in._len,_jobKey);
+freeMem(in);
 }

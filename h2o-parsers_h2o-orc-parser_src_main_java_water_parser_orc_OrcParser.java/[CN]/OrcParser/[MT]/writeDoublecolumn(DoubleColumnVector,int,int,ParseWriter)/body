@@ -1,0 +1,48 @@
+{
+  double[] oneColumn=vec.vector;
+  byte t=_setup.getColumnTypes()[colId];
+switch (t) {
+case Vec.T_CAT:
+    if (_toStringMaps.get(colId) == null)     _toStringMaps.put(colId,new HashMap<Number,byte[]>());
+  HashMap<Number,byte[]> map=_toStringMaps.get(colId);
+BufferedString bs=new BufferedString();
+if (vec.isRepeating) {
+bs.set(Double.toString(oneColumn[0]).getBytes());
+for (int i=0; i < rowNumber; ++i) dout.addStrCol(colId,bs);
+}
+ else if (vec.noNulls) {
+for (int i=0; i < rowNumber; i++) {
+  double d=oneColumn[i];
+  if (map.get(d) == null)   map.put(d,Double.toString(d).getBytes());
+  dout.addStrCol(colId,bs.set(map.get(d)));
+}
+}
+ else {
+for (int i=0; i < rowNumber; i++) {
+  boolean[] isNull=vec.isNull;
+  if (isNull[i])   dout.addInvalidCol(colId);
+ else {
+    double d=oneColumn[i];
+    if (map.get(d) == null)     map.put(d,Double.toString(d).getBytes());
+    dout.addStrCol(colId,bs.set(map.get(d)));
+  }
+}
+}
+break;
+default :
+if (vec.isRepeating) {
+for (int i=0; i < rowNumber; ++i) dout.addNumCol(colId,oneColumn[0]);
+}
+ else if (vec.noNulls) {
+for (int rowIndex=0; rowIndex < rowNumber; rowIndex++) dout.addNumCol(colId,oneColumn[rowIndex]);
+}
+ else {
+boolean[] isNull=vec.isNull;
+for (int rowIndex=0; rowIndex < rowNumber; rowIndex++) {
+if (isNull[rowIndex]) dout.addInvalidCol(colId);
+ else dout.addNumCol(colId,oneColumn[rowIndex]);
+}
+}
+break;
+}
+}

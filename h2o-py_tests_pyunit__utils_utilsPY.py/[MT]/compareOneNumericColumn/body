@@ -1,0 +1,19 @@
+def compareOneNumericColumn(frame1, frame2, col_ind, rows, tolerance, numElements):
+    '\n    This function compares two numeric columns of two H2O frames to make sure that they are close.\n\n    :param frame1: H2O frame to be compared\n    :param frame2: H2O frame to be compared\n    :param col_ind: integer denoting column index to compare the two frames\n    :param rows: integer denoting number of rows in the column\n    :param tolerance: double parameter to limit numerical value difference.\n    :param numElements: integer to denote number of rows to compare.  Done to reduce compare time.\n    :return: None.  Will throw exceptions if comparison failed.\n    '
+    row_indices = []
+    if (numElements > 0):
+        row_indices = random.sample(xrange(rows), numElements)
+    else:
+        numElements = rows
+        list(range(rows))
+    for ele_ind in range(numElements):
+        row_ind = row_indices[ele_ind]
+        val1 = frame1[(row_ind, col_ind)]
+        val2 = frame2[(row_ind, col_ind)]
+        if ((not math.isnan(val1)) and (not math.isnan(val2))):
+            diff = abs((val1 - val2))
+            assert (diff <= tolerance), 'failed frame values check! frame1 value = {0}, frame2 value =  {1}, at row {2}, column {3}.  The difference is {4}.'.format(val1, val2, row_ind, col_ind, diff)
+        elif (math.isnan(val1) and math.isnan(val2)):
+            continue
+        else:
+            assert (1 == 2), 'failed frame values check! frame1 value {0}, frame2 value {1} at row {2}, column {3}'.format(val1, val2, row_ind, col_ind)

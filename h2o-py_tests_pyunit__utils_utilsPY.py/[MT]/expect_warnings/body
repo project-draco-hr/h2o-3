@@ -1,0 +1,21 @@
+def expect_warnings(filewithpath, warn_phrase='warn', warn_string_of_interest='warn', number_of_times=1):
+    '\n            This function will execute a command to run and analyze the print outs of\n    running the command.  The goal here is to capture any warnings that we may expect\n    out of running those commands.\n\n    :param filewithpath: name of file to be parsed with path\n    :param warn_phrase: capture the warning header, sometimes it is warn or userwarn.\n    :param warn_string_of_interest: specific warning message string\n    :param number_of_times: number of warning lines we are expecting.\n    :return: True if warning was found and False otherwise\n    '
+    number_warngings = 0
+    buffer = StringIO()
+    sys.stderr = buffer
+    frame = h2o.import_file(path=locate(filewithpath))
+    sys.stderr = sys.__stderr__
+    try:
+        if (len(buffer.buflist) > 0):
+            for index in range(len(buffer.buflist)):
+                if ((warn_phrase in buffer.buflist[index]) and (warn_string_of_interest in buffer.buflist[index])):
+                    number_warngings = (number_warngings + 1)
+    except:
+        warns = buffer.getvalue()
+        if ((warn_phrase in warns) and (warn_string_of_interest in warns)):
+            number_warngings = (number_warngings + 1)
+        number_of_times = 1
+    if (number_warngings >= number_of_times):
+        return True
+    else:
+        return False

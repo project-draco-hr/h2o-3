@@ -1,0 +1,17 @@
+{
+  BufferedString bs=new BufferedString();
+  if (col.isRepeating) {
+    dout.addStrCol(cIdx,bs.set(col.vector[0],col.start[0],col.length[0]));
+    for (int rowIndex=1; rowIndex < rowNumber; ++rowIndex)     dout.addStrCol(cIdx,bs);
+  }
+ else   if (col.noNulls) {
+    for (int rowIndex=0; rowIndex < rowNumber; rowIndex++)     dout.addStrCol(cIdx,bs.set(col.vector[rowIndex],col.start[rowIndex],col.length[rowIndex]));
+  }
+ else {
+    boolean[] isNull=col.isNull;
+    for (int rowIndex=0; rowIndex < rowNumber; rowIndex++) {
+      if (isNull[rowIndex])       dout.addInvalidCol(cIdx);
+ else       dout.addStrCol(cIdx,bs.set(col.vector[rowIndex],col.start[rowIndex],col.length[rowIndex]));
+    }
+  }
+}

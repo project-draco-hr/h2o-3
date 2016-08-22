@@ -1,0 +1,37 @@
+{
+  if (oneColumn.isRepeating && !oneColumn.noNulls) {
+    for (int i=0; i < rowNumber; ++i)     dout.addInvalidCol(cIdx);
+  }
+ else switch (columnType.toLowerCase()) {
+case "bigint":
+case "boolean":
+case "int":
+case "smallint":
+case "tinyint":
+    writeLongcolumn((LongColumnVector)oneColumn,cIdx,rowNumber,dout);
+  break;
+case "float":
+case "double":
+writeDoublecolumn((DoubleColumnVector)oneColumn,cIdx,rowNumber,dout);
+break;
+case "numeric":
+case "real":
+if (oneColumn instanceof LongColumnVector) writeLongcolumn((LongColumnVector)oneColumn,cIdx,rowNumber,dout);
+ else writeDoublecolumn((DoubleColumnVector)oneColumn,cIdx,rowNumber,dout);
+break;
+case "string":
+case "varchar":
+case "char":
+writeStringcolumn((BytesColumnVector)oneColumn,cIdx,rowNumber,dout);
+break;
+case "date":
+case "timestamp":
+writeTimecolumn((LongColumnVector)oneColumn,columnType,cIdx,rowNumber,dout);
+break;
+case "decimal":
+writeDecimalcolumn((DecimalColumnVector)oneColumn,cIdx,rowNumber,dout);
+break;
+default :
+throw new IllegalArgumentException("Unsupported Orc schema type: " + columnType);
+}
+}

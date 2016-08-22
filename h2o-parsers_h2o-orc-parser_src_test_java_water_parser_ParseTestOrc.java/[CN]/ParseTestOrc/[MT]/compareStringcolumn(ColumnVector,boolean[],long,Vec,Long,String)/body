@@ -1,0 +1,15 @@
+{
+  byte[][] oneColumn=((BytesColumnVector)oneStringColumn).vector;
+  int[] stringLength=((BytesColumnVector)oneStringColumn).length;
+  int[] stringStart=((BytesColumnVector)oneStringColumn).start;
+  long frameRowIndex=startRowIndex;
+  for (int rowIndex=0; rowIndex < currentBatchRow; rowIndex++) {
+    if (isNull[rowIndex])     assertEquals("Na is found: ",true,h2oFrame.isNA(frameRowIndex));
+ else {
+      if (!oneStringColumn.isRepeating || rowIndex == 0)       tempOrc.set(oneColumn[rowIndex],stringStart[rowIndex],stringLength[rowIndex]);
+      h2oFrame.atStr(h2o,frameRowIndex);
+      assertEquals("isRepeating = " + oneStringColumn.isRepeating + " String/char elements should equal: ",true,tempOrc.equals(h2o));
+    }
+    frameRowIndex++;
+  }
+}

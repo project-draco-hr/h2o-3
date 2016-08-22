@@ -1,0 +1,31 @@
+{
+  if (columnType.contains("binary"))   return;
+switch (columnType) {
+case "boolean":
+case "bigint":
+case "int":
+case "smallint":
+case "tinyint":
+    CompareLongcolumn(oneColumn,oneColumn.isNull,currentBatchRow,h2oColumn,startRowIndex);
+  break;
+case "float":
+case "double":
+compareDoublecolumn(oneColumn,oneColumn.isNull,currentBatchRow,h2oColumn,startRowIndex);
+break;
+case "string":
+case "varchar":
+case "char":
+case "binary":
+compareStringcolumn(oneColumn,oneColumn.isNull,currentBatchRow,h2oColumn,startRowIndex,columnType);
+break;
+case "timestamp":
+case "date":
+compareTimecolumn(oneColumn,columnType,oneColumn.isNull,currentBatchRow,h2oColumn,startRowIndex);
+break;
+case "decimal":
+compareDecimalcolumn(oneColumn,oneColumn.isNull,currentBatchRow,h2oColumn,startRowIndex);
+break;
+default :
+Log.warn("String, bigint are not tested.  H2O frame is built for them but cannot be verified.");
+}
+}

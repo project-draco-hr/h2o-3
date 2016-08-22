@@ -1,0 +1,12 @@
+{
+  long[] oneColumn=((LongColumnVector)oneTSColumn).vector;
+  long frameRowIndex=startRowIndex;
+  for (int rowIndex=0; rowIndex < currentBatchRow; rowIndex++) {
+    if (isNull[rowIndex])     assertEquals("Na is found: ",true,h2oFrame.isNA(frameRowIndex));
+ else {
+      if (columnType.contains("timestamp"))       assertEquals("Numerical elements should equal: ",oneColumn[rowIndex] / 1000000,h2oFrame.at8(frameRowIndex),ERRORMARGIN);
+ else       assertEquals("Numerical elements should equal: ",correctTimeStamp(oneColumn[rowIndex]),h2oFrame.at8(frameRowIndex),ERRORMARGIN);
+    }
+    frameRowIndex++;
+  }
+}

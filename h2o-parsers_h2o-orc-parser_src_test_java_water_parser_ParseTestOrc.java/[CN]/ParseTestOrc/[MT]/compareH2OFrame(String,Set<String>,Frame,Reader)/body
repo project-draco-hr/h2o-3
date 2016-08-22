@@ -1,0 +1,34 @@
+{
+  StructObjectInspector insp=(StructObjectInspector)orcReader.getObjectInspector();
+  List<StructField> allColInfo=(List<StructField>)insp.getAllStructFieldRefs();
+  int allColNumber=allColInfo.size();
+  boolean[] toInclude=new boolean[allColNumber + 1];
+  int colNumber=0;
+  int index1=0;
+  for (  StructField oneField : allColInfo) {
+    String colType=oneField.getFieldObjectInspector().getTypeName();
+    if (colType.toLowerCase().contains("decimal"))     colType="decimal";
+    if (isSupportedSchema(colType)) {
+      toInclude[index1 + 1]=true;
+      colNumber++;
+    }
+    index1++;
+  }
+  assertEquals("Number of columns need to be the same: ",colNumber,h2oFrame.numCols());
+  String[] colNames=new String[colNumber];
+  String[] colTypes=new String[colNumber];
+  int colIndex=0;
+  for (int index=0; index < allColNumber; index++) {
+    String typeName=allColInfo.get(index).getFieldObjectInspector().getTypeName();
+    if (typeName.toLowerCase().contains("decimal"))     typeName="decimal";
+    if (isSupportedSchema(typeName)) {
+      colNames[colIndex]=allColInfo.get(index).getFieldName();
+      colTypes[colIndex]=typeName;
+      colIndex++;
+    }
+  }
+  assertArrayEquals("Column names need to be the same: ",colNames,h2oFrame._names);
+  compareFrameContents(fileName,failedFiles,h2oFrame,orcReader,colTypes,colNames,toInclude);
+  Long totalRowNumber=orcReader.getNumberOfRows();
+  assertEquals("Number of rows need to be the same: ",totalRowNumber,(Long)h2oFrame.numRows());
+}

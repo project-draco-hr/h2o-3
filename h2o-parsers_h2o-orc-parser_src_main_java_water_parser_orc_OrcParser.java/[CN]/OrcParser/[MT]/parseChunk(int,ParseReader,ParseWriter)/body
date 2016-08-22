@@ -1,0 +1,38 @@
+{
+  _cidx=chunkId;
+  List<StripeInformation> stripesInfo=((OrcParseSetup)this._setup).getStripes();
+  if (stripesInfo.size() == 0) {
+    dout.addError(new ParseWriter.ParseErr("Orc Parser: Empty file.",chunkId,0L,-2L));
+    return dout;
+  }
+  OrcParseSetup setup=(OrcParseSetup)this._setup;
+  StripeInformation thisStripe=stripesInfo.get(chunkId);
+  String[] orcTypes=setup.getColumnTypesString();
+  boolean[] toInclude=setup.getToInclude();
+  try {
+    RecordReader perStripe=orcFileReader.rows(thisStripe.getOffset(),thisStripe.getDataLength(),setup.getToInclude(),null,setup.getColumnNames());
+    VectorizedRowBatch batch=null;
+    long rows=0;
+    long rowCount=thisStripe.getNumberOfRows();
+    while (rows != rowCount) {
+      batch=perStripe.nextBatch(batch);
+      long currentBatchRow=batch.count();
+      int nrows=(int)currentBatchRow;
+      if (currentBatchRow != nrows)       throw new IllegalArgumentException("got batch with too many records, does not fit in int");
+      ColumnVector[] dataVectors=batch.cols;
+      int colIndex=0;
+      for (int col=0; col < batch.numCols; ++col) {
+        if (toInclude[col + 1]) {
+          write1column(dataVectors[col],orcTypes[colIndex],colIndex,nrows,dout);
+          colIndex++;
+        }
+      }
+      rows+=currentBatchRow;
+    }
+    perStripe.close();
+  }
+ catch (  IOException ioe) {
+    throw new RuntimeException(ioe);
+  }
+  return dout;
+}

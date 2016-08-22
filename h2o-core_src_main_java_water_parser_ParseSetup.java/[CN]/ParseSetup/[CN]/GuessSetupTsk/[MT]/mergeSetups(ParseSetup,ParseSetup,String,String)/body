@@ -3,16 +3,16 @@
   ParseSetup mergedSetup=setupA;
   mergedSetup._check_header=unifyCheckHeader(setupA._check_header,setupB._check_header);
   mergedSetup._separator=unifyColumnSeparators(setupA._separator,setupB._separator);
-  mergedSetup._column_names=unifyColumnNames(setupA._column_names,setupB._column_names);
   if (setupA._parse_type.equals(ARFF_INFO) && setupB._parse_type.equals(CSV_INFO))   ;
  else   if (setupA._parse_type.equals(CSV_INFO) && setupB._parse_type.equals(ARFF_INFO)) {
     mergedSetup._parse_type=ARFF_INFO;
     mergedSetup._column_types=setupB._column_types;
   }
- else   if (setupA._parse_type.equals(setupB._parse_type)) {
+ else   if (setupA.isCompatible(setupB)) {
     mergedSetup._column_previews=PreviewParseWriter.unifyColumnPreviews(setupA._column_previews,setupB._column_previews);
   }
- else   throw new ParseDataset.H2OParseException("File type mismatch. Cannot parse files of type " + setupA._parse_type + " and "+ setupB._parse_type+ " as one dataset.");
+ else   throw new ParseDataset.H2OParseException("File type mismatch. Cannot parse files " + setupA.file() + " and "+ setupB.file()+ " of type "+ setupA._parse_type.name()+ " and "+ setupB._parse_type.name()+ " as one dataset.");
+  mergedSetup._column_names=unifyColumnNames(setupA._column_names,setupB._column_names);
   mergedSetup._number_columns=mergedSetup._parse_type.equals(CSV_INFO) ? Math.max(setupA._number_columns,setupB._number_columns) : unifyColumnCount(setupA._number_columns,setupB._number_columns,mergedSetup,fileA,fileB);
   if (mergedSetup._data.length < PreviewParseWriter.MAX_PREVIEW_LINES) {
     int n=mergedSetup._data.length;
@@ -21,6 +21,7 @@
     System.arraycopy(setupB._data,1,mergedSetup._data,n,m - n);
   }
   mergedSetup._errs=ArrayUtils.append(setupA._errs,setupB._errs);
+  mergedSetup._fileNames=ArrayUtils.append(setupA._fileNames,setupB._fileNames);
   if (mergedSetup._errs.length > 20)   mergedSetup._errs=Arrays.copyOf(mergedSetup._errs,20);
   return mergedSetup;
 }

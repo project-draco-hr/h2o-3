@@ -1,0 +1,23 @@
+{
+  HiveDecimalWritable[] oneColumn=col.vector;
+  if (col.isRepeating) {
+    HiveDecimal hd=oneColumn[0].getHiveDecimal();
+    for (int rowIndex=0; rowIndex < rowNumber; rowIndex++)     dout.addNumCol(cIdx,hd.unscaledValue().longValue(),-hd.scale());
+  }
+ else   if (col.noNulls) {
+    for (int rowIndex=0; rowIndex < rowNumber; rowIndex++) {
+      HiveDecimal hd=oneColumn[rowIndex].getHiveDecimal();
+      dout.addNumCol(cIdx,hd.unscaledValue().longValue(),-hd.scale());
+    }
+  }
+ else {
+    boolean[] isNull=col.isNull;
+    for (int rowIndex=0; rowIndex < rowNumber; rowIndex++) {
+      if (isNull[rowIndex])       dout.addInvalidCol(cIdx);
+ else {
+        HiveDecimal hd=oneColumn[rowIndex].getHiveDecimal();
+        dout.addNumCol(cIdx,hd.unscaledValue().longValue(),-hd.scale());
+      }
+    }
+  }
+}

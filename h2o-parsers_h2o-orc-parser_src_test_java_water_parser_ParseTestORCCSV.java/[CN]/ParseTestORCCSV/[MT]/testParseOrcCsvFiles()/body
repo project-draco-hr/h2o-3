@@ -1,0 +1,26 @@
+{
+  int f_index=0;
+  Frame csv_frame=parse_test_file(csvFiles[f_index],"\\N",0,null);
+  Frame orc_frame=null;
+  if (forceColumnTypes[f_index]) {
+    byte[] types=csv_frame.types();
+    for (int index=0; index < types.length; index++) {
+      if (types[index] == 0)       types[index]=3;
+    }
+    orc_frame=parse_test_file(orcFiles[f_index],null,0,types);
+  }
+ else {
+    orc_frame=parse_test_file(orcFiles[f_index],null,0,null);
+  }
+  byte[] csv_types=csv_frame.types();
+  byte[] orc_types=orc_frame.types();
+  for (int index=0; index < csv_frame.numCols(); index++) {
+    if ((csv_types[index] == 4) && (orc_types[index] == 2)) {
+      orc_frame.replace(index,orc_frame.vec(index).toCategoricalVec().toNumericVec());
+      csv_frame.replace(index,csv_frame.vec(index).toNumericVec());
+    }
+  }
+  assertTrue(TestUtil.isIdenticalUpToRelTolerance(csv_frame,orc_frame,1e-5));
+  csv_frame.delete();
+  orc_frame.delete();
+}
