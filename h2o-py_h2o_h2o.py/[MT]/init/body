@@ -18,10 +18,31 @@ def init(url=None, ip=None, port=None, https=None, insecure=False, username=None
     assert_is_type(min_mem_size, int, str, None)
     assert_is_type(strict_version_check, bool)
     assert_is_type(kwargs, {u'proxies': {str: str, }, u'max_mem_size_GB': int, u'min_mem_size_GB': int, u'force_connect': bool, })
+
+    def get_mem_size(mmint, mmgb):
+        if (not mmint):
+            if (mmgb is None):
+                return None
+            return (mmgb << 30)
+        if is_type(mmint, int):
+            if (mmint < 1000):
+                return (mmint << 30)
+            return mmint
+        if is_type(mmint, str):
+            last = mmint[(-1)].upper()
+            num = mmint[:(-1)]
+            if (not (num.isdigit() and (last in u'MGT'))):
+                raise H2OValueError((u"Wrong format for a *_memory_size argument: %s (should be a number followed by a suffix 'M', 'G' or 'T')" % mmint))
+            if (last == u'T'):
+                return (int(num) << 40)
+            if (last == u'G'):
+                return (int(num) << 30)
+            if (last == u'M'):
+                return (int(num) << 20)
     scheme = (u'https' if https else u'http')
     proxy = (proxy[scheme] if ((proxy is not None) and (scheme in proxy)) else (kwargs[u'proxies'][scheme] if ((u'proxies' in kwargs) and (scheme in kwargs[u'proxies'])) else None))
-    mmax = (int(max_mem_size) if (max_mem_size is not None) else ((kwargs[u'max_mem_size_GB'] << 30) if (u'max_mem_size_GB' in kwargs) else None))
-    mmin = (int(min_mem_size) if (min_mem_size is not None) else ((kwargs[u'min_mem_size_GB'] << 30) if (u'min_mem_size_GB' in kwargs) else None))
+    mmax = get_mem_size(max_mem_size, kwargs.get(u'max_mem_size_GB'))
+    mmin = get_mem_size(min_mem_size, kwargs.get(u'min_mem_size_GB'))
     auth = ((username, password) if (username and password) else None)
     if (not start_h2o):
         print(u"Warning: if you don't want to start local H2O server, then use of `h2o.connect()` is preferred.")
