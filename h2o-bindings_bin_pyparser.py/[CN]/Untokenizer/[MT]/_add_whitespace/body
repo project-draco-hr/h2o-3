@@ -1,0 +1,10 @@
+def _add_whitespace(self, row, col):
+    if ((row < self._last_row) or ((row == self._last_row) and (col < self._last_col))):
+        raise ValueError(u'start ({},{}) precedes previous end ({},{})'.format(row, col, self._last_row, self._last_col))
+    row_offset = (row - self._last_row)
+    if row_offset:
+        self._untokens.append((u' \\\n' * row_offset))
+        self._last_col = 0
+    col_offset = (col - self._last_col)
+    if col_offset:
+        self._untokens.append((u' ' * col_offset))

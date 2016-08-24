@@ -1,0 +1,23 @@
+def _parse(self):
+    out = []
+    tokens = self._tokens
+    i = 0
+    while ((tokens[i].op == COMMENT) and (tokens[(i + 1)].op == NL)):
+        i += 2
+    if (i > 0):
+        out.append(Comment(tokens[:i]))
+    import_types = set()
+    while (i < len(tokens)):
+        assert ((tokens[i].op == NAME) and (tokens[i].str in {u'import', u'from'})), (u'Unexpected token in ImportBlock: %r' % tokens[i])
+        i0 = i
+        while (tokens[i].op != NEWLINE):
+            i += 1
+        i += 1
+        expr = ImportExpr(tokens[i0:i])
+        import_types.add(expr.type)
+        out.append(expr)
+    if (len(import_types) == 1):
+        self._type = list(import_types)[0]
+    else:
+        self._type = u'mixed'
+    return out

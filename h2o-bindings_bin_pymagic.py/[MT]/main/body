@@ -1,0 +1,10 @@
+def main():
+    'Executed when script is run as-is.'
+    for filename in locate_files(ROOT_DIR):
+        print(('Processing %s' % filename))
+        with open(filename, 'rt') as f:
+            tokens = list(tokenize.generate_tokens(f.readline))
+            text1 = tokenize.untokenize(tokens)
+            ntokens = normalize_tokens(tokens)
+            text2 = tokenize.untokenize(ntokens)
+            assert (text1 == text2)

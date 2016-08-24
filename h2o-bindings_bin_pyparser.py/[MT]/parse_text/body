@@ -1,0 +1,6 @@
+def parse_text(text):
+    u'Parse code from a string of text.'
+    assert isinstance(text, _str_type), (u'`text` parameter should be a string, got %r' % type(text))
+    gen = iter(text.splitlines(True))
+    readline = (gen.next if hasattr(gen, u'next') else gen.__next__)
+    return Code(_tokenize(readline))

@@ -1,0 +1,8 @@
+def parse_python_file(filename):
+    'Parse file into chunks / objects.'
+    with open(filename, 'rt', encoding='utf-8') as f:
+        tokens = list(tokenize.generate_tokens(f.readline))
+        tokens = normalize_tokens(tokens)
+        module = ChunkCode(tokens, 0, len(tokens))
+        module.parse()
+        print(module)

@@ -1,0 +1,35 @@
+'Test case for pyparser.'
+from __future__ import division, print_function
+import os
+import re
+import textwrap
+import tokenize
+import colorama
+from colorama import Fore, Style
+from future.builtins import open
+import pyparser
+NL = tokenize.NL
+NEWLINE = tokenize.NEWLINE
+NAME = _make_tuple(tokenize.NAME)
+OP = _make_tuple(tokenize.OP)
+INDENT = tokenize.INDENT
+DEDENT = tokenize.DEDENT
+COMMENT = tokenize.COMMENT
+STRING = tokenize.STRING
+NUMBER = tokenize.NUMBER
+END = tokenize.ENDMARKER
+token_names = {NL: 'NL', NEWLINE: 'NEWLINE', INDENT: 'INDENT', COMMENT: 'COMMENT', DEDENT: 'DEDENT', STRING: 'STRING', NUMBER: 'NUMBER', END: 'END', tokenize.OP: 'OP', tokenize.NAME: 'NAME', }
+Ws = pyparser.Whitespace
+Comment = pyparser.Comment
+Comment_banner = (pyparser.Comment, 'banner')
+Comment_code = (pyparser.Comment, 'code')
+Docstring = pyparser.Docstring
+Import_future = (pyparser.ImportBlock, 'future')
+Import_stdlib = (pyparser.ImportBlock, 'stdlib')
+Import_3rdpty = (pyparser.ImportBlock, 'third-party')
+Import_1stpty = (pyparser.ImportBlock, 'first-party')
+Expression = pyparser.Expression
+Function = (pyparser.Callable, 'def')
+Class = (pyparser.Callable, 'class')
+colorama.init()
+test_pyparser()

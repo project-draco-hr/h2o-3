@@ -1,0 +1,72 @@
+def test_pyparser():
+    'Test case: general parsing.'
+
+    def _check_blocks(actual, expected):
+        assert actual, 'No parse results'
+        for i in range(len(actual)):
+            assert (i < len(expected)), ('Unexpected block %d:\n%r' % (i, actual[i]))
+            valid = False
+            if isinstance(expected[i], type):
+                if isinstance(actual[i], expected[i]):
+                    valid = True
+            elif isinstance(expected[i], tuple):
+                if (isinstance(actual[i], expected[i][0]) and (actual[i].type == expected[i][1])):
+                    valid = True
+            if (not valid):
+                assert False, ('Invalid block: expected %r, got %r' % (expected[i], actual[i]))
+
+    def check_code(code, blocks=None, filename=None):
+        code = textwrap.dedent(code)
+        if (not code.endswith('\n')):
+            code += '\n'
+        if filename:
+            print(('Testing file %s...' % filename), end=' ')
+        else:
+            check_code.index = (getattr(check_code, 'index', 0) + 1)
+            print(('Testing code fragment %d...' % check_code.index), end=' ')
+        preparsed = None
+        parsed = None
+        unparsed = None
+        try:
+            preparsed = pyparser.parse_text(code)
+            parsed = preparsed.parse(2)
+            try:
+                unparsed = parsed.unparse()
+            except ValueError as e:
+                for (i, tok) in enumerate(parsed.tokens):
+                    print(('%3d %r' % (i, tok)))
+                raise AssertionError(('Cannot unparse code: %s' % e))
+            assert_same_code(code, unparsed)
+            if blocks:
+                _check_blocks(parsed.parsed, blocks)
+            print('ok')
+        except AssertionError as e:
+            print()
+            print(((((Style.BRIGHT + Fore.LIGHTRED_EX) + u'Error: ') + str(e)) + Style.RESET_ALL))
+            print((((Style.BRIGHT + u'Original code fragment:\n') + Style.RESET_ALL) + code))
+            if unparsed:
+                print((((Style.BRIGHT + u'Unparsed code:\n') + Style.RESET_ALL) + unparsed))
+            if parsed:
+                print(parsed)
+                for (i, tok) in enumerate(parsed.tokens):
+                    print(('%3d %r' % (i, tok)))
+            raise
+        except Exception as e:
+            print()
+            print(((((Style.BRIGHT + Fore.LIGHTRED_EX) + u'Error: ') + str(e)) + Style.RESET_ALL))
+            if preparsed:
+                print('Preparsed tokens:')
+                for (i, tok) in enumerate(preparsed.tokens):
+                    print(('%4d %r' % (i, tok)))
+            else:
+                print('Initial parsing has failed...')
+            raise
+    check_code('\n        # -*- encoding: utf-8 -*-\n        # copyright: 2016 h2o.ai\n        """\n        A code example.\n\n        It\'s not supposed to be functional, or even functionable.\n        """\n        from __future__ import braces, antigravity\n\n        # Standard library imports\n        import sys\n        import time\n        import this\n\n        import h2o\n        from h2o import H2OFrame, init\n        from . import *\n\n\n\n        # Do some initalization for legacy python versions\n        if PY2:\n            def unicode():\n                raise RuntimeError   # disable this builtin function\n                                     # because it doesn\'t exist in Py3\n\n        handler = lambda: None  # noop\n                                # (will redefine later)\n\n        ################################################################################\n\n        # comment 1\n        class Foo(object):\n            #------ Public -------------------------------------------------------------\n            def bar(self):\n                pass\n\n        # def foo():\n        #     print(1)\n        #\n        #     print(2)\n\n        # comment 2\n        @decorated(\n            1, 2, (3))\n        @dddd\n        def bar():\n            # be\n            # happy\n            print("bar!")\n        # bye', [Ws, Comment, Docstring, Import_future, Ws, Import_stdlib, Ws, Import_1stpty, Ws, Expression, Ws, Expression, Ws, Comment_banner, Ws, Class, Ws, Comment_code, Ws, Function, Comment, Ws])
+    for directory in ['.', '../../h2o-py', '../../py']:
+        absdir = os.path.abspath(directory)
+        for (dir_name, subdirs, files) in os.walk(absdir):
+            for f in files:
+                if f.endswith('.py'):
+                    filename = os.path.join(dir_name, f)
+                    with open(filename, 'rt', encoding='utf-8') as fff:
+                        check_code(fff.read(), filename=filename)

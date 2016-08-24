@@ -1,0 +1,26 @@
+def add_tokens(self, tokens):
+    for tok in tokens:
+        if (tok.op == ENDMARKER):
+            break
+        if (tok.op == INDENT):
+            self._indents.append(tok.str)
+            continue
+        elif (tok.op == DEDENT):
+            self._indents.pop()
+            self._last_row = tok.end_row
+            self._last_col = tok.end_col
+            continue
+        elif (tok.op in {NEWLINE, NL}):
+            self._startline = True
+        elif (self._startline and self._indents):
+            if (tok._start_col >= len(self._indents[(-1)])):
+                self._untokens.append(self._indents[(-1)])
+                self._last_col = len(self._indents[(-1)])
+            self._startline = False
+        self._add_whitespace(tok.start_row, tok.start_col)
+        self._untokens.append(tok.str)
+        self._last_row = tok.end_row
+        self._last_col = tok.end_col
+        if (tok.op in {NEWLINE, NL}):
+            self._last_row += 1
+            self._last_col = 0

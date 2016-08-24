@@ -1,0 +1,10 @@
+def __repr__(self):
+    tok_name = Token._token_names[self._op]
+    if (self._op not in Token._bare_tokens):
+        s = repr(self.str)
+        if (s[0] == u'u'):
+            s = s[2:(-1)]
+        else:
+            s = s[1:(-1)]
+        tok_name += ((u'(' + s) + u')')
+    return (u'<Token %s at %d:%d..%d:%d>' % (tok_name, self._start_row, self._start_col, self._end_row, self._end_col))

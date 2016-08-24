@@ -1,0 +1,20 @@
+def assert_same_code(code1, code2):
+    'Verify whether 2 code fragments are identical, and if not print an error message.'
+    regex = re.compile('\\s+\\\\$', re.M)
+    code1 = re.sub(regex, '\\\\', code1)
+    code2 = re.sub(regex, '\\\\', code2)
+    if (code2 != code1):
+        print()
+        lines_code1 = code1.splitlines()
+        lines_code2 = code2.splitlines()
+        n_diffs = 0
+        for i in range(len(lines_code1)):
+            old_line = lines_code1[i]
+            new_line = (lines_code2[i] if (i < len(lines_code2)) else '')
+            if (old_line != new_line):
+                print(((((('%3d ' % (i + 1)) + Fore.RED) + '- ') + old_line) + Style.RESET_ALL))
+                print(((((('%3d ' % (i + 1)) + Fore.LIGHTGREEN_EX) + '+ ') + new_line) + Style.RESET_ALL))
+                n_diffs += 1
+                if (n_diffs == 5):
+                    break
+        raise AssertionError('Unparsed code1 does not match the original.')

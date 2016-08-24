@@ -1,0 +1,67 @@
+def _parse1(self):
+    u'\n        First stage of parsing the code (stored as a raw stream of tokens).\n\n        This method will do the initial pass of the ``self._tokens`` list of tokens, and mark different section as\n        belonging to one of the categories: comment, whitespace, docstring, import, code, decorator, def, class, end.\n        These sections will be returned as a list of tuples ``(fragment_type, start, end)``, where ``start`` and ``end``\n        are indices in the list of raw tokens.\n        '
+    fragments = []
+    tokens = self._tokens
+
+    def advance_after_newline(i0):
+        u'Return the index of the first token after the end of the current (logical) line.'
+        for i in range(i0, len(tokens)):
+            if (tokens[i].op == NEWLINE):
+                break
+        return (i + 1)
+    i = 0
+    while (i < len(tokens)):
+        i0 = i
+        tok = tokens[i]
+        fragment_type = u'???'
+        if (tok.op == ENDMARKER):
+            fragment_type = u'end'
+            i += 1
+            assert (i == len(tokens)), u'ENDMARKER token encountered before the end of the stream'
+        elif (tok.op == NL):
+            fragment_type = u'whitespace'
+            while (tokens[i].op == NL):
+                i += 1
+        elif (tok.op == COMMENT):
+            fragment_type = u'comment'
+            is_banner = False
+            while ((i < len(tokens)) and (tokens[i].op == COMMENT) and (tokens[i].start_col == tok.start_col)):
+                assert (tokens[(i + 1)].op == NL), (u'Unexpected token after a comment: %r' % tokens[(i + 1)])
+                s = tokens[i].str
+                if (re.match(u'^#\\s?[#*=-]{10,}$', s) or re.match(u'^#\\s?[#*=-]{4,}.*?[#*=-]{4,}$', s)):
+                    is_banner = True
+                i += 2
+            if is_banner:
+                fragment_type = u'banner-comment'
+        elif ((tok.op == STRING) and (tokens[(i + 1)].op == NEWLINE) and all((((frag[0] == u'whitespace') or (frag[0] == u'comment')) for frag in fragments))):
+            i += 2
+            fragment_type = u'docstring'
+        elif ((tok.op == OP) and (tok.str == u'@') and (tokens[(i + 1)].op == NAME)):
+            while ((tokens[i].op == OP) and (tokens[i].str == u'@') and (tokens[(i + 1)].op == NAME)):
+                i = advance_after_newline(i)
+            fragment_type = u'decorator'
+        elif ((tok.op == NAME) and (tok.str in {u'from', u'import'})):
+            while ((tokens[i].op == NAME) and (tokens[i].str in {u'from', u'import'})):
+                i = advance_after_newline(i)
+            fragment_type = u'import'
+        elif (tok.op in {INDENT, DEDENT, NEWLINE}):
+            assert False, (u'Unexpected token %d: %r' % (i, tok))
+        else:
+            i = advance_after_newline(i)
+            if ((i < len(tokens)) and (tokens[i].op == INDENT)):
+                level = 1
+                while (level > 0):
+                    i += 1
+                    level += tokens[i].indent()
+                assert (tokens[i].op == DEDENT)
+                i += 1
+            while ((i < len(tokens)) and (tokens[i].op == COMMENT) and (tokens[i].start_col > tok.start_col)):
+                assert (tokens[(i + 1)].op == NL)
+                i += 2
+            if ((tok.op == NAME) and (tok.str in {u'def', u'class'})):
+                fragment_type = tok.str
+            else:
+                fragment_type = u'code'
+        assert (i > i0), (u'Stuck at i = %d' % i)
+        fragments.append((fragment_type, i0, i))
+    return fragments

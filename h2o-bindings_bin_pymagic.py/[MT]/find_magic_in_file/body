@@ -1,0 +1,13 @@
+@test
+def find_magic_in_file(filename):
+    '\n    Search the file for any magic incantations.\n\n    :param filename: file to search\n    :returns: a tuple containing the spell and then maybe some extra words (or None if no magic present)\n    '
+    with open(filename, 'rt', encoding='utf-8') as f:
+        for line in f:
+            if line.startswith('#'):
+                comment = line[1:].strip()
+                if (comment.startswith('~~~~* ') or comment.startswith('----* ') or comment.startswith('====* ')):
+                    spell = comment[5:].strip()
+                    return tuple(spell.split())
+            else:
+                break
+    return None

@@ -1,0 +1,21 @@
+def _parse(self):
+    if (self._type == u'banner'):
+        return
+    indent = self._tokens[0].start_col
+    assert all((((t.start_col == indent) if (t.op == COMMENT) else (t.op == NL)) for t in self._tokens))
+    indentstr1 = ((u' ' * indent) + u'# ')
+    indentstr2 = indentstr1[:(-1)]
+    uncommented = u''
+    for line in self.unparse().splitlines(True):
+        if line.startswith(indentstr1):
+            uncommented += line[(indent + 2):]
+        elif line.startswith(indentstr2):
+            uncommented += line[(indent + 1):]
+        else:
+            return
+    try:
+        compile(uncommented, u'<string>', u'exec')
+        self._type = u'code'
+        self._code = uncommented
+    except Exception:
+        pass

@@ -1,0 +1,11 @@
+def __init__(self, tokens):
+    super(ImportExpr, self).__init__(tokens)
+    self._module_name = tokens[1].str
+    if (self._module_name == u'__future__'):
+        self._type = u'future'
+    elif (self._module_name in ImportExpr.KNOWN_STDLIB):
+        self._type = u'stdlib'
+    elif ((self._module_name == u'.') or (self._module_name in ImportExpr.KNOWN_FIRST_PARTY)):
+        self._type = u'first-party'
+    else:
+        self._type = u'third-party'

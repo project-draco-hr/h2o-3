@@ -1,0 +1,13 @@
+u'\npyparser -- module for parsing Python files.\n\nThis module provides capabilities for parsing Python files into logical pieces. It relies on standard\nmodule :mod:`tokenize` to break the file into tokens, and then combines those tokens into high-level\ncode constructs. Unlike :mod:`ast`, this module guarantees round-trip behavior in the sense that\n\n    assert pyparser.parse_text(text).unparse() == text\n\nThere are few exceptions to this rules. Most notably, comments that has wrong indentation (negative\nrelative to the current block) will be forcibly moved to the proper position. Also, continuation lines\n(i.e. "\\" symbols at the end of the line) may shift slightly, and whitespace at the end of lines will get\nremoved. Lastly, parsing may break if the file does not contain a \\n in the last line -- however fixing the\nparser is more tedious than fixing that newline.\n\n:copyright: 2016 H2O.ai\n:license: Apache License Version 2.0\n'
+from __future__ import absolute_import, division, print_function, unicode_literals
+import re
+import sys
+import tokenize
+from tokenize import INDENT, DEDENT, NEWLINE, NL, COMMENT, NAME, OP, STRING, ENDMARKER
+import colorama
+if (sys.version_info < (3,)):
+    from io import open
+    _str_type = (str, unicode)
+else:
+    _str_type = str
+__all__ = (u'parse_text', u'parse_file')

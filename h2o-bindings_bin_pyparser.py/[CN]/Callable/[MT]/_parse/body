@@ -1,0 +1,32 @@
+def _parse(self):
+    out = []
+    tokens = self._tokens
+    i = 0
+    while (tokens[i].op == COMMENT):
+        assert (tokens[(i + 1)].op == NL)
+        i += 2
+    if (i > 0):
+        out.append(Comment(tokens[:i]))
+    while ((tokens[i].op == OP) and (tokens[i].str == u'@')):
+        i0 = i
+        while (tokens[i].op != NEWLINE):
+            i += 1
+        i += 1
+        out.append(Decorator(tokens[i0:i]))
+    assert ((tokens[i].op == NAME) and (tokens[i].str == self._type))
+    assert (tokens[(i + 1)].op == NAME)
+    self._name = tokens[(i + 1)].str
+    i0 = i
+    while ((i < len(tokens)) and (tokens[i].op != INDENT)):
+        i += 1
+    if (i < len(tokens)):
+        assert (tokens[(-1)].op == DEDENT)
+        body = Code(tokens[(i + 1):(-1)])
+        out.append(Declaration(tokens[i0:i]))
+        out.append(Bident(tokens[i]))
+        out.append(body)
+        out.append(Bident(tokens[(-1)]))
+        body.parse()
+    else:
+        out.append(Declaration(tokens[i0:]))
+    return out

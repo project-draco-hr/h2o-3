@@ -1,6 +1,7 @@
 def lazy_import(path):
     u'\n    Import a single file or collection of files.\n\n    :param path: A path to a data file (remote or local).\n    '
-    if is_type(path, list, tuple, set):
+    assert_is_type(path, str, [str])
+    if is_listlike(path):
         return [_import(p)[0] for p in path]
     else:
         return _import(path)

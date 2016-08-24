@@ -1,0 +1,62 @@
+def _tokenize(readline):
+    u'\n    Parse any object accessible through a readline interface into a list of :class:`Token`s.\n\n    This function is very similar to :func:`tokenize.generate_tokens`, with few differences. First, the returned list\n    is a list of :class:`Token` objects instead of 5-tuples. This may be slightly less efficient, but far more\n    convenient for subsequent parsing. Second, the list of tokens is **normalized** to better match the way humans\n    understand the code, not what is more suitable for the compiler.\n\n    To better understand the normalization process, consider the following code example::\n\n        def test():\n            pass\n\n        # funny function\n        def test_funny():\n            # not so funny\n            pass\n\n    Normally, Python will parse it as the following sequence of tokens:\n\n        [\'def\', \'test\', \'(\', \')\', \':\', NEWLINE, INDENT, \'pass\', NEWLINE, NL, \'# funny function\', NL, DEDENT,\n         \'def\', \'test_funny\', \'(\', \')\', \':\', NEWLINE, \'# not so funny\', NL, INDENT, \'pass\', NEWLINE, DEDENT, END]\n\n    The problem here is that the DEDENT token is generated not after the first \'pass\' but after the comment, which\n    means that if we treat INDENTs / DEDENTs as block boundaries, then the comment "belongs" to the first function.\n    This is contrary to how most people would understand this code. Similarly, the second comment visually goes\n    after the INDENT, not before. Consequently, after "normalization" this function will return the following list\n    of tokens:\n\n        [\'def\', \'test\', \'(\', \')\', \':\', NEWLINE, INDENT, \'pass\', NEWLINE, DEDENT, NL, \'# funny function\', NL,\n         \'def\', \'test_funny\', \'(\', \')\', \':\', NEWLINE, INDENT, \'# not so funny\', NL, \'pass\', NEWLINE, DEDENT, END]\n\n    :param readline: a function that allows access to the code being parsed in a line-by-line fashion.\n\n    :returns: a list of :class:`Token`s.\n    '
+    assert callable(readline), u'`readline` should be a function'
+    tokens = [Token(tok) for tok in tokenize.generate_tokens(readline)]
+    indents_stack = [0]
+    for tok in tokens:
+        if (tok.op == INDENT):
+            tok.pre_indent = indents_stack[(-1)]
+            indents_stack.append(tok.end_col)
+            tok.post_indent = tok.end_col
+        elif (tok.op == DEDENT):
+            tok.pre_indent = indents_stack.pop()
+            tok.post_indent = indents_stack[(-1)]
+        elif (tok.op == COMMENT):
+            tok.pre_indent = tok.post_indent = indents_stack[(-1)]
+    i = (len(tokens) - 1)
+    while (i >= 2):
+        (pptok, ptok, tok) = tokens[(i - 2):(i + 1)]
+        if (tok.op == INDENT):
+            if ((ptok.op == NL) and (pptok.op == COMMENT)):
+                (indent, nl, comment) = (tok, ptok, pptok)
+                assert (nl.start_col == comment.end_col)
+                underindent = (indent.post_indent - comment.start_col)
+                if (underindent > 0):
+                    _warn((u"Comment '%s' is under-indented. Fixing..." % comment.str))
+                    comment.move(0, underindent)
+                    nl.move(0, underindent)
+                indent.move((-1), 0)
+                tokens[(i - 2):(i + 1)] = (indent, comment, nl)
+                comment.pre_indent = comment.post_indent = indent.post_indent
+                assert ((indent.end_row == comment.start_row) and (indent.end_col <= comment.start_col))
+            elif ((ptok.op == NL) and (ptok.start_col == 0)):
+                (indent, nl) = (tok, ptok)
+                indent.move((-1), 0)
+                tokens[(i - 1):(i + 1)] = (indent, nl)
+        elif ((tok.op == DEDENT) and (ptok.op == NL)):
+            if (pptok.op == COMMENT):
+                (dedent, nl, comment) = (tok, ptok, pptok)
+                if (comment.start_col <= dedent.post_indent):
+                    rel_indent = (comment.start_col - dedent.start_col)
+                    if (rel_indent < 0):
+                        _warn((u"Comment '%s' has wrong indentation" % comment.str))
+                        ptok.move(0, (- rel_indent))
+                        comment.move(0, (- rel_indent))
+                    dedent.move((-1))
+                    tokens[(i - 2):(i + 1)] = (dedent, comment, nl)
+                    comment.pre_indent = comment.post_indent = dedent.post_indent
+                    i += 1
+                    continue
+            elif (ptok.start_col == 0):
+                (dedent, nl) = (tok, ptok)
+                dedent.move((-1), (- dedent.start_col))
+                tokens[(i - 1):(i + 1)] = (dedent, nl)
+                i += 1
+                continue
+            else:
+                assert False, (u'Unexpected sequence of tokens: %r %r %r' % (pptok, ptok, tok))
+        elif (tok.op == COMMENT):
+            if (tok.start_col < tok.pre_indent):
+                _warn((u"Comment '%s' is under-indented relative to the surrounding block" % tok.str))
+        i -= 1
+    return tokens

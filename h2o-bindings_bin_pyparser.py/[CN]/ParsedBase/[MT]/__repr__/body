@@ -1,0 +1,17 @@
+def __repr__(self):
+    if self._type:
+        s = (u'<%s %s>:\n' % (self.__class__.__name__, self._type))
+    else:
+        s = (u'<%s>:\n' % self.__class__.__name__)
+    if self._parsed:
+        for p in self._parsed:
+            try:
+                r = repr(p)
+                for line in r.splitlines(True):
+                    s += (u'    %s' % line)
+            except UnicodeEncodeError as e:
+                s += (u'<%s>: %s' % (p.__class__.__name__, e))
+    else:
+        for line in self.unparse().splitlines(True):
+            s += (u'    %s' % line)
+    return s

@@ -1,0 +1,13 @@
+def __repr__(self):
+    name = u'Comment'
+    if (self._type == u'banner'):
+        name = u'Banner-Comment'
+    elif (self._type == u'code'):
+        name = u'Commented code'
+    s = (u'<%s>:\n' % name)
+    for t in self._tokens:
+        if (t.op == NL):
+            s += u'\n'
+        if (t.op == COMMENT):
+            s += (u'    %s' % t.str)
+    return s

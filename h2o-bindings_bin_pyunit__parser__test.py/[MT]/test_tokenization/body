@@ -1,0 +1,80 @@
+def test_tokenization():
+    '\n    Test function for ``pyparser._normalize_tokens()``.\n\n    Even though this function is private, it is extremely important to verify that it behaves correctly. In\n    particular, we want to check that it does not break the round-trip guarantee of the tokenizer, and that it\n    fixes all the problems that the original tokenizer has.\n    '
+
+    def _parse_to_tokens(text):
+        'Parse text into tokens and then normalize them.'
+        gen = iter(text.splitlines(True))
+        readline = (gen.next if hasattr(gen, 'next') else gen.__next__)
+        return pyparser._tokenize(readline)
+
+    def _unparse_tokens(tokens):
+        'Convert tokens back into the source code.'
+        return tokenize.untokenize((t.token for t in tokens))
+
+    def _assert_tokens(tokens, target):
+        'Check that the tokens list corresponds to the target provided.'
+        for i in range(len(tokens)):
+            assert (i < len(target)), ('Token %d %r not expected' % (i, tokens[i]))
+            tok = tokens[i]
+            trg = target[i]
+            valid = False
+            if isinstance(trg, int):
+                if (tok.op == trg):
+                    valid = True
+                name = token_names[trg]
+            elif (isinstance(trg, tuple) and (len(trg) == 2)):
+                if ((tok.op == trg[0]) and (tok.str == trg[1])):
+                    valid = True
+                name = ('%s(%s)' % (token_names[trg[0]], trg[1]))
+            else:
+                assert False, ('Unknown target: %r' % trg)
+            if (not valid):
+                assert False, ('Mismatched token %d: found %r, should be %r' % (i, tok, name))
+        assert (len(target) == len(tokens)), ('Expected too many tokens: %d vs %d' % (len(tokens), len(target)))
+
+    def check_code(code, expected_tokens=None, filename=None):
+        'Test parsing of the given piece of code.'
+        code = textwrap.dedent(code)
+        if filename:
+            print(('Testing tokenization of %s:' % filename), end=' ')
+        else:
+            check_code.index = (getattr(check_code, 'index', 0) + 1)
+            print(('Testing tokenization %d:' % check_code.index), end=' ')
+        tokens = _parse_to_tokens(code)
+        try:
+            try:
+                unparsed = _unparse_tokens(tokens)
+            except ValueError as e:
+                raise AssertionError(('Cannot unparse tokens: %s' % e))
+            assert_same_code(code, unparsed)
+            if expected_tokens:
+                _assert_tokens(tokens, expected_tokens)
+            print('ok')
+        except AssertionError as e:
+            print((u'Error: %s' % e))
+            print((u'Original code fragment:\n' + code))
+            print('Tokens:')
+            for (i, tok) in enumerate(tokens):
+                print(('%3d %r' % (i, tok)))
+            raise
+    check_code('\n        try:\n            while True:\n                pass\n                # comment\n        except: pass\n        ', [NL, NAME('try'), OP(':'), NEWLINE, INDENT, NAME('while'), NAME('True'), OP(':'), NEWLINE, INDENT, NAME('pass'), NEWLINE, COMMENT, NL, DEDENT, DEDENT, NAME('except'), OP(':'), NAME('pass'), NEWLINE, END])
+    check_code('\n        try:\n            while True:\n                pass\n            # comment\n        except: pass\n        ', [NL, NAME('try'), OP(':'), NEWLINE, INDENT, NAME('while'), NAME('True'), OP(':'), NEWLINE, INDENT, NAME('pass'), NEWLINE, DEDENT, COMMENT, NL, DEDENT, NAME('except'), OP(':'), NAME('pass'), NEWLINE, END])
+    check_code('\n        try:\n            while True:\n                pass\n        # comment\n        except: pass\n        ', [NL, NAME('try'), OP(':'), NEWLINE, INDENT, NAME('while'), NAME('True'), OP(':'), NEWLINE, INDENT, NAME('pass'), NEWLINE, DEDENT, DEDENT, COMMENT, NL, NAME('except'), OP(':'), NAME('pass'), NEWLINE, END])
+    check_code('\n        def func():\n            # function\n            pass\n        ', [NL, NAME('def'), NAME('func'), OP('('), OP(')'), OP(':'), NEWLINE, INDENT, COMMENT, NL, NAME('pass'), NEWLINE, DEDENT, END])
+    check_code('\n        def func():  # function\n                     # hanging comment\n            pass\n        ', [NL, NAME('def'), NAME('func'), OP('('), OP(')'), OP(':'), COMMENT, NEWLINE, INDENT, COMMENT, NL, NAME('pass'), NEWLINE, DEDENT, END])
+    check_code('\n        def foo():\n            pass\n\n        #comment\n        def bar():\n            pass\n        ', [NL, NAME('def'), NAME('foo'), OP('('), OP(')'), OP(':'), NEWLINE, INDENT, NAME('pass'), NEWLINE, DEDENT, NL, COMMENT, NL, NAME('def'), NAME('bar'), OP('('), OP(')'), OP(':'), NEWLINE, INDENT, NAME('pass'), NEWLINE, DEDENT, END])
+    check_code('\n        def hello():\n\n\n            print("hello")\n        ', [NL, NAME('def'), NAME('hello'), OP('('), OP(')'), OP(':'), NEWLINE, INDENT, NL, NL, NAME('print'), OP('('), STRING, OP(')'), NEWLINE, DEDENT, END])
+    check_code('\n        class Foo:\n            def foo(self):\n                pass\n\n            def bar(self):\n                return\n        ', [NL, NAME('class'), NAME('Foo'), OP(':'), NEWLINE, INDENT, NAME('def'), NAME('foo'), OP('('), NAME('self'), OP(')'), OP(':'), NEWLINE, INDENT, NAME('pass'), NEWLINE, DEDENT, NL, NAME('def'), NAME('bar'), OP('('), NAME('self'), OP(')'), OP(':'), NEWLINE, INDENT, NAME('return'), NEWLINE, DEDENT, DEDENT, END])
+    check_code('\n        def foo():\n            # Attempt to create the output directory\n            try:\n                os.makedirs(destdir)\n            except OSError as e:\n                raise\n        ', [NL, NAME('def'), NAME('foo'), OP('('), OP(')'), OP(':'), NEWLINE, INDENT, COMMENT, NL, NAME('try'), OP(':'), NEWLINE, INDENT, NAME('os'), OP('.'), NAME('makedirs'), OP('('), NAME('destdir'), OP(')'), NEWLINE, DEDENT, NAME('except'), NAME('OSError'), NAME('as'), NAME('e'), OP(':'), NEWLINE, INDENT, NAME('raise'), NEWLINE, DEDENT, DEDENT, END])
+    check_code('\n        if PY2:\n            def unicode():\n                raise RuntimeError   # disable this builtin function\n                                     # because it doesn\'t exist in Py3\n\n        handler = lambda: None  # noop\n                                # (will redefine later)\n\n        ################################################################################\n\n        # comment 1\n        print("I\'m done.")\n        ', [NL, NAME('if'), NAME('PY2'), OP(':'), NEWLINE, INDENT, NAME('def'), NAME('unicode'), OP('('), OP(')'), OP(':'), NEWLINE, INDENT, NAME('raise'), NAME('RuntimeError'), COMMENT, NEWLINE, COMMENT, NL, DEDENT, DEDENT, NL, NAME('handler'), OP('='), NAME('lambda'), OP(':'), NAME('None'), COMMENT, NEWLINE, COMMENT, NL, NL, COMMENT, NL, NL, COMMENT, NL, NAME('print'), OP('('), STRING, OP(')'), NEWLINE, END])
+    check_code('\n        def test3():\n            x = 1\n        # bad\n            print(x)\n        ', [NL, NAME('def'), NAME('test3'), OP('('), OP(')'), OP(':'), NEWLINE, INDENT, NAME('x'), OP('='), NUMBER, NEWLINE, COMMENT, NL, NAME('print'), OP('('), NAME('x'), OP(')'), NEWLINE, DEDENT, END])
+    check_code("\n        class Foo(object):\n            #-------------\n            def bar(self):\n                if True:\n                    pass\n\n        # Originally the DEDENTs are all the way down near the decorator. Here we're testing how they'd travel\n        # all the way up across multiple comments.\n\n        # comment 3\n\n        # commmmmmmment 4\n        @decorator\n        ", [NL, NAME('class'), NAME('Foo'), OP('('), NAME('object'), OP(')'), OP(':'), NEWLINE, INDENT, COMMENT, NL, NAME('def'), NAME('bar'), OP('('), NAME('self'), OP(')'), OP(':'), NEWLINE, INDENT, NAME('if'), NAME('True'), OP(':'), NEWLINE, INDENT, NAME('pass'), NEWLINE, DEDENT, DEDENT, DEDENT, NL, COMMENT, NL, COMMENT, NL, NL, COMMENT, NL, NL, COMMENT, NL, OP('@'), NAME('decorator'), NEWLINE, END])
+    check_code('\n        if True:\n            if False:\n                # INDENT will be inserted before this comment\n                raise\n                # DEDENT will be after this comment\n            else:\n                praise()\n        ', [NL, NAME('if'), NAME('True'), OP(':'), NEWLINE, INDENT, NAME('if'), NAME('False'), OP(':'), NEWLINE, INDENT, COMMENT, NL, NAME('raise'), NEWLINE, COMMENT, NL, DEDENT, NAME('else'), OP(':'), NEWLINE, INDENT, NAME('praise'), OP('('), OP(')'), NEWLINE, DEDENT, DEDENT, END])
+    for directory in ['.', '../../h2o-py/h2o', '../../h2o-py/tests']:
+        absdir = os.path.abspath(directory)
+        for (dir_name, subdirs, files) in os.walk(absdir):
+            for f in files:
+                if f.endswith('.py'):
+                    filename = os.path.join(dir_name, f)
+                    with open(filename, 'rt', encoding='utf-8') as fff:
+                        check_code(fff.read(), filename=filename)
