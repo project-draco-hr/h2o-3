@@ -1,5 +1,6 @@
 {
   List<StripeInformation> stripesInfo=orcReader.getStripes();
+  int wrongTests=0;
   if (stripesInfo.size() == 0) {
     assertEquals("Orc file is empty.  H2O frame row number should be zero: ",0,h2oFrame.numRows());
   }
@@ -30,10 +31,11 @@
         perStripe.close();
       }
  catch (      Throwable e) {
-        numberWrong++;
         failedFiles.add(fileName);
         e.printStackTrace();
+        wrongTests+=1;
       }
     }
   }
+  return wrongTests;
 }

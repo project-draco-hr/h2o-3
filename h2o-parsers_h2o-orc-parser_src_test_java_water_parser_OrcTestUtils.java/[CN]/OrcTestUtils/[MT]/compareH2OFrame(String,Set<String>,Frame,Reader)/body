@@ -28,7 +28,8 @@
     }
   }
   assertArrayEquals("Column names need to be the same: ",colNames,h2oFrame._names);
-  compareFrameContents(fileName,failedFiles,h2oFrame,orcReader,colTypes,colNames,toInclude);
+  int failed=compareFrameContents(fileName,failedFiles,h2oFrame,orcReader,colTypes,colNames,toInclude);
   Long totalRowNumber=orcReader.getNumberOfRows();
   assertEquals("Number of rows need to be the same: ",totalRowNumber,(Long)h2oFrame.numRows());
+  return failed;
 }

@@ -6,13 +6,8 @@
     Log.info("Orc Parser parsing " + fileName);
     File f=find_test_file_static(fileName);
     if (f != null && f.exists()) {
-      Configuration conf=new Configuration();
-      Path p=new Path(f.toString());
       try {
-        Reader orcFileReader=OrcFile.createReader(p,OrcFile.readerOptions(conf));
-        Frame h2oFrame=parse_test_file(fileName);
-        compareH2OFrame(fileName,failedFiles,h2oFrame,orcFileReader);
-        if (h2oFrame != null)         h2oFrame.delete();
+        numberWrong+=compareOrcAndH2OFrame(fileName,f,failedFiles);
         totalFilesTested++;
       }
  catch (      IOException e) {
