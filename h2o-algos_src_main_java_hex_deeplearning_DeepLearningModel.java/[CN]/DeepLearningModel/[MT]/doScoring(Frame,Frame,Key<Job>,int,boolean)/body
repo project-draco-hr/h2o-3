@@ -178,7 +178,7 @@
     _output._variable_importances=calcVarImp(last_scored().variable_importances);
     _output._model_summary=model_info.createSummaryTable();
     if (!finalScoring) {
-      if (actual_best_model_key != null && get_params()._overwrite_with_best_model && ((DKV.get(actual_best_model_key) != null && (loss() < DKV.get(actual_best_model_key).<DeepLearningModel>get().loss() || !Arrays.equals(model_info().units,DKV.get(actual_best_model_key).<DeepLearningModel>get().model_info().units))) || (DKV.get(actual_best_model_key) == null && loss() < _bestLoss))) {
+      if (actual_best_model_key != null && get_params()._overwrite_with_best_model && ((DKV.get(actual_best_model_key) != null && (!(loss() >= DKV.get(actual_best_model_key).<DeepLearningModel>get().loss()) || !Arrays.equals(model_info().units,DKV.get(actual_best_model_key).<DeepLearningModel>get().model_info().units))) || (DKV.get(actual_best_model_key) == null && loss() < _bestLoss))) {
         _bestLoss=loss();
         putMeAsBestModel(actual_best_model_key);
       }
