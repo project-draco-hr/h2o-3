@@ -2,11 +2,11 @@
   final String[] names=tm._names;
   final SB sb=new SB();
   new TreeVisitor<RuntimeException>(this){
-    @Override protected void pre(    int col,    float fcmp,    IcedBitSet gcmp,    int equal,    DHistogram.NASplitDir naSplitDir){
-      if (naSplitDir == DHistogram.NASplitDir.NAvsREST)       sb.p("!Double.isNaN(" + sb.i().p(names[col]).p(")"));
- else       if (naSplitDir == DHistogram.NASplitDir.NALeft)       sb.p("Double.isNaN(" + sb.i().p(names[col]).p(") || "));
+    @Override protected void pre(    int col,    float fcmp,    IcedBitSet gcmp,    int equal,    int naSplitDirInt){
+      if (naSplitDirInt == DhnasdNaVsRest)       sb.p("!Double.isNaN(" + sb.i().p(names[col]).p(")"));
+ else       if (naSplitDirInt == DhnasdNaLeft)       sb.p("Double.isNaN(" + sb.i().p(names[col]).p(") || "));
  else       if (equal == 1)       sb.p("!Double.isNaN(" + sb.i().p(names[col]).p(") && "));
-      if (naSplitDir != DHistogram.NASplitDir.NAvsREST) {
+      if (naSplitDirInt != DhnasdNaVsRest) {
         sb.i().p(names[col]).p(' ');
         if (equal == 0)         sb.p("< ").p(fcmp);
  else         if (equal == 1)         sb.p("!=").p(fcmp);
