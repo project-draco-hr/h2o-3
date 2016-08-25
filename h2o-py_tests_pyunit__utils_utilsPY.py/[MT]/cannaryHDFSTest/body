@@ -1,0 +1,14 @@
+def cannaryHDFSTest(hdfs_name_node, file_name):
+    '\n    This function is written to detect if the hive-exec version is too old.  It will return\n    True if it is too old and false otherwise.\n\n    :param hdfs_name_node:\n    :param file_name:\n    :return:\n    '
+    url_orc = 'hdfs://{0}{1}'.format(hdfs_name_node, file_name)
+    try:
+        tempFrame = h2o.import_file(url_orc)
+        h2o.remove(tempFrame)
+        print('Your hive-exec version is good.  Parsing success for {0}.'.format(url_orc))
+        return False
+    except Exception as e:
+        print('Error exception is {0}'.format(str(e)))
+        if ('NoSuchFieldError: vector' in str(e)):
+            return True
+        else:
+            return False
