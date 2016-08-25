@@ -2,7 +2,7 @@ def train(self, x=None, y=u'response', training_frame=None, offset_column=None, 
     u'\n        Train the H2O model.\n\n        Parameters\n        ----------\n        x : list, None\n            A list of column names or indices indicating the predictor columns.\n\n        y : str, int\n            An index or a column name indicating the response column.\n\n        training_frame : H2OFrame\n            The H2OFrame having the columns indicated by x and y (as well as any\n            additional columns specified by fold, offset, and weights).\n\n        offset_column : str, optional\n            The name or index of the column in training_frame that holds the offsets.\n\n        fold_column : str, optional\n            The name or index of the column in training_frame that holds the per-row fold\n            assignments.\n\n        weights_column : str, optional\n            The name or index of the column in training_frame that holds the per-row weights.\n\n        validation_frame : H2OFrame, optional\n            H2OFrame with validation data to be scored on while training.\n\n        max_runtime_secs : float\n            Maximum allowed runtime in seconds for model training. Use 0 to disable.\n        '
     assert_is_type(training_frame, H2OFrame)
     assert_is_type(y, None, int, str)
-    assert_is_type(x, None, [str, int], {str, int})
+    assert_is_type(x, None, int, str, [str, int], {str, int})
     if (x is None):
         x = set(training_frame.ncol)
         if is_type(y, int):
