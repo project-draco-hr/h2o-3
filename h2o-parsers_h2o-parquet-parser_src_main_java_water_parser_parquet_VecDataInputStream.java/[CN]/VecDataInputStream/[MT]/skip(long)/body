@@ -1,0 +1,17 @@
+{
+  if (n == 0L) {
+    return 0L;
+  }
+  long target=_offset + _pos + n;
+  if (inBuffer(target)) {
+    seekInBuffer(target);
+  }
+ else {
+    if (target > _v.length()) {
+      n-=target - _v.length();
+      target=_v.length();
+    }
+    flushBuffer(target);
+  }
+  return n;
+}

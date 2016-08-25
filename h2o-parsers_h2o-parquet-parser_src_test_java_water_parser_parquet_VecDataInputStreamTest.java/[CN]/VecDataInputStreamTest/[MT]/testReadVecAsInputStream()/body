@@ -1,0 +1,20 @@
+{
+  Vec v0=Vec.makeCon(0.0d,10000L,10,true);
+  Vec v=makeRandomByteVec(v0);
+  try {
+    InputStream t=new TestInputStream(v);
+    assertTrue(t.read() >= 0);
+    assertTrue(t.skip(1) >= 0);
+    assertTrue(t.read() >= 0);
+    assertTrue(t.skip(5000) >= 0);
+    assertTrue(t.read() >= 0);
+    assertTrue(t.read(new byte[1333],33,67) >= 0);
+    assertTrue(t.skip(100000L) >= 0);
+    assertEquals(-1,t.read());
+    assertEquals(0,t.available());
+  }
+  finally {
+    if (v0 != null)     v0.remove();
+    if (v != null)     v.remove();
+  }
+}

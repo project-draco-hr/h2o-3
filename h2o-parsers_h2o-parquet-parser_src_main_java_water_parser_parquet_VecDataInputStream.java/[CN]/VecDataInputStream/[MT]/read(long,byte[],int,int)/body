@@ -1,0 +1,22 @@
+{
+  int loaded=0;
+  long currentPosition=position;
+  while ((loaded < length) && (currentPosition < _v.length())) {
+    byte[] buff;
+    int pos;
+    if (inBuffer(currentPosition)) {
+      buff=_buffer;
+      pos=(int)(currentPosition - _offset);
+    }
+ else {
+      Chunk chunk=_v.chunkForRow(currentPosition);
+      buff=chunk.asBytes();
+      pos=(int)(currentPosition - chunk.start());
+    }
+    int avail=Math.min(buff.length - pos,length - loaded);
+    System.arraycopy(buff,pos,buffer,offset + loaded,avail);
+    loaded+=avail;
+    currentPosition+=avail;
+  }
+  return loaded;
+}

@@ -1,0 +1,23 @@
+{
+  if (bits.length < MAGIC.length) {
+    return null;
+  }
+  for (int i=0; i < MAGIC.length; i++) {
+    if (bits[i] != MAGIC[i])     return null;
+  }
+  List<GenericRecord> records=readFirstRecords(vec,1);
+  if (records.isEmpty()) {
+    throw new RuntimeException("File is empty, unable to guess setup.");
+  }
+  GenericRecord record=records.get(0);
+  Schema.Field[] fields=AvroUtil.flatSchema(record.getSchema());
+  String[] names=new String[fields.length];
+  byte[] types=new byte[fields.length];
+  String[] example=new String[fields.length];
+  for (int i=0; i < fields.length; i++) {
+    names[i]=fields[i].name();
+    types[i]=AvroUtil.schemaToColumnType(fields[i].schema());
+    example[i]=String.valueOf(record.get(fields[i].name()));
+  }
+  return new ParseSetup(ParquetParserProvider.PARQUET_INFO,(byte)'|',true,ParseSetup.HAS_HEADER,names.length,names,types,new String[names.length][],null,new String[][]{example});
+}
