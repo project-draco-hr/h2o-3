@@ -1,27 +1,39 @@
-def train(self, x=None, y=u'response', training_frame=None, offset_column=None, fold_column=None, weights_column=None, validation_frame=None, max_runtime_secs=None, **params):
+def train(self, x=None, y=None, training_frame=None, offset_column=None, fold_column=None, weights_column=None, validation_frame=None, max_runtime_secs=None, **params):
     u'\n        Train the H2O model.\n\n        Parameters\n        ----------\n        x : list, None\n            A list of column names or indices indicating the predictor columns.\n\n        y : str, int\n            An index or a column name indicating the response column.\n\n        training_frame : H2OFrame\n            The H2OFrame having the columns indicated by x and y (as well as any\n            additional columns specified by fold, offset, and weights).\n\n        offset_column : str, optional\n            The name or index of the column in training_frame that holds the offsets.\n\n        fold_column : str, optional\n            The name or index of the column in training_frame that holds the per-row fold\n            assignments.\n\n        weights_column : str, optional\n            The name or index of the column in training_frame that holds the per-row weights.\n\n        validation_frame : H2OFrame, optional\n            H2OFrame with validation data to be scored on while training.\n\n        max_runtime_secs : float\n            Maximum allowed runtime in seconds for model training. Use 0 to disable.\n        '
     assert_is_type(training_frame, H2OFrame)
     assert_is_type(y, None, int, str)
     assert_is_type(x, None, int, str, [str, int], {str, int})
+    algo = self._compute_algo()
+    algo_params = locals()
+    parms = self._parms.copy()
+    if (u'__class__' in parms):
+        del parms[u'__class__']
+    is_auto_encoder = bool(parms.get(u'autoencoder'))
+    is_supervised = (not (is_auto_encoder or (algo in {u'pca', u'svd', u'kmeans', u'glrm'})))
+    if (y is None):
+        if (is_supervised and (u'response' in training_frame.names)):
+            y = u'response'
+    else:
+        if is_auto_encoder:
+            raise H2OValueError(u'y should not be provided for an autoencoder model')
+        if isinstance(y, (list, tuple)):
+            if (len(y) == 1):
+                parms[u'y'] = y[0]
+            else:
+                raise ValueError(u'y must be a single column reference')
+        self._estimator_type = (u'classifier' if training_frame[y].isfactor() else u'regressor')
     if (x is None):
         x = set(training_frame.ncol)
         if is_type(y, int):
             x -= {training_frame.names[y]}
         if is_type(y, str):
             x -= {y}
-    algo_params = locals()
-    parms = self._parms.copy()
-    if (u'__class__' in parms):
-        del parms[u'__class__']
-    parms.update({k: v for (k, v) in algo_params.items() if (k not in [u'self', u'params', u'algo_params', u'parms'])})
-    tframe = algo_params[u'training_frame']
-    if (tframe is None):
-        raise ValueError(u'Missing training_frame')
-    if (y is not None):
-        if isinstance(y, (list, tuple)):
-            if (len(y) == 1):
-                parms[u'y'] = y[0]
-            else:
-                raise ValueError(u'y must be a single column reference')
-        self._estimator_type = (u'classifier' if tframe[y].isfactor() else u'regressor')
+    parms[u'x'] = x
+    parms[u'y'] = y
+    parms[u'training_frame'] = training_frame
+    parms[u'validation_frame'] = validation_frame
+    parms[u'offset_column'] = offset_column
+    parms[u'fold_column'] = fold_column
+    parms[u'weights_column'] = weights_column
+    parms[u'max_runtime_secs'] = max_runtime_secs
     self.build_model(parms)
