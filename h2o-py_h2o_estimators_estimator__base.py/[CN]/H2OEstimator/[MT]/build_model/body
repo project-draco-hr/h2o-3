@@ -1,11 +1,12 @@
 def build_model(self, algo_params):
+    u'Helper for model.train().'
     if (algo_params[u'training_frame'] is None):
         raise ValueError(u'Missing training_frame')
     x = algo_params.pop(u'x')
     y = algo_params.pop(u'y', None)
     training_frame = algo_params.pop(u'training_frame')
     validation_frame = algo_params.pop(u'validation_frame', None)
-    is_auto_encoder = ((algo_params is not None) and ((u'autoencoder' in algo_params) and algo_params[u'autoencoder']))
+    is_auto_encoder = ((u'autoencoder' in algo_params) and algo_params[u'autoencoder'])
     algo = self._compute_algo()
     is_unsupervised = (is_auto_encoder or (algo == u'pca') or (algo == u'svd') or (algo == u'kmeans') or (algo == u'glrm'))
     if (is_auto_encoder and (y is not None)):
