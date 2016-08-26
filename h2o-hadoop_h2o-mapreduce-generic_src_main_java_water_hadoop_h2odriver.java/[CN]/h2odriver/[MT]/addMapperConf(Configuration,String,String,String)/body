@@ -1,8 +1,7 @@
 {
-  String payload="";
   try {
-    byte[] byteArr=readBinaryFile(payloadFileName);
-    payload=convertByteArrToString(byteArr);
+    byte[] payloadData=readBinaryFile(payloadFileName);
+    addMapperConf(conf,name,value,payloadData);
   }
  catch (  Exception e) {
     StringBuilder sb=new StringBuilder();
@@ -13,8 +12,4 @@
     }
     error(sb.toString());
   }
-  conf.set(h2omapper.H2O_MAPPER_CONF_ARG_BASE + Integer.toString(mapperConfLength),name);
-  conf.set(h2omapper.H2O_MAPPER_CONF_BASENAME_BASE + Integer.toString(mapperConfLength),value);
-  conf.set(h2omapper.H2O_MAPPER_CONF_PAYLOAD_BASE + Integer.toString(mapperConfLength),payload);
-  mapperConfLength++;
 }

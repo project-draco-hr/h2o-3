@@ -106,6 +106,9 @@
   if (ldapLogin) {
     addMapperArg(conf,"-ldap_login");
   }
+  if (kerberosLogin) {
+    addMapperArg(conf,"-kerberos_login");
+  }
   addMapperArg(conf,"-user_name",userName);
   for (  String s : extraArguments) {
     addMapperArg(conf,s);
@@ -116,6 +119,10 @@
   }
   if (loginConfFileName != null) {
     addMapperConf(conf,"-login_conf","login.conf",loginConfFileName);
+  }
+ else   if (kerberosLogin) {
+    final byte[] krbConfData=("krb5loginmodule {\n" + "     com.sun.security.auth.module.Krb5LoginModule required;\n" + "};").getBytes();
+    addMapperConf(conf,"-login_conf","login.conf",krbConfData);
   }
   conf.set(h2omapper.H2O_MAPPER_CONF_LENGTH,Integer.toString(mapperConfLength));
   job=new Job(conf,jobtrackerName);
