@@ -16,7 +16,7 @@ def confusion_matrix(self, metrics=None, thresholds=None):
         thresholds_list = [thresholds]
     assert_is_type(thresholds_list, [numeric])
     assert_satisfies(thresholds_list, all(((0 <= t <= 1) for t in thresholds_list)))
-    if (not all(((m in [u'min_per_class_accuracy', u'absolute_mcc', u'precision', u'recall', u'specificity', u'accuracy', u'f0point5', u'f2', u'f1', u'mean_per_class_accuracy']) for m in metrics_list))):
+    if (not all(((m.lower() in [u'min_per_class_accuracy', u'absolute_mcc', u'precision', u'recall', u'specificity', u'accuracy', u'f0point5', u'f2', u'f1', u'mean_per_class_accuracy']) for m in metrics_list))):
         raise ValueError(u'The only allowable metrics are min_per_class_accuracy, absolute_mcc, precision, accuracy, f0point5, f2, f1, mean_per_class_accuracy')
     metrics_thresholds = [self.find_threshold_by_max_metric(m) for m in metrics_list]
     for mt in metrics_thresholds:
