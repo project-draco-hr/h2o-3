@@ -1,44 +1,29 @@
 {
   for (int i=0; i < args.length; i++) {
     String s=args[i];
+    if (s.equals("--header"))     continue;
+    if (s.equals("--decimal"))     useDecimalOutput=true;
+ else {
+      i++;
+      if (i >= args.length)       usage();
+      String sarg=args[i];
 switch (s) {
 case "--model":
-      i++;
-    if (i >= args.length)     usage();
-  modelClassName=args[i];
-break;
+        loadModel(sarg);
+      break;
+case "--pojo":
+    loadPojo(sarg);
+  break;
 case "--input":
-i++;
-if (i >= args.length) usage();
-inputCSVFileName=args[i];
+inputCSVFileName=sarg;
 break;
 case "--output":
-i++;
-if (i >= args.length) usage();
-outputCSVFileName=args[i];
-break;
-case "--header":
-haveHeaders=1;
+outputCSVFileName=sarg;
 break;
 default :
-System.out.println("ERROR: Bad parameter: " + s);
+System.out.println("ERROR: Unknown command line argument: " + s);
 usage();
 }
 }
-if (haveHeaders != 1) {
-System.out.println("ERROR: header not specified");
-usage();
-}
-if (modelClassName == null) {
-System.out.println("ERROR: model not specified");
-usage();
-}
-if (inputCSVFileName == null) {
-System.out.println("ERROR: input not specified");
-usage();
-}
-if (outputCSVFileName == null) {
-System.out.println("ERROR: output not specified");
-usage();
 }
 }

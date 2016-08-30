@@ -1,0 +1,41 @@
+{
+  BufferedReader br=reader.getTextFile("model.ini");
+  Map<String,Object> info=new HashMap<>();
+  String line;
+  int section=0;
+  int ic=0;
+  String[] columns=new String[0];
+  Map<Integer,String> domains=new HashMap<>();
+  while (true) {
+    line=br.readLine();
+    if (line == null)     break;
+    line=line.trim();
+    if (line.startsWith("#") || line.isEmpty())     continue;
+    if (line.equals("[info]"))     section=1;
+ else     if (line.equals("[columns]")) {
+      section=2;
+      Integer n_columns=(Integer)info.get("n_columns");
+      if (n_columns == null)       throw new IOException("`n_columns` variable is missing in the model info.");
+      columns=new String[n_columns];
+      info.put("[columns]",columns);
+    }
+ else     if (line.equals("[domains]")) {
+      section=3;
+      info.put("[domains]",domains);
+    }
+ else     if (section == 1) {
+      String[] res=line.split("\\s*=\\s*",2);
+      info.put(res[0],res[0].equals("uuid") ? res[1] : ParseUtils.tryParse(res[1]));
+    }
+ else     if (section == 2) {
+      if (ic >= columns.length)       throw new IOException("`n_columns` variable is too small.");
+      columns[ic++]=line;
+    }
+ else     if (section == 3) {
+      String[] res=line.split(":\\s*",2);
+      int col_index=Integer.parseInt(res[0]);
+      domains.put(col_index,res[1]);
+    }
+  }
+  return info;
+}

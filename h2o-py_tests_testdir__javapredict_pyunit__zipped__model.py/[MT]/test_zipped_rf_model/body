@@ -1,0 +1,45 @@
+def test_zipped_rf_model():
+    u'\n    Test the correctness of the "zipped" model format.\n\n    This test will create a random dataset, split into training/testing part, train a DRF model on it,\n    download the model\'s data, score the model remotely and fetch the predictions, score the model locally by\n    running the genmodel jar, and finally compare the prediction results.\n    '
+    genmodel_jar = os.path.abspath(u'../../../h2o-genmodel/build/libs/h2o-genmodel-all.jar')
+    assert os.path.exists(genmodel_jar), (u'Cannot find ' + genmodel_jar)
+    target_dir = u''
+    if (sys.platform == u'win32'):
+        target_dir = tempfile.mkdtemp()
+    else:
+        target_dir = os.path.expanduser(u'~/Downloads/')
+    for problem in [u'regression', u'binomial', u'multinomial']:
+        df = random_dataset(problem)
+        test = df[:100, :]
+        train = df[100:, :]
+        print(u'\n\nTraining Random Forest model...')
+        model = H2ORandomForestEstimator(ntrees=100, max_depth=20)
+        model.train(training_frame=train)
+        print(model.summary())
+        model_file = h2o.api((u'GET /3/Models/%s/data' % model.model_id), save_to=target_dir)
+        print((u'\n\nSaved the model to %s' % model_file))
+        assert os.path.exists(model_file)
+        test_file = os.path.join(target_dir, (u'test_%s.csv' % test.frame_id))
+        print((u'\nDownloading the test dataset for local use: %s' % test_file))
+        h2o.download_csv(test, test_file)
+        local_pred_file = os.path.join(target_dir, (u'predL_%s.csv' % test.frame_id))
+        print((u'\nScoring the model locally and saving to file %s...' % local_pred_file))
+        ret = subprocess.call([u'java', u'-cp', genmodel_jar, u'hex.genmodel.tools.PredictCsv', u'--input', test_file, u'--output', local_pred_file, u'--model', model_file, u'--decimal'])
+        assert (ret == 0), (u'GenModel finished with return code %d' % ret)
+        h2o_pred_file = os.path.join(target_dir, (u'predR_%s.csv' % test.frame_id))
+        print((u'\nScoring the model remotely and downloading to file %s...' % h2o_pred_file))
+        predictions = model.predict(test)
+        h2o.download_csv(predictions, h2o_pred_file)
+        print(u'\nCheck whether the predictions coincide...')
+        local_pred = load_csv(local_pred_file)
+        server_pred = load_csv(h2o_pred_file)
+        assert (len(local_pred) == len(server_pred) == test.nrow), (u'Number of rows in prediction files do not match: %d vs %d vs %d' % (len(local_pred), len(server_pred), test.nrow))
+        for i in range(test.nrow):
+            lpred = local_pred[i]
+            rpred = server_pred[i]
+            assert (type(lpred) == type(rpred)), (u'Types of predictions do not match: %r / %r' % (lpred, rpred))
+            if isinstance(lpred, float):
+                same = (abs((lpred - rpred)) < 1e-08)
+            else:
+                same = (lpred == rpred)
+            assert same, (u'Predictions are different for row %d: local = %r, remote = %r' % ((i + 1), lpred, rpred))
+        print(((colorama.Fore.LIGHTGREEN_EX + u'\nPredictions match!\n') + colorama.Fore.RESET))

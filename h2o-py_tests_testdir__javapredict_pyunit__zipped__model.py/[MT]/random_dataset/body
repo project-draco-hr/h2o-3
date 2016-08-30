@@ -1,0 +1,17 @@
+def random_dataset(response_type, verbose=True):
+    u'Create and return a random dataset.'
+    if verbose:
+        print((u'\nCreating a dataset for a %s problem:' % response_type))
+    fractions = {(k + u'_fraction'): random.random() for k in u'real categorical integer time string binary'.split()}
+    fractions[u'string_fraction'] = 0
+    fractions[u'binary_fraction'] /= 3
+    fractions[u'time_fraction'] /= 2
+    sum_fractions = sum(fractions.values())
+    for k in fractions:
+        fractions[k] /= sum_fractions
+    response_factors = (1 if (response_type == u'regression') else (2 if (response_type == u'binomial') else random.randint(10, 60)))
+    df = h2o.create_frame(rows=random.randint(5000, 15000), cols=random.randint(10, 20), missing_fraction=random.uniform(0, 0.05), has_response=True, response_factors=response_factors, positive_response=True, **fractions)
+    if verbose:
+        print()
+        df.show()
+    return df

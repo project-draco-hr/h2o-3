@@ -6,17 +6,6 @@
   Vec predicted=output.vecs()[0];
   String mdomain[]=predicted.domain();
   if (_output.isClassifier() && computeMetrics) {
-    if (false) {
-      assert(mdomain != null);
-      ModelMetrics mm=ModelMetrics.getFromDKV(this,fr);
-      ConfusionMatrix cm=mm.cm();
-      if (cm != null && cm._domain != null)       if (cm._cm.length < _parms._max_confusion_matrix_size) {
-        Log.info(cm.table().toString(1));
-      }
-      if (mm.hr() != null) {
-        Log.info(getHitRatioTable(mm.hr()));
-      }
-    }
     Vec actual=fr.vec(_output.responseName());
     if (actual != null) {
       String sdomain[]=actual.domain();
