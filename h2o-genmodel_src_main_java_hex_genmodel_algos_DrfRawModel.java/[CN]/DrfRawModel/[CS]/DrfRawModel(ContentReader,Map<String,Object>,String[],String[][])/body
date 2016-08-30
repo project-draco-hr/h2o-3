@@ -2,4 +2,6 @@
   super(cr,info,columns,domains);
   _ntrees=(int)info.get("n_trees");
   _binomial_double_trees=info.get("binomial_double_trees").equals("true");
+  _effective_n_classes=_nclasses == 2 && !_binomial_double_trees ? 1 : _nclasses;
+  _compressed_trees=new byte[_ntrees * _effective_n_classes][];
 }
