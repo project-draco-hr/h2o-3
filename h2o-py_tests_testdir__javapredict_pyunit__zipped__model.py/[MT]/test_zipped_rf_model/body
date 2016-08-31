@@ -8,38 +8,93 @@ def test_zipped_rf_model():
     else:
         target_dir = os.path.expanduser(u'~/Downloads/')
     for problem in [u'regression', u'binomial', u'multinomial']:
-        df = random_dataset(problem)
-        test = df[:100, :]
-        train = df[100:, :]
+        print(u'========================')
+        print((u'%s problem' % problem.capitalize()))
+        print(u'========================')
+        df = random_dataset(problem, verbose=False)
+        print((u'Created dataset with %d rows x %d columns' % (df.nrow, df.ncol)))
+        test = df[:1000, :]
+        train = df[1000:, :]
+        test2 = test.rbind(test)
+        time0 = time.time()
         print(u'\n\nTraining Random Forest model...')
-        model = H2ORandomForestEstimator(ntrees=100, max_depth=20)
+        model = H2ORandomForestEstimator(ntrees=NTREES, max_depth=DEPTH)
         model.train(training_frame=train)
         print(model.summary())
+        print((u'Time taken = %.3fs' % (time.time() - time0)))
+        print(u'\nSaving the model...')
+        time0 = time.time()
         model_file = h2o.api((u'GET /3/Models/%s/data' % model.model_id), save_to=target_dir)
-        print((u'\n\nSaved the model to %s' % model_file))
+        print((u'    => %s  (%d bytes)' % (model_file, os.stat(model_file).st_size)))
         assert os.path.exists(model_file)
+        print((u'Time taken = %.3fs' % (time.time() - time0)))
+        print(u'\nDownloading POJO...')
+        time0 = time.time()
+        pojo_file = h2o.download_pojo(model, target_dir, get_jar=False)
+        pojo_size = os.stat(pojo_file).st_size
+        pojo_name = os.path.splitext(os.path.basename(pojo_file))[0]
+        print((u'    => %s  (%d bytes)' % (pojo_file, pojo_size)))
+        print((u'Time taken = %.3fs' % (time.time() - time0)))
+        print(u'\nDownloading the test datasets for local use: ', end=u'')
+        time0 = time.time()
         test_file = os.path.join(target_dir, (u'test_%s.csv' % test.frame_id))
-        print((u'\nDownloading the test dataset for local use: %s' % test_file))
+        test2_file = os.path.join(target_dir, (u'test2_%s.csv' % test2.frame_id))
+        print(test_file)
         h2o.download_csv(test, test_file)
+        h2o.download_csv(test2, test2_file)
+        print((u'Time taken = %.3fs' % (time.time() - time0)))
+        print(u'\nScoring the model locally and saving to file ', end=u'')
+        times = [time.time()]
         local_pred_file = os.path.join(target_dir, (u'predL_%s.csv' % test.frame_id))
-        print((u'\nScoring the model locally and saving to file %s...' % local_pred_file))
-        ret = subprocess.call([u'java', u'-cp', genmodel_jar, u'hex.genmodel.tools.PredictCsv', u'--input', test_file, u'--output', local_pred_file, u'--model', model_file, u'--decimal'])
-        assert (ret == 0), (u'GenModel finished with return code %d' % ret)
+        local_pred_file2 = os.path.join(target_dir, (u'predL_%s.csv' % test2.frame_id))
+        print(local_pred_file)
+        for (inpfile, outfile) in [(test_file, local_pred_file), (test2_file, local_pred_file2)]:
+            ret = subprocess.call([u'java', u'-cp', genmodel_jar, u'-ea', u'-Xmx12g', u'-XX:ReservedCodeCacheSize=256m', u'hex.genmodel.tools.PredictCsv', u'--input', inpfile, u'--output', outfile, u'--model', model_file, u'--decimal'])
+            assert (ret == 0), (u'GenModel finished with return code %d' % ret)
+            times.append(time.time())
+        print((u'Time taken = %.3fs   (1st run: %.3f, 2nd run: %.3f)' % (((times[2] + times[0]) - (2 * times[1])), (times[1] - times[0]), (times[2] - times[1]))))
+        print(u'\nScoring the model remotely and downloading to file ', end=u'')
+        times = [time.time()]
         h2o_pred_file = os.path.join(target_dir, (u'predR_%s.csv' % test.frame_id))
-        print((u'\nScoring the model remotely and downloading to file %s...' % h2o_pred_file))
-        predictions = model.predict(test)
-        h2o.download_csv(predictions, h2o_pred_file)
-        print(u'\nCheck whether the predictions coincide...')
+        h2o_pred_file2 = os.path.join(target_dir, (u'predR_%s.csv' % test2.frame_id))
+        print(h2o_pred_file)
+        for (testframe, outfile) in [(test, h2o_pred_file), (test2, h2o_pred_file2)]:
+            predictions = model.predict(testframe)
+            h2o.download_csv(predictions, outfile)
+            times.append(time.time())
+        print((u'Time taken = %.3fs   (1st run: %.3f, 2nd run: %.3f)' % (((times[2] + times[0]) - (2 * times[1])), (times[1] - times[0]), (times[2] - times[1]))))
+        if (pojo_size <= (1000 << 20)):
+            time0 = time.time()
+            print(u'\nCompiling Java Pojo')
+            javac_cmd = [u'javac', u'-cp', genmodel_jar, u'-J-Xmx12g', pojo_file]
+            subprocess.check_call(javac_cmd)
+            print((u'Time taken = %.3fs' % (time.time() - time0)))
+            pojo_pred_file = os.path.join(target_dir, (u'predP_%s.csv' % test.frame_id))
+            pojo_pred_file2 = os.path.join(target_dir, (u'predP_%s.csv' % test2.frame_id))
+            print((u'Scoring POJO and saving to file %s' % pojo_pred_file))
+            times = [time.time()]
+            cp_sep = (u';' if (sys.platform == u'win32') else u':')
+            for (inpfile, outfile) in [(test_file, pojo_pred_file), (test2_file, pojo_pred_file2)]:
+                java_cmd = [u'java', u'-cp', cp_sep.join([genmodel_jar, target_dir]), u'-ea', u'-Xmx12g', u'-XX:ReservedCodeCacheSize=256m', u'hex.genmodel.tools.PredictCsv', u'--pojo', pojo_name, u'--input', inpfile, u'--output', outfile, u'--decimal']
+                ret = subprocess.call(java_cmd)
+                assert (ret == 0), (u'GenModel finished with return code %d' % ret)
+                times.append(time.time())
+            print((u'Time taken = %.3fs   (1st run: %.3f, 2nd run: %.3f)' % (((times[2] + times[0]) - (2 * times[1])), (times[1] - times[0]), (times[2] - times[1]))))
+        print(u'\nChecking whether the predictions coincide...')
+        time0 = time.time()
         local_pred = load_csv(local_pred_file)
         server_pred = load_csv(h2o_pred_file)
-        assert (len(local_pred) == len(server_pred) == test.nrow), (u'Number of rows in prediction files do not match: %d vs %d vs %d' % (len(local_pred), len(server_pred), test.nrow))
+        pojo_pred = (load_csv(pojo_pred_file) if pojo_pred_file else local_pred)
+        assert (len(local_pred) == len(server_pred) == len(pojo_pred) == test.nrow), (u'Number of rows in prediction files do not match: %d vs %d vs %d vs %d' % (len(local_pred), len(server_pred), len(pojo_pred), test.nrow))
         for i in range(test.nrow):
             lpred = local_pred[i]
             rpred = server_pred[i]
-            assert (type(lpred) == type(rpred)), (u'Types of predictions do not match: %r / %r' % (lpred, rpred))
+            ppred = pojo_pred[i]
+            assert (type(lpred) == type(rpred) == type(ppred)), (u'Types of predictions do not match: %r / %r / %r' % (lpred, rpred, ppred))
             if isinstance(lpred, float):
-                same = (abs((lpred - rpred)) < 1e-08)
+                same = ((abs((lpred - rpred)) + abs((lpred - ppred))) < 1e-08)
             else:
-                same = (lpred == rpred)
-            assert same, (u'Predictions are different for row %d: local = %r, remote = %r' % ((i + 1), lpred, rpred))
+                same = (lpred == rpred == ppred)
+            assert same, (u'Predictions are different for row %d: local=%r, pojo=%r, bomo=%r' % ((i + 1), lpred, ppred, rpred))
+        print((u'Time taken = %.3fs' % (time.time() - time0)))
         print(((colorama.Fore.LIGHTGREEN_EX + u'\nPredictions match!\n') + colorama.Fore.RESET))
