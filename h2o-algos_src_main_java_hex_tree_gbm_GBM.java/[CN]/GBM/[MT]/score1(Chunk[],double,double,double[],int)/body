@@ -1,19 +1,19 @@
 {
   double f=chk_tree(chks,0).atd(row) + offset;
   double p=new Distribution(_parms).linkInv(f);
-  if (_parms._distribution == Distribution.Family.modified_huber || _parms._distribution == Distribution.Family.bernoulli) {
+  if (_parms._distribution == DistributionFamily.modified_huber || _parms._distribution == DistributionFamily.bernoulli) {
     fs[2]=p;
     fs[1]=1.0 - p;
     return 1;
   }
- else   if (_parms._distribution == Distribution.Family.multinomial) {
+ else   if (_parms._distribution == DistributionFamily.multinomial) {
     if (_nclass == 2) {
       fs[1]=p;
       fs[2]=1 / p;
       return fs[1] + fs[2];
     }
     assert(offset == 0);
-    fs[0 + 1]=f;
+    fs[1]=f;
     for (int k=1; k < _nclass; k++)     fs[k + 1]=chk_tree(chks,k).atd(row);
     return hex.genmodel.GenModel.log_rescale(fs);
   }

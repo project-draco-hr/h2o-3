@@ -1,0 +1,14 @@
+{
+  try {
+    int itree=classIdx * _ntrees + treeIdx;
+    byte[] tree=_compressed_trees[itree];
+    if (tree == null) {
+      tree=_reader.getBinaryFile(String.format("trees/t%02d_%03d.bin",classIdx,treeIdx));
+      _compressed_trees[itree]=tree;
+    }
+    return tree;
+  }
+ catch (  IOException e) {
+    throw new RuntimeException(e);
+  }
+}

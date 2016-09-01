@@ -2,7 +2,7 @@
   final DTree[] ktrees=new DTree[_nclass];
   int[] leaves=new int[_nclass];
   double huberDelta=Double.NaN;
-  if (_parms._distribution == Distribution.Family.huber) {
+  if (_parms._distribution == DistributionFamily.huber) {
     Vec diff=new ComputeAbsDiff().doAll(1,(byte)3,_train).outputFrame().anyVec();
     Distribution dist=new Distribution(_parms);
     huberDelta=MathUtils.computeWeightedQuantile(_weights,diff,_parms._huber_alpha);
@@ -25,19 +25,19 @@
   }
   GammaPass gp=new GammaPass(ktrees,leaves,new Distribution(_parms));
   gp.doAll(_train);
-  if (_parms._distribution == Distribution.Family.laplace) {
+  if (_parms._distribution == DistributionFamily.laplace) {
     fitBestConstantsQuantile(ktrees,leaves[0],0.5);
   }
- else   if (_parms._distribution == Distribution.Family.quantile) {
+ else   if (_parms._distribution == DistributionFamily.quantile) {
     fitBestConstantsQuantile(ktrees,leaves[0],_parms._quantile_alpha);
   }
- else   if (_parms._distribution == Distribution.Family.huber) {
+ else   if (_parms._distribution == DistributionFamily.huber) {
     fitBestConstantsHuber(ktrees,leaves[0],huberDelta);
   }
  else {
     fitBestConstants(ktrees,leaves,gp);
   }
-  if (_parms._distribution == Distribution.Family.gamma || _parms._distribution == Distribution.Family.poisson || _parms._distribution == Distribution.Family.tweedie) {
+  if (_parms._distribution == DistributionFamily.gamma || _parms._distribution == DistributionFamily.poisson || _parms._distribution == DistributionFamily.tweedie) {
     assert(_nclass == 1);
     truncatePreds(ktrees[0],leaves[0],_parms._distribution);
   }

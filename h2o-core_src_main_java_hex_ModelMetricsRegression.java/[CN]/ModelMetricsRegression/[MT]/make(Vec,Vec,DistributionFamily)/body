@@ -1,0 +1,12 @@
+{
+  if (predicted == null || actual == null)   throw new IllegalArgumentException("Missing actual or predicted targets for regression metrics!");
+  if (!predicted.isNumeric())   throw new IllegalArgumentException("Predicted values must be numeric for regression metrics.");
+  if (!actual.isNumeric())   throw new IllegalArgumentException("Actual values must be numeric for regression metrics.");
+  if (family == DistributionFamily.quantile || family == DistributionFamily.tweedie || family == DistributionFamily.huber)   throw new IllegalArgumentException("Unsupported distribution family, requires additional parameters which cannot be specified right now.");
+  Frame predsActual=new Frame(predicted);
+  predsActual.add("actual",actual);
+  MetricBuilderRegression mb=new RegressionMetrics(family).doAll(predsActual)._mb;
+  ModelMetricsRegression mm=(ModelMetricsRegression)mb.makeModelMetrics(null,predsActual,null,null);
+  mm._description="Computed on user-given predictions and targets, distribution: " + (family == null ? DistributionFamily.gaussian.toString() : family.toString()) + ".";
+  return mm;
+}

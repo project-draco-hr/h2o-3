@@ -25,19 +25,19 @@
     int failedcount=0;
     double maxRelErr=0;
     double meanRelErr=0;
-    for (    Distribution.Family dist : new Distribution.Family[]{Distribution.Family.gaussian,Distribution.Family.laplace,Distribution.Family.quantile,Distribution.Family.huber,Distribution.Family.modified_huber,Distribution.Family.gamma,Distribution.Family.poisson,Distribution.Family.AUTO,Distribution.Family.tweedie,Distribution.Family.multinomial,Distribution.Family.bernoulli}) {
+    for (    DistributionFamily dist : new DistributionFamily[]{DistributionFamily.gaussian,DistributionFamily.laplace,DistributionFamily.quantile,DistributionFamily.huber,DistributionFamily.modified_huber,DistributionFamily.gamma,DistributionFamily.poisson,DistributionFamily.AUTO,DistributionFamily.tweedie,DistributionFamily.multinomial,DistributionFamily.bernoulli}) {
       for (      DeepLearningParameters.Activation act : new DeepLearningParameters.Activation[]{DeepLearningParameters.Activation.Tanh,DeepLearningParameters.Activation.Rectifier}) {
         for (        String response : new String[]{"Binary","Class","Cost"}) {
           for (          boolean adaptive : new boolean[]{true,false}) {
             for (            int miniBatchSize : new int[]{1}) {
               if (response.equals("Class")) {
-                if (dist != Distribution.Family.multinomial && dist != Distribution.Family.AUTO)                 continue;
+                if (dist != DistributionFamily.multinomial && dist != DistributionFamily.AUTO)                 continue;
               }
  else               if (response.equals("Binary")) {
-                if (dist != Distribution.Family.modified_huber && dist != Distribution.Family.bernoulli && dist != Distribution.Family.AUTO)                 continue;
+                if (dist != DistributionFamily.modified_huber && dist != DistributionFamily.bernoulli && dist != DistributionFamily.AUTO)                 continue;
               }
  else {
-                if (dist == Distribution.Family.multinomial || dist == Distribution.Family.modified_huber || dist == Distribution.Family.bernoulli)                 continue;
+                if (dist == DistributionFamily.multinomial || dist == DistributionFamily.modified_huber || dist == DistributionFamily.bernoulli)                 continue;
               }
               DeepLearningParameters parms=new DeepLearningParameters();
               parms._huber_alpha=rng.nextDouble() + 0.1;

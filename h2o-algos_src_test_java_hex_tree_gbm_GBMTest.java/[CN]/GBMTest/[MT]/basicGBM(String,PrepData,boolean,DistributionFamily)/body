@@ -1,0 +1,44 @@
+{
+  GBMModel gbm=null;
+  Frame fr=null, fr2=null, vfr=null;
+  try {
+    Scope.enter();
+    fr=parse_test_file(fname);
+    int idx=prep.prep(fr);
+    if (family == DistributionFamily.bernoulli || family == DistributionFamily.multinomial || family == DistributionFamily.modified_huber) {
+      if (!fr.vecs()[idx].isCategorical()) {
+        Scope.track(fr.replace(idx,fr.vecs()[idx].toCategoricalVec()));
+      }
+    }
+    DKV.put(fr);
+    GBMModel.GBMParameters parms=new GBMModel.GBMParameters();
+    if (idx < 0)     idx=~idx;
+    parms._train=fr._key;
+    parms._response_column=fr._names[idx];
+    parms._ntrees=5;
+    parms._distribution=family;
+    parms._max_depth=4;
+    parms._min_rows=1;
+    parms._nbins=50;
+    parms._learn_rate=.2f;
+    parms._score_each_iteration=true;
+    if (validation) {
+      vfr=new Frame(fr);
+      DKV.put(vfr);
+      parms._valid=vfr._key;
+    }
+    GBM job=new GBM(parms);
+    gbm=job.trainModel().get();
+    fr2=gbm.score(fr);
+    Assert.assertTrue(gbm.testJavaScoring(fr,fr2,1e-15));
+    Assert.assertTrue(job.isStopped());
+    return gbm._output;
+  }
+  finally {
+    if (fr != null)     fr.remove();
+    if (fr2 != null)     fr2.remove();
+    if (vfr != null)     vfr.remove();
+    if (gbm != null)     gbm.delete();
+    Scope.exit();
+  }
+}

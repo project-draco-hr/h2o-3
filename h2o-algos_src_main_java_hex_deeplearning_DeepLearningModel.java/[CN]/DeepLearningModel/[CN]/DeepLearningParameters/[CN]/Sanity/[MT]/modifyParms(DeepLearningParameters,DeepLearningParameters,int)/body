@@ -59,27 +59,27 @@
     if (!fromParms._quiet_mode)     Log.info("_stopping_metric: Automatically setting stopping_metric to MSE for autoencoder.");
     toParms._stopping_metric=ScoreKeeper.StoppingMetric.MSE;
   }
-  if (fromParms._distribution == Distribution.Family.AUTO) {
+  if (fromParms._distribution == DistributionFamily.AUTO) {
     if (nClasses > 1) {
-      toParms._distribution=nClasses == 2 ? Distribution.Family.bernoulli : Distribution.Family.multinomial;
+      toParms._distribution=nClasses == 2 ? DistributionFamily.bernoulli : DistributionFamily.multinomial;
     }
  else {
 switch (fromParms._loss) {
 case Automatic:
 case Quadratic:
-        toParms._distribution=Distribution.Family.gaussian;
+        toParms._distribution=DistributionFamily.gaussian;
       break;
 case Absolute:
-    toParms._distribution=Distribution.Family.laplace;
+    toParms._distribution=DistributionFamily.laplace;
   break;
 case Quantile:
-toParms._distribution=Distribution.Family.quantile;
+toParms._distribution=DistributionFamily.quantile;
 break;
 case Huber:
-toParms._distribution=Distribution.Family.huber;
+toParms._distribution=DistributionFamily.huber;
 break;
 case ModifiedHuber:
-toParms._distribution=Distribution.Family.modified_huber;
+toParms._distribution=DistributionFamily.modified_huber;
 break;
 default :
 throw H2O.unimpl();
