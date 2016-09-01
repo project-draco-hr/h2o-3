@@ -1,12 +1,16 @@
 def cbind(self, data):
     u"\n        Append data to this H2OFrame column-wise.\n\n        Parameters\n        ----------\n          data : list\n            List of H2OFrame's to be column bound to the right of this H2OFrame.\n\n        Returns\n        -------\n          Returns this H2OFrame with all frames in data appended column-wise.\n        "
-    for frames in data:
-        if (not isinstance(frames, H2OFrame)):
-            raise ValueError(u'`frames` must be an H2OFrame, but got {0}'.format(type(frames)))
-        fr = H2OFrame._expr(expr=ExprNode(u'cbind', self, frames), cache=self._ex._cache)
-        self = fr
-    for frames in data:
-        fr._ex._cache.ncols = (self.ncol + frames.ncol)
+    if (not isinstance(data, list)):
+        fr = H2OFrame._expr(expr=ExprNode(u'cbind', self, data), cache=self._ex._cache)
+        fr._ex._cache.ncols = (self.ncol + data.ncol)
+    else:
+        for frames in data:
+            if (not isinstance(frames, H2OFrame)):
+                raise ValueError(u'`frames` must be an H2OFrame, but got {0}'.format(type(frames)))
+            fr = H2OFrame._expr(expr=ExprNode(u'cbind', self, frames), cache=self._ex._cache)
+            self = fr
+        for frames in data:
+            fr._ex._cache.ncols = (self.ncol + frames.ncol)
     fr._ex._cache.names = None
     fr._ex._cache.types = None
     return fr
