@@ -1,7 +1,10 @@
 def rbind(self, data):
-    u'\n        Combine H2O Datasets by rows.\n\n        Takes a sequence of H2O data sets and combines them by rows.\n\n        Parameters\n        ----------\n          data : H2OFrame\n\n        Returns\n        -------\n          Returns this H2OFrame with data appended row-wise.\n        '
-    if (not isinstance(data, H2OFrame)):
-        raise ValueError(u'`data` must be an H2OFrame, but got {0}'.format(type(data)))
-    fr = H2OFrame._expr(expr=ExprNode(u'rbind', self, data), cache=self._ex._cache)
-    fr._ex._cache.nrows = (self.nrow + data.nrow)
+    u"\n        Append data to this H2OFrame row-wise.\n\n        Parameters\n        ----------\n          data : list\n            List of H2OFrame's to be combined with current frame row-wise.\n\n        Returns\n        -------\n          Returns this H2OFrame with all frames in data appended row-wise.\n        "
+    for frames in data:
+        if (not isinstance(frames, H2OFrame)):
+            raise ValueError(u'`frames` must be an H2OFrame, but got {0}'.format(type(frames)))
+        fr = H2OFrame._expr(expr=ExprNode(u'rbind', self, frames), cache=self._ex._cache)
+        self = fr
+    for frames in data:
+        fr._ex._cache.nrows = (self.nrow + frames.nrow)
     return fr
