@@ -1,0 +1,12 @@
+{
+  List<Schema.Field> fields=s.getFields();
+  Schema.Field[] flatSchema=new Schema.Field[fields.size()];
+  int cnt=0;
+  for (  Schema.Field f : fields) {
+    if (isSupportedSchema(f.schema())) {
+      flatSchema[cnt]=f;
+      cnt++;
+    }
+  }
+  return cnt != flatSchema.length ? Arrays.copyOf(flatSchema,cnt) : flatSchema;
+}

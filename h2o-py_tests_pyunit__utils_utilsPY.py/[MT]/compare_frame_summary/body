@@ -15,7 +15,7 @@ def compare_frame_summary(frame1_summary, frame2_summary, compareNames=False, co
             val2 = frame2_summary[col_index][key_val]
             if (isinstance(val1, list) or isinstance(val1, dict)):
                 if isinstance(val1, dict):
-                    assert (cmp(val1, val2) == 0), 'failed column summary comparison for column {0} and summary type {1}, frame 1 value is {2}, frame 2 value is {3}'.format(col_index, str(key_val), val1, val2)
+                    assert (val1 == val2), 'failed column summary comparison for column {0} and summary type {1}, frame 1 value is {2}, frame 2 value is {3}'.format(col_index, str(key_val), val1, val2)
                 elif (len(val1) > 0):
                     float_found = False
                     for ind in range(len(val1)):
@@ -27,7 +27,7 @@ def compare_frame_summary(frame1_summary, frame2_summary, compareNames=False, co
                             if (not str((val1[ind] == 'NaN'))):
                                 assert (abs((val1[ind] - val2[ind])) < 1e-05), 'failed column summary comparison for column {0} and summary type {1}, frame 1 value is {2}, frame 2 value is {3}'.format(col_index, str(key_val), val1[ind], val2[ind])
                     else:
-                        assert (cmp(val1, val2) == 0), 'failed column summary comparison for column {0} and summary type {1}, frame 1 value is {2}, frame 2 value is {3}'.format(col_index, str(key_val), val1, val2)
+                        assert (val1 == val2), 'failed column summary comparison for column {0} and summary type {1}, frame 1 value is {2}, frame 2 value is {3}'.format(col_index, str(key_val), val1, val2)
             elif isinstance(val1, float):
                 assert (abs((val1 - val2)) < 1e-05), 'failed column summary comparison for column {0} and summary type {1}, frame 1 value is {2}, frame 2 value is {3}'.format(col_index, str(key_val), val1, val2)
             else:

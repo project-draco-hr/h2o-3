@@ -1,0 +1,25 @@
+{
+  if (!(din instanceof FVecParseReader)) {
+    throw new IllegalStateException("We only accept parser readers backed by a Vec (no streaming support!).");
+  }
+  Chunk chunk=((FVecParseReader)din).getChunk();
+  Vec vec=chunk.vec();
+  ParquetMetadataConverter.MetadataFilter chunkFilter=ParquetMetadataConverter.range(chunk.start(),chunk.start() + chunk.len());
+  ParquetMetadata metadata=VecParquetReader.readFooter(vec,chunkFilter);
+  if (metadata.getBlocks().isEmpty()) {
+    Log.trace("Chunk #",cidx," doesn't contain any Parquet block center.");
+    return dout;
+  }
+  Log.info("Processing ",metadata.getBlocks().size()," blocks of chunk #",cidx);
+  VecParquetReader reader=new VecParquetReader(vec,metadata);
+  try {
+    GenericRecord record;
+    while ((record=reader.read()) != null) {
+      write2frame(record,AvroUtil.flatSchema(record.getSchema()),dout);
+    }
+  }
+ catch (  IOException e) {
+    throw new RuntimeException("Failed to parse records",e);
+  }
+  return dout;
+}
