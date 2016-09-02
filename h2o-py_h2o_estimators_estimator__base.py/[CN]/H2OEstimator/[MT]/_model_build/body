@@ -18,8 +18,7 @@ def _model_build(self, x, y, tframe, vframe, kwargs):
     kwargs[u'interactions'] = (None if ((u'interactions' not in kwargs) or (kwargs[u'interactions'] is None)) else [quoted(col) for col in kwargs[u'interactions']])
     kwargs = {k: H2OEstimator._keyify_if_h2oframe(kwargs[k]) for k in kwargs}
     rest_ver = (kwargs.pop(u'_rest_version') if (u'_rest_version' in kwargs) else 3)
-    algo = self._compute_algo()
-    model = H2OJob(h2o.api((u'POST /%d/ModelBuilders/%s' % (rest_ver, algo)), data=kwargs), job_type=(algo + u' Model Build'))
+    model = H2OJob(h2o.api((u'POST /%d/ModelBuilders/%s' % (rest_ver, self.algo)), data=kwargs), job_type=(self.algo + u' Model Build'))
     if self._future:
         self._job = model
         return

@@ -1,11 +1,11 @@
-def gen_module(schema, name):
-    classname = algo_to_classname(name)
-    extra_imports = extra_imports_for(name)
-    help_preamble = help_preamble_for(name)
-    help_epilogue = help_epilogue_for(name)
-    init_extra = init_extra_for(name)
-    class_extra = class_extra_for(name)
-    module_extra = module_extra_for(name)
+def gen_module(schema, algo):
+    classname = algo_to_classname(algo)
+    extra_imports = extra_imports_for(algo)
+    help_preamble = help_preamble_for(algo)
+    help_epilogue = help_epilogue_for(algo)
+    init_extra = init_extra_for(algo)
+    class_extra = class_extra_for(algo)
+    module_extra = module_extra_for(algo)
     yield u'#!/usr/bin/env python'
     yield u'# -*- encoding: utf-8 -*-'
     yield u'#'
@@ -44,6 +44,9 @@ def gen_module(schema, name):
     if help_epilogue:
         yield (u'    %s' % reindent_block(help_epilogue, 4))
     yield u'    """'
+    yield u''
+    yield (u'    algo = "%s"' % algo)
+    yield u''
     yield u'    def __init__(self, **kwargs):'
     yield (u'        super(%s, self).__init__()' % classname)
     yield u'        self._parms = {}'

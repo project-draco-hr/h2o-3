@@ -7,8 +7,7 @@ def build_model(self, algo_params):
     training_frame = algo_params.pop(u'training_frame')
     validation_frame = algo_params.pop(u'validation_frame', None)
     is_auto_encoder = ((u'autoencoder' in algo_params) and algo_params[u'autoencoder'])
-    algo = self._compute_algo()
-    is_unsupervised = (is_auto_encoder or (algo == u'pca') or (algo == u'svd') or (algo == u'kmeans') or (algo == u'glrm'))
+    is_unsupervised = (is_auto_encoder or (self.algo in {u'pca', u'svd', u'kmeans', u'glrm'}))
     if (is_auto_encoder and (y is not None)):
         raise ValueError(u'y should not be specified for autoencoder.')
     if ((not is_unsupervised) and (y is None)):
