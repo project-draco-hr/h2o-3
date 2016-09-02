@@ -1,0 +1,28 @@
+{
+  ByteArrayInputStream bais=new ByteArrayInputStream(bs);
+  ZipInputStream zis=new ZipInputStream(bais);
+  InputStream is=zis;
+  int off=0;
+  try {
+    while (off < bs.length) {
+      int len=0;
+      len=is.read(bs,off,bs.length - off);
+      if (len < 0)       break;
+      off+=len;
+      if (off == bs.length) {
+        if (bs.length >= chkSize)         break;
+        bs=Arrays.copyOf(bs,bs.length * 2);
+      }
+    }
+  }
+ catch (  IOException e) {
+    e.printStackTrace();
+  }
+  try {
+    is.close();
+  }
+ catch (  IOException e) {
+    e.printStackTrace();
+  }
+  return bs;
+}
