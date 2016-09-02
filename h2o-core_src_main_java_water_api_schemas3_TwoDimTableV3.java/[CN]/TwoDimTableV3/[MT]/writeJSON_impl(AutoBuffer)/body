@@ -5,9 +5,11 @@
   ab.put1(',');
   ab.putJSONStr("columns").put1(':');
   ab.put1('[');
-  for (int i=0; i < columns.length; ++i) {
-    columns[i].writeJSON(ab);
-    if (i < columns.length - 1)     ab.put1(',');
+  if (columns != null) {
+    for (int i=0; i < columns.length; ++i) {
+      columns[i].writeJSON(ab);
+      if (i < columns.length - 1)       ab.put1(',');
+    }
   }
   ab.put1(']');
   ab.put1(',');
@@ -15,19 +17,21 @@
   ab.put1(',');
   ab.putJSONStr("data").put1(':');
   ab.put1('[');
-  for (int i=0; i < data.length; ++i) {
-    ab.put1('[');
-    for (int j=0; j < data[i].length; ++j) {
-      if (data[i][j] == null || data[i][j].get() == null) {
-        ab.putJNULL();
-      }
+  if (data != null) {
+    for (int i=0; i < data.length; ++i) {
+      ab.put1('[');
+      for (int j=0; j < data[i].length; ++j) {
+        if (data[i][j] == null || data[i][j].get() == null) {
+          ab.putJNULL();
+        }
  else {
-        data[i][j].writeUnwrappedJSON(ab);
+          data[i][j].writeUnwrappedJSON(ab);
+        }
+        if (j < data[i].length - 1)         ab.put1(',');
       }
-      if (j < data[i].length - 1)       ab.put1(',');
+      ab.put1(']');
+      if (i < data.length - 1)       ab.put1(',');
     }
-    ab.put1(']');
-    if (i < data.length - 1)     ab.put1(',');
   }
   ab.put1(']');
   return ab;
