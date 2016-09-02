@@ -1,0 +1,20 @@
+{
+  int cidx=0;
+  StreamData din=new StreamData(is);
+  if ((fileIndex > 0) && (!checkFileNHeader(is,dout,din,cidx)))   return new StreamInfo(zidx,nextChunk);
+  while (is.available() > 0) {
+    int xidx=bvs.read(null,0,0);
+    if (xidx > zidx) {
+      zidx=xidx;
+      nextChunk.close();
+      if (dout != nextChunk) {
+        dout.reduce(nextChunk);
+        if (_jobKey != null && _jobKey.get().stop_requested())         break;
+      }
+      nextChunk=nextChunk.nextChunk();
+    }
+    parseChunk(cidx++,din,nextChunk);
+  }
+  parseChunk(cidx,din,nextChunk);
+  return new StreamInfo(zidx,nextChunk);
+}

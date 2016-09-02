@@ -32,6 +32,9 @@ def test_deeplearning_grid_search_over_params(self):
             if ('elastic_averaging_regularization' in params_list):
                 model_params['elastic_averaging_regularization'] = params_list['elastic_averaging_regularization']
                 del params_list['elastic_averaging_regularization']
+            if ('hidden' in params_list):
+                temp = params_list['hidden']
+                params_list['hidden'] = [temp]
             manual_model = H2ODeepLearningEstimator(**params_list)
             manual_model.train(x=self.x_indices, y=self.y_index, training_frame=self.training1_data, **model_params)
             model_runtime = pyunit_utils.find_grid_runtime([manual_model])
@@ -60,7 +63,7 @@ def test_deeplearning_grid_search_over_params(self):
             print('time taken to manually build all models is {0}. Maximum allowed time is {1}'.format(manual_run_runtime, total_run_time_limits))
         if (self.test_failed == 0):
             print('test_deeplearning_fieldnames for deeplearning has passed!')
-    except:
+    except Exception as e:
         if (len(grid_model) > 0):
-            print('test_deeplearning_fieldnames for deeplearning failed: exception was thrown for no reason.')
+            print('test_deeplearning_fieldnames for deeplearning failed: exception ({0}) was thrown for no reason.'.format(e))
             self.test_failed += 1

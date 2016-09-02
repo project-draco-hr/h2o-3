@@ -3,7 +3,7 @@ def test4_glm_random_grid_search_metric(self, metric_name, bigger_is_better):
     print('*******************************************************************************************')
     print(((('test4_glm_random_grid_search_metric using ' + metric_name) + ' for family ') + self.family))
     h2o.cluster_info()
-    search_criteria = {'strategy': 'RandomDiscrete', 'stopping_metric': metric_name, 'stopping_tolerance': random.uniform(1e-08, self.max_tolerance), 'stopping_rounds': random.randint(1, self.max_stopping_rounds), 'seed': round(time.time()), }
+    search_criteria = {'strategy': 'RandomDiscrete', 'stopping_metric': metric_name, 'stopping_tolerance': random.uniform(1e-08, self.max_tolerance), 'stopping_rounds': random.randint(1, self.max_stopping_rounds), 'seed': int(round(time.time())), }
     print('GLM Binomial grid search_criteria: {0}'.format(search_criteria))
     self.hyper_params['max_runtime_secs'] = [0.3]
     grid_model = H2OGridSearch(H2OGeneralizedLinearEstimator(family=self.family, nfolds=self.nfolds), hyper_params=self.hyper_params, search_criteria=search_criteria)
