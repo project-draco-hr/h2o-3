@@ -5,7 +5,8 @@
   if (ctc != null) {
     ctc.defrost();
     ctc.detach();
-    _pool.get(implClazzName(name)).detach();
+    CtClass icer=_pool.getOrNull(implClazzName(name));
+    if (icer != null)     icer.detach();
     _pool.removeClassPath(CLASSPATHS.get(name));
     TypeMap.drop(name);
   }
