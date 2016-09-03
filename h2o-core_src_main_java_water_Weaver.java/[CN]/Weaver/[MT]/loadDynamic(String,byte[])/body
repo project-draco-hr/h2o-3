@@ -1,0 +1,10 @@
+{
+  Futures fs=new Futures();
+  fs.add(RPC.call(H2O.CLOUD.leader(),new LoadClazz(name,b))).blockForPending();
+  new MRTask(){
+    @Override public void setupLocal(){
+      if (H2O.SELF != H2O.CLOUD.leader())       new LoadClazz(name,b).compute2();
+    }
+  }
+.doAllNodes();
+}

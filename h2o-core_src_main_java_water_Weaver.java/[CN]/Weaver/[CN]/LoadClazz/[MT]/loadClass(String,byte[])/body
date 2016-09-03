@@ -1,0 +1,16 @@
+{
+  ClassPath path;
+  ClassLoader loader;
+  CtClass ctc=_pool.getOrNull(name);
+  if (ctc != null) {
+    ctc.defrost();
+    ctc.detach();
+    _pool.get(implClazzName(name)).detach();
+    _pool.removeClassPath(CLASSPATHS.get(name));
+    TypeMap.drop(name);
+  }
+  CLASSPATHS.put(name,path=new ByteArrayClassPath(name,bytes));
+  _pool.insertClassPath(path);
+  CLASSLOADERS.put(name,loader=new URLClassLoader(new URL[0],_pool.getClassLoader()));
+  _pool.get(name).toClass(loader);
+}
