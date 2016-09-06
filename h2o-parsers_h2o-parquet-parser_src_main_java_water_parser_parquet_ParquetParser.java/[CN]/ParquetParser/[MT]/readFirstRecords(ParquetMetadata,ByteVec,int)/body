@@ -1,0 +1,17 @@
+{
+  ParquetMetadata startMetadata=new ParquetMetadata(metadata.getFileMetaData(),Collections.singletonList(findFirstBlock(metadata)));
+  ParquetPreviewParseWriter ppWriter=new ParquetPreviewParseWriter(metadata.getFileMetaData().getSchema());
+  VecParquetReader reader=new VecParquetReader(vec,startMetadata,ppWriter,ppWriter._roughTypes);
+  try {
+    int recordCnt=0;
+    Integer recordNum;
+    do {
+      recordNum=reader.read();
+    }
+ while ((recordNum != null) && (++recordCnt < cnt));
+    return ppWriter;
+  }
+ catch (  IOException e) {
+    throw new RuntimeException("Failed to read the first few records",e);
+  }
+}

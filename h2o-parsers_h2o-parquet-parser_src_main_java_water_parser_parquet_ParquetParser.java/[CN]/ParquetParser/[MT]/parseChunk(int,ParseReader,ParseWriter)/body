@@ -11,12 +11,13 @@
     return dout;
   }
   Log.info("Processing ",metadata.getBlocks().size()," blocks of chunk #",cidx);
-  VecParquetReader reader=new VecParquetReader(vec,metadata);
+  VecParquetReader reader=new VecParquetReader(vec,metadata,dout,_setup.getColumnTypes());
   try {
-    GenericRecord record;
-    while ((record=reader.read()) != null) {
-      write2frame(record,AvroUtil.flatSchema(record.getSchema()),dout);
+    Integer recordNumber;
+    do {
+      recordNumber=reader.read();
     }
+ while (recordNumber != null);
   }
  catch (  IOException e) {
     throw new RuntimeException("Failed to parse records",e);
