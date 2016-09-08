@@ -26,13 +26,14 @@ case ZIP:
 {
   InputStream bvs=vec.openStream(_jobKey);
   ZipInputStream zis=new ZipInputStream(bvs);
-  if (ZipUtil.isZipDirectory(key)) {
-    zis.getNextEntry();
-  }
   ZipEntry ze=zis.getNextEntry();
   if (ze != null && !ze.isDirectory())   _dout[_lo]=streamParse(zis,localSetup,makeDout(localSetup,chunkStartIdx,vec.nChunks()),bvs);
   _errors=_dout[_lo].removeErrors();
-  zis.close();
+  ZipEntry ze2=zis.getNextEntry();
+  if (ze2 != null && !ze.isDirectory()) {
+    Log.warn("Only single file zip archives are currently supported, only file: " + ze.getName() + " has been parsed.  Remaining files have been ignored.");
+  }
+ else   zis.close();
   chunksAreLocal(vec,chunkStartIdx,key);
   break;
 }
