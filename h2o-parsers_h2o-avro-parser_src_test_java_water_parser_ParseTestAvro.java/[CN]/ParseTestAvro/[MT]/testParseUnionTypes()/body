@@ -3,7 +3,7 @@
     @Override protected File prepareFile() throws IOException {
       return AvroFileGenerator.generateUnionTypes(file,nrows());
     }
-    @Override void check(    Frame f){
+    @Override public void check(    Frame f){
       assertArrayEquals("Column names need to match!",ar("CUString","CUBytes","CUInt","CULong","CUFloat","CUDouble","CUBoolean"),f.names());
       assertArrayEquals("Column types need to match!",ar(Vec.T_STR,Vec.T_STR,Vec.T_NUM,Vec.T_NUM,Vec.T_NUM,Vec.T_NUM,Vec.T_NUM),f.types());
       int nrows=nrows();
@@ -24,6 +24,6 @@
   }
 };
   for (int i=0; i < assertions.length; ++i) {
-    assertFrameAsserion(assertions[i]);
+    assertFrameAssertion(assertions[i]);
   }
 }
