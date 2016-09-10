@@ -10,7 +10,7 @@
       Vec actual=adaptedFrame.vec(m._parms._response_column);
       Vec weight=adaptedFrame.vec(m._parms._weights_column);
       double huberDelta=computeHuberDelta(actual,preds.anyVec(),weight,m._parms._huber_alpha);
-      _dist=new AutoBuffer().put(m._dist).flipForReading().get();
+      _dist=IcedUtils.deepCopy(m._dist);
       _dist.setHuberDelta(huberDelta);
       meanResDeviance=new MeanResidualDeviance(_dist,preds.anyVec(),actual,weight).exec().meanResidualDeviance;
     }
