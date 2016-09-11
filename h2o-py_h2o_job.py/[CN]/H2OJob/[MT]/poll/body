@@ -1,7 +1,8 @@
 def poll(self):
     u'\n        Wait until the job finishes.\n\n        This method will continuously query the server about the status of the job, until the job reaches a\n        completion. During this time we will display (in stdout) a progress bar with % completion status.\n        '
     try:
-        pb = ProgressBar((self._job_type + u' progress'))
+        hidden = (not H2OJob.__PROGRESS_BAR__)
+        pb = ProgressBar(title=(self._job_type + u' progress'), hidden=hidden)
         pb.execute(self._refresh_job_status)
     except StopIteration as e:
         if (str(e) == u'cancelled'):

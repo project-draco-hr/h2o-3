@@ -1,4 +1,4 @@
-def __init__(self, title=None, widgets=None, maxval=1.0, file_mode=None):
+def __init__(self, title=None, widgets=None, maxval=1.0, file_mode=None, hidden=False):
     u'\n        Initialize the progress bar.\n\n        :param title: name of the progress bar, to be used as the first default widget.\n        :param maxval: when the progress reaches this value, the job is considered finished.\n        :param widgets: list of widgets to render. Each widget is either a constant string, or an\n            instance of a ProgressBarWidget subclass. Defaults are: [title+":", PBWBar(), PBWPercentage()].\n        :param file_mode: if True, force file-mode output (i.e. progress is printed without ability to\n            overwrite previous output).\n        '
     assert_is_type(title, None, str)
     assert_is_type(maxval, numeric)
@@ -10,7 +10,11 @@ def __init__(self, title=None, widgets=None, maxval=1.0, file_mode=None):
         file_mode = (not sys.stdout.isatty())
     self._maxval = maxval
     self._file_mode = file_mode
-    self._widget = _ProgressBarCompoundWidget(widgets, title=title, file_mode=file_mode)
+    if hidden:
+        self._widget = _HiddenWidget()
+        self._file_mode = True
+    else:
+        self._widget = _ProgressBarCompoundWidget(widgets, title=title, file_mode=file_mode)
     self._t0 = None
     self._x0 = None
     self._v0 = None
