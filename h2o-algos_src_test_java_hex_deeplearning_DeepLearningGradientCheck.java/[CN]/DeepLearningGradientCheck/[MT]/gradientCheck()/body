@@ -72,11 +72,11 @@
                   Log.info("Mean residual deviance: " + resdev);
                   p.delete();
                 }
-                DeepLearningModelInfo modelInfo=dl.model_info().deep_clone();
+                DeepLearningModelInfo modelInfo=IcedUtils.deepCopy(dl.model_info());
                 long before=dl.model_info().checksum_impl();
                 float meanLoss=0;
                 for (int rId=0; rId < tfr.numRows(); rId+=1) {
-                  dl.set_model_info(modelInfo.deep_clone());
+                  dl.set_model_info(IcedUtils.deepCopy(modelInfo));
                   final DataInfo di=dl.model_info().data_info();
                   final DataInfo.Row[] rowsMiniBatch=new DataInfo.Row[miniBatchSize];
                   for (int i=0; i < rowsMiniBatch.length; ++i) {
@@ -94,7 +94,7 @@
                     assert(dl.model_info().get_biases(layer).size() == rows);
                     for (int row=0; row < rows; ++row) {
                       if (true) {
-                        dl.set_model_info(modelInfo.deep_clone());
+                        dl.set_model_info(IcedUtils.deepCopy(modelInfo));
                         Neurons[] neurons=DeepLearningTask.makeNeuronsForTraining(dl.model_info());
                         double[] responses=new double[miniBatchSize];
                         double[] offsets=new double[miniBatchSize];
@@ -112,7 +112,7 @@
                         DeepLearningModelInfo.gradientCheck=new DeepLearningModelInfo.GradientCheck(layer,row,-1);
                         DeepLearningTask.bpropMiniBatch(neurons,n);
                         assert(before != dl.model_info().checksum_impl());
-                        dl.set_model_info(modelInfo.deep_clone());
+                        dl.set_model_info(IcedUtils.deepCopy(modelInfo));
                         assert(before == dl.model_info().checksum_impl());
                         double bpropGradient=DeepLearningModelInfo.gradientCheck.gradient;
                         final double bias=dl.model_info().get_biases(layer).get(row);
@@ -147,7 +147,7 @@
                       int cols=dl.model_info().get_weights(layer).cols();
                       for (int col=0; col < cols; ++col) {
                         if (rng.nextFloat() >= SAMPLE_RATE)                         continue;
-                        dl.set_model_info(modelInfo.deep_clone());
+                        dl.set_model_info(IcedUtils.deepCopy(modelInfo));
                         Neurons[] neurons=DeepLearningTask.makeNeuronsForTraining(dl.model_info());
                         double[] responses=new double[miniBatchSize];
                         double[] offsets=new double[miniBatchSize];
@@ -165,7 +165,7 @@
                         DeepLearningModelInfo.gradientCheck=new DeepLearningModelInfo.GradientCheck(layer,row,col);
                         DeepLearningTask.bpropMiniBatch(neurons,n);
                         assert(before != dl.model_info().checksum_impl());
-                        dl.set_model_info(modelInfo.deep_clone());
+                        dl.set_model_info(IcedUtils.deepCopy(modelInfo));
                         assert(before == dl.model_info().checksum_impl());
                         double bpropGradient=DeepLearningModelInfo.gradientCheck.gradient;
                         final float weight=dl.model_info().get_weights(layer).get(row,col);

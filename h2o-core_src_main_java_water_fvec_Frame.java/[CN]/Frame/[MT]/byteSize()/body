@@ -1,6 +1,12 @@
 {
-  Vec[] vecs=bulkRollups();
-  long sum=0;
-  for (  Vec vec : vecs)   sum+=vec.byteSize();
-  return sum;
+  try {
+    Vec[] vecs=bulkRollups();
+    long sum=0;
+    for (    Vec vec : vecs)     sum+=vec.byteSize();
+    return sum;
+  }
+ catch (  RuntimeException ex) {
+    Log.debug("Failure to obtain byteSize() - missing chunks?");
+    return -1;
+  }
 }
