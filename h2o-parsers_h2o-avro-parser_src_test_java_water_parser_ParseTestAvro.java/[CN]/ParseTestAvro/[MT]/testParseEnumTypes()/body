@@ -4,7 +4,7 @@
     @Override protected File prepareFile() throws IOException {
       return AvroFileGenerator.generateEnumTypes(file,nrows(),categories);
     }
-    @Override void check(    Frame f){
+    @Override public void check(    Frame f){
       assertArrayEquals("Column names need to match!",ar("CEnum","CUEnum"),f.names());
       assertArrayEquals("Column types need to match!",ar(Vec.T_CAT,Vec.T_CAT),f.types());
       assertArrayEquals("Category names need to match in CEnum!",categories[0],f.vec("CEnum").domain());
@@ -21,6 +21,6 @@
   }
 };
   for (int i=0; i < assertions.length; ++i) {
-    assertFrameAsserion(assertions[i]);
+    assertFrameAssertion(assertions[i]);
   }
 }

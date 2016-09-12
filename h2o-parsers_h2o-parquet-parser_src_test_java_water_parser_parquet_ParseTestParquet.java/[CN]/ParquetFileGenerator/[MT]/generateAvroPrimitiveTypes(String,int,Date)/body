@@ -1,0 +1,17 @@
+{
+  File parentDir=Files.createTempDir();
+  File f=new File(parentDir,filename);
+  Schema schema=new Schema.Parser().parse(Resources.getResource("PrimitiveAvro.avsc").openStream());
+  AvroParquetWriter<GenericRecord> writer=new AvroParquetWriter<GenericRecord>(new Path(f.getPath()),schema);
+  try {
+    DateFormat format=new SimpleDateFormat("yy-MMM-dd:hh.mm.ss.SSS aaa");
+    for (int i=0; i < nrows; i++) {
+      GenericData.Record record=new GenericRecordBuilder(schema).set("mynull",null).set("myboolean",i % 2 == 0).set("myint",1 + i).set("mylong",2L + i).set("myfloat",3.1f + i).set("mydouble",4.1 + i).set("mydate",format.format(new Date(date.getTime() - (i * 1000 * 3600)))).set("myuuid",UUID.randomUUID()).set("mystring","hello world: " + i).set("myenum",i % 2 == 0 ? "a" : "b").build();
+      writer.write(record);
+    }
+  }
+  finally {
+    writer.close();
+  }
+  return f;
+}
