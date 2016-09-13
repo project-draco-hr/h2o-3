@@ -1,0 +1,21 @@
+{
+  final int nFiles=10;
+  FrameAssertion assertion=new GenFrameAssertion("testParseMulti-$.parquet",TestUtil.ari(9,100)){
+    @Override protected File prepareFile() throws IOException {
+      File dir=Files.createTempDir();
+      for (int i=0; i < nFiles; i++) {
+        String fName=file.replace("$",String.valueOf(i));
+        File f=ParquetFileGenerator.generateAvroPrimitiveTypes(dir,fName,nrows() / nFiles,new Date());
+        File crcF=new File(f.getCanonicalPath().replace(fName,"." + fName + ".crc"));
+        if (crcF.exists() && (!crcF.delete()))         throw new IllegalStateException("Unable to delete Parquet CRC for file: " + f);
+      }
+      return dir;
+    }
+    @Override public void check(    Frame f){
+      assertArrayEquals("Column names need to match!",ar("myboolean","myint","mylong","myfloat","mydouble","mydate","myuuid","mystring","myenum"),f.names());
+      assertArrayEquals("Column types need to match!",ar(Vec.T_NUM,Vec.T_NUM,Vec.T_NUM,Vec.T_NUM,Vec.T_NUM,Vec.T_TIME,Vec.T_UUID,Vec.T_STR,Vec.T_CAT),f.types());
+    }
+  }
+;
+  assertFrameAssertion(assertion);
+}
