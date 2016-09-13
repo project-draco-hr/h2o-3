@@ -1,0 +1,18 @@
+{
+  final Date date=new Date();
+  FrameAssertion assertion=new GenFrameAssertion("avroPrimitiveTypes.parquet",TestUtil.ari(5,100)){
+    @Override protected File prepareFile() throws IOException {
+      return ParquetFileGenerator.generateParquetFile(Files.createTempDir(),file,nrows(),date);
+    }
+    @Override public void check(    Frame f){
+      assertArrayEquals("Column names need to match!",ar("int32_field","int64_field","float_field","double_field","timestamp_field"),f.names());
+      assertArrayEquals("Column types need to match!",ar(Vec.T_NUM,Vec.T_NUM,Vec.T_NUM,Vec.T_NUM,Vec.T_TIME),f.types());
+      for (int row=0; row < nrows(); row++) {
+        assertEquals("Value in column int32_field",32 + row,f.vec(0).at8(row));
+        assertEquals("Value in column timestamp_field",date.getTime() + (row * 117),f.vec(4).at8(row));
+      }
+    }
+  }
+;
+  assertFrameAssertion(assertion);
+}
