@@ -1,14 +1,12 @@
 def rbind(self, data):
-    u"\n        Append data to this H2OFrame row-wise.\n\n        Parameters\n        ----------\n          data : list\n            List of H2OFrame's to be combined with current frame row-wise.\n\n        Returns\n        -------\n          Returns this H2OFrame with all frames in data appended row-wise.\n        "
-    if (not isinstance(data, list)):
-        fr = H2OFrame._expr(expr=ExprNode(u'rbind', self, data), cache=self._ex._cache)
-        fr._ex._cache.nrows = (self.nrow + data.nrow)
-    else:
-        for frames in data:
-            if (not isinstance(frames, H2OFrame)):
-                raise ValueError(u'`frames` must be an H2OFrame, but got {0}'.format(type(frames)))
-            fr = H2OFrame._expr(expr=ExprNode(u'rbind', self, frames), cache=self._ex._cache)
-            self = fr
-        for frames in data:
-            fr._ex._cache.nrows = (self.nrow + frames.nrow)
+    u"\n        Append data to this frame row-wise.\n\n        :param data: an H2OFrame or a list of H2OFrame's to be combined with current frame row-wise.\n        :returns: this H2OFrame with all frames in data appended row-wise.\n        "
+    assert_is_type(data, H2OFrame, [H2OFrame])
+    frames = ([data] if (not isinstance(data, list)) else data)
+    for frame in frames:
+        if (frame.ncol != self.ncol):
+            raise H2OValueError((u'Cannot row-bind a dataframe with %d columns to a data frame with %d columns: the columns must match' % (frame.ncol, self.ncol)))
+        if ((frame.columns != self.columns) or (frame.types != self.types)):
+            raise H2OValueError(u'Column names and types must match for rbind() to work')
+    fr = H2OFrame._expr(expr=ExprNode(u'rbind', self, *frames), cache=self._ex._cache)
+    fr._ex._cache.nrows = (self.nrow + sum((frame.nrow for frame in frames)))
     return fr
