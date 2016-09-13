@@ -1,0 +1,8 @@
+def difflag1():
+    df = pd.DataFrame(np.random.randint(0, 100, size=(1000000, 1)), columns=list('A'))
+    df_diff = df.diff()
+    df_diff_h2o = h2o.H2OFrame(df_diff)
+    fr = h2o.H2OFrame(df)
+    fr_diff = fr.difflag1()
+    diff = abs((df_diff_h2o[1:df_diff_h2o.nrow, :] - fr_diff[1:fr_diff.nrow, :]))
+    assert (diff.max() < 1e-10), 'expected equal differencing'
