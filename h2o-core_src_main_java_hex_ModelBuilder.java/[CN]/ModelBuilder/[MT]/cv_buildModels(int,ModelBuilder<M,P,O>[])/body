@@ -1,2 +1,13 @@
 {
+  H2O.H2OCountedCompleter submodel_tasks[]=new H2O.H2OCountedCompleter[N];
+  int nRunning=0;
+  for (int i=0; i < N; ++i) {
+    if (_job.stop_requested())     break;
+    Log.info("Building cross-validation model " + (i + 1) + " / "+ N+ ".");
+    cvModelBuilders[i]._start_time=System.currentTimeMillis();
+    submodel_tasks[i]=H2O.submitTask(cvModelBuilders[i].trainModelImpl());
+    if (++nRunning == nModelsInParallel())     while (nRunning > 0)     submodel_tasks[i + 1 - nRunning--].join();
+  }
+  for (int i=0; i < N; ++i)   submodel_tasks[i].join();
+  modifyParmsForCrossValidationMainModel(cvModelBuilders);
 }

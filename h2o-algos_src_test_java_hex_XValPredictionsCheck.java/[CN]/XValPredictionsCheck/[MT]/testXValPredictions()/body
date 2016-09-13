@@ -1,7 +1,6 @@
 {
   final int nfolds=3;
   Frame tfr=null;
-  Scope.enter();
   try {
     tfr=parse_test_file("smalldata/iris/iris_wheader.csv");
     Frame foldId=new Frame(new String[]{"foldId"},new Vec[]{AstKFold.kfoldColumn(tfr.vec("class").makeZero(),nfolds,543216789)});
@@ -50,6 +49,5 @@
   }
   finally {
     if (tfr != null)     tfr.remove();
-    Scope.exit();
   }
 }

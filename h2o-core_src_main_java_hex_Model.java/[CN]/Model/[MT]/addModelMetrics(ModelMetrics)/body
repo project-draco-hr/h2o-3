@@ -1,0 +1,15 @@
+{
+  DKV.put(mm);
+  final Key k=mm._key;
+  new TAtomic<Model>(){
+    @Override protected Model atomic(    Model old){
+      for (      Key key : old._output._model_metrics)       if (k.equals(key))       return old;
+      old._output._model_metrics=Arrays.copyOf(old._output._model_metrics,old._output._model_metrics.length + 1);
+      old._output._model_metrics[old._output._model_metrics.length - 1]=k;
+      return old;
+    }
+  }
+.invoke(_key);
+  _output._model_metrics=_key.get()._output._model_metrics;
+  return mm;
+}
