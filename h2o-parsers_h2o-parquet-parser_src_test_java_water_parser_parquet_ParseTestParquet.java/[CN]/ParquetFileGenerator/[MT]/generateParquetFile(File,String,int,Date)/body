@@ -1,0 +1,17 @@
+{
+  File f=new File(parentDir,filename);
+  Configuration conf=new Configuration();
+  MessageType schema=parseMessageType("message test { " + "required int32 int32_field; " + "required int64 int64_field; "+ "required float float_field; "+ "required double double_field; "+ "required int64 timestamp_field (TIMESTAMP_MILLIS);"+ "} ");
+  GroupWriteSupport.setSchema(schema,conf);
+  SimpleGroupFactory fact=new SimpleGroupFactory(schema);
+  ParquetWriter<Group> writer=new ParquetWriter<Group>(new Path(f.getPath()),new GroupWriteSupport(),UNCOMPRESSED,1024,1024,512,true,false,ParquetProperties.WriterVersion.PARQUET_2_0,conf);
+  try {
+    for (int i=0; i < nrows; i++) {
+      writer.write(fact.newGroup().append("int32_field",32 + i).append("int64_field",64L + i).append("float_field",1.0f + i).append("double_field",2.0d + i).append("timestamp_field",date.getTime() + (i * 117)));
+    }
+  }
+  finally {
+    writer.close();
+  }
+  return f;
+}

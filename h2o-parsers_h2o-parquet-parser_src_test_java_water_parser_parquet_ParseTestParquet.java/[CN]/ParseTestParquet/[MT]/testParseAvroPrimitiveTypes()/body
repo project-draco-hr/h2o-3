@@ -1,7 +1,7 @@
 {
   FrameAssertion assertion=new GenFrameAssertion("avroPrimitiveTypes.parquet",TestUtil.ari(9,100)){
     @Override protected File prepareFile() throws IOException {
-      return ParquetFileGenerator.generateAvroPrimitiveTypes(file,nrows(),new Date());
+      return ParquetFileGenerator.generateAvroPrimitiveTypes(Files.createTempDir(),file,nrows(),new Date());
     }
     @Override public void check(    Frame f){
       assertArrayEquals("Column names need to match!",ar("myboolean","myint","mylong","myfloat","mydouble","mydate","myuuid","mystring","myenum"),f.names());

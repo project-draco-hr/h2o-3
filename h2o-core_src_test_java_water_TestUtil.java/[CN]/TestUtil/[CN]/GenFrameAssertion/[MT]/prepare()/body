@@ -2,9 +2,14 @@
   try {
     File f=generatedFile=prepareFile();
     System.out.println("File generated into: " + f.getCanonicalPath());
-    return TestUtil.parse_test_file(f.getCanonicalPath());
+    if (f.isDirectory()) {
+      return parse_test_folder(f.getCanonicalPath(),null,ParseSetup.HAS_HEADER,null);
+    }
+ else {
+      return parse_test_file(f.getCanonicalPath());
+    }
   }
  catch (  IOException e) {
-    throw new RuntimeException("Cannot created test file: " + file,e);
+    throw new RuntimeException("Cannot prepare test frame from file: " + file,e);
   }
 }
