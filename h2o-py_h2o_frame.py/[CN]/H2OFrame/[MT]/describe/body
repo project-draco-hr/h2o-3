@@ -1,9 +1,11 @@
-def describe(self):
-    u'Generate an in-depth description of this H2OFrame. Everything in summary(), plus the data layout.'
+def describe(self, chunk_summary=False):
+    u'\n        Generate an in-depth description of this H2OFrame.\n\n        Parameters\n        ----------\n        chunk_summary : bool, default=False\n            Retrieve the chunk summary along with the distribution summary\n        '
     res = h2o.api((u'GET /3/Frames/%s' % self.frame_id), data={u'row_count': 10, })[u'frames'][0]
     self._ex._cache._fill_data(res)
-    print(u'Rows:{:,}'.format(self.nrow), u'Cols:{:,}'.format(self.ncol))
-    res[u'chunk_summary'].show()
-    res[u'distribution_summary'].show()
+    print(u'Rows:{}'.format(self.nrow))
+    print(u'Cols:{}'.format(self.ncol))
+    if chunk_summary:
+        res[u'chunk_summary'].show()
+        res[u'distribution_summary'].show()
     print(u'\n')
     self.summary()
