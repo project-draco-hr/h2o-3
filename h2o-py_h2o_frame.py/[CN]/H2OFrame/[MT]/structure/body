@@ -1,19 +1,18 @@
 def structure(self):
-    u"Similar to R's str method: compactly display the structure of this H2OFrame."
+    u'Compactly display the internal structure of an H2OFrame'
     df = self.as_data_frame(use_pandas=False)
     cn = df.pop(0)
     nr = self.nrow
     nc = self.ncol
     width = max([len(c) for c in cn])
-    isfactor = [c.isfactor() for c in self]
+    isfactor = self.isfactor()
     numlevels = self.nlevels()
     lvls = self.levels()
-    print(u"self._newExpr '{}': \t {} obs. of {} variables(s)".format(self.frame_id, nr, nc))
+    print(u"H2OFrame: '{}' \nDimensions: {} obs. of {} variables".format(self.frame_id, nr, nc))
     for i in range(nc):
         print(u'$ {} {}: '.format(cn[i], (u' ' * (width - max(0, len(cn[i]))))), end=u' ')
         if isfactor[i]:
             nl = numlevels[i]
-            print(u'Factor w/ {} level(s) {}: '.format(nl, ((u'"' + u'","'.join(lvls[i])) + u'"')), end=u' ')
-            print(u' '.join(list(map((lambda x: str(lvls[i].index(x))), list(zip(*df))[i]))))
+            print(u'Factor w/ {} level(s) {} '.format(nl, ((u'"' + u'","'.join(lvls[i])) + u'"')), end=u'\n')
         else:
             print(u'num {}'.format(u' '.join((it[0] for it in h2o.as_list(self[:10, i], False)[1:]))))
