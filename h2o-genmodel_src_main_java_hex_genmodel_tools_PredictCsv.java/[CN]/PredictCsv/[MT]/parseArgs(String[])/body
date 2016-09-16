@@ -1,19 +1,23 @@
 {
-  for (int i=0; i < args.length; i++) {
-    String s=args[i];
-    if (s.equals("--header"))     continue;
-    if (s.equals("--decimal"))     useDecimalOutput=true;
+  try {
+    for (int i=0; i < args.length; i++) {
+      String s=args[i];
+      if (s.equals("--header"))       continue;
+      if (s.equals("--decimal"))       useDecimalOutput=true;
  else {
-      i++;
-      if (i >= args.length)       usage();
-      String sarg=args[i];
+        i++;
+        if (i >= args.length)         usage();
+        String sarg=args[i];
 switch (s) {
 case "--model":
-        loadModel(sarg);
-      break;
+          loadModel(sarg);
+        break;
+case "--mojo":
+      loadMojo(sarg);
+    break;
 case "--pojo":
-    loadPojo(sarg);
-  break;
+  loadPojo(sarg);
+break;
 case "--input":
 inputCSVFileName=sarg;
 break;
@@ -25,5 +29,10 @@ System.out.println("ERROR: Unknown command line argument: " + s);
 usage();
 }
 }
+}
+}
+ catch (Exception e) {
+e.printStackTrace();
+usage();
 }
 }
