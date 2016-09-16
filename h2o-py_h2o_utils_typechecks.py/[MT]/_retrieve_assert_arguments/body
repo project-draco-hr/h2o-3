@@ -10,7 +10,7 @@ def _retrieve_assert_arguments():
         while ((fr is not None) and (fr.f_code.co_filename == this_filename)):
             fr = fr.f_back
         try:
-            with open(fr.f_code.co_filename, u'r') as f:
+            with io.open(fr.f_code.co_filename, u'r', encoding=u'utf-8') as f:
                 for i in range((fr.f_lineno - 1)):
                     next(f)
                 g = tokenize.generate_tokens(f.readline)
