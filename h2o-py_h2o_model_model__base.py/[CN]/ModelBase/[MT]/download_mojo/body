@@ -1,0 +1,9 @@
+def download_mojo(self, path=u'.', get_genmodel_jar=False):
+    u'\n        Download the model in MOJO format.\n\n        :param path: the path where MOJO file should be saved.\n        :param get_genmodel_jar: if True, then also download h2o-genmodel.jar and store it in folder ``path``.\n        :returns: name of the MOJO file written.\n        '
+    assert_is_type(path, str)
+    assert_is_type(get_genmodel_jar, bool)
+    if (self.algo not in {u'drf', u'gbm'}):
+        raise H2OValueError(u'MOJOs are currently supported for Distributed Random Forest and Gradient Boosting Method models only.')
+    if get_genmodel_jar:
+        h2o.api(u'GET /3/h2o-genmodel.jar', save_to=os.path.join(path, u'h2o-genmodel.jar'))
+    return h2o.api((u'GET /3/Models/%s/mojo' % self.model_id), save_to=path)
