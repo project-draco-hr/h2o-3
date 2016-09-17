@@ -1,9 +1,9 @@
 @staticmethod
 def getGLMRegularizationPath(model):
-    '\n        Extract full regularization path explored during lambda search from glm model.\n        @param model - source lambda search model\n        '
-    x = h2o.api('GET /3/GetGLMRegPath', data={'model': model._model_json['model_id']['name'], })
-    ns = x.pop('coefficient_names')
-    res = {'lambdas': x['lambdas'], 'explained_deviance_train': x['explained_deviance_train'], 'explained_deviance_valid': x['explained_deviance_valid'], 'coefficients': [dict(zip(ns, y)) for y in x['coefficients']], }
-    if ('coefficients_std' in x):
-        res['coefficients_std'] = [dict(zip(ns, y)) for y in x['coefficients_std']]
+    u'\n        Extract full regularization path explored during lambda search from glm model.\n        @param model - source lambda search model\n        '
+    x = h2o.api(u'GET /3/GetGLMRegPath', data={u'model': model._model_json[u'model_id'][u'name'], })
+    ns = x.pop(u'coefficient_names')
+    res = {u'lambdas': x[u'lambdas'], u'explained_deviance_train': x[u'explained_deviance_train'], u'explained_deviance_valid': x[u'explained_deviance_valid'], u'coefficients': [dict(zip(ns, y)) for y in x[u'coefficients']], }
+    if (u'coefficients_std' in x):
+        res[u'coefficients_std'] = [dict(zip(ns, y)) for y in x[u'coefficients_std']]
     return res

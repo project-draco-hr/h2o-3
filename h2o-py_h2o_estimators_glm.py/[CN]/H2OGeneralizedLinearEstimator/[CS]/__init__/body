@@ -1,8 +1,14 @@
 def __init__(self, **kwargs):
     super(H2OGeneralizedLinearEstimator, self).__init__()
     self._parms = {}
-    for name in ['model_id', 'training_frame', 'validation_frame', 'nfolds', 'seed', 'keep_cross_validation_predictions', 'keep_cross_validation_fold_assignment', 'fold_assignment', 'fold_column', 'response_column', 'ignored_columns', 'ignore_const_cols', 'score_each_iteration', 'offset_column', 'weights_column', 'family', 'tweedie_variance_power', 'tweedie_link_power', 'solver', 'alpha', 'lambda_', 'lambda_search', 'early_stopping', 'nlambdas', 'standardize', 'missing_values_handling', 'compute_p_values', 'remove_collinear_columns', 'intercept', 'non_negative', 'max_iterations', 'objective_epsilon', 'beta_epsilon', 'gradient_epsilon', 'link', 'prior', 'lambda_min_ratio', 'beta_constraints', 'max_active_predictors', 'interactions', 'balance_classes', 'class_sampling_factors', 'max_after_balance_size', 'max_confusion_matrix_size', 'max_hit_ratio_k', 'max_runtime_secs']:
-        pname = (name[:(-1)] if (name[(-1)] == '_') else name)
-        self._parms[pname] = (kwargs[name] if (name in kwargs) else None)
-    if ('Lambda' in kwargs):
-        self._parms['lambda'] = kwargs['Lambda']
+    names_list = {u'model_id', u'training_frame', u'validation_frame', u'nfolds', u'seed', u'keep_cross_validation_predictions', u'keep_cross_validation_fold_assignment', u'fold_assignment', u'fold_column', u'response_column', u'ignored_columns', u'ignore_const_cols', u'score_each_iteration', u'offset_column', u'weights_column', u'family', u'tweedie_variance_power', u'tweedie_link_power', u'solver', u'alpha', u'lambda_', u'lambda_search', u'early_stopping', u'nlambdas', u'standardize', u'missing_values_handling', u'compute_p_values', u'remove_collinear_columns', u'intercept', u'non_negative', u'max_iterations', u'objective_epsilon', u'beta_epsilon', u'gradient_epsilon', u'link', u'prior', u'lambda_min_ratio', u'beta_constraints', u'max_active_predictors', u'interactions', u'balance_classes', u'class_sampling_factors', u'max_after_balance_size', u'max_confusion_matrix_size', u'max_hit_ratio_k', u'max_runtime_secs'}
+    if (u'Lambda' in kwargs):
+        kwargs[u'lambda_'] = kwargs.pop(u'Lambda')
+    for (pname, pvalue) in kwargs.items():
+        if (pname == u'model_id'):
+            self._id = pvalue
+            self._parms[u'model_id'] = pvalue
+        elif (pname in names_list):
+            setattr(self, pname, pvalue)
+        else:
+            raise H2OValueError((u'Unknown parameter %s = %r' % (pname, pvalue)))

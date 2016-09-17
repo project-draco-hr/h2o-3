@@ -5,11 +5,9 @@ def parametersKmeans():
     iris_km = H2OKMeansEstimator(k=3, seed=1234)
     iris_km.train(x=list(range(4)), training_frame=iris)
     parameters = iris_km._model_json['parameters']
-    param_dict = {}
-    for p in range(len(parameters)):
-        param_dict[parameters[p]['name']] = parameters[p]['actual_value']
-    fold_column = param_dict['fold_column']
-    del param_dict['fold_column']
+    param_dict = {pp['name']: pp['actual_value'] for pp in parameters}
+    fold_column = param_dict.pop('fold_column')
+    del param_dict['model_id']
     del param_dict['training_frame']
     del param_dict['validation_frame']
     del param_dict['max_runtime_secs']

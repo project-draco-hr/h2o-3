@@ -1,7 +1,15 @@
 def __init__(self, **kwargs):
     super(H2OGeneralizedLowRankEstimator, self).__init__()
     self._parms = {}
-    for name in ['model_id', 'training_frame', 'validation_frame', 'ignored_columns', 'ignore_const_cols', 'score_each_iteration', 'loading_name', 'transform', 'k', 'loss', 'loss_by_col', 'loss_by_col_idx', 'multi_loss', 'period', 'regularization_x', 'regularization_y', 'gamma_x', 'gamma_y', 'max_iterations', 'max_updates', 'init_step_size', 'min_step_size', 'seed', 'init', 'svd_method', 'user_y', 'user_x', 'expand_user_y', 'impute_original', 'recover_svd', 'max_runtime_secs']:
-        pname = (name[:(-1)] if (name[(-1)] == '_') else name)
-        self._parms[pname] = (kwargs[name] if (name in kwargs) else None)
-    self._parms['_rest_version'] = 3
+    names_list = {u'model_id', u'training_frame', u'validation_frame', u'ignored_columns', u'ignore_const_cols', u'score_each_iteration', u'loading_name', u'transform', u'k', u'loss', u'loss_by_col', u'loss_by_col_idx', u'multi_loss', u'period', u'regularization_x', u'regularization_y', u'gamma_x', u'gamma_y', u'max_iterations', u'max_updates', u'init_step_size', u'min_step_size', u'seed', u'init', u'svd_method', u'user_y', u'user_x', u'expand_user_y', u'impute_original', u'recover_svd', u'max_runtime_secs'}
+    if (u'Lambda' in kwargs):
+        kwargs[u'lambda_'] = kwargs.pop(u'Lambda')
+    for (pname, pvalue) in kwargs.items():
+        if (pname == u'model_id'):
+            self._id = pvalue
+            self._parms[u'model_id'] = pvalue
+        elif (pname in names_list):
+            setattr(self, pname, pvalue)
+        else:
+            raise H2OValueError((u'Unknown parameter %s = %r' % (pname, pvalue)))
+    self._parms[u'_rest_version'] = 3

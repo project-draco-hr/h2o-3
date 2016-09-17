@@ -1,6 +1,14 @@
 def __init__(self, **kwargs):
     super(H2OGradientBoostingEstimator, self).__init__()
     self._parms = {}
-    for name in ['model_id', 'training_frame', 'validation_frame', 'nfolds', 'keep_cross_validation_predictions', 'keep_cross_validation_fold_assignment', 'score_each_iteration', 'score_tree_interval', 'fold_assignment', 'fold_column', 'response_column', 'ignored_columns', 'ignore_const_cols', 'offset_column', 'weights_column', 'balance_classes', 'class_sampling_factors', 'max_after_balance_size', 'max_confusion_matrix_size', 'max_hit_ratio_k', 'ntrees', 'max_depth', 'min_rows', 'nbins', 'nbins_top_level', 'nbins_cats', 'r2_stopping', 'stopping_rounds', 'stopping_metric', 'stopping_tolerance', 'max_runtime_secs', 'seed', 'build_tree_one_node', 'learn_rate', 'learn_rate_annealing', 'distribution', 'quantile_alpha', 'tweedie_power', 'huber_alpha', 'checkpoint', 'sample_rate', 'sample_rate_per_class', 'col_sample_rate', 'col_sample_rate_change_per_level', 'col_sample_rate_per_tree', 'min_split_improvement', 'histogram_type', 'max_abs_leafnode_pred', 'pred_noise_bandwidth']:
-        pname = (name[:(-1)] if (name[(-1)] == '_') else name)
-        self._parms[pname] = (kwargs[name] if (name in kwargs) else None)
+    names_list = {u'model_id', u'training_frame', u'validation_frame', u'nfolds', u'keep_cross_validation_predictions', u'keep_cross_validation_fold_assignment', u'score_each_iteration', u'score_tree_interval', u'fold_assignment', u'fold_column', u'response_column', u'ignored_columns', u'ignore_const_cols', u'offset_column', u'weights_column', u'balance_classes', u'class_sampling_factors', u'max_after_balance_size', u'max_confusion_matrix_size', u'max_hit_ratio_k', u'ntrees', u'max_depth', u'min_rows', u'nbins', u'nbins_top_level', u'nbins_cats', u'r2_stopping', u'stopping_rounds', u'stopping_metric', u'stopping_tolerance', u'max_runtime_secs', u'seed', u'build_tree_one_node', u'learn_rate', u'learn_rate_annealing', u'distribution', u'quantile_alpha', u'tweedie_power', u'huber_alpha', u'checkpoint', u'sample_rate', u'sample_rate_per_class', u'col_sample_rate', u'col_sample_rate_change_per_level', u'col_sample_rate_per_tree', u'min_split_improvement', u'histogram_type', u'max_abs_leafnode_pred', u'pred_noise_bandwidth'}
+    if (u'Lambda' in kwargs):
+        kwargs[u'lambda_'] = kwargs.pop(u'Lambda')
+    for (pname, pvalue) in kwargs.items():
+        if (pname == u'model_id'):
+            self._id = pvalue
+            self._parms[u'model_id'] = pvalue
+        elif (pname in names_list):
+            setattr(self, pname, pvalue)
+        else:
+            raise H2OValueError((u'Unknown parameter %s = %r' % (pname, pvalue)))

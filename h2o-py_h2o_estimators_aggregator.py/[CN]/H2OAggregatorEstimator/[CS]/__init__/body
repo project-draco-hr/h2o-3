@@ -1,6 +1,14 @@
 def __init__(self, **kwargs):
     super(H2OAggregatorEstimator, self).__init__()
     self._parms = {}
-    for name in ['model_id', 'training_frame', 'response_column', 'ignored_columns', 'ignore_const_cols', 'radius_scale', 'transform', 'categorical_encoding']:
-        pname = (name[:(-1)] if (name[(-1)] == '_') else name)
-        self._parms[pname] = (kwargs[name] if (name in kwargs) else None)
+    names_list = {u'model_id', u'training_frame', u'response_column', u'ignored_columns', u'ignore_const_cols', u'radius_scale', u'transform', u'categorical_encoding'}
+    if (u'Lambda' in kwargs):
+        kwargs[u'lambda_'] = kwargs.pop(u'Lambda')
+    for (pname, pvalue) in kwargs.items():
+        if (pname == u'model_id'):
+            self._id = pvalue
+            self._parms[u'model_id'] = pvalue
+        elif (pname in names_list):
+            setattr(self, pname, pvalue)
+        else:
+            raise H2OValueError((u'Unknown parameter %s = %r' % (pname, pvalue)))

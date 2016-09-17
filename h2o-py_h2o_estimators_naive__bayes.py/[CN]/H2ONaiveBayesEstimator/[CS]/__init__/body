@@ -1,6 +1,14 @@
 def __init__(self, **kwargs):
     super(H2ONaiveBayesEstimator, self).__init__()
     self._parms = {}
-    for name in ['model_id', 'nfolds', 'seed', 'fold_assignment', 'fold_column', 'keep_cross_validation_predictions', 'keep_cross_validation_fold_assignment', 'training_frame', 'validation_frame', 'response_column', 'ignored_columns', 'ignore_const_cols', 'score_each_iteration', 'balance_classes', 'class_sampling_factors', 'max_after_balance_size', 'max_confusion_matrix_size', 'max_hit_ratio_k', 'laplace', 'min_sdev', 'eps_sdev', 'min_prob', 'eps_prob', 'compute_metrics', 'max_runtime_secs']:
-        pname = (name[:(-1)] if (name[(-1)] == '_') else name)
-        self._parms[pname] = (kwargs[name] if (name in kwargs) else None)
+    names_list = {u'model_id', u'nfolds', u'seed', u'fold_assignment', u'fold_column', u'keep_cross_validation_predictions', u'keep_cross_validation_fold_assignment', u'training_frame', u'validation_frame', u'response_column', u'ignored_columns', u'ignore_const_cols', u'score_each_iteration', u'balance_classes', u'class_sampling_factors', u'max_after_balance_size', u'max_confusion_matrix_size', u'max_hit_ratio_k', u'laplace', u'min_sdev', u'eps_sdev', u'min_prob', u'eps_prob', u'compute_metrics', u'max_runtime_secs'}
+    if (u'Lambda' in kwargs):
+        kwargs[u'lambda_'] = kwargs.pop(u'Lambda')
+    for (pname, pvalue) in kwargs.items():
+        if (pname == u'model_id'):
+            self._id = pvalue
+            self._parms[u'model_id'] = pvalue
+        elif (pname in names_list):
+            setattr(self, pname, pvalue)
+        else:
+            raise H2OValueError((u'Unknown parameter %s = %r' % (pname, pvalue)))
