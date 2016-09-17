@@ -13,7 +13,7 @@ def poll(self):
         for w in self.warnings:
             warnings.warn(w)
     if (self.status == u'CANCELLED'):
-        raise EnvironmentError(u'Job with key {} was cancelled by the user.'.format(self.job_key))
+        raise H2OJobCancelled((u'Job<%s> was cancelled by the user.' % self.job_key))
     if (self.status == u'FAILED'):
         if (isinstance(self.job, dict) and (u'stacktrace' in list(self.job))):
             raise EnvironmentError(u'Job with key {} failed with an exception: {}\nstacktrace: \n{}'.format(self.job_key, self.exception, self.job[u'stacktrace']))
