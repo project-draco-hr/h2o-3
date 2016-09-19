@@ -32,7 +32,7 @@ def request(self, endpoint, data=None, json=None, filename=None, save_to=None):
     start_time = time.time()
     try:
         self._log_start_transaction(endpoint, data, json, files, params)
-        headers = {u'User-Agent': (u'H2O Python client/' + sys.version.replace(u'\n', u'')), u'X-Cluster': self._cluster_name, }
+        headers = {u'User-Agent': (u'H2O Python client/' + sys.version.replace(u'\n', u'')), u'X-Cluster': self._cluster_id, }
         resp = requests.request(method=method, url=url, data=data, json=json, files=files, params=params, headers=headers, timeout=self._timeout, stream=stream, auth=self._auth, verify=self._verify_ssl_cert, proxies=self._proxies)
         self._log_end_transaction(start_time, resp)
         return self._process_response(resp, save_to)
