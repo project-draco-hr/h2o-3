@@ -1,2 +1,16 @@
 {
+  Vec[] vecs=new Vec[names.length];
+  Vec[] cvecs=replaceBy ? new Vec[names.length] : null;
+  String[] cnames=replaceBy ? new String[names.length] : null;
+  int ccv=0;
+  vecs();
+  HashMap<String,Integer> map=new HashMap<>((int)((names.length / 0.75f) + 1));
+  for (int i=0; i < _names.length; ++i)   map.put(_names[i],i);
+  for (int i=0; i < names.length; ++i)   if (map.containsKey(names[i]))   vecs[i]=_vecs[map.get(names[i])];
+ else   if (replaceBy) {
+    Log.warn("Column " + names[i] + " is missing, filling it in with "+ c);
+    cnames[ccv]=names[i];
+    vecs[i]=cvecs[ccv++]=anyVec().makeCon(c);
+  }
+  return new Frame[]{new Frame(Key.<Frame>make("subframe" + Key.make().toString()),names,vecs),ccv > 0 ? new Frame(Key.<Frame>make("subframe" + Key.make().toString()),Arrays.copyOf(cnames,ccv),Arrays.copyOf(cvecs,ccv)) : null};
 }

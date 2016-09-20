@@ -4,14 +4,14 @@
   Vec v=_col0;
   if (v == null) {
     Vec[] vecs=_vecs;
-    if (vecs != null)     for (int i=0; i < vecs.length; i++)     if ((v=vecs[i]) != null)     break;
+    if (vecs != null)     for (    Vec vec : vecs)     if ((v=vec) != null)     break;
   }
-  if (v == null)   for (int i=0; i < _keys.length; i++)   if ((v=_keys[i].get()) != null)   break;
+  if (v == null)   for (  Key<Vec> _key1 : _keys)   if ((v=_key1.get()) != null)   break;
   if (v == null)   return fs;
   final int ncs=v.nChunks();
   _names=new String[0];
   _vecs=new Vec[0];
-  _keys=new Key[0];
+  _keys=makeVecKeys(0);
   new MRTask(){
     @Override public void setupLocal(){
       for (      Key k : keys)       if (k != null)       Vec.bulk_remove(k,ncs);

@@ -7,7 +7,7 @@
     double[][] gt=ArrayUtils.gaussianArray(_parms._nv,_ncolExp,_parms._seed);
     RandSubInit rtsk=new RandSubInit(_job._key,dinfo,gt);
     rtsk.doAll(_parms._nv,Vec.T_NUM,dinfo._adaptedFrame);
-    ybig=rtsk.outputFrame(Key.make(),null,null);
+    ybig=rtsk.outputFrame(Key.<Frame>make(),null,null);
     Frame ayqfrm=new Frame(dinfo._adaptedFrame);
     ayqfrm.add(ybig);
     for (int i=0; i < _parms._nv; i++)     ayqfrm.add("qcol_" + i,ayqfrm.anyVec().makeZero());
@@ -37,7 +37,7 @@
       model.update(_job);
     }
     qfrm=ayqfrm.extractFrame(ncolA + _parms._nv,ayqfrm.numCols());
-    qfrm=new Frame(Key.make(),qfrm.names(),qfrm.vecs());
+    qfrm=new Frame(Key.<Frame>make(),qfrm.names(),qfrm.vecs());
     DKV.put(qfrm);
   }
   finally {
