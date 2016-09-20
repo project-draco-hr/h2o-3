@@ -1,0 +1,5 @@
+def columns_by_type(self, coltype=u'numeric'):
+    u' Obtain a list of columns that are specified by `coltype`\n\n        Parameters\n        ----------\n        coltype : str\n            A character string indicating which column type to filter by. This must be one of the following:\n                "numeric"      - Numeric, but not categorical or time\n                "categorical"  - Integer, with a categorical/factor String mapping\n                "string"       - String column\n                "time"         - Long msec since the Unix Epoch - with a variety of display/parse options\n                "uuid"         - UUID\n                "bad"          - No none-NA rows (triple negative! all NAs or zero rows)\n        Returns\n        -------\n          A list of column indices that correspond to `coltype`\n        '
+    assert_is_type(coltype, u'numeric', u'categorical', u'string', u'time', u'uuid', u'bad')
+    assert_is_type(self, H2OFrame)
+    return ExprNode(u'columnsByType', self, coltype)._eager_scalar()
