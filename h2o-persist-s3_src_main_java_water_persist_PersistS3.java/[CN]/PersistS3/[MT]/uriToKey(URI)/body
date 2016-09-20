@@ -1,2 +1,16 @@
 {
+  AmazonS3 s3=getClient();
+  String[] parts=decodePath(uri.toString());
+  try {
+    ObjectMetadata om=s3.getObjectMetadata(parts[0],parts[1]);
+    return S3FileVec.make(encodePath(parts[0],parts[1]),om.getContentLength());
+  }
+ catch (  AmazonServiceException e) {
+    if (e.getErrorCode().contains("404")) {
+      throw new IOException(e);
+    }
+ else {
+      throw e;
+    }
+  }
 }
