@@ -8,7 +8,7 @@ def test3_glm_random_grid_search_max_runtime_secs(self):
         self.possible_number_models = pyunit_utils.count_models(self.hyper_params)
     max_run_time_secs = random.uniform(self.one_model_time, self.max_grid_runtime)
     max_run_time_secs = random.uniform(self.one_model_time, (self.allowed_scaled_time * self.max_grid_runtime))
-    search_criteria = {'strategy': 'RandomDiscrete', 'max_runtime_secs': max_run_time_secs, 'seed': round(time.time()), }
+    search_criteria = {'strategy': 'RandomDiscrete', 'max_runtime_secs': max_run_time_secs, 'seed': int(round(time.time())), }
     print('GLM Binomial grid search_criteria: {0}'.format(search_criteria))
     grid_model = H2OGridSearch(H2OGeneralizedLinearEstimator(family=self.family, nfolds=self.nfolds), hyper_params=self.hyper_params, search_criteria=search_criteria)
     grid_model.train(x=self.x_indices, y=self.y_index, training_frame=self.training1_data)

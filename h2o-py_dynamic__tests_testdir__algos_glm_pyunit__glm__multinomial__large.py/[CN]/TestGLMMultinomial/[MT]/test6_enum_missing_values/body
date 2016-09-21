@@ -3,7 +3,6 @@ def test6_enum_missing_values(self):
     print('*******************************************************************************************')
     print('Test6: test the GLM with enum/real values.')
     h2o.cluster_info()
-    (p_weights, p_logloss_train, p_cm_train, p_accuracy_training, p_logloss_test, p_cm_test, p_accuracy_test) = self.sklearn_multinomial_result(self.training_data_file_enum_nans, self.test_data_file_enum_nans, True, False)
     training_data = h2o.import_file(pyunit_utils.locate(self.training_data_file_enum_nans))
     test_data = h2o.import_file(pyunit_utils.locate(self.test_data_file_enum_nans))
     for ind in range(self.enum_col):
@@ -16,6 +15,7 @@ def test6_enum_missing_values(self):
     if (training_data[y_index].nlevels()[0] < self.class_number):
         print('Response classes are not represented in training dataset.')
         sys.exit(0)
+    (p_weights, p_logloss_train, p_cm_train, p_accuracy_training, p_logloss_test, p_cm_test, p_accuracy_test) = self.sklearn_multinomial_result(self.training_data_file_enum_nans, self.test_data_file_enum_nans, True, False)
     test_data[y_index] = test_data[y_index].round().asfactor()
     model_h2o = H2OGeneralizedLinearEstimator(family=self.family, Lambda=0, missing_values_handling='MeanImputation')
     model_h2o.train(x=x_indices, y=y_index, training_frame=training_data)

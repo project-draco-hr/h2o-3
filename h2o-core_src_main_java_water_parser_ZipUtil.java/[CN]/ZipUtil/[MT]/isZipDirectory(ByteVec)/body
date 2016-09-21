@@ -1,0 +1,18 @@
+{
+  byte[] bits=bv.getFirstBytes();
+  ZipUtil.Compression compressionMethod=guessCompressionMethod(bits);
+  try {
+    if (compressionMethod == Compression.ZIP) {
+      ByteArrayInputStream bais=new ByteArrayInputStream(bits);
+      ZipInputStream zis=new ZipInputStream(bais);
+      ZipEntry ze=zis.getNextEntry();
+      boolean isDir=ze.isDirectory();
+      zis.close();
+      return isDir;
+    }
+  }
+ catch (  IOException e) {
+    e.printStackTrace();
+  }
+  return false;
+}

@@ -1,0 +1,27 @@
+{
+  byte[] headerBytes=ZipUtil.unzipForHeader(din.getChunkData(cidx),this._setup._chunk_size);
+  ParseSetup ps=ParseSetup.guessSetup(null,headerBytes,GUESS_INFO,ParseSetup.GUESS_SEP,ParseSetup.GUESS_COL_CNT,this._setup._single_quotes,ParseSetup.GUESS_HEADER,null,null,null,null);
+  if ((this._setup._number_columns != ps._number_columns) || (this._setup._separator != ps._separator)) {
+    String warning="Your zip file contains a file that belong to another dataset with different " + "number of column or separator.  Number of columns for files that have been parsed = " + this._setup._number_columns + ".  Number of columns in new file = "+ ps._number_columns+ ".  This new file is skipped and not parsed.";
+    dout.addError(new ParseWriter.ParseErr(warning,-1,-1L,-2L));
+    return false;
+  }
+ else {
+    if (ps._check_header == ParseSetup.HAS_HEADER) {
+      if (this._setup._column_names != null) {
+        String[] thisColumnName=this._setup.getColumnNames();
+        String[] psColumnName=ps.getColumnNames();
+        Boolean sameColumnNames=true;
+        for (int index=0; index < this._setup._number_columns; index++) {
+          if (!(thisColumnName[index].equals(psColumnName[index]))) {
+            sameColumnNames=false;
+            break;
+          }
+        }
+        if (sameColumnNames)         this._setup.setCheckHeader(ps._check_header);
+      }
+    }
+ else     this._setup.setCheckHeader(ps._check_header);
+  }
+  return true;
+}

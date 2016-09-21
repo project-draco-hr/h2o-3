@@ -3,7 +3,7 @@ def test1_glm_random_grid_search_model_number(self, metric_name):
     print('*******************************************************************************************')
     print(('test1_glm_random_grid_search_model_number for GLM ' + self.family))
     h2o.cluster_info()
-    search_criteria = {'strategy': 'RandomDiscrete', 'stopping_rounds': 0, 'seed': round(time.time()), }
+    search_criteria = {'strategy': 'RandomDiscrete', 'stopping_rounds': 0, 'seed': int(round(time.time())), }
     print('GLM Binomial grid search_criteria: {0}'.format(search_criteria))
     random_grid_model = H2OGridSearch(H2OGeneralizedLinearEstimator(family=self.family, nfolds=self.nfolds), hyper_params=self.hyper_params, search_criteria=search_criteria)
     random_grid_model.train(x=self.x_indices, y=self.y_index, training_frame=self.training1_data)

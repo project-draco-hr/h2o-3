@@ -2,8 +2,28 @@
   byte[] zips=bv.getFirstBytes();
   ZipUtil.Compression cpr=ZipUtil.guessCompressionMethod(zips);
   if (cpr == Compression.NONE)   return 1;
+ else   if (cpr == Compression.ZIP) {
+    ByteArrayInputStream bais=new ByteArrayInputStream(zips);
+    ZipInputStream zis=new ZipInputStream(bais);
+    ZipEntry ze=null;
+    try {
+      ze=zis.getNextEntry();
+      boolean isDir=ze.isDirectory();
+      if (isDir) {
+        return getDecompressionRatio(bv);
+      }
+ else {
+        byte[] bits=ZipUtil.unzipBytes(zips,cpr,FileVec.DFLT_CHUNK_SIZE);
+        return bits.length / zips.length;
+      }
+    }
+ catch (    IOException e) {
+      e.printStackTrace();
+    }
+  }
  else {
     byte[] bits=ZipUtil.unzipBytes(zips,cpr,FileVec.DFLT_CHUNK_SIZE);
     return bits.length / zips.length;
   }
+  return 1;
 }
