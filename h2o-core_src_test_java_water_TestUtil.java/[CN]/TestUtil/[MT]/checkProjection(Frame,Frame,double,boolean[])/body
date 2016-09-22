@@ -1,2 +1,15 @@
 {
+  assertEquals("Number of columns",expected.numCols(),actual.numCols());
+  assertEquals("Number of columns in flipped",expected.numCols(),flipped.length);
+  int nfeat=(int)expected.numRows();
+  int ncomp=expected.numCols();
+  for (int j=0; j < ncomp; j++) {
+    Vec.Reader vexp=expected.vec(j).new Reader();
+    Vec.Reader vact=actual.vec(j).new Reader();
+    Assert.assertEquals(vexp.length(),vact.length());
+    for (int i=0; i < nfeat; i++) {
+      Assert.assertEquals(vexp.at8(i),flipped[j] ? -vact.at8(i) : vact.at8(i),threshold);
+    }
+  }
+  return flipped;
 }

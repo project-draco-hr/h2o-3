@@ -2,7 +2,7 @@
   GrepModel kmm=null;
   Frame fr=null;
   try {
-    String regex="versicolor";
+    String regex="ver..c\\wl[ob]r";
     File f=find_test_file("smalldata/iris/iris_wheader.csv");
     NFSFileVec nfs=NFSFileVec.make(f);
     DKV.put(fr=new Frame(Key.<Frame>make(),new String[]{"text"},new Vec[]{nfs}));
@@ -11,6 +11,11 @@
     parms._regex=regex;
     Job<GrepModel> job=new Grep(parms).trainModel();
     kmm=job.get();
+    String[] matches=kmm._output._matches;
+    assertEquals("Number of matches",50,matches.length);
+    for (int i=0; i < matches.length; i++) {
+      assertEquals("Wrong @" + i,"versicolor",matches[i]);
+    }
     job.remove();
   }
   finally {
