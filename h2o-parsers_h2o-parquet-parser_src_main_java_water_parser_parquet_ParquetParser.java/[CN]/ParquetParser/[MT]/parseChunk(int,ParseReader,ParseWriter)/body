@@ -5,7 +5,7 @@
   Chunk chunk=((FVecParseReader)din).getChunk();
   Vec vec=chunk.vec();
   ParquetMetadataConverter.MetadataFilter chunkFilter=ParquetMetadataConverter.range(chunk.start(),chunk.start() + chunk.len());
-  ParquetMetadata metadata=VecParquetReader.readFooter(vec,chunkFilter);
+  ParquetMetadata metadata=VecParquetReader.readFooter(_metadata,chunkFilter);
   if (metadata.getBlocks().isEmpty()) {
     Log.trace("Chunk #",cidx," doesn't contain any Parquet block center.");
     return dout;

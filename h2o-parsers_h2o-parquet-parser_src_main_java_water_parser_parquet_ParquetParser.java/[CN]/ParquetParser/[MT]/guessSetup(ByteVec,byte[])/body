@@ -5,8 +5,9 @@
   for (int i=0; i < MAGIC.length; i++) {
     if (bits[i] != MAGIC[i])     return null;
   }
-  ParquetMetadata metadata=VecParquetReader.readFooter(vec,ParquetMetadataConverter.NO_FILTER);
+  byte[] metadataBytes=VecParquetReader.readFooterAsBytes(vec);
+  ParquetMetadata metadata=VecParquetReader.readFooter(metadataBytes,ParquetMetadataConverter.NO_FILTER);
   checkCompatibility(metadata);
   ParquetPreviewParseWriter ppWriter=readFirstRecords(metadata,vec,MAX_PREVIEW_RECORDS);
-  return ppWriter.toParseSetup();
+  return ppWriter.toParseSetup(metadataBytes);
 }
