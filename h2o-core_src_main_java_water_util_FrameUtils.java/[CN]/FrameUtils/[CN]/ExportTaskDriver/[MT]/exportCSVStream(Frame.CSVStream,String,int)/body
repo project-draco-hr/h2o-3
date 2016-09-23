@@ -1,0 +1,29 @@
+{
+  OutputStream os=null;
+  long written=-1;
+  try {
+    os=H2O.getPM().create(path,_overwrite);
+    written=copyCSVStream(is,os,firstChkIdx,4 * 1024 * 1024);
+  }
+ catch (  IOException e) {
+    throw new RuntimeException(e);
+  }
+ finally {
+    if (os != null) {
+      try {
+        os.flush();
+        os.close();
+        Log.info("Written " + written + " bytes of key '"+ _frameName+ "' to "+ _path+ ".");
+      }
+ catch (      Exception e) {
+        Log.err(e);
+      }
+    }
+    try {
+      is.close();
+    }
+ catch (    Exception e) {
+      Log.err(e);
+    }
+  }
+}
