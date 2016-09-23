@@ -35,6 +35,9 @@ def test_deeplearning_grid_search_over_params(self):
             if ('hidden' in params_list):
                 temp = params_list['hidden']
                 params_list['hidden'] = [temp]
+            if ('hidden_dropout_ratios' in params_list):
+                temp = params_list['hidden_dropout_ratios']
+                params_list['hidden_dropout_ratios'] = [temp]
             manual_model = H2ODeepLearningEstimator(**params_list)
             manual_model.train(x=self.x_indices, y=self.y_index, training_frame=self.training1_data, **model_params)
             model_runtime = pyunit_utils.find_grid_runtime([manual_model])
