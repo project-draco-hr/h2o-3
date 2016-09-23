@@ -1,50 +1,60 @@
-def __setitem__(self, b, c):
-    u"Replace or update column(s) in an H2OFrame.\n\n        Parameters\n        ----------\n          b : int, str\n            A 0-based index or a column name.\n\n          c : int, H2OFrame, str\n            The value replacing 'b'\n\n        Returns\n        -------\n          Returns this H2OFrame.\n        "
-    assert_is_type(b, str, int, tuple, list, ExprNode, H2OFrame)
-    assert_is_type(c, None, numeric, str, H2OFrame, ExprNode)
+def __setitem__(self, item, value):
+    u"\n        Replace, update or add column(s) in an H2OFrame.\n\n        Parameters\n        ----------\n          item : int, str\n            A 0-based index or a column name.\n\n          value : int, H2OFrame, str\n            The value replacing 'item'\n        "
+    assert_is_type(item, str, int, tuple, list, H2OFrame)
+    assert_is_type(value, None, numeric, str, H2OFrame)
     col_expr = None
     row_expr = None
     colname = None
-    if is_type(b, str):
-        if (b in self.names):
-            col_expr = self.names.index(b)
+    if is_type(item, str):
+        if (item in self.names):
+            col_expr = self.names.index(item)
         else:
-            col_expr = self.ncol
-            colname = b
-    elif is_type(b, int):
-        assert_satisfies(b, ((- self.ncol) <= b < self.ncol))
-        col_expr = b
-    elif isinstance(b, tuple):
-        row_expr = b[0]
-        col_expr = b[1]
+            col_expr = self.ncols
+            colname = item
+    elif is_type(item, int):
+        if (not ((- self.ncols) <= item < self.ncols)):
+            raise H2OValueError((u'Incorrect column index: %d' % item))
+        col_expr = item
+        if (col_expr < 0):
+            col_expr += self.ncols
+    elif isinstance(item, tuple):
+        row_expr = item[0]
+        col_expr = item[1]
         if is_type(col_expr, str):
             if (col_expr not in self.names):
                 colname = col_expr
                 col_expr = self.ncol
+        elif is_type(col_expr, int):
+            if (not ((- self.ncols) <= col_expr < self.ncols)):
+                raise H2OValueError((u'Incorrect column index: %d' % item))
+            if (col_expr < 0):
+                col_expr += self.ncols
         elif isinstance(col_expr, slice):
             if ((col_expr.start is None) and (col_expr.stop is None)):
                 col_expr = slice(0, self.ncol)
-    elif isinstance(b, (ExprNode, H2OFrame)):
-        row_expr = b
-    elif isinstance(b, list):
-        col_expr = b
-    src = (float(u'nan') if (c is None) else c)
-    src_in_self = self.is_src_in_self(src)
+    elif isinstance(item, H2OFrame):
+        row_expr = item
+    elif isinstance(item, list):
+        col_expr = item
+    if (value is None):
+        value = float(u'nan')
+    value_is_own_subframe = (isinstance(value, H2OFrame) and self._is_frame_in_self(value))
     old_cache = self._ex._cache
     if (colname is None):
-        self._ex = ExprNode(u':=', self, src, col_expr, row_expr)
+        self._ex = ExprNode(u':=', self, value, col_expr, row_expr)
         self._ex._cache.fill_from(old_cache)
-        if (isinstance(src, H2OFrame) and src._ex._cache.types_valid() and self._ex._cache.types_valid()):
-            self._ex._cache._types.update(src._ex._cache.types)
+        if (isinstance(value, H2OFrame) and value._ex._cache.types_valid() and self._ex._cache.types_valid()):
+            self._ex._cache._types.update(value._ex._cache.types)
         else:
             self._ex._cache.types = None
     else:
-        self._ex = ExprNode(u'append', self, src, colname)
+        self._ex = ExprNode(u'append', self, value, colname)
         self._ex._cache.fill_from(old_cache)
         self._ex._cache.names = (self.names + [colname])
-        if (self._ex._cache.types_valid() and isinstance(src, H2OFrame) and src._ex._cache.types_valid()):
-            self._ex._cache._types[colname] = list(viewvalues(src._ex._cache.types))[0]
+        self._ex._cache._ncols += 1
+        if (self._ex._cache.types_valid() and isinstance(value, H2OFrame) and value._ex._cache.types_valid()):
+            self._ex._cache._types[colname] = list(viewvalues(value._ex._cache.types))[0]
         else:
             self._ex._cache.types = None
-    if (isinstance(src, H2OFrame) and src_in_self):
-        src._ex = None
+    if value_is_own_subframe:
+        value._ex = None

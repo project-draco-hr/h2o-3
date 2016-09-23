@@ -1,0 +1,12 @@
+def __repr__(self):
+    res = (u'ModelBuilderErrorV3  (%s):\n' % self.exception_type)
+    for (k, v) in self._props.items():
+        if (k in {u'exception_type'}):
+            continue
+        if (k == u'stacktrace'):
+            res += u'    stacktrace =\n'
+            for line in v:
+                res += (u'        %s\n' % line.strip())
+        else:
+            res += (u'    %s = %r\n' % (k, v))
+    return res
