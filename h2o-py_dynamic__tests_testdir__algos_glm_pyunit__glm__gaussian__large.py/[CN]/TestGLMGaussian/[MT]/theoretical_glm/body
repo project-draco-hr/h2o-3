@@ -10,7 +10,7 @@ def theoretical_glm(self, training_data_file, test_data_file, has_categorical, t
         test_data_xy = pyunit_utils.encode_enum_dataset(test_data_xy, self.enum_level_vec, self.enum_col, true_one_hot, np.any(training_data_xy))
     if np.isnan(training_data_xy).any():
         inds = np.where(np.isnan(training_data_xy))
-        col_means = stats.nanmean(training_data_xy, axis=0)
+        col_means = np.asarray(np.nanmean(training_data_xy, axis=0))[0]
         training_data_xy[inds] = np.take(col_means, inds[1])
         if np.isnan(test_data_xy).any():
             inds = np.where(np.isnan(test_data_xy))

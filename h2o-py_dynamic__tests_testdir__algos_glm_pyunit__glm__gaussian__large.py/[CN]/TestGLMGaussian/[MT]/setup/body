@@ -4,7 +4,7 @@ def setup(self):
     self.noise_std = random.uniform(0, math.sqrt((pow((self.max_p_value - self.min_p_value), 2) / 12)))
     self.noise_var = (self.noise_std * self.noise_std)
     self.train_col_count = random.randint(3, self.max_col_count)
-    self.train_row_count = round((self.train_col_count * random.uniform(self.min_col_count_ratio, self.max_col_count_ratio)))
+    self.train_row_count = int(round((self.train_col_count * random.uniform(self.min_col_count_ratio, self.max_col_count_ratio))))
     self.enum_col = random.randint(1, (self.train_col_count - 1))
     self.enum_level_vec = np.random.random_integers(2, (self.enum_levels - 1), [self.enum_col, 1])
     pyunit_utils.write_syn_floating_point_dataset_glm(self.training_data_file, self.validation_data_file, self.test_data_file, self.weight_data_file, self.train_row_count, self.train_col_count, self.data_type, self.max_p_value, self.min_p_value, self.max_w_value, self.min_w_value, self.noise_std, self.family, self.train_row_count, self.train_row_count)
