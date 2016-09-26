@@ -19,7 +19,9 @@
       throw new RuntimeException("corrupted file: the footer index is not within the Vec");
     }
     f.seek(footerIndex);
-    return converter.readParquetMetadata(f,filter);
+    byte[] metadataBytes=new byte[footerLength];
+    f.readFully(metadataBytes);
+    return metadataBytes;
   }
  catch (  IOException e) {
     throw new RuntimeException("Failed to read Parquet metadata",e);
