@@ -1,0 +1,12 @@
+def _candidate_log_files(self):
+    'Return possible locations for the .h2oconfig file, one at a time.'
+    relpath = '.h2oconfig'
+    prevpath = None
+    while True:
+        abspath = os.path.abspath(relpath)
+        if (abspath == prevpath):
+            break
+        prevpath = abspath
+        relpath = ('../' + relpath)
+        yield abspath
+    yield os.path.expanduser('~/.h2oconfig')

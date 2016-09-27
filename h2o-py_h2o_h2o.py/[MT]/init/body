@@ -1,11 +1,11 @@
-def init(url=None, ip=None, port=None, https=None, insecure=False, username=None, password=None, cluster_id=None, proxy=None, start_h2o=True, nthreads=(-1), ice_root=None, enable_assertions=True, max_mem_size=None, min_mem_size=None, strict_version_check=True, **kwargs):
+def init(url=None, ip=None, port=None, https=None, insecure=None, username=None, password=None, cluster_id=None, proxy=None, start_h2o=True, nthreads=(-1), ice_root=None, enable_assertions=True, max_mem_size=None, min_mem_size=None, strict_version_check=None, **kwargs):
     u'\n    Attempt to connect to a local server, or if not successful start a new server and connect to it.\n\n    :param url:\n    :param ip:\n    :param port:\n    :param https:\n    :param insecure:\n    :param username:\n    :param password:\n    :param cluster_id:\n    :param proxy:\n    :param start_h2o:\n    :param nthreads:\n    :param ice_root:\n    :param enable_assertions:\n    :param max_mem_size:\n    :param min_mem_size:\n    :param strict_version_check:\n    :param kwargs: (all other deprecated attributes)\n    :returns: nothing\n    '
     global h2oconn
     assert_is_type(url, str, None)
     assert_is_type(ip, str, None)
     assert_is_type(port, int, str, None)
     assert_is_type(https, bool, None)
-    assert_is_type(insecure, bool)
+    assert_is_type(insecure, bool, None)
     assert_is_type(username, str, None)
     assert_is_type(password, str, None)
     assert_is_type(cluster_id, int, None)
@@ -16,7 +16,7 @@ def init(url=None, ip=None, port=None, https=None, insecure=False, username=None
     assert_is_type(enable_assertions, bool)
     assert_is_type(max_mem_size, int, str, None)
     assert_is_type(min_mem_size, int, str, None)
-    assert_is_type(strict_version_check, bool)
+    assert_is_type(strict_version_check, bool, None)
     assert_is_type(kwargs, {u'proxies': {str: str, }, u'max_mem_size_GB': int, u'min_mem_size_GB': int, u'force_connect': bool, })
 
     def get_mem_size(mmint, mmgb):
@@ -44,12 +44,33 @@ def init(url=None, ip=None, port=None, https=None, insecure=False, username=None
     mmax = get_mem_size(max_mem_size, kwargs.get(u'max_mem_size_GB'))
     mmin = get_mem_size(min_mem_size, kwargs.get(u'min_mem_size_GB'))
     auth = ((username, password) if (username and password) else None)
+    check_version = True
+    verify_ssl_certificates = True
+    config = H2OConfigReader.get_config()
+    if ((url is None) and (ip is None) and (port is None) and (https is None) and (u'init.url' in config)):
+        url = config[u'init.url']
+    if ((proxy is None) and (u'init.proxy' in config)):
+        proxy = config[u'init.proxy']
+    if ((cluster_id is None) and (u'init.cluster_id' in config)):
+        cluster_id = int(config[u'init.cluster_id'])
+    if (strict_version_check is None):
+        if (u'init.check_version' in config):
+            check_version = (config[u'init.check_version'].lower() != u'false')
+        elif os.environ.get(u'H2O_DISABLE_STRICT_VERSION_CHECK'):
+            check_version = False
+    else:
+        check_version = strict_version_check
+    if (insecure is None):
+        if (u'init.verify_ssl_certificates' in config):
+            verify_ssl_certificates = (config[u'init.verify_ssl_certificates'].lower() != u'false')
+    else:
+        verify_ssl_certificates = (not insecure)
     if (not start_h2o):
         print(u"Warning: if you don't want to start local H2O server, then use of `h2o.connect()` is preferred.")
     if (ip and (ip != u'localhost') and (ip != u'127.0.0.1') and start_h2o):
         print(u'Warning: connecting to remote server but falling back to local... Did you mean to use `h2o.connect()`?')
     try:
-        h2oconn = H2OConnection.open(url=url, ip=ip, port=port, https=https, verify_ssl_certificates=(not insecure), auth=auth, proxy=proxy, cluster_id=cluster_id, verbose=True, _msgs=(u'Checking whether there is an H2O instance running at {url}', u'connected.', u'not found.'))
+        h2oconn = H2OConnection.open(url=url, ip=ip, port=port, https=https, verify_ssl_certificates=verify_ssl_certificates, auth=auth, proxy=proxy, cluster_id=cluster_id, verbose=True, _msgs=(u'Checking whether there is an H2O instance running at {url}', u'connected.', u'not found.'))
     except H2OConnectionError:
         if (port and (not str(port).endswith(u'+'))):
             port = (str(port) + u'+')
@@ -57,6 +78,6 @@ def init(url=None, ip=None, port=None, https=None, insecure=False, username=None
             raise
         hs = H2OLocalServer.start(nthreads=nthreads, enable_assertions=enable_assertions, max_mem_size=mmax, min_mem_size=mmin, ice_root=ice_root, port=port)
         h2oconn = H2OConnection.open(server=hs, https=https, verify_ssl_certificates=(not insecure), auth=auth, proxy=proxy, cluster_id=cluster_id, verbose=True)
-    if strict_version_check:
+    if check_version:
         version_check()
     h2oconn.cluster.show_status()

@@ -1,0 +1,36 @@
+def _read_config(self):
+    'Find and parse config file, storing all variables in ``self._config``.'
+    self._config_loaded = True
+    conf = []
+    for f in self._candidate_log_files():
+        if os.path.isfile(f):
+            self._logger.info(('Reading config file %s' % f))
+            section_rx = re.compile('^\\[(\\w+)\\]$')
+            keyvalue_rx = re.compile('^(\\w+:)?([\\w\\.]+)\\s*=\\s*(.*)$')
+            with io.open(f, 'rt', encoding='utf-8') as config_file:
+                section_name = None
+                for (lineno, line) in enumerate(config_file):
+                    line = line.strip()
+                    if ((line == '') or line.startswith('#')):
+                        continue
+                    m1 = section_rx.match(line)
+                    if m1:
+                        section_name = m1.group(1)
+                        continue
+                    m2 = keyvalue_rx.match(line)
+                    if m2:
+                        lng = m2.group(1)
+                        key = m2.group(2)
+                        val = m2.group(3)
+                        if (lng and (lng.lower() != 'py:')):
+                            continue
+                        if section_name:
+                            key = ((section_name + '.') + key)
+                        if (key in H2OConfigReader._allowed_config_keys):
+                            conf.append((key, val))
+                        else:
+                            self._logger.error(('Key %s is not a valid config key' % key))
+                        continue
+                    self._logger.error(('Syntax error in config file line %d' % lineno))
+            self._config = dict(conf)
+            return
