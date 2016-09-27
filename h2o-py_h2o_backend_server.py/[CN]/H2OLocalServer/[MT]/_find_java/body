@@ -1,27 +1,21 @@
 @staticmethod
 def _find_java():
     u'\n        Find location of the java executable (helper for `._launch_server()`).\n\n        This method is not particularly robust, and may require additional tweaking for different platforms...\n        :return: Path to the java executable.\n        :raises H2OStartupError: if java cannot be found.\n        '
-    if os.access(u'java', os.X_OK):
-        return u'java'
+    java = (u'java.exe' if (sys.platform == u'win32') else u'java')
+    if os.access(java, os.X_OK):
+        return java
     for path in os.getenv(u'PATH').split(os.pathsep):
-        full_path = os.path.join(path, u'java')
+        full_path = os.path.join(path, java)
         if os.access(full_path, os.X_OK):
             return full_path
     if os.getenv(u'JAVA_HOME'):
-        return os.path.join(os.getenv(u'JAVA_HOME'), u'bin', u'java.exe')
+        full_path = os.path.join(os.getenv(u'JAVA_HOME'), u'bin', java)
+        if os.path.exists(full_path):
+            return full_path
     if (sys.platform == u'win32'):
-        program_folders = [os.path.join(u'C:\\', u'Program Files', u'Java'), os.path.join(u'C:\\', u'Program Files (x86)', u'Java')]
+        program_folders = [os.path.join(u'C:\\', u'Program Files', u'Java'), os.path.join(u'C:\\', u'Program Files (x86)', u'Java'), os.path.join(u'C:\\', u'ProgramData', u'Oracle', u'Java')]
         for folder in program_folders:
-            if (not os.path.exists(folder)):
-                continue
-            for jdk in os.listdir(folder):
-                if (u'jdk' not in jdk.lower()):
-                    continue
-                path = os.path.join(folder, jdk, u'bin', u'java.exe')
-                if os.path.exists(path):
-                    return path
-        for folder in program_folders:
-            path = os.path.join(folder, u'jre7', u'bin', u'java.exe')
-            if os.path.exists(path):
-                warn(((u'Found JRE at ' + path) + u'; but H2O requires the JDK to run.'))
-    raise H2OStartupError(u'Cannot find Java. Please install the latest JDK from\nhttp://www.oracle.com/technetwork/java/javase/downloads/index.html')
+            for (dirpath, dirnames, filenames) in os.walk(folder):
+                if (java in filenames):
+                    return os.path.join(dirpath, java)
+    raise H2OStartupError(u'Cannot find Java. Please install the latest JRE from\nhttp://www.oracle.com/technetwork/java/javase/downloads/index.html')
