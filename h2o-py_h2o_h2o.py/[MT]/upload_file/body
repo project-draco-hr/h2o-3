@@ -9,4 +9,6 @@ def upload_file(path, destination_frame=u'', header=0, sep=None, col_names=None,
     assert_is_type(col_names, [str], None)
     assert_is_type(col_types, [coltype], {str: coltype, }, None)
     assert_is_type(na_strings, [natype], {str: natype, }, None)
+    if path.startswith(u'~'):
+        path = os.path.expanduser(path)
     return H2OFrame()._upload_parse(path, destination_frame, header, sep, col_names, col_types, na_strings)
