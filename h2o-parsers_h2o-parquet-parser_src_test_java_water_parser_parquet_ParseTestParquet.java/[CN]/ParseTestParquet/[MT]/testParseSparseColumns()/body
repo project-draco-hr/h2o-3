@@ -1,0 +1,26 @@
+{
+  FrameAssertion assertion=new GenFrameAssertion("sparseColumns.parquet",TestUtil.ari(4,100)){
+    @Override protected File prepareFile() throws IOException {
+      return ParquetFileGenerator.generateSparseParquetFile(Files.createTempDir(),file,nrows());
+    }
+    @Override public void check(    Frame f){
+      assertArrayEquals("Column names need to match!",ar("int32_field","string_field","row","int32_field2"),f.names());
+      assertArrayEquals("Column types need to match!",ar(Vec.T_NUM,Vec.T_CAT,Vec.T_NUM,Vec.T_NUM),f.types());
+      for (int row=0; row < nrows(); row++) {
+        if (row % 10 == 0) {
+          assertEquals("Value in column int32_field",row,f.vec(0).at8(row));
+          assertEquals("Value in column string_field","CAT_" + (row % 10),f.vec(1).factor(f.vec(1).at8(row)));
+          assertEquals("Value in column int32_field2",row,f.vec(3).at8(row));
+        }
+ else {
+          assertTrue(f.vec(0).isNA(row));
+          assertTrue(f.vec(1).isNA(row));
+          assertTrue(f.vec(3).isNA(row));
+        }
+        assertEquals("Value in column row",row,f.vec(2).at8(row));
+      }
+    }
+  }
+;
+  assertFrameAssertion(assertion);
+}
