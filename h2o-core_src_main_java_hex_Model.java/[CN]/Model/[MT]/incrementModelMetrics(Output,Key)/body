@@ -1,5 +1,7 @@
 {
-  for (  Key key : out._model_metrics)   if (k.equals(key))   return;
-  out._model_metrics=Arrays.copyOf(out._model_metrics,out._model_metrics.length + 1);
-  out._model_metrics[out._model_metrics.length - 1]=k;
+synchronized (out) {
+    for (    Key key : out._model_metrics)     if (k.equals(key))     return;
+    out._model_metrics=Arrays.copyOf(out._model_metrics,out._model_metrics.length + 1);
+    out._model_metrics[out._model_metrics.length - 1]=k;
+  }
 }

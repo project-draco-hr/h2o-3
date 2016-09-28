@@ -1,8 +1,7 @@
 {
   checkSanityAndFillParams();
   delete_and_lock(_job);
-  _frame_id.get().read_lock(_job._key);
-  _model_id.get().read_lock(_job._key);
+  _frame_id.get().write_lock(_job._key);
   _job.start(new PartialDependenceDriver(),_cols.length);
   return _job;
 }
