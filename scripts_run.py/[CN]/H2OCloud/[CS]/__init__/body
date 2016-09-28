@@ -1,4 +1,4 @@
-def __init__(self, cloud_num, use_client, nodes_per_cloud, h2o_jar, base_port, xmx, cp, output_dir):
+def __init__(self, cloud_num, use_client, nodes_per_cloud, h2o_jar, base_port, xmx, cp, output_dir, test_ssl):
     '\n        Create a cloud.\n        See node definition above for argument descriptions.\n\n        :return The cloud object.\n        '
     self.use_client = use_client
     self.cloud_num = cloud_num
@@ -8,6 +8,7 @@ def __init__(self, cloud_num, use_client, nodes_per_cloud, h2o_jar, base_port, x
     self.xmx = xmx
     self.cp = cp
     self.output_dir = output_dir
+    self.test_ssl = test_ssl
     n = random.randint(1000000, 9999999)
     user = getpass.getuser()
     user = ''.join(user.split())
@@ -24,7 +25,7 @@ def __init__(self, cloud_num, use_client, nodes_per_cloud, h2o_jar, base_port, x
         if use_client:
             if (node_num == (actual_nodes_per_cloud - 1)):
                 is_client = True
-        node = H2OCloudNode(is_client, self.cloud_num, actual_nodes_per_cloud, node_num, self.cloud_name, self.h2o_jar, '127.0.0.1', self.base_port, self.xmx, self.cp, self.output_dir)
+        node = H2OCloudNode(is_client, self.cloud_num, actual_nodes_per_cloud, node_num, self.cloud_name, self.h2o_jar, '127.0.0.1', self.base_port, self.xmx, self.cp, self.output_dir, self.test_ssl)
         if is_client:
             self.client_nodes.append(node)
         else:

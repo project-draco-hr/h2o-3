@@ -25,6 +25,12 @@ def start(self):
         if (opt1 is not None):
             jacoco += ',excludes={ex}'.format(ex=opt1.replace(',', ':'))
         cmd = ((cmd[:1] + [jacoco]) + cmd[1:])
+    if self.test_ssl:
+        cmd.append('-internal_security_conf')
+        if g_convenient:
+            cmd.append('../h2o-algos/src/test/resources/ssl.properties')
+        else:
+            cmd.append('../../../h2o-algos/src/test/resources/ssl3.properties')
     self.output_file_name = os.path.join(self.output_dir, (((('java_' + str(self.cloud_num)) + '_') + str(self.node_num)) + '.out.txt'))
     f = open(self.output_file_name, 'w')
     if g_convenient:

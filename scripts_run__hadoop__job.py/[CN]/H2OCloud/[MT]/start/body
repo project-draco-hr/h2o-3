@@ -1,6 +1,8 @@
 def start(self):
     print_barrier()
     cmd = ['hadoop', 'jar', self.driver, '-n', str(self.nodes_per_cloud), '-mapperXmx', self.xmx, '-output', self.output_dir, '-notify', self.notify_file, '-disown']
+    if self.test_ssl:
+        cmd.append('-internal_security_conf')
     print ('+ CMD: ' + str(cmd))
     returncode = subprocess.call(cmd)
     f = None

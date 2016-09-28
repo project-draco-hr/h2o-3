@@ -7,7 +7,7 @@
     long ns=System.nanoTime();
     while (_bb.hasRemaining()) {
       _chan.write(_bb);
-      if (RANDOM_TCP_DROP != null && _chan instanceof SocketChannel && RANDOM_TCP_DROP.nextInt(100) == 0)       throw new IOException("Random TCP Write Fail");
+      if (RANDOM_TCP_DROP != null && SocketChannelUtils.isSocketChannel(_chan) && RANDOM_TCP_DROP.nextInt(100) == 0)       throw new IOException("Random TCP Write Fail");
     }
     _time_io_ns+=(System.nanoTime() - ns);
   }

@@ -1,0 +1,26 @@
+{
+  FileInputStream in=null;
+  Properties sslProps;
+  try {
+    in=new FileInputStream(fileName);
+    sslProps=new Properties();
+    sslProps.load(in);
+  }
+  finally {
+    if (in != null) {
+      in.close();
+    }
+  }
+  subPath("h2o_ssl_jks_internal",sslProps,ice_root);
+  subPath("h2o_ssl_jts",sslProps,ice_root);
+  FileOutputStream out=null;
+  try {
+    out=new FileOutputStream(fileName);
+    sslProps.store(out,null);
+  }
+  finally {
+    if (out != null) {
+      out.close();
+    }
+  }
+}

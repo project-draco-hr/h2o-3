@@ -1,0 +1,80 @@
+{
+  int read=0;
+  if (!dst.hasRemaining()) {
+    return 0;
+  }
+  if (peerAppData.position() != 0) {
+    read+=copy(peerAppData,dst);
+    return read;
+  }
+  if (netInBuffer.position() == 0) {
+    channel.read(netInBuffer);
+  }
+  while (netInBuffer.position() != 0) {
+    netInBuffer.flip();
+    if (peerAppData.position() != 0) {
+      peerAppData.compact();
+    }
+    SSLEngineResult unwrapResult=sslEngine.unwrap(netInBuffer,peerAppData);
+switch (unwrapResult.getStatus()) {
+case OK:
+{
+        unwrapResult.bytesProduced();
+        if (unwrapResult.getHandshakeStatus() == SSLEngineResult.HandshakeStatus.NEED_TASK)         tasks();
+        break;
+      }
+case BUFFER_OVERFLOW:
+{
+      int applicationBufferSize=sslEngine.getSession().getApplicationBufferSize();
+      if (applicationBufferSize > peerAppData.capacity()) {
+        int appSize=applicationBufferSize;
+        ByteBuffer b=ByteBuffer.allocate(appSize + peerAppData.position());
+        peerAppData.flip();
+        b.put(peerAppData);
+        peerAppData=b;
+      }
+ else {
+        netInBuffer.position(netInBuffer.limit());
+        netInBuffer.limit(netInBuffer.capacity());
+        peerAppData.compact();
+        if (!dst.hasRemaining()) {
+          return read;
+        }
+      }
+      break;
+    }
+case BUFFER_UNDERFLOW:
+{
+    int packetBufferSize=sslEngine.getSession().getPacketBufferSize();
+    if (packetBufferSize > netInBuffer.capacity()) {
+      int netSize=packetBufferSize;
+      if (netSize > netInBuffer.capacity()) {
+        ByteBuffer b=ByteBuffer.allocate(netSize);
+        netInBuffer.flip();
+        b.put(netInBuffer);
+        netInBuffer=b;
+      }
+    }
+ else {
+      netInBuffer.position(netInBuffer.limit());
+      netInBuffer.limit(netInBuffer.capacity());
+      channel.read(netInBuffer);
+      continue;
+    }
+    break;
+  }
+default :
+throw new IOException("Failed to SSL unwrap with status " + unwrapResult.getStatus());
+}
+if (peerAppData != dst && dst.hasRemaining()) {
+peerAppData.flip();
+read+=copy(peerAppData,dst);
+if (!dst.hasRemaining()) {
+netInBuffer.compact();
+return read;
+}
+}
+netInBuffer.compact();
+}
+return read;
+}

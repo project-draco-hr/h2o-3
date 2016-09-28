@@ -1,0 +1,41 @@
+{
+  Log.debug("Starting SSL handshake...");
+  sslEngine.beginHandshake();
+  hs=sslEngine.getHandshakeStatus();
+  SSLEngineResult initHandshakeStatus;
+  while (!handshakeComplete) {
+switch (hs) {
+case NOT_HANDSHAKING:
+{
+        throw new IOException("NOT_HANDSHAKING during handshake");
+      }
+case FINISHED:
+    handshakeComplete=!netOutBuffer.hasRemaining();
+  break;
+case NEED_WRAP:
+{
+  initHandshakeStatus=handshakeWrap();
+  if (initHandshakeStatus.getStatus() == SSLEngineResult.Status.OK) {
+    if (hs == SSLEngineResult.HandshakeStatus.NEED_TASK) {
+      tasks();
+    }
+  }
+  break;
+}
+case NEED_UNWRAP:
+{
+initHandshakeStatus=handshakeUnwrap();
+if (initHandshakeStatus.getStatus() == SSLEngineResult.Status.OK) {
+  if (hs == SSLEngineResult.HandshakeStatus.NEED_TASK) {
+    tasks();
+  }
+}
+break;
+}
+case NEED_TASK:
+tasks();
+break;
+}
+}
+Log.debug("SSL handshake finished successfully!");
+}

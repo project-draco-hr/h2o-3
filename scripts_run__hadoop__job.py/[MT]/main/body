@@ -6,6 +6,7 @@ def main():
     parser.add_argument('-mapperXmx', '--mapperXmx', help='Size of each H2O node', required=True)
     parser.add_argument('-script', '--script', help='Name of script to run', required=True)
     parser.add_argument('-output', '--output', help='HDFS temp output dir', required=True)
+    parser.add_argument('-test_ssl', '--test_ssl', help='Testing with SSL enabled', required=True)
     args = parser.parse_args()
     print_barrier()
     print ('Path to h2odriver:  ' + args.driver)
@@ -13,8 +14,9 @@ def main():
     print ('Size of each node:  ' + args.mapperXmx)
     print ('Script to run:      ' + args.script)
     print ('HDFS output dir:    ' + args.output)
+    print ('SSL on:             ' + args.test_ssl)
     abspath_tempdir = tempfile.mkdtemp()
-    g_runner = H2OCloud(abspath_tempdir, args.driver, args.nodes, args.mapperXmx, args.output)
+    g_runner = H2OCloud(abspath_tempdir, args.driver, args.nodes, args.mapperXmx, args.output, args.test_ssl)
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
     try:

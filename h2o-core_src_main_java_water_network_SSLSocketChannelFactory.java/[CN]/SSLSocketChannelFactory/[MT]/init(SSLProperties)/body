@@ -1,0 +1,36 @@
+{
+  properties=props;
+  try {
+    if (requiredParamsPresent()) {
+      this.sslContext=SSLContext.getInstance(properties.h2o_ssl_protocol());
+      this.sslContext.init(keyManager(),trustManager(),null);
+    }
+ else {
+      this.sslContext=SSLContext.getDefault();
+    }
+  }
+ catch (  NoSuchAlgorithmException e) {
+    Log.err("Failed to initialized SSL context.",e);
+    throw new SSLContextException("Failed to initialized SSL context.",e);
+  }
+catch (  IOException e) {
+    Log.err("Failed to initialized SSL context.",e);
+    throw new SSLContextException("Failed to initialized SSL context.",e);
+  }
+catch (  UnrecoverableKeyException e) {
+    Log.err("Failed to initialized SSL context.",e);
+    throw new SSLContextException("Failed to initialized SSL context.",e);
+  }
+catch (  KeyStoreException e) {
+    Log.err("Failed to initialized SSL context.",e);
+    throw new SSLContextException("Failed to initialized SSL context.",e);
+  }
+catch (  KeyManagementException e) {
+    Log.err("Failed to initialized SSL context.",e);
+    throw new SSLContextException("Failed to initialized SSL context.",e);
+  }
+catch (  CertificateException e) {
+    Log.err("Failed to initialized SSL context.",e);
+    throw new SSLContextException("Failed to initialized SSL context.",e);
+  }
+}

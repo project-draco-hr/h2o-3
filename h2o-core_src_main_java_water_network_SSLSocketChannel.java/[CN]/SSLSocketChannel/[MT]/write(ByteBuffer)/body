@@ -1,0 +1,18 @@
+{
+  if (closing || closed) {
+    throw new IOException("Cannot perform socket write, the socket is closed (or being closed).");
+  }
+  int wrote=0;
+  while (src.hasRemaining()) {
+    netOutBuffer.clear();
+    SSLEngineResult wrapResult=sslEngine.wrap(src,netOutBuffer);
+    netOutBuffer.flip();
+    if (wrapResult.getStatus() == SSLEngineResult.Status.OK) {
+      if (wrapResult.getHandshakeStatus() == SSLEngineResult.HandshakeStatus.NEED_TASK)       tasks();
+    }
+    while (netOutBuffer.hasRemaining()) {
+      wrote+=channel.write(netOutBuffer);
+    }
+  }
+  return wrote;
+}

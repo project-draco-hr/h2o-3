@@ -1,0 +1,10 @@
+{
+  String path=null != location && !location.isEmpty() ? location + File.pathSeparator + name : name;
+  if (new File(path).exists()) {
+    throw new IllegalStateException("A file under the location " + path + " already exists. Please delete it first.");
+  }
+  String[] genKeyArgs=new String[]{"-genkeypair","-alias","h2o-internal","-keyalg","RSA","-sigalg","SHA256withRSA","-dname","CN=Java","-storetype","JKS","-keypass",password,"-keystore",path,"-storepass",password,"-validity","3650"};
+  Class<?> keytool=getKeyToolClass();
+  keytool.getMethod("main",String[].class).invoke(null,(Object)genKeyArgs);
+  return new StoreCredentials(name,location,password);
+}

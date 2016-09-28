@@ -1,0 +1,87 @@
+{
+  SSLProperties props=new SSLProperties();
+  props.put("h2o_ssl_protocol","TLSv1.2");
+  props.put("h2o_ssl_jks_internal",TestUtil.find_test_file_static("src/test/resources/keystore.jks").getPath());
+  props.put("h2o_ssl_jks_password","password");
+  props.put("h2o_ssl_jts",TestUtil.find_test_file_static("src/test/resources/cacerts.jks").getPath());
+  props.put("h2o_ssl_jts_password","password");
+  final SSLSocketChannelFactory factory=new SSLSocketChannelFactory(props);
+  final CyclicBarrier barrier=new CyclicBarrier(2);
+  final CyclicBarrier testOne=new CyclicBarrier(2);
+  final CyclicBarrier testTwo=new CyclicBarrier(2);
+  final CyclicBarrier testThree=new CyclicBarrier(2);
+  final boolean[] hs=new boolean[]{true};
+  Thread client=new ClientThread(factory,testOne,testTwo,testThree,barrier);
+  client.setDaemon(false);
+  client.start();
+  try {
+    ServerSocketChannel serverSocketChannel=ServerSocketChannel.open();
+    serverSocketChannel.socket().setReceiveBufferSize(64 * 1024);
+    while (true) {
+      try {
+        serverSocketChannel.socket().bind(new InetSocketAddress(port));
+        break;
+      }
+ catch (      BindException e) {
+        port++;
+      }
+    }
+    barrier.await();
+    SocketChannel sock=serverSocketChannel.accept();
+    barrier.reset();
+    SSLSocketChannel wrappedChannel=(SSLSocketChannel)factory.wrapServerChannel(sock);
+    assertTrue(wrappedChannel.isHandshakeComplete());
+    ByteBuffer readBuffer=ByteBuffer.allocate(12);
+    while (readBuffer.hasRemaining()) {
+      wrappedChannel.read(readBuffer);
+    }
+    readBuffer.flip();
+    byte[] dst=new byte[12];
+    readBuffer.get(dst,0,12);
+    readBuffer.clear();
+    assertEquals("hello, world",new String(dst,StandardCharsets.UTF_8));
+    testOne.await();
+    int read=0;
+    byte[] dstBig=new byte[16];
+    ByteBuffer readBufferBig=ByteBuffer.allocate(1024);
+    while (read < 5 * 64 * 1024) {
+      while (readBufferBig.position() < 16) {
+        wrappedChannel.read(readBufferBig);
+      }
+      readBufferBig.flip();
+      readBufferBig.get(dstBig,0,16);
+      if (!readBufferBig.hasRemaining()) {
+        readBufferBig.clear();
+      }
+ else {
+        readBufferBig.compact();
+      }
+      assertEquals("hello, world" + (read % 9) + "!!!",new String(dstBig,StandardCharsets.UTF_8));
+      read+=16;
+    }
+    testTwo.await();
+    try {
+      while (readBuffer.hasRemaining()) {
+        wrappedChannel.read(readBuffer);
+      }
+      fail();
+    }
+ catch (    SSLException e) {
+    }
+    assertTrue(wrappedChannel.getEngine().isInboundDone());
+    testThree.await();
+    readBuffer.clear();
+    while (readBuffer.hasRemaining()) {
+      sock.read(readBuffer);
+    }
+    readBuffer.flip();
+    readBuffer.get(dst,0,12);
+    readBuffer.clear();
+    assertNotEquals("hello, world",new String(dst,StandardCharsets.UTF_8));
+  }
+ catch (  IOException|InterruptedException|BrokenBarrierException e) {
+    e.printStackTrace();
+  }
+  barrier.await();
+  assertTrue("One of the handshakes failed!",hs[0]);
+}

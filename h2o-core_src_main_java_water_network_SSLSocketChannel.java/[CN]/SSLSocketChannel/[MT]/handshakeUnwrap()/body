@@ -1,0 +1,42 @@
+{
+  if (netInBuffer.position() == netInBuffer.limit()) {
+    netInBuffer.clear();
+  }
+  channel.read(netInBuffer);
+  SSLEngineResult unwrapResult;
+  peerAppData.clear();
+  do {
+    netInBuffer.flip();
+    unwrapResult=sslEngine.unwrap(netInBuffer,peerAppData);
+    netInBuffer.compact();
+    hs=unwrapResult.getHandshakeStatus();
+switch (unwrapResult.getStatus()) {
+case OK:
+case BUFFER_UNDERFLOW:
+{
+        if (unwrapResult.getHandshakeStatus() == SSLEngineResult.HandshakeStatus.NEED_TASK) {
+          tasks();
+        }
+        break;
+      }
+case BUFFER_OVERFLOW:
+{
+      int applicationBufferSize=sslEngine.getSession().getApplicationBufferSize();
+      if (applicationBufferSize > peerAppData.capacity()) {
+        ByteBuffer b=ByteBuffer.allocate(applicationBufferSize + peerAppData.position());
+        peerAppData.flip();
+        b.put(peerAppData);
+        peerAppData=b;
+      }
+ else {
+        peerAppData.compact();
+      }
+      break;
+    }
+default :
+  throw new IOException("Failed to SSL unwrap with status " + unwrapResult.getStatus());
+}
+}
+ while (unwrapResult.getStatus() == SSLEngineResult.Status.OK && hs == SSLEngineResult.HandshakeStatus.NEED_UNWRAP);
+return unwrapResult;
+}

@@ -124,6 +124,15 @@
     final byte[] krbConfData=("krb5loginmodule {\n" + "     com.sun.security.auth.module.Krb5LoginModule required;\n" + "};").getBytes();
     addMapperConf(conf,"-login_conf","login.conf",krbConfData);
   }
+  if (null != securityConf && !securityConf.isEmpty()) {
+    addMapperConf(conf,"-internal_security_conf","security.config",securityConf);
+  }
+ else   if (internal_secure_connections) {
+    SecurityUtils.SSLCredentials credentials=SecurityUtils.generateSSLPair();
+    String sslConfigFile=SecurityUtils.generateSSLConfig(credentials);
+    addMapperConf(conf,"",credentials.jks.name,credentials.jks.getLocation());
+    addMapperConf(conf,"-internal_security_conf","default-security.config",sslConfigFile);
+  }
   conf.set(h2omapper.H2O_MAPPER_CONF_LENGTH,Integer.toString(mapperConfLength));
   job=new Job(conf,jobtrackerName);
   job.setJarByClass(getClass());

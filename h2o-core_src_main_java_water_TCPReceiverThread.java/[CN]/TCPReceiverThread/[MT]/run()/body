@@ -18,21 +18,32 @@
       }
       SocketChannel sock=SOCK.accept();
       ByteBuffer bb=ByteBuffer.allocate(4).order(ByteOrder.nativeOrder());
+      ByteChannel wrappedSocket=socketChannelFactory.serverChannel(sock);
       bb.limit(bb.capacity());
       bb.position(0);
-      while (bb.hasRemaining())       sock.read(bb);
+      while (bb.hasRemaining()) {
+        wrappedSocket.read(bb);
+      }
       bb.flip();
       int chanType=bb.get();
       int port=bb.getChar();
       int sentinel=(0xFF) & bb.get();
-      if (sentinel != 0xef)       throw H2O.fail("missing eom sentinel when opening new tcp channel");
-      H2ONode h2o=H2ONode.intern(sock.socket().getInetAddress(),port);
+      if (sentinel != 0xef) {
+        if (H2O.SELF.getSecurityManager().securityEnabled) {
+          throw new IOException("Missing EOM sentinel when opening new SSL tcp channel.");
+        }
+ else {
+          throw H2O.fail("missing eom sentinel when opening new tcp channel");
+        }
+      }
+      InetAddress inetAddress=sock.socket().getInetAddress();
+      H2ONode h2o=H2ONode.intern(inetAddress,port);
 switch (chanType) {
 case 1:
-        new UDP_TCP_ReaderThread(h2o,sock).start();
+        new UDP_TCP_ReaderThread(h2o,wrappedSocket).start();
       break;
 case 2:
-    new TCPReaderThread(sock,new AutoBuffer(sock)).start();
+    new TCPReaderThread(wrappedSocket,new AutoBuffer(wrappedSocket,inetAddress),inetAddress).start();
   break;
 default :
 throw H2O.fail("unexpected channel type " + chanType + ", only know 1 - Small and 2 - Big");
