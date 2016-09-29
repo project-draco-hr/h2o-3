@@ -1,0 +1,10 @@
+{
+  if (isHdfsPath(path)) {
+    validateHdfsConfigured();
+    if (!I[Value.HDFS].exists(path))     return true;
+    if (!I[Value.HDFS].isDirectory(path))     return false;
+    PersistEntry[] content=I[Value.HDFS].list(path);
+    return (content == null) || (content.length == 0);
+  }
+  return new CheckLocalDirTask(path).doAllNodes()._result;
+}
