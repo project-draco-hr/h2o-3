@@ -1,7 +1,11 @@
 @staticmethod
 def _in_ipy():
-    try:
-        __IPYTHON__
-        return True
-    except NameError:
-        return False
+    if (H2ODisplay._jupyter is None):
+        try:
+            import IPython
+            from ipykernel.zmqshell import ZMQInteractiveShell
+            ipy = IPython.get_ipython()
+            H2ODisplay._jupyter = isinstance(ipy, ZMQInteractiveShell)
+        except ImportError:
+            H2ODisplay._jupyter = False
+    return H2ODisplay._jupyter
