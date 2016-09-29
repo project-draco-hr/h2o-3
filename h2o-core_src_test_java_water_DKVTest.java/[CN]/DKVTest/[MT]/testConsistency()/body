@@ -1,0 +1,14 @@
+{
+  Key k1=Key.make();
+  try {
+    byte[] b1=new byte[100];
+    new Random(1234).nextBytes(b1);
+    Bytes bytes1=new Bytes(b1);
+    DKV.put(k1,bytes1);
+    new Random(4321).nextBytes(bytes1._b);
+    Assert.assertFalse(Arrays.equals(((Bytes)DKV.getGet(k1))._b,bytes1._b));
+  }
+  finally {
+    DKV.remove(k1);
+  }
+}
