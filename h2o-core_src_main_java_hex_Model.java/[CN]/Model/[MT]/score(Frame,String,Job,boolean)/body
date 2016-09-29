@@ -1,0 +1,17 @@
+{
+  Frame adaptFr=new Frame(fr);
+  computeMetrics=computeMetrics && (!isSupervised() || (adaptFr.vec(_output.responseName()) != null && !adaptFr.vec(_output.responseName()).isBad()));
+  adaptTestForTrain(adaptFr,true,computeMetrics);
+  Frame output=predictScoreImpl(fr,adaptFr,destination_key,j,computeMetrics);
+  Vec predicted=output.vecs()[0];
+  String mdomain[]=predicted.domain();
+  if (_output.isClassifier() && computeMetrics) {
+    Vec actual=fr.vec(_output.responseName());
+    if (actual != null) {
+      String sdomain[]=actual.domain();
+      if (sdomain != null && mdomain != sdomain && !Arrays.equals(mdomain,sdomain))       output.replace(0,new CategoricalWrappedVec(actual.group().addVec(),actual._rowLayout,sdomain,predicted._key));
+    }
+  }
+  cleanup_adapt(adaptFr,fr);
+  return output;
+}
