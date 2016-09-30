@@ -5,7 +5,7 @@
     kmm.score(parms.train()).delete();
     ModelMetricsClustering mm=(ModelMetricsClustering)ModelMetrics.getFromDKV(kmm,parms.train());
     Assert.assertTrue(Arrays.equals(mm._size,((ModelMetricsClustering)kmm._output._training_metrics)._size));
-    for (int i=0; i < parms._k; ++i) {
+    for (int i=0; i < kmm._output._k[kmm._output._k.length - 1]; ++i) {
       Assert.assertTrue(MathUtils.compare(mm._withinss[i],((ModelMetricsClustering)kmm._output._training_metrics)._withinss[i],1e-6,1e-6));
     }
     Assert.assertTrue(MathUtils.compare(mm._totss,((ModelMetricsClustering)kmm._output._training_metrics)._totss,1e-6,1e-6));

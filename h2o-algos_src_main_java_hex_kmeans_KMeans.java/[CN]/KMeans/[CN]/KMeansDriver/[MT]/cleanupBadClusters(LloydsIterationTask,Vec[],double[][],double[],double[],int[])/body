@@ -1,15 +1,15 @@
 {
   int clu;
-  for (clu=0; clu < _parms._k; clu++)   if (task._size[clu] == 0)   break;
-  if (clu == _parms._k)   return false;
+  for (clu=0; clu < centers.length; clu++)   if (task._size[clu] == 0)   break;
+  if (clu == centers.length)   return false;
   long row=task._worst_row;
   Log.warn("KMeans: Re-initializing cluster " + clu + " to row "+ row);
   data(centers[clu]=task._cMeans[clu],vecs,row,means,mults,modes);
   task._size[clu]=1;
-  for (clu=0; clu < _parms._k; clu++)   if (task._size[clu] == 0)   break;
-  if (clu == _parms._k)   return false;
+  for (clu=0; clu < centers.length; clu++)   if (task._size[clu] == 0)   break;
+  if (clu == centers.length)   return false;
   Log.warn("KMeans: Re-running Lloyds to re-init another cluster");
-  if (_reinit_attempts++ < _parms._k) {
+  if (_reinit_attempts++ < centers.length) {
     return true;
   }
  else {

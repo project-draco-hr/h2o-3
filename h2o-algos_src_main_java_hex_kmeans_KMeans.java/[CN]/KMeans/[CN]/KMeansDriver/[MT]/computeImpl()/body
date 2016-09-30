@@ -1,10 +1,12 @@
 {
   KMeansModel model=null;
+  Key bestOutputKey=Key.make();
   try {
     init(true);
     if (error_count() > 0)     throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(KMeans.this);
     model=new KMeansModel(dest(),_parms,new KMeansModel.KMeansOutput(KMeans.this));
     model.delete_and_lock(_job);
+    int startK=_parms._estimate_k ? 1 : _parms._k;
     final Vec vecs[]=_train.vecs();
     final double[] means=_train.means();
     final double[] mults=_parms._standardize ? _train.mults() : null;
@@ -12,21 +14,66 @@
     for (int i=0; i < vecs.length; i++)     impute_cat[i]=vecs[i].isNumeric() ? -1 : DataInfo.imputeCat(vecs[i]);
     model._output._normSub=means;
     model._output._normMul=mults;
-    double[][] centers=initial_centers(model,vecs,means,mults,impute_cat);
+    double[][] centers=initial_centers(model,vecs,means,mults,impute_cat,startK);
     if (centers == null)     return;
-    double[][] oldCenters=null;
-    model._output._iterations=0;
-    while (!isDone(model,centers,oldCenters)) {
-      Lloyds task=new Lloyds(centers,means,mults,impute_cat,_isCats,_parms._k,hasWeightCol()).doAll(vecs);
-      max_cats(task._cMeans,task._cats,_isCats);
-      if (cleanupBadClusters(task,vecs,centers,means,mults,impute_cat))       continue;
-      oldCenters=centers;
-      centers=computeStatsFillModel(task,model,vecs,means,mults,impute_cat);
-      model.update(_job);
-      _job.update(1);
-      if (model._parms._score_each_iteration)       Log.info(model._output._model_summary);
+    boolean work_unit_iter=!_parms._estimate_k;
+    double sum_squares=0;
+    final double rel_improvement_cutoff=Math.min(20.0 / train().numRows() + 0.5 / model._output.nfeatures(),.9);
+    if (_parms._estimate_k)     Log.info("Cutoff for relative improvement in within_cluster_sum_of_squares: " + rel_improvement_cutoff);
+    for (int k=startK; k <= _parms._k; ++k) {
+      Log.info("Running Lloyds iteration for " + k + " centroids.");
+      model._output._iterations=0;
+      double[][] lo=null, hi=null;
+      Vec[] vecs2=Arrays.copyOf(vecs,vecs.length + 1);
+      vecs2[vecs2.length - 1]=vecs2[0].makeCon(-1);
+      boolean stop=false;
+      do {
+        assert(centers.length == k);
+        LloydsIterationTask task=new LloydsIterationTask(centers,means,mults,impute_cat,_isCats,k,hasWeightCol()).doAll(vecs2);
+        max_cats(task._cMeans,task._cats,_isCats);
+        if (!_parms._estimate_k && cleanupBadClusters(task,vecs,centers,means,mults,impute_cat))         continue;
+        centers=computeStatsFillModel(task,model,vecs,means,mults,impute_cat,k);
+        if (model._parms._score_each_iteration)         Log.info(model._output._model_summary);
+        lo=task._lo;
+        hi=task._hi;
+        if (work_unit_iter) {
+          model.update(_job);
+          _job.update(1);
+        }
+        stop=(task._reassigned_count < Math.max(1,train().numRows() * TOLERANCE) || model._output._iterations >= _parms._max_iterations);
+        if (stop)         Log.info("Lloyds converged after " + model._output._iterations + " iterations.");
+      }
+ while (!stop);
+      vecs2[vecs2.length - 1].remove();
+      double sum_squares_now=model._output._tot_withinss;
+      double rel_improvement;
+      if (sum_squares == 0) {
+        rel_improvement=1;
+      }
+ else {
+        rel_improvement=(sum_squares - sum_squares_now) / sum_squares;
+      }
+      Log.info("Relative improvement in total withinss: " + rel_improvement);
+      sum_squares=sum_squares_now;
+      if (_parms._estimate_k && k > 1) {
+        boolean outerConverged=rel_improvement < rel_improvement_cutoff;
+        if (outerConverged) {
+          KMeansModel.KMeansOutput best=DKV.getGet(bestOutputKey);
+          model._output=best;
+          Log.info("Converged. Retrieving the best model with k=" + model._output._k[model._output._k.length - 1]);
+          break;
+        }
+      }
+      if (!work_unit_iter) {
+        DKV.put(bestOutputKey,IcedUtils.deepCopy(model._output));
+        model.update(_job);
+        _job.update(1);
+      }
+      if (lo != null && hi != null)       centers=splitLargestCluster(centers,lo,hi);
     }
     Log.info(model._output._model_summary);
+    Log.info(model._output._scoring_history);
+    Log.info(((ModelMetricsClustering)model._output._training_metrics).createCentroidStatsTable().toString());
     if (_valid != null) {
       model.score(_parms.valid()).delete();
       model._output._validation_metrics=ModelMetrics.getFromDKV(model,_parms.valid());
@@ -35,5 +82,6 @@
   }
   finally {
     if (model != null)     model.unlock(_job);
+    DKV.remove(bestOutputKey);
   }
 }

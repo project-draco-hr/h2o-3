@@ -11,13 +11,18 @@
   colHeaders.add("Iteration");
   colTypes.add("long");
   colFormat.add("%d");
-  colHeaders.add("Avg. Change of Std. Centroids");
-  colTypes.add("double");
-  colFormat.add("%.5f");
+  if (_parms._estimate_k) {
+    colHeaders.add("Number of Clusters");
+    colTypes.add("long");
+    colFormat.add("%d");
+  }
+  colHeaders.add("Number of reassigned observations");
+  colTypes.add("long");
+  colFormat.add("%d");
   colHeaders.add("Within Cluster Sum Of Squares");
   colTypes.add("double");
   colFormat.add("%.5f");
-  final int rows=output._avg_centroids_chg.length;
+  final int rows=output._history_withinss.length;
   TwoDimTable table=new TwoDimTable("Scoring History",null,new String[rows],colHeaders.toArray(new String[0]),colTypes.toArray(new String[0]),colFormat.toArray(new String[0]),"");
   int row=0;
   for (int i=0; i < rows; i++) {
@@ -28,7 +33,8 @@
     table.set(row,col++,fmt.print(output._training_time_ms[i]));
     table.set(row,col++,PrettyPrint.msecs(output._training_time_ms[i] - _job.start_time(),true));
     table.set(row,col++,i);
-    table.set(row,col++,output._avg_centroids_chg[i]);
+    if (_parms._estimate_k)     table.set(row,col++,output._k[i]);
+    table.set(row,col++,output._reassigned_count[i]);
     table.set(row,col++,output._history_withinss[i]);
     row++;
   }

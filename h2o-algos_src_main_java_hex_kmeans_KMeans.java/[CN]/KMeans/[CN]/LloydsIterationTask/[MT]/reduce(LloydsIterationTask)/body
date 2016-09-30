@@ -1,4 +1,5 @@
 {
+  _reassigned_count+=mr._reassigned_count;
   for (int clu=0; clu < _k; clu++) {
     long ra=_size[clu];
     long rb=mr._size[clu];
@@ -9,6 +10,12 @@
   ArrayUtils.add(_cats,mr._cats);
   ArrayUtils.add(_cSqr,mr._cSqr);
   ArrayUtils.add(_size,mr._size);
+  for (int clu=0; clu < _k; clu++) {
+    for (int col=0; col < _lo[clu].length; col++) {
+      _lo[clu][col]=Math.min(mr._lo[clu][col],_lo[clu][col]);
+      _hi[clu][col]=Math.max(mr._hi[clu][col],_hi[clu][col]);
+    }
+  }
   if (_worst_err < mr._worst_err) {
     _worst_err=mr._worst_err;
     _worst_row=mr._worst_row;

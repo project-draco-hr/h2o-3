@@ -6,9 +6,11 @@
   model._output._size=task._size;
   model._output._withinss=task._cSqr;
   double ssq=0;
-  for (int i=0; i < _parms._k; i++)   ssq+=model._output._withinss[i];
+  for (int i=0; i < k; i++)   ssq+=model._output._withinss[i];
   model._output._tot_withinss=ssq;
-  if (_parms._k == 1)   model._output._totss=model._output._tot_withinss;
+  if (k == 1) {
+    model._output._totss=model._output._tot_withinss;
+  }
  else {
     TotSS totss=new TotSS(means,mults,modes,_parms.train().domains(),_parms.train().cardinality()).doAll(vecs);
     model._output._totss=totss._tss;
@@ -16,6 +18,9 @@
   model._output._betweenss=model._output._totss - model._output._tot_withinss;
   model._output._iterations++;
   model._output._history_withinss=ArrayUtils.copyAndFillOf(model._output._history_withinss,model._output._history_withinss.length + 1,model._output._tot_withinss);
+  model._output._k=ArrayUtils.copyAndFillOf(model._output._k,model._output._k.length + 1,k);
+  model._output._training_time_ms=ArrayUtils.copyAndFillOf(model._output._training_time_ms,model._output._training_time_ms.length + 1,System.currentTimeMillis());
+  model._output._reassigned_count=ArrayUtils.copyAndFillOf(model._output._reassigned_count,model._output._reassigned_count.length + 1,task._reassigned_count);
   model._output._model_summary=createModelSummaryTable(model._output);
   model._output._scoring_history=createScoringHistoryTable(model._output);
   model._output._training_metrics=makeTrainingMetrics(model);

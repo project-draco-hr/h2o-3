@@ -22,7 +22,7 @@
   }
  else {
     if (_parms._init == Initialization.Random) {
-      centers=new double[_parms._k][model._output.nfeatures()];
+      centers=new double[k][model._output.nfeatures()];
       for (      double[] center : centers)       randomRow(vecs,rand,center,means,mults,modes);
     }
  else {
@@ -31,7 +31,7 @@
       model._output._iterations=0;
       while (model._output._iterations < 5) {
         SumSqr sqr=new SumSqr(centers,means,mults,modes,_isCats).doAll(vecs);
-        Sampler sampler=new Sampler(centers,means,mults,modes,_isCats,sqr._sqr,_parms._k * 3,_parms._seed,hasWeightCol()).doAll(vecs);
+        Sampler sampler=new Sampler(centers,means,mults,modes,_isCats,sqr._sqr,k * 3,_parms.getOrMakeRealSeed(),hasWeightCol()).doAll(vecs);
         centers=ArrayUtils.append(centers,sampler._sampled);
         if (stop_requested())         return null;
         model._output._centers_raw=destandardize(centers,_isCats,means,mults);
@@ -39,9 +39,10 @@
         model._output._iterations++;
         model.update(_job);
       }
-      centers=recluster(centers,rand,_parms._k,_parms._init,_isCats);
+      centers=recluster(centers,rand,k,_parms._init,_isCats);
       model._output._iterations=0;
     }
   }
+  assert(centers.length == k);
   return centers;
 }

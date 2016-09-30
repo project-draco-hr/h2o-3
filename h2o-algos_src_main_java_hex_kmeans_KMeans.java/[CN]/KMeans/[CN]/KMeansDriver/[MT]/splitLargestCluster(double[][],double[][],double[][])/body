@@ -1,0 +1,23 @@
+{
+  double[][] newCenters=Arrays.copyOf(centers,centers.length + 1);
+  for (int i=0; i < centers.length; ++i)   newCenters[i]=centers[i].clone();
+  double maxRange=0;
+  int clusterToSplit=0;
+  int dimToSplit=0;
+  for (int i=0; i < centers.length; ++i) {
+    double[] range=new double[hi[i].length];
+    for (int col=0; col < hi[i].length; col++) {
+      range[col]=hi[i][col] - lo[i][col];
+      if (range[col] > maxRange) {
+        clusterToSplit=i;
+        dimToSplit=col;
+        maxRange=range[col];
+      }
+    }
+  }
+  newCenters[newCenters.length - 1]=newCenters[clusterToSplit].clone();
+  double delta=hi[clusterToSplit][dimToSplit] - lo[clusterToSplit][dimToSplit];
+  newCenters[newCenters.length - 1][dimToSplit]=newCenters[clusterToSplit][dimToSplit] + delta / SPLIT_FRACTION;
+  newCenters[clusterToSplit][dimToSplit]-=delta / SPLIT_FRACTION;
+  return newCenters;
+}
