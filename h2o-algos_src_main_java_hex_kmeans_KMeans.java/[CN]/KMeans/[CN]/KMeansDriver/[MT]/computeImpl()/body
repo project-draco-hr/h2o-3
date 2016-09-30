@@ -20,12 +20,12 @@
     double sum_squares=0;
     final double rel_improvement_cutoff=Math.min(20.0 / train().numRows() + 0.5 / model._output.nfeatures(),.9);
     if (_parms._estimate_k)     Log.info("Cutoff for relative improvement in within_cluster_sum_of_squares: " + rel_improvement_cutoff);
+    Vec[] vecs2=Arrays.copyOf(vecs,vecs.length + 1);
+    vecs2[vecs2.length - 1]=vecs2[0].makeCon(-1);
     for (int k=startK; k <= _parms._k; ++k) {
       Log.info("Running Lloyds iteration for " + k + " centroids.");
       model._output._iterations=0;
       double[][] lo=null, hi=null;
-      Vec[] vecs2=Arrays.copyOf(vecs,vecs.length + 1);
-      vecs2[vecs2.length - 1]=vecs2[0].makeCon(-1);
       boolean stop=false;
       do {
         assert(centers.length == k);
@@ -41,10 +41,12 @@
           _job.update(1);
         }
         stop=(task._reassigned_count < Math.max(1,train().numRows() * TOLERANCE) || model._output._iterations >= _parms._max_iterations);
-        if (stop)         Log.info("Lloyds converged after " + model._output._iterations + " iterations.");
+        if (stop) {
+          if (model._output._iterations < _parms._max_iterations)           Log.info("Lloyds converged after " + model._output._iterations + " iterations.");
+ else           Log.info("Lloyds stopped after " + model._output._iterations + " iterations.");
+        }
       }
  while (!stop);
-      vecs2[vecs2.length - 1].remove();
       double sum_squares_now=model._output._tot_withinss;
       double rel_improvement;
       if (sum_squares == 0) {
@@ -69,8 +71,9 @@
         model.update(_job);
         _job.update(1);
       }
-      if (lo != null && hi != null)       centers=splitLargestCluster(centers,lo,hi);
+      if (lo != null && hi != null && _parms._estimate_k)       centers=splitLargestCluster(centers,lo,hi,means,mults,impute_cat,vecs2,k);
     }
+    vecs2[vecs2.length - 1].remove();
     Log.info(model._output._model_summary);
     Log.info(model._output._scoring_history);
     Log.info(((ModelMetricsClustering)model._output._training_metrics).createCentroidStatsTable().toString());
